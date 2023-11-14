@@ -25,6 +25,17 @@ namespace moris
     {
         // -----------------------------------------------------------------------------
 
+      private:
+
+        // store number of spatial dimensions
+        uint mNumSpatialDims = 0;
+
+        // determine mesh refinements in background mesh parameterlist, but apply in GEN, hence store it
+        std::string mGenRefineMeshIndices = "";
+        std::string mGenNumRefinements    = "";
+
+        // -----------------------------------------------------------------------------
+
       public:
         // -----------------------------------------------------------------------------
 
@@ -55,6 +66,24 @@ namespace moris
          */
         void
         load_parameters_from_xml() override;
+
+        // -----------------------------------------------------------------------------
+
+        void
+        load_HMR_parameters_from_xml(
+                std::string const & aHmrPath,
+                std::string const & aXtkPath );
+
+        void
+        load_XTK_parameters_from_xml(
+                std::string const & aXtkPath,
+                std::string const & aHmrPath );
+
+        void
+        load_GEN_parameters_from_xml(
+                std::string const & aGenPath,
+                std::string const & aHmrPath,
+                std::string const & aXtkPath );
 
         // -----------------------------------------------------------------------------
 

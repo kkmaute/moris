@@ -33,6 +33,6 @@ if(NOT TARGET ${MORIS}::lbfgsb)
 	_import_libraries(LBFGSB_LIBRARY_TARGETS ${LBFGSB_LIBRARIES})
 
 	add_library(${MORIS}::lbfgsb INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(${MORIS}::lbfgsb INTERFACE ${LBFGSB_LIBRARY_TARGETS})
+	target_link_libraries(${MORIS}::lbfgsb INTERFACE  ${LBFGSB_LIBRARY_TARGETS} ${MORIS_LIB_GFortran} )
 endif()
 

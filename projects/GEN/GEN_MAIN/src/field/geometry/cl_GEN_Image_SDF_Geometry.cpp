@@ -205,8 +205,8 @@ namespace moris
         void
         Image_SDF_Geometry::read_image_sdf_data( std::string aImageFiledName )
         {
-            // open hdf5 file
-            hid_t  tFileID = open_hdf5_file( aImageFiledName );
+            // open hdf5 file (no parallel extension, read only)
+            hid_t  tFileID = open_hdf5_file( aImageFiledName, false, true );
             herr_t tStatus = 0;
 
             // load image dimensions (number of pixels/voxels)
@@ -279,4 +279,3 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
     }    // namespace ge
 }    // namespace moris
-

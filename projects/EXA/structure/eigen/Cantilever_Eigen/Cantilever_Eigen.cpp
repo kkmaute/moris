@@ -553,8 +553,8 @@ namespace moris
     void
     SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
     {
-        tParameterlist.resize( 7 );
-        for ( uint Ik = 0; Ik < 7; Ik++ )
+        tParameterlist.resize( 8 );
+        for ( uint Ik = 0; Ik < 8; Ik++ )
         {
             tParameterlist( Ik ).resize( 1 );
         }
@@ -572,17 +572,10 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "MaxRestarts", 20 );
         tParameterlist( 0 )( 0 ).set( "Convergence_Tolerance", 1e-05 );
         tParameterlist( 0 )( 0 ).set( "Relative_Convergence_Tolerance", true );
-
-        // Ifpack Preconditioner parameters
-        tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "Amesos" );
-        tParameterlist( 0 )( 0 ).set( "amesos: solver type", gPrecSolver );    // Amesos_Umfpack or Amesos_Pardiso
+        tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
         // Ml Preconditioner parameters
         // tParameterlist( 0 )( 0 ).set( "ml_prec_type", "NSSA"); // options: SA, NSSA, DD, DD-ML
-
-        // Preconditioner parameters
-        tParameterlist( 0 )( 0 ).set( "overlap-level", 0 );
-        tParameterlist( 0 )( 0 ).set( "schwarz: combine mode", "add" );    // for Amesos_Umfpack and Amesos_Pardiso provide this parameter with "add" mode
 
         // Print eigenvector parameter
         //tParameterlist( 0 )( 0 ).set( "Print_vector", "LINSOL_EXPORT_MATLAB" );
@@ -615,6 +608,14 @@ namespace moris
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "MassMat" );
+
+        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::IFPACK);
+        // Ifpack Preconditioner parameters
+        tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "Amesos" );
+        tParameterlist( 7 )( 0 ).set( "amesos: solver type", gPrecSolver );    // Amesos_Umfpack or Amesos_Pardiso
+        // Preconditioner parameters
+        tParameterlist( 7 )( 0 ).set( "overlap-level", 0 );
+        tParameterlist( 7 )( 0 ).set( "schwarz: combine mode", "add" );    // for Amesos_Umfpack and Amesos_Pardiso provide this parameter with "add" mode
     }
 
     void

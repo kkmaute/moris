@@ -167,7 +167,7 @@ main(
 //     * - ELEMENT_LEVEL : the level on which the element lives
 //     *
 //     * - ELEMENT_MEMORY_INDEX : the position of the element in the internal memory.
-//     *                          HMR also stores deactive and refined elements.
+//     *                          HMR also stores deactivated and refined elements.
 //     *                          These elements are not visible to MTK.
 //     *
 //     *

@@ -68,7 +68,7 @@ namespace moris
         class Eigen_Solver : public Linear_Solver_Algorithm
         {
           private:
-            Preconditioner_Trilinos mPrec;
+            Preconditioner_Trilinos* mLeftPreconditioner = nullptr;
 
           protected:
             typedef Epetra_MultiVector                                    MV;
@@ -86,8 +86,8 @@ namespace moris
             Anasazi::BasicOutputManager< double > mPrinter;
             Teuchos::RCP< Epetra_MultiVector >    mIvec;
 
-            Teuchos::RCP< Epetra_RowMatrix > mSPmat;        // K matrix sparse
-            Teuchos::RCP< Epetra_RowMatrix > mSPmassmat;    // M matrix sparse
+            Teuchos::RCP< Epetra_Operator > mSPmat;        // K matrix sparse
+            Teuchos::RCP< Epetra_Operator > mSPmassmat;    // M matrix sparse
 
             sol::Dist_Map* mMap;
 
@@ -106,6 +106,8 @@ namespace moris
             sol::EigSolMethod mEigSolMethod;
 
             Epetra_LinearProblem mEpetraProblem;
+
+            bool mComputePrecondionerOpertor = false;
 
           public:
             //-----------------------------------------------------------------------
@@ -129,7 +131,7 @@ namespace moris
              * @brief extracts mass and stiffness matrix from linear system
              */
 
-            void build_linearized_system();
+            void build_linearized_system( Linear_Problem* aLinearSystem );
 
             //-----------------------------------------------------------------------
             /**
@@ -229,6 +231,19 @@ namespace moris
             get_eigen_values()
             {
                 return mevals;
+            }
+
+            //-------------------------------------------------------------------------------------------------
+
+            /**
+             * set the left hand side preocndioer, is useful for eigenanlaysis of the P^{-1}A system instead of the A system
+             *
+             */
+
+            virtual void
+            set_left_hand_side_preconditioner( Preconditioner_Trilinos* aPreconditioner )
+            {
+                mLeftPreconditioner = aPreconditioner;
             }
         };
 

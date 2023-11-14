@@ -129,6 +129,9 @@ Linear_Solver::solver_linear_system(
     moris::sint tMaxNumLinRestarts =
             mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
 
+    std::string tRHSMatrixType = mParameterListLinearSolver.get< std::string >( "RHS_Matrix_Type" );
+    aLinearProblem->set_rhs_matrix_type( tRHSMatrixType );
+
     // if printing of LHS requested through input file, initialize hdf5 files here
     // and save LHS before and after solve
     if ( !this->get_LHS_output_filename().empty() )
@@ -209,4 +212,7 @@ Linear_Solver::set_linear_solver_manager_parameters()
 
     // Determines if lin solve should restart on fail
     mParameterListLinearSolver.insert( "DLA_rebuild_lin_solver_on_fail", false );
+
+    // RHS matrix type ( for eigen analysis )
+    mParameterListLinearSolver.insert( "RHS_Matrix_Type", "" );
 }

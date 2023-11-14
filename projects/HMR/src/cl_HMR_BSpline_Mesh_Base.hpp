@@ -267,7 +267,7 @@ namespace moris::hmr
          *
          *      - refined, if all connected elements are refined or padding
          *
-         *      - deactive, if at least one element is deactive ( or does not exist)
+         *      - deactivated, if at least one element is deactivated ( or does not exist)
          *
          *
          *  Form these rules, some statements ( see comments in source ) have been developed.

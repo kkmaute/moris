@@ -70,6 +70,23 @@ namespace moris
             Expur,                 // Exponential with under-relaxation (based on Ceze and Fidkowski, 2013)
             Comsol                 // COMSOL ( see COMSOL_CFDModuleUsersGuide 6.0, page 92, 241)
         };
+
+        // enum for the type of preconditioner
+        enum class PreconditionerType
+        {
+            NONE,
+            IFPACK,    // Ifpack
+            ML,        // ML
+            END_ENUM
+        };
+
+        enum class EiegnSolverType
+        {
+            NONE,
+            ANASAZI,    // Anasazi
+            SLEPC,      // SLEPc
+            END_ENUM
+        };
     }    // namespace sol
 }    // namespace moris
 

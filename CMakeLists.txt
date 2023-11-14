@@ -12,8 +12,8 @@
 # The extension 'a' is added for a static library.
 # Result is 'Linking CXX static library libmoris.a'.
 
-# Require CMake 3.1
-cmake_minimum_required(VERSION 3.3.2)
+# Require CMake 3.17
+cmake_minimum_required(VERSION 3.17)
 
 # Guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -323,7 +323,7 @@ option(BUILD_WRK "Build the workflow executable." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
 
-option(BUILD_MIG "Build the MIG executable." ON)
+option(BUILD_MIG "Build the MIG executable." OFF)
 
 # -------------------------------------------------------------------------
 # Macros
@@ -371,7 +371,8 @@ include(CheckCXXCompilerFlag)
 # note: should be done similar to find_modules find_library
 
 # generate search path from LD_LIBRARY_PATH
-string(REPLACE ":" ";" LIB_SEARCH_PATH "$ENV{LD_LIBRARY_PATH}")
+string(CONCAT LIB_SEARCH_PATH "$ENV{LD_LIBRARY_PATH}" ":" "$ENV{SPACK_LINK_DIRS}")
+string(REPLACE ":" ";" LIB_SEARCH_PATH ${LIB_SEARCH_PATH})
 list(REMOVE_DUPLICATES LIB_SEARCH_PATH)
 message(STATUS "Library search path: ${LIB_SEARCH_PATH}")
 
@@ -509,7 +510,7 @@ else()
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
         if (MORIS_USE_INTEL)
-	        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -xCORE-AVX2 -mkl:sequential -ip")
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -xCORE-AVX2 -mkl:sequential -ip")
         else()
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
         endif()
@@ -731,19 +732,15 @@ if (MORIS_USE_LAPACK)
 endif()
 
 if (MORIS_USE_ACML)
-    #include(${SHARE}/${CMAKE}/acml.cmake)
     set(ACML_LAPACK_MKL_OPENBLAS "acml")
 elseif(MORIS_USE_MKL)
-    #include(${SHARE}/${CMAKE}/mkl.cmake)
     set(ACML_LAPACK_MKL_OPENBLAS "mkl")
 elseif(MORIS_USE_LAPACK)
-    #include(${SHARE}/${CMAKE}/lapack.cmake)
     set(ACML_LAPACK_MKL_OPENBLAS "lapack")
 elseif(MORIS_USE_OPENBLAS)
-    #include(${SHARE}/${CMAKE}/openblas.cmake)
     set(ACML_LAPACK_MKL_OPENBLAS "openblas")
 else()
-    message(FATAL_ERROR "MORIS only supports the ACML, OPENBLAS, LAPACK, and MKL linear algebra libraries." )
+    message(FATAL_ERROR "MORIS only supports the AMDBLAS (amdblis/amdlibflame), OPENBLAS, LAPACK, and MKL linear algebra libraries." )
 endif()
 
 if (MORIS_USE_32BIT)
@@ -939,22 +936,16 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 #include_directories(${MORIS_DEPENDS_DIR})
 include(${MORIS_DEPENDS_DIR}/MRS_includes.cmake)
 
-if(MORIS_USE_TESTS)
-    include(${MORIS_DEPENDS_DIR}/test_includes.cmake)
-endif()
-
-if(BUILD_MAIN)
-    include(${MORIS_DEPENDS_DIR}/main_includes.cmake)
-else()
-    set(MORIS_USE_EXAMPLES OFF CACHE BOOL "Build the examples." FORCE)
-endif()
-
 if(BUILD_ALL)
     include(${MORIS_CMAKE_DIR}/utilities/build_all_exe.cmake)
 endif()
 
 if(BUILD_NONE)
     include(${MORIS_CMAKE_DIR}/utilities/build_none_exe.cmake)
+endif()
+
+if(BUILD_MAIN)
+    include(${MORIS_DEPENDS_DIR}/main_includes.cmake)
 endif()
 
 if(BUILD_ALG)
@@ -972,10 +963,6 @@ endif()
 if(BUILD_FEM)
     include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
 endif()
-
-#if(BUILD_GE)
-#    include(${MORIS_DEPENDS_DIR}/GE_Depends.cmake)
-#endif()
 
 if(BUILD_GEN)
     include(${MORIS_DEPENDS_DIR}/GEN_Depends.cmake)
@@ -1000,10 +987,6 @@ endif()
 if(BUILD_MDL)
     include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 endif()
-
-#if(BUILD_MOD)
-#    include(${MORIS_DEPENDS_DIR}/MOD_Depends.cmake)
-#endif()
 
 if(BUILD_MSI)
     include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
@@ -1032,10 +1015,6 @@ endif()
 if(BUILD_SDF)
     include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
 endif()
-
-# if(BUILD_TIN)
-#    include(${MORIS_DEPENDS_DIR}/TIN_Depends.cmake)
-# endif()
 
 if(BUILD_TOL)
     include(${MORIS_DEPENDS_DIR}/TOL_Depends.cmake)
@@ -1072,13 +1051,8 @@ if(MORIS_USE_EIGEN)
 endif()
 
 # -------------------------------------------------------------------------
-# MORIS unit tests --------------------------------------------------------
+# MORIS valgrind  --------------------------------------------------------
 # -------------------------------------------------------------------------
-if(MORIS_HAVE_PARALLEL_TESTS)
-    set(MORIS_TEST_PROCS 1 2 4)
-    set(MORIS_TEST_PROCS_HMR 1 2 4 12)
-endif()
-
 if (MORIS_USE_VALGRIND)
     set(VALGRIND valgrind)
     set(VALGRIND_OPTIONS "")
@@ -1087,6 +1061,18 @@ else()
     set(VALGRIND "")
     set(VALGRIND_OPTIONS "")
     set(VALGRIND_OPTIONS_EXA "")
+endif()
+
+# -------------------------------------------------------------------------
+# MORIS unit tests --------------------------------------------------------
+# -------------------------------------------------------------------------
+if(MORIS_USE_TESTS)
+    include(${MORIS_DEPENDS_DIR}/test_includes.cmake)
+endif()
+
+if(MORIS_HAVE_PARALLEL_TESTS)
+    set(MORIS_TEST_PROCS 1 2 4)
+    set(MORIS_TEST_PROCS_HMR 1 2 4 12)
 endif()
 
 # -------------------------------------------------------------------------

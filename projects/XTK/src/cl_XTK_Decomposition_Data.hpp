@@ -23,543 +23,542 @@ namespace xtk
 {
     struct Decomposition_Data
     {
-            Decomposition_Data() :
-                tCMNewNodeLoc( 0, 0 ),
-                tNewNodeIndex( 0, 0 ),
-                tNewNodeId( 0, 0 ),
-                tNewNodeOwner( 0, 0 ),
-                tNewNodeParentIndex( 0, 0 ),
-                tNewNodeParentRank( 0, mtk::EntityRank::INVALID ),
-                tNewNodeCoordinate( 0, Matrix< DDRMat >( 0, 0 ) ),
-                mNumNewNodesWithIds( 0 )
-            {
-            }
+        Decomposition_Data()
+                : tCMNewNodeLoc( 0, 0 )
+                , tNewNodeIndex( 0, 0 )
+                , tNewNodeId( 0, 0 )
+                , tNewNodeOwner( 0, 0 )
+                , tNewNodeParentIndex( 0, 0 )
+                , tNewNodeParentRank( 0, mtk::EntityRank::INVALID )
+                , tNewNodeCoordinate( 0, Matrix< DDRMat >( 0, 0 ) )
+                , mNumNewNodesWithIds( 0 )
+        {
+        }
 
-            ~Decomposition_Data()
+        ~Decomposition_Data()
+        {
+            for ( uint i = 0; i < tNewNodeParentTopology.size(); i++ )
             {
-                for ( uint i = 0; i < tNewNodeParentTopology.size(); i++ )
+                delete tNewNodeParentTopology( i );
+            }
+        }
+
+        /*!
+         * Returns whether the request has been made and the request location
+         * relative to tCMNewNodeLoc cell if it is not a new one aRequestLoc = MORIS_INDEX_MAX
+         */
+        bool
+        request_exists( moris_index aParentEntityIndex,
+                mtk::EntityRank     aParentEntityRank,
+                moris_index&        aRequestLoc )
+        {
+            MORIS_ASSERT( !mHasSecondaryIdentifier, "request_exists without a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
+            bool tRequestExists = false;
+            aRequestLoc         = MORIS_INDEX_MAX;
+            switch ( aParentEntityRank )
+            {
+                case mtk::EntityRank::ELEMENT:
                 {
-                    delete tNewNodeParentTopology( i );
+                    auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
+                    if ( tIter != tElementIndexToNodeLoc.end() )
+                    {
+                        tRequestExists = true;
+                        aRequestLoc    = tIter->second;
+                    }
+                    break;
+                }
+                case mtk::EntityRank::FACE:
+                {
+                    auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
+                    if ( tIter != tFaceIndexToNodeLoc.end() )
+                    {
+                        tRequestExists = true;
+                        aRequestLoc    = tIter->second;
+                    }
+                    break;
+                }
+                case mtk::EntityRank::EDGE:
+                {
+
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
+                    return false;
+                    break;
                 }
             }
 
-            /*!
-             * Returns whether the request has been made and the request location
-             * relative to tCMNewNodeLoc cell if it is not a new one aRequestLoc = MORIS_INDEX_MAX
-             */
-            bool
-            request_exists( moris_index aParentEntityIndex,
-                    mtk::EntityRank         aParentEntityRank,
-                    moris_index&            aRequestLoc )
+            return tRequestExists;
+        }
+
+        /*!
+         *
+         */
+        bool
+        request_exists( moris_index aParentEntityIndex,
+                moris_index         aParentSecondaryIdentifier,
+                mtk::EntityRank     aParentEntityRank,
+                moris_index&        aRequestLoc )
+        {
+            MORIS_ASSERT( mHasSecondaryIdentifier,
+                    "request_exists with a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
+            bool tRequestExists = false;
+            aRequestLoc         = MORIS_INDEX_MAX;
+
+            switch ( aParentEntityRank )
             {
-                MORIS_ASSERT( !mHasSecondaryIdentifier, "request_exists without a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
-                bool tRequestExists = false;
-                aRequestLoc         = MORIS_INDEX_MAX;
-                switch ( aParentEntityRank )
+                case mtk::EntityRank::ELEMENT:
                 {
-                    case mtk::EntityRank::ELEMENT:
+                    auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
+
+                    // if the iterator is not in the map then this is a request made on a parent element which has not had any requests in it yet.
+                    if ( tIter == tElementIndexToNodeLoc.end() )
                     {
-                        auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
-                        if ( tIter != tElementIndexToNodeLoc.end() )
+                        break;
+                    }
+
+                    // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
+                    else
+                    {
+                        // location of parent entity cell with secondary map
+                        moris_index tParentEntityLoc = tIter->second;
+
+                        auto tSecondIter = mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
+                        if ( tSecondIter != mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
+                        {
+                            aRequestLoc    = tSecondIter->second;
+                            tRequestExists = true;
+                        }
+                    }
+                    break;
+                }
+                case mtk::EntityRank::FACE:
+                {
+                    auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
+
+                    // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
+                    if ( tIter == tFaceIndexToNodeLoc.end() )
+                    {
+                        break;
+                    }
+
+                    // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
+                    else
+                    {
+                        // location of parent entity in cell of secondary maps
+                        moris_index tParentEntityLoc = tIter->second;
+
+                        // iterator of the secondary identifier
+                        auto tSecondIter = mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
+
+                        // if this secondary identifier does not show up then, it is a new request
+                        if ( tSecondIter != mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
                         {
                             tRequestExists = true;
-                            aRequestLoc    = tIter->second;
+                            aRequestLoc    = tSecondIter->second;
                         }
+                    }
+                    break;
+                }
+                case mtk::EntityRank::EDGE:
+                {
+                    auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
+
+                    // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
+                    if ( tIter == mEdgeIndexToNodeLoc.end() )
+                    {
                         break;
                     }
-                    case mtk::EntityRank::FACE:
+
+                    // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
+                    else
                     {
-                        auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
-                        if ( tIter != tFaceIndexToNodeLoc.end() )
+                        // location of parent entity in cell of secondary maps
+                        moris_index tParentEntityLoc = tIter->second;
+
+                        // iterator of the secondary identifier
+                        auto tSecondIter = mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
+
+                        // if this secondary identifier does not show up then, it is a new request
+                        if ( tSecondIter != mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
                         {
                             tRequestExists = true;
-                            aRequestLoc    = tIter->second;
+                            aRequestLoc    = tSecondIter->second;
                         }
-                        break;
                     }
-                    case mtk::EntityRank::EDGE:
-                    {
-
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
-                        return false;
-                        break;
-                    }
+                    break;
                 }
-
-                return tRequestExists;
-            }
-
-            /*!
-             *
-             */
-            bool
-            request_exists( moris_index aParentEntityIndex,
-                    moris_index             aParentSecondaryIdentifier,
-                    mtk::EntityRank         aParentEntityRank,
-                    moris_index&            aRequestLoc )
-            {
-                MORIS_ASSERT( mHasSecondaryIdentifier,
-                        "request_exists with a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
-                bool tRequestExists = false;
-                aRequestLoc         = MORIS_INDEX_MAX;
-
-                switch ( aParentEntityRank )
+                default:
                 {
-                    case mtk::EntityRank::ELEMENT:
-                    {
-                        auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
-
-                        // if the iterator is not in the map then this is a request made on a parent element which has not had any requests in it yet.
-                        if ( tIter == tElementIndexToNodeLoc.end() )
-                        {
-                            break;
-                        }
-
-                        // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
-                        else
-                        {
-                            // location of parent entity cell with secondary map
-                            moris_index tParentEntityLoc = tIter->second;
-
-                            auto tSecondIter = mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
-                            if ( tSecondIter != mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
-                            {
-                                aRequestLoc    = tSecondIter->second;
-                                tRequestExists = true;
-                            }
-                        }
-                        break;
-                    }
-                    case mtk::EntityRank::FACE:
-                    {
-                        auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
-
-                        // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
-                        if ( tIter == tFaceIndexToNodeLoc.end() )
-                        {
-                            break;
-                        }
-
-                        // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
-                        else
-                        {
-                            // location of parent entity in cell of secondary maps
-                            moris_index tParentEntityLoc = tIter->second;
-
-                            // iterator of the secondary identifier
-                            auto tSecondIter = mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
-
-                            // if this secondary identifier does not show up then, it is a new request
-                            if ( tSecondIter != mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
-                            {
-                                tRequestExists = true;
-                                aRequestLoc    = tSecondIter->second;
-                            }
-                        }
-                        break;
-                    }
-                    case mtk::EntityRank::EDGE:
-                    {
-                        auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
-
-                        // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
-                        if ( tIter == mEdgeIndexToNodeLoc.end() )
-                        {
-                            break;
-                        }
-
-                        // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
-                        else
-                        {
-                            // location of parent entity in cell of secondary maps
-                            moris_index tParentEntityLoc = tIter->second;
-
-                            // iterator of the secondary identifier
-                            auto tSecondIter = mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
-
-                            // if this secondary identifier does not show up then, it is a new request
-                            if ( tSecondIter != mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
-                            {
-                                tRequestExists = true;
-                                aRequestLoc    = tSecondIter->second;
-                            }
-                        }
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
-                        return false;
-                        break;
-                    }
-                } // end: switch ( aParentEntityRank )
-
-                return tRequestExists;
-            }
-
-            moris_index
-            register_new_request(
-                    moris_index                         aParentEntityIndex,
-                    moris_index                         aParentEntityOwner,
-                    mtk::EntityRank                     aParentEntityRank,
-                    Matrix< DDRMat > const&             aNewNodeCoord,
-                    moris::mtk::Cell*                   aNewVertexParentCell,
-                    std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCooridnates )
-            {
-                MORIS_ASSERT( !mHasSecondaryIdentifier, "register_new_request w/o a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
-
-                moris_index tRequestIndex = tNewNodeIndex.size();
-
-                // push back the location for the node id and index
-                // maximum value here because it is not known
-                tNewNodeIndex.push_back( MORIS_INDEX_MAX );
-                tNewNodeId.push_back( MORIS_INDEX_MAX );
-                tNewNodeOwner.push_back( aParentEntityOwner );
-
-                // add node parent information
-                tNewNodeParentIndex.push_back( aParentEntityIndex );
-                tNewNodeParentRank.push_back( aParentEntityRank );
-                tNewNodeCoordinate.push_back( aNewNodeCoord );
-                mNewNodeParentCells.push_back( aNewVertexParentCell );
-                mNewVertexLocalCoordWRTParentCell.push_back( aNewVertexLocalCooridnates );
-
-                switch ( aParentEntityRank )
-                {
-                    case mtk::EntityRank::ELEMENT:
-                    {
-                        // Check if this entity already exists in debug only
-                        MORIS_ASSERT( tElementIndexToNodeLoc.find( aParentEntityIndex ) == tElementIndexToNodeLoc.end(), "New request being made which already exists" );
-
-                        // add to map
-                        tElementIndexToNodeLoc[aParentEntityIndex] = tRequestIndex;
-                        break;
-                    }
-                    case mtk::EntityRank::FACE:
-                    {
-                        // Check if this entity already exists in debug only
-                        MORIS_ASSERT( tFaceIndexToNodeLoc.find( aParentEntityIndex ) == tFaceIndexToNodeLoc.end(), "New request being made which already exists" );
-
-                        // add to map
-                        tFaceIndexToNodeLoc[aParentEntityIndex] = tRequestIndex;
-                        break;
-                    }
-                    case mtk::EntityRank::EDGE:
-                    {
-                        // Check if this entity already exists in debug only
-                        MORIS_ASSERT( tEdgeIndexToNodeLoc.find( aParentEntityIndex ) == tEdgeIndexToNodeLoc.end(), "New request being made which already exists" );
-
-                        // add to map
-                        tEdgeIndexToNodeLoc[aParentEntityIndex] = tRequestIndex;
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
-                        return false;
-                        break;
-                    }
+                    MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
+                    return false;
+                    break;
                 }
+            }    // end: switch ( aParentEntityRank )
 
-                return tRequestIndex;
-            }
+            return tRequestExists;
+        }
 
-            moris_index
-            register_new_request(
-                    moris_index                         aParentEntityIndex,
-                    moris_index                         aSecondaryIdentifier,
-                    moris_index                         aParentEntityOwner,
-                    mtk::EntityRank                     aParentEntityRank,
-                    Matrix< DDRMat > const&             aNewNodeCoord,
-                    moris::mtk::Cell*                   aNewVertexParentCell       = nullptr,
-                    std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCooridnates = nullptr )
+        moris_index
+        register_new_request(
+                moris_index                         aParentEntityIndex,
+                moris_index                         aParentEntityOwner,
+                mtk::EntityRank                     aParentEntityRank,
+                Matrix< DDRMat > const &            aNewNodeCoord,
+                moris::mtk::Cell*                   aNewVertexParentCell,
+                std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCooridnates )
+        {
+            MORIS_ASSERT( !mHasSecondaryIdentifier, "register_new_request w/o a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
+
+            moris_index tRequestIndex = tNewNodeIndex.size();
+
+            // push back the location for the node id and index
+            // maximum value here because it is not known
+            tNewNodeIndex.push_back( MORIS_INDEX_MAX );
+            tNewNodeId.push_back( MORIS_INDEX_MAX );
+            tNewNodeOwner.push_back( aParentEntityOwner );
+
+            // add node parent information
+            tNewNodeParentIndex.push_back( aParentEntityIndex );
+            tNewNodeParentRank.push_back( aParentEntityRank );
+            tNewNodeCoordinate.push_back( aNewNodeCoord );
+            mNewNodeParentCells.push_back( aNewVertexParentCell );
+            mNewVertexLocalCoordWRTParentCell.push_back( aNewVertexLocalCooridnates );
+
+            switch ( aParentEntityRank )
             {
-                MORIS_ASSERT( mHasSecondaryIdentifier, "register_new_request with a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
-
-                moris_index tRequestIndex = tNewNodeIndex.size();
-
-                // push back the location for the node id and index
-                // maximum value here because it is not known
-                tNewNodeIndex.push_back( MORIS_INDEX_MAX );
-                tNewNodeId.push_back( MORIS_INDEX_MAX );
-
-                tNewNodeOwner.push_back( aParentEntityOwner );
-
-                // add node parent information
-                tNewNodeParentIndex.push_back( aParentEntityIndex );
-                tNewNodeParentRank.push_back( aParentEntityRank );
-                tSecondaryIdentifiers.push_back( aSecondaryIdentifier );
-                tNewNodeCoordinate.push_back( aNewNodeCoord );
-
-                // for octree refinement
-                mNewNodeParentCells.push_back( aNewVertexParentCell );
-                mNewVertexLocalCoordWRTParentCell.push_back( aNewVertexLocalCooridnates );
-
-                // add information to the maps
-                switch ( aParentEntityRank )
+                case mtk::EntityRank::ELEMENT:
                 {
-                    case mtk::EntityRank::ELEMENT:
-                    {
-                        auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
+                    // Check if this entity already exists in debug only
+                    MORIS_ASSERT( tElementIndexToNodeLoc.find( aParentEntityIndex ) == tElementIndexToNodeLoc.end(), "New request being made which already exists" );
 
-                        // if this parent entity has no requests made we need to setup some things
-                        if ( tIter == tElementIndexToNodeLoc.end() )
-                        {
-                            // cell where this parent entity is going to
-                            moris::moris_index tParentEntityLoc        = mElementIndexToSecondaryIdAndNewNodeLoc.size();
-                            tElementIndexToNodeLoc[aParentEntityIndex] = tParentEntityLoc;
-                            mElementIndexToSecondaryIdAndNewNodeLoc.push_back( std::unordered_map< moris_index, moris_index >() );
-                        }
-
-                        moris_index tParentEntityLoc = tElementIndexToNodeLoc[aParentEntityIndex];
-
-                        // check that the secondary id does not exist already
-                        MORIS_ASSERT( mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aSecondaryIdentifier ) == mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end(), "New request being made which already exists" );
-
-                        // add to map
-                        mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[aSecondaryIdentifier] = tRequestIndex;
-                        break;
-                    }
-                    case mtk::EntityRank::FACE:
-                    {
-                        auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
-
-                        // if this parent entity has no requests made we need to setup some things
-                        if ( tIter == tFaceIndexToNodeLoc.end() )
-                        {
-                            // cell where this parent entity is going to
-                            moris::moris_index tParentEntityLoc = mFaceIndexToSecondaryIdAndNewNodeLoc.size();
-
-                            tFaceIndexToNodeLoc[aParentEntityIndex] = tParentEntityLoc;
-
-                            mFaceIndexToSecondaryIdAndNewNodeLoc.push_back( std::unordered_map< moris_index, moris_index >() );
-                        }
-
-                        moris_index tParentEntityLoc = tFaceIndexToNodeLoc[aParentEntityIndex];
-
-                        // check that the secondary id exists
-                        MORIS_ASSERT( mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aSecondaryIdentifier ) == mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end(), "New request being made which already exists" );
-
-                        // add to map
-                        mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[aSecondaryIdentifier] = tRequestIndex;
-                        break;
-                    }
-                    case mtk::EntityRank::EDGE:
-                    {
-
-                        auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
-
-                        // if this parent entity has no requests made we need to setup some things
-                        if ( tIter == mEdgeIndexToNodeLoc.end() )
-                        {
-                            // cell where this parent entity is going to
-                            moris::moris_index tParentEntityLoc = mEdgeIndexToSecondaryIdAndNewNodeLoc.size();
-
-                            mEdgeIndexToNodeLoc[aParentEntityIndex] = tParentEntityLoc;
-
-                            mEdgeIndexToSecondaryIdAndNewNodeLoc.push_back( std::unordered_map< moris_index, moris_index >() );
-                        }
-
-                        moris_index tParentEntityLoc = mEdgeIndexToNodeLoc[aParentEntityIndex];
-
-                        // check that the secondary id exists
-                        MORIS_ASSERT( mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aSecondaryIdentifier ) == mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end(), "New request being made which already exists" );
-
-                        // add to map
-                        mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[aSecondaryIdentifier] = tRequestIndex;
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
-                        return false;
-                        break;
-                    }
+                    // add to map
+                    tElementIndexToNodeLoc[ aParentEntityIndex ] = tRequestIndex;
+                    break;
                 }
-                return tRequestIndex;
+                case mtk::EntityRank::FACE:
+                {
+                    // Check if this entity already exists in debug only
+                    MORIS_ASSERT( tFaceIndexToNodeLoc.find( aParentEntityIndex ) == tFaceIndexToNodeLoc.end(), "New request being made which already exists" );
+
+                    // add to map
+                    tFaceIndexToNodeLoc[ aParentEntityIndex ] = tRequestIndex;
+                    break;
+                }
+                case mtk::EntityRank::EDGE:
+                {
+                    // Check if this entity already exists in debug only
+                    MORIS_ASSERT( tEdgeIndexToNodeLoc.find( aParentEntityIndex ) == tEdgeIndexToNodeLoc.end(), "New request being made which already exists" );
+
+                    // add to map
+                    tEdgeIndexToNodeLoc[ aParentEntityIndex ] = tRequestIndex;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
+                    return false;
+                    break;
+                }
             }
 
-            void
-            print_requests(
-                    moris::mtk::Mesh const& aBackgroundMesh,
-                    std::string             aFile = "" )
+            return tRequestIndex;
+        }
+
+        moris_index
+        register_new_request(
+                moris_index                         aParentEntityIndex,
+                moris_index                         aSecondaryIdentifier,
+                moris_index                         aParentEntityOwner,
+                mtk::EntityRank                     aParentEntityRank,
+                Matrix< DDRMat > const &            aNewNodeCoord,
+                moris::mtk::Cell*                   aNewVertexParentCell       = nullptr,
+                std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCooridnates = nullptr )
+        {
+            MORIS_ASSERT( mHasSecondaryIdentifier, "register_new_request with a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
+
+            moris_index tRequestIndex = tNewNodeIndex.size();
+
+            // push back the location for the node id and index
+            // maximum value here because it is not known
+            tNewNodeIndex.push_back( MORIS_INDEX_MAX );
+            tNewNodeId.push_back( MORIS_INDEX_MAX );
+
+            tNewNodeOwner.push_back( aParentEntityOwner );
+
+            // add node parent information
+            tNewNodeParentIndex.push_back( aParentEntityIndex );
+            tNewNodeParentRank.push_back( aParentEntityRank );
+            tSecondaryIdentifiers.push_back( aSecondaryIdentifier );
+            tNewNodeCoordinate.push_back( aNewNodeCoord );
+
+            // for octree refinement
+            mNewNodeParentCells.push_back( aNewVertexParentCell );
+            mNewVertexLocalCoordWRTParentCell.push_back( aNewVertexLocalCooridnates );
+
+            // add information to the maps
+            switch ( aParentEntityRank )
             {
-                std::stringstream oSS;
-                oSS << "Request_Index,";
-                oSS << "PRank,";
-                oSS << "Parent_Id,";
-                oSS << "Secondary_Id,";
-                oSS << "Parent_Rank,";
-                for ( size_t iSPH = 0; iSPH < aBackgroundMesh.get_spatial_dim(); iSPH++ )
+                case mtk::EntityRank::ELEMENT:
                 {
-                    oSS << "Coords_" << std::to_string( iSPH );
-                    if ( iSPH != aBackgroundMesh.get_spatial_dim() - 1 )
+                    auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
+
+                    // if this parent entity has no requests made we need to setup some things
+                    if ( tIter == tElementIndexToNodeLoc.end() )
+                    {
+                        // cell where this parent entity is going to
+                        moris::moris_index tParentEntityLoc          = mElementIndexToSecondaryIdAndNewNodeLoc.size();
+                        tElementIndexToNodeLoc[ aParentEntityIndex ] = tParentEntityLoc;
+                        mElementIndexToSecondaryIdAndNewNodeLoc.push_back( IndexMap() );
+                    }
+
+                    moris_index tParentEntityLoc = tElementIndexToNodeLoc[ aParentEntityIndex ];
+
+                    // check that the secondary id does not exist already
+                    MORIS_ASSERT( mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aSecondaryIdentifier ) == mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end(), "New request being made which already exists" );
+
+                    // add to map
+                    mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[ aSecondaryIdentifier ] = tRequestIndex;
+                    break;
+                }
+                case mtk::EntityRank::FACE:
+                {
+                    auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
+
+                    // if this parent entity has no requests made we need to setup some things
+                    if ( tIter == tFaceIndexToNodeLoc.end() )
+                    {
+                        // cell where this parent entity is going to
+                        moris::moris_index tParentEntityLoc = mFaceIndexToSecondaryIdAndNewNodeLoc.size();
+
+                        tFaceIndexToNodeLoc[ aParentEntityIndex ] = tParentEntityLoc;
+
+                        mFaceIndexToSecondaryIdAndNewNodeLoc.push_back( IndexMap() );
+                    }
+
+                    moris_index tParentEntityLoc = tFaceIndexToNodeLoc[ aParentEntityIndex ];
+
+                    // check that the secondary id exists
+                    MORIS_ASSERT( mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aSecondaryIdentifier ) == mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end(), "New request being made which already exists" );
+
+                    // add to map
+                    mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[ aSecondaryIdentifier ] = tRequestIndex;
+                    break;
+                }
+                case mtk::EntityRank::EDGE:
+                {
+
+                    auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
+
+                    // if this parent entity has no requests made we need to setup some things
+                    if ( tIter == mEdgeIndexToNodeLoc.end() )
+                    {
+                        // cell where this parent entity is going to
+                        moris::moris_index tParentEntityLoc = mEdgeIndexToSecondaryIdAndNewNodeLoc.size();
+
+                        mEdgeIndexToNodeLoc[ aParentEntityIndex ] = tParentEntityLoc;
+
+                        mEdgeIndexToSecondaryIdAndNewNodeLoc.push_back( IndexMap() );
+                    }
+
+                    moris_index tParentEntityLoc = mEdgeIndexToNodeLoc[ aParentEntityIndex ];
+
+                    // check that the secondary id exists
+                    MORIS_ASSERT( mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aSecondaryIdentifier ) == mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end(), "New request being made which already exists" );
+
+                    // add to map
+                    mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[ aSecondaryIdentifier ] = tRequestIndex;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
+                    return false;
+                    break;
+                }
+            }
+            return tRequestIndex;
+        }
+
+        void
+        print_requests(
+                moris::mtk::Mesh const & aBackgroundMesh,
+                std::string              aFile = "" )
+        {
+            std::stringstream oSS;
+            oSS << "Request_Index,";
+            oSS << "PRank,";
+            oSS << "Parent_Id,";
+            oSS << "Secondary_Id,";
+            oSS << "Parent_Rank,";
+            for ( size_t iSPH = 0; iSPH < aBackgroundMesh.get_spatial_dim(); iSPH++ )
+            {
+                oSS << "Coords_" << std::to_string( iSPH );
+                if ( iSPH != aBackgroundMesh.get_spatial_dim() - 1 )
+                {
+                    oSS << ",";
+                }
+            }
+
+            oSS << "\n";
+
+            for ( moris::uint i = 0; i < tNewNodeId.size(); i++ )
+            {
+                oSS << i << ",";
+                oSS << par_rank() << ",";
+                oSS << aBackgroundMesh.get_glb_entity_id_from_entity_loc_index( tNewNodeParentIndex( i ), tNewNodeParentRank( i ) );
+                oSS << tSecondaryIdentifiers( i );
+                oSS << get_enum_str( tNewNodeParentRank( i ) );
+                for ( moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++ )
+                {
+                    oSS << std::scientific << tNewNodeCoordinate( i )( j );
+                    if ( j != aBackgroundMesh.get_spatial_dim() - 1 )
                     {
                         oSS << ",";
                     }
                 }
-
                 oSS << "\n";
-
-                for ( moris::uint i = 0; i < tNewNodeId.size(); i++ )
-                {
-                    oSS << i << ",";
-                    oSS << par_rank() << ",";
-                    oSS << aBackgroundMesh.get_glb_entity_id_from_entity_loc_index( tNewNodeParentIndex( i ), tNewNodeParentRank( i ) );
-                    oSS << tSecondaryIdentifiers( i );
-                    oSS << get_enum_str( tNewNodeParentRank( i ) );
-                    for ( moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++ )
-                    {
-                        oSS << std::scientific << tNewNodeCoordinate( i )( j );
-                        if ( j != aBackgroundMesh.get_spatial_dim() - 1 )
-                        {
-                            oSS << ",";
-                        }
-                    }
-                    oSS << "\n";
-                }
-                if ( aFile.empty() == false )
-                {
-                    std::ofstream tOutputFile( aFile );
-                    tOutputFile << oSS.str() << std::endl;
-                    tOutputFile.close();
-                }
             }
-
-            void
-            print(
-                    moris::mtk::Mesh const& aBackgroundMesh,
-                    std::string             aFile = "" )
+            if ( aFile.empty() == false )
             {
-                // std::stringstream oSS;
-                // oSS << "Request_Index,";
-                // oSS << "PRank,";
-                // oSS << "Parent_Id,";
-                // oSS << "Secondary_Id,";
-                // oSS << "Parent_Rank,";
-                // oSS << "New_Vert_Id,";
-                // oSS << "New_Vert_Index,";
-                // for ( size_t iSPH = 0; iSPH < aBackgroundMesh.get_spatial_dim(); iSPH++ )
-                // {
-                //     oSS << "Coords_" << std::to_string( iSPH );
-                //     if ( iSPH != aBackgroundMesh.get_spatial_dim() - 1 )
-                //     {
-                //         oSS << ",";
-                //     }
-                // }
-
-                // oSS << "\n";
-
-                // for ( moris::uint i = 0; i < tNewNodeId.size(); i++ )
-                // {
-                //     oSS << i << ",";
-                //     oSS << par_rank() << ",";
-                //     oSS << aBackgroundMesh.get_glb_entity_id_from_entity_loc_index( tNewNodeParentIndex( i ), tNewNodeParentRank( i ) ) << ",";
-                //     oSS << tSecondaryIdentifiers( i ) << ",";
-                //     oSS << get_enum_str( tNewNodeParentRank( i ) ) << ",";
-                //     oSS << tNewNodeId( i ) << ",";
-                //     oSS << tNewNodeIndex( i ) << ",";
-
-                //     for ( moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++ )
-                //     {
-                //         oSS << std::scientific << tNewNodeCoordinate( i )( j );
-                //         if ( j != aBackgroundMesh.get_spatial_dim() - 1 )
-                //         {
-                //             oSS << ",";
-                //         }
-                //     }
-                //     oSS << "\n";
-                // }
-                // if ( aFile.empty() == false )
-                // {
-                //     std::ofstream tOutputFile( aFile );
-                //     tOutputFile << oSS.str() << std::endl;
-                //     tOutputFile.close();
-                // }
+                std::ofstream tOutputFile( aFile );
+                tOutputFile << oSS.str() << std::endl;
+                tOutputFile.close();
             }
+        }
 
-            moris_index tDecompId = 0;
+        void
+        print(
+                moris::mtk::Mesh const & aBackgroundMesh,
+                std::string              aFile = "" )
+        {
+            // std::stringstream oSS;
+            // oSS << "Request_Index,";
+            // oSS << "PRank,";
+            // oSS << "Parent_Id,";
+            // oSS << "Secondary_Id,";
+            // oSS << "Parent_Rank,";
+            // oSS << "New_Vert_Id,";
+            // oSS << "New_Vert_Index,";
+            // for ( size_t iSPH = 0; iSPH < aBackgroundMesh.get_spatial_dim(); iSPH++ )
+            // {
+            //     oSS << "Coords_" << std::to_string( iSPH );
+            //     if ( iSPH != aBackgroundMesh.get_spatial_dim() - 1 )
+            //     {
+            //         oSS << ",";
+            //     }
+            // }
 
-            // Store the decomposition method here (used for assertion purposes)
-            enum Subdivision_Method mSubdivisionMethod = Subdivision_Method::NO_METHOD;
+            // oSS << "\n";
 
-            // Specify whether the decomposition is conformal or note
-            // needed to tell geometry engine to store the edge a node was created once
-            bool mConformalDecomp        = false;
-            bool mHasSecondaryIdentifier = false;
-            bool mFirstSubdivision       = false;
+            // for ( moris::uint i = 0; i < tNewNodeId.size(); i++ )
+            // {
+            //     oSS << i << ",";
+            //     oSS << par_rank() << ",";
+            //     oSS << aBackgroundMesh.get_glb_entity_id_from_entity_loc_index( tNewNodeParentIndex( i ), tNewNodeParentRank( i ) ) << ",";
+            //     oSS << tSecondaryIdentifiers( i ) << ",";
+            //     oSS << get_enum_str( tNewNodeParentRank( i ) ) << ",";
+            //     oSS << tNewNodeId( i ) << ",";
+            //     oSS << tNewNodeIndex( i ) << ",";
 
-            // Active child mesh to its nodes location in tNewNodeIndex
-            Cell< Cell< moris_index > >      tCMNewNodeLoc;         // input: Cell group index || output: list of edge indices
-            Cell< Cell< Matrix< DDRMat > > > tCMNewNodeParamCoord;  // input: Cell group index || output: list of coordinates
-            /* Note: this stores some duplicate parametric coordinates but is necessary for flexible use*/
+            //     for ( moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++ )
+            //     {
+            //         oSS << std::scientific << tNewNodeCoordinate( i )( j );
+            //         if ( j != aBackgroundMesh.get_spatial_dim() - 1 )
+            //         {
+            //             oSS << ",";
+            //         }
+            //     }
+            //     oSS << "\n";
+            // }
+            // if ( aFile.empty() == false )
+            // {
+            //     std::ofstream tOutputFile( aFile );
+            //     tOutputFile << oSS.str() << std::endl;
+            //     tOutputFile.close();
+            // }
+        }
 
-            // New node indices
-            Cell< moris_index > tNewNodeIndex;
+        moris_index tDecompId = 0;
 
-            // new node ids
-            Cell< moris_index > tNewNodeId;
+        // Store the decomposition method here (used for assertion purposes)
+        enum Subdivision_Method mSubdivisionMethod = Subdivision_Method::NO_METHOD;
 
-            // new node owner
-            Cell< moris_index > tNewNodeOwner;
+        // Specify whether the decomposition is conformal or note
+        // needed to tell geometry engine to store the edge a node was created once
+        bool mConformalDecomp        = false;
+        bool mHasSecondaryIdentifier = false;
+        bool mFirstSubdivision       = false;
 
-            // hanging nodes between procs
-            Cell< moris_index > tNewNodeHangingFlag;
-            Cell< moris_index > tNewNodeHangingWRTProcRank;
+        // Active child mesh to its nodes location in tNewNodeIndex
+        Cell< Cell< moris_index > >      tCMNewNodeLoc;           // input: Cell group index || output: list of edge indices
+        Cell< Cell< Matrix< DDRMat > > > tCMNewNodeParamCoord;    // input: Cell group index || output: list of coordinates
+        /* Note: this stores some duplicate parametric coordinates but is necessary for flexible use*/
 
-            // New node parent topology
-            Cell< Topology* > tNewNodeParentTopology;
+        // New node indices
+        Cell< moris_index > tNewNodeIndex;
 
-            Cell< moris::mtk::Cell* >                   mNewNodeParentCells;
-            Cell< std::shared_ptr< Matrix< DDRMat > > > mNewVertexLocalCoordWRTParentCell;
+        // new node ids
+        Cell< moris_index > tNewNodeId;
 
-            // new node vertex dependencies
-            Cell< std::shared_ptr< Cell< moris::mtk::Vertex* > > > mNewVertexParentVertices;
+        // new node owner
+        Cell< moris_index > tNewNodeOwner;
 
-            Cell< std::shared_ptr< Matrix< DDRMat > > > mNewVertexBasisWeights;
+        // hanging nodes between procs
+        Cell< moris_index > tNewNodeHangingFlag;
+        Cell< moris_index > tNewNodeHangingWRTProcRank;
 
-            // Parent index of a new node
-            Cell< moris_index > tNewNodeParentIndex;
+        // New node parent topology
+        Cell< Topology* > tNewNodeParentTopology;
 
-            // Parent entity secondary identifier
-            Cell< moris_index > tSecondaryIdentifiers;
+        Cell< moris::mtk::Cell* >                   mNewNodeParentCells;
+        Cell< std::shared_ptr< Matrix< DDRMat > > > mNewVertexLocalCoordWRTParentCell;
 
-            // Parent entity rank
-            Cell< mtk::EntityRank > tNewNodeParentRank;
+        // new node vertex dependencies
+        Cell< std::shared_ptr< Cell< moris::mtk::Vertex* > > > mNewVertexParentVertices;
 
-            // new node coordinate
-            Cell< Matrix< DDRMat > > tNewNodeCoordinate;
+        Cell< std::shared_ptr< Matrix< DDRMat > > > mNewVertexBasisWeights;
 
-            // new node parametric coordinate relative to parent entity
-            Cell< Matrix< DDRMat > > tParamCoordRelativeToParent;
+        // Parent index of a new node
+        Cell< moris_index > tNewNodeParentIndex;
 
-            // map from elements to location in tNewNodeParentIndex
-            std::unordered_map< moris_index, moris_index > tElementIndexToNodeLoc;
+        // Parent entity secondary identifier
+        Cell< moris_index > tSecondaryIdentifiers;
 
-            Cell< std::unordered_map< moris_index, moris_index > > mElementIndexToSecondaryIdAndNewNodeLoc;
+        // Parent entity rank
+        Cell< mtk::EntityRank > tNewNodeParentRank;
 
-            // map from face to location in tNewNodeParentIndex
-            std::unordered_map< moris_index, moris_index > tFaceIndexToNodeLoc;
+        // new node coordinate
+        Cell< Matrix< DDRMat > > tNewNodeCoordinate;
 
-            // Face index to secondary identifiers
-            // outer cell - Face index
-            // inner map - iter->first  = secondary id
-            //             iter->second = new node location
-            Cell< std::unordered_map< moris_index, moris_index > > mFaceIndexToSecondaryIdAndNewNodeLoc;
+        // new node parametric coordinate relative to parent entity
+        Cell< Matrix< DDRMat > > tParamCoordRelativeToParent;
 
-            std::unordered_map< moris_index, moris_index >         mEdgeIndexToNodeLoc;
-            Cell< std::unordered_map< moris_index, moris_index > > mEdgeIndexToSecondaryIdAndNewNodeLoc;
+        // map from elements to location in tNewNodeParentIndex
+        std::unordered_map< moris_index, moris_index > tElementIndexToNodeLoc;
 
-            // map from edge to location in tNewNodeParentIndex
-            std::unordered_map< moris_index, moris_index > tEdgeIndexToNodeLoc;
+        Cell< IndexMap > mElementIndexToSecondaryIdAndNewNodeLoc;
 
-            // number of new nodes which have been assigned identifiers
-            uint mNumNewNodesWithIds;
+        // map from face to location in tNewNodeParentIndex
+        std::unordered_map< moris_index, moris_index > tFaceIndexToNodeLoc;
+
+        // Face index to secondary identifiers
+        // outer cell - Face index
+        // inner map - iter->first  = secondary id
+        //             iter->second = new node location
+        Cell< IndexMap > mFaceIndexToSecondaryIdAndNewNodeLoc;
+
+        std::unordered_map< moris_index, moris_index >         mEdgeIndexToNodeLoc;
+        Cell< IndexMap > mEdgeIndexToSecondaryIdAndNewNodeLoc;
+
+        // map from edge to location in tNewNodeParentIndex
+        std::unordered_map< moris_index, moris_index > tEdgeIndexToNodeLoc;
+
+        // number of new nodes which have been assigned identifiers
+        uint mNumNewNodesWithIds;
     };
-}// namespace xtk
+}    // namespace xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_ */
-

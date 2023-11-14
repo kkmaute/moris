@@ -206,6 +206,11 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
                     tLoadFactor );
         }
 
+        // if it is an eigen problem do not update the solution
+        if ( mParameterListNonlinearSolver.get< bool >( "NLA_is_eigen_problem" ) )
+        {
+            return;
+        }
         // Update solution
         ( mNonlinearProblem->get_full_vector() )->vec_plus_vec(    //
                 -tRelaxationParameter,

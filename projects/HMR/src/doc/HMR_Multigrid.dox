@@ -15,9 +15,9 @@ namespace hmr {
 Moris linear solver operates on abstract dofs. For a mesh created by HMR this abstract dofs are related to Bspline basis in a loose sence.
 Therefore, this section only refers to B-Spline basis. 
 
-A B-Spline basis has three potential states. Active, refined or deactive.
+A B-Spline basis has three potential states. Active, refined or deactivated.
 
-A deactive B-Spline basis has an active ancestor. Therefore, it never has an influence on a multigrid solver.
+A deactivated B-Spline basis has an active ancestor. Therefore, it never has an influence on a multigrid solver.
 
 An active B-Spline basis is indicates the highest refinement level for a particular background element. It can be used by the MSI to create one or multiple abstract dofs
 

@@ -11,12 +11,12 @@
 #ifndef SRC_HMR_CL_HMR_T_MATRIX_BASE_HPP_
 #define SRC_HMR_CL_HMR_T_MATRIX_BASE_HPP_
 
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "typedefs.hpp" //COR/src
-#include "cl_Matrix.hpp" //LINALG/src
-#include "cl_Cell.hpp" //CNT/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"     //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_Parameters.hpp"            //HMR/src
+#include "typedefs.hpp"                     //COR/src
+#include "cl_Matrix.hpp"                    //LINALG/src
+#include "cl_Cell.hpp"                      //CNT/src
 
 namespace moris::hmr
 {
@@ -25,8 +25,7 @@ namespace moris::hmr
      */
     class T_Matrix_Base
     {
-    protected:
-
+      protected:
         //! ref to Lagrange Mesh
         Lagrange_Mesh_Base* mLagrangeMesh;
 
@@ -45,7 +44,7 @@ namespace moris::hmr
         //! ordering scheme for Elements
         Matrix< DDUMat > mBasisIndices;
 
-        // unity matrix
+        // unit matrix
         Matrix< DDRMat > mEye;
 
         // zero vector
@@ -73,10 +72,10 @@ namespace moris::hmr
         Matrix< DDRMat > mLagrangeCoefficients;
 
         //! order of Lagrange Mesh
-        uint        mLagrangeOrder;
+        uint mLagrangeOrder;
 
         //! number of nodes per Lagrange element
-        uint        mNumberOfNodes;
+        uint mNumberOfNodes;
 
         //! matrices for refining Lagrange node values
         Cell< Matrix< DDRMat > > mLagrangeRefinementMatrix;
@@ -84,8 +83,7 @@ namespace moris::hmr
         //! matrices for changing the order of a Lagrange mesh
         Cell< Matrix< DDRMat > > mLagrangeChangeOrderMatrix;
 
-    public:
-
+      public:
         /**
          * Constructor initializing Lagrange coefficients
          *
@@ -96,28 +94,31 @@ namespace moris::hmr
         explicit T_Matrix_Base(
                 Lagrange_Mesh_Base* aLagrangeMesh,
                 BSpline_Mesh_Base*  aBSplineMesh = nullptr,
-                bool                aTruncate = true );
+                bool                aTruncate    = true );
 
         // destructor
         virtual ~T_Matrix_Base();
 
         //-------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & get_lagrange_matrix()
+        const Matrix< DDRMat >&
+        get_lagrange_matrix()
         {
             return mTMatrixLagrange;
         }
 
         //-------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & get_refinement_matrix( uint aChildIndex ) const
+        const Matrix< DDRMat >&
+        get_refinement_matrix( uint aChildIndex ) const
         {
             return mLagrangeRefinementMatrix( aChildIndex );
         }
 
         //-------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & get_change_order_matrix( uint aOrder ) const
+        const Matrix< DDRMat >&
+        get_change_order_matrix( uint aOrder ) const
         {
             return mLagrangeChangeOrderMatrix( aOrder );
         }
@@ -136,14 +137,16 @@ namespace moris::hmr
                 moris::Cell< moris::Cell< mtk::Vertex* > >& aBsplineBasis,
                 moris::Cell< Matrix< DDRMat > >&            aWeights );
 
-        virtual void evaluate( uint aBSplineMeshIndex,
-                               bool aBool = true);
+        virtual void evaluate(
+                uint aBSplineMeshIndex,
+                bool aBool = true );
 
-        void evaluate_trivial( uint aBSplineMeshIndex,
-                               bool aBool );
+        void evaluate_trivial(
+                uint aBSplineMeshIndex,
+                bool aBool );
 
         /**
-         * Calculates the truncated or untruncated T-matrix for a B-spline element, based on truncation parameter.
+         * Calculates the truncated or non-truncated T-matrix for a B-spline element, based on truncation parameter.
          *
          * @param aElementMemoryIndex Memory index of the B-spline element for T-matrix computation
          * @param aTMatrixTransposed Transposed T-matrix
@@ -154,10 +157,9 @@ namespace moris::hmr
                 Matrix< DDRMat >& aTMatrixTransposed,
                 Cell< Basis* >&   aDOFs );
 
-    private:
-
+      private:
         /**
-         * Calculates the untruncated T-matrix for a B-spline element.
+         * Calculates the non-truncated T-matrix for a B-spline element.
          *
          * @param aElementMemoryIndex Memory index of the B-spline element for T-matrix computation
          * @param aTMatrixTransposed Transposed T-matrix
@@ -199,8 +201,7 @@ namespace moris::hmr
          * Recompute the Lagrange matrix for extended T-matrices
          */
         virtual void recompute_lagrange_matrix() = 0;
-
     };
-}
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_T_MATRIX_BASE_HPP_ */

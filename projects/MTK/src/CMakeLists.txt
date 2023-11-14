@@ -70,6 +70,7 @@ cl_MTK_Node_Sets_Info.hpp
 cl_MTK_Periodic_Boundary_Condition_Helper.hpp
 cl_MTK_Scalar_Field_Info.hpp
 cl_MTK_Set.hpp
+cl_MTK_Set_Communicator.hpp
 cl_MTK_Sets_Info.hpp
 cl_MTK_Side_Cluster_Input.hpp
 cl_MTK_Side_Cluster.hpp
@@ -211,6 +212,7 @@ cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
 cl_MTK_Block.cpp
 cl_MTK_Cell.cpp
+cl_MTK_Set_Communicator.cpp
 
 cl_MTK_Cell_Info.cpp
 cl_MTK_Cell_Info_Tri3.cpp

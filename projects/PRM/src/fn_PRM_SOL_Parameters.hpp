@@ -64,6 +64,11 @@ namespace moris
         inline void
         create_ifpack_preconditioner_parameterlist( ParameterList& aParameterlist )
         {
+            // General Parameters
+            enum moris::sol::PreconditionerType tType = moris::sol::PreconditionerType::IFPACK;
+
+            aParameterlist.set_or_insert( "Preconditioner_Implementation", (uint)( tType ) );
+
             // ASSIGN DEFAULT PARAMETER VALUES
             // Robust Algebraic Preconditioners using IFPACK 3.0, SAND REPORT, SAND2005-0662,
             //              https://trilinos.github.io/pdfs/IfpackUserGuide.pdf
@@ -72,6 +77,7 @@ namespace moris
             // set ifpack preconditioner type
             // options are: point relaxation, block relaxation, ILU, ILUT, IC, ICT, Amesos, SPARSKIT, Krylov
             aParameterlist.insert( "ifpack_prec_type", "" );
+            aParameterlist.insert( "ml_prec_type", "" );
 
             // overlap between processors
             aParameterlist.insert( "overlap-level", 1 );
@@ -182,9 +188,12 @@ namespace moris
         create_ml_preconditioner_parameterlist( ParameterList& aParameterlist )
         {
             // General Parameters
+            enum moris::sol::PreconditionerType tType = moris::sol::PreconditionerType::ML;
+            aParameterlist.set_or_insert( "Preconditioner_Implementation", (uint)( tType ) );
 
             // Default parameter settings; options are SA, NSSA, DD, DD-ML
             aParameterlist.insert( "ml_prec_type", "" );
+            aParameterlist.insert( "ifpack_prec_type", "" );
 
             aParameterlist.insert( "PDE equations", 1 );
             aParameterlist.insert( "print unused", 0 );
@@ -313,11 +322,7 @@ namespace moris
             // Update flag for vismesh
             mEigAlgoParameterList.insert( "Update_Flag", true );
 
-            // add parameters from ifpack preconditioner
-            create_ifpack_preconditioner_parameterlist( mEigAlgoParameterList );
-
-            // add parameters from ml preconditioner
-            create_ml_preconditioner_parameterlist( mEigAlgoParameterList );
+            mEigAlgoParameterList.insert( "Amesos_Direct_Solver_Type", "Amesos_Klu" );
 
             return mEigAlgoParameterList;
         }
@@ -424,12 +429,6 @@ namespace moris
             // Set Damping or relaxation parameter used for RILU
             tLinAlgorithmParameterList.insert( "AZ_omega", -1.0 );
 
-            // add parameters from ifpack preconditioner
-            create_ifpack_preconditioner_parameterlist( tLinAlgorithmParameterList );
-
-            // add parameters from ml preconditioner
-            create_ml_preconditioner_parameterlist( tLinAlgorithmParameterList );
-
             return tLinAlgorithmParameterList;
         }
 
@@ -526,12 +525,6 @@ namespace moris
 
             // frequency of output
             tLinAlgorithmParameterList.insert( "Output Frequency", -1 );
-
-            // add parameters from ifpack preconditioner
-            create_ifpack_preconditioner_parameterlist( tLinAlgorithmParameterList );
-
-            // add parameters from ml preconditioner
-            create_ml_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             return tLinAlgorithmParameterList;
         }
@@ -746,6 +739,9 @@ namespace moris
             // Determines Newton maxits multiplier
             tNonLinAlgorithmParameterList.insert( "NLA_maxits_multiplier_on_fail", 2 );
 
+            // Determines Newton maxits multiplier
+            tNonLinAlgorithmParameterList.insert( "NLA_is_eigen_problem", false );
+
             return tNonLinAlgorithmParameterList;
         }
 
@@ -838,24 +834,32 @@ namespace moris
             switch ( aSolverType )
             {
                 case sol::SolverType::AZTEC_IMPL:
-                    return create_linear_algorithm_parameter_list_aztec();
+                    tParameterList = create_linear_algorithm_parameter_list_aztec();
                     break;
                 case sol::SolverType::AMESOS_IMPL:
-                    return create_linear_algorithm_parameter_list_amesos();
+                    tParameterList = create_linear_algorithm_parameter_list_amesos();
                     break;
                 case sol::SolverType::BELOS_IMPL:
-                    return create_linear_algorithm_parameter_list_belos();
+                    tParameterList = create_linear_algorithm_parameter_list_belos();
                     break;
                 case sol::SolverType::PETSC:
-                    return create_linear_algorithm_parameter_list_petsc();
+                    tParameterList = create_linear_algorithm_parameter_list_petsc();
                     break;
                 case sol::SolverType::EIGEN_SOLVER:
-                    return create_eigen_algorithm_parameter_list();
+                    tParameterList = create_eigen_algorithm_parameter_list();
                     break;
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
                     break;
             }
+
+            // insert list of preconditioners, this preconditioner is used in the linear solver to solve the system
+            tParameterList.insert( "preconditioners", "" );  
+
+            // insert list of preconditioners, this preconditioner is used in eigen analysis to create a new preconditioned linear operator                      
+            tParameterList.insert( "preconditioners_linear_operator", "" );
+
+            // return the parameter list
             return tParameterList;
         }
 
@@ -886,6 +890,35 @@ namespace moris
         //}
 
         //------------------------------------------------------------------------------
+
+        // creates a parameter list with default inputs
+        inline ParameterList
+        create_preconditioner_parameter_list(
+                const enum moris::sol::PreconditionerType& aPrecondionerType )
+        {
+            ParameterList tParameterList;
+
+            //      // General Parameters
+            enum moris::sol::PreconditionerType tType = moris::sol::PreconditionerType::NONE;
+
+            tParameterList.insert( "Preconditioner_Implementation", (uint)( tType ) );
+
+            switch ( aPrecondionerType )
+            {
+                case sol::PreconditionerType::NONE:
+                    break;
+                case sol::PreconditionerType::IFPACK:
+                    create_ifpack_preconditioner_parameterlist( tParameterList );
+                    break;
+                case sol::PreconditionerType::ML:
+                    create_ml_preconditioner_parameterlist( tParameterList );
+                    break;
+                default:
+                    MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
+                    break;
+            }
+            return tParameterList;
+        }
 
     }    // namespace prm
 }    // namespace moris

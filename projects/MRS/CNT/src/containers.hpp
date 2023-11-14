@@ -8,19 +8,17 @@
  *
  */
 
-#ifndef MORIS_CONTAINERS_HPP_
-#define MORIS_CONTAINERS_HPP_
+#pragma once
 
 // containers header files.
-#include "cl_Map.hpp" // CON/src
-#include "cl_Bi_Map.hpp" // CON/src
-#include "cl_Dist_Map.hpp" // CON/src
-#include "cl_Array.hpp" // CON/src
-#include "cl_Dist_Map.hpp" // CON/src
-#include "cl_Param_List.hpp" // CON/src
-#include "cl_Tuple.hpp" // CON/src
-#include "cl_Cell.hpp" // CON/src
-#include "fn_zip.hpp" // CON/src
-
-#endif /* MORIS_CONTAINERS_HPP_ */
+#include "cl_Map.hpp"           // CNT/src
+#include "cl_Mini_Maps.hpp"     // CNT/src
+#include "cl_Bi_Map.hpp"        // CNT/src
+#include "cl_Dist_Map.hpp"      // CNT/src
+#include "cl_Array.hpp"         // CNT/src
+#include "cl_Dist_Map.hpp"      // CNT/src
+#include "cl_Param_List.hpp"    // CNT/src
+#include "cl_Tuple.hpp"         // CNT/src
+#include "cl_Cell.hpp"          // CNT/src
+#include "fn_zip.hpp"           // CNT/src
 

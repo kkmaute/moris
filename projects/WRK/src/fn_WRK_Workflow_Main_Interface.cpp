@@ -51,8 +51,7 @@
 
 using namespace moris;
 
-int
-fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
+int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
 {
     // --------------------------------------------- //
     // check arguments provided
@@ -79,6 +78,20 @@ fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         // get the current argument
         std::string tArgString    = std::string( argv[ k ] );
         size_t      tArgStrLength = tArgString.length();
+
+        if ( tArgString == "--help" || tArgString == "-h" )
+        {
+            tIsOnlyMeshing = true;
+            MORIS_LOG( "Valid input arguments are:" );
+            MORIS_LOG( "option       : --meshgen or -mg :  generate foreground and background meshes (for EXHUME project)" );
+            MORIS_LOG( "option       : --pause   or -p  :  report process IDs and pause run upon user input (for debugging)" );
+            MORIS_LOG( "last argument: <filename>.so    :  objective file with MORIS input" );
+            MORIS_LOG( "last argument: <filename>.xml   :  xml file with MORIS input" );
+            MORIS_LOG( " " );
+
+            gMorisComm.finalize();
+            exit( 1 );
+        }
 
         // check if user requests to just generate foreground and background meshes (for EXHUME project)
         if ( tArgString == "--meshgen" || tArgString == "-mg" )
@@ -135,14 +148,13 @@ fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         MORIS_ERROR( tSoFileSpecified || tXmlFileSpecified, "Neither an .so nor an .xml file has been provided. Provide at least one input file." );
     }
 
-
     // --------------------------------------------- //
     // create library according to inputs
 
     // prepare library to be generated
     moris::Library_Factory        tLibraryFactory;
     std::shared_ptr< Library_IO > tLibrary = nullptr;
-    
+
     {
         // log & trace this set of operations
         Tracer tTracer( "WRK", "Main Interface", "Load Parameters" );

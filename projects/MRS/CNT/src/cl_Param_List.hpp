@@ -335,7 +335,7 @@ namespace moris
          */
         template< typename Key >
         const Key&
-        get( const std::string& aKey )
+        get( const std::string& aKey ) const
         {
             auto it = mParamMap.find( aKey );
 
