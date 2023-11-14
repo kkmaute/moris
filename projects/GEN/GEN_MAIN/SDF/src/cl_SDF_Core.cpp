@@ -177,25 +177,6 @@ namespace moris
             }
 
             this->calculate_candidate_points_and_buffer_diagonal();
-
-            if( mVerbose )
-            {
-                // stop the timer
-                real tElapsedTime
-                = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-                // print elapsed time
-                if(par_size() == 1)
-                {
-                    std::fprintf(stdout, "Time for ray cast              : %5.3f [sec]\n",
-                            tElapsedTime/1000.0);
-                }
-                else
-                {
-                    std::fprintf(stdout, "Proc % i - Time for ray cast              : %5.3f [sec]\n",
-                            (int) par_rank(), tElapsedTime/1000.0);
-                }
-            }
         }
 
 //-------------------------------------------------------------------------------
