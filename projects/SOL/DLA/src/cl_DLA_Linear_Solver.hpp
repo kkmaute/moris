@@ -23,6 +23,7 @@ namespace moris
     {
         class Linear_Solver_Algorithm;
         class Linear_Problem;
+        class Preconditioner_Trilinos;
         class Linear_Solver
         {
           private:
@@ -111,6 +112,8 @@ namespace moris
             {
                 return mParameterListLinearSolver;
             }
+
+            //--------------------------------------------------------------------------------------------------
         };
     }    // namespace dla
 }    // namespace moris

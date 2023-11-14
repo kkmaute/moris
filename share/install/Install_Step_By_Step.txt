@@ -1,0 +1,347 @@
+*------------------------------------------------------------
+
+* Step-by-step MORIS Installation Guide
+
+*------------------------------------------------------------
+* The following document describes the installation of MORIS. 
+
+* This installation is based on spack.
+*
+* The instructions have been tested for OPENSuse 15.x.x 
+* and Ubuntu 22.04.1
+*
+* Note: The installation process uses tcsh
+*------------------------------------------------------------
+
+*------------------------------------------------------------
+* Prerequisites regarding third party libraries:
+* 
+* MORIS uses the following third party libraries
+
+* armadillo (required)
+* arpack (required)
+* boost (required) with the following packages
+*    filesystem+log+serialization+system+thread+timer
+* eigen (required)
+* hdf5 (required)
+* mpi implementation (required)
+* petsc (optional) with the following package
+*    mpi+metis+hypre+suite-sparse
+*    optional: mkl-pardiso
+*    optional: mumps 
+* slepc (optional)
+* superlu (required)
+* trilinos (required) with the following package
+*    boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2
+*    optional: pardiso
+*    optional: mumps 
+*
+* in addition MORIS has interfaces to the follow optimization algorithms
+
+* gcmma (on private github repository)
+* snopt (on private github repository)
+* lbfgs (on private github repository)
+*
+* Libraries for these optimization algorithms are not provided with the public MORIS GitHub repository. 
+* Unless you have access to these private repositories, MORIS cmake configuration options need to be 
+* set to install MORIS without optimization libraries. 
+*------------------------------------------------------------
+
+*------------------------------------------------------------
+* Prerequisites on OS installation:
+*
+* The following packages should be installed; 
+* if not, install them as packages of your OS or with spack (see option below)
+* for OpenSuse OS: see prerequisites file in moris/share/install folder
+
+* git (OS)
+* make (OS)
+
+*------------------------------------------------------------
+
+*------------------------------------------------------------
+* For users with an existing MORIS installation, it is 
+* strongly recommended to remove all environment variables
+* related to MORIS from their environment source files (e.g.,
+* .cshrc or .bashrc) before performing the MORIS installation 
+* described below.
+*
+*------------------------------------------------------------
+
+*------------------------------------------------------------
+* basic setup
+*
+* MORIS and spack along with third party libraries will be installed 
+* in in a workspace, e.g. $HOME/codes
+*------------------------------------------------------------
+
+* set workspace; change directory name as needed
+
+setenv WORKSPACE $HOME/codes
+
+*------------------------------------------------------------
+
+* create and enter workspace
+
+mkdir $WORKSPACE
+cd $WORKSPACE
+
+*------------------------------------------------------------
+
+* get spack
+
+git clone https://github.com/spack/spack.git
+
+*------------------------------------------------------------
+
+* source spack environment
+
+source ./spack/share/spack/setup-env.csh
+
+*------------------------------------------------------------
+
+* for developers with collaborator status
+
+git clone git@github.com:kkmaute/moris
+
+* for non-developers
+
+git clone https://github.com/kkmaute/moris
+
+*------------------------------------------------------------
+
+* add moris specific packages to spack; ignore warnings
+* note: you may have to add "dummy" after "--skip-editor"
+
+* important: you need to create the spack package files for the optimization
+* libraries even if you do not want to install them
+
+spack create --name moris --skip-editor
+spack create --name gcmma --skip-editor
+spack create --name lbfgs --skip-editor
+spack create --name snopt --skip-editor
+
+*------------------------------------------------------------
+
+* add package files; overwrite trilinos package file to enable mkl and pardiso; might need edting depending on trilinos version
+
+* important: you need to copy the spack package files for the optimization
+* libraries even if you do not want to install them
+
+cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/mumps_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/mumps/package.py
+
+cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
+cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
+cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/lbfgs/package.py
+cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/snopt/package.py
+
+*------------------------------------------------------------
+
+* create spack environment and get spack ready to install moris
+
+spack env create -d .
+
+spack env activate .
+
+*------------------------------------------------------------
+
+* if default TMPDIR (usually /tmp) has limited space set TMPDIR variable 
+* to directory on partition with sufficient space (> 1GB)
+
+setenv TMPDIR /tmp
+
+*------------------------------------------------------------
+
+* let spack find installed compilers; you may have to load a module with
+* the desired compiler
+
+spack compiler find
+
+* check what compilers have been found and remove unwanted;
+* recommendation: remove all but the one compiler you want to build moris with
+
+spack compiler list
+
+spack compiler rm <unwanted compiler>
+
+*------------------------------------------------------------
+
+* in general it is not recommened to use OS installed packages but
+* let spack install needed packages. This is specifically the case,
+* when your OS is outdated.
+~/.moris_cshrc
+* However, you can let spack find installed external packages with:
+
+spack external find
+
+* in case the openmpi version provided by OS should used add the following 
+* the following lines (or similar) to spack.yaml file. WATCH the indentation.
+  
+  packages:
+    openmpi:
+      externals:
+      - spec: openmpi@4.1.4
+        prefix: /usr/lib64/mpi/gcc/openmpi4
+      buildable: false
+
+*------------------------------------------------------------
+
+* set blas/lapack provider
+
+* blas:      amdblis      intel-mkl intel-oneapi-mkl openblas netlib-lapack
+* lapack:    amdlibflame  intel-mkl intel-oneapi-mkl openblas netlib-lapack 
+* scalapack: amdscalapack intel-mkl intel-oneapi-mkl netlib-scalapack
+* mkl:       intel-mkl intel-oneapi-mkl
+
+setenv blaspro    intel-mkl   
+setenv lapackpro  intel-mkl
+setenv sclpackpro intel-mkl   
+setenv mklpro     intel-mkl
+
+echo "  packages:\n    all:\n      providers:"                  >> spack.yaml
+echo "        blas: [$blaspro]\n        lapack: [$lapackpro]"   >> spack.yaml
+echo "        scalapack: [$sclpackpro]\n        mkl: [$mklpro]" >> spack.yaml
+
+*------------------------------------------------------------
+
+* By default MORIS is installed with support for petsc,slepc, pardiso, and mumps, 
+* as well as the optimization libraries;  to turn off one or all of these options, 
+* use for example:
+
+* users/non-developers with blas/lapack = intel-mkl or intel-oneapi-mkl
+
+spack add moris+mkl~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
+
+* users/non-developers with blas/lapack = openblas
+
+spack add moris+openblas~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
+
+* otherwise use the following spack command to install default configuration
+
+spack add moris+pardiso+mumps
+
+* set local moris directory as source for spack install
+
+spack develop --path $WORKSPACE/moris moris@main
+
+*------------------------------------------------------------
+
+* in case openmpi should be build by spack
+
+* without scheduler
+
+spack add openmpi fabrics=auto 
+
+* with scheduler 
+
+spack add openmpi +legacylaunchers +pmi schedulers=slurm fabrics=auto
+
+* add location of scheduler to spack.yaml file (watch indentation)
+
+  packages:
+    slurm:
+      externals:
+      - spec: slurm@22.05.2
+        prefix: /usr
+      buildable: false
+
+*------------------------------------------------------------
+
+* add latest version of cmake (needed by recent trilinos versions)
+
+spack add cmake@master
+
+*------------------------------------------------------------
+
+* add doxygen (optional)
+
+spack add doxygen
+
+*------------------------------------------------------------
+
+* add clang for clang formater (optional)
+
+spack add llvm~gold
+
+*------------------------------------------------------------
+
+* on OS openSuse you may run into issue with the spack installation
+* of python. To avoid this, install python seperately 
+
+spack add python 
+
+*------------------------------------------------------------
+
+* to make sure that all packages use the same dependent packages,
+* set: concretizer: unify: when_possible
+
+sed -i -e 's/unify: true/unify: when_possible/g' ./spack.yaml
+
+*------------------------------------------------------------
+
+* finalize installation configuration
+
+spack concretize -f -U
+
+*------------------------------------------------------------
+
+* on OS openSuse and if python is installed seperately, 
+* install python first and fix issue with path to lib-dynload
+
+spack install python
+
+* check if the following command works
+
+spack location --install-dir python
+
+* if yes, skip the following steps; otherwise
+
+setenv PYIDIR `find spack/opt/spack/ -type d -name "python-*"`
+setenv PYLVERS `ls $PYIDIR/include`
+cp -R $PYIDIR/lib64/$PYLVERS/lib-dynload $PYIDIR/lib/$PYLVERS/.
+
+* check again if the following command works
+
+spack location --install-dir python
+
+*------------------------------------------------------------
+* if openmpi is explicitly defined (e.g. because slurm scheduler is required)
+
+spack install openmpi
+
+*------------------------------------------------------------
+
+* install moris; NOTE: different procedure for non-developers (users) and developers 
+* add -j <num procs> to limit the number of processors
+
+* for non-developers (users)
+
+spack install moris
+
+* for developers
+
+spack install --only dependencies moris
+
+*------------------------------------------------------------
+
+* for developers if doxygen (optional)
+
+spack install doxygen
+
+* for developers if llvm (optional)
+
+spack install llvm
+
+*------------------------------------------------------------
+
+* remove left over build directories
+
+spack clean
+
+*------------------------------------------------------------
+
+* create the moris resource file (~/.moris_cshrc and ~/.bashrc_cshrc) 
+* one of which should be sourced before building moris
+
+bash $WORKSPACE/moris/share/spack/make_moris_resource.sh

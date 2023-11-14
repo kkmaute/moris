@@ -270,6 +270,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "verbose", true );
         tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
+        tParameterlist( 0 )( 0 ).set( "write_cluster_measures_to_exo", false );
     }
 
     void
@@ -634,8 +635,8 @@ namespace moris
     void
     SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
     {
-        tParameterlist.resize( 7 );
-        for ( uint Ik = 0; Ik < 7; Ik++ )
+        tParameterlist.resize( 8 );
+        for ( uint Ik = 0; Ik < 8; Ik++ )
         {
             tParameterlist( Ik ).resize( 1 );
         }
@@ -666,6 +667,8 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+
+        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void

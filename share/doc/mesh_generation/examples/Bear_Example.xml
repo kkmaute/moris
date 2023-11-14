@@ -9,8 +9,8 @@
     <Geometries>
     
         <Geometry type="image_file"> 
-            <FileName>Cali_Bear.hdf5</FileName>
-            <ImageDimensions>3.81,1.95</ImageDimensions>
+            <FileName>Bear.hdf5</FileName>
+            <ImageDimensions>8.80,5.28</ImageDimensions>
             <ImageOrigin>0.0,0.0</ImageOrigin>
         </Geometry>
 
@@ -23,8 +23,8 @@
 
         <!-- Define a uniform grid all grids and meshes will be derived from -->
         <BaseGrid>
-            <Size>190,97</Size>
-            <Dimensions>3.81,1.95</Dimensions>
+            <Size>220,132</Size>
+            <Dimensions>8.80,5.28</Dimensions>
             <Origin>0.0,0.0</Origin>
         </BaseGrid>
         
@@ -32,6 +32,7 @@
         <MeshGrids>
             <MeshGrid ind="0">
                 <InitialRefinements>0</InitialRefinements>
+                <InterfaceRefinements>0</InterfaceRefinements>
             </MeshGrid>
         </MeshGrids>
         
@@ -50,7 +51,6 @@
     <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
     <ForegroundMesh>
         <DecompositionGrid>0</DecompositionGrid>
-        <InterfaceRefinements>0</InterfaceRefinements>
         <FgPolynomialOrder>1</FgPolynomialOrder>
         <TriangulateAllFgElems>false</TriangulateAllFgElems>
         <ExtractionOperatorFormat>Elemental</ExtractionOperatorFormat>

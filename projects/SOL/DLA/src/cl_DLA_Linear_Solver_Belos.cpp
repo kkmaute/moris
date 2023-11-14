@@ -68,8 +68,6 @@ void
 Linear_Solver_Belos::set_solver_parameters()
 {
     mParameterList = prm::create_linear_algorithm_parameter_list_belos();
-
-    mParameterList.set( "ifpack_prec_type", "ILU" );
 }
 
 //---------------------------------------------------------------------------------------------------
@@ -93,16 +91,14 @@ Linear_Solver_Belos::solve_linear_system(
     // set linear system
     mLinearSystem = aLinearSystem;
 
-    // initialize, build and set preconditioner
-    Preconditioner_Trilinos tPreconditioner( mParameterList, mLinearSystem );
+    // mPreconditioner->initialize( &mParameterList, mLinearSystem );
+    mPreconditioner->build( aLinearSystem, aIter );
 
-    tPreconditioner.build();
-
-    MORIS_ERROR( tPreconditioner.exists(),
+    MORIS_ERROR( mPreconditioner->exists(),
             "Linear_Solver_Belos::solve_linear_system - No preconditioner has been defined.\n" );
 
     RCP< Belos::EpetraPrecOp > belosPrec =
-            rcp( new Belos::EpetraPrecOp( tPreconditioner.get_operator() ) );
+            rcp( new Belos::EpetraPrecOp( mPreconditioner->get_operator() ) );
 
     // get operator, solution and Rhs vectors
     RCP< Epetra_CrsMatrix > A =

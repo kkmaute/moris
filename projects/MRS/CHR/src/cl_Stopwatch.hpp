@@ -16,9 +16,10 @@
 
 // Third-party header files.
 #include <boost/timer/timer.hpp>
+#include <iostream>
 
 // MORIS header files.
-#include "typedefs.hpp" // COR/src
+#include "typedefs.hpp"    // COR/src
 
 namespace moris
 {
@@ -46,23 +47,23 @@ namespace moris
          */
         class Stopwatch
         {
-        public:
-
+          public:
             /**
              * moris::chronos::Stopwatch default destructor.
              */
             Stopwatch() noexcept
-            : timer_m()
-              {
-              }
+                    : timer_m()
+            {
+                // based on boost documentation should not be needed but without start call issues were observed
+                timer_m.start();
+            }
 
             /**
              * moris::chronos::Stopwatch destructor.
              */
             ~Stopwatch() = default;
 
-        private:
-
+          private:
             /**
              * Boost CPU timer.
              *
@@ -71,8 +72,7 @@ namespace moris
              */
             boost::timer::cpu_timer timer_m;
 
-        public:
-
+          public:
             /**
              * @brief Reset start time.
              *
@@ -134,20 +134,21 @@ namespace moris
              *
              * @return Elapsed time.
              */
-            template<typename T = moris::chronos::nanoseconds>
+            template< typename T = moris::chronos::nanoseconds >
             moris::chronos::cpu_times
             toc() const noexcept
             {
                 auto elapsed_time = timer_m.elapsed();
 
-                moris::chronos::nanoseconds wall_time(elapsed_time.wall);
-                moris::chronos::nanoseconds user_time(elapsed_time.user);
-                moris::chronos::nanoseconds system_time(elapsed_time.system);
+                moris::chronos::nanoseconds wall_time( elapsed_time.wall );
+                moris::chronos::nanoseconds user_time( elapsed_time.user );
+                moris::chronos::nanoseconds system_time( elapsed_time.system );
 
                 return moris::chronos::cpu_times{
-                        std::chrono::duration_cast<T>(wall_time).count(),
-                        std::chrono::duration_cast<T>(user_time).count(),
-                        std::chrono::duration_cast<T>(system_time).count()};
+                    std::chrono::duration_cast< T >( wall_time ).count(),
+                    std::chrono::duration_cast< T >( user_time ).count(),
+                    std::chrono::duration_cast< T >( system_time ).count()
+                };
             }
 
             /**
@@ -160,24 +161,23 @@ namespace moris
              * @param[in] format_a Timing display format.
              * @return Formatted timing info.
              */
-            template<typename T = moris::chronos::nanoseconds>
+            template< typename T = moris::chronos::nanoseconds >
             std::string
             elapsed(
-                    std::string const & format_a =
-                            "%ws wall, %us user + %ss system = %ts CPU (%p%)") const
+                    std::string const &format_a =
+                            "%ws wall, %us user + %ss system = %ts CPU (%p%)" ) const
             {
-                auto elapsed_time = this->toc<T>();
+                auto elapsed_time = this->toc< T >();
 
-                return ::boost::timer::format(elapsed_time, 9, format_a);
+                return ::boost::timer::format( elapsed_time, 9, format_a );
             }
         };
 
-    }// namespace chronos
+    }    // namespace chronos
 
     // Alias for a Matlab-like tic-toc functionality.
     using tic = moris::chronos::Stopwatch;
 
-}// namespace moris
+}    // namespace moris
 
-#endif/* MORIS_CHRONOS_CL_STOPWATCH_HPP_ */
-
+#endif /* MORIS_CHRONOS_CL_STOPWATCH_HPP_ */

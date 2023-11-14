@@ -1,3 +1,10 @@
 Use the following command to get log of github traffic; note this requires gh shell being installed:
 
-gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/kkmaute/moris/traffic/clones > /home/maute/codes/moris/share/maintenance/github_traffic/`date +%d-%m-%y`
+gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2023-11-28" /repos/kkmaute/moris/traffic/clones > /home/maute/codes/moris/share/maintenance/github_traffic/`date +%d-%m-%y`
+
+Note: this command can be executed by calling the script github_traffic_command.sh
+
+Note to use crontab:
+
+0 0 * * 0 /home/maute/codes/moris/share/maintenance/github_traffic/github_traffic_command.sh
+

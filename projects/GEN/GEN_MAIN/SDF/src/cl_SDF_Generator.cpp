@@ -10,6 +10,7 @@
 
 #include "cl_SDF_Mesh.hpp"
 #include "cl_SDF_Core.hpp"
+#include "cl_Tracer.hpp"
 
 #include "cl_SDF_Generator.hpp"
 
@@ -31,7 +32,7 @@ namespace moris
 
         SDF_Generator::SDF_Generator(
                 const std::string& aObjectPath,
-                Matrix< DDRMat >&  aObjectOffset,
+                Matrix< DDRMat >   aObjectOffset,
                 const bool         aVerboseFlag )
                 : mObject( aObjectPath, aObjectOffset )
                 , mVerboseFlag( aVerboseFlag )
@@ -114,6 +115,9 @@ namespace moris
                 mtk::Mesh*        aMesh,
                 Matrix< DDRMat >& aSDF )
         {
+            // trace this function
+            Tracer tTracer( "GEN", "SDF-Generator", "Compute SDF" );
+
             // create mesh wrapper
             Mesh tMesh( aMesh, mVerboseFlag );
 

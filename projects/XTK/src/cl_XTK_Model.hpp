@@ -22,7 +22,7 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
 // XTKL: Container includes
-#include "cl_Cell.hpp"
+#include "containers.hpp"
 
 // XTKL: Tools includes
 #include "cl_XTK_Enums.hpp"
@@ -83,7 +83,7 @@ namespace xtk
         friend class Cut_Integration_Mesh;
         friend class Ghost_Stabilization;
         friend class Multigrid;
-        friend class Basis_Processor; 
+        friend class Basis_Processor;
 
         //--------------------------------------------------------------------------------
 
@@ -624,13 +624,13 @@ namespace xtk
         uses_SPG_based_enrichment();
 
         //------------------------------------------------------------------------------
-        
+
         /**
          * @brief function to activate deletion of the xtk and activate database in mtk
-         * 
+         *
          */
         bool
-        delete_xtk_after_generation(); 
+        delete_xtk_after_generation();
 
         // Private Functions
 
@@ -673,9 +673,8 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       protected:
-
         //------------------------------------------------------------------------------
-        
+
         /*
          * For nodes that are created during the decomposition process, tell
          * the XTK mesh about where they live in child meshes.

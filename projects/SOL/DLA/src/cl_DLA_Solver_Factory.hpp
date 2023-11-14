@@ -30,6 +30,7 @@ namespace moris
     {
         class Linear_Solver_Algorithm;
         class Linear_Problem;
+        class Preconditioner_Trilinos;
 
         class Solver_Factory
         {
@@ -42,17 +43,37 @@ namespace moris
 
             ~Solver_Factory();
 
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief
+             *
+             * @param aPreconditionerType
+             * @param aParameterlist
+             * @return Preconditioner_Trilinos*
+             */
+            Preconditioner_Trilinos*
+            create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
+                    ParameterList&                                    aParameterlist );
+
+            //------------------------------------------------------------------------------
+
             std::shared_ptr< Linear_Solver_Algorithm > create_solver( const enum sol::SolverType aSolverType = sol::SolverType::AZTEC_IMPL );
+
+            //------------------------------------------------------------------------------
 
             std::shared_ptr< Linear_Solver_Algorithm > create_solver(
                     const enum sol::SolverType aSolverType,
                     const ParameterList        aParameterlist );
+            //------------------------------------------------------------------------------
 
             Linear_Problem* create_linear_system(
                     moris::Solver_Interface* aSolverInterface,
                     const enum sol::MapType  aLinSysType               = sol::MapType::Epetra,
                     const bool               aNotCreatedByNonLinSolver = false );
-
+            
+            //------------------------------------------------------------------------------
+            
             Linear_Problem* create_linear_system(
                     moris::Solver_Interface* aSolverInterface,
                     sol::SOL_Warehouse*      aSolverWarehouse,

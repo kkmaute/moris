@@ -18,7 +18,7 @@
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 #include "cl_XTK_Mesh_Cleanup.hpp"
 #include "cl_XTK_Diagnostics.hpp"
-//#include "cl_XTK_Contact_Sandbox.hpp"
+// #include "cl_XTK_Contact_Sandbox.hpp"
 #include "cl_XTK_Multigrid.hpp"
 #include "fn_all_true.hpp"
 #include "fn_unique.hpp"
@@ -94,6 +94,9 @@ namespace xtk
     {
         // flag this as a non-parameter list based run
         mParameterList.insert( "has_parameter_list", false );
+
+        // flag that this field is false, this is for unit testing where enrichment is used
+        mParameterList.insert( "write_cell_enrichments_levels", false );
     }
 
     // ----------------------------------------------------------------------------------
@@ -226,7 +229,7 @@ namespace xtk
             moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
 
             // check the enriched B-spline mesh indices
-            for( uint iBspMesh = 0; iBspMesh < mBsplineMeshIndices.numel(); iBspMesh++ )
+            for ( uint iBspMesh = 0; iBspMesh < mBsplineMeshIndices.numel(); iBspMesh++ )
             {
                 MORIS_ERROR( mBsplineMeshIndices( iBspMesh ) == (moris_index)iBspMesh,
                         "xtk::Model::perform_decomposition() - B-spline mesh indices marked for "
@@ -300,6 +303,9 @@ namespace xtk
                         }
                     }
                 }
+
+                // communicate the double sided side sets after new ones have been added
+                mEnrichedIntegMesh( 0 )->communicate_sets_of_type( mtk::SetType::DOUBLE_SIDED_SIDESET );
             }
 
             // get index of B-spline meshes indices that will be unenriched later
@@ -380,6 +386,9 @@ namespace xtk
             {
                 this->get_enriched_integ_mesh( 0 ).create_union_block( tUnionBlockCells( iUnion ), tNewBlockNames( iUnion )( 0 ), tUnionBlockColors.get_row( iUnion ) );
             }
+
+            // communicate new list of block sets
+            this->get_enriched_integ_mesh( 0 ).communicate_sets_of_type( mtk::SetType::BULK );
         }
 
         std::string tUnionSideSetStr = mParameterList.get< std::string >( "union_side_sets" );
@@ -403,6 +412,9 @@ namespace xtk
             {
                 this->get_enriched_integ_mesh( 0 ).create_union_side_set( tUnionSideSetCells( iUnion ), tNewSideSetNames( iUnion )( 0 ), tUnionSideSetColors.get_row( iUnion ) );
             }
+
+            // communicate new list of side sets
+            this->get_enriched_integ_mesh( 0 ).communicate_sets_of_type( mtk::SetType::SIDESET );
         }
 
         std::string tDeactivatedBlockStr = mParameterList.get< std::string >( "deactivate_all_but_blocks" );
@@ -573,10 +585,10 @@ namespace xtk
 
         moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
 
-        moris::uint             tSpatialDimension = this->get_spatial_dim();
+        moris::uint        tSpatialDimension = this->get_spatial_dim();
         mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
-        std::string             tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
-        moris::lint             tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
+        std::string        tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
+        moris::lint        tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
 
         if ( tDecompStr.compare( "octree_only" ) == 0 )
         {
@@ -1106,14 +1118,14 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< IndexMat > 
+    moris::Matrix< IndexMat >
     Model::get_Bspline_mesh_indices() const
     {
         return mBsplineMeshIndices;
     }
 
     // ----------------------------------------------------------------------------------
-    
+
     bool
     Model::subphase_is_in_child_mesh( moris_index aSubphaseIndex )
     {

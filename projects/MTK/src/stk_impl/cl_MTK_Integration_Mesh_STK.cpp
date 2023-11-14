@@ -15,7 +15,7 @@
 #include "cl_MTK_Cell_Cluster_Input.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
-
+#include "cl_MTK_Set_Communicator.hpp"
 #include "cl_MTK_Block.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
@@ -325,10 +325,10 @@ namespace moris
             // iterate and create map
             mListOfBlocks.resize( mPrimaryBlockSetNames.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mPrimaryBlockSetNames.size(); Ik++ )
+            for ( uint iPrimaryBlockSet = 0; iPrimaryBlockSet < mPrimaryBlockSetNames.size(); iPrimaryBlockSet++ )
             {
                 Matrix< IndexMat > tCellIndices =
-                        this->get_set_entity_loc_inds( EntityRank::ELEMENT, mPrimaryBlockSetNames( Ik ) );
+                        this->get_set_entity_loc_inds( EntityRank::ELEMENT, mPrimaryBlockSetNames( iPrimaryBlockSet ) );
 
                 moris::Cell< Cluster const * > tCellClusters( tCellIndices.numel() );
 
@@ -337,17 +337,20 @@ namespace moris
                     tCellClusters( Ii ) = &mCellClusters( tCellIndices( Ii ) );
                 }
 
-                mListOfBlocks( Ik ) = new moris::mtk::Block(
-                        mPrimaryBlockSetNames( Ik ),
+                mListOfBlocks( iPrimaryBlockSet ) = new moris::mtk::Block(
+                        mPrimaryBlockSetNames( iPrimaryBlockSet ),
                         tCellClusters,
                         { { 0 } },
                         this->get_spatial_dim() );
 
-                MORIS_ASSERT( mBlockSetLabelToOrd.find( mPrimaryBlockSetNames( Ik ) ) == mBlockSetLabelToOrd.end(),
+                MORIS_ASSERT( mBlockSetLabelToOrd.find( mPrimaryBlockSetNames( iPrimaryBlockSet ) ) == mBlockSetLabelToOrd.end(),
                         "Duplicate block set in mesh" );
 
-                mBlockSetLabelToOrd[ mPrimaryBlockSetNames( Ik ) ] = Ik;
+                mBlockSetLabelToOrd[ mPrimaryBlockSetNames( iPrimaryBlockSet ) ] = iPrimaryBlockSet;
             }
+
+            // communicate block sets
+            mtk::Set_Communicator tSetCommunicator( mListOfBlocks );
         }
 
         // ----------------------------------------------------------------------------
@@ -395,15 +398,20 @@ namespace moris
 
             mListOfSideSets.resize( mSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
+            for ( uint iSideSet = 0; iSideSet < mListOfSideSets.size(); iSideSet++ )
             {
-                mListOfSideSets( Ik ) = new moris::mtk::Side_Set(
-                        aSideSetNames( Ik ),
-                        this->get_side_set_cluster( Ik ),
-                        { { 0 } },
-                        this->get_spatial_dim() );
+                mListOfSideSets( iSideSet ) =
+                        new moris::mtk::Side_Set(
+                                aSideSetNames( iSideSet ),
+                                this->get_side_set_cluster( iSideSet ),
+                                { { 0 } },
+                                this->get_spatial_dim() );
             }
-        }
+
+            // communicate information across all sets
+            mtk::Set_Communicator tSetCommunicator( mListOfSideSets );
+
+        }    // end function: Integration_Mesh_STK::setup_side_set_clusters_trivial()
 
         // ----------------------------------------------------------------------------
 
@@ -616,18 +624,18 @@ namespace moris
 
             moris::moris_index tMaxIpCellIndex = 0;
 
-            for ( moris::uint Ik = 0; Ik < mListOfBlocks.size(); Ik++ )
+            for ( uint iBlockSet = 0; iBlockSet < mListOfBlocks.size(); iBlockSet++ )
             {
-                mListOfBlocks( Ik ) = new moris::mtk::Block(
-                        tBSNames( Ik ),
-                        this->get_cell_clusters_in_set( Ik ),
+                mListOfBlocks( iBlockSet ) = new moris::mtk::Block(
+                        tBSNames( iBlockSet ),
+                        this->get_cell_clusters_in_set( iBlockSet ),
                         { { 0 } },
                         this->get_spatial_dim() );
 
-                MORIS_ASSERT( mBlockSetLabelToOrd.find( mPrimaryBlockSetNames( Ik ) ) == mBlockSetLabelToOrd.end(),
+                MORIS_ASSERT( mBlockSetLabelToOrd.find( mPrimaryBlockSetNames( iBlockSet ) ) == mBlockSetLabelToOrd.end(),
                         "Duplicate block set in mesh" );
 
-                moris::Cell< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( Ik );
+                moris::Cell< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( iBlockSet );
 
                 for ( uint Ic = 0; Ic < tClusterList.size(); Ic++ )
                 {
@@ -638,15 +646,18 @@ namespace moris
                     tMaxIpCellIndex = std::max( tMaxIpCellIndex, tIpCell.get_index() );
                 }
 
-                mBlockSetLabelToOrd[ mPrimaryBlockSetNames( Ik ) ] = Ik;
+                mBlockSetLabelToOrd[ mPrimaryBlockSetNames( iBlockSet ) ] = iBlockSet;
             }
+
+            // communicate block sets
+            mtk::Set_Communicator tSetCommunicator( mListOfBlocks );
 
             // build Ip Cell to block relationship
             mIpCellToBlockSetOrd.resize( tMaxIpCellIndex + 1 );
 
-            for ( moris::uint Ik = 0; Ik < mListOfBlocks.size(); Ik++ )
+            for ( uint iBlockSet = 0; iBlockSet < mListOfBlocks.size(); iBlockSet++ )
             {
-                moris::Cell< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( Ik );
+                moris::Cell< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( iBlockSet );
 
                 for ( uint Ic = 0; Ic < tClusterList.size(); Ic++ )
                 {
@@ -654,7 +665,7 @@ namespace moris
 
                     moris::mtk::Cell const &tIpCell = tCluster->get_interpolation_cell();
 
-                    mIpCellToBlockSetOrd( tIpCell.get_index() ) = Ik;
+                    mIpCellToBlockSetOrd( tIpCell.get_index() ) = iBlockSet;
                 }
             }
         }
@@ -788,22 +799,22 @@ namespace moris
                             }
                         }
 
-                        // loop over cells in the side set and make sure they have all been included
-                        //            for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
-                        //            {
-                        //                moris_id tCellId = tCellsInSet(iIGCell)->get_id();
+                        // // loop over cells in the side set and make sure they have all been included
+                        // for(moris::uint iIGCell = 0; iIGCell < tCellsInSet.size(); iIGCell++)
+                        // {
+                        //     moris_id tCellId = tCellsInSet(iIGCell)->get_id();
                         //
-                        //                if(tIntegrationCellsInSideSet.find(tCellId) == tIntegrationCellsInSideSet.end())
-                        //                {
-                        //                    // interpolation cell index
-                        //                    moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
+                        //     if(tIntegrationCellsInSideSet.find(tCellId) == tIntegrationCellsInSideSet.end())
+                        //     {
+                        //         // interpolation cell index
+                        //         moris_index tCellIndex = aInterpMesh.get_loc_entity_ind_from_entity_glb_id(tCellId,EntityRank::ELEMENT);
                         //
-                        //                    // construct a trivial side cluster
-                        //                    moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
-                        //                    mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
+                        //         // construct a trivial side cluster
+                        //         moris::mtk::Cell* tInterpCell = &aInterpMesh.get_mtk_cell(tCellIndex);
+                        //         mSideSets(i).push_back(Side_Cluster_STK(tInterpCell,tCellsInSet(iIGCell), tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)), tSideOrdsInSet(iIGCell)));
                         //
-                        //                }
-                        //            }
+                        //     }
+                        // }
                     }
                 }
                 // all trivial case
@@ -841,15 +852,20 @@ namespace moris
 
             mListOfSideSets.resize( mSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
+            for ( uint iSideSet = 0; iSideSet < mListOfSideSets.size(); iSideSet++ )
             {
-                mListOfSideSets( Ik ) = new moris::mtk::Side_Set(
-                        aSideSetNames( Ik ),
-                        this->get_side_set_cluster( Ik ),
-                        { { 0 } },
-                        this->get_spatial_dim() );
+                mListOfSideSets( iSideSet ) =
+                        new moris::mtk::Side_Set(
+                                aSideSetNames( iSideSet ),
+                                this->get_side_set_cluster( iSideSet ),
+                                { { 0 } },
+                                this->get_spatial_dim() );
             }
-        }
+
+            // communicate information across all sets
+            mtk::Set_Communicator tSetCommunicator( mListOfSideSets );
+
+        }    // end function: Integration_Mesh_STK::setup_side_set_clusters()
 
         // ----------------------------------------------------------------------------
 
@@ -1019,15 +1035,19 @@ namespace moris
 
             mListOfDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListOfDoubleSideSets.size(); Ik++ )
+            for ( uint iDblSS = 0; iDblSS < mListOfDoubleSideSets.size(); iDblSS++ )
             {
-                mListOfDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(
-                        mDoubleSideSetLabels( Ik ),
-                        this->get_double_side_set_cluster( Ik ),
+                mListOfDoubleSideSets( iDblSS ) = new moris::mtk::Double_Side_Set(
+                        mDoubleSideSetLabels( iDblSS ),
+                        this->get_double_side_set_cluster( iDblSS ),
                         { { 0 } },
                         this->get_spatial_dim() );
             }
-        }
+
+            // communicate information across all sets
+            mtk::Set_Communicator tSetCommunicator( mListOfDoubleSideSets );
+
+        }    // end function: Integration_Mesh_STK::setup_double_side_set_clusters()
 
         // ----------------------------------------------------------------------------
 
@@ -1054,8 +1074,8 @@ namespace moris
                 uint tNumMatchingClusters = 0;
 
                 // determine leader side which has lower block index
-                uint tLeaderBlkIndex = MORIS_UINT_MAX;
-                uint tFollowerBlkIndex  = MORIS_UINT_MAX;
+                uint tLeaderBlkIndex   = MORIS_UINT_MAX;
+                uint tFollowerBlkIndex = MORIS_UINT_MAX;
 
                 // initialize inconsistency flag (side set connected to more than 2 bulk phases)
                 bool tInconsistentFlag = false;
@@ -1199,14 +1219,14 @@ namespace moris
                         if ( tNumMatchingClusters == 0 )
                         {
                             // build label for double sided side set
-                            std::string tLeaderBlkLabel = this->get_block_set_label( tLeaderBlkIndex );
-                            std::string tFollowerBlkLabel  = this->get_block_set_label( tFollowerBlkIndex );
+                            std::string tLeaderBlkLabel   = this->get_block_set_label( tLeaderBlkIndex );
+                            std::string tFollowerBlkLabel = this->get_block_set_label( tFollowerBlkIndex );
 
                             std::string tLeaderLabel = mListOfSideSets( Ik )->get_set_name()    //
                                                      + "_" + tLeaderBlkLabel + "_" + tFollowerBlkLabel;
 
                             std::string tFollowerLabel = mListOfSideSets( Ik )->get_set_name()    //
-                                                    + "_" + tFollowerBlkLabel + "_" + tLeaderBlkLabel;
+                                                       + "_" + tFollowerBlkLabel + "_" + tLeaderBlkLabel;
                             ;
 
                             mDoubleSideSetLabels.push_back( tLeaderLabel );
@@ -1279,15 +1299,19 @@ namespace moris
 
             mListOfDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListOfDoubleSideSets.size(); Ik++ )
+            for ( uint iDblSS = 0; iDblSS < mListOfDoubleSideSets.size(); iDblSS++ )
             {
-                mListOfDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(
-                        mDoubleSideSetLabels( Ik ),
-                        this->get_double_side_set_cluster( Ik ),
+                mListOfDoubleSideSets( iDblSS ) = new moris::mtk::Double_Side_Set(
+                        mDoubleSideSetLabels( iDblSS ),
+                        this->get_double_side_set_cluster( iDblSS ),
                         { { 0 } },
                         this->get_spatial_dim() );
             }
-        }
+
+            // communicate information across all sets
+            mtk::Set_Communicator tSetCommunicator( mListOfDoubleSideSets );
+
+        }    // end function: Integration_Mesh_STK::setup_double_side_set_clusters_all_trivial()
 
         // ----------------------------------------------------------------------------
 
@@ -1327,4 +1351,3 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
-

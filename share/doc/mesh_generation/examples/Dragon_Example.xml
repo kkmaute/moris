@@ -34,6 +34,7 @@
         <MeshGrids>
             <MeshGrid ind="0">
                 <InitialRefinements>0</InitialRefinements>
+                <InterfaceRefinements>0</InterfaceRefinements>
             </MeshGrid>
         </MeshGrids>
         
@@ -52,7 +53,6 @@
     <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
     <ForegroundMesh>
         <DecompositionGrid>0</DecompositionGrid>
-        <InterfaceRefinements>0</InterfaceRefinements>
         <FgPolynomialOrder>1</FgPolynomialOrder>
         <TriangulateAllFgElems>false</TriangulateAllFgElems>
         <OutputExtractionOperators>false</OutputExtractionOperators>

@@ -829,9 +829,12 @@ namespace moris
             return mPhaseTable.get_phase_index( tGeometrySigns );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         moris_index
-        Geometry_Engine::is_interface_vertex( moris_index aNodeIndex,
-                moris_index                               aGeometryIndex )
+        Geometry_Engine::is_interface_vertex(
+                moris_index aNodeIndex,
+                moris_index aGeometryIndex )
         {
             moris_index tProxIndex = mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( (moris_index)aGeometryIndex );
 
@@ -991,8 +994,8 @@ namespace moris
                 tPDVTypeGroup( 0 ) = mProperties( tPropertyIndex )->get_pdv_type();
 
                 // Get mesh set indices and names
-                Matrix< DDUMat > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
-                Cell< std::string > tMeshSetNames = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
+                Matrix< DDUMat >    tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
+                Cell< std::string > tMeshSetNames   = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
 
                 // Convert mesh set names to indices
                 uint tNumSetIndices = tMeshSetIndices.length();
@@ -1014,7 +1017,7 @@ namespace moris
                     uint tMeshSetIndex = tMeshSetIndices( tSetIndexPosition );
                     tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
                 }
-                
+
                 // Add nodal data from the interpolation mesh
                 mProperties( tPropertyIndex )->add_nodal_data( tInterpolationMesh );
             }
@@ -2118,13 +2121,13 @@ namespace moris
             uint tNumSets = aPdvTypes.size();
 
             // Size node information cells
-            Cell< Cell< uint > > tNodeIndicesPerSet( tNumSets );
-            Cell< Cell< sint > > tNodeIdsPerSet( tNumSets );
-            Cell< Cell< uint > > tNodeOwnersPerSet( tNumSets );
+            Cell< Cell< uint > >     tNodeIndicesPerSet( tNumSets );
+            Cell< Cell< sint > >     tNodeIdsPerSet( tNumSets );
+            Cell< Cell< uint > >     tNodeOwnersPerSet( tNumSets );
             Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
 
             // Get communication table and map
-            Matrix< IdMat > tCommTable = aInterpolationMesh->get_communication_table();
+            Matrix< IdMat >  tCommTable             = aInterpolationMesh->get_communication_table();
             Cell< moris_id > tCommunicationTableMap = build_communication_table_map( tCommTable );
 
             // TODO change over to just use a cell to begin with
@@ -2165,7 +2168,7 @@ namespace moris
                         for ( mtk::Leader_Follower iLeaderFollower : tSetSides )
                         {
                             // Get node indices in cluster
-                            mtk::Cell const *  tBaseCell = tCluster->get_interpolation_cell( iLeaderFollower ).get_base_cell();
+                            mtk::Cell const *  tBaseCell            = tCluster->get_interpolation_cell( iLeaderFollower ).get_base_cell();
                             Matrix< IndexMat > tNodeOwnersInCluster = tBaseCell->get_vertex_owners();
 
                             // Add to the number of base nodes on this set
@@ -2266,8 +2269,7 @@ namespace moris
                                 uint tCommunicationProcIndex = tCommunicationTableMap( tNodeOwner );
 
                                 // Add node ID to communication list
-                                tSharedNodeIdsOnSet( tCommunicationProcIndex )( tNumSharedNodesPerProc( tCommunicationProcIndex )++ )
-                                        = tNodeIdsPerSet( iMeshSetIndex )( iNodeInSet );
+                                tSharedNodeIdsOnSet( tCommunicationProcIndex )( tNumSharedNodesPerProc( tCommunicationProcIndex )++ ) = tNodeIdsPerSet( iMeshSetIndex )( iNodeInSet );
                             }
                         }
 

@@ -23,7 +23,9 @@
 // Assertion Includes:
 #include "fn_assert.hpp"
 
+// other
 #include "cl_TOL_Memory_Map.hpp"
+#include "containers.hpp"
 
 // Linear Algebra Includes
 #include "cl_Matrix.hpp"
@@ -512,8 +514,8 @@ namespace xtk
         moris::Matrix< IdMat > mCommunicationMap;
 
         // Elements constructed by the decomposition process mtk Cells
-        std::unordered_map< moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
-        moris::Cell< moris::mtk::Cell* >            mChildMtkCells;
+        Mini_Map< moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
+        moris::Cell< moris::mtk::Cell* >  mChildMtkCells;
 
         // Vertex constructed by the decomposition process
         std::unordered_map< moris_id, moris_index > mVertexGlbToLocalMap;

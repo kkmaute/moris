@@ -114,8 +114,8 @@ namespace moris::hmr
             MORIS_LOG_INFO(
                     "Creating Lagrange mesh index #%i with polynomial order p=%i on pattern #%i, associated with B-spline meshes %s.",
                     aMeshIndex,
-                    aActivationPattern,
                     mOrder,
+                    aActivationPattern,
                     ios::stringify_cell( tBsplineMeshIndices.data() ).c_str() );
 
             // assign and store the mesh index
@@ -518,7 +518,7 @@ namespace moris::hmr
                 }
             }
 
-            // delete temporary Lagrange mesh for T-matrix evaluation
+            // delete temporary Lagrange meshes for T-matrix evaluation
             this->delete_t_matrix_lagrange_mesh();
 
         }    // end function: hmr::Lagrange_Mesh::calculate_t_matrices()

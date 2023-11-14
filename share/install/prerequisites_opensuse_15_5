@@ -1,6 +1,6 @@
 zypper in gcc11 gcc11-c++ gcc11-fortran
 zypper in git gitk make patch makeinfo pkg-config
-zypper in kdiff3 gnuplot bc zip
+zypper in kdiff3 gnuplot bc zip tcsh
 zypper in valgrind valgrind-devel gperftools gperftools-devel oprofile
 
 ------------------------------------------------------------------------------------------------
@@ -10,6 +10,12 @@ rpm --import https://packages.microsoft.com/keys/microsoft.asc
 zypper addrepo https://packages.microsoft.com/yumrepos/vscode vscode
 zypper refresh
 zypper install code
+
+------------------------------------------------------------------------------------------------
+Optional: massif-visualizer
+zypper addrepo https://download.opensuse.org/repositories/KDE:/Extra/KDE_Applications_openSUSE_Leap_15.5/ KDEextra
+zypper refresh
+zypper install massif-visualizer
 
 ------------------------------------------------------------------------------------------------
 Optional: google-chrome
@@ -30,4 +36,4 @@ Optional: vtunes adviser
 
 zypper addrepo https://yum.repos.intel.com/oneapi oneAPI
 zypper refresh
-zypper install  intel-oneapi-vtune
+zypper install  intel-oneapi-vtune intel-oneapi-advisor

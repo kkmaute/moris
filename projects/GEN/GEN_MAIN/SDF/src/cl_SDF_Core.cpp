@@ -14,6 +14,7 @@
 #include "cl_Communication_Tools.hpp"
 #include "SDF_Tools.hpp"
 #include "cl_SDF_Core.hpp"
+#include "cl_Tracer.hpp"
 #include "fn_sort.hpp"
 #include "fn_print.hpp"
 #include "cl_Tracer.hpp"
@@ -124,8 +125,8 @@ namespace moris
         void
         Core::raycast_mesh()
         {
-            // trace this function
-            Tracer tTracer( "SDF", "Generator", "Raycast" );
+            // time this function
+            Tracer tTracer( "SDF", "Perform Ray-Cast" );
 
             // create raycaster
             Raycast tRaycaster( mObject );
@@ -177,24 +178,27 @@ namespace moris
 
             this->calculate_candidate_points_and_buffer_diagonal();
 
-            // if ( mVerbose )
-            // {
-            //     // stop the timer
-            //     real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
+            if( mVerbose )
+            {
+                // stop the timer
+                real tElapsedTime
+                = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            //     // print elapsed time
-            //     if ( par_size() == 1 )
-            //     {
-            //         std::fprintf( stdout, "Time for ray cast              : %5.3f [sec]\n", tElapsedTime / 1000.0 );
-            //     }
-            //     else
-            //     {
-            //         std::fprintf( stdout, "Proc % i - Time for ray cast              : %5.3f [sec]\n", (int)par_rank(), tElapsedTime / 1000.0 );
-            //     }
-            // }
+                // print elapsed time
+                if(par_size() == 1)
+                {
+                    std::fprintf(stdout, "Time for ray cast              : %5.3f [sec]\n",
+                            tElapsedTime/1000.0);
+                }
+                else
+                {
+                    std::fprintf(stdout, "Proc % i - Time for ray cast              : %5.3f [sec]\n",
+                            (int) par_rank(), tElapsedTime/1000.0);
+                }
+            }
         }
 
-        //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
         void
         Core::calculate_raycast_and_sdf( Matrix< DDRMat >& aSDF )
@@ -232,7 +236,7 @@ namespace moris
         void
         Core::calculate_udf( moris::Cell< Vertex* >& aCandidateList )
         {
-            tic tTimer;
+            Tracer tTracer( "SDF", "Compute UDF" );
 
             // get number of triangles
             uint tNumberOfFacets = mObject.get_num_facets();;
@@ -261,21 +265,6 @@ namespace moris
 
             }    // end loop over all triangles
 
-            if ( mVerbose )
-            {
-                // stop the timer
-                real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-                // print elapsed time
-                if ( par_size() == 1 )
-                {
-                    std::fprintf( stdout, "Time for udf                   : %5.3f [sec]\n", tElapsedTime / 1000.0 );
-                }
-                else
-                {
-                    std::fprintf( stdout, "Proc % i - Time for udf                   : %5.3f [sec]\n", (int)par_rank(), tElapsedTime / 1000.0 );
-                }
-            }
         }
 
         //-------------------------------------------------------------------------------
@@ -564,6 +553,7 @@ namespace moris
         void
         Core::sweep()
         {
+            Tracer tTracer( "SDF", "Sweep" );
 
             uint tNumberOfVertices = mMesh.get_num_nodes();
 

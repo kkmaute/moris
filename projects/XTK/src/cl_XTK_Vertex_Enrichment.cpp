@@ -41,13 +41,13 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
-    
+
     const Matrix< DDRMat >*
     Vertex_Enrichment::get_weights() const
     {
         return &this->get_basis_weights();
     }
-    
+
     //------------------------------------------------------------------------------
 
     Matrix< IdMat >
@@ -91,7 +91,7 @@ namespace xtk
         // iterate to store data
         for ( uint i = 0; i < aBasisIndices.numel(); i++ )
         {
-            uint tBasisLocInd      = this->local_basis_index( aBasisIndices( i ) );
+            uint tBasisLocInd             = this->local_basis_index( aBasisIndices( i ) );
             mBasisIndices( tBasisLocInd ) = aBasisIndices( i );
             mBasisIds( tBasisLocInd )     = aBasisId( i );
         }
@@ -105,7 +105,7 @@ namespace xtk
     {
         for ( uint i = 0; i < aBasisIndices.numel(); i++ )
         {
-            uint tBasisLocInd      = this->local_basis_index( aBasisIndices( i ) );
+            uint tBasisLocInd             = this->local_basis_index( aBasisIndices( i ) );
             mBasisWeights( tBasisLocInd ) = aBasisWeight( i );
         }
     }
@@ -118,7 +118,7 @@ namespace xtk
     {
         for ( uint i = 0; i < aBasisIndices.numel(); i++ )
         {
-            uint tBasisLocInd     = this->local_basis_index( aBasisIndices( i ) );
+            uint tBasisLocInd            = this->local_basis_index( aBasisIndices( i ) );
             mBasisOwners( tBasisLocInd ) = aBasisOwners( i );
         }
     }
@@ -141,7 +141,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    std::unordered_map< moris::moris_index, moris::moris_index >&
+    IndexMap&
     Vertex_Enrichment::get_basis_map()
     {
         return mBasisMap;
@@ -161,7 +161,7 @@ namespace xtk
     Vertex_Enrichment::local_basis_index( uint aBasisIndex ) const
     {
         auto tIter = mBasisMap.find( aBasisIndex );
-        
+
         MORIS_ASSERT( mBasisMap.size() > 0,
                 "Vertex_Enrichment::local_basis_index() - Basis map not constructed yet." );
         MORIS_ASSERT( tIter != mBasisMap.end(),
@@ -237,7 +237,7 @@ namespace xtk
     {
         return mBasisMap.find( aBasisIndex ) != mBasisMap.end();
     }
-    
+
     //------------------------------------------------------------------------------
 
     bool
@@ -279,11 +279,11 @@ namespace xtk
 
         // print header
         std::cout << "\nVertex Enrichment #" << mNodeIndex << " ( Enr. Basis Index | Weight ) = " << std::endl;
-        for( uint iEntry = 0; iEntry < tNumEntries; iEntry++ )
+        for ( uint iEntry = 0; iEntry < tNumEntries; iEntry++ )
         {
-            std::cout << mBasisIndices( iEntry ) << " | " << mBasisWeights( iEntry ) << std::endl; 
+            std::cout << mBasisIndices( iEntry ) << " | " << mBasisWeights( iEntry ) << std::endl;
         }
-        
+
         // std::cout << "\n" << std::endl;
         std::cout << "" << std::endl;
     }

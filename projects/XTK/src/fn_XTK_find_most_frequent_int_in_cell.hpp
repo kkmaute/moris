@@ -10,7 +10,7 @@
 #ifndef SRC_fn_XTK_find_most_frequent_int_in_cell
 #define SRC_fn_XTK_find_most_frequent_int_in_cell
 
-#include "cl_Cell.hpp"
+#include "containers.hpp"
 
 using namespace moris;
 
@@ -19,7 +19,7 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     /**
-     * @brief finds the most occuring index in a cell of indices
+     * @brief finds the most occurring index in a cell of indices
      *
      * @param aCellOfIndices list of indices
      * @param aCount returns the number this index occurs

@@ -9,9 +9,9 @@
  */
 
 #include "cl_HMR_T_Matrix.hpp"    //HMR/src
-#include "HMR_Globals.hpp"    //HMR/src
+#include "HMR_Globals.hpp"        //HMR/src
 #include "fn_eye.hpp"
-#include "fn_inv.hpp"      //LINALG/src
+#include "fn_inv.hpp"             //LINALG/src
 
 namespace moris::hmr
 {
@@ -37,7 +37,8 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    void T_Matrix_Base::calculate_t_matrix(
+    void
+    T_Matrix_Base::calculate_t_matrix(
             luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
@@ -54,8 +55,9 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    void T_Matrix_Base::calculate_untruncated_t_matrix(
-            luint      aElementMemoryIndex,
+    void
+    T_Matrix_Base::calculate_untruncated_t_matrix(
+            luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
     {
@@ -121,7 +123,8 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    void T_Matrix_Base::calculate_truncated_t_matrix(
+    void
+    T_Matrix_Base::calculate_truncated_t_matrix(
             luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
@@ -142,7 +145,7 @@ namespace moris::hmr
         uint tNumberOfBasis = ( tLevel + 1 ) * tNumberOfBasisPerElement;
 
         // initialize counter
-        uint tDOFCount = 0;
+        uint tDOFCount   = 0;
         uint tBasisCount = 0;
 
         // container for basis levels
@@ -155,7 +158,7 @@ namespace moris::hmr
         // copy basis on lowest level into output
         for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasisPerElement; iBasisIndex++ )
         {
-            Basis* tBasis = tElement->get_basis( iBasisIndex );
+            Basis* tBasis              = tElement->get_basis( iBasisIndex );
             tAllBasis( tBasisCount++ ) = tBasis;
 
             if ( tBasis->is_active() )
@@ -222,7 +225,7 @@ namespace moris::hmr
                                         //                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
                                         //                                                          + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
                                         aTMatrixTransposed.matrix_data().col( tDOFCount ) = aTMatrixTransposed.matrix_data().col( tDOFCount )
-                                                                                       + mTruncationWeights( iChildNumber ) * mEye.matrix_data().col( iBasisSearchIndex );
+                                                                                          + mTruncationWeights( iChildNumber ) * mEye.matrix_data().col( iBasisSearchIndex );
 #endif
                                         break;
                                     }
@@ -254,7 +257,8 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    void T_Matrix_Base::init_lagrange_coefficients()
+    void
+    T_Matrix_Base::init_lagrange_coefficients()
     {
         // number of Lagrange nodes per direction
         mLagrangeOrder = mLagrangeMesh->get_order();
@@ -298,7 +302,8 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    void T_Matrix_Base::evaluate(
+    void
+    T_Matrix_Base::evaluate(
             const uint aBSplineMeshIndex,
             const bool aBool )
     {
@@ -364,8 +369,9 @@ namespace moris::hmr
                 Matrix< DDRMat > tB;
                 Cell< Basis* >   tDOFs;
 
+                uint tElemMemIndex = tBackgroundElement->get_memory_index();
                 this->calculate_t_matrix(
-                        tBackgroundElement->get_memory_index(),
+                        tElemMemIndex,
                         tB,
                         tDOFs );
 
@@ -388,10 +394,10 @@ namespace moris::hmr
                 real tEpsilon = 1e-12;
 
                 // loop over all nodes of this element
-                for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodesPerElement; iNodeIndex++ )
+                for ( uint iLagNode = 0; iLagNode < tNumberOfNodesPerElement; iLagNode++ )
                 {
                     // pointer to node
-                    auto tNode = tLagrangeElement->get_basis( iNodeIndex );
+                    auto tNode = tLagrangeElement->get_basis( iLagNode );
 
                     // test if node is flagged
                     if ( !tNode->is_flagged() )
@@ -406,18 +412,22 @@ namespace moris::hmr
                         Matrix< DDRMat > tCoefficients( tNCols, 1 );
 
                         // loop over all nonzero entries
-                        for ( uint iColIndex = 0; iColIndex < tNCols; ++iColIndex )
+                        for ( uint iBspBF = 0; iBspBF < tNCols; ++iBspBF )
                         {
-                            if ( std::abs( tT( iNodeIndex, iColIndex ) ) > tEpsilon )
+                            // get the T-matrix entry
+                            real tTMatEntry = tT( iLagNode, iBspBF );
+
+                            // ignore entries close to zero
+                            if ( std::abs( tTMatEntry ) > tEpsilon )
                             {
                                 // copy entry of T-Matrix
-                                tCoefficients( tNodeCount ) = tT( iNodeIndex, iColIndex );
+                                tCoefficients( tNodeCount ) = tTMatEntry;
 
                                 // copy pointer of dof and convert to mtk::Vertex
-                                tNodeDOFs( tNodeCount++ ) = tDOFs( iColIndex );
+                                tNodeDOFs( tNodeCount++ ) = tDOFs( iBspBF );
 
                                 // flag this DOF
-                                tDOFs( iColIndex )->flag();
+                                tDOFs( iBspBF )->flag();
                             }
                         }
 
@@ -445,7 +455,8 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    void T_Matrix_Base::evaluate_trivial(
+    void
+    T_Matrix_Base::evaluate_trivial(
             const uint aBSplineMeshIndex,
             const bool aBool )
     {
@@ -589,11 +600,11 @@ namespace moris::hmr
         real tEpsilon = 1e-12;
 
         // resize the arrays
-        aBsplineBasis.resize(tNumberOfNodesPerElement );
-        aWeights.resize(tNumberOfNodesPerElement );
+        aBsplineBasis.resize( tNumberOfNodesPerElement );
+        aWeights.resize( tNumberOfNodesPerElement );
 
         // loop over all nodes of this element
-        for ( uint k = 0; k < tNumberOfNodesPerElement; ++k )
+        for ( uint iLagNode = 0; iLagNode < tNumberOfNodesPerElement; ++iLagNode )
         {
             // initialize counter
             uint tCount = 0;
@@ -605,18 +616,18 @@ namespace moris::hmr
             Matrix< DDRMat > tCoefficients( tNCols, 1 );
 
             // loop over all nonzero entries
-            for ( uint i = 0; i < tNCols; ++i )
+            for ( uint iBspBF = 0; iBspBF < tNCols; ++iBspBF )
             {
-                if ( std::abs( tT( k, i ) ) > tEpsilon )
+                if ( std::abs( tT( iLagNode, iBspBF ) ) > tEpsilon )
                 {
                     // copy entry of T-Matrix
-                    tCoefficients( tCount ) = tT( k, i );
+                    tCoefficients( tCount ) = tT( iLagNode, iBspBF );
 
                     // copy pointer of dof and convert to mtk::Vertex
-                    tNodeDOFs( tCount ) = tDOFs( i );
+                    tNodeDOFs( tCount ) = tDOFs( iBspBF );
 
                     // flag this DOF
-                    tDOFs( i )->flag();
+                    tDOFs( iBspBF )->flag();
 
                     // increment counter
                     ++tCount;
@@ -626,11 +637,11 @@ namespace moris::hmr
             tCoefficients.resize( tCount, 1 );
             tNodeDOFs.resize( tCount );
 
-            aBsplineBasis(k ) = tNodeDOFs;
-            aWeights(k )      = tCoefficients;
+            aBsplineBasis( iLagNode ) = tNodeDOFs;
+            aWeights( iLagNode )      = tCoefficients;
         }
     }
 
     //-------------------------------------------------------------------------------
 
-}
+}    // namespace moris::hmr

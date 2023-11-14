@@ -110,8 +110,8 @@ namespace moris::hmr
         bool tHaveRefinedParent = true;
 
         // FIXME: tests 2 and 3 are not sufficient in parallel
-        // statement 3 : a BF must be deactive if all parents are active
-        bool tDeactiveTest = true;
+        // statement 3 : a BF must be deactivated if all parents are active
+        bool tDeactivatedTest = true;
 
         // statement 4 : a BF that is refined must have at least one active descendant
         bool tRefinedHasActiveChild = true;
@@ -185,7 +185,7 @@ namespace moris::hmr
                     // test for statement 3
                     if ( tAllParentsAreActive )
                     {
-                        tDeactiveTest = tDeactiveTest and ( !tBasisFunction->is_active() and !tBasisFunction->is_refined() );
+                        tDeactivatedTest = tDeactivatedTest and ( !tBasisFunction->is_active() and !tBasisFunction->is_refined() );
                         if ( !( !tBasisFunction->is_active() and !tBasisFunction->is_refined() ) )
                         {
                             const real* tXY = tBasisFunction->get_xyz();
@@ -214,7 +214,7 @@ namespace moris::hmr
                     // collect  descendants
                     tBasisFunction->collect_descendants( tChildren, tDescendantCounter );
 
-                    // reset foun flag
+                    // reset found flag
                     bool tFoundActiveChild = false;
 
                     // loop over all children
@@ -240,7 +240,7 @@ namespace moris::hmr
         // tidy up flag table
         this->unflag_all_basis();
 
-        bool aPassedTest = tTestForStateContradiction and tTestTopLevelState and tHaveRefinedParent and tDeactiveTest and tRefinedHasActiveChild;
+        bool aPassedTest = tTestForStateContradiction and tTestTopLevelState and tHaveRefinedParent and tDeactivatedTest and tRefinedHasActiveChild;
 
         if ( !aPassedTest )
         {
@@ -248,7 +248,7 @@ namespace moris::hmr
                       << tTestForStateContradiction << " "
                       << tTestTopLevelState << " "
                       << tHaveRefinedParent << " "
-                      << tDeactiveTest << " "
+                      << tDeactivatedTest << " "
                       << tRefinedHasActiveChild << std::endl;
         }
 
@@ -263,7 +263,7 @@ namespace moris::hmr
     BSpline_Mesh_Base::create_basis()
     {
         // report on this operation
-        MORIS_LOG_INFO( "Creating basis functions" );    // TODO: get the mesh index here
+        MORIS_LOG_INFO( "Creating basis functions" );
 
         // basis on first level are created separately
         this->create_basis_on_level_zero();
@@ -312,7 +312,7 @@ namespace moris::hmr
 
         for ( Background_Element_Base* tBackElement : tBackgroundElements )
         {
-            if ( !tBackElement->is_deactive( mActivationPattern ) )
+            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) )
             {
                 tElementCount++;
             }
@@ -325,7 +325,7 @@ namespace moris::hmr
         tElementCount = 0;
         for ( Background_Element_Base* tBackElement : tBackgroundElements )
         {
-            if ( !tBackElement->is_deactive( mActivationPattern ) )
+            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) )
             {
                 aElements( tElementCount++ ) = mAllElementsOnProc( tBackElement->get_memory_index() );
             }
@@ -340,15 +340,16 @@ namespace moris::hmr
         Cell< Element* > tElementsOnThisLevel;
         this->collect_active_and_refined_elements_from_level( aLevel, tElementsOnThisLevel );
 
-        Cell< Basis* > tBasisOnThisLevel;
+        // initialize list of all basis functions on the current refinement level
+        Cell< Basis* > tBFsOnThisLevel;
 
         // collect basis from given level
         this->preprocess_bases_from_level(
                 tElementsOnThisLevel,
-                tBasisOnThisLevel );
+                tBFsOnThisLevel );
 
         // determine state of each basis
-        this->determine_basis_state( tBasisOnThisLevel );
+        this->determine_basis_state( tBFsOnThisLevel );
 
         // refine B-Spline mesh if this is not the last level
         if ( aLevel < mBackgroundMesh->get_max_level() )
@@ -356,15 +357,18 @@ namespace moris::hmr
             for ( auto tElement : tElementsOnThisLevel )
             {
                 // test if background element has children and is refined on pattern
-                if ( tElement->get_background_element()->has_children() and tElement->is_refined() )
+                Background_Element_Base* tBgElem = tElement->get_background_element();
+                if ( tBgElem->has_children() && tElement->is_refined() )
                 {
                     // refine B-Spline element
-                    mAllElementsOnProc( tElement->get_memory_index() )->refine( mAllElementsOnProc );
+                    auto tElemMemIndex = tElement->get_memory_index();
+                    mAllElementsOnProc( tElemMemIndex )->refine( mAllElementsOnProc );
                 }
             }
         }
 
-        tBasisOnThisLevel.clear();
+        // delete list of basis functions // TODO: why?, there shouldn't be a new called underneath
+        tBFsOnThisLevel.clear();
     }
 
     //------------------------------------------------------------------------------
@@ -1240,7 +1244,7 @@ namespace moris::hmr
     BSpline_Mesh_Base::collect_active_and_refined_basis()
     {
         // report on this operation
-        MORIS_LOG_INFO( "Collect active and refined basis functions" );    // TODO: get the mesh index here
+        MORIS_LOG_INFO( "Collect active and refined basis functions" );
 
         // reset counter
         mNumberOfActiveBasisOnProc  = 0;
