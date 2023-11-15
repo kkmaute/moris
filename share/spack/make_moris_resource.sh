@@ -74,8 +74,8 @@ echo "setenv MPI_HOME"         `spack location --install-dir openmpi`          >
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv Armadillo_DIR"    `spack location --install-dir armadillo`        >> $HOME/.cshrc_moris
 echo "setenv Eigen3_DIR"       `spack location --install-dir eigen`            >> $HOME/.cshrc_moris
-echo "setenv BOOST_DIR"        `spack location --install-dir boost`            >> $HOME/.cshrc_moris
-echo "setenv BOOST_ROOT"       `spack location --install-dir boost`            >> $HOME/.cshrc_moris
+echo "setenv Boost_DIR"        `spack location --install-dir boost`            >> $HOME/.cshrc_moris
+echo "setenv Boost_ROOT"       `spack location --install-dir boost`            >> $HOME/.cshrc_moris
 echo "setenv ARPACK_DIR"       `spack location --install-dir arpack-ng`        >> $HOME/.cshrc_moris
 echo "setenv SUPERLU_DIR"      `spack location --install-dir superlu`          >> $HOME/.cshrc_moris
 echo "setenv SuperLU_DIST_DIR" `spack location --install-dir superlu-dist`     >> $HOME/.cshrc_moris
@@ -104,11 +104,11 @@ export PETSC_DIR=`spack location --install-dir petsc`
 echo "setenv PETSC_DIR"        $PETSC_DIR                                      >> $HOME/.cshrc_moris
 fi
 if [ $SLEPC_INSTALLED == "1" ];then
-export SLEPC_DIR=`spack location --install-dir slepc`
-echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >> $HOME/.cshrc_moris
+echo "setenv SLEPC_DIR"        `spack location --install-dir slepc`            >> $HOME/.cshrc_moris
 fi
 if [ $OAMKL_INSTALLED == "1" ];then
-echo "setenv MKL_DIR"          `spack location --install-dir intel-oneapi-mkl`"/mkl/latest"  >> $HOME/.cshrc_moris
+echo "setenv MKL_DIR" \
+                 `spack location --install-dir intel-oneapi-mkl`"/mkl/latest"  >> $HOME/.cshrc_moris
 fi
 if [ $IMKL_INSTALLED == "1" ];then
 echo "setenv MKL_DIR"          `spack location --install-dir intel-mkl`"/mkl"  >> $HOME/.cshrc_moris
@@ -120,8 +120,7 @@ if [ $AFLAM_INSTALLED == "1" ];then
 echo "setenv AMDLIBFLAME_DIR"  `spack location --install-dir amdlibflame`      >> $HOME/.cshrc_moris
 fi
 if [ $OBLAS_INSTALLED == "1" ];then
-export OPENBLAS_DIR=`spack location --install-dir openblas`"/lib"
-echo "setenv OPENBLAS_DIR"     $OPENBLAS_DIR                                   >> $HOME/.cshrc_moris
+echo "setenv OPENBLAS_DIR"     `spack location --install-dir openblas`         >> $HOME/.cshrc_moris
 fi
 if [ $DOXY_INSTALLED == "1" ];then
 export DOXYGEN_DIR=`spack location --install-dir doxygen`
@@ -151,7 +150,7 @@ echo "setenv LD_LIBRARY_PATH $GCCLIB/lib64"                                    >
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MPI_HOME/lib64'                >> $HOME/.cshrc_moris 
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$Armadillo_DIR/lib64'           >> $HOME/.cshrc_moris 
-echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$BOOST_DIR/lib'                 >> $HOME/.cshrc_moris 
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$Boost_DIR/lib'                 >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$ARPACK_DIR/lib64'              >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$SUPERLU_DIR/lib'               >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$SuperLU_DIST_DIR/lib'          >> $HOME/.cshrc_moris 
@@ -175,14 +174,20 @@ fi
 if [ $SLEPC_INSTALLED == "1" ];then
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$SLEPC_DIR/lib'                 >> $HOME/.cshrc_moris 
 fi
-if [ $OAMKL_INSTALLED == "1" ];then
-echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MKL_DIR/lib'                   >> $HOME/.cshrc_moris 
+if [ $OBLAS_INSTALLED == "1" ];then
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$OPENBLAS_DIR/lib'              >> $HOME/.cshrc_moris 
+fi
+if [ $ABLIS_INSTALLED == "1" ];then
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$AMDBLIS_DIR/lib'               >> $HOME/.cshrc_moris
+fi
+if [ $AFLAM_INSTALLED == "1" ];then
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$AMDLIBFLAME_DIR/lib'           >> $HOME/.cshrc_moris
 fi
 if [ $IMKL_INSTALLED == "1" ];then
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MKL_DIR/lib'                   >> $HOME/.cshrc_moris 
 fi
-if [ $OBLAS_INSTALLED == "1" ];then
-echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$OPENBLAS_DIR/'                 >> $HOME/.cshrc_moris 
+if [ $OAMKL_INSTALLED == "1" ];then
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MKL_DIR/lib'                   >> $HOME/.cshrc_moris 
 fi
 
 echo ""                                                                        >> $HOME/.cshrc_moris
