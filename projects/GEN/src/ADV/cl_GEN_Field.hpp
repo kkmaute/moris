@@ -53,6 +53,8 @@ namespace moris::ge
         inline static uint mCount = 0;
 
       public:
+        // FIXME this is only used for Field_Analytic, see mtk field creation
+        mtk::Mesh_Pair mMeshPairForAnalytic = mtk::Mesh_Pair( nullptr, nullptr );
 
         /**
          * Constructor using pointers to ADVs for variable evaluations.

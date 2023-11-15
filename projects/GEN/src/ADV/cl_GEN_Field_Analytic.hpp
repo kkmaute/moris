@@ -152,7 +152,8 @@ namespace moris::ge
          */
         std::shared_ptr< mtk::Field > get_mtk_field() final
         {
-            return nullptr;
+            // TODO make this just return a nullptr once the refinement interface is finished, as an MTK field won't be needed then
+            return create_mtk_field( mMeshPairForAnalytic );
         }
     };
 }
