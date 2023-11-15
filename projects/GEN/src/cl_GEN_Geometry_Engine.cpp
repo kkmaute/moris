@@ -1480,6 +1480,7 @@ namespace moris
                     {
                         mGeometries( iGeometryIndex )->discretize(
                                 iMTKField,
+                                aMeshPair,
                                 tNewOwnedADVs,
                                 tSharedADVIds( iGeometryIndex ),
                                 tAllOffsetIDs( iGeometryIndex ) );
@@ -1513,6 +1514,7 @@ namespace moris
                     {
                         mProperties( iPropertyIndex )->discretize(
                                 iMTKField,
+                                aMeshPair,
                                 tNewOwnedADVs,
                                 tSharedADVIds( mGeometries.size() + iPropertyIndex ),
                                 tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );

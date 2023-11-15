@@ -54,10 +54,11 @@ namespace moris::ge
             const Matrix< DDSMat >&       aSharedADVIds,
             uint                          aADVOffsetID,
             uint                          aDiscretizationIndex,
-            std::shared_ptr< mtk::Field > aMTKField )
-            : Field_Discrete_Integration( aSharedADVIds, aMTKField->get_mesh_pair(), aMTKField->get_label() )
+            std::shared_ptr< mtk::Field > aMTKField,
+            mtk::Mesh_Pair                aMeshPair )
+            : Field_Discrete_Integration( aSharedADVIds, aMeshPair, aMTKField->get_label() )
             , mADVOffsetID( aADVOffsetID )
-            , mMeshPair( aMTKField->get_mesh_pair() )
+            , mMeshPair( aMeshPair )
             , mDiscretizationIndex( aDiscretizationIndex )
     {
         // Map to B-splines

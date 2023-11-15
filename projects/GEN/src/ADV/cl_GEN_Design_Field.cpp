@@ -80,6 +80,7 @@ namespace moris::ge
 
     void Design_Field::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
+            mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
             const Matrix<DDSMat>&         aSharedADVIds,
             uint                          aADVOffsetID )
@@ -92,7 +93,8 @@ namespace moris::ge
                     aSharedADVIds,
                     aADVOffsetID,
                     mParameters.mDiscretizationIndex,
-                    aMTKField );
+                    aMTKField,
+                    aMeshPair );
         }
         else if ( mParameters.mDiscretizationIndex == -1 )
         {
