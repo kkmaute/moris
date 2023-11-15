@@ -17,19 +17,13 @@
 
 namespace moris::mtk
 {
-    //    struct Surface_Vertex {
-    //        mtk::Vertex const *mVertex;
-    //        moris::Cell<Surface_Vertex *> mNeighbors;
-    //        Matrix<moris::DDRMat> mCoords;
-    //    };
-    //
-    //    struct Surface_Facet {
-    //        moris::Cell<Surface_Vertex *> mVertices;
-    //        moris::Cell<Surface_Facet *> mNeighbors;
-    //        moris::Matrix<moris::DDRMat> mNormal{1, 3, 0.0f};
-    //    };
 
-
+    /**
+     * @brief This class is used to extract (or better: to provide a view of) a surface mesh from a given integration mesh.
+     * This class does not store any vertex or cell data but only provides the necessary information to access the data in the integration mesh.
+     * The surface mesh will use local indices that only refer to the vertices/facets in the surface mesh.
+     * A corresponding mapping between the global and local indices is provided.
+     */
     class Surface_Mesh
     {
       private:
@@ -136,7 +130,7 @@ namespace moris::mtk
         [[nodiscard]] Matrix< DDRMat > get_facet_normals();
 
         /**
-         * @brief Returns the facet measure (lenght/area) for each facet in the surface mesh.
+         * @brief Returns the facet measure (length/area) for each facet in the surface mesh.
          * @return A (n x 1) matrix where n is the number of facets in the surface mesh.
          */
         [[nodiscard]] Matrix< DDRMat > get_facet_measure();
@@ -147,6 +141,34 @@ namespace moris::mtk
          * @return A (n x d) matrix where n is the number of vertices in the surface mesh and d is the dimension of the mesh (holding the normal components).
          */
         [[nodiscard]] Matrix< DDRMat > get_vertex_normals();
+
+        /**
+         * @brief Returns the global index of a vertex with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
+         * @param aLocalVertexIndex The local index of the vertex in the surface mesh.
+         * @return The global index of the vertex in the whole mesh.
+         */
+        [[nodiscard]] moris_index get_global_vertex_index( moris_index aLocalVertexIndex );
+
+        /**
+         * @brief Returns the global index of a cell with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
+         * @param aLocalCellIndex The local index of the cell in the surface mesh.
+         * @return The global index of the cell in the whole mesh.
+         */
+        [[nodiscard]] moris_index get_global_cell_index( moris_index aLocalCellIndex );
+
+        /**
+         * @brief Returns the local index of a vertex with the given global index. Global refers to the whole mesh while local is only valid for the surface mesh.
+         * @param aGlobalVertexIndex The global index of the vertex in the whole mesh.
+         * @return The local index of the vertex in the surface mesh.
+         */
+        [[nodiscard]] moris_index get_local_vertex_index( moris_index aGlobalVertexIndex );
+
+        /**
+         * @brief Returns the local index of a cell with the given global index. Global refers to the whole mesh while local is only valid for the surface mesh.
+         * @param aGlobalCellIndex The global index of the cell in the whole mesh.
+         * @return The local index of the cell in the surface mesh.
+         */
+        [[nodiscard]] moris_index get_local_cell_index( moris_index aGlobalCellIndex );
 
 
       private:

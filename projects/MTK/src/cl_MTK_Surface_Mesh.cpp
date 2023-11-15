@@ -168,7 +168,7 @@ namespace moris::mtk
                 auto tSideOrdinal     = mCellSideOrdinals( i );
                 auto tNormal          = tCell.compute_outward_side_normal( tSideOrdinal );
 
-                // TODO: Due to a bug in the compute_outward_side_normal function, the normal, the sign of first component of the normal has to be flipped Until this is not fixed, the following line is used to flip the sign of the first component of the normal
+                // FIXME: Due to a bug in the compute_outward_side_normal function, the normal, the sign of first component of the normal has to be flipped Until this is not fixed, the following line is used to flip the sign of the first component of the normal
                 tNormal( 0, 0 ) *= -1.0;
 
                 mFacetNormals.set_row( i, trans( tNormal ) );
@@ -225,5 +225,22 @@ namespace moris::mtk
         }
         return mVertexNormals;
     }
+    moris_index Surface_Mesh::get_global_vertex_index( moris_index aLocalVertexIndex )
+    {
+        return mLocalToGlobalVertexIndex( aLocalVertexIndex );
+    }
+    moris_index Surface_Mesh::get_global_cell_index( moris_index aLocalCellIndex )
+    {
+        return mLocalToGlobalCellIndex( aLocalCellIndex );
+    }
+    moris_index Surface_Mesh::get_local_vertex_index( moris_index aGlobalVertexIndex )
+    {
+        return mGlobalToLocalVertexIndex[ aGlobalVertexIndex ];
+    }
+    moris_index Surface_Mesh::get_local_cell_index( moris_index aGlobalCellIndex )
+    {
+        return mGlobalToLocalCellIndex[ aGlobalCellIndex ];
+    }
+
 
 }    // namespace moris::mtk
