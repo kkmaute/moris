@@ -35,7 +35,6 @@ namespace moris::mtk
         for ( auto &tSetName : aSideSetNames )
         {
             Set *tSideSet = mIGMesh->get_set_by_name( tSetName );
-            std::cout << "Side set name: " + tSideSet->get_set_name() << std::endl;
 
             // temporary map to store the neighbors of each vertex since we do not necessarily know the index of the
             // vertex that we want to add as a neighbor at the time of creation.
@@ -72,7 +71,6 @@ namespace moris::mtk
     {
         MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCurrentCell->get_index() ) == 0, "Cell added twice to surface mesh" );
 
-        //        std::cout << "Cell index: " << aCurrentCell->get_index() << ", ID: " << aCurrentCell->get_id() << " Ord: " << aCurrentCellOrdinal << std::endl;
         mLocalToGlobalCellIndex.push_back( aCurrentCell->get_index() );
         mGlobalToLocalCellIndex[ aCurrentCell->get_index() ] = static_cast< moris_index >( mLocalToGlobalCellIndex.size() ) - 1;
         mCellToVertexIndices.push_back( moris::Cell< moris_index >() );
@@ -88,22 +86,30 @@ namespace moris::mtk
             Vertex const *tVertex      = tSideVertices( j );
             moris_index   tVertexIndex = tVertex->get_index();
 
+            moris_index tCurrentLocalVertexIndex;
+
+            // check if the vertex has already been added to the list of vertices. If so, use the local index of the vertex based on the global index.
+            if ( mGlobalToLocalVertexIndex.key_exists( tVertexIndex ) )
+            {
+                tCurrentLocalVertexIndex = mGlobalToLocalVertexIndex[ tVertexIndex ];
+            }
+            else
+            {
+                // if the vertex has not been added to the list of vertices, add it and use the local index based on the current size of the list of vertices
+                tCurrentLocalVertexIndex = static_cast< moris_index >( mLocalToGlobalVertexIndex.size() );
+            }
+
             // check that the vertex has not already been added to the surface mesh
             if ( mGlobalToLocalVertexIndex.count( tVertexIndex ) == 0 )
             {
-                auto tCurrentLocalVertexIndex             = static_cast< moris_index >( mLocalToGlobalVertexIndex.size() );
                 mGlobalToLocalVertexIndex[ tVertexIndex ] = tCurrentLocalVertexIndex;
                 mLocalToGlobalVertexIndex.push_back( tVertexIndex );
                 mCellToVertexIndices( aLocalCellIndex ).push_back( tCurrentLocalVertexIndex );
-
-                if ( static_cast< moris_index >( mVertexToCellIndices.size() ) <= tCurrentLocalVertexIndex )
-                {
-                    mVertexToCellIndices.push_back( moris::Cell< moris_index >() );
-                }
-                mVertexToCellIndices( tCurrentLocalVertexIndex ).push_back( aLocalCellIndex );
-
-                std::cout << "Vertex: " << tVertex->get_id() << "(" << tVertexIndex << "/" << tCurrentLocalVertexIndex << ")" << std::endl;
+                mVertexToCellIndices.push_back( moris::Cell< moris_index >() );
             }
+
+            // update the vertex to cell map for this vertex
+            mVertexToCellIndices( tCurrentLocalVertexIndex ).push_back( aLocalCellIndex );
 
             // update neighbors for this vertex for this cell
             for ( auto &tNeighbor : tSideVertices )
@@ -148,43 +154,76 @@ namespace moris::mtk
         return mVertexNeighbors;
     }
 
-    Matrix< DDRMat > Surface_Mesh::get_facet_normals() const
+    Matrix< DDRMat > Surface_Mesh::get_facet_normals()
     {
-        Matrix< DDRMat > tNormals{ mLocalToGlobalCellIndex.size(), mIGMesh->get_spatial_dim() };
-        for ( moris::size_t i = 0; i < mLocalToGlobalCellIndex.size(); i++ )
+        // only recalculate facet normals if they have not been calculated before
+        if ( mFacetNormals.n_rows() == 0 )
         {
-            auto tGlobalCellIndex = mLocalToGlobalCellIndex( i );
-            auto tCell            = dynamic_cast< mtk::Cell_DataBase            &>( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
-            //            auto tSideOrdinal     = mCellSideOrdinals( i );
-            for ( int j = 0; j < 3; j++ )
+            mFacetNormals.resize( mLocalToGlobalCellIndex.size(), mIGMesh->get_spatial_dim() );
+
+            for ( moris::size_t i = 0; i < mLocalToGlobalCellIndex.size(); i++ )
             {
-                auto tNormal   = tCell.compute_outward_side_normal( j );
-                auto tVertices = tCell.get_vertices_on_side_ordinal( j );
+                auto tGlobalCellIndex = mLocalToGlobalCellIndex( i );
+                auto tCell            = dynamic_cast< mtk::Cell_DataBase            &>( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
+                auto tSideOrdinal     = mCellSideOrdinals( i );
+                auto tNormal          = tCell.compute_outward_side_normal( tSideOrdinal );
 
-                std::cout << "Cell: " << tCell.get_id() << std::endl;
-                std::cout << "Ordinal " << j << " between vertices "
-                          << tVertices( 0 )->get_id() << " and "
-                          << tVertices( 1 )->get_id() << std::endl;
-                std::cout << "Coordinates ("
-                          << tVertices( 0 )->get_coords()( 0 ) << ", "
-                          << tVertices( 0 )->get_coords()( 1 ) << ") and ("
-                          << tVertices( 1 )->get_coords()( 0 ) << ", "
-                          << tVertices( 1 )->get_coords()( 1 ) << ")" << std::endl;
-                std::cout << "Normal: "
-                          << tNormal( 0 ) << " "
-                          << tNormal( 1 ) << std::endl;
-                std::cout << " -------------------------------- \n"
-                          << std::endl;
+                // TODO: Due to a bug in the compute_outward_side_normal function, the normal, the sign of first component of the normal has to be flipped Until this is not fixed, the following line is used to flip the sign of the first component of the normal
+                tNormal( 0, 0 ) *= -1.0;
+
+                mFacetNormals.set_row( i, trans( tNormal ) );
             }
-
-            //            tNormals.set_row( i, trans( tNormal ) );
         }
 
-        return tNormals;
+        return mFacetNormals;
     }
 
-    Matrix< DDRMat > Surface_Mesh::get_vertex_normals() const
+    Matrix< DDRMat > Surface_Mesh::get_facet_measure()
     {
-        return Matrix< DDRMat >();
+        // only recalculate facet measures if they have not been calculated before
+        if ( mFacetMeasure.n_rows() == 0 )
+        {
+            mFacetMeasure.resize( mLocalToGlobalCellIndex.size(), 1 );
+            for ( moris::size_t i = 0; i < mLocalToGlobalCellIndex.size(); i++ )
+            {
+                auto tGlobalCellIndex = mLocalToGlobalCellIndex( i );
+                auto tCell            = dynamic_cast< mtk::Cell_DataBase            &>( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
+                auto tSideOrdinal     = mCellSideOrdinals( i );
+                auto tMeasure         = tCell.compute_cell_side_measure( tSideOrdinal );
+                mFacetMeasure( i )    = tMeasure;
+            }
+        }
+
+        return mFacetMeasure;
     }
+
+    Matrix< DDRMat > Surface_Mesh::get_vertex_normals()
+    {
+        // only recalculate vertex normals if they have not been calculated before
+        if ( mVertexNormals.n_rows() == 0 )
+        {
+            auto tFacetNormals = this->get_facet_normals();
+            auto tFacetMeasure = this->get_facet_measure();
+            mVertexNormals.resize( mLocalToGlobalVertexIndex.size(), mIGMesh->get_spatial_dim() );
+
+            auto   tNormal = Matrix< DDRMat >( 1, mIGMesh->get_spatial_dim() );
+            size_t tNumNeighbors;
+            for ( moris::size_t i = 0; i < mLocalToGlobalVertexIndex.size(); i++ )
+            {
+                moris::Cell< moris_index > tVertexCellNeighbors = mVertexToCellIndices( i );
+                tNumNeighbors                                   = static_cast< moris::size_t >( tVertexCellNeighbors.size() );
+                tNormal.fill( 0.0 );    // reset the current normal to zero for each vertex normal calculation
+
+                // compute the normal as the weighted average of the facet normals of the neighboring cells
+                for ( moris::size_t j = 0; j < tNumNeighbors; j++ )
+                {
+                    auto tCellIndex = tVertexCellNeighbors( j );
+                    tNormal += tFacetNormals.get_row( tCellIndex ) * tFacetMeasure( tCellIndex );
+                }
+                mVertexNormals.set_row( i, tNormal / norm( tNormal ) );
+            }
+        }
+        return mVertexNormals;
+    }
+
 }    // namespace moris::mtk

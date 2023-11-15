@@ -79,7 +79,7 @@ namespace moris::mtk
          * @example For a cell with three sides, that coincides with the surface mesh on side ordinal 1, the value at the
          * index of the cell in the surface mesh will be 1.
          */
-        moris::Cell<moris_index> mCellSideOrdinals;
+        moris::Cell< moris_index > mCellSideOrdinals;
 
         /**
          * @brief List of vertices that are part of the cell with the given index. The indices are the
@@ -93,6 +93,22 @@ namespace moris::mtk
          */
         moris::Cell< moris::Cell< moris_index > > mVertexToCellIndices;
 
+        /**
+         * @todo Documentation needed!
+         */
+        Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 );
+
+        /**
+         * @todo Documentation needed!
+         */
+        Matrix< DDRMat > mVertexNormals = Matrix< DDRMat >( 0, 0 );
+
+        /**
+         * @todo Documentation needed!
+         */
+        Matrix< DDRMat > mFacetMeasure = Matrix< DDRMat >( 0, 0 );
+
+
       public:
         Surface_Mesh( Integration_Mesh *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
 
@@ -102,9 +118,12 @@ namespace moris::mtk
 
         [[nodiscard]] moris::Cell< moris::Cell< moris_index > > get_vertex_neighbors() const;
 
-        [[nodiscard]] Matrix< DDRMat > get_facet_normals() const;
+        [[nodiscard]] Matrix< DDRMat > get_facet_normals();
 
-        [[nodiscard]] Matrix< DDRMat > get_vertex_normals() const;
+        [[nodiscard]] Matrix< DDRMat > get_facet_measure();
+
+        [[nodiscard]] Matrix< DDRMat > get_vertex_normals();
+
 
       private:
         /**
@@ -113,7 +132,8 @@ namespace moris::mtk
          * to the local indices is created. The local indices are the indices of the vertices/facets in the surface mesh (starting at 0).
          * @param aSideSetNames All side sets for which the surface mesh should be extracted.
          */
-        void initialize_surface_mesh( moris::Cell< std::string > const &aSideSetNames );
+        void
+        initialize_surface_mesh( moris::Cell< std::string > const &aSideSetNames );
 
         /**
          * @brief Small helper function that is used in the initializer
