@@ -39,7 +39,7 @@ Linear_Solver_Aztec::Linear_Solver_Aztec()
 //----------------------------------------------------------------------------------------
 
 Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterlist )
-        : Linear_Solver_Algorithm( aParameterlist )
+        : Linear_Solver_Algorithm_Trilinos( aParameterlist )
 {
 }
 

@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_DISTLINALG_CL_DLA_SOLVER_FACTORY_HPP_
-#define SRC_DISTLINALG_CL_DLA_SOLVER_FACTORY_HPP_
+#pragma once
 
 #include <memory>
 
@@ -30,7 +29,7 @@ namespace moris
     {
         class Linear_Solver_Algorithm;
         class Linear_Problem;
-        class Preconditioner_Trilinos;
+        class Preconditioner;
 
         class Solver_Factory
         {
@@ -52,7 +51,7 @@ namespace moris
              * @param aParameterlist
              * @return Preconditioner_Trilinos*
              */
-            Preconditioner_Trilinos*
+            Preconditioner*
             create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
                     ParameterList&                                    aParameterlist );
 
@@ -85,4 +84,3 @@ namespace moris
     }    // namespace dla
 }    // namespace moris
 
-#endif /* SRC_DISTLINALG_CL_DLA_SOLVER_FACTORY_HPP_ */

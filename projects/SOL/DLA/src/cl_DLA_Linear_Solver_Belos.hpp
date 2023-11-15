@@ -14,7 +14,7 @@
 // TPL header files
 #include "Epetra_ConfigDefs.h"
 
-#include "cl_DLA_Linear_Solver_Algorithm.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp"
 
 #include "BelosConfigDefs.hpp"
 #include "BelosLinearProblem.hpp"
@@ -27,11 +27,9 @@ namespace moris
 {
 namespace dla
 {
-class Linear_Solver_Belos : public Linear_Solver_Algorithm
+class Linear_Solver_Belos : public Linear_Solver_Algorithm_Trilinos
 {
 private:
-
-    Linear_Problem   * mLinearSystem =  nullptr;
 
     Teuchos::RCP< Teuchos::ParameterList > mMyPl;
 

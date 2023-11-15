@@ -24,21 +24,18 @@
 #include "ml_epetra_utils.h"
 #include "ml_epetra_preconditioner.h"
 
+#include "cl_DLA_Preconditioner.hpp"
+
 namespace moris
 {
     namespace dla
     {
-        class Preconditioner_Trilinos
+        class Preconditioner_Trilinos : public Preconditioner
         {
           private:
-            bool mIsInitialized = false;
 
-            Linear_Problem* mLinearSystem = nullptr;
-
-            moris::ParameterList* mParameterList;
-
+            // possible trillions preconditioner
             Teuchos::RCP< Ifpack_Preconditioner > mIfPackPrec;
-
             Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > mMlPrec;
 
             //-------------------------------------------------------------------------------

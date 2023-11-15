@@ -15,6 +15,7 @@
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
 #include "cl_DLA_Linear_Solver_Amesos2.hpp"
 #include "cl_DLA_Linear_Solver_Belos.hpp"
+#include "cl_DLA_Linear_Solver_ML.hpp"
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"
 
@@ -42,7 +43,7 @@ Solver_Factory::~Solver_Factory()
 }
 
 //------------------------------------------------------------------------------
-Preconditioner_Trilinos*
+Preconditioner*
 Solver_Factory::create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
         ParameterList&                                                    aParameterlist )
 {
@@ -89,6 +90,9 @@ Solver_Factory::create_solver( const enum sol::SolverType aSolverType )
         case ( sol::SolverType::EIGEN_SOLVER ):
             tLinSol = std::make_shared< Eigen_Solver >();
             break;
+        case ( sol::SolverType::ML ):
+            tLinSol = std::make_shared< Linear_Solver_ML >();
+            break;
         default:
             MORIS_ERROR( false, "No solver type specified" );
             break;
@@ -128,6 +132,9 @@ Solver_Factory::create_solver(
             break;
         case ( sol::SolverType::EIGEN_SOLVER ):
             tLinSol = std::make_shared< Eigen_Solver >( &aParameterlist );
+            break;
+        case ( sol::SolverType::ML ):
+            tLinSol = std::make_shared< Linear_Solver_ML >( aParameterlist );
             break;
         default:
             MORIS_ERROR( false, "No solver type specified" );
