@@ -107,6 +107,8 @@ cl_MTK_Side_Cluster_ISC_Impl.hpp
 cl_MTK_Intersection_Detect_2D.hpp
 cl_MTK_Intersection_Mesh.hpp
 
+cl_MTK_Surface_Mesh.hpp
+
 cl_MTK_Vertex_DataBase.hpp
 cl_MTK_Vertex_Interpolation_DataBase.hpp
 cl_MTK_Cell_DataBase.hpp
@@ -258,6 +260,8 @@ cl_MTK_Interpolation_Mesh_Editor.cpp
 
 cl_MTK_Mesh_DataBase_IG.cpp
 cl_MTK_Integration_Mesh_Editor.cpp
+
+cl_MTK_Surface_Mesh.cpp
 
 stk_impl/cl_MTK_Mesh_Core_STK.cpp
 stk_impl/cl_MTK_Integration_Mesh_STK.cpp

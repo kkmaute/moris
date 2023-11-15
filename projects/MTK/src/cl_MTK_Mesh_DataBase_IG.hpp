@@ -140,7 +140,7 @@ namespace moris
              * @brief Destroy the Integration_Mesh_DataBase_IG object
              *
              */
-            virtual ~Integration_Mesh_DataBase_IG();
+            ~Integration_Mesh_DataBase_IG() override;
 
             // ----------------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ namespace moris
              * @return uint the spatial dimension of the mesh
              */
 
-            virtual uint get_spatial_dim() const override;
+            uint get_spatial_dim() const override;
 
             // ----------------------------------------------------------------------------
 
@@ -481,7 +481,7 @@ namespace moris
              */
 
             virtual moris::real*
-            get_vertex_coords_ptr( moris_index aVertexIndex );
+            get_vertex_coords_ptr( moris_index aVertexIndex ) override;
 
             // ----------------------------------------------------------------------------
 
@@ -523,9 +523,9 @@ namespace moris
 
             virtual mtk::Cell* const *
             get_ig_cells_in_cluster(
-                    enum ClusterType       aClusterType,
-                    Primary_Void aPrimaryOrVoid,
-                    moris_index            aClusterIndex ) const override;
+                    enum ClusterType aClusterType,
+                    Primary_Void     aPrimaryOrVoid,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -538,11 +538,11 @@ namespace moris
              * @return uint const
              */
 
-            virtual uint
+            uint
             get_num_cells_in_cluster(
-                    enum ClusterType       aClusterType,
-                    Primary_Void aPrimaryOrVoid,
-                    moris_index            aClusterIndex ) const override;
+                    enum ClusterType aClusterType,
+                    Primary_Void     aPrimaryOrVoid,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -554,7 +554,7 @@ namespace moris
              * @return moris_index* const a pointer to the moris_indices which are side ordinals
              */
 
-            virtual moris_index*
+            moris_index*
             get_side_ordinals_in_cluster(
                     enum ClusterType aClusterType,
                     moris_index      aClusterIndex ) const override;
