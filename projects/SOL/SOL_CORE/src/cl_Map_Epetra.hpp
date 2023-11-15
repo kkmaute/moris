@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_DISTLINALG_CL_MAP_EPETRA_HPP_
-#define SRC_DISTLINALG_CL_MAP_EPETRA_HPP_
+#pragma once
 
 #include <cstddef>
 #include <cassert>
@@ -104,5 +103,4 @@ namespace moris
     };
 }
 
-#endif /* SRC_DISTLINALG_CL_MAP_EPETRA_HPP_ */
 

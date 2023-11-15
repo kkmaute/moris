@@ -25,7 +25,8 @@ find_library(OPENBLAS_LIBRARIES
   NAMES
   openblas
   PATHS
-  ${OPENBLAS_ENV_VARS}
+  ${OPENBLAS_ENV_VARS}/lib
+  ${OPENBLAS_ENV_VARS}/lib64
   /usr/lib64/
   PATH_SUFFIXES
   lib64
@@ -36,7 +37,8 @@ find_file(OPENBLAS_LIBRARIES
   libopenblas.so
   PATHS
   /usr/lib64
-  ${OPENBLAS_ENV_VARS}
+  ${OPENBLAS_ENV_VARS}/lib
+  ${OPENBLAS_ENV_VARS}/lib64
   ${LIB_INSTALL_DIR}
   PATH_SUFFIXES
   lib64
@@ -48,7 +50,8 @@ if(NOT OPENBLAS_LIBRARIES)
         NAMES
         openblas
         PATHS
-        ${OPENBLAS_ENV_VARS}
+        ${OPENBLAS_ENV_VARS}/lib
+        ${OPENBLAS_ENV_VARS}/lib64
         ${LIB_INSTALL_DIR}
         PATH_SUFFIXES
         lib64
@@ -57,7 +60,8 @@ if(NOT OPENBLAS_LIBRARIES)
         libopenblas.so
         PATHS
         /usr/lib64
-        ${OPENBLAS_ENV_VARS}
+        ${OPENBLAS_ENV_VARS}/lib
+        ${OPENBLAS_ENV_VARS}/lib64
         ${LIB_INSTALL_DIR}
         PATH_SUFFIXES
         lib64

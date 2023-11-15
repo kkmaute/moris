@@ -50,7 +50,7 @@ Matrix_PETSc::Matrix_PETSc(
     MatCreate( PETSC_COMM_WORLD, &mPETScMat );
 
     // Set size of matrix
-    MatSetSizes( mPETScMat, tMyNumOwnedDofs, tMyNumOwnedDofs, tNumGlobalDofs, tNumGlobalDofs );
+    MatSetSizes( mPETScMat, tMyNumOwnedDofs, tMyNumOwnedDofs, PETSC_DETERMINE, PETSC_DETERMINE );
 
     // Set options
     MatSetFromOptions( mPETScMat );
