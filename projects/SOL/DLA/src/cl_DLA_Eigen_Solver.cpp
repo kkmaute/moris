@@ -95,7 +95,7 @@ Eigen_Solver::Eigen_Solver()
 // ----------------------------------------------------------------------------
 
 Eigen_Solver::Eigen_Solver( const ParameterList* aParameterList )
-        : Linear_Solver_Algorithm( *aParameterList )
+        : Linear_Solver_Algorithm_Trilinos( *aParameterList )
         , mMat( NULL )
         , mMassMat( NULL )
         , mSolTime( 0.0 )
@@ -1164,4 +1164,17 @@ int Eigen_Solver::get_solution(
     mFreeSolVec->save_vector_to_HDF5( tEigVector );
 
     return 0;
+}
+
+//-----------------------------------------------------------------------------
+
+void
+Eigen_Solver::compute_preconditioned_operator()
+{
+    // 
+//     const Epetra_Map& tBlockMap = mSPmat->OperatorDomainMap();
+//     int tMatrixSize = tBlockMap.MaxAllGID(); 
+    
+//     Epetra_MultiVector tIn = Epetra_MultiVector(tBlockMap,tMatrixSize);
+//     tIn.
 }

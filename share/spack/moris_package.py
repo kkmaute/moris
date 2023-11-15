@@ -68,12 +68,15 @@ class Moris(CMakePackage):
     depends_on('trilinos@13.4')
     depends_on('trilinos+boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2')
     depends_on('trilinos+pardiso', when="+pardiso")
+    depends_on('trilinos~pardiso', when="-pardiso")
     depends_on('trilinos+mumps',   when="+mumps")
+    depends_on('trilinos~mumps',   when="-mumps")
 
     depends_on('petsc@3.17.4',                       when="+petsc")
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
-    depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
+    #depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
+    depends_on('petsc~mumps',                        when="+petsc -mumps")
 
     depends_on('slepc',                              when="+slepc")
 

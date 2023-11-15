@@ -21,6 +21,8 @@
 //
 //#include "cl_DLA_Linear_Problem.hpp"
 
+#include "cl_DLA_Preconditioner.hpp"
+
 namespace moris
 {
     namespace sol
@@ -34,7 +36,7 @@ namespace moris
     {
         class Linear_Solver_PETSc;
         class Linear_Problem;
-        class Preconditioner_PETSc
+        class Preconditioner_PETSc : public Preconditioner
         {
           private:
             Linear_Solver_PETSc* mLinearSolverAlgorithm;

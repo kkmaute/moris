@@ -48,7 +48,7 @@ Linear_Solver_PETSc::Linear_Solver_PETSc()
 //----------------------------------------------------------------------------------------
 
 Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist )
-        : Linear_Solver_Algorithm( aParameterlist )
+        : Linear_Solver_Algorithm_Petsc( aParameterlist )
 {
 }
 
