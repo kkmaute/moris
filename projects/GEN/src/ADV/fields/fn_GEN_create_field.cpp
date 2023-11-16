@@ -11,7 +11,7 @@
 #include "fn_GEN_create_field.hpp"
 #include "fn_Parsing_Tools.hpp"
 
-#include "cl_GEN_Constant_Property.hpp"
+#include "cl_GEN_Constant_Field.hpp"
 #include "cl_GEN_Scaled_Field.hpp"
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Superellipse.hpp"
@@ -115,7 +115,7 @@ namespace moris::ge
         // Build field
         if ( tFieldType == "constant" )
         {
-            tField = std::make_shared< Constant_Property >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+            tField = std::make_shared< Constant_Field >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "scaled_field" )
         {

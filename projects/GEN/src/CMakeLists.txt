@@ -52,7 +52,7 @@ set(HEADERS
 	ADV/fields/cl_GEN_Field_Analytic.hpp
 	ADV/fields/cl_GEN_Field_Discrete_Integration.hpp
 	ADV/fields/cl_GEN_Field_Discrete_Interpolation.hpp
-	ADV/fields/cl_GEN_Constant_Property.hpp
+	ADV/fields/cl_GEN_Constant_Field.hpp
 	ADV/fields/cl_GEN_Scaled_Field.hpp
 	ADV/fields/cl_GEN_BSpline_Field.hpp
 	ADV/fields/cl_GEN_Circle.hpp
@@ -105,7 +105,7 @@ set(LIB_SOURCES
 	ADV/fields/cl_GEN_Field.cpp
 	ADV/fields/cl_GEN_Field_Discrete_Integration.cpp
 	ADV/fields/cl_GEN_Field_Discrete_Interpolation.cpp
-	ADV/fields/cl_GEN_Constant_Property.cpp
+	ADV/fields/cl_GEN_Constant_Field.cpp
 	ADV/fields/cl_GEN_Scaled_Field.cpp
 	ADV/fields/cl_GEN_BSpline_Field.cpp
 	ADV/fields/cl_GEN_Circle.cpp

@@ -4,35 +4,38 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Constant_Property.cpp
+ * cl_GEN_Constant_Field.cpp
  *
  */
 
-#include "cl_GEN_Constant_Property.hpp"
+#include "cl_GEN_Constant_Field.hpp"
 
 namespace moris::ge
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    real Constant_Property::get_field_value(const Matrix<DDRMat>& aCoordinates)
+    real
+    Constant_Field::get_field_value(const Matrix<DDRMat>& aCoordinates)
     {
         return mADVManager.get_variable( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>& Constant_Property::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
+    const Matrix<DDRMat>&
+    Constant_Field::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
     {
         return mSensitivities;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Constant_Property::get_dfield_dcoordinates(
+    void
+    Constant_Field::get_dfield_dcoordinates(
             const Matrix<DDRMat>& aCoordinates,
             Matrix<DDRMat>&       aSensitivities)
     {
-        MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for constant property.");
+        MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for constant field.");
     }
 
     //--------------------------------------------------------------------------------------------------------------

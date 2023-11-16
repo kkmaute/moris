@@ -4,36 +4,35 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Constant_Property.hpp
+ * cl_GEN_Constant_Field.hpp
  *
  */
 
 #pragma once
 
-#include "cl_GEN_Property.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris::ge
 {
-    class Constant_Property : public Field_Analytic< 0 >
+    class Constant_Field : public Field_Analytic< 0 >
     {
       public:
 
         // Constructor to allow this field to be created with ADVs
-        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Constant_Property, 0, 1, { mSensitivities = { { 1.0 } }; } )
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Constant_Field, 0, 1, { mSensitivities = { { 1.0 } }; } )
 
         /**
          * Given a node index, returns the field value.
          *
          * @param aNodeIndex Node index
          * @param aCoordinates Node coordinates
-         * @return Property value
+         * @return Field value
          */
         real get_field_value( const Matrix< DDRMat >& aCoordinates );
 
         /**
-         * Given a node index, evaluates the sensitivity of the property field with respect to all of the
-         * property variables.
+         * Given a node index, evaluates the sensitivity of the field with respect to all of the
+         * field variables.
          *
          * @param aNodeIndex Node index
          * @param aCoordinates Node coordinates
