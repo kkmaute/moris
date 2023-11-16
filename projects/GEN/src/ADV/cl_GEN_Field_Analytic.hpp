@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_GEN_Field.hpp"
+#include "cl_MTK_Mapper.hpp"
 
 namespace moris::ge
 {
@@ -153,7 +154,10 @@ namespace moris::ge
         std::shared_ptr< mtk::Field > get_mtk_field() final
         {
             // TODO make this just return a nullptr once the refinement interface is finished, as an MTK field won't be needed then
-            return create_mtk_field( mMeshPairForAnalytic );
+            mtk::Mapper tMapper;
+            std::shared_ptr< mtk::Field > tField = this->create_mtk_field( mMeshPairForAnalytic );
+            tMapper.perform_mapping( tField.get(), mtk::EntityRank::NODE, mtk::EntityRank::BSPLINE );
+            return tField;
         }
     };
 }
