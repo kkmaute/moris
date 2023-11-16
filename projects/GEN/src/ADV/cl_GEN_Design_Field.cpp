@@ -102,6 +102,7 @@ namespace moris::ge
             // TODO
             MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
         }
+        mField->mMeshPairForAnalytic = aMeshPair;
     }
     
     //--------------------------------------------------------------------------------------------------------------
