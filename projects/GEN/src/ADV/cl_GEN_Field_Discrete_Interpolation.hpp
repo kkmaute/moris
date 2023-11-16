@@ -41,9 +41,13 @@ namespace moris::ge
                 : Field( ADV_ARGS )
                 , mMeshPair( aMeshPair )
         {
-            if ( aMeshPair.get_interpolation_mesh() )
+            try
             {
                 this->add_nodal_data( aMeshPair.get_interpolation_mesh() );
+            }
+            catch( ... )
+            {
+                MORIS_LOG_WARNING( "Interpolation mesh does not exist" );
             }
         }
 
