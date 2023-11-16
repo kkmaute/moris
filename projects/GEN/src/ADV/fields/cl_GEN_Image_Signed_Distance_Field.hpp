@@ -4,19 +4,18 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Image_SDF_Geometry.hpp
+ * cl_GEN_Image_Signed_Distance_Field.hpp
  *
  */
 
 #pragma once
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 #include "cl_Library_IO.hpp"
 
 namespace moris::ge
 {
-    class Image_SDF_Geometry : public Field_Analytic< 0 >
+    class Image_Signed_Distance_Field : public Field_Analytic< 0 >
     {
         /*   Image-based signed distance field
          *
@@ -54,14 +53,14 @@ namespace moris::ge
         /**
          * Constructor, sets the pointers to advs and constant parameters for evaluations.
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
-         * @param aADVs ADV vector
-         * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
+         * @param aImageFileName Name of the image file to read
+         * @param aDomainDimensions Dimensions of the domain
+         * @param aDomainDimensions Amount to offset the domain by
+         * @param aSdfScaling Amount to scale the SDF field by
+         * @param aSdfShift Amount to shift the SDF field by
+         * @param aSdfDefault Default SDF field outside of the domain
          */
-        Image_SDF_Geometry(
+        Image_Signed_Distance_Field(
                 std::string               aImageFileName,
                 Matrix< DDRMat >          aDomainDimensions,
                 Matrix< DDRMat >          aDomainOffset,
@@ -84,13 +83,13 @@ namespace moris::ge
          * Given a node coordinate, returns the field value.
          *
          * @param aCoordinates Coordinate values
-         * @return Distance to this geometry
+         * @return Distance to the interface
          */
         real get_field_value( const Matrix< DDRMat >& aCoordinates );
 
         /**
-         * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
-         * geometry variables.
+         * Given a node coordinate, evaluates the sensitivity of the field with respect to all of the
+         * field variables.
          *
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities

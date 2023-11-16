@@ -4,11 +4,11 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Image_SDF_Geometry.cpp
+ * cl_GEN_Image_Signed_Distance_Field.cpp
  *
  */
 
-#include "cl_GEN_Image_SDF_Geometry.hpp"
+#include "cl_GEN_Image_Signed_Distance_Field.hpp"
 
 #include "HDF5_Tools.hpp"
 #include "fn_Parsing_Tools.hpp"
@@ -20,7 +20,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Image_SDF_Geometry::get_field_value( const Matrix< DDRMat >& aCoordinates )
+    Image_Signed_Distance_Field::get_field_value( const Matrix< DDRMat >& aCoordinates )
     {
         // set pointer to correct field value function
         if ( mDomainDimensions.numel() == 3 )
@@ -36,7 +36,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Image_SDF_Geometry::get_field_value_3d( const Matrix< DDRMat >& aCoordinates )
+    Image_Signed_Distance_Field::get_field_value_3d( const Matrix< DDRMat >& aCoordinates )
     {
         real tEpsilon = 1E-12;
 
@@ -114,7 +114,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Image_SDF_Geometry::get_field_value_2d( const Matrix< DDRMat >& aCoordinates )
+    Image_Signed_Distance_Field::get_field_value_2d( const Matrix< DDRMat >& aCoordinates )
     {
         real tEpsilon = 1E-12;
 
@@ -180,27 +180,27 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     const Matrix< DDRMat >&
-    Image_SDF_Geometry::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
+    Image_Signed_Distance_Field::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
     {
         MORIS_ERROR( false,
-                "Image_SDF_Geometry::get_dfield_dadvs(), Sensitivities cannot be calculated for Voxel field." );
+                "Image_Signed_Distance_Field::get_dfield_dadvs(), Sensitivities cannot be calculated for Voxel field." );
         return mSensitivities;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Image_SDF_Geometry::get_dfield_dcoordinates(
+    Image_Signed_Distance_Field::get_dfield_dcoordinates(
             const Matrix< DDRMat >& aCoordinates,
             Matrix< DDRMat >&       aSensitivities )
     {
-        MORIS_ERROR( false, "get_dfield_dcoordinates not implemented for voxel input geometry." );
+        MORIS_ERROR( false, "get_dfield_dcoordinates not implemented for image signed distance field." );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Image_SDF_Geometry::read_image_sdf_data( std::string aImageFiledName )
+    Image_Signed_Distance_Field::read_image_sdf_data( std::string aImageFiledName )
     {
         // open hdf5 file
         hid_t  tFileID = open_hdf5_file( aImageFiledName );
@@ -218,7 +218,7 @@ namespace moris::ge
 
         // check for correct dimensions
         MORIS_ERROR( mDomainDimensions.numel() == tDimensions.numel(),
-                "Image_SDF_Geometry::read_image_sdf_data - mismatch of dimensions in SDF file and domain dimensions." );
+                "Image_Signed_Distance_Field::read_image_sdf_data - mismatch of dimensions in SDF file and domain dimensions." );
 
         // extract dimensions and compute size of voxel
         mVoxelsInX = tDimensions( 0 );
@@ -236,7 +236,7 @@ namespace moris::ge
 
         // check for proper size of sdf file (stored in single vector)
         MORIS_ERROR( mSdfField.numel() == mVoxelsInX * mVoxelsInY * mVoxelsInZ,
-                "Image_SDF_Geometry::read_image_sdf_data - mismatch of data size in SDF file." );
+                "Image_Signed_Distance_Field::read_image_sdf_data - mismatch of data size in SDF file." );
 
         // scale sdf file
 

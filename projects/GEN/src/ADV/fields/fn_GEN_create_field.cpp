@@ -25,7 +25,7 @@
 #include "cl_GEN_Field_Array_Factory.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_GEN_Signed_Distance_Field.hpp"
-#include "cl_GEN_Image_SDF_Geometry.hpp"
+#include "cl_GEN_Image_Signed_Distance_Field.hpp"
 
 namespace moris::ge
 {
@@ -194,7 +194,7 @@ namespace moris::ge
             real tSDFDefault = aFieldParameterList.get< real >( "image_sdf_default" );
             bool tsDFInterp  = aFieldParameterList.get< bool >( "image_sdf_interpolate" );
 
-            tField = std::make_shared< Image_SDF_Geometry >(
+            tField = std::make_shared< Image_Signed_Distance_Field >(
                     tImageFileName,
                     tDomainDimensions,
                     tDomainOffset,

@@ -65,7 +65,7 @@ set(HEADERS
 	ADV/fields/cl_GEN_Single_Grain.hpp
 	ADV/fields/cl_GEN_Stored_Field.hpp
 	ADV/fields/cl_GEN_Signed_Distance_Field.hpp
-	ADV/fields/cl_GEN_Image_SDF_Geometry.hpp
+	ADV/fields/cl_GEN_Image_Signed_Distance_Field.hpp
 	ADV/fields/cl_GEN_Combined_Fields.hpp
 	ADV/fields/cl_GEN_User_Defined_Field.hpp
 	ADV/fields/fn_GEN_create_field.hpp
@@ -118,7 +118,7 @@ set(LIB_SOURCES
 	ADV/fields/cl_GEN_Single_Grain.cpp
 	ADV/fields/cl_GEN_Stored_Field.cpp
 	ADV/fields/cl_GEN_Signed_Distance_Field.cpp
-	ADV/fields/cl_GEN_Image_SDF_Geometry.cpp
+	ADV/fields/cl_GEN_Image_Signed_Distance_Field.cpp
 	ADV/fields/cl_GEN_Combined_Fields.cpp
 	ADV/fields/cl_GEN_User_Defined_Field.cpp
 	ADV/fields/fn_GEN_create_field.cpp
