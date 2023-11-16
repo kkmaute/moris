@@ -24,8 +24,7 @@ set(TEST_DEPENDENCIES
 
 set(GEN_INCLUDES
 	"ADV"
-	"ADV/geometry"
-	"ADV/property"
+	"ADV/fields"
 	"PDV"
     )
 

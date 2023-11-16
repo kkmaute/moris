@@ -22,8 +22,7 @@ set(TEST_SOURCES
 
 set(GEN_INCLUDES
 	"ADV"
-	"ADV/geometry"
-	"ADV/property"
+	"ADV/fields"
 	"PDV"
 	)
 

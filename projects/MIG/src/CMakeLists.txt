@@ -24,8 +24,7 @@ include_directories(${MORIS_PACKAGE_DIR}/include)
 
 set(GEN_INCLUDES
 	"ADV"
-	"ADV/geometry"
-	"ADV/property"
+	"ADV/fields"
 	"PDV"
 	)
 

@@ -66,8 +66,7 @@ endforeach()
 # GEN directories
 set(GEN_INCLUDES
 	"ADV"
-	"ADV/geometry"
-	"ADV/property"
+	"ADV/fields"
 	"PDV"
 	)
 

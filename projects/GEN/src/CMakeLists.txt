@@ -14,8 +14,7 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 # List header dependencies                                                                                                                                                                                                                                                     
 set(GEN_INCLUDES
 	"ADV"
-	"ADV/geometry"
-	"ADV/property"
+	"ADV/fields"
 	"PDV"
 	)
 
@@ -44,35 +43,33 @@ set(HEADERS
     ADV/cl_GEN_ADV_Manager.hpp
 	ADV/cl_GEN_Design_Factory.hpp
 	ADV/cl_GEN_Design_Field.hpp
-	ADV/cl_GEN_Field.hpp
-	ADV/cl_GEN_Field_Analytic.hpp
-	ADV/cl_GEN_Field_Discrete_Integration.hpp
-	ADV/cl_GEN_Field_Discrete_Interpolation.hpp
-	ADV/cl_GEN_User_Defined_Field.hpp
-	ADV/cl_GEN_BSpline_Field.hpp
-	ADV/fn_GEN_create_field.hpp
+	ADV/cl_GEN_Geometry.hpp
+	ADV/cl_GEN_Level_Set_Geometry.hpp
+	ADV/cl_GEN_Property.hpp
 
-	# ADV/geometry
-	ADV/geometry/cl_GEN_Geometry.hpp
-    ADV/geometry/cl_GEN_Level_Set_Geometry.hpp
-	ADV/geometry/cl_GEN_Circle.hpp
-	ADV/geometry/cl_GEN_Superellipse.hpp
-	ADV/geometry/cl_GEN_Sphere.hpp
-	ADV/geometry/cl_GEN_Superellipsoid.hpp
-	ADV/geometry/cl_GEN_Plane.hpp
-	ADV/geometry/cl_GEN_Mesh_Field_Geometry.hpp
-	ADV/geometry/cl_GEN_Voxel_Input.hpp
-	ADV/geometry/cl_GEN_Single_Grain.hpp
-	ADV/geometry/cl_GEN_Stored_Field.hpp
-	ADV/geometry/cl_GEN_Geometry_SDF.hpp
-	ADV/geometry/cl_GEN_Image_SDF_Geometry.hpp
-	ADV/geometry/cl_GEN_Combined_Fields.hpp
-	ADV/geometry/cl_GEN_Field_Array_Factory.hpp
-
-	# ADV/property
-	ADV/property/cl_GEN_Property.hpp
-	ADV/property/cl_GEN_Constant_Property.hpp
-	ADV/property/cl_GEN_Scaled_Field.hpp
+	# ADV/fields
+	ADV/fields/cl_GEN_Field.hpp
+	ADV/fields/cl_GEN_Field_Analytic.hpp
+	ADV/fields/cl_GEN_Field_Discrete_Integration.hpp
+	ADV/fields/cl_GEN_Field_Discrete_Interpolation.hpp
+	ADV/fields/cl_GEN_Constant_Property.hpp
+	ADV/fields/cl_GEN_Scaled_Field.hpp
+	ADV/fields/cl_GEN_BSpline_Field.hpp
+	ADV/fields/cl_GEN_Circle.hpp
+	ADV/fields/cl_GEN_Superellipse.hpp
+	ADV/fields/cl_GEN_Sphere.hpp
+	ADV/fields/cl_GEN_Superellipsoid.hpp
+	ADV/fields/cl_GEN_Plane.hpp
+	ADV/fields/cl_GEN_Mesh_Field_Geometry.hpp
+	ADV/fields/cl_GEN_Voxel_Input.hpp
+	ADV/fields/cl_GEN_Single_Grain.hpp
+	ADV/fields/cl_GEN_Stored_Field.hpp
+	ADV/fields/cl_GEN_Geometry_SDF.hpp
+	ADV/fields/cl_GEN_Image_SDF_Geometry.hpp
+	ADV/fields/cl_GEN_Combined_Fields.hpp
+	ADV/fields/cl_GEN_User_Defined_Field.hpp
+	ADV/fields/fn_GEN_create_field.hpp
+	ADV/fields/cl_GEN_Field_Array_Factory.hpp
 
 	# PDV
 	PDV/cl_GEN_Pdv_Host_Manager.hpp
@@ -86,6 +83,7 @@ set(HEADERS
 	PDV/cl_GEN_Intersection_Node_Linear.hpp
 	PDV/cl_GEN_Intersection_Node_Bilinear.hpp
     )
+
 # List library source files
 set(LIB_SOURCES
 
@@ -99,34 +97,32 @@ set(LIB_SOURCES
 	ADV/cl_GEN_ADV_Manager.cpp
 	ADV/cl_GEN_Design_Factory.cpp
 	ADV/cl_GEN_Design_Field.cpp
-	ADV/cl_GEN_Field.cpp
-	ADV/cl_GEN_Field_Discrete_Integration.cpp
-	ADV/cl_GEN_Field_Discrete_Interpolation.cpp
-	ADV/cl_GEN_User_Defined_Field.cpp
-	ADV/cl_GEN_BSpline_Field.cpp
-	ADV/fn_GEN_create_field.cpp
+	ADV/cl_GEN_Geometry.cpp
+	ADV/cl_GEN_Level_Set_Geometry.cpp
+	ADV/cl_GEN_Property.cpp
 
-	# ADV/geometry
-	ADV/geometry/cl_GEN_Geometry.cpp
-    ADV/geometry/cl_GEN_Level_Set_Geometry.cpp
-	ADV/geometry/cl_GEN_Circle.cpp
-	ADV/geometry/cl_GEN_Superellipse.cpp
-	ADV/geometry/cl_GEN_Sphere.cpp
-	ADV/geometry/cl_GEN_Superellipsoid.cpp
-	ADV/geometry/cl_GEN_Plane.cpp
-	ADV/geometry/cl_GEN_Mesh_Field_Geometry.cpp
-	ADV/geometry/cl_GEN_Voxel_Input.cpp
-	ADV/geometry/cl_GEN_Single_Grain.cpp
-	ADV/geometry/cl_GEN_Stored_Field.cpp
-	ADV/geometry/cl_GEN_Geometry_SDF.cpp
-	ADV/geometry/cl_GEN_Image_SDF_Geometry.cpp
-	ADV/geometry/cl_GEN_Combined_Fields.cpp
-	ADV/geometry/cl_GEN_Field_Array_Factory.cpp
-
-	# ADV/property
-	ADV/property/cl_GEN_Property.cpp
-	ADV/property/cl_GEN_Constant_Property.cpp
-	ADV/property/cl_GEN_Scaled_Field.cpp
+	# ADV/fields
+	ADV/fields/cl_GEN_Field.cpp
+	ADV/fields/cl_GEN_Field_Discrete_Integration.cpp
+	ADV/fields/cl_GEN_Field_Discrete_Interpolation.cpp
+	ADV/fields/cl_GEN_Constant_Property.cpp
+	ADV/fields/cl_GEN_Scaled_Field.cpp
+	ADV/fields/cl_GEN_BSpline_Field.cpp
+	ADV/fields/cl_GEN_Circle.cpp
+	ADV/fields/cl_GEN_Superellipse.cpp
+	ADV/fields/cl_GEN_Sphere.cpp
+	ADV/fields/cl_GEN_Superellipsoid.cpp
+	ADV/fields/cl_GEN_Plane.cpp
+	ADV/fields/cl_GEN_Mesh_Field_Geometry.cpp
+	ADV/fields/cl_GEN_Voxel_Input.cpp
+	ADV/fields/cl_GEN_Single_Grain.cpp
+	ADV/fields/cl_GEN_Stored_Field.cpp
+	ADV/fields/cl_GEN_Geometry_SDF.cpp
+	ADV/fields/cl_GEN_Image_SDF_Geometry.cpp
+	ADV/fields/cl_GEN_Combined_Fields.cpp
+	ADV/fields/cl_GEN_User_Defined_Field.cpp
+	ADV/fields/fn_GEN_create_field.cpp
+	ADV/fields/cl_GEN_Field_Array_Factory.cpp
 
 	# PDV
 	PDV/cl_GEN_Pdv_Host_Manager.cpp
