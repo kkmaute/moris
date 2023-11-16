@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Geometry_SDF.hpp
+ * cl_GEN_Signed_Distance_Field.hpp
  *
  */
 
@@ -18,7 +18,7 @@
 
 namespace moris::ge
 {
-    class Geometry_SDF : public Field_Discrete_Integration
+    class Signed_Distance_Field : public Field_Discrete_Integration
     {
 
       private:
@@ -35,7 +35,7 @@ namespace moris::ge
          * @param aMesh Mesh with the level set fields
          * @param aFieldNames Names of the fields
          */
-        Geometry_SDF( std::string         aObjectPath,
+        Signed_Distance_Field( std::string         aObjectPath,
                 Matrix< DDRMat >          aObjectOffset,
                 real                      aSDFShift   = 0,
                 Level_Set_Parameters aParameters = Level_Set_Parameters() );

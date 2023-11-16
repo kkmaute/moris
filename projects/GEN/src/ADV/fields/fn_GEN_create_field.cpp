@@ -24,7 +24,7 @@
 #include "cl_GEN_Combined_Fields.hpp"
 #include "cl_GEN_Field_Array_Factory.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
-#include "cl_GEN_Geometry_SDF.hpp"
+#include "cl_GEN_Signed_Distance_Field.hpp"
 #include "cl_GEN_Image_SDF_Geometry.hpp"
 
 namespace moris::ge
@@ -177,7 +177,7 @@ namespace moris::ge
             Matrix< DDRMat > tObjectOffset = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
             real             tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
 
-            tField = std::make_shared< ge::Geometry_SDF >(
+            tField = std::make_shared< ge::Signed_Distance_Field >(
                     tObjectPath,
                     tObjectOffset,
                     tSDFShift );

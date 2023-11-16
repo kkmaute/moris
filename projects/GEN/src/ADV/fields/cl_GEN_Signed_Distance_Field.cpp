@@ -4,11 +4,11 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Geometry_SDF.cpp
+ * cl_GEN_Geometry_Signed_Distance_Field.cpp
  *
  */
 
-#include "cl_GEN_Geometry_SDF.hpp"
+#include "cl_GEN_Signed_Distance_Field.hpp"
 #include "cl_SDF_Generator.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
@@ -17,7 +17,7 @@ namespace moris::ge
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Geometry_SDF::Geometry_SDF(
+    Signed_Distance_Field::Signed_Distance_Field(
             std::string               aObjectPath,
             Matrix< DDRMat >          aObjectOffset,
             real                      aSDFShift,
@@ -37,7 +37,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Geometry_SDF::get_field_value( uint aNodeIndex )
+    Signed_Distance_Field::get_field_value( uint aNodeIndex )
     {
         MORIS_ASSERT( mValues.numel() > aNodeIndex,
                 "Geometry_SDF::get_field_value() - "
@@ -58,7 +58,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Geometry_SDF::evaluate_nodal_values()
+    Signed_Distance_Field::evaluate_nodal_values()
     {
         mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
 
@@ -170,7 +170,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Geometry_SDF::reset_nodal_data()
+    Signed_Distance_Field::reset_nodal_data()
     {
         // Reset child nodes
         Field_Discrete_Integration::reset_nodal_data();
