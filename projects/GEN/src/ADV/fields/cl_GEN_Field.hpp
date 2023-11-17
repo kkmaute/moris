@@ -197,7 +197,7 @@ namespace moris::ge
         bool has_advs();
 
         /**
-         * Sets the dependencies of this field after they have been found by the owning property. By default
+         * Sets the dependencies of this field after they have been found by the owning field. By default
          * does nothing.
          *
          * @param aDependencyFields Other fields that this field depends on.

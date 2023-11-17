@@ -48,15 +48,15 @@ namespace moris::ge
          *
          * @param aNodeIndex Node index
          * @param aCoordinates Node coordinates
-         * @return Property value
+         * @return Field value
          */
         real get_base_field_value(
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates);
 
         /**
-         * Given a node index, evaluates the sensitivity of the property field with respect to all of the
-         * property variables.
+         * Given a node index, evaluates the sensitivity of the field with respect to all of the
+         * field variables.
          *
          * @param aNodeIndex Node index
          * @param aCoordinates Node coordinates
@@ -78,9 +78,9 @@ namespace moris::ge
                 const Matrix<DDRMat>& aCoordinates);
 
         /**
-         * Sets the dependencies of this property after they have been found by update_dependencies().
+         * Sets the dependencies of this field after they have been found by update_dependencies().
          *
-         * @param aDependencyFields Fields that this property depends on.
+         * @param aDependencyFields Fields that this field depends on.
          */
         void set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields );
 

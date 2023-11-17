@@ -110,7 +110,7 @@ namespace moris::ge
 
     uint Field_Discrete_Interpolation::get_base_node_index(uint aNodeIndex)
     {
-        // until Property PDVs are defined on nodes of un-zipped mesh return trivial relation
+        // until PDVs are defined on nodes of un-zipped mesh return trivial relation
         return aNodeIndex; //tNodeToBaseIndex(aNodeIndex);
     }
 

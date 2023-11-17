@@ -11,7 +11,6 @@
 #pragma once
 
 #include "cl_GEN_Field.hpp"
-#include "cl_GEN_Property.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 #include "cl_Library_IO.hpp"
 
