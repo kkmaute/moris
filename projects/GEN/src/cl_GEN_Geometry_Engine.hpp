@@ -274,23 +274,23 @@ namespace moris
              * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
              * node has been queued, questions can be asked about the queued node:
              *
-             * @param aNodeIndex1 First node index
-             * @param aNodeIndex2 Second node index
-             * @param aFirstNodeLocalCoordinates Local coordinates of the first node inside the background element
-             * @param aSecondNodeLocalCoordinates Local coordinates of the second node inside the background element
-             * @param aFirstNodeGlobalCoordinates Global coordinates of the first node
-             * @param aSecondNodeLocalCoordinates Global coordinates of the second node
+             * @param aEdgeFirstNodeIndex First node index on the intersection edge
+             * @param aEdgeSecondNodeIndex Second node index on the intersection edge
+             * @param aEdgeFirstNodeLocalCoordinates Local coordinates of the first node inside the background element
+             * @param aEdgeSecondNodeLocalCoordinates Local coordinates of the second node inside the background element
+             * @param aEdgeFirstNodeGlobalCoordinates Global coordinates of the first node
+             * @param aEdgeSecondNodeGlobalCoordinates Global coordinates of the second node
              * @param aBackgroundElementNodeIndices Node indices of the background element
              * @param aBackgroundElementNodeCoordinates Node coordinates of the background element
              * @return If the edge is intersected and a node has been queued
              */
             bool queue_intersection(
-                    uint                            aFirstNodeIndex,
-                    uint                            aSecondNodeIndex,
-                    const Matrix< DDRMat >&         aFirstNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aSecondNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aFirstNodeGlobalCoordinates,
-                    const Matrix< DDRMat >&         aSecondNodeGlobalCoordinates,
+                    uint                            aEdgeFirstNodeIndex,
+                    uint                            aEdgeSecondNodeIndex,
+                    const Matrix< DDRMat >&         aEdgeFirstNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aEdgeSecondNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
+                    const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
                     const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
                     const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates );
 

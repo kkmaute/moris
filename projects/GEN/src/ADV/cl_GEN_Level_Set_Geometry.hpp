@@ -40,7 +40,7 @@ namespace moris::ge
         explicit Level_Set_Parameters( const ParameterList& aParameterList = prm::create_level_set_geometry_parameter_list() );
     };
 
-    class Level_Set_Geometry : public Design_Field, public Geometry
+    class Level_Set_Geometry : public Design_Field, public Geometry, public std::enable_shared_from_this< Level_Set_Geometry > // TODO make it so we don't need enable_shared_from_this, should be possible in intersection node
     {
     private:
         Level_Set_Parameters mParameters;
@@ -91,6 +91,35 @@ namespace moris::ge
          * @return The real value of the intersection tolerance
          */
         real get_intersection_tolerance();
+
+        /**
+         * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;
+         * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be
+         * requested from the created intersection node.
+         *
+         * @param aEdgeFirstNodeIndex First node index on the intersection edge
+         * @param aEdgeSecondNodeIndex Second node index on the intersection edge
+         * @param aEdgeFirstIntersectionNode First intersection node on the intersection edge, if it is also an intersection
+         * @param aEdgeSecondIntersectionNode Second intersection node on the intersection edge, if it is also an intersection
+         * @param aEdgeFirstNodeLocalCoordinates Local coordinates of the first node inside the background element
+         * @param aEdgeSecondNodeLocalCoordinates Local coordinates of the second node inside the background element
+         * @param aEdgeFirstNodeGlobalCoordinates Global coordinates of the first node
+         * @param aEdgeSecondNodeGlobalCoordinates Global coordinates of the second node
+         * @param aBackgroundElementNodeIndices Node indices of the background element
+         * @param aBackgroundElementNodeCoordinates Node coordinates of the background element
+         * @return Created intersection node
+         */
+        std::shared_ptr< Intersection_Node > create_intersection_node(
+                uint                                 aEdgeFirstNodeIndex,
+                uint                                 aEdgeSecondNodeIndex,
+                std::shared_ptr< Intersection_Node > aEdgeFirstIntersectionNode,
+                std::shared_ptr< Intersection_Node > aEdgeSecondIntersectionNode,
+                const Matrix< DDRMat >&              aEdgeFirstNodeLocalCoordinates,
+                const Matrix< DDRMat >&              aEdgeSecondNodeLocalCoordinates,
+                const Matrix< DDRMat >&              aEdgeFirstNodeGlobalCoordinates,
+                const Matrix< DDRMat >&              aEdgeSecondNodeGlobalCoordinates,
+                const Matrix< DDUMat >&              aBackgroundElementNodeIndices,
+                const Cell< Matrix< DDRMat > >&      aBackgroundElementNodeCoordinates ) override;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh

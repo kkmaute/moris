@@ -487,88 +487,29 @@ namespace moris
 
         bool
         Geometry_Engine::queue_intersection(
-                uint                            aFirstNodeIndex,
-                uint                            aSecondNodeIndex,
-                const Matrix< DDRMat >&         aFirstNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aSecondNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aFirstNodeGlobalCoordinates,
-                const Matrix< DDRMat >&         aSecondNodeGlobalCoordinates,
+                uint                            aEdgeFirstNodeIndex,
+                uint                            aEdgeSecondNodeIndex,
+                const Matrix< DDRMat >&         aEdgeFirstNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aEdgeSecondNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
+                const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
                 const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
                 const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
         {
-            // Get the current geometries intersection mode
-            Intersection_Mode tIntersectionMode = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
-            // Queue an intersection node
-            switch ( tIntersectionMode )
-            {
-                case Intersection_Mode::LEVEL_SET:
-                {
-                    switch ( mGeometries( mActiveGeometryIndex )->get_intersection_interpolation() )
-                    {
-                        case Int_Interpolation::LINEAR:
-                        {
-                            mQueuedIntersectionNode = std::make_shared< Intersection_Node_Linear >(
-                                    mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                    mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
-                                    aFirstNodeIndex,
-                                    aSecondNodeIndex,
-                                    aFirstNodeGlobalCoordinates,
-                                    aSecondNodeGlobalCoordinates,
-                                    mGeometries( mActiveGeometryIndex ) );
-                            break;
-                        }
-                        case Int_Interpolation::MULTILINEAR:
-                        {
-                            Element_Interpolation_Type tInterpolationType =
-                                    mNumSpatialDimensions == 2 ? Element_Interpolation_Type::Linear_2D : Element_Interpolation_Type::Linear_3D;
+            // Create intersection node
+            mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node(
+                    aEdgeFirstNodeIndex,
+                    aEdgeSecondNodeIndex,
+                    mPDVHostManager.get_intersection_node( aEdgeFirstNodeIndex ),
+                    mPDVHostManager.get_intersection_node( aEdgeSecondNodeIndex ),
+                    aEdgeFirstNodeLocalCoordinates,
+                    aEdgeSecondNodeLocalCoordinates,
+                    aEdgeFirstNodeGlobalCoordinates,
+                    aEdgeSecondNodeGlobalCoordinates,
+                    aBackgroundElementNodeIndices,
+                    aBackgroundElementNodeCoordinates );
 
-                            mQueuedIntersectionNode = std::make_shared< Intersection_Node_Bilinear >(
-                                    mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                    mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
-                                    aFirstNodeIndex,
-                                    aSecondNodeIndex,
-                                    aFirstNodeLocalCoordinates,
-                                    aSecondNodeLocalCoordinates,
-                                    aBackgroundElementNodeIndices,
-                                    aBackgroundElementNodeCoordinates,
-                                    tInterpolationType,
-                                    mGeometries( mActiveGeometryIndex ) );
-                            break;
-                        }
-                        default:
-                        {
-                            MORIS_ERROR( false, "Intersection interpolation type not implemented yet." );
-                        }
-                    }
-                    break;
-                }
-                case Intersection_Mode::COLORING:
-                {
-                    // Determine if edge is intersected
-                    if ( mGeometries( mActiveGeometryIndex )->get_field_value( aFirstNodeIndex, aFirstNodeGlobalCoordinates ) != mGeometries( mActiveGeometryIndex )->get_field_value( aSecondNodeIndex, aSecondNodeGlobalCoordinates ) )
-                    {
-                        mQueuedIntersectionNode = std::make_shared< Intersection_Node_Linear >(
-                                mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
-                                aFirstNodeIndex,
-                                aSecondNodeIndex,
-                                aFirstNodeGlobalCoordinates,
-                                aSecondNodeGlobalCoordinates,
-                                mGeometries( mActiveGeometryIndex ) );
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
-                }
-            }
-
+            // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();
         }
 
