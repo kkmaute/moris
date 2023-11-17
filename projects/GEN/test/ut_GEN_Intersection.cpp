@@ -19,7 +19,7 @@
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_check_equal.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
-#include "cl_GEN_Mesh_Field_Geometry.hpp"
+#include "cl_GEN_Mesh_Field.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 
 #include "fn_PRM_GEN_Parameters.hpp"
@@ -592,7 +592,7 @@ namespace moris::ge
             tLevelSetParameters.mIntersectionInterpolation = Int_Interpolation::MULTILINEAR;
             tLevelSetParameters.mIsocontourThreshold = 0.5;
             tLevelSetParameters.mIsocontourTolerance = 1E-13;
-            auto tField = std::make_shared< Mesh_Field_Geometry >( tMeshData, tLSFName );
+            auto tField = std::make_shared< Mesh_Field >( tMeshData, tLSFName );
             tGeometry( 0 ) = std::make_shared< Level_Set_Geometry >( tField, tLevelSetParameters );
             
             Geometry_Engine_Parameters tGeometryEngineParameters;

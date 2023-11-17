@@ -4,11 +4,11 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Mesh_Field_Geometry.cpp
+ * cl_GEN_Mesh_Field.cpp
  *
  */
 
-#include "cl_GEN_Mesh_Field_Geometry.hpp"
+#include "cl_GEN_Mesh_Field.hpp"
 #include "cl_MTK_Exodus_IO_Helper.hpp"
 #include "HDF5_Tools.hpp"
 
@@ -19,10 +19,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Mesh_Field_Geometry::Mesh_Field_Geometry(mtk::Mesh*  aMesh,
+        Mesh_Field::Mesh_Field(
+                mtk::Mesh*  aMesh,
                 std::string aFieldName,
-                mtk::EntityRank  aEntityRank,
-                Level_Set_Parameters                         aParameters)
+                mtk::EntityRank  aEntityRank )
                  : Field_Discrete_Integration( Matrix< DDRMat >{{}}, aMesh->get_num_nodes())
                  , mMesh(aMesh)
                  , mFieldName(aFieldName)
@@ -32,14 +32,13 @@ namespace moris
          }
 
         //--------------------------------------------------------------------------------------------------------------
-        Mesh_Field_Geometry::Mesh_Field_Geometry(
+         Mesh_Field::Mesh_Field(
                 mtk::Mesh*  aMesh,
                 std::string aFileName,
                 std::string aFieldName,
                 std::string aFileFormat,
                 real        aOffset,
-                mtk::EntityRank  aEntityRank,
-                 Level_Set_Parameters aParameters)
+                mtk::EntityRank  aEntityRank )
                 : Field_Discrete_Integration( Matrix< DDRMat>{{}}, aMesh == nullptr ? 0 : aMesh->get_num_nodes())
                 , mMesh(aMesh)
                 , mFieldName(aFieldName)
@@ -74,7 +73,7 @@ namespace moris
                 if ( aMesh != nullptr )
                 {
                     MORIS_ERROR( tNumNodes == aMesh->get_num_nodes(),
-                            "Mesh_Field_Geometry::Mesh_Field_Geometry - inconsistent number of nodes.");
+                            "Mesh_Field::Mesh_Field - inconsistent number of nodes.");
                 }
 
                 mFieldData=tExoIO.get_nodal_field_vector(tFieldIndex);
@@ -102,12 +101,13 @@ namespace moris
 
             // check the data was read
             MORIS_ERROR( tError == false,
-                    "Mesh_Field_Geometry::Mesh_Field_Geometry - incorrect file format.");
+                    "Mesh_Field::Mesh_Field - incorrect file format.");
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Mesh_Field_Geometry::get_field_value(uint aNodeIndex)
+        real
+        Mesh_Field::get_field_value(uint aNodeIndex)
         {
             if ( mUseOwnData )
             {
@@ -128,9 +128,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Mesh_Field_Geometry::get_dfield_dadvs(uint aNodeIndex)
+        const Matrix<DDRMat>&
+        Mesh_Field::get_dfield_dadvs(uint aNodeIndex)
         {
-            MORIS_ERROR(false, "get_dfield_dadvs function is not implemented for a mesh field geometry.");
+            MORIS_ERROR(false, "get_dfield_dadvs function is not implemented for a mesh field.");
             return mSensitivities;
         }
 

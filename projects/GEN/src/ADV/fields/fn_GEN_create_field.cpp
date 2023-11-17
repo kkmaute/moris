@@ -23,7 +23,7 @@
 #include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_Combined_Fields.hpp"
 #include "cl_GEN_Field_Array_Factory.hpp"
-#include "cl_GEN_Mesh_Field_Geometry.hpp"
+#include "cl_GEN_Mesh_Field.hpp"
 #include "cl_GEN_Signed_Distance_Field.hpp"
 #include "cl_GEN_Image_Signed_Distance_Field.hpp"
 
@@ -154,7 +154,7 @@ namespace moris::ge
         {
             MORIS_ERROR( aMTKMesh != nullptr, "Mesh is a null ptr for nodal field geometry" );
 
-            tField = std::make_shared< ge::Mesh_Field_Geometry >( aMTKMesh, tName, mtk::EntityRank::NODE );
+            tField = std::make_shared< ge::Mesh_Field >( aMTKMesh, tName, mtk::EntityRank::NODE );
         }
         else if ( tFieldType == "nodal_field_from_file" )
         {
@@ -163,7 +163,7 @@ namespace moris::ge
             std::string tFieldFormat = aFieldParameterList.get< std::string >( "file_format" );
             real        tOffset      = aFieldParameterList.get< real >( "offset" );
 
-            tField = std::make_shared< ge::Mesh_Field_Geometry >(
+            tField = std::make_shared< ge::Mesh_Field >(
                     aMTKMesh,
                     tFileName,
                     tFieldName,

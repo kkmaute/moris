@@ -4,13 +4,12 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Mesh_Field_Geometry.hpp
+ * cl_GEN_Mesh_Field.hpp
  *
  */
 
 #pragma once
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Matrix.hpp"
@@ -18,7 +17,7 @@
 
 namespace moris::ge
 {
-    class Mesh_Field_Geometry: public Field_Discrete_Integration
+    class Mesh_Field : public Field_Discrete_Integration
     {
         private:
 
@@ -37,10 +36,10 @@ namespace moris::ge
              * @param aMesh       Mesh with the level set fields
              * @param aFieldName  Name of the field
              */
-            Mesh_Field_Geometry(mtk::Mesh*  aMesh,
-                    std::string aFieldName,
-                    mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE,
-                    Level_Set_Parameters    aParameters = Level_Set_Parameters() );
+          Mesh_Field(
+                  mtk::Mesh*  aMesh,
+                  std::string aFieldName,
+                  mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE );
 
             /**
               * Constructor
@@ -51,28 +50,27 @@ namespace moris::ge
               * @param aFileFormat  Name of file format (e.g., exodus)
               *
               */
-            Mesh_Field_Geometry(
-                            mtk::Mesh*  aMesh,
-                            std::string aFileName,
-                            std::string aFieldName,
-                            std::string aFileFormat,
-                            real        aOffset,
-                            mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE,
-                    Level_Set_Parameters aParameters = Level_Set_Parameters());
+          Mesh_Field(
+                  mtk::Mesh*  aMesh,
+                  std::string aFileName,
+                  std::string aFieldName,
+                  std::string aFileFormat,
+                  real        aOffset,
+                  mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE );
 
             /**
              * Given a node index, returns the field value.
              *
              * @param aNodeIndex Node index
-             * @return Distance to this geometry
+             * @return Mesh field value
              */
             real get_field_value(uint aNodeIndex);
 
         private:
 
             /**
-             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
-             * geometry variables. This is currently not implemented for a mesh field geometry.
+             * Given a node index, evaluates the sensitivity of the field with respect to all of the
+             * field variables. This is currently not implemented for a mesh field.
              *
              * @param aNodeIndex Node index
              * @return Vector of sensitivities

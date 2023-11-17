@@ -60,7 +60,7 @@ set(HEADERS
 	ADV/fields/cl_GEN_Sphere.hpp
 	ADV/fields/cl_GEN_Superellipsoid.hpp
 	ADV/fields/cl_GEN_Plane.hpp
-	ADV/fields/cl_GEN_Mesh_Field_Geometry.hpp
+	ADV/fields/cl_GEN_Mesh_Field.hpp
 	ADV/fields/cl_GEN_Voxel_Input.hpp
 	ADV/fields/cl_GEN_Single_Grain.hpp
 	ADV/fields/cl_GEN_Stored_Field.hpp
@@ -113,7 +113,7 @@ set(LIB_SOURCES
 	ADV/fields/cl_GEN_Sphere.cpp
 	ADV/fields/cl_GEN_Superellipsoid.cpp
 	ADV/fields/cl_GEN_Plane.cpp
-	ADV/fields/cl_GEN_Mesh_Field_Geometry.cpp
+	ADV/fields/cl_GEN_Mesh_Field.cpp
 	ADV/fields/cl_GEN_Voxel_Input.cpp
 	ADV/fields/cl_GEN_Single_Grain.cpp
 	ADV/fields/cl_GEN_Stored_Field.cpp

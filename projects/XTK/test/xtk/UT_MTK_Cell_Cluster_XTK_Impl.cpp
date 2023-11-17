@@ -23,7 +23,7 @@
 #include "cl_MTK_Mesh_Data_STK.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 
-#include "cl_GEN_Mesh_Field_Geometry.hpp"
+#include "cl_GEN_Mesh_Field.hpp"
 
 namespace xtk
 {
@@ -97,7 +97,7 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
 
         // geometry
         Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry( 1 );
-        auto tField = std::make_shared<moris::ge::Mesh_Field_Geometry>( tMeshData, tLSFName );
+        auto tField = std::make_shared<moris::ge::Mesh_Field >( tMeshData, tLSFName );
         tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tField );
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

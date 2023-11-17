@@ -44,7 +44,7 @@
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
 
-#include "cl_GEN_Mesh_Field_Geometry.hpp"
+#include "cl_GEN_Mesh_Field.hpp"
 #include "cl_GEN_Plane.hpp"
 
 namespace xtk
@@ -105,7 +105,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::mtk::EntityRank::NODE, tLevelsetVal);
 
-        auto tField = std::make_shared< ge::Mesh_Field_Geometry >( tMeshData, tLSFName );
+        auto tField = std::make_shared< ge::Mesh_Field >( tMeshData, tLSFName );
         Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
