@@ -20,7 +20,7 @@ namespace moris::ge
 
     private:
 
-        std::shared_ptr< Field > mVoxelGeometry = nullptr;
+        std::shared_ptr< Field > mVoxelField = nullptr;
         uint                      mIndex = MORIS_UINT_MAX;
 
     public:
@@ -29,20 +29,20 @@ namespace moris::ge
          * Constructor
          */
         Single_Grain(
-                std::shared_ptr< Field >  aVoxelGeometry,
+                std::shared_ptr< Field >  aVoxelField,
                 uint                      aIndex );
 
         /**
          * Given a node coordinate, returns the field value.
          *
          * @param aCoordinates Coordinate values
-         * @return Distance to this geometry
+         * @return Field value
          */
         real get_field_value(const Matrix<DDRMat>& aCoordinates);
 
         /**
-         * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
-         * geometry variables.
+         * Given a node coordinate, evaluates the sensitivity of the field with respect to all of the
+         * field variables.
          *
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities

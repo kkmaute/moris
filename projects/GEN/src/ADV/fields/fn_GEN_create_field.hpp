@@ -21,8 +21,7 @@ namespace moris::ge
     /**
      * Creates an instance of the specified Field class and returns a shared pointer to it.
      *
-     * @tparam Vector_Type Type of vector where ADVs are stored
-     * @param aGeometryParameterList Parameter list for creating a field class
+     * @param aFieldParameterList Parameter list for creating a field class
      * @param aADVs ADV Vector
      * @param aLibrary Pointer to library for loading user-defined functions
      * @return Pointer to a Field object

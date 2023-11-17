@@ -36,13 +36,13 @@ namespace moris::ge
          * Given a node coordinate, returns the field value.
          *
          * @param aCoordinates Coordinate values
-         * @return Distance to this geometry
+         * @return Field value
          */
         real get_field_value(const Matrix<DDRMat>& aCoordinates);
 
         /**
-         * Given a node coordinate, evaluates the sensitivity of the geometry field with respect to all of the
-         * geometry variables.
+         * Given a node coordinate, evaluates the sensitivity of the field with respect to all of the
+         * field variables.
          *
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities

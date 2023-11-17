@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Geometry_Signed_Distance_Field.cpp
+ * cl_GEN_Signed_Distance_Field.cpp
  *
  */
 
@@ -39,7 +39,7 @@ namespace moris::ge
     Signed_Distance_Field::get_field_value( uint aNodeIndex )
     {
         MORIS_ASSERT( mValues.numel() > aNodeIndex,
-                "Geometry_SDF::get_field_value() - "
+                "Signed_Distance_Field::get_field_value() - "
                 "Node index out of bounds, mValues numel: %zu , aNodeIndex %i",
                 mValues.numel(),
                 aNodeIndex );
@@ -48,11 +48,11 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    //        const Matrix<DDRMat>& Geometry_SDF::get_dfield_dadvs(uint aNodeIndex)
-    //        {
-    //            MORIS_ERROR(false, "get_dfield_dadvs function is not implemented for a mesh field geometry.");
-    //            return mSensitivities;
-    //        }
+    const Matrix<DDRMat>& Signed_Distance_Field::get_dfield_dadvs(uint aNodeIndex)
+    {
+        MORIS_ERROR( false, "get_dfield_dadvs function is not implemented for a signed distance field." );
+        return mSensitivities;
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 

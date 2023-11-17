@@ -42,7 +42,7 @@ namespace moris::ge
          * Given a node index, returns the field value.
          *
          * @param aNodeIndex Node index
-         * @return Distance to this geometry
+         * @return Field value
          */
         real get_field_value( uint aNodeIndex );
 
@@ -51,16 +51,12 @@ namespace moris::ge
         void reset_nodal_data();
 
         const Matrix< DDRMat >&
-        get_dfield_dadvs( uint aNodeIndex )
-        {
-            MORIS_ERROR( false, "get_dfield_dadvs(), not implemented for Geometry_SDF" );
-            return mObjectOffset;
-        }
+        get_dfield_dadvs( uint aNodeIndex );
 
       private:
         /**
-         * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
-         * geometry variables. This is currently not implemented for a mesh field geometry.
+         * Given a node index, evaluates the sensitivity of the field with respect to all of the
+         * field variables. This is currently not implemented for a signed distance field.
          *
          * @param aNodeIndex Node index
          * @return Vector of sensitivities
@@ -70,7 +66,7 @@ namespace moris::ge
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates )
         {
-            MORIS_ERROR( false, "get_base_dfield_dadvs(), not implemented for Geometry_SDF" );
+            MORIS_ERROR( false, "get_base_dfield_dadvs(), not implemented for a signed distance field" );
             return mObjectOffset;
         }
     };

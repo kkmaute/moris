@@ -60,13 +60,13 @@ namespace moris::ge
          * Given a node index, returns the field value.
          *
          * @param aNodeIndex Node index
-         * @return Distance to this geometry
+         * @return Field value
          */
         real get_field_value( uint aNodeIndex ) override;
 
         /**
-         * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
-         * geometry variables.
+         * Given a node index, evaluates the sensitivity of the field with respect to all of the
+         * field variables.
          *
          * @param aNodeIndex Node index
          * @return Vector of sensitivities
@@ -100,7 +100,7 @@ namespace moris::ge
     private:
 
         /**
-         * Maps the level set field from nodes to B-splines for the given geometry.
+         * Maps the level set field from nodes to B-splines for the given field.
          *
          * @return Target field
          */

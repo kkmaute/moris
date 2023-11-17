@@ -91,7 +91,7 @@ namespace moris::ge
         // Check field evaluation function
         MORIS_ERROR( get_field_value_user_defined, "No field evaluation function was provided to a user-defined field." );
         MORIS_ASSERT( std::isfinite( this->get_field_value_user_defined( { { 0.0, 0.0, 0.0 } }, mFieldVariables ) ),
-                "There is an error in a user-defined geometry field (field evaluates to nan/infinity)." );
+                "There is an error in a user-defined field (field evaluates to nan/infinity)." );
 
         // Set sensitivity evaluation function
         if ( aSensitivityFunction == nullptr )
@@ -109,12 +109,12 @@ namespace moris::ge
 
             // Check for row vector
             MORIS_ERROR( mSensitivities.n_rows() == 1,
-                    "A user-defined geometry must provide a row vector for sensitivities." );
+                    "A user-defined field must provide a row vector for sensitivities." );
 
             // Check for size
             MORIS_ERROR( mSensitivities.n_cols() == mFieldVariables.size(),
-                    "A user-defined geometry must have a sensitivity vector with a length equal to the total "
-                    "number of geometry variables (ADVs + constants). sensitivities: %zu   geom variables: %zu \n",
+                    "A user-defined field must have a sensitivity vector with a length equal to the total "
+                    "number of field variables (ADVs + constants). sensitivities: %zu   geom variables: %zu \n",
                     mSensitivities.n_cols(),
                     mFieldVariables.size() );
 
@@ -122,7 +122,7 @@ namespace moris::ge
             for ( uint tSensitivityIndex = 0; tSensitivityIndex < mSensitivities.n_cols(); tSensitivityIndex++ )
             {
                 MORIS_ASSERT( std::isfinite( mSensitivities( tSensitivityIndex ) ),
-                        "There is an error in a user-defined geometry sensitivity (evaluates to nan/infinity)." );
+                        "There is an error in a user-defined field sensitivity (evaluates to nan/infinity)." );
             }
         }
     }
@@ -136,7 +136,7 @@ namespace moris::ge
             Matrix< DDRMat >&       aSensitivities )
     {
         MORIS_ERROR( false,
-                "A sensitivity evaluation function was not provided to a user-defined geometry. "
+                "A sensitivity evaluation function was not provided to a user-defined field. "
                 "Please make sure that you provide this function, or that sensitivities are not required." );
     }
 

@@ -34,11 +34,11 @@ namespace moris::ge
                 std::string                      aName = "" );
 
         /**
-         * Given a node coordinate, the geometry needs to return the distance to the nearest function.
+         * Given a node coordinate, returns the minimum (or maximum) field value of all fields that have been combined.
          *
          * @param aNodeIndex Node index
          * @param aCoordinates vector of coordinate values
-         * @return distance to nearest function
+         * @return Minimum field value, after scaling has been applied
          */
         real get_field_value(
                 uint                    aNodeIndex,

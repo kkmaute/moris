@@ -18,10 +18,10 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Single_Grain::Single_Grain(
-            std::shared_ptr< Field > aVoxelGeometry,
+            std::shared_ptr< Field > aVoxelField,
             uint                      aIndex )
             : Field_Analytic( {} )
-            , mVoxelGeometry(aVoxelGeometry)
+            , mVoxelField(aVoxelField)
             , mIndex(aIndex)
     {
     }
@@ -30,7 +30,7 @@ namespace moris::ge
 
     real Single_Grain::get_field_value( const Matrix<DDRMat>& aCoordinates )
     {
-        moris::real tGeoValue = reinterpret_cast< Voxel_Input* >(mVoxelGeometry.get())->get_field_value(aCoordinates);
+        moris::real tGeoValue = reinterpret_cast< Voxel_Input* >(mVoxelField.get())->get_field_value(aCoordinates);
 
         moris::real tValue = -1.0;
 
