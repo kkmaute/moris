@@ -78,6 +78,9 @@ struct PerformerManager
   moris::Cell< std::shared_ptr< moris::ge::Geometry_Engine > >           mPerformerGEN;
   moris::Cell< std::shared_ptr< moris::wrk::Reinitialize_Performer > >   mPerformerRIP;
   moris::Cell< std::shared_ptr< moris::wrk::Remeshing_Mini_Performer > > mPerformerRMP;
+
+  std::shared_ptr<mtk::Integration_Mesh>   mIntegrationMesh; 
+  std::shared_ptr<mtk::Interpolation_Mesh> mInterpolationMesh;
 };
 
 struct MetaDataXTK
@@ -830,7 +833,7 @@ void
 perform(
   MorphMoris::InputMetaData    & aInputParameters,
   MorphMoris::PerformerManager & aPerformerManager,
-  bool                             aWorkflowInitialize = false
+  bool                           aWorkflowInitialize = false
 )
 {
   // initialize hmr-xtk workflow
@@ -846,6 +849,147 @@ perform(
 }
 
 } // namespace xtkhmr
+
+namespace xtkstk
+{
+  
+void
+allocatePerformers(
+  MorphMoris::PerformerManager & aPerformerManager  
+)
+{
+  // performer set for this workflow
+  //
+  aPerformerManager.mPerformerGEN.resize(1);
+  aPerformerManager.mPerformerXTK.resize(1);
+  aPerformerManager.mPerformerMTK.resize(2);
+}
+
+void
+createMeshPerformers( 
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager  
+)
+{
+  // build mesh path
+  //
+  auto tMeshPath = aInputParameters.mParametersSTK(0)(0).get<std::string>("input_path");
+  tMeshPath = tMeshPath.back() == '/' ? tMeshPath : tMeshPath + "/";
+  auto tMeshFile = aInputParameters.mParametersSTK(0)(0).get<std::string>("input_file");
+  std::string tMeshFilePlusPath = tMeshPath + tMeshFile;
+  // construct interpolation mesh
+  //
+  aPerformerManager.mInterpolationMesh = std::make_shared< mtk::Interpolation_Mesh_STK >( 
+    tMeshFilePlusPath, /*supplementary_mesh_data=*/nullptr, true 
+  );
+  // construct integration mesh
+  //
+  aPerformerManager.mIntegrationMesh = std::make_shared< mtk::Integration_Mesh_STK >( 
+    *aPerformerManager.mInterpolationMesh, /*cell_cluster_data=*/nullptr 
+  ) ;
+}
+
+void 
+createPerformers(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager  
+)
+{
+  // load interpolation and integration meshes
+  //
+  aPerformerManager.mPerformerMTK( 0 ) = std::make_shared< mtk::Mesh_Manager >();
+  aPerformerManager.mPerformerMTK( 0 )->register_mesh_pair( 
+    aPerformerManager.mInterpolationMesh.get(), aPerformerManager.mIntegrationMesh.get() 
+  );
+  // create gen performer
+  //
+  aPerformerManager.mPerformerGEN( 0 ) = std::make_shared< ge::Geometry_Engine >(
+    aInputParameters.mParametersGEN, nullptr, aPerformerManager.mPerformerMTK( 0 )->get_interpolation_mesh( 0 ) 
+  );
+  // create mtk performer - will be used for xtk mesh
+  //
+  aPerformerManager.mPerformerMTK( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+}
+
+void 
+create(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager  
+)
+{
+  // allocate performer's data structures 
+  //
+  MorphMoris::workflow::xtkstk::allocatePerformers(aPerformerManager);
+  // create mesh performers
+  //
+  MorphMoris::workflow::xtkstk::createMeshPerformers(aInputParameters,aPerformerManager);
+  // create gen performers
+  //
+  MorphMoris::workflow::xtkstk::createPerformers(aInputParameters,aPerformerManager);
+}
+
+void
+initialize(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager
+)
+{
+  aPerformerManager.mPerformerGEN( 0 )->distribute_advs(
+    aPerformerManager.mPerformerMTK( 0 )->get_mesh_pair( 0 ), {} 
+  );
+}
+
+void
+createPerformerXTK(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager
+)
+{
+  // create xtk performer
+  //
+  aPerformerManager.mPerformerXTK( 0 ) = 
+    std::make_shared< xtk::Model >( aInputParameters.mParametersXTK( 0 )( 0 ) );
+  // reset output mtk performer
+  //
+  aPerformerManager.mPerformerMTK( 1 ) = std::make_shared< mtk::Mesh_Manager >();
+  // set performers
+  //
+  aPerformerManager.mPerformerXTK( 0 )->set_geometry_engine( aPerformerManager.mPerformerGEN( 0 ).get() );
+  aPerformerManager.mPerformerXTK( 0 )->set_input_performer( aPerformerManager.mPerformerMTK( 0 ) );
+  aPerformerManager.mPerformerXTK( 0 )->set_output_performer( aPerformerManager.mPerformerMTK( 1 ) );
+}
+
+void
+perform(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager
+)
+{
+  // create xtk performer 
+  //
+  MorphMoris::workflow::xtkstk::createPerformerXTK(aInputParameters,aPerformerManager);
+  // compute level set data in gen
+  //
+  aPerformerManager.mPerformerGEN( 0 )->reset_mesh_information(
+    aPerformerManager.mPerformerMTK( 0 )->get_interpolation_mesh( 0 ) );
+  // output gen fields, if requested
+  //
+  aPerformerManager.mPerformerGEN( 0 )->output_fields(
+    aPerformerManager.mPerformerMTK( 0 )->get_interpolation_mesh( 0 ) );
+  // xtk perform - decompose - enrich - ghost - multigrid
+  //
+  aPerformerManager.mPerformerXTK( 0 )->perform_decomposition();
+  aPerformerManager.mPerformerXTK( 0 )->perform_enrichment();
+  // assign pdvs
+  //
+  aPerformerManager.mPerformerGEN( 0 )->create_pdvs( 
+    aPerformerManager.mPerformerMTK( 1 )->get_mesh_pair( 0 ) 
+  );
+}
+
+  
+} // namespace xtkstk
+
 
 } // namespace workflow
 
@@ -1158,5 +1302,61 @@ TEST_CASE( "WRK_morph_hmr_xtk_workflow_perform", "[WRK_morph_test]" )
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+TEST_CASE( "WRK_morph_xtk_stk_workflow_create", "[WRK_morph_test]" )
+{
+  // create input parameter lists
+  //
+  MorphMoris::InputMetaData tInputParams;
+  tInputParams.mWorkflow = "STK";
+  MorphMoris::createParamLists(tInputParams);
+  // set parameters for input parameter lists
+  //
+  MorphMoris::setParamLists(tInputParams);
+  // create performers
+  //
+  MorphMoris::PerformerManager tPerformerMng;
+  MorphMoris::workflow::xtkstk::create(tInputParams,tPerformerMng);
+}
+
+TEST_CASE( "WRK_morph_xtk_stk_workflow_initialize", "[WRK_morph_test]" )
+{
+  // create input parameter lists
+  //
+  MorphMoris::InputMetaData tInputParams;
+  tInputParams.mWorkflow = "STK";
+  MorphMoris::createParamLists(tInputParams);
+  // set parameters for input parameter lists
+  //
+  MorphMoris::setParamLists(tInputParams);
+  // create performers
+  //
+  MorphMoris::PerformerManager tPerformerMng;
+  MorphMoris::workflow::xtkstk::create(tInputParams,tPerformerMng);
+  // initialize performers
+  //
+  MorphMoris::workflow::xtkstk::initialize(tInputParams,tPerformerMng);
+}
+
+TEST_CASE( "WRK_morph_xtk_stk_workflow_perform", "[WRK_morph_test]" )
+{
+  // create input parameter lists
+  //
+  MorphMoris::InputMetaData tInputParams;
+  tInputParams.mWorkflow = "STK";
+  MorphMoris::createParamLists(tInputParams);
+  // set parameters for input parameter lists
+  //
+  MorphMoris::setParamLists(tInputParams);
+  // create performers
+  //
+  MorphMoris::PerformerManager tPerformerMng;
+  MorphMoris::workflow::xtkstk::create(tInputParams,tPerformerMng);
+  // initialize performers
+  //
+  MorphMoris::workflow::xtkstk::initialize(tInputParams,tPerformerMng);
+  // perform performers
+  //
+  MorphMoris::workflow::xtkstk::perform(tInputParams,tPerformerMng);
+}
 
 } // namespace MorphMorisTest
