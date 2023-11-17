@@ -28,6 +28,14 @@ namespace moris::ge
     // Forward declare intersection node
     class Intersection_Node;
 
+    // Geometric location, for determining where a node is relative to a specific geometry
+    enum class Geometric_Region : signed char
+    {
+        NEGATIVE = -1,
+        INTERFACE = 0,
+        POSITIVE = 1
+    };
+
     class Geometry
     {
       public:
@@ -36,6 +44,17 @@ namespace moris::ge
          * Constructor
          */
         Geometry();
+
+        /**
+         * Gets the geometric region of a node, based on this geometry.
+         *
+         * @param aNodeIndex Node index
+         * @param aNodeCoordinates Node coordinates
+         * @return Geometric region enum
+         */
+        virtual Geometric_Region get_geometric_region(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aNodeCoordinates ) = 0;
 
         /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;

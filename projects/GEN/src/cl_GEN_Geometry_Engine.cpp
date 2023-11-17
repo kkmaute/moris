@@ -352,9 +352,9 @@ namespace moris
             Cell< std::shared_ptr< Matrix< DDRMat > > > tNodeCoordinates( aNodeIndices.max() + 1 );
 
             // Fill node coordinates
-            for ( uint iNode = 0; iNode < aNodeIndices.length(); iNode++ )
+            for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
             {
-                tNodeCoordinates( aNodeIndices( iNode ) ) = std::make_shared< Matrix< DDRMat > >( aNodeCoordinates.get_row( iNode ) );
+                tNodeCoordinates( aNodeIndices( iNodeInEntityIndex ) ) = std::make_shared< Matrix< DDRMat > >( aNodeCoordinates.get_row( iNodeInEntityIndex ) );
             }
 
             // Return result
@@ -368,69 +368,28 @@ namespace moris
                 const Matrix< IndexMat >&                                         aNodeIndices,
                 moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates )
         {
-            // Check input
-            // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
-            //         "Geometry engine must be provided the same number of node indices as node coordinates for "
-            //         "determining if an element is intersected or not.");
-            // MORIS_ASSERT(aNodeIndices.length() > 0,
-            //         "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
+            // Get first geometric region
+            Geometric_Region tFirstNodeGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region(
+                    aNodeIndices( 0 ),
+                    *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
 
-            // get the current geometries intersection mode, isocontour threshold
-            Intersection_Mode tIntersectionMode    = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
-            real              tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
-            real              tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
-
-            bool tIsIntersected = false;
-
-            switch ( tIntersectionMode )
+            // Test nodes for other geometric regions
+            for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
             {
-                case Intersection_Mode::LEVEL_SET:
+                // Get test geometric region
+                Geometric_Region tTestGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region(
+                        aNodeIndices( iNodeInEntityIndex ),
+                        *( *aNodeCoordinates )( aNodeIndices( iNodeInEntityIndex ) ) );
+
+                // Test if it is different from the first region. If so, the entity is intersected
+                if ( tTestGeometricRegion != tFirstNodeGeometricRegion )
                 {
-                    // Initialize by evaluating the first node
-                    real tMin = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( 0 ), *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
-                    real tMax = tMin;
-
-                    // Evaluate the rest of the nodes
-                    for ( uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++ )
-                    {
-                        real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( tNodeCount ), *( *aNodeCoordinates )( aNodeIndices( tNodeCount ) ) );
-
-                        tMin = std::min( tMin, tEval );
-                        tMax = std::max( tMax, tEval );
-                    }
-
-                    tIsIntersected = ( tMax >= tIsocontourThreshold and tMin <= tIsocontourThreshold )
-                                  or ( std::abs( tMax - tIsocontourThreshold ) < tIsocontourTolerance )
-                                  or ( std::abs( tMin - tIsocontourThreshold ) < tIsocontourTolerance );
-
-                    break;
-                }
-                case Intersection_Mode::COLORING:
-                {
-                    real tFieldValue = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( 0 ), *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
-
-                    // Evaluate the rest of the nodes
-                    for ( uint Ik = 0; Ik < aNodeIndices.length(); Ik++ )
-                    {
-                        real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( Ik ), *( *aNodeCoordinates )( aNodeIndices( Ik ) ) );
-
-                        if ( tFieldValue != tEval )
-                        {
-                            tIsIntersected = true;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
+                    return true;
                 }
             }
 
-            // Return result
-            return tIsIntersected;
+            // If no differences were found, this entity is not intersected
+            return false;
         }
 
         //--------------------------------------------------------------------------------------------------------------

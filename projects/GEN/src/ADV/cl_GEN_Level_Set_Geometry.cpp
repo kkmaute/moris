@@ -79,6 +79,32 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Geometric_Region Level_Set_Geometry::get_geometric_region(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aNodeCoordinates )
+    {
+        // Get level set field value
+        real tFieldValue = this->get_field_value( aNodeIndex, aNodeCoordinates );
+
+        // Determine if value indicates that this point is on the interface
+        if ( std::abs( tFieldValue - mParameters.mIsocontourThreshold ) <= mParameters.mIsocontourTolerance )
+        {
+            return Geometric_Region::INTERFACE;
+        }
+
+        // Otherwise, give the region relative to the isocontour threshold
+        else if ( tFieldValue - mParameters.mIsocontourThreshold < 0 )
+        {
+            return Geometric_Region::NEGATIVE;
+        }
+        else
+        {
+            return Geometric_Region::POSITIVE;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     std::shared_ptr< Intersection_Node > Level_Set_Geometry::create_intersection_node(
             uint                                 aEdgeFirstNodeIndex,
             uint                                 aEdgeSecondNodeIndex,
