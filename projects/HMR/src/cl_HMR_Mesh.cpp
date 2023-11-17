@@ -125,13 +125,14 @@ namespace moris::hmr
         // Create factory
         Factory tFactory( mDatabase->get_parameters() );
 
-        for ( uint Ik = 0; Ik < 3; Ik++ )
+        for ( uint iBspMesh = 0; iBspMesh < 3; iBspMesh++ )
         {
             // FIXME only one mesh
-            mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
+            mDummyBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
                     mDatabase->get_background_mesh(),
                     aBsplinePattern,
-                    aOrder );
+                    aOrder,
+                    MORIS_UINT_MAX );
         }
 
         // Create Lagrange mesh
@@ -183,13 +184,14 @@ namespace moris::hmr
         mDummyBSplineMeshes.resize( 1, nullptr );
         Factory tFactory( mDatabase->get_parameters() );
 
-        for ( uint Ik = 0; Ik < 1; Ik++ )
+        for ( uint iBspMesh = 0; iBspMesh < 1; iBspMesh++ )
         {
             // FIXME only one mesh
-            mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
+            mDummyBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
                     mDatabase->get_background_mesh(),
                     aBSplinePattern,
-                    aBSplineOrder );
+                    aBSplineOrder,
+                    MORIS_UINT_MAX );
         }
 
         // Create Lagrange mesh
@@ -2333,11 +2335,13 @@ namespace moris::hmr
     void
     Mesh::setup_glb_to_local_maps()
     {
-        tic tTimer;
+        // report on this operation
+        MORIS_LOG_INFO( "Setting up global to local maps on HMR mesh" );
 
         // Initialize global to local map
         mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 + mMesh->get_number_of_bspline_meshes() );
 
+        // count number of mesh entities
         uint tCounter = 0;
 
         setup_entity_global_to_local_map( mtk::EntityRank::NODE, tCounter );
@@ -2345,11 +2349,11 @@ namespace moris::hmr
         setup_entity_global_to_local_map( mtk::EntityRank::FACE, tCounter );
         setup_entity_global_to_local_map( mtk::EntityRank::ELEMENT, tCounter );
 
-        for ( uint Ik = 0; Ik < mMesh->get_number_of_bspline_meshes(); Ik++ )
+        for ( uint iBspMesh = 0; iBspMesh < mMesh->get_number_of_bspline_meshes(); iBspMesh++ )
         {
-            if ( mMesh->get_bspline_mesh( Ik ) != nullptr )
+            if ( mMesh->get_bspline_mesh( iBspMesh ) != nullptr )
             {
-                setup_entity_global_to_local_map( mtk::EntityRank::BSPLINE, tCounter, Ik );
+                setup_entity_global_to_local_map( mtk::EntityRank::BSPLINE, tCounter, iBspMesh );
             }
             else
             {
@@ -2357,15 +2361,6 @@ namespace moris::hmr
                 setup_entity_global_to_local_map( mtk::EntityRank::NODE, tCounter );
             }
         }
-
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        MORIS_LOG_INFO( "Creation of local-to-global maps on Lagrange Mesh of order %u on pattern %u took %5.3f seconds.",
-                mMesh->get_order(),
-                mMesh->get_activation_pattern(),
-                (double)tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
     }
 
     //-------------------------------------------------------------------------------

@@ -25,18 +25,11 @@ namespace moris
 
         Triangle::Triangle(
                 moris_index                      aIndex,
-                moris::Cell< Triangle_Vertex* >& aVertices )
-                : mIndex( aIndex )
-                , mVertices( aVertices )
-                , mNodeCoords( 3, 3 )
-                , mNodeIndices( 3, 1 )
-                , mCenter( 3, 1 )
-                , mNormal( 3, 1 )
+                moris::Cell< Facet_Vertex* >& aVertices )
+                : Facet( aIndex, aVertices, 3 )
                 , mPredictY( 3, 3 )
                 , mPredictYRA( 3, 3 )
                 , mPredictYRB( 3, 3 )
-                , mMinCoord( 3, 1 )
-                , mMaxCoord( 3, 1 )
         {
             this->update_data();
         }
@@ -47,10 +40,10 @@ namespace moris
         Triangle::update_data()
         {
             // step 1: copy node coordinates and determine center
-            this->copy_node_coords_and_inds( mVertices );
+            this->copy_node_coords_and_inds( mVertices, 3 );
 
             // help vector
-            Matrix< F31RMat > tDirectionOfEdge( 3, 1 );
+            Matrix< DDRMat > tDirectionOfEdge( 3, 1 );
 
             // step 2: calculate hesse normal form of plane
             this->calculate_hesse_normal_form( tDirectionOfEdge );
@@ -65,62 +58,10 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Triangle::copy_node_coords_and_inds(
-                moris::Cell< Triangle_Vertex* >& aVertices )
-        {
-            // make sure that the length is correct
-            MORIS_ASSERT( aVertices.size() >= 3,
-                    "Triangle() needs at least three vertices as input" );
-
-            // step 1: copy node coordinates into member variables
-            //         and calculate center
-
-            // reset center
-            mCenter.fill( 0 );
-
-            // loop over all nodes
-            for ( uint k = 0; k < 3; ++k )
-            {
-                // get vertex coordinates
-                auto tNodeCoords = aVertices( k )->get_coords();
-
-                // copy coordinates into member matrix
-                for ( uint i = 0; i < 3; ++i )
-                {
-                    mNodeCoords( i, k ) = tNodeCoords( i );
-                    mCenter( i ) += tNodeCoords( i );
-                }
-
-                // remember node indices
-                mNodeIndices( k ) = aVertices( k )->get_index();
-            }
-
-            // identify minimum and maximum coordinate
-            for ( moris::uint i = 0; i < 3; ++i )
-            {
-                mMinCoord( i ) = min( mNodeCoords( i, 0 ),
-                        mNodeCoords( i, 1 ),
-                        mNodeCoords( i, 2 ) );
-
-                mMaxCoord( i ) = max( mNodeCoords( i, 0 ),
-                        mNodeCoords( i, 1 ),
-                        mNodeCoords( i, 2 ) );
-            }
-
-            // divide center by three
-            for ( uint i = 0; i < 3; ++i )
-            {
-                mCenter( i ) /= 3.0;
-            }
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Triangle::calculate_hesse_normal_form( Matrix< F31RMat >& aDirectionOfEdge )
+        Triangle::calculate_hesse_normal_form( Matrix< DDRMat >& aDirectionOfEdge )
         {
             // step 2: calculate plane of triangle
-            Matrix< F31RMat > tDirection02( 3, 1 );
+            Matrix< DDRMat > tDirection02( 3, 1 );
 
             // help vectors: direction of sides 1 and 2
             for ( uint i = 0; i < 3; ++i )
@@ -130,7 +71,6 @@ namespace moris
             }
 
             // norm of this triangle
-
             mNormal = cross( aDirectionOfEdge, tDirection02 );
 
             real tNorm = norm( mNormal );
@@ -146,11 +86,11 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Triangle::calculate_barycentric_data( const Matrix< F31RMat >& aDirectionOfEdge )
+        Triangle::calculate_barycentric_data( const Matrix< DDRMat >& aDirectionOfEdge )
         {
 
             // calculate direction orthogonal to plane and edge
-            Matrix< F31RMat > tDirectionOrtho = cross( mNormal, aDirectionOfEdge );
+            Matrix< DDRMat > tDirectionOrtho = cross( mNormal, aDirectionOfEdge );
 
             // normalize tDirection10
             real tNorm10 = norm( aDirectionOfEdge );
@@ -278,107 +218,14 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------
-        // MTK Interface
-        //-------------------------------------------------------------------------------
-
-        Cell< mtk::Vertex* >
-        Triangle::get_vertex_pointers() const
-        {
-            moris::Cell< mtk::Vertex* > aVertices( 3, nullptr );
-
-            for ( uint k = 0; k < 3; ++k )
-            {
-                aVertices( k ) = mVertices( k );
-            }
-            return aVertices;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        // TODO MESH-CLEANUP
-        void
-        Triangle::remove_vertex_pointer( moris_index aIndex )
-        {
-            // std::cout<<"In SDF triangle"<<std::endl;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        Matrix< IdMat >
-        Triangle::get_vertex_ids() const
-        {
-
-            Matrix< IdMat > aIDs( 3, 1 );
-            for ( uint k = 0; k < 3; ++k )
-            {
-                aIDs( k ) = mVertices( k )->get_id();
-            }
-
-            return aIDs;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        Matrix< IndexMat >
-        Triangle::get_vertex_inds() const
-        {
-
-            Matrix< IndexMat > aINDs( 3, 1 );
-
-            for ( uint k = 0; k < 3; ++k )
-            {
-                aINDs( k ) = mVertices( k )->get_index();
-            }
-
-            return aINDs;
-        }
-
-        //-------------------------------------------------------------------------------
-
-        Matrix< DDRMat >
-        Triangle::get_vertex_coords() const
-        {
-
-            Matrix< DDRMat > aCoords( 3, 3 );
-
-            for ( uint k = 0; k < 3; ++k )
-            {
-                aCoords.set_row( k, mVertices( k )->get_coords() );
-            }
-
-            return aCoords;
-        }
-
-        //-------------------------------------------------------------------------------
         // SDF functions
-        //-------------------------------------------------------------------------------
-
-        void
-        Triangle::intersect_with_coordinate_axis(
-                const Matrix< F31RMat >& aPoint,
-                const uint               aAxis,
-                real&                    aCoordinate,
-                bool&                    aError )
-        {
-            if ( std::abs( mNormal( aAxis ) ) < gSDFepsilon )
-            {
-                aCoordinate = 0;
-                aError      = true;
-            }
-            else
-            {
-                aCoordinate = aPoint( aAxis ) + ( mHesse - dot( mNormal, aPoint ) ) / mNormal( aAxis );
-                aError      = false;
-            }
-        }
-
         //-------------------------------------------------------------------------------
 
         bool
         Triangle::check_edge(
                 const uint               aEdge,
                 const uint               aAxis,
-                const Matrix< F31RMat >& aPoint )
+                const Matrix< DDRMat >& aPoint )
         {
             uint tI;
             uint tJ;
@@ -394,7 +241,7 @@ namespace moris
             // R
             real tPredictYR = mPredictYRA( aEdge, aAxis ) * aPoint( tI ) + mPredictYRB( aEdge, aAxis );
 
-            // check of point is within all three projected edges
+            // check if point is within all three projected edges
             return ( ( mPredictY( aEdge, aAxis ) > mNodeCoords( tJ, aEdge ) )
                            && ( tPredictYR + gSDFepsilon > aPoint( tJ ) ) )
                 || ( ( mPredictY( aEdge, aAxis ) < mNodeCoords( tJ, aEdge ) )
@@ -522,7 +369,7 @@ namespace moris
 
         real
         Triangle::get_distance_to_point(
-                const Matrix< F31RMat >& aPoint )
+                const Matrix< DDRMat >& aPoint )
         {
             // step 1: Transform Point to in-plane coordinates
             Matrix< F31RMat > tLocalPointCoords = this->project_point_to_local_cartesian( aPoint );

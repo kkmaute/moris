@@ -46,11 +46,13 @@
         
         <!-- Define the grids from which the background meshes will be generated and give them an index for identification -->
         <MeshGrids>
-            <MeshGrid ind="1">
-                <InitialRefinements>0</InitialRefinements>
-            </MeshGrid>
             <MeshGrid ind="0">
                 <InitialRefinements>1</InitialRefinements>
+                <InterfaceRefinements>1</InterfaceRefinements>
+            </MeshGrid>
+            <MeshGrid ind="1">
+                <InitialRefinements>0</InitialRefinements>
+                <InterfaceRefinements>0</InterfaceRefinements>
             </MeshGrid>
         </MeshGrids>
         
@@ -73,7 +75,6 @@
     <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
     <ForegroundMesh>
         <DecompositionGrid>0</DecompositionGrid>
-        <InterfaceRefinements>1</InterfaceRefinements>
         <FgPolynomialOrder>2</FgPolynomialOrder>
         <TriangulateAllFgElems>false</TriangulateAllFgElems>
         <ExtractionOperatorFormat>Elemental</ExtractionOperatorFormat>

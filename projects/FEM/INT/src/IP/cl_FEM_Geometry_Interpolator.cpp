@@ -26,13 +26,13 @@ namespace moris
         const real Geometry_Interpolator::sDetJLowerLimit = -1.0e-6;
 
         // smallest acceptable value for DetJ used in building inverse of Jacobian
-        const real Geometry_Interpolator::sDetJInvJacLowerLimit = 1.0e-24;
+        const real Geometry_Interpolator::sDetJInvJacLowerLimit = -1.0e-6;
 
         //------------------------------------------------------------------------------
 
         Geometry_Interpolator::Geometry_Interpolator(
                 const mtk::Interpolation_Rule& aInterpolationRule,
-                const mtk::CellShape&               aInterpolationShape,
+                const mtk::CellShape&          aInterpolationShape,
                 const bool                     aSpaceSideset,
                 const bool                     aTimeSideset )
         {
@@ -74,7 +74,7 @@ namespace moris
         Geometry_Interpolator::Geometry_Interpolator(
                 const mtk::Interpolation_Rule& aInterpolationRule,
                 const mtk::Interpolation_Rule& aIPMapInterpolationRule,
-                const mtk::CellShape&               aInterpolationShape,
+                const mtk::CellShape&          aInterpolationShape,
                 const bool                     aSpaceSideset,
                 const bool                     aTimeSideset )
         {

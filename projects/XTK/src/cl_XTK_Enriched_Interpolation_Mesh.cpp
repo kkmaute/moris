@@ -205,7 +205,8 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
-    const mtk::Interpolation_Mesh& Enriched_Interpolation_Mesh::get_background_mesh()
+    const mtk::Interpolation_Mesh&
+    Enriched_Interpolation_Mesh::get_background_mesh()
     {
         return mXTKModel->get_background_mesh();
     }
@@ -2218,7 +2219,7 @@ namespace xtk
 
         }    // end if: parallel
 
-    }    // end function: Enriched_Interpolation_Mesh::assign_ip_vertex_ids
+    }        // end function: Enriched_Interpolation_Mesh::assign_ip_vertex_ids
 
     // ----------------------------------------------------------------------------
 
@@ -2460,7 +2461,7 @@ namespace xtk
 
         }    // end for: each proc communicated with
 
-    }    // end function: Enriched_Interpolation_Mesh::prepare_requests_for_not_owned_unzipped_vertex_IDs()
+    }        // end function: Enriched_Interpolation_Mesh::prepare_requests_for_not_owned_unzipped_vertex_IDs()
 
     // ----------------------------------------------------------------------------
 
@@ -2544,9 +2545,9 @@ namespace xtk
 
             }    // end for: communication for each entity with current processor
 
-        }    // end for: communication list for each processor
+        }        // end for: communication list for each processor
 
-    }    // end function: Enriched_Interpolation_Mesh::prepare_answers_for_owned_unzipped_vertex_IDs()
+    }            // end function: Enriched_Interpolation_Mesh::prepare_answers_for_owned_unzipped_vertex_IDs()
 
     // ----------------------------------------------------------------------------
 
@@ -2584,7 +2585,7 @@ namespace xtk
 
         }    // end for: each processor communicated with
 
-    }    // end function: Enriched_Interpolation_Mesh::handle_requested_unzipped_vertex_ID_answers()
+    }        // end function: Enriched_Interpolation_Mesh::handle_requested_unzipped_vertex_ID_answers()
 
     // ----------------------------------------------------------------------------
 
@@ -2848,7 +2849,7 @@ namespace xtk
                         moris::Matrix< IndexMat > tBaseCoeffInds = tBaseVertexInterpolation->get_indices();
 
                         // get access to the basis to local index map of the vertex enrichment for modification
-                        std::unordered_map< moris::moris_index, moris::moris_index >& tVertEnrichMap = iVertexEnrichment->get_basis_map();
+                        IndexMap& tVertEnrichMap = iVertexEnrichment->get_basis_map();
 
                         // clear the map and populate it with the new indices
                         tVertEnrichMap.clear();
@@ -3272,8 +3273,9 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     moris::moris_index
-    Enriched_Interpolation_Mesh::get_field_index( std::string aLabel,
-            mtk::EntityRank                            aEntityRank )
+    Enriched_Interpolation_Mesh::get_field_index(
+            std::string     aLabel,
+            mtk::EntityRank aEntityRank )
     {
         MORIS_ASSERT( field_exists( aLabel, aEntityRank ), "Field does not exist in mesh" );
 
@@ -3287,7 +3289,7 @@ namespace xtk
     void
     Enriched_Interpolation_Mesh::add_field_data(
             moris::moris_index       aFieldIndex,
-            mtk::EntityRank   aEntityRank,
+            mtk::EntityRank          aEntityRank,
             Matrix< DDRMat > const & aFieldData )
     {
         mFields( aFieldIndex ).mFieldData = aFieldData.copy();
@@ -3297,8 +3299,8 @@ namespace xtk
 
     Matrix< DDRMat > const &
     Enriched_Interpolation_Mesh::get_field_data(
-            moris::moris_index     aFieldIndex,
-            mtk::EntityRank aEntityRank ) const
+            moris::moris_index aFieldIndex,
+            mtk::EntityRank    aEntityRank ) const
     {
         return mFields( aFieldIndex ).mFieldData;
     }
@@ -3324,9 +3326,9 @@ namespace xtk
 
     moris::moris_index
     Enriched_Interpolation_Mesh::create_field(
-            std::string            aLabel,
-            mtk::EntityRank aEntityRank,
-            moris::moris_index     aBulkPhaseIndex )
+            std::string        aLabel,
+            mtk::EntityRank    aEntityRank,
+            moris::moris_index aBulkPhaseIndex )
     {
         MORIS_ASSERT( !field_exists( aLabel, aEntityRank ), "Field already created" );
 
@@ -3341,7 +3343,7 @@ namespace xtk
 
     bool
     Enriched_Interpolation_Mesh::field_exists(
-            std::string            aLabel,
+            std::string     aLabel,
             mtk::EntityRank aEntityRank )
     {
         moris::moris_index tIndex = this->get_entity_rank_field_index( aEntityRank );

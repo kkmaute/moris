@@ -1,73 +1,60 @@
-/*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * cl_SDF_Data.cpp
- *
- */
+// /*
+//  * Copyright (c) 2022 University of Colorado
+//  * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+//  *
+//  *------------------------------------------------------------------------------------
+//  *
+//  * cl_SDF_Data.cpp
+//  *
+//  */
 
-#include "cl_SDF_Data.hpp"
-namespace moris
-{
-    namespace sdf
-    {
-//-------------------------------------------------------------------------------
-        Data::Data( Object & aObject ) :
-                  mTriangles( aObject.get_triangles() ),
-                  mVertices( aObject.get_vertices() ),
-                  mNumberOfTriangles( mTriangles.size() ),
-                  mTriangleMinCoordsX(mNumberOfTriangles, 1),
-                  mTriangleMinCoordsY(mNumberOfTriangles, 1),
-                  mTriangleMinCoordsZ(mNumberOfTriangles, 1),
-                  mTriangleMaxCoordsX(mNumberOfTriangles, 1),
-                  mTriangleMaxCoordsY(mNumberOfTriangles, 1),
-                  mTriangleMaxCoordsZ(mNumberOfTriangles, 1),
-#ifdef MORIS_USE_ARMA
-                       mCandI(mNumberOfTriangles),
-                       mCandJ(mNumberOfTriangles),
-                       mCandK(mNumberOfTriangles),
-#else
-                       mCandJ(mNumberOfTriangles, 1),
-#endif
-                       mCandidateTriangles(mNumberOfTriangles, 1)
+// #include "cl_SDF_Data.hpp"
+// namespace moris::sdf
+// {
 
-        {
-            this->init_triangles();
-        }
+//     //-------------------------------------------------------------------------------
+//     Data::Data( Object &aObject )
+//             : mFacets( aObject.get_facets() )
+//             , mVertices( aObject.get_vertices() )
+//             , mNumberOfFacets( mFacets.size() )
+//     // #ifdef MORIS_USE_ARMA
+//     //             , mFacetMinCoordsX( mNumberOfFacets, 1 )
+//     //             , mFacetMinCoordsY( mNumberOfFacets, 1 )
+//     //             , mFacetMinCoordsZ( mNumberOfFacets, 1 )
+//     //             , mFacetMaxCoordsX( mNumberOfFacets, 1 )
+//     //             , mFacetMaxCoordsY( mNumberOfFacets, 1 )
+//     //             , mFacetMaxCoordsZ( mNumberOfFacets, 1 )
+//     //             , mCandI( mNumberOfFacets )
+//     //             , mCandJ( mNumberOfFacets )
+//     //             , mCandK( mNumberOfFacets )
 
-//-------------------------------------------------------------------------------
+//     // #else
+//     // #endif
 
-        void
-        Data::init_triangles()
-        {
-            // copy triangle bounding box data
-            for ( uint k = 0; k < mNumberOfTriangles; ++k)
-            {
-                // minimum triangle coordinates for lower left point of bounding box
-                mTriangleMinCoordsX( k )
-                    = mTriangles( k )->get_min_coord( 0 );
+//     {
+//         // copy bounding box data
+//         // #ifdef MORIS_USE_ARMA
+//         //         for ( uint iFacetIndex = 0; iFacetIndex < mNumberOfFacets; iFacetIndex++ )
+//         //         {
+//         //             for ( uint iDimensionIndex = 0; iDimensionIndex < aObject.get_dimension(); iDimensionIndex++ )
+//         //             {
+//         //                 mFacetMinCoordsX( iFacetIndex ) = mFacets( iFacetIndex )->get_min_coord( 0 );
+//         //                 mFacetMinCoordsY( iFacetIndex ) = mFacets( iFacetIndex )->get_min_coord( 1 );
 
-                mTriangleMinCoordsY( k )
-                    = mTriangles( k )->get_min_coord( 1 );
+//         //                 mFacetMaxCoordsX( iFacetIndex ) = mFacets( iFacetIndex )->get_min_coord( 0 );
+//         //                 mFacetMaxCoordsY( iFacetIndex ) = mFacets( iFacetIndex )->get_min_coord( 1 );
+//         //             }
+//         //             if ( aObject.get_dimension() == 3 )
+//         //             {
+//         //                 for ( uint iDimensionIndex = 0; iDimensionIndex < aObject.get_dimension(); iDimensionIndex++ )
+//         //                 {
+//         //                     mFacetMinCoordsZ( iFacetIndex ) = mFacets( iFacetIndex )->get_min_coord( 2 );
 
-                mTriangleMinCoordsZ( k )
-                    = mTriangles( k )->get_min_coord( 2 );
-
-                // maximum triangle coordinates for upper right point of bounding box
-                mTriangleMaxCoordsX( k )
-                    = mTriangles( k )->get_max_coord( 0 );
-
-                mTriangleMaxCoordsY( k )
-                    = mTriangles( k )->get_max_coord( 1 );
-
-                mTriangleMaxCoordsZ ( k )
-                    = mTriangles( k )->get_max_coord( 2 );
-            }
-        }
-
-//-------------------------------------------------------------------------------
-    } /* namespace sdf */
-} /* namespace moris */
-
+//         //                     mFacetMaxCoordsZ( iFacetIndex ) = mFacets( iFacetIndex )->get_min_coord( 2 );
+//         //                 }
+//         //             }
+//         //         }
+//         // #else
+//         // #endif
+//     }
+// } /* namespace moris::sdf */

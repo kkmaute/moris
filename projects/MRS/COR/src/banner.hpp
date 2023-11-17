@@ -36,8 +36,8 @@ namespace moris
         std::fprintf( stdout, "            |  |  |  | |  `--'  | |  |\\  \\----.|  | .----)   |\n" );
         std::fprintf( stdout, "            |__|  |__|  \\______/  | _| `._____||__| |_______/\n" );
         std::fprintf( stdout, "\n" );
-        std::fprintf( stdout, "            Copyright (c) 2022 University of Colorado Boulder\n" );
-        std::fprintf( stdout, "                               Aerospace Mechanics Research Center\n" );
+        std::fprintf( stdout, "                   2023 University of Colorado Boulder\n" );
+        std::fprintf( stdout, "                        Aerospace Mechanics Research Center\n" );
         std::fprintf( stdout, "\n" );
         std::fprintf( stdout, "\n" );
     }

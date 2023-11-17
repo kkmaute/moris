@@ -16,6 +16,7 @@ set(TEST_SOURCES
     cl_Dist_Vector_Test.cpp #> VectorType error
     cl_Linear_Solver_Test.cpp
     cl_Map_Test.cpp
+    UT_convert_epetra_to_matrix.cpp
     cl_Sparse_Matrix_Test.cpp
     cl_DLA_Multigrid_Test.cpp
     DLA_Test_Proxy/cl_Solver_Interface_Proxy.cpp

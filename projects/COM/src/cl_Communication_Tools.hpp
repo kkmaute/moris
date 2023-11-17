@@ -355,6 +355,34 @@ namespace moris
     //------------------------------------------------------------------------------
 
     /*
+     * @brief Determines minimum of all components of a matrix on all processors
+     *
+     * @param[in] aLocalInput     local matrix
+     *
+     * returns matrix with global minimums
+     */
+
+    template< typename E >
+    E
+    min_all_matrix( const E& aLocalMatrix )
+    {
+        E tGlobalMatrix( aLocalMatrix.n_rows(), aLocalMatrix.n_cols() );
+
+        void* aLocalPtr  = (void*)aLocalMatrix.data();
+        void* aGlobalPtr = (void*)tGlobalMatrix.data();
+
+        int tNumElems = aLocalMatrix.numel();
+
+        MPI_Datatype tType = get_comm_datatype( (typename E::Data_Type)0 );
+
+        MPI_Allreduce( aLocalPtr, aGlobalPtr, tNumElems, tType, MPI_MIN, MPI_COMM_WORLD );
+
+        return tGlobalMatrix;
+    }
+
+    //------------------------------------------------------------------------------
+
+    /*
      * @brief Determines maximal value of all local values
      *
      * @param[in] aLocalInput     local value
@@ -400,13 +428,13 @@ namespace moris
 
     /**
      * @brief logical or statement reduction for all processes
-     * 
-     * @param aMyBool 
-     * @return true 
-     * @return false 
+     *
+     * @param aMyBool
+     * @return true
+     * @return false
      */
 
-    bool 
+    bool
     all_lor( bool aMyBool );
 
     //------------------------------------------------------------------------------
@@ -1146,8 +1174,8 @@ namespace moris
 
             // Allocate memory for status/request vector
             // These vectors will be used to determine if the exchange has been completed across all processors
-            MPI_Request* tSendRequest = (MPI_Request*)alloca( 2*sizeof( MPI_Request ) * tNumberOfProcs );
-            MPI_Request* tRecvRequest = (MPI_Request*)alloca( 2*sizeof( MPI_Request ) * tNumberOfProcs );
+            MPI_Request* tSendRequest = (MPI_Request*)alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
+            MPI_Request* tRecvRequest = (MPI_Request*)alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
 
             // nrows and ncols of mats to be sent
             Matrix< DDUMat > tSendRowCols( tNumberOfProcs, 1, MORIS_UINT_MAX );

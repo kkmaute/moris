@@ -120,7 +120,8 @@ namespace moris::hmr
     /*
      * parameter list constructor
      */
-    Parameters::Parameters( ParameterList&       aParameterList,
+    Parameters::Parameters(
+            ParameterList&                       aParameterList,
             std::shared_ptr< moris::Library_IO > aLibrary )
     {
         string_to_mat( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
@@ -891,7 +892,7 @@ namespace moris::hmr
     Refinement_Function
     Parameters::get_refinement_function( uint aFunctionIndex )
     {
-        MORIS_ASSERT( 
+        MORIS_ASSERT(
                 aFunctionIndex < mRefinementFunctions.size(),
                 "hmr::Parameters::get_refinement_function() - "
                 "A user-defined refinement function with index %i was requested for use, "

@@ -3,21 +3,10 @@
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
 #
 #------------------------------------------------------------------------------------
-#
 
 # -------------------------------------------------------------------------
 # Trilinos libraries and includes -----------------------------------------
 # -------------------------------------------------------------------------
-#
-# CMake example that uses FIND_PACKAGE(Trilinos ...) to build your C++
-# application with Trilinos.  You should know a little bit about CMake
-# before reading this example; in particular, you should know how to
-# add C++ source files and header files to your project.
-#
-
-# Your "do-configure" script that invokes CMake should set
-# TRILINOS_PATH to the path to your Trilinos install.
-# You do _not_ need to edit this line.
 
 if(NOT TRILINOS_FOUND_ONCE) 
     set(TRILINOS_FILE "TrilinosConfig.cmake")
@@ -75,7 +64,6 @@ if(NOT TRILINOS_FOUND_ONCE)
 
     MESSAGE(STATUS "\nLooking for ${TRILINOS_PATH}\n\n")
 
-
     if(NOT "${TRILINOS_PATH}" MATCHES "${TRILINOS_DIR}")
         set(Trilinos_DIR Trilinos_DIR-NOTFOUND CACHE PATH 
             "Force CMake to find_package(Trilinos ...)"
@@ -83,26 +71,25 @@ if(NOT TRILINOS_FOUND_ONCE)
     endif()
 
     FIND_PACKAGE(Trilinos HINTS ${TRILINOS_PATH}/lib/cmake/Trilinos ${TRILINOS_PATH} NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH)
-        
-
+    
     # If FIND_PACKAGE successfully found your Trilinos install, it will
     # set the Boolean flag Trilinos_FOUND.  The following IF statement
     # fails with a FATAL_ERROR if Trilinos was not found.  If it _was_
     # found, it prints out the values of some Trilinos configuration
     # details.  You may find them useful for building your application
     # that uses Trilinos.
-    IF(Trilinos_FOUND)
-        # message("\nFound Trilinos! Details can be found in a config file somewhere...")
-        
-        # If Trilinos is included, it may use Pardiso.
-        if (${MORIS_USE_PARDISO})
-            if(NOT ${MORIS_USE_MKL})
-                include(${MORIS_CMAKE_DIR}/find_modules/FindMKL.cmake)
-                set(PARDISO_LIBS ${MKL_LIBRARIES})
-                set(PARDISO_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
-            endif()
-        endif()
 
+	IF(Trilinos_FOUND)
+
+        #  # If Trilinos is included, it may use Pardiso.
+        #  if (${MORIS_USE_PARDISO})
+        #      if(NOT ${MORIS_USE_MKL})
+        # 	       include(${MORIS_CMAKE_DIR}/find_modules/FindMKL.cmake)
+        # 	       set(PARDISO_LIBS ${MKL_LIBRARIES})
+        # 	       set(PARDISO_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
+        #      endif()
+        #  endif()
+        # 
         # MESSAGE("\nFound Trilinos!  Here are the details: ")
         # MESSAGE("   Trilinos_DIR = ${Trilinos_DIR}")
         # MESSAGE("   Trilinos_VERSION = ${Trilinos_VERSION}")
@@ -129,9 +116,13 @@ if(NOT TRILINOS_FOUND_ONCE)
         MESSAGE(FATAL_ERROR "Could not find Trilinos!")
     ENDIF()
 
-    mark_as_advanced(TRILINOS_DIR Trilinos_DIR TRILINOS_DEBUG_DIR)
+	MESSAGE("Trilinos was found.")
 
-    MESSAGE("Trilinos was found.")
+    # -------------------------------------------------------------------------
+
+    mark_as_advanced(TRILINOS_DIR Trilinos_DIR TRILINOS_DEBUG_DIR)
+    
+	# -------------------------------------------------------------------------
 
     if (Trilinos_BUILD_SHARED_LIBS)
         MESSAGE("MORIS_HAVE_TRILINOS_NEW_CMAKE = ${MORIS_HAVE_TRILINOS_NEW_CMAKE}")
@@ -160,81 +151,18 @@ if(NOT TRILINOS_FOUND_ONCE)
         endif()
     endif()
     
-    list(APPEND MORIS_T_LIBS  ${Trilinos_TPL_LIBRARIES})
-
     # -------------------------------------------------------------------------
-    # Linear algebra library fixing -------------------------------------------
-    # -------------------------------------------------------------------------
-
-    # Replace LAPACK libraries with ACML; MKL needs to stay for Paradiso (Trilinos)
-    if(MORIS_USE_ACML)
-        string(REGEX REPLACE
-            "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
-            "$ENV{ACML_DIR}/lib/libacml.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-        string(REGEX REPLACE
-            "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
-            "$ENV{ACML_DIR}/lib/libacml.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-        string(REGEX REPLACE 
-            "[^;]*/lib64/libopenblas\\.so"
-            "$ENV{ACML_DIR}/lib/libacml.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-    endif()
-
-    # Replace ACML libraries with LAPACK; MKL needs to stay for Paradiso (Trilinos)
-    if(MORIS_USE_LAPACK)
-        string(REGEX REPLACE 
-            "[^;]*/acml/gfortran64/lib/libacml\\.so"
-            "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-            MORIS_T_LIBS 
-            "${MORIS_T_LIBS}" )
-        string(REGEX REPLACE
-            "[^;]*/lib/intel64(_lin)?/libmkl_intel_lp64\\.so;[^;]*/lib/intel64(_lin)?/libmkl_sequential\\.so;[^;]*/lib/intel64(_lin)?/libmkl_core\\.so"
-            "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-        string(REGEX REPLACE 
-            "[^;]*/lib64/libopenblas\\.so"
-            "$ENV{LAPACK_DIR}/lib64/liblapack.so;$ENV{LAPACK_DIR}/lib64/libblas.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-    endif()
-
-    # Replace ACML and LAPACK libraries with MKL
-    if(MORIS_USE_MKL)
-        string(REGEX REPLACE 
-            "[^;]*/acml/gfortran64/lib/libacml\\.so"
-            "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-            MORIS_T_LIBS 
-            "${MORIS_T_LIBS}" )
-        string(REGEX REPLACE 
-            "[^;]*/lib64/liblapack\\.so;[^;]*/lib64/libblas\\.so"
-            "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-        string(REGEX REPLACE 
-            "[^;]*/lib64/libopenblas\\.so"
-            "$ENV{MKL_DIR}/lib/intel64_lin/libmkl_intel_lp64.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_core.so;$ENV{MKL_DIR}/lib/intel64_lin/libmkl_sequential.so;/usr/lib64/libpthread.so"
-            MORIS_T_LIBS
-            "${MORIS_T_LIBS}" )
-    endif()
-
-    set(MORIS_TRI_LIBS ${MORIS_T_LIBS})
+    
+    set(MORIS_TRILINOS_LIBS ${MORIS_T_LIBS})
 
     set(MORIS_TRILINOS_INCLUDE_DIRS
         ${Trilinos_INCLUDE_DIRS}
         ${Trilinos_TPL_INCLUDE_DIRS}
-        ${PARDISO_INCLUDE_DIRS}
         CACHE INTERNAL "Directories included by Trilinos. Very long." )
 
-    mark_as_advanced(MORIS_TRI_LIBS
+    mark_as_advanced(
+    	MORIS_TRILINOS_LIBS
         MORIS_TRILINOS_INCLUDE_DIRS )
-    
-    set(MORIS_TRILINOS_LIBS ${MORIS_T_LIBS} ${PARDISO_LIBS})
     
     list(REVERSE MORIS_TRILINOS_LIBS)
     list(REMOVE_DUPLICATES MORIS_TRILINOS_LIBS)
@@ -247,6 +175,8 @@ if(NOT TRILINOS_FOUND_ONCE)
     
     mark_as_advanced(MORIS_TRILINOS_LIBRARIES)
 endif()
+
+# -------------------------------------------------------------------------
 
 if(NOT TARGET ${MORIS}::trilinos)
     set(MORIS_TRILINOS_TPLS
@@ -270,4 +200,3 @@ if(NOT TARGET ${MORIS}::trilinos)
     target_link_libraries(${MORIS}::trilinos INTERFACE  ${MORIS_TRILINOS_TPLS_TARGETS})
     target_link_libraries(${MORIS}::trilinos INTERFACE  ${Trilinos_ALL_SELECTED_PACKAGES_TARGETS})
 endif()
-

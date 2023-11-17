@@ -45,6 +45,7 @@ namespace moris::ge
     enum class Intersection_Mode
     {
         LEVEL_SET,
+        SURFACE_MESH,
         COLORING,
         END_ENUM
     };

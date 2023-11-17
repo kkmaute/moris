@@ -111,8 +111,8 @@ namespace moris
     // Level set function for diamond shaped wedge
     moris::real
     Inclusion(
-        const moris::Matrix< DDRMat >&     aCoordinates,
-        const moris::Cell< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const moris::Cell< real >&     aGeometryParameters )
     {
         // distance from sphere center
         moris::real tDx1 = aCoordinates( 0 ) - tCenterX1;
@@ -129,10 +129,9 @@ namespace moris
     // Constant function for properties
 
     void
-    Func_Const( moris::Matrix<
-                    moris::DDRMat >&                   aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+    Func_Const( moris::Matrix< moris::DDRMat >&            aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -141,10 +140,9 @@ namespace moris
 
     // Dirichlet function for properties
     void
-    Func_Dirichlet( moris::Matrix<
-                        moris::DDRMat >&               aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+    Func_Dirichlet( moris::Matrix< moris::DDRMat >&        aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // Coordinates of pont
         moris::Matrix< moris::DDRMat > tXp = aFIManager->get_IP_geometry_interpolator()->valx();
@@ -504,7 +502,7 @@ namespace moris
             tIWGCounter++;
         }
 
-        //periodic IWG
+        // periodic IWG
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGIPeriodic" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE ) );
@@ -580,7 +578,7 @@ namespace moris
     void
     SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
     {
-        tParameterlist.resize( 7 );
+        tParameterlist.resize( 8 );
 
         tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
         // tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
@@ -604,6 +602,8 @@ namespace moris
 
         tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "jp2.dat" );
+
+        tParameterlist( 7 ).push_back( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
     }
 
     void
@@ -638,7 +638,7 @@ namespace moris
     MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
     {
     }
-}// namespace moris
+}    // namespace moris
 
 //------------------------------------------------------------------------------
 #ifdef __cplusplus

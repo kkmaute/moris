@@ -50,7 +50,7 @@ namespace xtk
 
         // resize the L2 projection matrix
         mL2ProjectionMatrix.set_size( mNumberOfBasis, mNumberOfBasis, 0.0 );
-        
+
         // initialize the basis index ( local ordering of the basis functions in the element based on the dimension and order)
         this->init_basis_index();
 
@@ -61,12 +61,12 @@ namespace xtk
         moris::Cell< Enrichment_Data > const & tEnrichmentData = mXTKModelPtr->get_basis_enrichment().get_enrichment_data();
 
         //  get the BG basis indices and their level for the corresponding SPG
-        mEnrichmentData = &tEnrichmentData(mBsplineMeshIndex); 
+        mEnrichmentData = &tEnrichmentData( mBsplineMeshIndex );
     }
 
     //------------------------------------------------------------------------------------
 
-    HMR_Helper::~HMR_Helper(){}
+    HMR_Helper::~HMR_Helper() {}
 
     //------------------------------------------------------------------------------------
 
@@ -93,7 +93,7 @@ namespace xtk
 
         // get the hmr element
         const hmr::Element* tHMRElement = dynamic_cast< const hmr::Element* >( aCell );
-        
+
         // initialize n index counter to count the basis that are active on the element
         uint iIndexCounter = 0;
 
@@ -112,9 +112,9 @@ namespace xtk
         }
 
         // get the BG basis and level for the corresponding SPG, this data is necessary to identity the enriched basis
-        moris::Cell< moris_index > const &             tBGBasisIndices = mEnrichmentData->mSubphaseGroupBGBasisIndices( aSPGIndex );
-        moris::Cell< moris_index > const &             tBGBasisLevels  = mEnrichmentData->mSubphaseGroupBGBasisEnrLev( aSPGIndex );
-        std::unordered_map< moris_index, moris_index > tBasisToLocalIndexMapRoot;
+        moris::Cell< moris_index > const & tBGBasisIndices = mEnrichmentData->mSubphaseGroupBGBasisIndices( aSPGIndex );
+        moris::Cell< moris_index > const & tBGBasisLevels  = mEnrichmentData->mSubphaseGroupBGBasisEnrLev( aSPGIndex );
+        IndexMap                           tBasisToLocalIndexMapRoot;
 
         // convert bg basis indices to a map
         convert_cell_to_map( tBGBasisIndices, tBasisToLocalIndexMapRoot );
@@ -129,7 +129,7 @@ namespace xtk
             moris_index tBGBasisIndex = mEnrichedBasisIDs( iBasisOrd );
 
             // get the basis index
-            auto        tIter            = tBasisToLocalIndexMapRoot.find( tBGBasisIndex );
+            auto        tIter          = tBasisToLocalIndexMapRoot.find( tBGBasisIndex );
             moris_index tLocalBasisOrd = tIter->second;
 
             // Now use the local basis index to get the enrichment level
@@ -442,7 +442,7 @@ namespace xtk
     //------------------------------------------------------------------------------------
 
     Matrix< DDRMat > const &
-    HMR_Helper::get_l2_projection_matrix( const mtk::Cell* aExtendedCell,const  mtk::Cell* aRootCell )
+    HMR_Helper::get_l2_projection_matrix( const mtk::Cell* aExtendedCell, const mtk::Cell* aRootCell )
     {
         // reset the L2 projection matrix and individual 1d matrices
         mL2ProjectionMatrix.set_size( mNumberOfBasis, mNumberOfBasis, 0.0 );
@@ -450,16 +450,16 @@ namespace xtk
         // get the extended hmr element and the corresponding ijk
         const hmr::Element* tHMRExtenedElement = dynamic_cast< const hmr::Element* >( aExtendedCell );
         const hmr::Element* tHMRRootElement    = dynamic_cast< const hmr::Element* >( aRootCell );
-        
-        // obtain the ijk of those elements 
+
+        // obtain the ijk of those elements
         const luint* tExtendedIJK = tHMRExtenedElement->get_ijk();
-        const luint* tRootIJK = tHMRRootElement->get_ijk();
+        const luint* tRootIJK     = tHMRRootElement->get_ijk();
 
         // loop over the dimensions and create the i,j,k 1D matrices
         for ( uint iDim = 0; iDim < mSpatialDimension; iDim++ )
         {
             real tShift = tRootIJK[ iDim ] < tExtendedIJK[ iDim ] ? real( -tRootIJK[ iDim ] + tExtendedIJK[ iDim ] ) : -real( -tExtendedIJK[ iDim ] + tRootIJK[ iDim ] );
-            
+
             //  find the shift in each direction
             this->get_extention_matrix_1d( tShift, mMatrices1D( iDim ) );
         }
@@ -541,10 +541,10 @@ namespace xtk
             }
         }
 
-        // get the BG basis anf their level
-        moris::Cell< moris_index > const &             tBGBasisIndices = mEnrichmentData->mSubphaseGroupBGBasisIndices( aSPGIndex );
-        moris::Cell< moris_index > const &             tBGBasisLevels  = mEnrichmentData->mSubphaseGroupBGBasisEnrLev( aSPGIndex );
-        std::unordered_map< moris_index, moris_index > tBasisToLocalIndexMapRoot;
+        // get the BG basis and their level
+        moris::Cell< moris_index > const & tBGBasisIndices = mEnrichmentData->mSubphaseGroupBGBasisIndices( aSPGIndex );
+        moris::Cell< moris_index > const & tBGBasisLevels  = mEnrichmentData->mSubphaseGroupBGBasisEnrLev( aSPGIndex );
+        IndexMap                           tBasisToLocalIndexMapRoot;
 
         // need to convert the first one to map
         convert_cell_to_map( tBGBasisIndices, tBasisToLocalIndexMapRoot );
@@ -579,14 +579,14 @@ namespace xtk
 
     const luint*
     HMR_Helper::get_ijk_bspline_cell( const mtk::Cell* aCell )
-    {   
+    {
         // cast the element into hmr element
         const hmr::Element* tHMRElement = dynamic_cast< const hmr::Element* >( aCell );
 
         // get the ijk of the element
         const luint* tIJK = tHMRElement->get_ijk();
 
-        // return the ijk 
+        // return the ijk
         return tIJK;
     }
 

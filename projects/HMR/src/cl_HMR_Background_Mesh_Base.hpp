@@ -495,7 +495,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         /**
-         * applies this refinment queue to another pattern.
+         * applies this refinement queue to another pattern.
          * Pattern can change if second pattern is not refined as first pattern
          *
          * @param[ in ]     uint active pattern
@@ -647,7 +647,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         /**
-         * Protected funcition that adds neighbors to elements.
+         * Protected function that adds neighbors to elements.
          * Internally calls collect_active_elements_including_aura()
          *
          * @return void
@@ -745,7 +745,7 @@ namespace moris::hmr
          * @return Matrix< DDUMat >
          */
         const Matrix< IdMat >&
-        get_proc_neigbors() const
+        get_proc_neighbors() const
         {
             return mMyProcNeighbors;
         }
@@ -779,7 +779,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         /**
-         * returns the number of neihgbors per element
+         * returns the number of neighbors per element
          *
          * @return uint
          */
@@ -805,7 +805,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         /**
-         * creates a VTKfile of the mesh on the proc for debugging
+         * creates a VTK-file of the mesh on the proc for debugging
          */
         void save_to_vtk( const std::string& aFilePath );
 
@@ -838,9 +838,7 @@ namespace moris::hmr
             {
                 MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern index." );
 
-                MORIS_LOG_INFO( "%s Select activation pattern %u.",
-                        proc_string().c_str(),
-                        (unsigned int)aPattern );
+                MORIS_LOG_INFO( "Select activation pattern #%u on background mesh.", (unsigned int)aPattern );
 
                 mActivePattern = aPattern;
 
@@ -987,9 +985,9 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         /**
-         * reset neigbors
+         * reset neighbors
          */
-        void reset_neigbors();
+        void reset_neighbors();
 
         //------------------------------------------------------------------------------
 
@@ -1097,7 +1095,7 @@ namespace moris::hmr
          * @param[in]    aLevel   level of element to be investigated
          * @param[in]    aID      global ID of element to be investigated
          *
-         * @return       luint    local ID on submesh of proc
+         * @return       luint    local ID on sub-mesh of proc
          */
         virtual luint calc_subdomain_id_from_global_id(
                 uint  aLevel,
@@ -1263,7 +1261,7 @@ namespace moris::hmr
 
         /**
          * Populates mCoarsestPaddingElements.
-         * Called durung mesh initialization.
+         * Called during mesh initialization.
          *
          * @return void
          */

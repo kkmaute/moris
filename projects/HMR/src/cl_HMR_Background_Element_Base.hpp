@@ -30,7 +30,7 @@ namespace moris::hmr
     /**
      * \brief Base class for templated Element
      *
-     * Pointers to this class are storen in the background mesh.
+     * Pointers to this class are stored in the background mesh.
      * This class contains level, position, neighborhood and parent-child
      * information, but none about Lagrange nodes or B-Spline basis.
      *
@@ -93,7 +93,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         /**
-         * Default constuctor for element base class
+         * Default constructor for element base class
          */
         Background_Element_Base(
                 Background_Element_Base* aParent,
@@ -321,20 +321,32 @@ namespace moris::hmr
         bool
         is_active( uint aPattern ) const
         {
-            MORIS_ASSERT( aPattern < gNumberOfPatterns, "is_active(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns, aPattern );
+            MORIS_ASSERT(
+                    aPattern < gNumberOfPatterns,
+                    "hmr::Background_Element_Base::is_active() - "
+                    "Only %-2i pattern are created. Requested pattern is %-2i",
+                    gNumberOfPatterns,
+                    aPattern );
             return mActiveFlags.test( aPattern );
         }
 
         //--------------------------------------------------------------------------------
 
         /**
-         * tells if an element is deactive
+         * tells if an element is de-activated and not refined
          */
         bool
-        is_deactive( uint aPattern )
+        is_neither_active_nor_refined( uint aPattern )
         {
-            MORIS_ASSERT( aPattern < gNumberOfPatterns, "is_deactive(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns, aPattern );
-            return !( mActiveFlags.test( aPattern ) || mRefinedFlags.test( aPattern ) );
+            MORIS_ASSERT(
+                    aPattern < gNumberOfPatterns,
+                    "hmr::Background_Element_Base::is_neither_active_nor_refined() - "
+                    "Only %-2i pattern are created. Requested pattern is %-2i.",
+                    gNumberOfPatterns,
+                    aPattern );
+            bool tElementIsActiveOnPattern = mActiveFlags.test( aPattern );
+            bool tElementIsRefined         = mRefinedFlags.test( aPattern );
+            return !( tElementIsActiveOnPattern || tElementIsRefined );
         }
 
         //--------------------------------------------------------------------------------
@@ -416,7 +428,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         /**
-         * unflags an element for refinement
+         * un-flags an element for refinement
          *
          * @return void
          */
@@ -431,7 +443,7 @@ namespace moris::hmr
         void
         check_refinement_queue_for_pattern( const uint aPattern )
         {
-            if ( this->is_deactive( aPattern ) )
+            if ( this->is_neither_active_nor_refined( aPattern ) )
             {
                 mRefinementQueueFlag = false;
 
@@ -849,7 +861,7 @@ namespace moris::hmr
          * Returns a cell with pointers to elements on the same level,
          * if they exist.
          *
-         * @param[ in  ] aOrder       degree of neighborship
+         * @param[ in  ] aOrder       degree of neighborhood
          * @param[ out ] aNeighbors   cell containing found neighbors
          */
         virtual void get_neighbors_from_same_level(
@@ -981,7 +993,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         /**
-         * inserts a face of the backgound element
+         * inserts a face of the background element
          */
         virtual void insert_facet( Background_Facet* aFace, uint aIndex ) = 0;
 
@@ -1020,9 +1032,9 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         /**
-         * reset all neigbors to nullptr
+         * reset all neighbors to nullptr
          */
-        virtual void reset_neigbors() = 0;
+        virtual void reset_neighbors() = 0;
 
         //-------------------------------------------------------------------------------
         /**
@@ -1054,7 +1066,7 @@ namespace moris::hmr
          * updates sets the minumum refinement level.
          */
         void
-        update_min_refimenent_level( uint aMinRefinementLevel )
+        update_min_refinement_level( uint aMinRefinementLevel )
         {
             if ( mMinRefinementLevel < aMinRefinementLevel )
             {

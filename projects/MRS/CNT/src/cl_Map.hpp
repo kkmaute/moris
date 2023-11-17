@@ -17,7 +17,7 @@
 #include <iostream>
 
 // MORIS library header files.
-#include "typedefs.hpp" // COR/src
+#include "typedefs.hpp"    // COR/src
 #include "assert.hpp"
 
 namespace moris
@@ -25,31 +25,39 @@ namespace moris
     template< typename T1, typename T2 >
     class map
     {
-    private:
+        //--------------------------------------------------------------------------------
 
+      private:
         /**
          * MORIS map
          */
         std::map< T1, T2 > mMap;
 
-    public:
+        //--------------------------------------------------------------------------------
 
-    /**
-     * empty container constructor aMap. Map provides a way to organize containers by keyword identifiers.
-     * Each element associates a key to a mapped value: Keys are meant to identify the elements whose main
-     * content is the mapped value.
-     */
+      public:
+        //--------------------------------------------------------------------------------
+
+        /**
+         * empty container constructor aMap. Map provides a way to organize containers by keyword identifiers.
+         * Each element associates a key to a mapped value: Keys are meant to identify the elements whose main
+         * content is the mapped value.
+         */
         explicit map() = default;
+
+        //--------------------------------------------------------------------------------
 
         /**
          * container constructor: creates a container copy of each of the elements in aMap.
          */
-        map( moris::map< T1, T2 > const & aMap ) = default;
+        map( moris::map< T1, T2 > const &aMap ) = default;
 
         /*
          * Default destructor
          */
         ~map() = default;
+
+        //--------------------------------------------------------------------------------
 
         /**
          * The function insert extends an existing container by the number of elements inserted. During this operation,
@@ -58,13 +66,15 @@ namespace moris
          *
          * @return Non-const reference to underlying standard pair
          */
-        template<class pair>
+        template< class pair >
         std::pair< T2, bool >
-        insert( const pair & apair )
+        insert( const pair &apair )
         {
-            auto tIterator = mMap.insert(apair);
+            auto tIterator = mMap.insert( apair );
             return std::make_pair( tIterator->first.second, tIterator->second );
         }
+
+        //--------------------------------------------------------------------------------
 
         /**
          * Access operator. The mapped values can be accessed directly or defined using this operator. if the input parameter aK
@@ -78,10 +88,12 @@ namespace moris
          * @include CON/src/cl_Map/cl_Map.inc
          */
         T2 &
-        operator[]( const T1 & aK )
+        operator[]( const T1 &aK )
         {
-            return mMap[aK];
+            return mMap[ aK ];
         }
+
+        //--------------------------------------------------------------------------------
 
         /**
          * Checks if key exists in map
@@ -89,9 +101,9 @@ namespace moris
          * @param[in] aK Key to be searched for
          */
         bool
-        key_exists( const T1 & aK ) const
+        key_exists( const T1 &aK ) const
         {
-            auto tIterator = mMap.find(aK);
+            auto tIterator = mMap.find( aK );
 
             bool tReturn = true;
 
@@ -103,6 +115,8 @@ namespace moris
             return tReturn;
         }
 
+        //--------------------------------------------------------------------------------
+
         /**
          * Searches container for an element with a key equivalent to the input parameter aK. If the key is found,
          * it returns the value of the element. If the key is not found, this function currently throws a logic error.
@@ -111,14 +125,17 @@ namespace moris
          * @param[in] aK Key to be searched for
          */
         const T2 &
-        find( const T1 & aK ) const
+        find( const T1 &aK ) const
         {
-            auto tIterator = mMap.find(aK);
+            auto tIterator = mMap.find( aK );
 
             MORIS_ERROR( tIterator != mMap.end(), "moris::map.find - Key not found" );
 
             return tIterator->second;
         }
+
+        //--------------------------------------------------------------------------------
+
         /**
          * This overloaded find functionality calls the first and recasts the constant element to a non-constant type.
          *
@@ -127,10 +144,12 @@ namespace moris
          * @return
          */
         T2 &
-        find( const T1 & aK )
+        find( const T1 &aK )
         {
             return const_cast< T2 & >( static_cast< const moris::map< T1, T2 > * >( this )->find( aK ) );
         }
+
+        //--------------------------------------------------------------------------------
 
         /**
          * Checks if map is empty. This function returns true if the container size is 0, otherwise it returns false.
@@ -142,6 +161,8 @@ namespace moris
         {
             return mMap.empty();
         }
+
+        //--------------------------------------------------------------------------------
 
         /**
          * Returns size of map.
@@ -157,6 +178,8 @@ namespace moris
             mMap.clear();
         }
 
+        //--------------------------------------------------------------------------------
+
         /**
          * Returns size of map which is an unsigned integral type.
          *
@@ -168,52 +191,63 @@ namespace moris
             return mMap.size();
         }
 
+        //--------------------------------------------------------------------------------
+
         /**
          * Returns number of elements that match the incoming key.
          *
          * @param[in] aK a Key to be counted in the map.
          */
         moris::uint
-        count( const T1 & aK )
+        count( const T1 &aK )
         {
             return mMap.count( aK );
         }
+
+        //------------------------------------------------------------------
 
         /**
          * @brief Returns an iterator to the first element
          */
         auto
         begin()
-            -> decltype( mMap.begin() )
+                -> decltype( mMap.begin() )
         {
             return mMap.begin();
         }
+
+        //------------------------------------------------------------------
 
         /**
          * @brief  Returns an iterator pointing to the past-the-end element.
          */
         auto
         end()
-            -> decltype( mMap.end() )
+                -> decltype( mMap.end() )
         {
             return mMap.end();
         }
+
+        //------------------------------------------------------------------
 
         /**
          * @brief  Removes an element from the map
          */
         void
-        erase( const T1 & aK )
+        erase( const T1 &aK )
         {
-            auto tIterator = mMap.find(aK);
+            auto tIterator = mMap.find( aK );
 
             mMap.erase( tIterator );
         }
 
+        //------------------------------------------------------------------
+
         /**
          * @brief Print moris map on screen
          */
-        void print( const std::string & aVarName = std::string() )
+        void
+        print( const std::string &aVarName = std::string() )
         {
             std::cout << "\n-------------------------------------------------\n\n";
 
@@ -228,7 +262,7 @@ namespace moris
                 tVarName = "morisMap";
             }
 
-            for (const auto &p : mMap)
+            for ( const auto &p : mMap )
             {
                 std::cout << tVarName << "[" << p.first << "] = " << p.second << '\n';
             }
@@ -248,8 +282,9 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------
-    };
-}
+
+    };    // end class: map
+
+}    // namespace moris
 
 #endif /* CL_MAP_HPP_ */
-

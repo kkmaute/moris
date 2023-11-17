@@ -95,6 +95,7 @@ namespace xtk
             tXTKParameters.set( "print_enriched_ig_mesh", false );
             tXTKParameters.set( "exodus_output_XTK_ig_mesh", false );
             tXTKParameters.set( "high_to_low_dbl_side_sets", true );
+            tXTKParameters.set( "write_cell_enrichments_levels", false );
 
             // define the sphere such that it is non interacting
             auto tPlane = std::make_shared< moris::ge::Plane >( 1.5, 0.5, 1.0, 0.0 );

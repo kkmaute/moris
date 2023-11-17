@@ -38,10 +38,10 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        Vertex::update_udf( Triangle *  aTriangle )
+        Vertex::update_udf( Facet*  aFacet )
         {
         	// calculate distance to this point
-            real tDistance = aTriangle->get_distance_to_point( mNodeCoords );
+            real tDistance = aFacet->get_distance_to_point( mNodeCoords );
 
             if( tDistance < mSDF )
             {
@@ -52,14 +52,14 @@ namespace moris
                 mHasSDF = true;
 
                 // remember triangle
-                mClosestTriangle = aTriangle;
+                mClosestFacet = aFacet;
             }
         }
 
 //-------------------------------------------------------------------------------
 
         void
-        Vertex::insert_cell( Cell * aCell )
+        Vertex::insert_cell( Cell* aCell )
         {
             mCells( mCellCounter++ ) = aCell;
         }
@@ -75,19 +75,19 @@ namespace moris
             for( Vertex * tNeighbor : mNeighbors )
             {
                 // get pointer to triangle
-                Triangle * tTriangle = tNeighbor->get_closest_triangle();
+                Facet * tFacet = tNeighbor->get_closest_facet();
 
-                if( tTriangle != NULL )
+                if( tFacet != NULL )
                 {
                     // get distance to triangle of neighbor
                     real tDistance
-                        = tTriangle->get_distance_to_point( mNodeCoords );
+                        = tFacet->get_distance_to_point( mNodeCoords );
 
                     if( tDistance < mSDF )
                     {
                         tSwept = true;
                         mSDF = tDistance;
-                        mClosestTriangle = tTriangle;
+                        mClosestFacet = tFacet;
                     }
                 }
             }

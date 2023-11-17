@@ -33,7 +33,7 @@ namespace xtk
 {
     // ----------------------------------------------------------------------------------
 
-    typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
+    // typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
 
     // ----------------------------------------------------------------------------------
 

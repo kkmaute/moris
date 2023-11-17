@@ -80,6 +80,9 @@ namespace moris
             // a sphere where I write enrichment fields locations (r,xc,yv,zc)
             tParameterList.insert( "write_enrichment_fields_probe_spheres", "" );
 
+            // write the cells enrichment and levels
+            tParameterList.insert( "write_cell_enrichments_levels", false );
+
             // T-Matrix output if needed
             tParameterList.insert( "global_T_matrix_output_file", "" );
             tParameterList.insert( "elemental_T_matrix_output_file", "" );

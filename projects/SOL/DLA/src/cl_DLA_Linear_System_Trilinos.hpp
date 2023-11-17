@@ -66,6 +66,8 @@ namespace moris
             moris::sint solve_linear_system();
 
             void get_solution( Matrix< DDRMat >& LHSValues );
+
+            virtual void construct_rhs_matrix() override;
         };
     }    // namespace dla
 }    // namespace moris

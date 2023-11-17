@@ -112,7 +112,7 @@ Example parameters are shown in \Cref{lst:ellipse}. The level-set function is de
 \end{lstlisting}
 \end{minipage}
 
-\refpar{ellipsoid}{The Ellipsoid} is defined analogous to the \hyperlink{ellipse}{ellipse} using the tags \tag{Point}, \tag{SemiDiameters}, and, if needed, \tag{Exponent}. The former two each need an additional third value specified for the $z$-position of the center point and the semi-diameter in $z$-direction respectively.
+\refpar{ellipsoid}{The Ellipsoid} is defined analogous to the \hyperlink{ellipse}{ellipse} using the tags \tag{Point}, \tag{SemiDiameters}, and, if needed, \tag{Exponent}. Both are vectors and must have as many entries as there are spatial dimensions.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -141,7 +141,7 @@ Example parameters are shown in \Cref{lst:ellipse}. The level-set function is de
 \refpar{image_file}{Image Files} can be converted to a signed distance field (SDF) using the MatLab scripts provided in the GitHub repository under \href{https://github.com/kkmaute/moris/tree/main/share/matlab}{share/matlab/}. For three-dimensional image information, a stack of images needs to be parsed with the image index before the file ending, e.g. a stack of images called \texttt{Cube.000.png}, \texttt{Cube.001.png}, ..., \texttt{Cube.127.png} could be used.
 The generated SDF by each script is stored in .hdf5 format. 
 
-The generated SDF is assumed to occupy a rectangular or cuboidal domain depending on the number of spatial dimensions. The SDF needs to be positioned relative to the ambient domain by defining its side lengths and origin using the \tag{ImageDimensions} and \tag{ImageOrigin} tags respectively. The origin of the SDF domain is assumed to be the vertex the the minimum $x$-, $y$-, and, if applicable, $z$-values. An example for defining a geometry based off an image file is provided in \Cref{lst:image} as well as in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Bear_Example.xml}{"Bear" example input file (\ExternalLink)}.
+The generated SDF is assumed to occupy a rectangular or cuboidal domain depending on the number of spatial dimensions. The SDF needs to be positioned relative to the ambient domain by defining its side lengths and origin using the \tag{ImageDimensions} and \tag{ImageOrigin} tags respectively. The origin of the SDF domain is assumed to be the vertex the minimum $x$-, $y$-, and, if applicable, $z$-values. An example for defining a geometry based off an image file is provided in \Cref{lst:image} as well as in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Bear_Example.xml}{"Bear" example input file (\ExternalLink)}.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -158,7 +158,7 @@ The generated SDF is assumed to occupy a rectangular or cuboidal domain dependin
 More details how the file format stores geometry data can be found \href{https://en.wikipedia.org/wiki/Wavefront_.obj_file}{here (\ExternalLink)}. They can easily be generated from more common STL files, e.g. in ParaView, as long as the geometry used has a closed surface.
 
 The OBJ file the geometry is to be loaded from is specified using the tag \tag{FileName}. The position of the coordinate system which the geometry is defined in within the OBJ file is set using the tag \tag{ObjectOrigin}. Additionally, the signed distance field generated from the OBJ data can be offset by a constant using the tag \tag{SdfShift}. This can be used in, e.g., situations where small scale features merge on a coarse mesh.
-An example for defining a geometry based off an OBJ file is provided in \Cref{lst:object} as well as in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Dragon_Example.xml}{"Dragon" example input file (\ExternalLink)}.
+An example for defining a geometry based off an OBJ file is provided in \Cref{lst:object} as well as in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Dragon_Example.xml}{"Dragon" example input file (\ExternalLink)}. \textbf{Note that local refinement at interfaces of geometries defined by OBJ files is not supported at this time.}
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -171,7 +171,7 @@ An example for defining a geometry based off an OBJ file is provided in \Cref{ls
 \end{lstlisting}
 \end{minipage}
 
-\refpar{future}{Future Extensions} to the geometry capabilities are more options for pre-defined geometries and patterns thereof. Further, symbolic expressions for level-set functions will be enabled. Please reach out with any feature suggestions and requests.
+\refpar{future}{Future Work} on the geometry capabilities are more options for pre-defined geometries and patterns thereof. Further, symbolic expressions for level-set functions will be enabled. Please reach out with any feature suggestions and requests.
 
 \newpage
 
@@ -206,7 +206,7 @@ The default material assignment for the \href{https://github.com/kkmaute/moris/b
     \end{center}
 \end{figure}
 
-Using the tag \tag{PhaseMap} each phase index can be mapped to a material index. The syntax consists of comma-separated pairs of indices, the first indicating the index of the phase to map from, and the second the the index of the material to map to. The pairs are separated by semicolon. The example input is shown in \Cref{lst:phase_map}. If the phase assignment for one's problem is not clear, it is advised to first generate a foreground mesh without a phase map specified and visualize the phase assignment before applying a phase map. To speed up this process, the extraction operator output can be suppressed by specifying the tag \tag{OutputExtractionOperators} in the \texttt{ForegroundMesh} parameter list and setting it to \texttt{false}.
+Using the tag \tag{PhaseMap} each phase index can be mapped to a material index. The syntax consists of comma-separated pairs of indices, the first indicating the index of the phase to map from, and the second the index of the material to map to. The pairs are separated by semicolon. The example input is shown in \Cref{lst:phase_map}. If the phase assignment for one's problem is not clear, it is advised to first generate a foreground mesh without a phase map specified and visualize the phase assignment before applying a phase map. To speed up this process, the extraction operator output can be suppressed by specifying the tag \tag{OutputExtractionOperators} in the \texttt{ForegroundMesh} parameter list and setting it to \texttt{false}.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -233,7 +233,7 @@ As discussed in \Cref{sec:overview_background}, a background mesh is understood 
 \end{lstlisting}
 \end{minipage}
 
-From the base grid, multiple refined mesh grids can be defined under the tag \tag{MeshGrids} as shown in \Cref{lst:mesh_grids}. Each mesh grid needs an index, starting with $0$, which is set using the attribute \att{ind}. The grids are quadtree or octree refined versions of the base grid. The number or repeated refinements is set using the \tag{InitialRefinements}.
+From the base grid, multiple refined mesh grids can be defined under the tag \tag{MeshGrids} as shown in \Cref{lst:mesh_grids}. Each mesh grid needs an index, starting with $0$, which is set using the attribute \att{ind}. The grids are quadtree or octree refined versions of the base grid. The number or repeated refinements is set using the \tag{InitialRefinements}. Additionally, grids can then be refined in the vicinity of interfaces by using the tag \tag{InterfaceRefinements}.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -241,6 +241,7 @@ From the base grid, multiple refined mesh grids can be defined under the tag \ta
 <MeshGrids>
     <MeshGrid ind="1">
         <InitialRefinements>0</InitialRefinements>
+        <InterfaceRefinements>1</InterfaceRefinements>
     </MeshGrid>
     <MeshGrid ind="0">
         <InitialRefinements>1</InitialRefinements>
@@ -274,16 +275,15 @@ Finally, the B-spline background meshes are defined under the tag \tag{BsplineMe
 \section{Foreground Mesh}
 \label{sec:tutorial_foreground}
 
-To generate the foreground mesh, one of the mesh grids is chosen by its index under the tag \tag{DecompositionGrid}. This grid \textbf{needs to be at least as refined as the finest grid used for defining the B-spline meshes}. Additionally, the foreground mesh can then be quadtree or octree refined around the interfaces using the tag \tag{InterfaceRefinements}.
+To generate the foreground mesh, one of the mesh grids is chosen by its index under the tag \tag{DecompositionGrid}. This grid \textbf{needs to be at least as refined as the finest grid used for defining the B-spline meshes}.
 
-As \hyperlink{foreground_mesh_properties}{mentioned in the overview}, the foreground mesh is a hybrid TRI/QUAD or TET/HEX mesh and may contain hanging nodes. By setting the flag \tag{TriangulateAllFgElems} to true, the \hyperlink{regular_subdivision}{regular subdivision} can also be applied to non-intersected background elements. Note, that this option is currently not supported for locally refined meshes due to the code not being able to handle hanging nodes along facets shared by triangular and rectangular elements. The polynomial order of the foreground mesh is chosen using the tag \tag{FgPolynomialOrder}. Currently orders $p=1$ and $p=2$ are supported.
+As \hyperlink{foreground_mesh_properties}{mentioned in the overview}, the foreground mesh is a hybrid TRI/QUAD or TET/HEX mesh and may contain hanging nodes. By setting the flag \tag{TriangulateAllFgElems} to true, the \hyperlink{regular_subdivision}{regular subdivision} can also be applied to non-intersected background elements. Note, that this option is currently not supported for locally refined meshes due to the code not being able to handle hanging nodes along facets shared by triangular and rectangular elements. The polynomial order of the foreground mesh is chosen by using the tag \tag{FgPolynomialOrder}. Currently, orders $p=1$ and $p=2$ are supported.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
 \begin{lstlisting}[caption={Definition of a multiple mesh grids},captionpos=b, label={lst:fg_mesh}]
 <ForegroundMesh>
     <DecompositionGrid>0</DecompositionGrid>
-    <InterfaceRefinements>1</InterfaceRefinements>
     <FgPolynomialOrder>2</FgPolynomialOrder>
     <TriangulateAllFgElems>false</TriangulateAllFgElems>
 </ForegroundMesh>

@@ -184,14 +184,14 @@ namespace moris::hmr
         // ask background edge for number of elements
         uint tNumberOfElements = aBackgroundEdge->get_number_of_elements();
 
-        // count elements that are neither deactive nor padding
+        // count elements that are neither deactivated nor padding
         uint tCount = 0;
 
         for ( uint k = 0; k < tNumberOfElements; ++k )
         {
             // get element
             Background_Element_Base* tElement = aBackgroundEdge->get_element( k );
-            if ( !tElement->is_deactive( tPattern ) && !tElement->is_padding() )
+            if ( !tElement->is_neither_active_nor_refined( tPattern ) && !tElement->is_padding() )
             {
                 ++tCount;
             }
@@ -209,7 +209,7 @@ namespace moris::hmr
         {
             // get element
             Background_Element_Base* tElement = aBackgroundEdge->get_element( k );
-            if ( !tElement->is_deactive( tPattern ) && !tElement->is_padding() )
+            if ( !tElement->is_neither_active_nor_refined( tPattern ) && !tElement->is_padding() )
             {
                 mElements( tCount ) = aMesh->get_element_by_memory_index(
                         tElement->get_memory_index() );

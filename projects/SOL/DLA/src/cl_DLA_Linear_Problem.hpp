@@ -166,6 +166,30 @@ namespace moris
             virtual moris::sint solve_linear_system() = 0;
 
             //------------------------------------------------------------------
+
+            /**
+             * @brief It uses maps and solver interface to construct the linear system using the graph that is cons
+             *
+             */
+            virtual void
+            construct_rhs_matrix();
+
+            //------------------------------------------------------------------
+
+            /**
+             * @brief this function uses
+             *
+             */
+            void
+            assemble_rhs_matrix();
+
+            //------------------------------------------------------------------
+
+            void
+            set_rhs_matrix_type( std::string const & aRHSMatType )
+            {
+                mRHSMatType = aRHSMatType;
+            }
         };
     }    // namespace dla
 }    // namespace moris

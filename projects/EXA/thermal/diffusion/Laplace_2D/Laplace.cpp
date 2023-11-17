@@ -66,15 +66,15 @@ namespace moris
     // Interpolation order
 
     uint tInterpolationOrder = 2;
-    
+
     uint tSolverType = 3;
-    
+
     /* ------------------------------------------------------------------------ */
     // geometry parameters
 
     // dimension of domain
-    real tDimX = 1.00;// x-direction
-    real tDimY = 1.00;// y-direction
+    real tDimX = 1.00;    // x-direction
+    real tDimY = 1.00;    // y-direction
 
     // position and size of sphere
     real tPlanePos = 0.52;
@@ -124,7 +124,7 @@ namespace moris
     moris::real tDeltaTime = tMaxTime / (real)tTimeSteps;
 
     // number of steps to linearly increase heat laod
-    moris::real tRampTime = 10;// tMaxTime/10.0;
+    moris::real tRampTime = 10;    // tMaxTime/10.0;
 
     // flag to turn on/off transient simulation
     bool tUseTimeContinuity = tTimeSteps > 1 ? true : false;
@@ -133,7 +133,7 @@ namespace moris
     // Nonlinear solver parameters
 
     // maximum number of Newton steps
-    int tNLA_max_iter = 20;
+    int tNLA_max_iter = 1;
 
     // required drop of resdiual
     moris::real tNLA_rel_res_norm_drop = 1e-12;
@@ -151,7 +151,7 @@ namespace moris
     std::string tGENOutputFile = tName + "_GEN.exo";
 
     /* ------------------------------------------------------------------------ */
-//     // background mesh_sol
+    //     // background mesh_sol
 
     // number of elements
     std::string tNumElemX = moris_to_string( std::ceil( tDimX / tApproxEleSize ) );
@@ -162,7 +162,7 @@ namespace moris
     std::string tDomainDimY = moris_to_string( tDimY );
 
     // offeset of background mesh
-    std::string tDomainOffX = moris_to_string( 0.0001*(-3.0) );
+    std::string tDomainOffX = moris_to_string( 0.0001 * ( -3.0 ) );
     std::string tDomainOffY = moris_to_string( 0.0 );
 
     // setting up information for HMR parameter list
@@ -208,11 +208,11 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Output Config
 
-    std::string tSolidPhase = "HMR_dummy_n_p0,HMR_dummy_c_p0";
-    std::string tVoidPhase  = "HMR_dummy_n_p1,HMR_dummy_c_p1";
-    std::string tAllPhases  = tSolidPhase + "," + tVoidPhase;
-    std::string tOuterSurfaceSolid = "SideSet_1_n_p0,SideSet_2_n_p0,SideSet_3_n_p0,SideSet_4_n_p0,SideSet_1_c_p0,SideSet_2_c_p0,SideSet_3_c_p0,SideSet_4_c_p0";
-    std::string tOuterSurfaceVoid = "SideSet_1_n_p1,SideSet_2_n_p1,SideSet_3_n_p1,SideSet_4_n_p1,SideSet_1_c_p1,SideSet_2_c_p1,SideSet_3_c_p1,SideSet_4_c_p1";
+    std::string tSolidPhase         = "HMR_dummy_n_p0,HMR_dummy_c_p0";
+    std::string tVoidPhase          = "HMR_dummy_n_p1,HMR_dummy_c_p1";
+    std::string tAllPhases          = tSolidPhase + "," + tVoidPhase;
+    std::string tOuterSurfaceSolid  = "SideSet_1_n_p0,SideSet_2_n_p0,SideSet_3_n_p0,SideSet_4_n_p0,SideSet_1_c_p0,SideSet_2_c_p0,SideSet_3_c_p0,SideSet_4_c_p0";
+    std::string tOuterSurfaceVoid   = "SideSet_1_n_p1,SideSet_2_n_p1,SideSet_3_n_p1,SideSet_4_n_p1,SideSet_1_c_p1,SideSet_2_c_p1,SideSet_3_c_p1,SideSet_4_c_p1";
     std::string tAllPhaseInterfaces = tAllPhases + "," + tOuterSurfaceSolid + "," + tOuterSurfaceVoid;
 
     /* ------------------------------------------------------------------------ */
@@ -228,8 +228,8 @@ namespace moris
         real tX = aCoordinates( 0 );
 
         // compute level set value
-        real tLS = tX - tPlanePos ;
-        
+        real tLS = tX - tPlanePos;
+
         // return the level set value
         return tLS;
     }
@@ -259,7 +259,7 @@ namespace moris
 
         return tReturnValue;
     }
-    
+
     void
     Func_Anal_Sol(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
@@ -267,30 +267,29 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // intermeidate variables measuring the length of the solid domain
-        real tA = tPlanePos; 
-        real tB = 1.0; 
-        
-        aPropMatrix.set_size( 1, 1 , 0.0);
+        real tA = tPlanePos;
+        real tB = 1.0;
+
+        aPropMatrix.set_size( 1, 1, 0.0 );
 
         // get coordinates
-        real tX = aFIManager->get_IP_geometry_interpolator()->valx()(0);
-        real tY = aFIManager->get_IP_geometry_interpolator()->valx()(1);
+        real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
+        real tY = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
 
-        //initailize the temprture
-        real tTemp = 0; 
-        for (int n= 1 ; n < 200 ; n++ )
+        // initailize the temprture
+        real tTemp = 0;
+        for ( int n = 1; n < 200; n++ )
         {
             // cast to real
-            n = (real) n; 
-            
-            // compute the coefficient
-            real tCoeff = 2/tB / std::cosh(n*M_PI*tA/tB) * (tB*tB *(2*tB + (-2*tB + (-1 + tB)* n*n *M_PI*M_PI) *std::cos(n *M_PI) ))/(std::pow(n *M_PI,3.0)) ;
-            
-            tTemp += tCoeff* std::sin(n*M_PI*tY/tB) * std::cosh(n*M_PI*(tX)/tB) ; 
+            n = (real)n;
 
+            // compute the coefficient
+            real tCoeff = 2 / tB / std::cosh( n * M_PI * tA / tB ) * ( tB * tB * ( 2 * tB + ( -2 * tB + ( -1 + tB ) * n * n * M_PI * M_PI ) * std::cos( n * M_PI ) ) ) / ( std::pow( n * M_PI, 3.0 ) );
+
+            tTemp += tCoeff * std::sin( n * M_PI * tY / tB ) * std::cosh( n * M_PI * ( tX ) / tB );
         }
-        
-        aPropMatrix( 0, 0 ) =  tTemp ; 
+
+        aPropMatrix( 0, 0 ) = tTemp;
     }
 
     /* ------------------------------------------------------------------------ */
@@ -305,7 +304,7 @@ namespace moris
 
         aPropMatrix( 0, 0 ) = tHeatFlx;
     }
-    
+
     void
     Func_TempDistro(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
@@ -317,7 +316,7 @@ namespace moris
         const Matrix< DDRMat > tCoord = aFIManager->get_IP_geometry_interpolator()->valx();
 
         // the temp distrubution is y*(1-y) applied on the right side of the domain
-        aPropMatrix( 0, 0 ) = tCoord(1)*(1-tCoord(1));
+        aPropMatrix( 0, 0 ) = tCoord( 1 ) * ( 1 - tCoord( 1 ) );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -533,7 +532,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
-        
+
         tParameterlist( 0 )( 0 ).set( "basis_function_vtk_file", "basisinhmr.vtk" );
         tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh_to_exodus", "lagrangehmr.exo" );
     }
@@ -560,11 +559,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh", true );
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ip_mesh", true );
-        tParameterlist( 0 )( 0 ).set( "activate_basis_agglomeration", true );  
+        tParameterlist( 0 )( 0 ).set( "activate_basis_agglomeration", true );
         tParameterlist( 0 )( 0 ).set( "write_enrichment_fields", true );
         tParameterlist( 0 )( 0 ).set( "write_enrichment_fields_probe_spheres", "1.0,0.5,0.5,1.0" );
-        
-
     }
 
     /* ------------------------------------------------------------------------ */
@@ -588,7 +585,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
-        
+
         // init geometry counter
         uint tGeoCounter = 0;
 
@@ -669,15 +666,15 @@ namespace moris
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropInletTemp" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", moris_to_string( tInTemp ) );
         tPropCounter++;
-        
-               // create inlet temperature property
+
+        // create inlet temperature property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropInletTemp2" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", moris_to_string( 1.0 ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function", "Func_TempDistro" );
         tPropCounter++;
-        
-                 // create inlet temperature property
+
+        // create inlet temperature property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropAnalSol" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters", moris_to_string( 1.0 ) );
@@ -774,34 +771,34 @@ namespace moris
 
         // Inlet BC IWG ----------------------------------------------------------------
 
-        //   
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletTempTopBottom" );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals", "1,3" );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletTemp,Dirichlet" );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );         
-        tIWGCounter++;    
-        
+        //
+        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletTempTopBottom" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals", "1,3" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletTemp,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
+        tIWGCounter++;
+
         //--------------------------------------------------------------------------------
-        
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );        
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletTempRight" );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );        
+
+        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletTempRight" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseSolid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseVoid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );       
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );        
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletTemp2,Dirichlet" );       
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );         
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );         
-        tIWGCounter++;          
-        
-        // Outlet BC IWG ----------------------------------------------------------------         
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletTemp2,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
+        tIWGCounter++;
+
+        // Outlet BC IWG ----------------------------------------------------------------
 
 
         // Time continuity ----------------------------------------------------------------
@@ -844,8 +841,8 @@ namespace moris
 
         // init IQI counter
         uint tIQICounter = 0;
-        
-                       // input thermal energy
+
+        // input thermal energy
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIAnalTemp" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseSolid" );
@@ -853,7 +850,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_properties", "PropAnalSol,Property" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
         tIQICounter++;
-        
+
         // temperature
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkTEMP" );
@@ -870,7 +867,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", (uint)( fem::IQI_Type::PROPERTY ) );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_properties", "PropVolumetricHeatFlux,Property" );
         tIQICounter++;
-        
+
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkL2Error" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::L2_ERROR_ANALYTIC ) );
@@ -878,8 +875,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_properties", "PropAnalSol,L2Check" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseSolid" );
         tIQICounter++;
-        
- 
+
 
         // input thermal energy
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
@@ -951,210 +947,281 @@ namespace moris
     void
     SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
     {
-         tParameterlist.resize( 7 );
-        for ( uint Ik = 0; Ik < 7; Ik++ )
+        tParameterlist.resize( 8 );
+        for ( uint Ik = 0; Ik < 8; Ik++ )
         {
             tParameterlist( Ik ).resize( 1 );
         }
 
+        tParameterlist( 0 ).resize( 3 );
+
         sint tVerbosity = Belos::Errors + Belos::Warnings + Belos::IterationDetails + Belos::TimingDetails + Belos::StatusTestDetails + Belos::FinalSummary;
 
-         switch ( tSolverType )
-         {   
-            case 0: // Amesos - Pardiso
-                tParameterlist( 0 ) ( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
-
-//                 tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps");
-                break;
-
-            case 1: // Amesos - Mumps
+        switch ( tSolverType )
+        {
+            case 0:    // Amesos - Pardiso
                 tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-                tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps");
+                //                 tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps");
                 break;
 
-            case 2: // Belos
+            case 1:    // Amesos - Mumps
+                tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+                tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+                break;
+
+            case 2:    // Belos
                 tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
 
                 // Solver type: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
                 //              Pseudoblock TFQMR, Seed GMRES, Seed CG
-                tParameterlist( 0 )( 0 ).set( "Solver Type" ,  "Flexible GMRES" );
+                tParameterlist( 0 )( 0 ).set( "Solver Type", "Flexible GMRES" );
 
                 // Diagnostics: Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails
-                tParameterlist( 0 )( 0 ).set( "Verbosity" , tVerbosity );
+                tParameterlist( 0 )( 0 ).set( "Verbosity", tVerbosity );
 
                 // Maximum number of blocks in Krylov factorization
-                tParameterlist( 0 )( 0 ).set( "Num Blocks", 250   );
+                tParameterlist( 0 )( 0 ).set( "Num Blocks", 250 );
 
                 // Block size to be used by iterative solver
-                tParameterlist( 0 )( 0 ).set( "Block Size", 1   );
+                tParameterlist( 0 )( 0 ).set( "Block Size", 1 );
 
                 // Allowable Belos solver iterations
-                tParameterlist( 0 )( 0 ).set( "Maximum Iterations" , 500 );
+                tParameterlist( 0 )( 0 ).set( "Maximum Iterations", 500 );
 
                 // Allowable Belos solver iterations
-                tParameterlist( 0 )( 0 ).set( "Maximum Restarts" , 2 );
+                tParameterlist( 0 )( 0 ).set( "Maximum Restarts", 2 );
 
                 // Convergence criteria
-                tParameterlist( 0 )( 0 ).set( "Convergence Tolerance" ,  1e-9 );
+                tParameterlist( 0 )( 0 ).set( "Convergence Tolerance", 1e-9 );
 
                 // Left or right preconditioner
-                tParameterlist( 0 )( 0 ).set( "Left-right Preconditioner" , "right" );
+                tParameterlist( 0 )( 0 ).set( "Left-right Preconditioner", "right" );
 
                 // Preconditioner
 
                 // ifpack - ILU
-                //tParameterlist( 0 )( 0 ).set( "ifpack_prec_type",  "ILU");
-                //tParameterlist( 0 )( 0 ).set( "fact: level-of-fill",  5 );
+                // tParameterlist( 0 )( 0 ).set( "ifpack_prec_type",  "ILU");
+                // tParameterlist( 0 )( 0 ).set( "fact: level-of-fill",  5 );
 
                 // ifpack - ILUT
-                tParameterlist( 0 )( 0 ).set( "ifpack_prec_type",  "ILUT");
+                tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILUT" );
                 tParameterlist( 0 )( 0 ).set( "fact: ilut level-of-fill", 5.0 );
                 tParameterlist( 0 )( 0 ).set( "fact: drop tolerance", 1e-12 );
 
                 // ifpack with direct solve
-                //tParameterlist( 0 )( 0 ).set( "ifpack_prec_type",  "amesos");
-                //tParameterlist( 0 )( 0 ).set( "amesos: solver type", "Amesos_Pardiso");
+                // tParameterlist( 0 )( 0 ).set( "ifpack_prec_type",  "amesos");
+                // tParameterlist( 0 )( 0 ).set( "amesos: solver type", "Amesos_Pardiso");
 
                 // AMG with defaults for non-symmetric system
-                //tParameterlist( 0 )( 0 ).set( "ml_prec_type",  "NSSA");
-                //tParameterlist( 0 )( 0 ).set( "PDE equations", 3);
+                // tParameterlist( 0 )( 0 ).set( "ml_prec_type",  "NSSA");
+                // tParameterlist( 0 )( 0 ).set( "PDE equations", 3);
 
                 break;
 
-            case 3: // AZTEC
+            case 3:    // AZTEC
                 tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
 
-                //options are: AZ_gmres, AZ_gmres_condnum, AZ_cg, AZ_cg_condnum, AZ_cgs, AZ_tfqmr, AZ_bicgstab
-                tParameterlist( 0 )( 0 ).set( "AZ_solver" ,  AZ_gmres );
+                // options are: AZ_gmres, AZ_gmres_condnum, AZ_cg, AZ_cg_condnum, AZ_cgs, AZ_tfqmr, AZ_bicgstab
+                tParameterlist( 0 )( 0 ).set( "AZ_solver", AZ_gmres );
 
                 // Allowable Aztec solver iterations
-                tParameterlist( 0 )( 0 ).set( "AZ_max_iter", 500   );
+                tParameterlist( 0 )( 0 ).set( "AZ_max_iter", 500 );
 
                 // Allowable Aztec iterative residual
-                tParameterlist( 0 )( 0 ).set( "rel_residual" , 1e-16 );
+                tParameterlist( 0 )( 0 ).set( "rel_residual", 1e-16 );
 
                 // set Az_conv -convergence criteria
                 // options are AZ_r0, AZ_rhs, AZ_Anorm, AZ_noscaled, AZ_sol
-                tParameterlist( 0 )( 0 ).set( "AZ_conv" ,  AZ_r0 );
+                tParameterlist( 0 )( 0 ).set( "AZ_conv", AZ_r0 );
 
                 // set Az_diagnostic parameters
                 // Set whether or not diagnostics for every linear iteration are printed or not. options are AZ_all, AZ_none
-                tParameterlist( 0 )( 0 ).set( "AZ_diagnostics" ,  AZ_all );
+                tParameterlist( 0 )( 0 ).set( "AZ_diagnostics", AZ_all );
 
                 // set AZ_output options
                 // options are AZ_all, AZ_none, AZ_warnings, AZ_last, AZ_summary
-                tParameterlist( 0 )( 0 ).set( "AZ_output" ,  AZ_all );
+                tParameterlist( 0 )( 0 ).set( "AZ_output", AZ_all );
 
                 // Determines the submatrices factored with the domain decomposition algorithms
                 // Option to specify with how many rows from other processors each processor\u2019s local submatrix is augmented.
-                tParameterlist( 0 )( 0 ).set( "AZ_overlap" , 1 );
+                tParameterlist( 0 )( 0 ).set( "AZ_overlap", 1 );
 
                 // Determines how overlapping subdomain results are combined when different processors have computed different values for the same unknown.
                 // Options are AZ_standard, AZ_symmetric
-                tParameterlist( 0 )( 0 ).set( "AZ_type_overlap" , AZ_standard );
+                tParameterlist( 0 )( 0 ).set( "AZ_type_overlap", AZ_standard );
 
                 // Determines whether RCM reordering will be done in conjunction with domain decomposition incomplete factorizations.
                 // Option to enable (=1) or disable (=0) the Reverse Cuthill\u2013McKee (RCM) algorithm to reorder system equations for smaller bandwidth
-                tParameterlist( 0 )( 0 ).set( "AZ_reorder" , 1 );
+                tParameterlist( 0 )( 0 ).set( "AZ_reorder", 1 );
 
                 // Use preconditioner from a previous Iterate() call
                 // Option are AZ_calc, AZ_recalc, AZ_reuse
-                tParameterlist( 0 )( 0 ).set( "AZ_pre_calc" , AZ_calc );
+                tParameterlist( 0 )( 0 ).set( "AZ_pre_calc", AZ_calc );
 
                 // Determines  whether  matrix  factorization  information will be kept after this solve
                 // for example for preconditioner_recalculation
-                tParameterlist( 0 )( 0 ).set( "AZ_keep_info" , 0 );
+                tParameterlist( 0 )( 0 ).set( "AZ_keep_info", 0 );
 
                 //--------------------------GMRES specific solver parameters--------------------------------------------------------------------------
                 // Set AZ_kspace
                 // Krylov subspace size for restarted GMRES
                 // Setting mKrylovSpace larger improves the robustness, decreases iteration count, but increases memory consumption.
                 // For very difficult problems, set it equal to the maximum number of iterations.
-                tParameterlist( 0 )( 0 ).set( "AZ_kspace" ,250 );
+                tParameterlist( 0 )( 0 ).set( "AZ_kspace", 250 );
 
                 // Set AZ_orthog
-                //AZ_classic or AZ_modified
-                tParameterlist( 0 )( 0 ).set( "AZ_orthog" , AZ_classic );
+                // AZ_classic or AZ_modified
+                tParameterlist( 0 )( 0 ).set( "AZ_orthog", AZ_classic );
 
                 // Set AZ_rthresh
                 // Parameter used to modify the relative magnitude of the diagonal entries of the matrix that is used to compute
                 // any of the incomplete factorization preconditioners
-                tParameterlist( 0 )( 0 ).set( "AZ_rthresh" ,  0.0 );
+                tParameterlist( 0 )( 0 ).set( "AZ_rthresh", 0.0 );
 
                 // Set AZ_athresh
                 // Parameter used to modify the absolute magnitude of the diagonal entries of the matrix that is used to compute
                 // any of the incomplete factorization preconditioners
-                tParameterlist( 0 )( 0 ).set( "AZ_athresh" ,  0.0 );
+                tParameterlist( 0 )( 0 ).set( "AZ_athresh", 0.0 );
 
                 //--------------------------Preconsitioner specific parameters--------------------------------------------------------------------------
                 // Determine which preconditioner is used
                 // Options are AZ_none, AZ_Jacobi, AZ_sym_GS, AZ_Neumann, AZ_ls, AZ_dom_decomp,
-                tParameterlist( 0 )( 0 ).set( "AZ_precond" ,  AZ_dom_decomp );
+                tParameterlist( 0 )( 0 ).set( "AZ_precond", AZ_dom_decomp );
 
                 // Set preconditioner subdomain solve - direct solve or incomplete
                 // Options are AZ_lu, AZ_ilut, AZ_ilu, AZ_rilu, AZ_bilu, AZ_icc
-                tParameterlist( 0 )( 0 ).set( "AZ_subdomain_solve" ,  AZ_ilut );
+                tParameterlist( 0 )( 0 ).set( "AZ_subdomain_solve", AZ_ilut );
 
                 // Set preconditioner polynomial order - polynomial preconditioning, Gauss-Seidel, Jacobi
-                tParameterlist( 0 )( 0 ).set( "AZ_poly_ord" ,  3 );
+                tParameterlist( 0 )( 0 ).set( "AZ_poly_ord", 3 );
 
                 // Set drop tolerance - for LU, ILUT
-                tParameterlist( 0 )( 0 ).set(  "AZ_drop" ,  1.0e-12 );
+                tParameterlist( 0 )( 0 ).set( "AZ_drop", 1.0e-12 );
 
                 // Set level of graph fill in - for ilu(k), icc(k), bilu(k)
-                tParameterlist( 0 )( 0 ).set( "AZ_graph_fill" ,  3 );
+                tParameterlist( 0 )( 0 ).set( "AZ_graph_fill", 3 );
 
                 // Set ilut fill
-                tParameterlist( 0 )( 0 ).set( "AZ_ilut_fill" ,  4.0 );
+                tParameterlist( 0 )( 0 ).set( "AZ_ilut_fill", 4.0 );
 
                 // Set Damping or relaxation parameter used for RILU
-                tParameterlist( 0 )( 0 ).set( "AZ_omega" ,  1.0 );
+                tParameterlist( 0 )( 0 ).set( "AZ_omega", 1.0 );
+
+                // use the correct precondioiner
+                tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
                 // Preconditioner using ifpack
-                //tParameterlist( 0 )( 0 ).set( "ifpack_prec_type"    , "ILU");
-                //tParameterlist( 0 )( 0 ).set( "fact: level-of-fill" ,  3       );
-                //tParameterlist( 0 )( 0 ).set( "fact: drop tolerance",  1.0e-2 );
-                //tParameterlist( 0 )( 0 ).set( "prec_reuse"          ,  false );
-
-                // AMG with defaults for non-symmetric system
-                tParameterlist( 0 )( 0 ).set( "ml_prec_type",  "NSSA");
-                tParameterlist( 0 )( 0 ).set( "PDE equations", 1);
-
+                // tParameterlist( 0 )( 0 ).set( "ifpack_prec_type"    , "ILU");
+                // tParameterlist( 0 )( 0 ).set( "fact: level-of-fill" ,  3       );
+                // tParameterlist( 0 )( 0 ).set( "fact: drop tolerance",  1.0e-2 );
+                // tParameterlist( 0 )( 0 ).set( "prec_reuse"          ,  false );
                 break;
         }
 
+        // eigenvalue problem to find the largest eigenvalues
+        tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER );
+        tParameterlist( 0 )( 1 ).set( "Eigen_Algorithm", "EIGALG_BLOCK_KRYLOV_SCHUR" );
+        tParameterlist( 0 )( 1 ).set( "Verbosity", false );
+        tParameterlist( 0 )( 1 ).set( "Which", "SM" );
+        tParameterlist( 0 )( 1 ).set( "Block_Size", 5 );          // Block Size should be same as Number of Eigen values
+        tParameterlist( 0 )( 1 ).set( "NumFreeDofs", 1000 );      // For 2D problem of rectangular elements number of free dofs = 2*node_x*node_y
+        tParameterlist( 0 )( 1 ).set( "Num_Eig_Vals", 5 );        // Number of Eigen values should be same as Block Size
+        tParameterlist( 0 )( 1 ).set( "Num_Blocks", 3 );          // Number of Blocks should satisfy : Num_Blocks*Block_Size < InitVec Length
+        tParameterlist( 0 )( 1 ).set( "MaxSubSpaceDims", 15 );    // Max Subspace Dimension = 3*Block_Size*Num_Eig_Vals
+        tParameterlist( 0 )( 1 ).set( "Initial_Guess", 0 );
+        tParameterlist( 0 )( 1 ).set( "MaxRestarts", 100 );
+        tParameterlist( 0 )( 1 ).set( "Convergence_Tolerance", 1e-02 );
+        tParameterlist( 0 )( 1 ).set( "Relative_Convergence_Tolerance", true );
+        tParameterlist( 0 )( 1 ).set( "preconditioners", "1" );
+        tParameterlist( 0 )( 1 ).set( "preconditioners_linear_operator", "0" );
+
+        // eigenvalue problem to find the smallest eigenvalues
+        tParameterlist( 0 )( 2 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER );
+        tParameterlist( 0 )( 2 ).set( "Eigen_Algorithm", "EIGALG_BLOCK_KRYLOV_SCHUR_AMESOS" );
+        tParameterlist( 0 )( 2 ).set( "Verbosity", false );
+        tParameterlist( 0 )( 2 ).set( "Which", "LM" );
+        tParameterlist( 0 )( 2 ).set( "Block_Size", 5 );          // Block Size should be same as Number of Eigen values
+        tParameterlist( 0 )( 2 ).set( "NumFreeDofs", 1000 );      // For 2D problem of rectangular elements number of free dofs = 2*node_x*node_y
+        tParameterlist( 0 )( 2 ).set( "Num_Eig_Vals", 5 );        // Number of Eigen values should be same as Block Size
+        tParameterlist( 0 )( 2 ).set( "Num_Blocks", 3 );          // Number of Blocks should satisfy : Num_Blocks*Block_Size < InitVec Length
+        tParameterlist( 0 )( 2 ).set( "MaxSubSpaceDims", 15 );    // Max Subspace Dimension = 3*Block_Size*Num_Eig_Vals
+        tParameterlist( 0 )( 2 ).set( "Initial_Guess", 0 );
+        tParameterlist( 0 )( 2 ).set( "MaxRestarts", 100 );
+        tParameterlist( 0 )( 2 ).set( "Convergence_Tolerance", 1e-02 );
+        tParameterlist( 0 )( 2 ).set( "Relative_Convergence_Tolerance", true );
+        tParameterlist( 0 )( 2 ).set( "preconditioners", "1" );
+
+        tParameterlist( 7 ).resize( 2 );
+
+        // ML precondioner for the linear solver
+        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
+        tParameterlist( 7 )( 0 ).set( "ml_prec_type", "NSSA" );
+        tParameterlist( 7 )( 0 ).set( "PDE equations", 1 );
+
+        // Ifpack precondioner for the eigen solve
+        tParameterlist( 7 )( 1 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
+        tParameterlist( 7 )( 1 ).set( "ifpack_prec_type", "ILU" );
+        tParameterlist( 7 )( 1 ).set( "fact: level-of-fill", 2 );
+        tParameterlist( 7 )( 1 ).set( "fact: drop tolerance", 1.0e-2 );
+        tParameterlist( 7 )( 1 ).set( "prec_reuse", false );
+
         //------------------------------------------------------------------------------
 
-        tParameterlist( 1 ).resize( 1 );
+        tParameterlist( 1 ).resize( 3 );
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();    // linear problem index 0
         tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
+        tParameterlist( 1 )( 0 ).set( "DLA_operator_condition_number_with_moris", true );
+        tParameterlist( 1 )( 0 ).set( "DLA_prec_operator_condition_number_with_moris", true );
+
+        tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list(); // eigen problem index 1
+        tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
+        tParameterlist( 1 )( 1 ).set( "RHS_Matrix_Type", "IdentityMat" );
+
+        tParameterlist( 1 )( 2 ) = moris::prm::create_linear_solver_parameter_list(); // eigen problem index 1
+        tParameterlist( 1 )( 2 ).set( "DLA_Linear_solver_algorithms", "2" );
+        tParameterlist( 1 )( 2 ).set( "RHS_Matrix_Type", "IdentityMat" );
 
         //------------------------------------------------------------------------------
 
-        tParameterlist( 2 ).resize( 1 );
+        tParameterlist( 2 ).resize( 3 );
 
-        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();// nonlinear algorithm index 0
+        tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", (uint)moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         tParameterlist( 2 )( 0 ).set( "NLA_max_iter", tNLA_max_iter );
 
+        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 1 );
+        tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
+        tParameterlist( 2 )( 1 ).set( "NLA_max_iter", tNLA_max_iter );
+        tParameterlist( 2 )( 1 ).set( "NLA_is_eigen_problem", true );
+
+        tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 )( 2 ).set( "NLA_Linear_solver", 2 );
+        tParameterlist( 2 )( 2 ).set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        tParameterlist( 2 )( 2 ).set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
+        tParameterlist( 2 )( 2 ).set( "NLA_max_iter", tNLA_max_iter );
+        tParameterlist( 2 )( 2 ).set( "NLA_is_eigen_problem", true );
+
         //------------------------------------------------------------------------------
 
         tParameterlist( 3 ).resize( 1 );
-        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();// 1: thermal subproblem
-        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );// set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // 1: thermal subproblem
+        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0,1,2" );           // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", (uint)moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "TEMP" );
 
         // ----------------------------------------------------------
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 0 );// using NLBGS for forward problem
-        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 0 );// using monlithic for sensitivity problem
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 0 );                       // using NLBGS for forward problem
+        tParameterlist( 4 )( 0 ).set( "TSA_nonlinear_solver_for_adjoint_solve", 0 );    // using monlithic for sensitivity problem
 
         if ( tUseTimeContinuity )
         {
@@ -1183,7 +1250,6 @@ namespace moris
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "heat" );
-//         tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type",  (uint)( sol::MapType::Petsc ) );
     }
 
     void
@@ -1194,6 +1260,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
         tParameterlist( 0 )( 0 ).set( "TEMP", 0 );
+        tParameterlist( 0 )( 0 ).set( "number_eigen_vectors", 5 );
     }
 
     void
@@ -1219,7 +1286,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-}// namespace moris
+}    // namespace moris
 
 //------------------------------------------------------------------------------
 #ifdef __cplusplus

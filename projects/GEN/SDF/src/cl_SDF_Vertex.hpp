@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_VERTEX_HPP_
-#define PROJECTS_GEN_SDF_SRC_CL_SDF_VERTEX_HPP_
+#pragma once
 #include <limits>
 
 #include "typedefs.hpp"
@@ -26,7 +25,7 @@ namespace moris
 
         class Cell;
 
-        class Triangle;
+        class Facet;
 
 // -----------------------------------------------------------------------------
         /**
@@ -54,13 +53,13 @@ namespace moris
             Matrix< F31RMat >   mOriginalNodeCoords;
 
             real                mSDF;
-            Triangle *          mClosestTriangle = nullptr;
+            Facet*              mClosestFacet = nullptr;
 
             uint                mCellCounter = 0;
 
-            moris::Cell< Cell * > mCells;
+            moris::Cell< Cell* > mCells;
 
-            moris::Cell< Vertex * > mNeighbors;
+            moris::Cell< Vertex* > mNeighbors;
 
 // -----------------------------------------------------------------------------
         public:
@@ -203,14 +202,14 @@ namespace moris
                 mIsCandidate = false;
                 mFlag = true;
                 mSDF =  std::numeric_limits<real>::max();
-                mClosestTriangle = nullptr;
+                mClosestFacet = nullptr;
                 mIsInside = false;
             }
 
 // -----------------------------------------------------------------------------
 
             void
-            update_udf( Triangle *  aTriangle );
+            update_udf( Facet*  aFacet );
 
 // -----------------------------------------------------------------------------
 
@@ -284,10 +283,10 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            Triangle *
-            get_closest_triangle()
+            Facet *
+            get_closest_facet()
             {
-                return mClosestTriangle;
+                return mClosestFacet;
             }
 
 // -----------------------------------------------------------------------------
@@ -326,6 +325,3 @@ namespace moris
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
-
-#endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_VERTEX_HPP_ */
-

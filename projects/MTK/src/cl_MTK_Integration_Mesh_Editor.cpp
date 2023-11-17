@@ -20,6 +20,7 @@
 #include "cl_MTK_Side_Cluster_DataBase.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
+#include "cl_MTK_Set_Communicator.hpp"
 #include "cl_Tracer.hpp"
 
 namespace moris::mtk
@@ -1192,7 +1193,7 @@ namespace moris::mtk
                         return &mOutputMesh->mCellClusters( mClusterIndex );
                     } );
 
-            // constrcut the new block set
+            // construct the new block set
             mOutputMesh->mListOfBlocks( iCounter ) = new mtk::Block(
                     iSet->get_set_name(),
                     aBlockSetClusters,
@@ -1202,6 +1203,9 @@ namespace moris::mtk
             // increment the count
             iCounter++;
         }
+
+        // communicate block sets
+        mtk::Set_Communicator tSetCommunicator( mOutputMesh->mListOfBlocks );
     }
 
     //-----------------------------------------------------------------------------
@@ -1243,16 +1247,21 @@ namespace moris::mtk
                     [ this ]( moris_index mClusterIndex ) -> Cluster const * { return &mOutputMesh->mSideClusters( mClusterIndex ); } );
 
             // construct the new side set
-            mOutputMesh->mListOfSideSets( iCounter ) = new moris::mtk::Side_Set( iSet->get_set_name(),
-                    aSideSetClusters,
-                    iSet->get_set_colors(),
-                    mIGMeshInfo->mSpatialDim );
+            mOutputMesh->mListOfSideSets( iCounter ) =
+                    new moris::mtk::Side_Set( iSet->get_set_name(),
+                            aSideSetClusters,
+                            iSet->get_set_colors(),
+                            mIGMeshInfo->mSpatialDim );
 
             // increment the set count by 1
             iCounter++;
-        }
-    }
 
+        }    // end for: each side set
+
+        // communicate information across all sets
+        mtk::Set_Communicator tSetCommunicator( mOutputMesh->mListOfSideSets );
+
+    }    // end function: Integration_Mesh_Editor::create_side_sets()
 
     //-----------------------------------------------------------------------------
     void
@@ -1339,8 +1348,13 @@ namespace moris::mtk
 
             // increment the set count by 1
             iCounter++;
-        }
-    }
+
+        }    // end for: each double sided side set
+
+        // communicate information across all sets
+        mtk::Set_Communicator tSetCommunicator( mOutputMesh->mListOfDoubleSideSets );
+
+    }    // end function: Integration_Mesh_Editor::create_double_sided_sets()
 
     //-----------------------------------------------------------------------------
 
@@ -1460,13 +1474,13 @@ namespace moris::mtk
             // populate the indices of the side clusters,  they are consecutive by construction in the IG data base
             std::iota( tIndexOfSideClusters.begin(), tIndexOfSideClusters.end(), tStartIndex );
 
-            // transfrom double side cluster indices to the pointers
+            // transform double side cluster indices to the pointers
             std::transform( tIndexOfSideClusters.begin(),
                     tIndexOfSideClusters.end(),
                     aSideSetClusters.begin(),
                     [ this ]( moris_index mClusterIndex ) -> Cluster const * { return &mOutputMesh->mGhostDblSidedSet( mClusterIndex ); } );
 
-            // construt the double side set
+            // construct the double side set
             mOutputMesh->mListOfDoubleSideSets( iCounterGlobal ) = new moris::mtk::Double_Side_Set( iSet->get_set_name(),
                     aSideSetClusters,
                     iSet->get_set_colors(),
@@ -1475,8 +1489,13 @@ namespace moris::mtk
             // increment the counts by 1
             iCounterGlobal++;
             iCounterLocal++;
-        }
-    }
+
+        }    // end for: each double sided side set
+
+        // communicate information across all sets
+        mtk::Set_Communicator tSetCommunicator( mOutputMesh->mListOfDoubleSideSets );
+
+    }    // end function: Integration_Mesh_Editor::create_ghost_sets()
 
     //-----------------------------------------------------------------------------
 
@@ -1925,7 +1944,7 @@ namespace moris::mtk
     void
     Integration_Mesh_Editor::add_double_sided_set( moris::Cell< moris_index >& aDoubleSidedClustersIndex, uint aNumGeometry )
     {
-        // get number of geometries from the geomtry engine
+        // get number of geometries from the geometry engine
         moris::Cell< moris::Cell< moris_index > > tDoubleSideSetIndices( aNumGeometry * aNumGeometry );
 
         // constrcut the phase to phase interaction table
@@ -1995,15 +2014,22 @@ namespace moris::mtk
                             [ this ]( moris_index mClusterIndex ) -> Cluster const * { return &mOutputMesh->mDblSideClusters( mClusterIndex + mNumPreviousDblSideCluster ); } );
 
                     // construct the double sided set
-                    mOutputMesh->mListOfDoubleSideSets( iCounter + mNumPreviousDoubleSideSet ) = new moris::mtk::Double_Side_Set( tDoubleSideSetName,
-                            tDoubleSideSetClusters,
-                            tColors,
-                            mIGMeshInfo->mSpatialDim );
+                    mOutputMesh->mListOfDoubleSideSets( iCounter + mNumPreviousDoubleSideSet ) =
+                            new moris::mtk::Double_Side_Set( tDoubleSideSetName,
+                                    tDoubleSideSetClusters,
+                                    tColors,
+                                    mIGMeshInfo->mSpatialDim );
                     iCounter++;
                 }
-            }
-        }
-    }
+
+            }    // end for: each follower phase
+
+        }        // end for: each leader phase candidate
+
+        // communicate information across all sets
+        mtk::Set_Communicator tSetCommunicator( mOutputMesh->mListOfDoubleSideSets );
+
+    }    // end function: Integration_Mesh_Editor::add_double_sided_set()
 
     //------------------------------------------------------------------------------------------------------------
     void
@@ -2206,14 +2232,19 @@ namespace moris::mtk
                     [ this ]( moris_index mClusterIndex ) -> Cluster const * { return &mOutputMesh->mDblSideClusters( mClusterIndex ); } );
 
             // construct the double sided set
-            mOutputMesh->mListOfDoubleSideSets( iCounter ) = new moris::mtk::Double_Side_Set( iSet->get_set_name(),
-                    aSideSetClusters,
-                    iSet->get_set_colors(),
-                    mIGMeshInfo->mSpatialDim );
+            mOutputMesh->mListOfDoubleSideSets( iCounter ) =
+                    new moris::mtk::Double_Side_Set( iSet->get_set_name(),
+                            aSideSetClusters,
+                            iSet->get_set_colors(),
+                            mIGMeshInfo->mSpatialDim );
 
             // increment the set count by 1
             iCounter++;
-        }
+
+        }    // end for: each double sided side set
+
+        // communicate information across all sets
+        mtk::Set_Communicator tSetCommunicator( mOutputMesh->mListOfDoubleSideSets );
 
         // delete the old data to prevent memory leaks
         for ( int iSet = iCounter - 1; iSet >= 0; iSet-- )
@@ -2223,7 +2254,8 @@ namespace moris::mtk
 
         // collet the sets and make collect them
         mOutputMesh->collect_all_sets();
-    }
+
+    }    // end function: Integration_Mesh_Editor::merge_meshes()
 
     //------------------------------------------------------------------------------------------------------------
 
@@ -2264,21 +2296,28 @@ namespace moris::mtk
                     [ this ]( moris_index mClusterIndex ) -> Cluster const * { return &mOutputMesh->mSideClusters( mClusterIndex ); } );
 
             // construct the new side set
-            mOutputMesh->mListOfSideSets( iCounter ) = new moris::mtk::Side_Set( iSet->get_set_name(),
-                    aSideSetClusters,
-                    iSet->get_set_colors(),
-                    mIGMeshInfo->mSpatialDim );
+            mOutputMesh->mListOfSideSets( iCounter ) =
+                    new moris::mtk::Side_Set(
+                            iSet->get_set_name(),
+                            aSideSetClusters,
+                            iSet->get_set_colors(),
+                            mIGMeshInfo->mSpatialDim );
 
             // increment the set count by 1
             iCounter++;
-        }
+
+        }    // end for: each side set
+
+        // communicate information across all sets
+        mtk::Set_Communicator tSetCommunicator( mOutputMesh->mListOfSideSets );
 
         // to delete the old pointers
         for ( const auto& iSet : tSideSets.data() )
         {
             delete iSet;
         }
-    }
+
+    } // end function: Integration_Mesh_Editor::recreate_side_sets()
 
     //------------------------------------------------------------------------------------------------------------
 

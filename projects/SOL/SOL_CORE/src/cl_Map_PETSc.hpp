@@ -132,7 +132,7 @@ namespace moris
         void
         print()
         {
-            MORIS_ERROR( false, "not implemented yet" );
+            AOView( mPETScMap, PETSC_VIEWER_STDOUT_WORLD );
         };
 
         AO

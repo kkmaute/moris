@@ -166,16 +166,17 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "decompose",                   true );
-        tParameterlist( 0 )( 0 ).set( "decomposition_type",          "conformal") ;
-        tParameterlist( 0 )( 0 ).set( "enrich",                      true );
-        tParameterlist( 0 )( 0 ).set( "basis_rank",                  "bspline") ;
-        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",         "0") ;
-        tParameterlist( 0 )( 0 ).set( "ghost_stab",                  isGhost );
-        tParameterlist( 0 )( 0 ).set( "multigrid",                   false );
-        tParameterlist( 0 )( 0 ).set( "verbose",                     true );
-        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",      true );
-        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",   true );
+        tParameterlist( 0 )( 0 ).set( "decompose",                     true );
+        tParameterlist( 0 )( 0 ).set( "decomposition_type",            "conformal") ;
+        tParameterlist( 0 )( 0 ).set( "enrich",                        true );
+        tParameterlist( 0 )( 0 ).set( "basis_rank",                    "bspline") ;
+        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",           "0") ;
+        tParameterlist( 0 )( 0 ).set( "ghost_stab",                    isGhost );
+        tParameterlist( 0 )( 0 ).set( "multigrid",                     false );
+        tParameterlist( 0 )( 0 ).set( "verbose",                       true );
+        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",        true );
+        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",     true );
+        tParameterlist( 0 )( 0 ).set( "write_cluster_measures_to_exo", false );
     }
 
     void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -423,14 +424,14 @@ namespace moris
 
     void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
-        tParameterlist.resize( 7 );
-        for( uint Ik = 0; Ik < 7; Ik ++ )
+        tParameterlist.resize( 8 );
+        for( uint Ik = 0; Ik < 8; Ik ++ )
         {
             tParameterlist( Ik ).resize( 1 );
         }
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
-        tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
+        tParameterlist( 0 )( 0 ).set( "preconditioners", "0");
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
@@ -451,6 +452,9 @@ namespace moris
         tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria" , "Output_Criterion") ;
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+    
+        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
+        tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "ILU" );
     }
 
     void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )

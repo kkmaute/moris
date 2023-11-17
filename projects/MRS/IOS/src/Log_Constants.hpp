@@ -19,7 +19,7 @@
  *
  */
 
-const moris::sint LOGGER_DEFAULT_SEVERITY_LEVEL = 2;
+const moris::sint LOGGER_DEFAULT_SEVERITY_LEVEL = 0;
 const moris::uint LOGGER_DEFAULT_DIRECT_OUTPUT  = 3;
 const moris::uint LOGGER_FLOAT_PRECISION        = 14;
 const moris::uint LOGGER_MAX_NUMEL_MATRIX_PRINT = 32;

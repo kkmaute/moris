@@ -667,8 +667,8 @@ namespace moris
             // define time, nonlinear and linear solver
             sol::SOL_Warehouse tSolverWarehouse( mModel->get_solver_interface() );
 
-            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
-            for ( uint Ik = 0; Ik < 7; Ik++ )
+            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 8 );
+            for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
             }
@@ -689,12 +689,18 @@ namespace moris
                     tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
 #endif
                 }
+
+                tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE);
             }
             else
             {
                 tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
-                tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU" );
-                tParameterlist( 0 )( 0 ).set( "fact: level-of-fill", 1 );
+                tParameterlist( 0 )( 0 ).set( "preconditioners", "0"); 
+                
+                tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::IFPACK);
+
+                tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "ILU" );
+                tParameterlist( 7 )( 0 ).set( "fact: level-of-fill", 1 );
             }
 
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();

@@ -11,7 +11,7 @@
 #ifndef MORIS_cl_XTK_Cut_Integration_Mesh_HPP_
 #define MORIS_cl_XTK_Cut_Integration_Mesh_HPP_
 
-#include "cl_Cell.hpp"
+#include "containers.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
@@ -57,8 +57,8 @@ namespace xtk
         void
         shift_indices( moris_index aCell );
 
-        moris::Cell< moris::mtk::Cell* >               mIgCellGroup;
-        std::unordered_map< moris_index, moris_index > mIgCellIndexToCellOrdinal;
+        moris::Cell< moris::mtk::Cell* > mIgCellGroup;
+        IndexMap                         mIgCellIndexToCellOrdinal;
 
     };    // struct IG_Cell_Group
 
@@ -71,7 +71,7 @@ namespace xtk
         moris::Cell< moris::mtk::Cell* > mIgCells;               // over allocated
         moris::Cell< moris_index >       mIgCellSideOrdinals;    // over allocated
 
-    };    // struct IG_Cell_Side_Group
+    };                                                           // struct IG_Cell_Side_Group
 
     // ----------------------------------------------------------------------------------
 
@@ -79,8 +79,8 @@ namespace xtk
     {
         IG_Cell_Double_Side_Group( moris_index aEstimatedNumCells );
 
-        moris::Cell< moris::mtk::Cell* > mLeaderIgCells;               // over allocated
-        moris::Cell< moris_index >       mLeaderIgCellSideOrdinals;    // over allocated
+        moris::Cell< moris::mtk::Cell* > mLeaderIgCells;                 // over allocated
+        moris::Cell< moris_index >       mLeaderIgCellSideOrdinals;      // over allocated
 
         moris::Cell< moris::mtk::Cell* > mFollowerIgCells;               // over allocated
         moris::Cell< moris_index >       mFollowerIgCellSideOrdinals;    // over allocated
@@ -115,7 +115,7 @@ namespace xtk
     {
       private:
         moris::Cell< moris::mtk::Vertex const * >          mIgVertexGroup;
-        std::unordered_map< moris_index, moris_index >     mIgVertexIndexToVertexOrdinal;
+        IndexMap                                           mIgVertexIndexToVertexOrdinal;
         moris::Cell< std::shared_ptr< Matrix< DDRMat > > > mIgVertexLocalCoords;
 
       public:
@@ -719,7 +719,7 @@ namespace xtk
                 return;
             }
 
-            // loop ove the neighbour and if not visited then perform depth first search
+            // loop ove the neighbor and if not visited then perform depth first search
             for ( const auto& iNeighbour : *( mSubphaseToSubPhase( aSubphaseIndex ) ) )
             {
                 if ( !mVisitedFlag( iNeighbour ) )
@@ -732,13 +732,13 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         void
-        get_kth_degree_neighbours( moris_index const & aSubphaseIndex, moris_index const & aDegree, moris::Cell< moris_index >& aNeighbors )
+        get_kth_degree_neighbors( moris_index const & aSubphaseIndex, moris_index const & aDegree, moris::Cell< moris_index >& aNeighbors )
         {
             // mark all the vertices as not visited
-            mVisitedFlag.resize( mSubphaseToSubPhase.size());
+            mVisitedFlag.resize( mSubphaseToSubPhase.size() );
 
             // reset all vertices to false for a new traversal
-            mVisitedFlag.assign(mSubphaseToSubPhase.size(), false );
+            mVisitedFlag.assign( mSubphaseToSubPhase.size(), false );
 
             // perform depth first search
             depth_first_search( aSubphaseIndex, aDegree, aNeighbors );
@@ -1675,8 +1675,8 @@ namespace xtk
 
         /**
          * @brief updates the memeber data mCommunicationTable, it is accessed by the basis processor object
-         * 
-         * @param aNewCommunicationTable 
+         *
+         * @param aNewCommunicationTable
          */
         void
         update_communication_table( moris::Cell< moris_id > const & aNewCommunicationTable );

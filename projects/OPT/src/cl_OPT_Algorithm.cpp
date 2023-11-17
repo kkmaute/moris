@@ -384,7 +384,7 @@ namespace moris
             // convert enum into uint for MPI communication
             uint tMsg = (uint)mRunning;
 
-            // procesor 0 sends running status to all other processors
+            // processor 0 sends running status to all other processors
             broadcast( tMsg );
 
             // update running status

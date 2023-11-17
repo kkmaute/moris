@@ -83,7 +83,7 @@ namespace xtk
         mIgCellIndexToCellOrdinal.erase( aCell );
 
         // rewrite index to ordinal map
-        std::unordered_map< moris_index, moris_index > tTempMap;
+        IndexMap tTempMap;
 
         for ( std::pair< moris_index, moris_index > el : mIgCellIndexToCellOrdinal )
         {
@@ -116,7 +116,7 @@ namespace xtk
     void
     IG_Cell_Group::shift_indices( moris_index aCell )
     {
-        std::unordered_map< moris_index, moris_index > tTempMap;
+        IndexMap tTempMap;
 
         for ( std::pair< moris_index, moris_index > el : mIgCellIndexToCellOrdinal )
         {
@@ -288,7 +288,7 @@ namespace xtk
         mIgVertexIndexToVertexOrdinal.erase( aVertex );
 
         // rewrite index to ordinal map
-        std::unordered_map< moris_index, moris_index > tTempMap;
+        IndexMap tTempMap;
 
         for ( std::pair< moris_index, moris_index > el : mIgVertexIndexToVertexOrdinal )
         {
@@ -314,7 +314,7 @@ namespace xtk
     void
     IG_Vertex_Group::shift_indices( moris_index aVertex )
     {
-        std::unordered_map< moris_index, moris_index > tTempMap;
+        IndexMap tTempMap;
 
         for ( std::pair< moris_index, moris_index > el : mIgVertexIndexToVertexOrdinal )
         {
@@ -2328,7 +2328,7 @@ namespace xtk
 
         }    // end if: parallel
 
-    }    // end function: Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
+    }        // end function: Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
 
     // ----------------------------------------------------------------------------------
 
@@ -2599,9 +2599,9 @@ namespace xtk
 
             }    // end for: loop over IG cell groups for each proc that were communicated
 
-        }    // end for: loop over procs ID answers are received from
+        }        // end for: loop over procs ID answers are received from
 
-    }    // end function: Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers()
+    }            // end function: Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers()
 
     // ----------------------------------------------------------------------------------
     // ----------------------------------------------------------------------------------

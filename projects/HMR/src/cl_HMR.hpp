@@ -16,6 +16,7 @@
 #include "cl_HMR_Field_Param.hpp"
 #include "cl_HMR_Parameters.hpp"     //HMR/src
 #include "cl_Library_IO.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris::mtk
 {
@@ -265,7 +266,7 @@ namespace moris::hmr
 
             // -----------------------------------------------------------------------------
 
-            void put_elements_on_refinment_queue( Cell< hmr::Element* > & aElements);
+            void put_elements_on_refinement_queue( Cell< hmr::Element* > & aElements);
 
             // -----------------------------------------------------------------------------
 
@@ -285,7 +286,7 @@ namespace moris::hmr
 
             /**
              * Creates an STK interface object.
-             * Default: Max Lagrange Order, Outpot pattern
+             * Default: Max Lagrange Order, Output pattern
              */
             std::shared_ptr< Mesh > create_mesh();
 
@@ -359,7 +360,7 @@ namespace moris::hmr
             // -----------------------------------------------------------------------------
 
             /**
-             * grab the pointer to the datavase
+             * grab the pointer to the database
              */
             // std::shared_ptr< Database >
             auto get_database() -> decltype ( mDatabase )
@@ -454,7 +455,7 @@ namespace moris::hmr
             // -----------------------------------------------------------------------------
 
             /**
-             * funciton for L2 test
+             * function for L2 test
              */
             void map_field_to_output(
                     std::shared_ptr< Field > aField,

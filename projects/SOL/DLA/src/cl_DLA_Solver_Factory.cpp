@@ -15,6 +15,7 @@
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
 #include "cl_DLA_Linear_Solver_Amesos2.hpp"
 #include "cl_DLA_Linear_Solver_Belos.hpp"
+#include "cl_DLA_Linear_Solver_ML.hpp"
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"
 
@@ -24,6 +25,7 @@
 #endif
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
+#include "cl_DLA_Preconditioner_Trilinos.hpp"
 
 using namespace moris;
 using namespace dla;
@@ -41,6 +43,23 @@ Solver_Factory::~Solver_Factory()
 }
 
 //------------------------------------------------------------------------------
+Preconditioner*
+Solver_Factory::create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
+        ParameterList&                                                    aParameterlist )
+{
+    switch ( aPreconditionerType )
+    {
+        case ( sol::PreconditionerType::NONE ):
+            return nullptr;
+        case ( sol::PreconditionerType::IFPACK ):
+            return new Preconditioner_Trilinos( &aParameterlist, nullptr );
+        case ( sol::PreconditionerType::ML ):
+            return new Preconditioner_Trilinos( &aParameterlist, nullptr );
+        default:
+            MORIS_ERROR( false, "No solver type specified" );
+            return nullptr;
+    }
+}
 
 std::shared_ptr< Linear_Solver_Algorithm >
 Solver_Factory::create_solver( const enum sol::SolverType aSolverType )
@@ -70,6 +89,9 @@ Solver_Factory::create_solver( const enum sol::SolverType aSolverType )
             break;
         case ( sol::SolverType::EIGEN_SOLVER ):
             tLinSol = std::make_shared< Eigen_Solver >();
+            break;
+        case ( sol::SolverType::ML ):
+            tLinSol = std::make_shared< Linear_Solver_ML >();
             break;
         default:
             MORIS_ERROR( false, "No solver type specified" );
@@ -110,6 +132,9 @@ Solver_Factory::create_solver(
             break;
         case ( sol::SolverType::EIGEN_SOLVER ):
             tLinSol = std::make_shared< Eigen_Solver >( &aParameterlist );
+            break;
+        case ( sol::SolverType::ML ):
+            tLinSol = std::make_shared< Linear_Solver_ML >( aParameterlist );
             break;
         default:
             MORIS_ERROR( false, "No solver type specified" );

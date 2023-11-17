@@ -31,6 +31,7 @@
 // other header files
 // #include <catch.hpp>
 // #include "fn_equal_to.hpp" //ALG
+#include "cl_Tracer.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Stopwatch.hpp"    //CHR/src
@@ -50,8 +51,7 @@
 
 using namespace moris;
 
-int
-fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
+int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
 {
     // --------------------------------------------- //
     // check arguments provided
@@ -78,6 +78,20 @@ fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         // get the current argument
         std::string tArgString    = std::string( argv[ k ] );
         size_t      tArgStrLength = tArgString.length();
+
+        if ( tArgString == "--help" || tArgString == "-h" )
+        {
+            tIsOnlyMeshing = true;
+            MORIS_LOG( "Valid input arguments are:" );
+            MORIS_LOG( "option       : --meshgen or -mg :  generate foreground and background meshes (for EXHUME project)" );
+            MORIS_LOG( "option       : --pause   or -p  :  report process IDs and pause run upon user input (for debugging)" );
+            MORIS_LOG( "last argument: <filename>.so    :  objective file with MORIS input" );
+            MORIS_LOG( "last argument: <filename>.xml   :  xml file with MORIS input" );
+            MORIS_LOG( " " );
+
+            gMorisComm.finalize();
+            exit( 1 );
+        }
 
         // check if user requests to just generate foreground and background meshes (for EXHUME project)
         if ( tArgString == "--meshgen" || tArgString == "-mg" )
@@ -134,7 +148,6 @@ fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         MORIS_ERROR( tSoFileSpecified || tXmlFileSpecified, "Neither an .so nor an .xml file has been provided. Provide at least one input file." );
     }
 
-
     // --------------------------------------------- //
     // create library according to inputs
 
@@ -142,28 +155,33 @@ fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
     moris::Library_Factory        tLibraryFactory;
     std::shared_ptr< Library_IO > tLibrary = nullptr;
 
-    // create the library based on the kind of workflow requested
-    if ( tIsOnlyMeshing )
     {
-        tLibrary = tLibraryFactory.create_Library( Library_Type::MESHGEN );
-    }
-    else    // no meshing workflow
-    {
-        tLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
-    }
+        // log & trace this set of operations
+        Tracer tTracer( "WRK", "Main Interface", "Load Parameters" );
 
-    // load input parameters specified
-    if ( tSoFileSpecified )
-    {
-        tLibrary->load_parameter_list( tSoFileName, File_Type::SO_FILE );
-    }
-    if ( tXmlFileSpecified )
-    {
-        tLibrary->load_parameter_list( tXmlFileName, File_Type::XML_FILE );
-    }
+        // create the library based on the kind of workflow requested
+        if ( tIsOnlyMeshing )
+        {
+            tLibrary = tLibraryFactory.create_Library( Library_Type::MESHGEN );
+        }
+        else    // no meshing workflow
+        {
+            tLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
+        }
 
-    // finish initializing the library and lock it from modification
-    tLibrary->finalize();
+        // load input parameters specified
+        if ( tSoFileSpecified )
+        {
+            tLibrary->load_parameter_list( tSoFileName, File_Type::SO_FILE );
+        }
+        if ( tXmlFileSpecified )
+        {
+            tLibrary->load_parameter_list( tXmlFileName, File_Type::XML_FILE );
+        }
+
+        // finish initializing the library and lock it from modification
+        tLibrary->finalize();
+    }
 
     // --------------------------------------------- //
     // start workflow
