@@ -348,70 +348,20 @@ namespace moris
                 const Matrix< IndexMat >& aNodeIndices,
                 const Matrix< DDRMat >&   aNodeCoordinates )
         {
-            // Check input
-            // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
-            //         "Geometry engine must be provided the same number of node indices as node coordinates for "
-            //         "determining if an element is intersected or not.");
-            // MORIS_ASSERT(aNodeIndices.length() > 0,
-            //         "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
+            // Create node coordinates
+            Cell< std::shared_ptr< Matrix< DDRMat > > > tNodeCoordinates( aNodeIndices.max() + 1 );
 
-            bool tIsIntersected = false;
-
-            switch ( mGeometries( mActiveGeometryIndex )->get_intersection_mode() )
+            // Fill node coordinates
+            for ( uint iNode = 0; iNode < aNodeIndices.length(); iNode++ )
             {
-                case Intersection_Mode::LEVEL_SET:
-                {
-                    // get the current geometries level set parameters
-                    real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
-                    real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
-
-                    // Initialize by evaluating the first node
-                    real tMin = mGeometries( mActiveGeometryIndex )->get_field_value( 0, aNodeCoordinates.get_row( 0 ) );
-                    real tMax = tMin;
-
-                    // Evaluate the rest of the nodes
-                    for ( uint tNodeCount = 1; tNodeCount < aNodeIndices.length(); tNodeCount++ )
-                    {
-                        real tEval = mGeometries( mActiveGeometryIndex )->    //
-                                     get_field_value( tNodeCount, aNodeCoordinates.get_row( tNodeCount ) );
-
-                        tMin = std::min( tMin, tEval );
-                        tMax = std::max( tMax, tEval );
-                    }
-
-                    tIsIntersected = ( tMax >= tIsocontourThreshold and tMin <= tIsocontourThreshold )
-                                  or ( std::abs( tMax - tIsocontourThreshold ) < tIsocontourTolerance )
-                                  or ( std::abs( tMin - tIsocontourThreshold ) < tIsocontourTolerance );
-
-                    break;
-                }
-                case Intersection_Mode::COLORING:
-                {
-                    real tFieldValue = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( 0 ), aNodeCoordinates.get_row( aNodeIndices( 0 ) ) );
-
-                    // Evaluate the rest of the nodes
-                    for ( uint Ik = 0; Ik < aNodeIndices.length(); Ik++ )
-                    {
-                        real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( Ik ), aNodeCoordinates.get_row( aNodeIndices( Ik ) ) );
-
-                        if ( tFieldValue != tEval )
-                        {
-                            tIsIntersected = true;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
-                }
+                tNodeCoordinates( aNodeIndices( iNode ) ) = std::make_shared< Matrix< DDRMat > >( aNodeCoordinates.get_row( iNode ) );
             }
 
             // Return result
-            return tIsIntersected;
+            return is_intersected( aNodeIndices, &tNodeCoordinates );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         bool
         Geometry_Engine::is_intersected(
