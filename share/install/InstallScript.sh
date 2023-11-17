@@ -26,7 +26,7 @@ export BLASLAPACK=openblas
 export PETSC=0
 
 # define whether pardiso solver should be installed: 0 for no; 1 for yes
-export PARDISO=1
+export PARDISO=0
 
 # define whether mumps solver should be installed: 0 for no; 1 for yes
 export MUMPS=0
@@ -51,6 +51,8 @@ export VERBOSE=0
 
 echo ""                                      > moris_config.log
 echo "MORIS installation parameters:"       >> moris_config.log
+echo ""                                     >> moris_config.log
+echo `date`                                 >> moris_config.log
 echo ""                                     >> moris_config.log
 echo "WORKSPACE          $WORKSPACE"        >> moris_config.log
 echo "DEVELOPPER_MODE    $DEVELOPPER_MODE"  >> moris_config.log
