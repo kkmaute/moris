@@ -49,6 +49,7 @@
 #include "cl_FEM_IQI_Res_SUPG_Incompressible_NS.hpp"
 #include "cl_FEM_IQI_SP_Crosswind_SA.hpp"
 #include "cl_FEM_IQI_Zienkiewicz_Zhu.hpp"
+#include "cl_FEM_IQI_Normal_Vector.hpp"
 #include "cl_FEM_IQI_Jump_Dof.hpp"
 #include "cl_FEM_IQI_Jump_Traction.hpp"
 #include "cl_FEM_IQI_Traction.hpp"
@@ -190,7 +191,8 @@ namespace moris
 
                 case IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS:
                     return std::make_shared< IQI_Zienkiewicz_Zhu >( Stress_Type::VON_MISES_STRESS );
-
+                case IQI_Type::NORMAL_VECTOR:
+                    return std::make_shared< IQI_Normal_Vector >();
                 case IQI_Type::JUMP_DOF:
                     return std::make_shared< IQI_Jump_Dof >();
                 case IQI_Type::JUMP_TRACTION:
