@@ -4,12 +4,11 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_SDF_Triangle_Vertex.hpp
+ * cl_SDF_Facet_Vertex.hpp
  *
  */
 
-#ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_VERTEX_HPP_
-#define PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_VERTEX_HPP_
+#pragma once
 
 #include "assert.hpp"
 #include "typedefs.hpp"
@@ -25,7 +24,7 @@ namespace moris
         class Triangle;
 
 //-------------------------------------------------------------------------------
-        class Triangle_Vertex : public mtk::Vertex
+        class Facet_Vertex : public mtk::Vertex
         {
 
             const moris_index       mIndex;
@@ -39,13 +38,13 @@ namespace moris
         public:
 //-------------------------------------------------------------------------------
 
-            Triangle_Vertex(
+            Facet_Vertex(
                     const moris_index        aIndex,
                     const Matrix< DDRMat > & aNodeCoords );
 
 //-------------------------------------------------------------------------------
 
-            ~Triangle_Vertex(){};
+            ~Facet_Vertex(){};
 
 //-------------------------------------------------------------------------------
 // Special SDF functions
@@ -118,6 +117,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
-
-#endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_VERTEX_HPP_ */
 

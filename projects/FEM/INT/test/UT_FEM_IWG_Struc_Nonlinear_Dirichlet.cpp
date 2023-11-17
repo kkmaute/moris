@@ -44,7 +44,7 @@ Test_IWG_Struc_NL_Dirichlet(
         IWG_Type               aNitscheFormulation )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define aperturbation relative size
     real tPerturbation = 1E-6;

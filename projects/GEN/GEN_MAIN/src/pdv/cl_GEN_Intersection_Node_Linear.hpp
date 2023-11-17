@@ -33,8 +33,6 @@ namespace moris
              * @param aFirstNodeCoordinates Coordinates of the first parent of this node
              * @param aSecondNodeCoordinates Coordinates of the second parent of this node
              * @param aInterfaceGeometry Geometry that intersects the parent to create this child
-             * @param aIsocontourThreshold Threshold for determining the intersection location of this node
-             * @param aIsocontourTolerance Tolerance for determining interface parent nodes based on geometry value
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node_Linear(
@@ -114,7 +112,6 @@ namespace moris
              * @param aFirstNodeCoordinates Coordinates of the first parent of this node
              * @param aSecondNodeCoordinates Coordinates of the second parent of this node
              * @param aInterfaceGeometry Geometry that intersects the parent to create this node
-             * @param aIsocontourThreshold Threshold for determining the intersection location of this node
              * @return Local coordinates
              */
             real compute_local_coordinate(

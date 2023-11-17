@@ -33,7 +33,7 @@ namespace moris
         class Linear_Solver_Algorithm;
         class Linear_Solver;
         class Eigen_Solver;
-        class Preconditioner_Trilinos;
+        class Preconditioner;
 
     }    // namespace dla
     namespace NLA
@@ -72,7 +72,7 @@ namespace moris
             moris::Solver_Interface* mSolverInterface;
 
             // list of preconditioners
-            Cell< dla::Preconditioner_Trilinos* > mPreconditioners;
+            Cell< dla::Preconditioner* > mPreconditioners;
 
             // List of solver algorithms and solvers
             Cell< std::shared_ptr< dla::Linear_Solver_Algorithm > > mLinearSolverAlgorithms;

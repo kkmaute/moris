@@ -17,6 +17,7 @@ set(HEADERS
     cl_DLA_Linear_Solver_Amesos2.hpp
     cl_DLA_Linear_Solver_Amesos.hpp
     cl_DLA_Linear_Solver_Aztec.hpp
+    cl_DLA_Linear_Solver_ML.hpp
     cl_DLA_Linear_Solver_Belos.hpp
     cl_DLA_Linear_Solver.hpp
     cl_DLA_Linear_Problem.hpp
@@ -24,8 +25,12 @@ set(HEADERS
     cl_DLA_Solver_Factory.hpp
     cl_DLA_Solver_Interface.hpp
     cl_DLA_Linear_Solver_Algorithm.hpp
+    cl_DLA_Linear_Solver_Algorithm_Petsc.hpp
+    cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp
+    cl_DLA_Preconditioner.hpp
     cl_DLA_Preconditioner_Trilinos.hpp
-    cl_DLA_Geometric_Multigrid.hpp)
+    cl_DLA_Geometric_Multigrid.hpp
+    fn_convert_epetra_operator_to_matrix.hpp)
 
 if(${MORIS_HAVE_PETSC})
 list( APPEND HEADERS
@@ -44,12 +49,15 @@ set(LIB_SOURCES
     cl_DLA_Linear_Solver_Amesos2.cpp
     cl_DLA_Linear_Solver_Amesos.cpp
     cl_DLA_Linear_Solver_Aztec.cpp
+    cl_DLA_Linear_Solver_ML.cpp
     cl_DLA_Linear_Solver_Belos.cpp
     cl_DLA_Linear_System_Trilinos.cpp
+    cl_DLA_Linear_Solver_Algorithm_Trilinos.cpp
     cl_DLA_Linear_Solver.cpp
     cl_DLA_Linear_Problem.cpp
     cl_DLA_Geometric_Multigrid.cpp
     cl_DLA_Solver_Interface.cpp
+    cl_DLA_Preconditioner.cpp
     cl_DLA_Preconditioner_Trilinos.cpp
     cl_DLA_Solver_Factory.cpp)
 

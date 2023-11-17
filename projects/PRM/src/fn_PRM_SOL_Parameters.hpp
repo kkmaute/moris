@@ -200,6 +200,7 @@ namespace moris
             aParameterlist.insert( "ML output", 0 );
             aParameterlist.insert( "ML print initial list", -2 );
             aParameterlist.insert( "ML print final list", -2 );
+            aParameterlist.insert( "print hierarchy", -2 );
             aParameterlist.insert( "eigen-analysis: type", "cg" );
             aParameterlist.insert( "eigen-analysis: iterations", 10 );
 
@@ -227,7 +228,7 @@ namespace moris
             aParameterlist.insert( "energy minimization: cheap", false );
 
             // Smoother Parameters
-            aParameterlist.insert( "smoother: type", "Chebyshev" );
+            aParameterlist.insert( "smoother: type", "Chebyshev" );    // Chebyshev, Symmetric Gauss-Seidel, Jacobi, Gauss-Seidel, ILU, ILUT, Additive Schwarz, Polynomial
             aParameterlist.insert( "smoother: sweeps", 2 );
             aParameterlist.insert( "smoother: damping factor", 1.0 );
             aParameterlist.insert( "smoother: pre or post", "both" );
@@ -610,6 +611,10 @@ namespace moris
             // Flag for RHS Matrix Type if Eigen Solver is set to true
             tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
 
+            // operaotr and precondioned opeartor condition number with arma/eigen 
+            tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", false );
+            tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", false );
+
             return tLinSolverParameterList;
         }
 
@@ -848,15 +853,24 @@ namespace moris
                 case sol::SolverType::EIGEN_SOLVER:
                     tParameterList = create_eigen_algorithm_parameter_list();
                     break;
+                case sol::SolverType::ML:
+                {
+                    create_ml_preconditioner_parameterlist(tParameterList);
+                    tParameterList.insert( "Max_Iter", 100 );
+                    tParameterList.insert("Convergence_Tolerance", 1e-9);
+                    tParameterList.insert( "Solver_Implementation", (uint)( moris::sol::SolverType::ML ) );
+                    break;
+                }
+          
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
                     break;
             }
 
             // insert list of preconditioners, this preconditioner is used in the linear solver to solve the system
-            tParameterList.insert( "preconditioners", "" );  
+            tParameterList.insert( "preconditioners", "" );
 
-            // insert list of preconditioners, this preconditioner is used in eigen analysis to create a new preconditioned linear operator                      
+            // insert list of preconditioners, this preconditioner is used in eigen analysis to create a new preconditioned linear operator
             tParameterList.insert( "preconditioners_linear_operator", "" );
 
             // return the parameter list

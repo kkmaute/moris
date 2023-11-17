@@ -927,6 +927,15 @@ namespace moris
             }
         }
 
+        TEST_CASE( "Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh intersection]" )
+        {
+            // TODO
+            // Generate a background HMR mesh
+            // Load an stl file, create a geometry from it, add it to a geometry engine along with the hmr mesh
+            // have the geometry engine compute intersections and check to see if they are equal
+            
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
     }    // namespace ge

@@ -26,7 +26,7 @@ using namespace dla;
 
 Linear_Solver_Amesos::Linear_Solver_Amesos(
         const moris::ParameterList aParameterlist )
-        : Linear_Solver_Algorithm( aParameterlist )
+        : Linear_Solver_Algorithm_Trilinos( aParameterlist )
 {
     // boolean for symbolic factorization after first solve
     mIsPastFirstSolve = false;

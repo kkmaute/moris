@@ -37,14 +37,14 @@ namespace moris
 public:
 //-------------------------------------------------------------------------------
             /**
-             * constructor with pointer
+             * constructor with pointer. Creates an SDF Object from aObjectPath.
              */
 
             SDF_Generator( const std::string & aObjectPath,
                            const bool aVerboseFlag = true );
 
             SDF_Generator( const std::string & aObjectPath,
-                           Matrix<DDRMat>   aObjectOffset,
+                           Matrix< DDRMat >&   aObjectOffset,
                            const bool aVerboseFlag = true );
 
 //-------------------------------------------------------------------------------

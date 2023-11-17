@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
-#define PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
+#pragma once
 
-#include <cl_SDF_Triangle_Vertex.hpp>
+#include <cl_SDF_Facet_Vertex.hpp>
 #include <string>
 
 #include "typedefs.hpp"
@@ -22,69 +21,88 @@ namespace moris
 {
     namespace sdf
     {
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
         class Object
         {
-            const real                        mMeshHighPass=1e-9;
-            moris::Cell< Triangle_Vertex * >  mVertices;
-            moris::Cell< Triangle * >         mTriangles;
+            const real                   mMeshHighPass = 1e-9;
+            moris::Cell< Facet_Vertex* > mVertices;
+            moris::Cell< Facet* >        mFacets;
 
-            Matrix< DDRMat > mOffsets;
+            const Matrix< DDRMat >& mOffsets;
+            uint                    mDimension;
+            uint                    mNumberOfFacets;
 
-//-------------------------------------------------------------------------------
-        public:
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-            Object ( const std::string & aFilePath,
-                     Matrix< DDRMat >    aOffsets = { {0 ,0 , 0} } );
+          public:
+            //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+            Object( const std::string&      aFilePath,
+                    const Matrix< DDRMat >& aOffsets = { { 0, 0, 0 } } );
+
+            //-------------------------------------------------------------------------------
 
             ~Object();
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-            moris::Cell< Triangle * > &
-            get_triangles()
+            moris::Cell< Facet* >&
+            get_facets()
             {
-                return mTriangles;
+                return mFacets;
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            
+            uint
+            get_num_facets()
+            {
+                return mNumberOfFacets;
+            }
 
-            moris::Cell< Triangle_Vertex * > &
+            //-------------------------------------------------------------------------------
+
+            moris::Cell< Facet_Vertex* >&
             get_vertices()
             {
                 return mVertices;
             }
 
-//-------------------------------------------------------------------------------
-// MTK
-//-------------------------------------------------------------------------------
+            uint
+            get_dimension()
+            {
+                return mDimension;
+            }
+
+            //-------------------------------------------------------------------------------
+            // MTK
+            //-------------------------------------------------------------------------------
 
             Matrix< IndexMat >
-            get_nodes_connected_to_element_loc_inds
-                ( moris_index aElementIndex ) const;
+            get_nodes_connected_to_element_loc_inds( moris_index aElementIndex ) const;
 
-//-------------------------------------------------------------------------------
-        private:
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+
+          private:
+            //-------------------------------------------------------------------------------
 
             /**
-             * loads an ascii file and creates vertex and triangle objects
+             * loads an ascii file and creates vertex and facet objects
+             * Facets are either lines in 2D or triangles in 3D
              */
             void
             load_from_object_file( const std::string& aFilePath );
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
-             * loads an ascii file and creates vertex and triangle objects
+             * loads an ascii file and creates vertex and facet objects
+             * Facets are either lines in 2D or triangles in 3D
              */
             void
             load_from_stl_file( const std::string& aFilePath );
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * loads an ASCII file into a buffer of strings.
@@ -92,13 +110,10 @@ namespace moris
              */
             void
             load_ascii_to_buffer( const std::string& aFilePath,
-                    moris::Cell<std::string>& aBuffer);
+                    moris::Cell< std::string >&      aBuffer );
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
         };
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
-
-#endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_ */
-

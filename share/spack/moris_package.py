@@ -43,25 +43,19 @@ class Moris(CMakePackage):
     variant("snopt",    default=True,  description="Compile with support for snopt algorithm")
     variant("lbfgs",    default=True,  description="Compile with support for lbfgs algorithm")
     variant("mumps",    default=False, description="Compile with support for mumps solver")
-    variant("openblas", default=False, description="Compile with support for openblas")
-    variant("mkl",      default=False, description="Compile with support for intel-mkl")
-    variant("lapack",   default=False, description="Compile with support generic blas and lapack")
     variant("tests",    default=False, description="Compile with unit tests")
     variant("examples", default=False, description="Compile with examples")
-    
+    variant("debug",    default=False, description="Compile with debug support")
+
     depends_on('armadillo@9.800.3')
     depends_on('arpack-ng@3.8.0')
     depends_on('boost+filesystem+log+serialization+system+thread+timer')
     depends_on('eigen')
     depends_on('hdf5')
 
-    depends_on('gcmma',          when="+gcmma")
-    depends_on('snopt',          when="+snopt")
-    depends_on('netlib-lapack',  when="+lapack")
-    depends_on('openblas',       when="+openblas")
-    depends_on('intel-mkl',      when="+mkl")
-    depends_on('intel-mkl',      when="+pardiso")
-    depends_on('lbfgs',          when="+lbfgs")
+    depends_on('gcmma',             when="+gcmma")
+    depends_on('snopt',             when="+snopt")
+    depends_on('lbfgs',             when="+lbfgs")
  
     depends_on('mpi')
  
@@ -71,51 +65,57 @@ class Moris(CMakePackage):
     depends_on('trilinos@13.4')
     depends_on('trilinos+boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2')
     depends_on('trilinos+pardiso', when="+pardiso")
+    depends_on('trilinos~pardiso', when="-pardiso")
     depends_on('trilinos+mumps',   when="+mumps")
+    depends_on('trilinos~mumps',   when="-mumps")
 
     depends_on('petsc@3.17.4',                       when="+petsc")
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
-    depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
+    # depends_on('petsc+mkl-pardiso',                when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
+    depends_on('petsc~mumps',                        when="+petsc -mumps")
 
     depends_on('slepc',                              when="+slepc")
-
-    conflicts('openblas',   when='+pardiso')
-    conflicts('openblas',   when='+mkl')
-    conflicts('openblas',   when='+lapack')
-    
-    conflicts('mkl',        when='+openblas')
-    conflicts('mkl',        when='+lapack')
-    
-    conflicts('+lapack',     when='+pardiso')
-    conflicts('+lapack',     when='+mkl')
-    conflicts('+lapack',     when='+openblas')
 
     def cmake_args(self):
         spec = self.spec
         options = []
 
         options.extend(['-DBUILD_ALL=ON'])
-        options.extend(['-DMORIS_HAVE_DEBUG=ON'])
-        options.extend(['-DMORIS_HAVE_SYMBOLIC=ON'])
-        options.extend(['-DMORIS_HAVE_SYMBOLIC_STRONG=ON'])
+        options.extend(['-DMORIS_HAVE_DEBUG=OFF'])
+        options.extend(['-DMORIS_HAVE_SYMBOLIC=OFF'])
+        options.extend(['-DMORIS_HAVE_SYMBOLIC_STRONG=OFF'])
         options.extend(['-DMORIS_HAVE_TRILINOS_NEW_CMAKE=OFF'])
 
-        if '+mkl' in spec:
+        if '+debug' in spec:
+            options.extend(['-DMORIS_HAVE_DEBUG=ON'])
+            options.extend(['-DMORIS_HAVE_SYMBOLIC=ON'])
+            options.extend(['-DMORIS_HAVE_SYMBOLIC_STRONG=ON'])
+
+        if self.spec["blas"].name in ["intel-mkl", "intel-oneapi-mkL"]:
             options.extend(['-DMORIS_USE_MKL=ON'])
             options.extend(['-DMORIS_USE_OPENBLAS=OFF'])
             options.extend(['-DMORIS_USE_LAPACK=OFF'])
-            
-        if '+openblas' in spec:
+            options.extend(['-DMORIS_USE_ACML=OFF'])
+           
+        if self.spec["blas"].name in ["openblas"]: 
             options.extend(['-DMORIS_USE_MKL=OFF'])
             options.extend(['-DMORIS_USE_OPENBLAS=ON'])
             options.extend(['-DMORIS_USE_LAPACK=OFF'])
+            options.extend(['-DMORIS_USE_ACML=OFF'])
 
-        if '+lapack' in spec:
+        if self.spec["blas"].name in ["amdblis"]:
             options.extend(['-DMORIS_USE_MKL=OFF'])
             options.extend(['-DMORIS_USE_OPENBLAS=OFF'])
             options.extend(['-DMORIS_USE_LAPACK=ON'])
+            options.extend(['-DMORIS_USE_ACML=ON'])
 
+        if self.spec["blas"].name in ["netlib-lapack"]:
+            options.extend(['-DMORIS_USE_MKL=OFF'])
+            options.extend(['-DMORIS_USE_OPENBLAS=OFF'])
+            options.extend(['-DMORIS_USE_LAPACK=ON'])
+            options.extend(['-DMORIS_USE_ACML=OFF'])
+        
         if '-petsc' in spec:
             options.extend([ '-DMORIS_HAVE_PETSC=OFF' ])
 
@@ -136,10 +136,6 @@ class Moris(CMakePackage):
 
         if '-pardiso' in spec:
             options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
-
-        if '+pardiso' in spec:
-            options.extend([ '-DMORIS_USE_MKL=ON' ])
-            options.extend([ '-DMORIS_USE_OPENBLAS=OFF' ])
 
         if '+tests' in spec:
             options.extend([ '-DMORIS_USE_TESTS=ON' ])

@@ -23,6 +23,7 @@ namespace moris
             BELOS_IMPL,      //< Wrapper around Belos Solver
             PETSC,           //< Wrapper around Petsc Solver
             EIGEN_SOLVER,
+            ML,   //< Wrapper around ML Preconditioner as a solver
             END_ENUM
         };
 

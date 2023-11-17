@@ -244,6 +244,10 @@ namespace moris
         moris_index                   tMaxBspMeshIndex = -1;
         moris_index                   tMaxPolyOrder    = -1;
 
+        // check maximum refinement levels for B-spline meshes
+        moris_index tMaxUniformRefineLvlOnBspMeshes = 0;
+        moris_index tMaxTotalRefineLvlOnBspMeshes   = 0;
+
         // go through grids specified and get their data
         for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshesSpecified; iBspMesh++ )
         {
@@ -293,6 +297,13 @@ namespace moris
                     "Trying to use mesh grid index %i for B-spline mesh. But only indices 0 to %i are defined.",
                     tGridIndexUsed,
                     tMaxGridIndex );
+
+            // get the refinement levels used
+            uint        tGridPosInMap       = tGridIndexMap[ tGridIndexUsed ];
+            moris_index tInitialRefineLvl   = tInitialRefinements( tGridPosInMap );
+            moris_index tBdRefines          = tBoundaryRefinements( tGridPosInMap );
+            tMaxUniformRefineLvlOnBspMeshes = std::max( tMaxUniformRefineLvlOnBspMeshes, tInitialRefineLvl );
+            tMaxTotalRefineLvlOnBspMeshes   = std::max( tMaxTotalRefineLvlOnBspMeshes, tInitialRefineLvl + tBdRefines );
         }
 
         // make sure there aren't any mesh indices left unidentified
@@ -319,6 +330,36 @@ namespace moris
         MORIS_ERROR( tDecompGridIter != tGridIndexMap.end(),
                 "Library_IO_Meshgen::load_parameters_from_xml() - "
                 "Grid index for decomposition not found in map. Something went wrong." );
+
+        // make sure the Lagrange mesh is the most refined one (if not create a new grid for it later)
+        uint        tDecompGridPosInList      = tDecompGridIter->second;
+        moris_index tUniformRefinesOnFg       = tInitialRefinements( tDecompGridPosInList );
+        moris_index tTotalRefinesOnFg         = tUniformRefinesOnFg + tBoundaryRefinements( tDecompGridPosInList );
+        bool        tCreateMoreRefinedLagMesh = ( tUniformRefinesOnFg < tMaxUniformRefineLvlOnBspMeshes ) || ( tTotalRefinesOnFg < tMaxTotalRefineLvlOnBspMeshes );
+
+        // add data for additional grid for decomposition if it needs to
+        if ( tCreateMoreRefinedLagMesh )
+        {
+            // get new grid's index and set the decomp grid to it
+            tMaxGridIndex++;
+            tGridIndexForDecomp = tMaxGridIndex;
+
+            // add grid index to map
+            tGridIndexMap[ tGridIndexForDecomp ] = tGridIndices.size();
+            tGridIndices.push_back( tGridIndexForDecomp );
+
+            // add info about refinement
+            moris_index tNumBoundaryRefs = tMaxTotalRefineLvlOnBspMeshes - tMaxUniformRefineLvlOnBspMeshes;
+            tInitialRefinements.push_back( tMaxUniformRefineLvlOnBspMeshes );
+            tBoundaryRefinements.push_back( tNumBoundaryRefs );
+
+            // inform user that another grid is being used for decomposition
+            MORIS_LOG( "Grid specified for decomposition is less refined than at least one B-spline mesh." );
+            MORIS_LOG( "Creating grid #%i with %i uniform and %i interface refinements which will be used for decomposition.",
+                    tGridIndexForDecomp,
+                    tMaxUniformRefineLvlOnBspMeshes,
+                    tNumBoundaryRefs );
+        }
 
         // ------------------------------
         // Finalize the HMR parameter list
@@ -406,7 +447,8 @@ namespace moris
         tHmrParamList.set( "lagrange_to_bspline", sLagrangeToBspline + sLagrangeToBsplineAddOn );
 
         // set the refinement buffer such that the refinement actually has an effect on the highest order B-spline mesh
-        tHmrParamList.set( "refinement_buffer", (int)tMaxPolyOrder - 1 );
+        int tRefinementBuffer = std::max( (int)tMaxPolyOrder - 1, 1 );
+        tHmrParamList.set( "refinement_buffer", tRefinementBuffer );
 
     }    // end function: Library_IO_Meshgen::load_HMR_parameters_from_xml()
 
@@ -419,14 +461,14 @@ namespace moris
     {
         // quick access to the parameter list
         ParameterList& tXtkParamList = mParameterLists( (uint)( Parameter_List_Type::XTK ) )( 0 )( 0 );
+        ParameterList& tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
 
         // turn on SPG based enrichment to make sure
         tXtkParamList.set( "use_SPG_based_enrichment", true );
 
         // enriched mesh indices
-        ParameterList& tHmrParamList       = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
-        std::string    sLagrangeToBspline  = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
-        std::string    sBsplineMeshIndices = sLagrangeToBspline.substr( 0, sLagrangeToBspline.find( ";" ) );
+        std::string sLagrangeToBspline  = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
+        std::string sBsplineMeshIndices = sLagrangeToBspline.substr( 0, sLagrangeToBspline.find( ";" ) );
         tXtkParamList.set( "enrich_mesh_indices", sBsplineMeshIndices );
 
         // get whether to triangulate all
@@ -445,6 +487,14 @@ namespace moris
                     tNumBoundaryRefinements == 0,
                     "Library_IO_Meshgen::load_parameters_from_xml() - "
                     "Triangulation of all elements and boundary refinement at the same time are not supported yet due to hanging nodes." );
+        }
+
+        // option to output Lagrange meshes
+        bool tOutputDecompGrid = false;
+        mXmlReader->get( aXtkPath + ".OutputDecompositionGrid", tOutputDecompGrid, bool( false ) );
+        if ( tOutputDecompGrid )
+        {
+                tHmrParamList.set( "write_lagrange_output_mesh_to_exodus", "Decomposition_Grid.exo" );
         }
 
         // get the number of refinements of the Lagrange mesh at the boundary
@@ -798,7 +848,7 @@ namespace moris
             {
                 // initialize with the sdf field default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
-                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
+                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", false );
                 // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // FIXME: this functionality needs to get added

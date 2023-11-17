@@ -27,7 +27,7 @@ namespace moris
     namespace dla
     {
         class Linear_Problem;
-        class Preconditioner_Trilinos;
+        class Preconditioner;
         class Linear_Solver_Algorithm
 
         {
@@ -46,9 +46,9 @@ namespace moris
 
             Solver_Interface* mSolverInterface = nullptr;
 
-            Preconditioner_Trilinos* mPreconditioner = nullptr;
-
             moris::ParameterList mParameterList;    // The Algorithm specific parameter list
+
+            Linear_Problem* mLinearSystem = nullptr;
 
           public:
             Linear_Solver_Algorithm(){};
@@ -72,19 +72,6 @@ namespace moris
                     const moris::sint                                aIter = 1 ) = 0;
 
             //-----------------------------------------------------------------------------------
-            //        Dist_Vector * get_solver_LHS()
-            //        {
-            //            return mFreeVectorLHS;
-            //        };
-
-            //        auto get_solver_input() const ->decltype( mInput )
-            //        {
-            //            return mInput;
-            //        };
-
-            //        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
-
-            //-----------------------------------------------------------------------------------
             ParameterListTypes&
             set_param( const std::string& aKey )
             {
@@ -92,11 +79,8 @@ namespace moris
             }
 
             //-----------------------------------------------------------------------------------
-            void
-            set_preconditioner( Preconditioner_Trilinos* aPreconditioner )
-            {
-                mPreconditioner = aPreconditioner;
-            }
+            virtual void
+            set_preconditioner( Preconditioner* aPreconditioner ){}; 
 
             //-----------------------------------------------------------------------------------
 
@@ -106,7 +90,25 @@ namespace moris
              * @param aPreconditioner
              */
 
-            virtual void set_left_hand_side_preconditioner( Preconditioner_Trilinos* aPreconditioner ){};
+            virtual void set_left_hand_side_preconditioner( Preconditioner* aPreconditioner ){};
+
+            //-----------------------------------------------------------------------------------
+
+            /**
+             * @brief compute the condition number of the operator with moris arma/eigen
+             * 
+             */
+            
+            virtual void compute_operator_condition_number_with_moris(){}; 
+
+            //-----------------------------------------------------------------------------------
+
+              /**
+             * @brief compute the condition number of the preconditioned operator with moris arma/eigen
+             * 
+             */
+
+             virtual void compute_preconditioned_operator_condition_number_with_moris(){}; 
         };
     }    // namespace dla
 }    // namespace moris
