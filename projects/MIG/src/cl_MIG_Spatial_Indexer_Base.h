@@ -7,7 +7,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_Map.hpp"
-
+#include "cl_MTK_Surface_Mesh.hpp"
 namespace moris::mig
 {
     class Spatial_Indexer_Base
@@ -31,14 +31,28 @@ namespace moris::mig
          */
         Matrix< DDRMat > mDisplacements;
 
+        Matrix< DDRMat > mVertexNormals;
+
       public:
         Spatial_Indexer_Base(
                 const Matrix< DDRMat >            &aCoordinates,
                 const Cell< Cell< moris_index > > &aNeighbors,
-                const Matrix< DDRMat >            &aDisplacements )
+                const Matrix< DDRMat >            &aDisplacements,
+                const Matrix< DDRMat >            &aVertexNormals )
                 : mCoordinates( aCoordinates )
                 , mNeighbors( aNeighbors )
                 , mDisplacements( aDisplacements )
+                , mVertexNormals( aVertexNormals )
+        {
+        }
+
+        Spatial_Indexer_Base(
+                moris::mtk::Surface_Mesh       aSurfaceMesh,
+                moris::Matrix< DDRMat > const &aDisplacements )
+                : mCoordinates( aSurfaceMesh.get_vertex_coordinates() )
+                , mNeighbors( aSurfaceMesh.get_vertex_neighbors() )
+                , mDisplacements( aDisplacements )
+                , mVertexNormals( aSurfaceMesh.get_vertex_normals() )
         {
         }
 

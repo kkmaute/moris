@@ -16,12 +16,13 @@ namespace moris::mig
 
       public:
         Spatial_Indexer_BruteForce(
-                const moris::Matrix< DDRMat >                   &aCoordinates,
+                const Matrix< DDRMat >                          &aCoordinates,
                 const moris::Cell< moris::Cell< moris_index > > &aNeighbors,
-                const moris::Matrix< moris::DDRMat >            &aDisplacements )
-                : Spatial_Indexer_Base( aCoordinates, aNeighbors, aDisplacements )
-        {
-        }
+                const Matrix< DDRMat >                          &aDisplacements,
+                const Matrix< DDRMat >                          &aVertexNormals );
+
+        Spatial_Indexer_BruteForce( mtk::Surface_Mesh const &aSurfaceMesh, Matrix< DDRMat > const &aDisplacements );
+
 
         moris::map< moris_index, moris_index > perform( real epsilon ) override;
     };

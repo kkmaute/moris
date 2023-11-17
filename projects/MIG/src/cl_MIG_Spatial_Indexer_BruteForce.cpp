@@ -6,6 +6,20 @@
 
 namespace moris::mig
 {
+    Spatial_Indexer_BruteForce::Spatial_Indexer_BruteForce(
+            Matrix< DDRMat > const &                          aCoordinates,
+            moris::Cell< moris::Cell< moris_index > > const & aNeighbors,
+            Matrix< DDRMat > const &                          aDisplacements,
+            Matrix< DDRMat > const &                          aVertexNormals )
+            : Spatial_Indexer_Base( aCoordinates, aNeighbors, aDisplacements, aVertexNormals )
+    {
+    }
+
+    Spatial_Indexer_BruteForce::Spatial_Indexer_BruteForce( mtk::Surface_Mesh const & aSurfaceMesh, Matrix< DDRMat > const & aDisplacements )
+            : Spatial_Indexer_Base( aSurfaceMesh, aDisplacements )
+    {
+    }
+
     moris::map< moris_index, moris_index > Spatial_Indexer_BruteForce::perform( real epsilon )
     {
         map< moris_index, moris_index > tClosestVertices;
@@ -46,6 +60,12 @@ namespace moris::mig
                 auto tDistance = norm( tCoordinates.get_row( first_vertex ) - tCoordinates.get_row( second_vertex ) );
                 if ( tDistance < tMinDistance )
                 {
+                    // check that vertex normals are pointing in different directions
+                    auto tDot = dot( mVertexNormals.get_row( first_vertex ), mVertexNormals.get_row( second_vertex ) );
+                    if ( tDot > 0.0 )
+                    {
+                        continue;
+                    }
                     tMinDistance   = tDistance;
                     tClosestVertex = second_vertex;
                 }
@@ -59,4 +79,6 @@ namespace moris::mig
 
         return tClosestVertices;
     }
+
+
 }    // namespace moris::mig
