@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Matrix.hpp"
@@ -37,8 +36,7 @@ namespace moris::ge
          */
         Signed_Distance_Field( std::string         aObjectPath,
                 Matrix< DDRMat >          aObjectOffset,
-                real                      aSDFShift   = 0,
-                Level_Set_Parameters aParameters = Level_Set_Parameters() );
+                real                      aSDFShift   = 0 );
 
         /**
          * Given a node index, returns the field value.

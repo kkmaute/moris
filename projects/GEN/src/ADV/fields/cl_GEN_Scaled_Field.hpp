@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "cl_GEN_Property.hpp"
 #include "cl_GEN_Field_Discrete_Interpolation.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
@@ -28,11 +27,11 @@ namespace moris::ge
          * Constructor
          *
          * @param aADVs ADV vector
-         * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the property variables
+         * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
+         * @param aADVIndices The indices of the ADV vector to fill in the field variables
          * @param aConstants The constant field variables not filled by ADVs
          * @param aName Name of this field
-         * @param aField Field that this property will scale
+         * @param aField Field that this field will scale
          */
         Scaled_Field(
                 std::shared_ptr< Field > aField,

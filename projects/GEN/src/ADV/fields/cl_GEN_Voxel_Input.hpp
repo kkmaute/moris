@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 #include "cl_Library_IO.hpp"
 

@@ -56,7 +56,7 @@ namespace moris::ge
             const Matrix<DDRMat>& aCoordinates,
             Matrix<DDRMat>&       aSensitivities)
     {
-        MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for single grain geometry.");
+        MORIS_ERROR(false, "get_dfield_dcoordinates not implemented for single grain field.");
     }
 
     //--------------------------------------------------------------------------------------------------------------

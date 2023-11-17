@@ -12,7 +12,6 @@
 
 #include <cmath>
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris::ge
@@ -31,13 +30,11 @@ namespace moris::ge
          * @param aYCenter y-coordiante of the center of the sphere
          * @param aZCenter z-coordinate of the center of the sphere
          * @param aRadius radius of the sphere
-         * @param aParameters Additional parameters
          */
-        Sphere(real                      aXCenter,
-               real                      aYCenter,
-               real                      aZCenter,
-               real                      aRadius,
-                Level_Set_Parameters aParameters = Level_Set_Parameters());
+        Sphere( real aXCenter,
+                real aYCenter,
+                real aZCenter,
+                real aRadius );
 
         /**
          * Given a node coordinate, returns the field value.

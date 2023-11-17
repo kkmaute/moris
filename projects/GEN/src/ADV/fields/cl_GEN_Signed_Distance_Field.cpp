@@ -20,8 +20,7 @@ namespace moris::ge
     Signed_Distance_Field::Signed_Distance_Field(
             std::string               aObjectPath,
             Matrix< DDRMat >          aObjectOffset,
-            real                      aSDFShift,
-            Level_Set_Parameters aParameters )
+            real                      aSDFShift )
             : Field_Discrete_Integration( Matrix< DDRMat >( 1, 1, 0.0 ), 0 )
     {
         mObjectPath = aObjectPath;

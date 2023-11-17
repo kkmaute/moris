@@ -16,13 +16,12 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Plane::Plane(
-            real                      aXCenter,
-            real                      aYCenter,
-            real                      aZCenter,
-            real                      aXNormal,
-            real                      aYNormal,
-            real                      aZNormal,
-            Level_Set_Parameters aParameters )
+            real aXCenter,
+            real aYCenter,
+            real aZCenter,
+            real aXNormal,
+            real aYNormal,
+            real aZNormal )
             : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal } } ) )
     {
         m_eval_field       = &Plane::eval_field_3d;
@@ -32,11 +31,10 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Plane::Plane(
-            real                      aXCenter,
-            real                      aYCenter,
-            real                      aXNormal,
-            real                      aYNormal,
-            Level_Set_Parameters aParameters )
+            real aXCenter,
+            real aYCenter,
+            real aXNormal,
+            real aYNormal )
             : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aXNormal, aYNormal } } ) )
     {
         m_eval_field       = &Plane::eval_field_2d;

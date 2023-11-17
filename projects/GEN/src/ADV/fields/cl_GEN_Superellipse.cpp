@@ -15,15 +15,14 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Superellipse::Superellipse(
-            real                      aXCenter,
-            real                      aYCenter,
-            real                      aXSemidiameter,
-            real                      aYSemidiameter,
-            real                      aExponent,
-            real                      aScaling,
-            real                      aRegularization,
-            real                      aShift,
-            Level_Set_Parameters aParameters)
+            real aXCenter,
+            real aYCenter,
+            real aXSemidiameter,
+            real aYSemidiameter,
+            real aExponent,
+            real aScaling,
+            real aRegularization,
+            real aShift )
             : Field_Analytic< 2 >( Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}) )
     {
         MORIS_ERROR( mADVManager.get_variable( 2 ) > 0 and mADVManager.get_variable( 3 ) > 0,

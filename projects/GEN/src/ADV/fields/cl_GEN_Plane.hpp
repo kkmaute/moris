@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris::ge
@@ -29,7 +28,6 @@ namespace moris::ge
          * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
          * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
          */
         Plane( ADV_ARG_TYPES )
                : Field_Analytic< 2 >( ADV_ARGS )
@@ -59,15 +57,13 @@ namespace moris::ge
          * @param aXNormal x normal for the plane
          * @param aYNormal y normal for the plane
          * @param aZNormal z normal for the plane
-         * @param aParameters Additional parameters
          */
-        Plane(real                      aXCenter,
-              real                      aYCenter,
-              real                      aZCenter,
-              real                      aXNormal,
-              real                      aYNormal,
-              real                      aZNormal,
-                Level_Set_Parameters aParameters = Level_Set_Parameters());
+        Plane( real aXCenter,
+               real aYCenter,
+               real aZCenter,
+               real aXNormal,
+               real aYNormal,
+               real aZNormal );
 
         /**
          * Constructor with only constant parameters, 2D
@@ -76,13 +72,11 @@ namespace moris::ge
          * @param aYCenter y-coordinate of the center of the plane
          * @param aXNormal x normal for the plane
          * @param aYNormal y normal for the plane
-         * @param aParameters Additional parameters
          */
-        Plane(real                      aXCenter,
-              real                      aYCenter,
-              real                      aXNormal,
-              real                      aYNormal,
-                Level_Set_Parameters aParameters = Level_Set_Parameters());
+        Plane( real aXCenter,
+               real aYCenter,
+               real aXNormal,
+               real aYNormal );
 
         /**
          * Given a node coordinate, returns the field value.

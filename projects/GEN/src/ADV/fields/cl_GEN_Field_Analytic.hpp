@@ -43,7 +43,6 @@ namespace moris::ge
          * Constructor using only constants (no ADVs).
          *
          * @param aConstants The parameters that define this field
-         * @param aParameters Additional parameters
          */
         explicit Field_Analytic( Matrix< DDRMat > aConstants )
                 : Field( aConstants, "" )

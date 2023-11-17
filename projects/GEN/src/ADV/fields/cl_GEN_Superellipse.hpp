@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris::ge
@@ -40,18 +39,16 @@ namespace moris::ge
          * @param aXSemidiameter Superellipse semi-diameter in the x direction
          * @param aYSemidiameter Superellipse semi-diameter in the y direction
          * @param aExponent Superellipse exponent
-         * @param aParameters Additional parameters
          */
         Superellipse(
-                real                      aXCenter,
-                real                      aYCenter,
-                real                      aXSemidiameter,
-                real                      aYSemidiameter,
-                real                      aExponent,
-                real                      aScaling,
-                real                      aRegularization,
-                real                      aShift,
-                Level_Set_Parameters aParameters = Level_Set_Parameters());
+                real aXCenter,
+                real aYCenter,
+                real aXSemidiameter,
+                real aYSemidiameter,
+                real aExponent,
+                real aScaling,
+                real aRegularization,
+                real aShift );
 
         /**
          * Given a node coordinate, returns the field value.

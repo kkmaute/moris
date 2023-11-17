@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Analytic.hpp"
 
 namespace moris::ge
@@ -28,12 +27,10 @@ namespace moris::ge
          * @param aXCenter x-coordinate of the center of the circle
          * @param aYCenter y-coordiante of the center of the circle
          * @param aRadius radius of the circle
-         * @param aParameters Additional parameters
          */
-        Circle(real                      aXCenter,
-               real                      aYCenter,
-               real                      aRadius,
-               Level_Set_Parameters aParameters = Level_Set_Parameters());
+        Circle( real aXCenter,
+                real aYCenter,
+                real aRadius );
 
         /**
          * Given a node coordinate, returns the field value.

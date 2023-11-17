@@ -16,10 +16,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Circle::Circle(
-            real                      aXCenter,
-            real                      aYCenter,
-            real                      aRadius,
-            Level_Set_Parameters aParameters )
+            real aXCenter,
+            real aYCenter,
+            real aRadius )
             : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aRadius } } ) )
     {
     }
