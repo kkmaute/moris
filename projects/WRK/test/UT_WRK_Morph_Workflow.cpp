@@ -38,7 +38,7 @@
 #include "fn_PRM_MORIS_GENERAL_Parameters.hpp"
 #include <cl_XTK_Enriched_Integration_Mesh.hpp>
 
-namespace MorphTestWRK
+namespace MorphMoris
 {
 
 
@@ -155,11 +155,11 @@ setFixedBlockParams(
 
 void 
 setParamsXTK(
-  MorphTestWRK::InputMetaData & InputParameters
+  MorphMoris::InputMetaData & InputParameters
 )
 {
   InputParameters.mParametersXTK(0)(0).set("verbose", InputParameters.mVerbose);
-  MorphTestWRK::setWorkFlowParams(InputParameters.mWorkflow,InputParameters.mParametersXTK);
+  MorphMoris::setWorkFlowParams(InputParameters.mWorkflow,InputParameters.mParametersXTK);
   InputParameters.mParametersXTK(0)(0).set("output_file", "ut_xtk_bolted_bracket_mod.exo");
   InputParameters.mParametersXTK(0)(0).set("output_path", "./");
   InputParameters.mParametersXTK(0)(0).set("union_blocks", "block_1_n_p1,block_1_c_p1,block_2_n_p1,block_2_c_p1;block_1_n_p0,block_1_c_p0,block_2_n_p0,block_2_c_p0");
@@ -222,7 +222,7 @@ setParamsHMR(
 
 void 
 setParamsHMR(
-  MorphTestWRK::InputMetaData & aInputParameters
+  MorphMoris::InputMetaData & aInputParameters
 )
 {
   // initialize moris data structures
@@ -274,7 +274,7 @@ setParamsHMR(
 
 void 
 setParamsSTK(
-  MorphTestWRK::InputMetaData & aInputParameters
+  MorphMoris::InputMetaData & aInputParameters
 )
 {
   aInputParameters.mParametersSTK(0)(0).set("input_file", "ut_xtk_bolted_bracket.exo");
@@ -283,7 +283,7 @@ setParamsSTK(
 
 void 
 setParamsRMP(
-  MorphTestWRK::InputMetaData & aInputParameters
+  MorphMoris::InputMetaData & aInputParameters
 )
 {
   aInputParameters.mParametersRMP(0)(0).set("mode", "ab_initio");
@@ -351,7 +351,7 @@ setParamsGEO(
   auto tGeoID   = aGEOParameters.get<int>("geometry_id");
   auto tGeoType = aGEOParameters.get<std::string>("geometry_type");
   if( tGeoType == "swiss_cheese_slice" ){
-    MorphTestWRK::setSwissCheeseParams(aGEOParameters,aGENParameters);
+    MorphMoris::setSwissCheeseParams(aGEOParameters,aGENParameters);
   }
   else {
     aGENParameters(1).push_back(moris::prm::create_geometry_parameter_list());
@@ -415,47 +415,47 @@ createParamListRMP(
 
 void 
 createParamLists(
-  MorphTestWRK::InputMetaData & aInputParameterLists
+  MorphMoris::InputMetaData & aInputParameterLists
 )
 {
-  MorphTestWRK::createParamListXTK(aInputParameterLists.mParametersXTK);
-  MorphTestWRK::createParamListSTK(aInputParameterLists.mParametersSTK);
-  MorphTestWRK::createParamListHMR(aInputParameterLists.mParametersHMR);
-  MorphTestWRK::createParamListGEN(aInputParameterLists.mParametersGEN);
-  MorphTestWRK::createParamListRMP(aInputParameterLists.mParametersRMP);
+  MorphMoris::createParamListXTK(aInputParameterLists.mParametersXTK);
+  MorphMoris::createParamListSTK(aInputParameterLists.mParametersSTK);
+  MorphMoris::createParamListHMR(aInputParameterLists.mParametersHMR);
+  MorphMoris::createParamListGEN(aInputParameterLists.mParametersGEN);
+  MorphMoris::createParamListRMP(aInputParameterLists.mParametersRMP);
 }
 
 void 
 setParamLists(
-  MorphTestWRK::InputMetaData & aInputParameters
+  MorphMoris::InputMetaData & aInputParameters
 )
 {
   // set xtk parameters
   //
-  MorphTestWRK::setParamsXTK(aInputParameters);
+  MorphMoris::setParamsXTK(aInputParameters);
   // set hmr parameters
   //
-  //MorphTestWRK::setParamsHMR(aInputParameters.mParametersHMR);
-  MorphTestWRK::setParamsHMR(aInputParameters);
+  //MorphMoris::setParamsHMR(aInputParameters.mParametersHMR);
+  MorphMoris::setParamsHMR(aInputParameters);
   // set stk parameters
   //
-  MorphTestWRK::setParamsSTK(aInputParameters);
+  MorphMoris::setParamsSTK(aInputParameters);
   // set rmp parameters
   //
-  MorphTestWRK::setParamsRMP(aInputParameters);
+  MorphMoris::setParamsRMP(aInputParameters);
   // set gen parameters
   //
   auto tNumGeometries = aInputParameters.mGeometryParameters.size();
   for(decltype(tNumGeometries) tIndex = 0; tIndex < tNumGeometries; tIndex++) {
-    MorphTestWRK::setParamsGEO(aInputParameters.mGeometryParameters(tIndex),aInputParameters.mParametersGEN);
-    MorphTestWRK::setParamsGEODiscretization(aInputParameters.mGeometryParameters(tIndex),aInputParameters.mParametersGEN);
+    MorphMoris::setParamsGEO(aInputParameters.mGeometryParameters(tIndex),aInputParameters.mParametersGEN);
+    MorphMoris::setParamsGEODiscretization(aInputParameters.mGeometryParameters(tIndex),aInputParameters.mParametersGEN);
   }
 }
 
 void 
 initBackgroundMeshHMR(
-  MorphTestWRK::InputMetaData & aInputParameters,
-  MorphTestWRK::Performers    & aPerformers
+  MorphMoris::InputMetaData & aInputParameters,
+  MorphMoris::Performers    & aPerformers
 )
 {
   // initialize hmr performer 
@@ -470,8 +470,8 @@ initBackgroundMeshHMR(
 
 void 
 initBackgroundMeshSTK(
-  MorphTestWRK::InputMetaData & aInputParameters,
-  MorphTestWRK::Performers    & aPerformers
+  MorphMoris::InputMetaData & aInputParameters,
+  MorphMoris::Performers    & aPerformers
 )
 {
   auto tMeshPath = aInputParameters.mParametersSTK(0)(0).get<std::string>("input_path");
@@ -485,15 +485,15 @@ initBackgroundMeshSTK(
 
 void 
 initBackgroundMesh(
-  MorphTestWRK::InputMetaData & aInputParameters,
-  MorphTestWRK::Performers    & aPerformers
+  MorphMoris::InputMetaData & aInputParameters,
+  MorphMoris::Performers    & aPerformers
 )
 {
   if( aInputParameters.mWorkflow == "HMR" ) {
-    MorphTestWRK::initBackgroundMeshHMR(aInputParameters,aPerformers);
+    MorphMoris::initBackgroundMeshHMR(aInputParameters,aPerformers);
   }
   else if( aInputParameters.mWorkflow == "STK" ) {
-    MorphTestWRK::initBackgroundMeshSTK(aInputParameters,aPerformers);
+    MorphMoris::initBackgroundMeshSTK(aInputParameters,aPerformers);
   }
   else {
     MORIS_ERROR(0, "Invalid workflow type: STK or HMR");
@@ -502,13 +502,13 @@ initBackgroundMesh(
 
 void 
 generateModel(
-  MorphTestWRK::InputMetaData & tInputParameters,
-  MorphTestWRK::Performers    & aPerformers
+  MorphMoris::InputMetaData & tInputParameters,
+  MorphMoris::Performers    & aPerformers
 )
 {
   // initialize the background mesh
   //
-  MorphTestWRK::initBackgroundMesh(tInputParameters, aPerformers);
+  MorphMoris::initBackgroundMesh(tInputParameters, aPerformers);
   // initialize geometry engine
   //
   aPerformers.mCurrentGEN = 
@@ -522,8 +522,8 @@ generateModel(
 
 void 
 regenerateModel(
-  MorphTestWRK::MetaDataXTK & aMetaDataXTK,
-  MorphTestWRK::Performers  & aPerformers
+  MorphMoris::MetaDataXTK & aMetaDataXTK,
+  MorphMoris::Performers  & aPerformers
 )
 {
   // add criteria sensitivity fields to mesh (for visualization)
@@ -561,8 +561,8 @@ regenerateModel(
 
 void 
 initAppXTK(
-  const MorphTestWRK::InputMetaData & aInputParameters,
-        MorphTestWRK::Performers    & aPerformers
+  const MorphMoris::InputMetaData & aInputParameters,
+        MorphMoris::Performers    & aPerformers
 )
 {
   // initialize xtk app
@@ -588,208 +588,14 @@ initAppXTK(
 
 
 
-// **********************************************************************
-// ************************** HMR-XTK WORKFLOW **************************
-// **********************************************************************
+// ********************************************************************************
+// ************************** HMR-XTK & STK-XTK WORKFLOW **************************
+// ********************************************************************************
 
-
-
-void
-allocatePerformersWorkflowHmrXtk(
-  MorphTestWRK::PerformerManager & aPerformerManager  
-)
-{
-  // performer set for this workflow
-  //
-  aPerformerManager.mPerformerHMR.resize(1);
-  aPerformerManager.mPerformerGEN.resize(1);
-  aPerformerManager.mPerformerXTK.resize(1);
-  aPerformerManager.mPerformerMTK.resize(3);
-  aPerformerManager.mPerformerRMP.resize(1);
-}
-
-void 
-createPerformersWorkflowHmrXtk(
-  MorphTestWRK::InputMetaData    & aInputParameters,
-  MorphTestWRK::PerformerManager & aPerformerManager  
-)
-{
-  // create GEN performer
-  //
-  aPerformerManager.mPerformerGEN(0) = 
-    std::make_shared< moris::ge::Geometry_Engine >(aInputParameters.mParametersGEN,nullptr);
-  // create MTK performers:
-  //   mPerformerMTK(0) = will be used for HMR mesh
-  //   mPerformerMTK(1) = will be used for XTK mesh
-  //   mPerformerMTK(2) = will be used for output toolkit
-  //
-  aPerformerManager.mPerformerMTK(0) = std::make_shared< mtk::Mesh_Manager >();
-  aPerformerManager.mPerformerMTK(1) = std::make_shared< mtk::Mesh_Manager >();
-  aPerformerManager.mPerformerMTK(2) = std::make_shared< mtk::Mesh_Manager >();
-  // create hmr performer 
-  //
-  aPerformerManager.mPerformerHMR(0) = 
-    std::make_shared< moris::hmr::HMR >(aInputParameters.mInputParametersHMR);
-}
-
-void 
-setPerformersWorkflowHmrXtk(
-  MorphTestWRK::InputMetaData    & aInputParameters,
-  MorphTestWRK::PerformerManager & aPerformerManager
-)
-{
-  // set MTK performer to HMR performer
-  //
-  aPerformerManager.mPerformerHMR(0)->set_performer(aPerformerManager.mPerformerMTK(0));
-  // set HMR performer to MTK performer
-  //
-  aPerformerManager.mPerformerMTK(0)->set_performer(aPerformerManager.mPerformerHMR(0));
-  // create re-meshing performer - will be used for HMR mesh
-  //
-  if( not aInputParameters.mParametersRMP.empty() )
-  {
-    if( not aInputParameters.mParametersRMP(0).empty() )
-    {
-      aPerformerManager.mPerformerRMP(0) = 
-        std::make_shared< moris::wrk::Remeshing_Mini_Performer >( aInputParameters.mParametersRMP(0)(0), nullptr );
-    }
-  }
-}
-
-void 
-initPerformersWorkflowHmrXtk(
-  MorphTestWRK::InputMetaData    & aInputParameters,
-  MorphTestWRK::PerformerManager & aPerformerManager
-)
-{
-  // allocate performer containers
-  //
-  MorphTestWRK::allocatePerformersWorkflowHmrXtk(aPerformerManager);
-  // create performers used in the hmr-xtk workflow 
-  //
-  MorphTestWRK::createPerformersWorkflowHmrXtk(aInputParameters,aPerformerManager);
-  // create hmr performer 
-  //
-  MorphTestWRK::setPerformersWorkflowHmrXtk(aInputParameters,aPerformerManager);
-}
-
-void 
-initPerformerHMR(
-  MorphTestWRK::InputMetaData    & aInputParameters,
-  MorphTestWRK::PerformerManager & aPerformerManager
-)
-{
-  // check whether HMR should NOT be initialized from restart file
-  //
-  if ( not aPerformerManager.mPerformerHMR(0)->get_restarted_from_file() )
-  {
-    // uniform initial refinement
-    //
-    aPerformerManager.mPerformerHMR(0)->perform_initial_refinement();
-    // HMR refined by GEN
-    //
-    moris::wrk::Refinement_Mini_Performer tRefinementPerformer;
-    // get the GEN interface performer
-    //
-    std::shared_ptr< moris::wrk::Performer > tGenInterfacePerformer = 
-      std::make_shared< moris::wrk::Gen_Performer >( aPerformerManager.mPerformerGEN(0) );
-    // perform initial refinement for GEN and user defined refinement functions
-    //
-    tRefinementPerformer.perform_refinement_old( aPerformerManager.mPerformerHMR(0), { tGenInterfacePerformer } );
-  }
-  // HMR finalize
-  aPerformerManager.mPerformerHMR(0)->perform();
-}
-
-void 
-reinitPerformerHMR(
-  MorphTestWRK::InputMetaData                         & aInputParameters,
-  MorphTestWRK::PerformerManager                      & aPerformerManager,
-  moris::Cell< std::shared_ptr< moris::mtk::Field > > & aFieldOut
-)
-{
-  // get refinement fields from GEN and MDL performers
-  //
-  moris::Cell< std::shared_ptr< moris::mtk::Field > > tFieldsIn;
-  tFieldsIn.append( aPerformerManager.mPerformerGEN(0)->get_mtk_fields() );
-  // check remeshing mini-performer has been built
-  //
-  MORIS_ERROR( aPerformerManager.mPerformerRMP(0),"remeshing performer has not been built." );
-  // refine meshes
-  //
-  aPerformerManager.mPerformerRMP(0)->perform_remeshing(
-    tFieldsIn,
-    aPerformerManager.mPerformerHMR,
-    aPerformerManager.mPerformerMTK,
-    aFieldOut 
-  );
-  // re-initialize GEN
-  //
-  aPerformerManager.mPerformerGEN(0) = 
-    std::make_shared< moris::ge::Geometry_Engine >( aInputParameters.mParametersGEN, nullptr );
-}
-
-void 
-initLevelSetField(
-  moris::Cell< std::shared_ptr< moris::mtk::Field > > & aFieldOut,
-  MorphTestWRK::InputMetaData                         & aInputParameters,
-  MorphTestWRK::PerformerManager                      & aPerformerManager
-)
-{
-  // retrieve the mesh pair
-  //
-  const moris::mtk::Mesh_Pair& tMeshPair = aPerformerManager.mPerformerMTK(0)->get_mesh_pair(0);
-  // initialize GEN
-  //
-  aPerformerManager.mPerformerGEN(0)->distribute_advs( tMeshPair, aFieldOut );
-}
-
-void
-initWorkflow(
-  MorphTestWRK::InputMetaData    & aInputParameters,
-  MorphTestWRK::PerformerManager & aPerformerManager,
-  bool                             aWorkflowInitialize = false
-)
-{
-  moris::Cell< std::shared_ptr< moris::mtk::Field > > tFieldsOut;
-  if( not aWorkflowInitialize ) 
-  {
-    MorphTestWRK::initPerformerHMR(aInputParameters,aPerformerManager);
-  }
-  else 
-  {
-    MorphTestWRK::reinitPerformerHMR(aInputParameters,aPerformerManager,tFieldsOut);
-  }
-  MorphTestWRK::initLevelSetField(tFieldsOut,aInputParameters,aPerformerManager);
-}
-
-void 
-performOperationXTK(
-  MorphTestWRK::PerformerManager & aPerformerManager
-)
-{
-  // set core performers required by the xtk application
-  //
-  aPerformerManager.mPerformerXTK( 0 )->set_geometry_engine( aPerformerManager.mPerformerGEN( 0 ).get() );
-  aPerformerManager.mPerformerXTK( 0 )->set_input_performer( aPerformerManager.mPerformerMTK( 0 ) );
-  // set output performer
-  //
-  aPerformerManager.mPerformerXTK( 0 )->set_output_performer( aPerformerManager.mPerformerMTK(2) );
-  // compute level set data in GEN
-  //
-  aPerformerManager.mPerformerGEN( 0 )->reset_mesh_information(
-    aPerformerManager.mPerformerMTK( 0 )->get_interpolation_mesh( 0 ) );
-  // xtk perform decomposition
-  //
-  aPerformerManager.mPerformerXTK( 0 )->perform_decomposition();
-  // xtk perform enrichment
-  //
-  aPerformerManager.mPerformerXTK( 0 )->perform_enrichment();
-}
 
 bool 
 outputTransformationMatrices(
-  MorphTestWRK::PerformerManager & aPerformerManager
+  MorphMoris::PerformerManager & aPerformerManager
 )
 {
   // Output T-matrices if requested
@@ -819,49 +625,252 @@ outputTransformationMatrices(
   return false;
 }
 
+
+void 
+initLevelSetField(
+  moris::Cell< std::shared_ptr< moris::mtk::Field > > & aFieldOut,
+  MorphMoris::InputMetaData                         & aInputParameters,
+  MorphMoris::PerformerManager                      & aPerformerManager
+)
+{
+  // retrieve the mesh pair
+  //
+  const moris::mtk::Mesh_Pair& tMeshPair = aPerformerManager.mPerformerMTK(0)->get_mesh_pair(0);
+  // initialize GEN
+  //
+  aPerformerManager.mPerformerGEN(0)->distribute_advs( tMeshPair, aFieldOut );
+}
+
+namespace workflow
+{
+
+namespace xtkhmr
+{
+
+
+void
+allocatePerformers(
+  MorphMoris::PerformerManager & aPerformerManager  
+)
+{
+  // performer set for this workflow
+  //
+  aPerformerManager.mPerformerHMR.resize(1);
+  aPerformerManager.mPerformerGEN.resize(1);
+  aPerformerManager.mPerformerXTK.resize(1);
+  aPerformerManager.mPerformerMTK.resize(3);
+  aPerformerManager.mPerformerRMP.resize(1);
+}
+
+void 
+createPerformers(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager  
+)
+{
+  // create GEN performer
+  //
+  aPerformerManager.mPerformerGEN(0) = 
+    std::make_shared< moris::ge::Geometry_Engine >(aInputParameters.mParametersGEN,nullptr);
+  // create MTK performers:
+  //   mPerformerMTK(0) = will be used for HMR mesh
+  //   mPerformerMTK(1) = will be used for XTK mesh
+  //   mPerformerMTK(2) = will be used for output toolkit
+  //
+  aPerformerManager.mPerformerMTK(0) = std::make_shared< mtk::Mesh_Manager >();
+  aPerformerManager.mPerformerMTK(1) = std::make_shared< mtk::Mesh_Manager >();
+  aPerformerManager.mPerformerMTK(2) = std::make_shared< mtk::Mesh_Manager >();
+  // create hmr performer 
+  //
+  aPerformerManager.mPerformerHMR(0) = 
+    std::make_shared< moris::hmr::HMR >(aInputParameters.mInputParametersHMR);
+}
+
+void 
+setPerformers(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager
+)
+{
+  // set MTK performer to HMR performer
+  //
+  aPerformerManager.mPerformerHMR(0)->set_performer(aPerformerManager.mPerformerMTK(0));
+  // set HMR performer to MTK performer
+  //
+  aPerformerManager.mPerformerMTK(0)->set_performer(aPerformerManager.mPerformerHMR(0));
+  // create re-meshing performer - will be used for HMR mesh
+  //
+  if( not aInputParameters.mParametersRMP.empty() )
+  {
+    if( not aInputParameters.mParametersRMP(0).empty() )
+    {
+      aPerformerManager.mPerformerRMP(0) = 
+        std::make_shared< moris::wrk::Remeshing_Mini_Performer >( aInputParameters.mParametersRMP(0)(0), nullptr );
+    }
+  }
+}
+
+void 
+initPerformers(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager
+)
+{
+  // allocate performer containers
+  //
+  MorphMoris::workflow::xtkhmr::allocatePerformers(aPerformerManager);
+  // create performers used in the hmr-xtk workflow 
+  //
+  MorphMoris::workflow::xtkhmr::createPerformers(aInputParameters,aPerformerManager);
+  // create hmr performer 
+  //
+  MorphMoris::workflow::xtkhmr::setPerformers(aInputParameters,aPerformerManager);
+}
+
+void 
+initPerformerHMR(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager
+)
+{
+  // check whether HMR should NOT be initialized from restart file
+  //
+  if ( not aPerformerManager.mPerformerHMR(0)->get_restarted_from_file() )
+  {
+    // uniform initial refinement
+    //
+    aPerformerManager.mPerformerHMR(0)->perform_initial_refinement();
+    // HMR refined by GEN
+    //
+    moris::wrk::Refinement_Mini_Performer tRefinementPerformer;
+    // get the GEN interface performer
+    //
+    std::shared_ptr< moris::wrk::Performer > tGenInterfacePerformer = 
+      std::make_shared< moris::wrk::Gen_Performer >( aPerformerManager.mPerformerGEN(0) );
+    // perform initial refinement for GEN and user defined refinement functions
+    //
+    tRefinementPerformer.perform_refinement_old( aPerformerManager.mPerformerHMR(0), { tGenInterfacePerformer } );
+  }
+  // HMR finalize
+  aPerformerManager.mPerformerHMR(0)->perform();
+}
+
+void 
+reinitPerformerHMR(
+  MorphMoris::InputMetaData                           & aInputParameters,
+  MorphMoris::PerformerManager                        & aPerformerManager,
+  moris::Cell< std::shared_ptr< moris::mtk::Field > > & aFieldOut
+)
+{
+  // get refinement fields from GEN and MDL performers
+  //
+  moris::Cell< std::shared_ptr< moris::mtk::Field > > tFieldsIn;
+  tFieldsIn.append( aPerformerManager.mPerformerGEN(0)->get_mtk_fields() );
+  // check remeshing mini-performer has been built
+  //
+  MORIS_ERROR( aPerformerManager.mPerformerRMP(0),"remeshing performer has not been built." );
+  // refine meshes
+  //
+  aPerformerManager.mPerformerRMP(0)->perform_remeshing(
+    tFieldsIn,
+    aPerformerManager.mPerformerHMR,
+    aPerformerManager.mPerformerMTK,
+    aFieldOut 
+  );
+  // re-initialize GEN
+  //
+  aPerformerManager.mPerformerGEN(0) = 
+    std::make_shared< moris::ge::Geometry_Engine >( aInputParameters.mParametersGEN, nullptr );
+}
+
+void
+initWorkflow(
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager,
+  bool                           aWorkflowInitialize = false
+)
+{
+  moris::Cell< std::shared_ptr< moris::mtk::Field > > tFieldsOut;
+  if( not aWorkflowInitialize ) 
+  {
+    MorphMoris::workflow::xtkhmr::initPerformerHMR(aInputParameters,aPerformerManager);
+  }
+  else 
+  {
+    MorphMoris::workflow::xtkhmr::reinitPerformerHMR(aInputParameters,aPerformerManager,tFieldsOut);
+  }
+  MorphMoris::initLevelSetField(tFieldsOut,aInputParameters,aPerformerManager);
+}
+
+void 
+performOperationXTK(
+  MorphMoris::PerformerManager & aPerformerManager
+)
+{
+  // set core performers required by the xtk application
+  //
+  aPerformerManager.mPerformerXTK( 0 )->set_geometry_engine( aPerformerManager.mPerformerGEN( 0 ).get() );
+  aPerformerManager.mPerformerXTK( 0 )->set_input_performer( aPerformerManager.mPerformerMTK( 0 ) );
+  // set output performer
+  //
+  aPerformerManager.mPerformerXTK( 0 )->set_output_performer( aPerformerManager.mPerformerMTK(2) );
+  // compute level set data in GEN
+  //
+  aPerformerManager.mPerformerGEN( 0 )->reset_mesh_information(
+    aPerformerManager.mPerformerMTK( 0 )->get_interpolation_mesh( 0 ) );
+  // xtk perform decomposition
+  //
+  aPerformerManager.mPerformerXTK( 0 )->perform_decomposition();
+  // xtk perform enrichment
+  //
+  aPerformerManager.mPerformerXTK( 0 )->perform_enrichment();
+}
+
 void
 perform(
-  MorphTestWRK::InputMetaData    & aInputParameters,
-  MorphTestWRK::PerformerManager & aPerformerManager,
+  MorphMoris::InputMetaData    & aInputParameters,
+  MorphMoris::PerformerManager & aPerformerManager,
   bool                             aWorkflowInitialize = false
 )
 {
   // initialize hmr-xtk workflow
   //
-  MorphTestWRK::initWorkflow(aInputParameters,aPerformerManager,aWorkflowInitialize);
+  MorphMoris::workflow::xtkhmr::initWorkflow(aInputParameters,aPerformerManager,aWorkflowInitialize);
   // perform xtk operation
   //
   aPerformerManager.mPerformerXTK( 0 ) = std::make_shared< xtk::Model >( aInputParameters.mParametersXTK( 0 )( 0 ) );
-  MorphTestWRK::performOperationXTK(aPerformerManager);
+  MorphMoris::workflow::xtkhmr::performOperationXTK(aPerformerManager);
   // output transformation-matrices if requested
   //
-  MorphTestWRK::outputTransformationMatrices( aPerformerManager );
+  MorphMoris::outputTransformationMatrices( aPerformerManager );
 }
 
+} // namespace xtkhmr
+
+} // namespace workflow
+
+} // namespace MorphMoris
 
 
-// ##########
-// unit tests
-// ##########
+// ################################
+// ########## unit tests ##########
+// ################################
 
 
-
-
-
-
-
+namespace MorphMorisTest
+{
 
 TEST_CASE( "WRK_morph_xtk_parse_params_test", "[WRK_morph_test]" )
 {
   // create xtk parameter list
   //
-  MorphTestWRK::InputMetaData tInputParameters;
-  MorphTestWRK::createParamListXTK(tInputParameters.mParametersXTK);
+  MorphMoris::InputMetaData tInputParameters;
+  MorphMoris::createParamListXTK(tInputParameters.mParametersXTK);
   // set xtk params
   //
   tInputParameters.mVerbose = true;
   tInputParameters.mWorkflow = std::string("STK");
-  MorphTestWRK::setParamsXTK(tInputParameters);
+  MorphMoris::setParamsXTK(tInputParameters);
   // print to console
   //
   moris::prm::print(tInputParameters.mParametersXTK(0)(0));
@@ -871,9 +880,9 @@ TEST_CASE( "WRK_morph_stk_parse_params_test", "[WRK_morph_test]" )
 {
   // parse workflow params
   //
-  MorphTestWRK::InputMetaData tInputParameters;
-  MorphTestWRK::createParamListSTK(tInputParameters.mParametersSTK);
-  MorphTestWRK::setParamsSTK(tInputParameters);
+  MorphMoris::InputMetaData tInputParameters;
+  MorphMoris::createParamListSTK(tInputParameters.mParametersSTK);
+  MorphMoris::setParamsSTK(tInputParameters);
   moris::prm::print(tInputParameters.mParametersSTK(0)(0));
 }
 
@@ -882,8 +891,8 @@ TEST_CASE( "WRK_morph_hmr_parse_params_test", "[WRK_morph_test]" )
   // parse workflow params
   //
   moris::Cell< moris::Cell< moris::ParameterList > > tHMRParameters;
-  MorphTestWRK::createParamListHMR(tHMRParameters);
-  MorphTestWRK::setParamsHMR(tHMRParameters);
+  MorphMoris::createParamListHMR(tHMRParameters);
+  MorphMoris::setParamsHMR(tHMRParameters);
   moris::prm::print(tHMRParameters(0)(0));
 }
 
@@ -891,8 +900,8 @@ TEST_CASE( "WRK_morph_set_hmr_params_test", "[WRK_morph_test]" )
 {
   // parse workflow params
   //
-  MorphTestWRK::InputMetaData tInputParameters;
-  MorphTestWRK::setParamsHMR(tInputParameters);
+  MorphMoris::InputMetaData tInputParameters;
+  MorphMoris::setParamsHMR(tInputParameters);
   tInputParameters.mInputParametersHMR.print();
 }
 
@@ -901,17 +910,17 @@ TEST_CASE( "WRK_morph_xtk_parse_gen_params_test", "[WRK_morph_test]" )
   // create core geometry engine params
   //
   moris::Cell< moris::Cell< moris::ParameterList > > tGENParameters;
-  MorphTestWRK::createParamListGEN(tGENParameters);
+  MorphMoris::createParamListGEN(tGENParameters);
   // set my geometry params
   //
   moris::ParameterList tGeometryParameters;
   tGeometryParameters.insert("design", true);
   tGeometryParameters.insert("geometry_id", 0);
   tGeometryParameters.insert("geometry_type", "swiss_cheese_slice");
-  MorphTestWRK::setParamsGEO(tGeometryParameters,tGENParameters);
+  MorphMoris::setParamsGEO(tGeometryParameters,tGENParameters);
   // set discretization parameters
   //
-  MorphTestWRK::setParamsGEODiscretization(tGeometryParameters,tGENParameters);
+  MorphMoris::setParamsGEODiscretization(tGeometryParameters,tGENParameters);
   // print to console
   //
   moris::prm::print(tGENParameters(0)(0));
@@ -923,9 +932,9 @@ TEST_CASE( "WRK_morph_xtk_initialize_hmr_params_test", "[WRK_morph_test]" )
 {
   // create parameter lists
   //
-  MorphTestWRK::InputMetaData tInputParameters;
+  MorphMoris::InputMetaData tInputParameters;
   tInputParameters.mWorkflow = "HMR";
-  MorphTestWRK::createParamLists(tInputParameters);
+  MorphMoris::createParamLists(tInputParameters);
   // set parameters
   //
   moris::ParameterList tGeometryParameters;
@@ -933,25 +942,25 @@ TEST_CASE( "WRK_morph_xtk_initialize_hmr_params_test", "[WRK_morph_test]" )
   tGeometryParameters.insert("geometry_id", 0);
   tGeometryParameters.insert("geometry_type", "swiss_cheese_slice");
   tInputParameters.mGeometryParameters.push_back(tGeometryParameters);
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphMoris::setParamLists(tInputParameters);
   // initialize geometry engine
   //
-  MorphTestWRK::Performers tPerformers;
+  MorphMoris::Performers tPerformers;
   tPerformers.mCurrentGEN = std::make_shared< ge::Geometry_Engine >( tInputParameters.mParametersGEN, nullptr );
   tPerformers.mCurrentBGMTK = std::make_shared< mtk::Mesh_Manager >();
   tPerformers.mCurrentOutputMTK = std::make_shared< mtk::Mesh_Manager >();
   // initialize the background mesh
   //
-  MorphTestWRK::initBackgroundMesh(tInputParameters, tPerformers);
+  MorphMoris::initBackgroundMesh(tInputParameters, tPerformers);
 }
 
 TEST_CASE( "WRK_morph_xtk_initialize_stk_params_test", "[WRK_morph_test]" )
 {
   // create parameter lists
   //
-  MorphTestWRK::InputMetaData tInputParameters;
+  MorphMoris::InputMetaData tInputParameters;
   tInputParameters.mWorkflow = "STK";
-  MorphTestWRK::createParamLists(tInputParameters);
+  MorphMoris::createParamLists(tInputParameters);
   // set parameters
   //
   moris::ParameterList tGeometryParameters;
@@ -959,25 +968,25 @@ TEST_CASE( "WRK_morph_xtk_initialize_stk_params_test", "[WRK_morph_test]" )
   tGeometryParameters.insert("geometry_id", 0);
   tGeometryParameters.insert("geometry_type", "swiss_cheese_slice");
   tInputParameters.mGeometryParameters.push_back(tGeometryParameters);
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphMoris::setParamLists(tInputParameters);
   // initialize geometry engine
   //
-  MorphTestWRK::Performers tPerformers;
+  MorphMoris::Performers tPerformers;
   tPerformers.mCurrentGEN = std::make_shared< ge::Geometry_Engine >( tInputParameters.mParametersGEN, nullptr );
   tPerformers.mCurrentBGMTK = std::make_shared< mtk::Mesh_Manager >();
   tPerformers.mCurrentOutputMTK = std::make_shared< mtk::Mesh_Manager >();
   // initialize the background mesh
   //
-  MorphTestWRK::initBackgroundMesh(tInputParameters, tPerformers);
+  MorphMoris::initBackgroundMesh(tInputParameters, tPerformers);
 }
 
 TEST_CASE( "WRK_morph_xtk_generate_model_operation_hmr", "[WRK_morph_test]" )
 {
   // create parameter lists
   //
-  MorphTestWRK::InputMetaData tInputParameters;
+  MorphMoris::InputMetaData tInputParameters;
   tInputParameters.mWorkflow = "HMR";
-  MorphTestWRK::createParamLists(tInputParameters);
+  MorphMoris::createParamLists(tInputParameters);
   // set parameters
   //
   moris::ParameterList tGeometryParameters;
@@ -985,19 +994,19 @@ TEST_CASE( "WRK_morph_xtk_generate_model_operation_hmr", "[WRK_morph_test]" )
   tGeometryParameters.insert("geometry_id", 0);
   tGeometryParameters.insert("geometry_type", "swiss_cheese_slice");
   tInputParameters.mGeometryParameters.push_back(tGeometryParameters);
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphMoris::setParamLists(tInputParameters);
   // initialize geometry engine
   //
-  MorphTestWRK::Performers tPerformers;
+  MorphMoris::Performers tPerformers;
   tPerformers.mCurrentGEN = std::make_shared< ge::Geometry_Engine >( tInputParameters.mParametersGEN, nullptr );
   tPerformers.mCurrentBGMTK = std::make_shared< mtk::Mesh_Manager >();
   tPerformers.mCurrentOutputMTK = std::make_shared< mtk::Mesh_Manager >();
   // initialize background mesh 
   //
-  MorphTestWRK::generateModel(tInputParameters,tPerformers);
+  MorphMoris::generateModel(tInputParameters,tPerformers);
   // initialize xtk app
   //
-  //MorphTestWRK::initAppXTK(tInputParameters,tPerformers);
+  //MorphMoris::initAppXTK(tInputParameters,tPerformers);
   // test advs metadata
   //
   //moris::Matrix<moris::DDRMat> tADVs = tPerformers.mCurrentGEN->get_advs();
@@ -1012,9 +1021,9 @@ TEST_CASE( "WRK_morph_xtk_generate_model_operation_stk", "[WRK_morph_test]" )
 {
   // create parameter lists
   //
-  MorphTestWRK::InputMetaData tInputParameters;
+  MorphMoris::InputMetaData tInputParameters;
   tInputParameters.mWorkflow = "STK";
-  MorphTestWRK::createParamLists(tInputParameters);
+  MorphMoris::createParamLists(tInputParameters);
   // set parameters
   //
   moris::ParameterList tGeometryParameters;
@@ -1022,19 +1031,19 @@ TEST_CASE( "WRK_morph_xtk_generate_model_operation_stk", "[WRK_morph_test]" )
   tGeometryParameters.insert("geometry_id", 0);
   tGeometryParameters.insert("geometry_type", "swiss_cheese_slice");
   tInputParameters.mGeometryParameters.push_back(tGeometryParameters);
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphMoris::setParamLists(tInputParameters);
   // initialize geometry engine
   //
-  MorphTestWRK::Performers tPerformers;
+  MorphMoris::Performers tPerformers;
   tPerformers.mCurrentGEN = std::make_shared< ge::Geometry_Engine >( tInputParameters.mParametersGEN, nullptr );
   tPerformers.mCurrentBGMTK = std::make_shared< mtk::Mesh_Manager >();
   tPerformers.mCurrentOutputMTK = std::make_shared< mtk::Mesh_Manager >();
   // initialize background mesh 
   //
-  //MorphTestWRK::generateModel(tInputParameters,tPerformers);
+  //MorphMoris::generateModel(tInputParameters,tPerformers);
   // initialize xtk app
   //
-  //MorphTestWRK::initAppXTK(tInputParameters,tPerformers);
+  //MorphMoris::initAppXTK(tInputParameters,tPerformers);
   // test advs metadata
   //
   //moris::Matrix<moris::DDRMat> tADVs = tPerformers.mCurrentGEN->get_advs();
@@ -1049,23 +1058,23 @@ TEST_CASE( "WRK_morph_xtk_regenerate_model_operation_stk", "[WRK_morph_test]" )
 {
   // set parameters
   //
-  MorphTestWRK::InputMetaData tInputParameters;
+  MorphMoris::InputMetaData tInputParameters;
   tInputParameters.mWorkflow = "STK";
-  MorphTestWRK::createParamLists(tInputParameters);
+  MorphMoris::createParamLists(tInputParameters);
   // initialize model
   //
-  MorphTestWRK::Performers tPerformers;
-  MorphTestWRK::generateModel(tInputParameters,tPerformers);
+  MorphMoris::Performers tPerformers;
+  MorphMoris::generateModel(tInputParameters,tPerformers);
   // initialize xtk app
   //
-  MorphTestWRK::initAppXTK(tInputParameters,tPerformers);
+  MorphMoris::initAppXTK(tInputParameters,tPerformers);
   // regenerate model
   //
-  MorphTestWRK::MetaDataXTK tMetaDataXTK;
-  MorphTestWRK::regenerateModel(tMetaDataXTK,tPerformers);
+  MorphMoris::MetaDataXTK tMetaDataXTK;
+  MorphMoris::regenerateModel(tMetaDataXTK,tPerformers);
   // reinitialize model
   //
-  MorphTestWRK::initAppXTK(tInputParameters,tPerformers);
+  MorphMoris::initAppXTK(tInputParameters,tPerformers);
   // test advs metadata
   //
   moris::Matrix<moris::DDRMat> tADVs = tPerformers.mCurrentGEN->get_advs();
@@ -1078,7 +1087,9 @@ TEST_CASE( "WRK_morph_xtk_regenerate_model_operation_stk", "[WRK_morph_test]" )
 */
 
 
-///////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////// XTK-HMR WORKFLOW //////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1086,64 +1097,66 @@ TEST_CASE( "WRK_morph_hmr_xtk_workflow_initialize", "[WRK_morph_test]" )
 {
   // create input parameter lists
   //
-  MorphTestWRK::InputMetaData tInputParams;
+  MorphMoris::InputMetaData tInputParams;
   tInputParams.mWorkflow = "HMR";
-  MorphTestWRK::createParamLists(tInputParams);
+  MorphMoris::createParamLists(tInputParams);
   // set parameters for input parameter lists
   //
-  MorphTestWRK::setParamLists(tInputParams);
+  MorphMoris::setParamLists(tInputParams);
   // initialize performers
   //
-  MorphTestWRK::PerformerManager tPerformerMng;
-  MorphTestWRK::initPerformersWorkflowHmrXtk(tInputParams,tPerformerMng);
+  MorphMoris::PerformerManager tPerformerMng;
+  MorphMoris::workflow::xtkhmr::initPerformers(tInputParams,tPerformerMng);
   // initialize hmr-xtk workflow
   //
-  MorphTestWRK::initWorkflow(tInputParams,tPerformerMng);
+  MorphMoris::workflow::xtkhmr::initWorkflow(tInputParams,tPerformerMng);
 }
 
 TEST_CASE( "WRK_morph_hmr_xtk_workflow_reinitialize", "[WRK_morph_test]" )
 {
   // create input parameter lists
   //
-  MorphTestWRK::InputMetaData tInputParams;
+  MorphMoris::InputMetaData tInputParams;
   tInputParams.mWorkflow = "HMR";
-  MorphTestWRK::createParamLists(tInputParams);
+  MorphMoris::createParamLists(tInputParams);
   // set parameters for input parameter lists
   //
-  MorphTestWRK::setParamLists(tInputParams);
+  MorphMoris::setParamLists(tInputParams);
   // initialize performers
   //
-  MorphTestWRK::PerformerManager tPerformerMng;
-  MorphTestWRK::initPerformersWorkflowHmrXtk(tInputParams,tPerformerMng);  // initialize hmr workflow
+  MorphMoris::PerformerManager tPerformerMng;
+  MorphMoris::workflow::xtkhmr::initPerformers(tInputParams,tPerformerMng);  // initialize hmr workflow
   //
-  MorphTestWRK::initWorkflow(tInputParams,tPerformerMng);
+  MorphMoris::workflow::xtkhmr::initWorkflow(tInputParams,tPerformerMng);
   // reinitialize hmr workflow
   //
-  MorphTestWRK::initWorkflow(tInputParams,tPerformerMng,true);
+  MorphMoris::workflow::xtkhmr::initWorkflow(tInputParams,tPerformerMng,true);
 }
 
 TEST_CASE( "WRK_morph_hmr_xtk_workflow_perform", "[WRK_morph_test]" )
 {
   // create input parameter lists
   //
-  MorphTestWRK::InputMetaData tInputParams;
+  MorphMoris::InputMetaData tInputParams;
   tInputParams.mWorkflow = "HMR";
-  MorphTestWRK::createParamLists(tInputParams);
+  MorphMoris::createParamLists(tInputParams);
   // set parameters for input parameter lists
   //
-  MorphTestWRK::setParamLists(tInputParams);
+  MorphMoris::setParamLists(tInputParams);
   // initialize performers
   //
-  MorphTestWRK::PerformerManager tPerformerMng;
-  MorphTestWRK::initPerformersWorkflowHmrXtk(tInputParams,tPerformerMng);
+  MorphMoris::PerformerManager tPerformerMng;
+  MorphMoris::workflow::xtkhmr::initPerformers(tInputParams,tPerformerMng);
   // perform hmr-xtk workflow
   //
-  MorphTestWRK::perform(tInputParams,tPerformerMng);
+  MorphMoris::workflow::xtkhmr::perform(tInputParams,tPerformerMng);
 }
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////// STK-XTK WORKFLOW //////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-
-} // namespace MorphTestWRK
+} // namespace MorphMorisTest
