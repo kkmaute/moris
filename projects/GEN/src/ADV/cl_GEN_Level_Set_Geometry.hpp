@@ -99,7 +99,7 @@ namespace moris::ge
          * @param aNodeCoordinates Node coordinates
          * @return Geometric region enum
          */
-        Geometric_Region get_geometric_region(
+        Geometric_Region get_base_geometric_region(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aNodeCoordinates ) override;
 
@@ -138,6 +138,15 @@ namespace moris::ge
          * @return MTK field
          */
         Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+
+      private:
+        /**
+         * Determines the geometric region of a point based on a level set value
+         *
+         * @param aLevelSetValue Value of the level set function
+         * @return Geometric region enum
+         */
+        Geometric_Region determine_geometric_region( real aLevelSetValue );
 
     };
 }

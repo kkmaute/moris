@@ -13,6 +13,8 @@
 #include <memory>
 #include "cl_Matrix.hpp"
 
+#include "cl_Cell.hpp" // TODO remove
+
 // Forward declarations
 namespace moris
 {
@@ -38,6 +40,9 @@ namespace moris::ge
 
     class Geometry
     {
+      private:
+        uint mNumberOfBaseNodes;
+
       public:
 
         /**
@@ -52,9 +57,12 @@ namespace moris::ge
          * @param aNodeCoordinates Node coordinates
          * @return Geometric region enum
          */
-        virtual Geometric_Region get_geometric_region(
+        Geometric_Region get_geometric_region(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aNodeCoordinates ) = 0;
+                const Matrix< DDRMat >& aNodeCoordinates )
+        {
+            return this->get_base_geometric_region( aNodeIndex, aNodeCoordinates );
+        }
 
         /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;
@@ -91,5 +99,18 @@ namespace moris::ge
          * @return Cell of MTK fields for remeshing
          */
         virtual Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() = 0;
+
+      private:
+
+        /**
+         * Gets the geometric region of a node, based on this geometry.
+         *
+         * @param aNodeIndex Node index
+         * @param aNodeCoordinates Node coordinates
+         * @return Geometric region enum
+         */
+        virtual Geometric_Region get_base_geometric_region(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aNodeCoordinates ) = 0;
     };
 }
