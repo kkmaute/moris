@@ -22,7 +22,6 @@ namespace moris
         class Cluster
         {
           private:
-            moris::Cell< moris::mtk::Cell const * > mDummCellCell;
 
           public:
             Cluster(){};
@@ -103,7 +102,10 @@ namespace moris
             get_void_cells_in_cluster() const
             {
                 MORIS_ERROR( false, "get_void_cells_in_cluster(): not implemented for this cluster type" );
-                return mDummCellCell;
+
+                // Create a static dummy object and return a reference to it.
+                static moris::Cell< moris::mtk::Cell const * > tDummyCell;
+                return tDummyCell;
             }
 
             virtual moris::mtk::Cell const &
@@ -589,7 +591,7 @@ namespace moris
 
         };    // class MTK_Cluster
 
-              //----------------------------------------------------------------
+        //----------------------------------------------------------------
 
     }    // namespace mtk
 }    // namespace moris
