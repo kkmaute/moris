@@ -6,25 +6,20 @@
 #define MORIS_CL_MIG_SPATIAL_INDEXER_BRUTEFORCE_H
 
 
-#include "cl_MIG_Spatial_Indexer_Base.h"
+#include "cl_MIG_Spatial_Indexer.h"
 
 namespace moris::mig
 {
-    class Spatial_Indexer_BruteForce : public Spatial_Indexer_Base
+    class Spatial_Indexer_BruteForce : public Spatial_Indexer
     {
-
-
       public:
-        Spatial_Indexer_BruteForce(
-                const Matrix< DDRMat >                          &aCoordinates,
-                const moris::Cell< moris::Cell< moris_index > > &aNeighbors,
-                const Matrix< DDRMat >                          &aDisplacements,
-                const Matrix< DDRMat >                          &aVertexNormals );
+        Spatial_Indexer_BruteForce( moris::Cell< mtk::Surface_Mesh > aSurfaceMeshes, moris::Cell< std::pair< moris_index, moris_index > > aSurfacePairs )
+                : Spatial_Indexer( aSurfaceMeshes, aSurfacePairs ){};
 
-        Spatial_Indexer_BruteForce( mtk::Surface_Mesh const &aSurfaceMesh, Matrix< DDRMat > const &aDisplacements );
+        moris::Cell< Spatial_Indexing_Result > perform( real epsilon ) override;
 
-
-        moris::map< moris_index, moris_index > perform( real epsilon ) override;
+      private:
+        Spatial_Indexing_Result perform_on_mesh_pair( moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, real aEpsilon );
     };
 }    // namespace moris::mig
 

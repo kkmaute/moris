@@ -148,6 +148,10 @@ namespace moris::mtk
         {
             tCoordinates.set_row( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
         }
+        if ( mDisplacements.n_rows() > 0 )
+        {
+            tCoordinates += mDisplacements;
+        }
         return tCoordinates;
     }
 
@@ -243,13 +247,13 @@ namespace moris::mtk
     {
         return mGlobalToLocalCellIndex[ aGlobalCellIndex ];
     }
-    Matrix< DDRMat > Surface_Mesh::get_deformed_coordinates( Matrix< DDRMat > aDisplacements ) const
+    void Surface_Mesh::set_displacement( Matrix< DDRMat > aDisplacements )
     {
-        auto tCoordinates = this->get_vertex_coordinates();
-        MORIS_ASSERT( tCoordinates.numel() == aDisplacements.numel(),
-                "Spatial_Index: The number of coordinates and displacements must be the same." );
-        tCoordinates += aDisplacements;
-        return tCoordinates;
+        auto nVertices = mLocalToGlobalVertexIndex.size();
+        auto nDim      = mIGMesh->get_spatial_dim();
+        MORIS_ASSERT( aDisplacements.n_rows() == nVertices, "Number of vertices in displacement matrix does not match number of vertices in mesh" );
+        MORIS_ASSERT( aDisplacements.n_cols() == nDim, "Number of dimensions in displacement matrix does not match number of dimensions in mesh" );
+        mDisplacements = aDisplacements;
     }
 
 

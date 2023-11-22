@@ -91,6 +91,8 @@ namespace moris::mtk
 
         moris::Cell< moris::Cell< moris_index > > mSideSetToClusterIndices;
 
+        moris::Matrix< DDRMat > mDisplacements;
+
         /**
          * @brief Is used to store the normals of the facet. This member variable should not be accessed directly but via the getter function get_facet_normals().
          * It is only initialized when the getter function is called for the first time. Subsequent calls will return the already computed value.
@@ -122,7 +124,7 @@ namespace moris::mtk
          */
         [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates() const;
 
-        [[nodiscard]] Matrix< DDRMat > get_deformed_coordinates( Matrix< DDRMat > aDisplacements ) const;
+        void set_displacement( Matrix< DDRMat > aDisplacements );
 
         /**
          * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.

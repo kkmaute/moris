@@ -44,8 +44,8 @@ cl_MIG_Periodic_2D.cpp
 cl_MIG_Periodic_3D.cpp
 cl_MIG_Mesh_Editor.cpp
 cl_MIG.cpp
-        cl_MIG_Spatial_Indexer_Base.cpp
-        cl_MIG_Spatial_Indexer_Base.h
+		cl_MIG_Spatial_Indexer.cpp
+        cl_MIG_Spatial_Indexer.h
 		cl_MIG_Spatial_Indexer_BruteForce.cpp
 		cl_MIG_Spatial_Indexer_BruteForce.h
 )

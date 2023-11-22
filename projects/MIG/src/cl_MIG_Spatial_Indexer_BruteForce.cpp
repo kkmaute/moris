@@ -6,79 +6,82 @@
 
 namespace moris::mig
 {
-    Spatial_Indexer_BruteForce::Spatial_Indexer_BruteForce(
-            Matrix< DDRMat > const &                          aCoordinates,
-            moris::Cell< moris::Cell< moris_index > > const & aNeighbors,
-            Matrix< DDRMat > const &                          aDisplacements,
-            Matrix< DDRMat > const &                          aVertexNormals )
-            : Spatial_Indexer_Base( aCoordinates, aNeighbors, aDisplacements, aVertexNormals )
+    moris::Cell< Spatial_Indexing_Result > Spatial_Indexer_BruteForce::perform( real epsilon )
     {
+        moris::Cell< Spatial_Indexing_Result > tResults{ static_cast< uint >( mSurfaceMeshes.size() ) };
+        for ( auto& tPair : mSurfacePairs )
+        {
+            Spatial_Indexing_Result tNewResult = perform_on_mesh_pair( tPair.first, tPair.second, epsilon );
+            tResults( tPair.first ).merge( tNewResult );
+        }
+        return tResults;
     }
 
-    Spatial_Indexer_BruteForce::Spatial_Indexer_BruteForce( mtk::Surface_Mesh const & aSurfaceMesh, Matrix< DDRMat > const & aDisplacements )
-            : Spatial_Indexer_Base( aSurfaceMesh, aDisplacements )
+    Spatial_Indexing_Result Spatial_Indexer_BruteForce::perform_on_mesh_pair( moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, real aEpsilon )
     {
-    }
+        Spatial_Indexing_Result tResult;
+        mtk::Surface_Mesh       tSourceMesh               = mSurfaceMeshes( aSourceMeshIndex );
+        mtk::Surface_Mesh       tTargetMesh               = mSurfaceMeshes( aTargetMeshIndex );
+        bool                    tIsSelfIntersectionSearch = aSourceMeshIndex == aTargetMeshIndex;
+        Matrix< DDRMat >        tSourceCoordinates        = tSourceMesh.get_vertex_coordinates();
+        Matrix< DDRMat >        tTargetCoordinates        = tTargetMesh.get_vertex_coordinates();
+        Matrix< DDRMat >        tSourceNormals            = tSourceMesh.get_vertex_normals();
+        Matrix< DDRMat >        tTargetNormals            = tTargetMesh.get_vertex_normals();
 
-    moris::map< moris_index, moris_index > Spatial_Indexer_BruteForce::perform( real epsilon )
-    {
-        map< moris_index, moris_index > tClosestVertices;
-        auto                            tCoordinates = get_deformed_coordinates();
-        auto                            tNumVertices = static_cast< moris_index >( mCoordinates.n_rows() );
+        // if the meshes are the same, we can use the neighbor information to exclude neighboring vertices from the search
+        moris::Cell< moris::Cell< moris_index > > mNeighbors;
+        if ( tIsSelfIntersectionSearch ) mNeighbors = tSourceMesh.get_vertex_neighbors();
 
-        // outer loop over all coordinates
-        for ( moris_index first_vertex = 0; first_vertex < tNumVertices; first_vertex++ )
+        moris_index tNumSourceVertices = tSourceCoordinates.n_rows();
+        moris_index tNumTargetVertices = tTargetCoordinates.n_rows();
+
+        // outer loop over all source coordinates
+        for ( moris_index source_vertex = 0; source_vertex < tNumSourceVertices; source_vertex++ )
         {
             moris_index tClosestVertex = MORIS_INDEX_MAX;
             real        tMinDistance   = MORIS_REAL_MAX;
 
             // inner loop to compare all other coordinates to the first one
-            for ( moris_index second_vertex = 0; second_vertex < tNumVertices; second_vertex++ )
+            for ( moris_index target_vertex = 0; target_vertex < tNumTargetVertices; target_vertex++ )
             {
 
-                // skip the same vertex
-                if ( first_vertex == second_vertex )
+                if ( tIsSelfIntersectionSearch )
                 {
-                    continue;
-                }
+                    // skip the same vertex if both meshes are the same (i.e. self-intersection)
+                    if ( source_vertex == target_vertex ) continue;
 
-                // check if the second vertex is a neighbor of the first one
-                bool tIsNeighbor = false;
-                for ( auto& tNeighbor : mNeighbors( first_vertex ) )
-                {
-                    if ( tNeighbor == second_vertex )
+                    // check if the second vertex is a neighbor of the first one
+                    bool tIsNeighbor = false;
+                    for ( auto& tNeighbor : mNeighbors( source_vertex ) )
                     {
-                        tIsNeighbor = true;
-                        break;
+                        if ( tNeighbor == target_vertex )
+                        {
+                            tIsNeighbor = true;
+                            break;
+                        }
                     }
-                }
 
-                // if the second vertex is a neighbor, skip it
-                if ( tIsNeighbor ) continue;
+                    // if the second vertex is a neighbor, skip it
+                    if ( tIsNeighbor ) continue;
+                }
 
                 // check if the distance between the two vertices is smaller than the current distance
-                auto tDistance = norm( tCoordinates.get_row( first_vertex ) - tCoordinates.get_row( second_vertex ) );
+                auto tDistance = norm( tSourceCoordinates.get_row( source_vertex ) - tTargetCoordinates.get_row( target_vertex ) );
                 if ( tDistance < tMinDistance )
                 {
                     // check that vertex normals are pointing in different directions
-                    auto tDot = dot( mVertexNormals.get_row( first_vertex ), mVertexNormals.get_row( second_vertex ) );
-                    if ( tDot > 0.0 )
-                    {
-                        continue;
-                    }
+                    auto tDot = dot( tSourceNormals.get_row( source_vertex ), tTargetNormals.get_row( target_vertex ) );
+                    if ( tDot > 0.0 ) continue;
                     tMinDistance   = tDistance;
-                    tClosestVertex = second_vertex;
+                    tClosestVertex = target_vertex;
                 }
             }    // end inner loop over all coordinates
 
-            if ( tMinDistance < epsilon )
+            if ( tMinDistance < aEpsilon )
             {
-                tClosestVertices[ first_vertex ] = tClosestVertex;
+                tResult[source_vertex] = { tClosestVertex, aTargetMeshIndex, tMinDistance };
             }
         }    // end outer loop over all coordinates
-
-        return tClosestVertices;
+        return tResult;
     }
-
-
 }    // namespace moris::mig
