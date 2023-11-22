@@ -11,7 +11,7 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_FIELD_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_FIELD_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 
 using namespace moris;

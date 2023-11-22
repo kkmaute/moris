@@ -13,7 +13,7 @@
 
 #include <map>
 
-#include "typedefs.hpp"                     //MRS/COR/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src

@@ -32,7 +32,7 @@
 #include "cl_HMR_T_Matrix_Advanced.hpp"
 #include "cl_HMR_Lagrange_Edge2.hpp"
 #include "HMR_Globals.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Stopwatch.hpp"
 // #include "cl_Map.hpp"
 #include "cl_Tracer.hpp"

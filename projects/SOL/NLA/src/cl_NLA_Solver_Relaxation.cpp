@@ -13,7 +13,7 @@
 
 #include "cl_NLA_Nonlinear_Solver.hpp"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"

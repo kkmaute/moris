@@ -14,7 +14,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "SDF_Tools.hpp"
 
 #include "cl_SDF_Object.hpp"

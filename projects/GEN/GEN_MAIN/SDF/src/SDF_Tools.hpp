@@ -15,7 +15,7 @@
 #include <cmath>
 #include <limits>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src

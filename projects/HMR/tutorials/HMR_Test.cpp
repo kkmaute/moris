@@ -13,7 +13,7 @@
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Logger.hpp"
 #include "cl_GlobalClock.hpp" // MRS/IOS/src
 #include "cl_Tracer.hpp" // MRS/IOS/src

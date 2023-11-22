@@ -12,7 +12,7 @@
 #define PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_
 
 #include "cl_MTK_Cell.hpp"
-#include "typedefs.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Cell.hpp"     //MRS/CNT/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

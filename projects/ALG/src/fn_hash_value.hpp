@@ -15,7 +15,7 @@
 #include <boost/functional/hash.hpp>
 
 // MORIS header files.
-#include "typedefs.hpp" // COR/src
+#include "moris_typedefs.hpp" // COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

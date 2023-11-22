@@ -11,7 +11,7 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"

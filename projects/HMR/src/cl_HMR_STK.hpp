@@ -17,7 +17,7 @@
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_MTK_Enums.hpp" //MTK/src

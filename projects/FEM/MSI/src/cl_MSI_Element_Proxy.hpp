@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_MSI_TEST_ELEMENT_HPP_
 #define SRC_FEM_CL_MSI_TEST_ELEMENT_HPP_
 
-#include "typedefs.hpp"           //MRS/COR/src
+#include "moris_typedefs.hpp"           //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Node.hpp"         //FEM/INT/src

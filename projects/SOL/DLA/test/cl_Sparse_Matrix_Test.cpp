@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"    // ALG/src
-#include "typedefs.hpp"       // COR/src
+#include "moris_typedefs.hpp"       // COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

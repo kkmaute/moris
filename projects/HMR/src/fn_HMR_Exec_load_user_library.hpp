@@ -19,7 +19,7 @@
 #include "cl_HMR_Element.hpp"
 #include "HMR_Globals.hpp"
 #include "assert.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

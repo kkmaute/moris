@@ -12,7 +12,7 @@
 #define SRC_fn_MTK_Interpolation_Enum_Int_Conversion
 
 #include "assert.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 
 namespace moris

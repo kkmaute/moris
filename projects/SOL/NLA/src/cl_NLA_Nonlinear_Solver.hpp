@@ -11,7 +11,7 @@
 #define MORIS_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_HPP_
 
 // MORIS header files.
-#include "typedefs.hpp"    // CON/src
+#include "moris_typedefs.hpp"    // CON/src
 #include "cl_Cell.hpp"
 #include <memory>
 #include "cl_Param_List.hpp"

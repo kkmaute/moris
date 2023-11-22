@@ -13,7 +13,7 @@
 
 #include "cl_WRK_Workflow.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "typedefs.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"

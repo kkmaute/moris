@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_ADVECTIVE_MOMENTUM_FLUX_BOUNDARY_HPP_
 
 #include <map>
-#include "typedefs.hpp"                     //MRS/COR/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src

@@ -9,7 +9,7 @@
  */
 #include "cl_NLA_Solver_Pseudo_Time_Control.hpp"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_Communication_Tools.hpp"
 

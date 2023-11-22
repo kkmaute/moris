@@ -21,7 +21,7 @@
 #include <boost/variant.hpp>
 
 // MORIS library header files.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "assert.hpp"
 #include "core.hpp"
 #include "ios.hpp"

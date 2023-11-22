@@ -12,7 +12,7 @@
 #define PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_STK_XTK_HPP_
 
 #include "cl_WRK_Workflow.hpp"
-#include "typedefs.hpp"                       //MRS/COR/src
+#include "moris_typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"

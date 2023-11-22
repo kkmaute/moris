@@ -11,7 +11,7 @@
 #include "cl_TOL_Memory_Map.hpp"
 #include <iostream>
 #include <iomanip>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "assert.hpp"
 namespace moris

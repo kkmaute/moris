@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
 
 // MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 // MTK/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Interpolation_Rule.hpp"

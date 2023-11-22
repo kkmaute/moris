@@ -10,7 +10,7 @@
 #ifndef SRC_fn_MSI_get_mesh_index_for_dof_type
 #define SRC_fn_MSI_get_mesh_index_for_dof_type
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_Param_List.hpp"
 

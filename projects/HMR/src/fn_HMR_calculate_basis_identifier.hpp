@@ -11,7 +11,7 @@
 #ifndef MORIS_FN_HMR_CALCULATE_BASIS_IDENTIFIER_HPP
 #define MORIS_FN_HMR_CALCULATE_BASIS_IDENTIFIER_HPP
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris::hmr
 {

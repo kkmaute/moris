@@ -8,7 +8,12 @@
 # Main Dependencies ---------------------------------
 # ---------------------------------------------------
 
+# Mains has no config file. How can this work?
+
+return()
+
 # Check if MAIN has already been included
+
 if(DEFINED MAIN_CONFIGURED_ONCE)
     return()
 endif()

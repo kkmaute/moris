@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "cl_Communication_Tools.hpp" //COM/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Map.hpp" //CNT/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

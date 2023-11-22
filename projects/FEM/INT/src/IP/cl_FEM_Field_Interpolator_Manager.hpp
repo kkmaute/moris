@@ -14,7 +14,7 @@
 #include "assert.h"
 #include <cmath>
 
-#include "typedefs.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"

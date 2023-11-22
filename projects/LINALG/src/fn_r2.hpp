@@ -12,7 +12,7 @@
 #define PROJECTS_LINALG_SRC_FN_R2_HPP_
 
 // MORIS library header files.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "op_minus.hpp"
 #include "fn_sum.hpp"

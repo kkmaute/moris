@@ -25,7 +25,7 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Side_Set.hpp"
 #include "cl_HMR_STK.hpp" //HMR/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"
 

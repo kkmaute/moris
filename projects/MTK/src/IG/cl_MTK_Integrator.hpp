@@ -11,7 +11,7 @@
 #ifndef SRC_MTK_CL_MTK_INTEGRATOR_HPP_
 #define SRC_MTK_CL_MTK_INTEGRATOR_HPP_
 
-#include "typedefs.hpp"                     //MRS/COR/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Matrix.hpp"                    //LNA/src
 #include "cl_MTK_Enums.hpp"                 //MTK/src
 #include "cl_MTK_Integration_Rule.hpp"      //MTK/src

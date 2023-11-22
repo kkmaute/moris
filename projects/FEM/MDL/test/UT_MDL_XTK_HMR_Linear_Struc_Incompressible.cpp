@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "paths.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "HDF5_Tools.hpp"
 #include "cl_Matrix.hpp"    //LINALG
 #include "linalg_typedefs.hpp"

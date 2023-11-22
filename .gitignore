@@ -15,6 +15,7 @@ build_opt/
 tmp/
 install/
 graphviz/
+spack-*
 
 # no build links either
 *build*@

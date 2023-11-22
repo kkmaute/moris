@@ -11,7 +11,7 @@
 #ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_
 #define SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Background_Element.hpp"
 

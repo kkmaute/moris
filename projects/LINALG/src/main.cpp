@@ -11,7 +11,7 @@
 #include <mpi.h>
 
 #include "cl_Communication_Manager.hpp" // COM/src
-#include "typedefs.hpp" // COR/src
+#include "moris_typedefs.hpp" // COR/src
 #include "banner.hpp" // COR/src
 
 #include <iostream>

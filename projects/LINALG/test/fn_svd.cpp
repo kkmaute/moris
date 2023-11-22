@@ -12,7 +12,7 @@
 
 // MORIS project header files.
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 #include "linalg_typedefs.hpp"

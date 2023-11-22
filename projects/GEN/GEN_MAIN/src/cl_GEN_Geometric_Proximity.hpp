@@ -12,7 +12,7 @@
 #define MORIS_CL_Geometric_Proximity_HPP_
 
 #include "cl_Cell.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 namespace moris
 {
     namespace ge
