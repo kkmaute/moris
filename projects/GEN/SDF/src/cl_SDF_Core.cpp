@@ -128,9 +128,6 @@ namespace moris
             // time this function
             Tracer tTracer( "SDF", "Perform Ray-Cast" );
 
-            // create raycaster
-            Raycast tRaycaster( mObject );
-
             // set unsure flag of all nodes to true
             uint tNumberOfNodes = mMesh.get_num_nodes();
 
@@ -147,30 +144,30 @@ namespace moris
                     const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
 
                     // raycast on this point until the point is determined
-                    tRaycaster.raycast_point( tPoint );
+                    Object_Region tPointRegion = raycast_point( mObject, tPoint );
 
-                    switch ( tRaycaster.is_point_inside() )
+                    switch ( tPointRegion )
                     {
-                        case 0:
+                        case OUTSIDE:
                         {
                             mMesh.get_vertex( iNodeIndex )->unset_inside_flag();
                             mMesh.get_vertex( iNodeIndex )->unflag();
                             break;
                         }
-                        case 1:
+                        case INSIDE:
                         {
                             mMesh.get_vertex( iNodeIndex )->set_inside_flag();
                             mMesh.get_vertex( iNodeIndex )->unflag();
                             break;
                         }
-                        case 2:
+                        case UNSURE:
                         {
                             mMesh.get_vertex( iNodeIndex )->flag();
                             break;
                         }
                         default:
                         {
-                            MORIS_ERROR( false, "SDF_Core - raycast_mesh(): Unexpected inside condition returned from Raycast class. Inside condition = %u, should be [0,2]", tRaycaster.is_point_inside() );
+                            MORIS_ERROR( false, "SDF_Core - raycast_mesh(): Unexpected inside condition returned from Raycast class. Inside condition = %u, should be [0,2]", tPointRegion );
                         }
                     }
                 }

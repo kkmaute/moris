@@ -27,6 +27,8 @@ namespace moris
             const real                   mMeshHighPass = 1e-9;
             moris::Cell< Facet_Vertex* > mVertices;
             moris::Cell< Facet* >        mFacets;
+            Matrix< DDRMat >             mFacetMinCoords;
+            Matrix< DDRMat >             mFacetMaxCoords;
 
             const Matrix< DDRMat >& mOffsets;
             uint                    mDimension;
@@ -53,7 +55,7 @@ namespace moris
             }
 
             //-------------------------------------------------------------------------------
-            
+
             uint
             get_num_facets()
             {
@@ -68,10 +70,28 @@ namespace moris
                 return mVertices;
             }
 
+            //-------------------------------------------------------------------------------
+
             uint
             get_dimension()
             {
                 return mDimension;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            Matrix< DDRMat >&
+            get_facet_min_coords()
+            {
+                return mFacetMinCoords;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            Matrix< DDRMat >&
+            get_facet_max_coords()
+            {
+                return mFacetMaxCoords;
             }
 
             //-------------------------------------------------------------------------------

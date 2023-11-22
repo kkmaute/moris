@@ -52,6 +52,20 @@ namespace moris
                 MORIS_ERROR( false, "Object(), file type is not supported" );
             }
             MORIS_ASSERT( mNumberOfFacets == mFacets.size(), "SDF - Object(): number of facets not consistent" );
+
+            // Determine and store the minimum and maximum coordinates of each facet
+            std::cout << "dimension: " << mDimension << std::endl;
+            mFacetMinCoords.resize( mNumberOfFacets, mDimension );
+            mFacetMaxCoords.resize( mNumberOfFacets, mDimension );
+            for ( uint iFacetIndex = 0; iFacetIndex < mNumberOfFacets; iFacetIndex++ )
+            {
+                for ( uint iDimensionIndex = 0; iDimensionIndex < mDimension; iDimensionIndex++ )
+                {
+                    mFacetMinCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_min_coord( iDimensionIndex );
+
+                    mFacetMaxCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_max_coord( iDimensionIndex );
+                }
+            }
         }
 
         //-------------------------------------------------------------------------------
