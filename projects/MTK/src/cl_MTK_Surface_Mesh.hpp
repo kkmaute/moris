@@ -87,11 +87,16 @@ namespace moris::mtk
          */
         moris::Cell< moris::Cell< moris_index > > mVertexToCellIndices;
 
+        moris::Cell< std::string > mSideSetNames;
+
+        moris::Cell< moris::Cell< moris_index > > mSideSetToClusterIndices;
+
         /**
          * @brief Is used to store the normals of the facet. This member variable should not be accessed directly but via the getter function get_facet_normals().
          * It is only initialized when the getter function is called for the first time. Subsequent calls will return the already computed value.
          */
-        Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 );
+        Matrix< DDRMat >
+                mFacetNormals = Matrix< DDRMat >( 0, 0 );
 
         /**
          * @brief Is used to store the measure of the facet. This member variable should not be accessed directly but via the getter function get_facet_measure().
@@ -116,6 +121,8 @@ namespace moris::mtk
          * @return A (n x d) matrix where n is the number of vertices in the surface mesh and d is the dimension of the mesh.
          */
         [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates() const;
+
+        [[nodiscard]] Matrix< DDRMat > get_deformed_coordinates( Matrix< DDRMat > aDisplacements ) const;
 
         /**
          * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.
@@ -176,29 +183,10 @@ namespace moris::mtk
          * @brief This function initializes the surface mesh. It is called by the constructor.
          * @details The surface mesh is initialized only once. During the initialization, the mapping between the global
          * to the local indices is created. The local indices are the indices of the vertices/facets in the surface mesh (starting at 0).
-         * @param aSideSetNames All side sets for which the surface mesh should be extracted.
+         * @param mSideSetNames All side sets for which the surface mesh should be extracted.
          */
         void
-        initialize_surface_mesh( moris::Cell< std::string > const &aSideSetNames );
-
-        /**
-         * @brief Small helper function that is used in the initializer
-         * @param aCurrentCell
-         */
-        void initialize_cell( const Cell *aCurrentCell, int aCurrentCellOrdinal );
-
-        /**
-         * @brief Small helper function that is used in the initializer
-         * @param aTmpNeighborMap
-         * @param aCell
-         * @param aLocalCellIndex
-         * @param aCellOrdinal
-         */
-        void initialize_vertices(
-                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
-                const Cell                                     *aCell,
-                moris_index                                     aLocalCellIndex,
-                int                                             aCellOrdinal );
+        initialize_surface_mesh();
 
         /**
          * @brief Assigns the neighbors to each vertex in the surface mesh after the first pass over all vertices.
@@ -206,7 +194,45 @@ namespace moris::mtk
          * @param aTmpNeighborMap Map from the global vertex index to the neighbors of the vertex (also global indices). This map is only required for the initialization
          * of the surface mesh and is created in the initialization call.
          */
-        void initialize_neighbors( map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap );
+        void initialize_neighbors(
+                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap );
+
+        /**
+         * @brief Initializes the given side set (calls the cluster initializer for each cluster in the side set).
+         * @param aSideSet
+         */
+        void initialize_side_set( map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap, Set const *aSideSet );
+
+        /**
+         * @brief Initializes the given cluster (calls the cell initializer for each cell in the cluster).
+         * @param aTmpNeighborMap
+         * @param aCluster
+         */
+        void initialize_cluster(
+                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
+                Cluster const *const                           &aCluster );
+
+        /**
+         * @brief Initializes all information for the given cell.
+         * @param aCell
+         */
+        void initialize_cell(
+                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
+                const Cell                                     *aCell,
+                int                                             aCellOrdinal );
+
+        /**
+         * @brief Initializes all information for the given vertex.
+         * @param aTmpNeighborMap
+         * @param aCurrentLocalCellIndex
+         * @param aSideVertices
+         * @param aVertex
+         */
+        void initialize_vertex(
+                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
+                moris_index                                     aCurrentLocalCellIndex,
+                moris::Cell< Vertex const * >                  &aSideVertices,
+                Vertex const                                   *aVertex );
     };
 
 
