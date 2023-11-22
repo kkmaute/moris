@@ -97,7 +97,3 @@ list(INSERT @MORIS@_LIBRARIES 0 @MORIS@_general)
 add_library(@MORIS@::all_libs INTERFACE IMPORTED GLOBAL)
 target_link_libraries(@MORIS@::all_libs INTERFACE ${@MORIS@_LIBRARIES})
 
-#add_library(@MORIS@::morisCombinedLib OBJECT @moris::alllibs)
-#add_library(@MORIS@::morisCombinedLib OBJECT  ${@MORIS@_LIBRARIES})
-#add_library(morisCombinedLib ${@MORIS@_LIBRARIES})
-
