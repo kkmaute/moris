@@ -19,17 +19,15 @@ namespace moris::ge
 
     Surface_Mesh_Parameters::Surface_Mesh_Parameters( const ParameterList& aParameterList )
             : Field_Parameters( aParameterList )
-            , mIntersectionInterpolation( aParameterList.get< bool >( "multilinear_intersections" )
-                    ? Int_Interpolation::MULTILINEAR : Int_Interpolation::LINEAR ) 
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry(
-            std::shared_ptr< Field > aField,
-            Surface_Mesh_Parameters     aParameters )
-            : Design_Field( aField, aParameters )
+            const std::string&      aFilePath,
+            Surface_Mesh_Parameters aParameters )
+            : Object( aFilePath, aParameters.mOffsets )
             , mParameters( aParameters )
     {
     }
@@ -48,7 +46,22 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        // TODO: Raycast
+        sdf::Object_Region tRegion = raycast_point( this, aNodeCoordinates );
+
+        switch ( tRegion )
+        {
+            case sdf::INSIDE:
+            {
+                return POSITIVE;
+                break;
+            }
+            case sdf::OUTSIDE:
+            {
+                return NEGATIVE;
+                break;
+            }
+        }
+        return INTERFACE;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -65,35 +78,25 @@ namespace moris::ge
             const Matrix< DDUMat >&              aBackgroundElementNodeIndices,
             const Cell< Matrix< DDRMat > >&      aBackgroundElementNodeCoordinates )
     {
-            // Create linear intersection node
-            return std::make_shared< Intersection_Node_Surface_Mesh >(
-                    aEdgeFirstIntersectionNode,
-                    aEdgeSecondIntersectionNode,
-                    aEdgeFirstNodeIndex,
-                    aEdgeSecondNodeIndex,
-                    aEdgeFirstNodeGlobalCoordinates,
-                    aEdgeSecondNodeGlobalCoordinates,
-                    shared_from_this() );
+        // Create linear intersection node
+        return std::make_shared< Intersection_Node_Surface_Mesh >(
+                aEdgeFirstIntersectionNode,
+                aEdgeSecondIntersectionNode,
+                aEdgeFirstNodeIndex,
+                aEdgeSecondNodeIndex,
+                aEdgeFirstNodeGlobalCoordinates,
+                aEdgeSecondNodeGlobalCoordinates,
+                shared_from_this() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Cell< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
     {
-        // Get MTK field
-        std::shared_ptr< mtk::Field > tMTKField = this->get_mtk_field();
-
-        // Add to cell if it exists
-        if ( tMTKField )
-        {
-            return { this->get_mtk_field() };
-        }
-        else
-        {
-            return {};
-        }
+        // TODO: maybe?
+        return {};
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::ge

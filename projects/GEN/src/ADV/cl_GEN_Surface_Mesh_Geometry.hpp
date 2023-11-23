@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "fn_SDF_Raycast.hpp"
+
 #include "cl_GEN_Design_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "GEN_Data_Types.hpp"
@@ -27,23 +29,24 @@ namespace moris::ge
      */
     struct Surface_Mesh_Parameters : public Field_Parameters
     {
-        Int_Interpolation mIntersectionInterpolation; // The type of interpolation used to determine intersection location
+        Matrix< DDRMat > mOffsets;
 
         /**
          * Constructor with a given parameter list
          *
          * @param aParameterList Parameter list with level set geometry parameters
          */
-        explicit Surface_Mesh_Parameters( const ParameterList& aParameterList = prm::create_Surface_Mesh_Geometry_parameter_list() );
+        explicit Surface_Mesh_Parameters( const ParameterList& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
-    class Surface_Mesh_Geometry : public sdf::Object, public Geometry, public std::enable_shared_from_this< Surface_Mesh_Geometry > // TODO make it so we don't need enable_shared_from_this, should be possible in intersection node
+    class Surface_Mesh_Geometry : public sdf::Object
+            , public Geometry
+            , public std::enable_shared_from_this< Surface_Mesh_Geometry >    // TODO make it so we don't need enable_shared_from_this, should be possible in intersection node
     {
-    private:
+      private:
         Surface_Mesh_Parameters mParameters;
 
-    public:
-
+      public:
         /**
          * Constructor taking in a field pointer and a set of parameters.
          *
@@ -51,8 +54,8 @@ namespace moris::ge
          * @param aParameters Field parameters
          */
         explicit Surface_Mesh_Geometry(
-              std::shared_ptr< Field > aField,
-              Level_Set_Parameters     aParameters = Level_Set_Parameters() );
+                const std::string&      aFilePath,
+                Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
 
         /**
          * Gets the intersection interpolation type for this geometry.
@@ -60,13 +63,6 @@ namespace moris::ge
          * @return Intersection interpolation
          */
         Int_Interpolation get_intersection_interpolation();
-
-        /**
-         * Gets the mode of intersection used for this geometry
-         *
-         * @return Intersection_Mode enum
-         */
-        Intersection_Mode get_intersection_mode();
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -115,11 +111,9 @@ namespace moris::ge
          */
         Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
 
-        private:
-
+      private:
         void find_candidate_ancestors()
         {
-        
         }
     };
-}
+}    // namespace moris::ge
