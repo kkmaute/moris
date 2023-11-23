@@ -13,6 +13,7 @@
 
 #include "cl_GEN_Intersection_Node.hpp"
 
+
 namespace moris::ge
 {
     class Geometry;
@@ -21,39 +22,42 @@ namespace moris::ge
     {
 
         // variables
-        public:
-        
-        protected:
 
-        private:
+      public:
 
+      protected:
+        std::weak_ptr< Surface_Mesh_Geometry > mInterfaceGeometry;
+
+
+      private:
         // functions
-        public:
-            /**
-             * Constructor
-             *
-             * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
-             * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
-             * @param aFirstParentNodeIndex Index of the first parent of this node
-             * @param aSecondParentNodeIndex Index of the second parent of this node
-             * @param aFirstParentNodeLocalCoordinates Global coordinates of the first parent node
-             * @param aSecondParentNodeLocalCoordinates Global coordinates of the second parent node
-             * @param aAncestorNodeIndices Ancestor node indices
-             * @param aAncestorNodeCoordinates Ancestor node global coordinates
-             */
-            Intersection_Node_Surface_Mesh(
-                    std::shared_ptr< Intersection_Node > aFirstParentNode,
-                    std::shared_ptr< Intersection_Node > aSecondParentNode,
-                    uint                                 aFirstParentNodeIndex,
-                    uint                                 aSecondParentNodeIndex,
-                    const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
-                    const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
-                    const Matrix< DDUMat >&              aAncestorNodeIndices,
-                    const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates );
 
-        protected:
+      public:
+        /**
+         * Constructor
+         *
+         * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
+         * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
+         * @param aFirstParentNodeIndex Index of the first parent of this node
+         * @param aSecondParentNodeIndex Index of the second parent of this node
+         * @param aFirstParentNodeLocalCoordinates Global coordinates of the first parent node
+         * @param aSecondParentNodeLocalCoordinates Global coordinates of the second parent node
+         * @param aAncestorNodeIndices Ancestor node indices
+         * @param aAncestorNodeCoordinates Ancestor node global coordinates
+         */
+        Intersection_Node_Surface_Mesh(
+                std::shared_ptr< Intersection_Node > aFirstParentNode,
+                std::shared_ptr< Intersection_Node > aSecondParentNode,
+                uint                                 aFirstParentNodeIndex,
+                uint                                 aSecondParentNodeIndex,
+                const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
+                const Matrix< DDUMat >&              aAncestorNodeIndices,
+                const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates );
 
-        private:
+      protected:
+
+      private:
         /**
          * Computes the global coordinates of the intersection and the parents.
          * Used by setup() to set global coordinate member data. Implementation provided here for parent class.
@@ -71,11 +75,10 @@ namespace moris::ge
          * @return false if there is no intersection detected
          */
         bool determine_is_intersected(
-            const Element_Intersection_Type aAncestorBasisFunction,
-            const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-            const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates
-        ) override;
-       
+                const Element_Intersection_Type aAncestorBasisFunction,
+                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) override;
+
         /**
          * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
          *
@@ -84,10 +87,10 @@ namespace moris::ge
          * @param aAncestorNodeCoordinates Global coordinates of surface mesh nodes
          * @return Local coordinate of the intersection with respect to the first parent node
          */
-        real compute_local_coordinate( 
-            const Matrix< DDRMat >& aFirstParentNodeCoordinates, 
-            const Matrix< DDRMat >& aSecondParentNodeCoordinates, 
-            const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates);
+        real compute_local_coordinate(
+                const Matrix< DDRMat >&         aFirstParentNodeCoordinates,
+                const Matrix< DDRMat >&         aSecondParentNodeCoordinates,
+                const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates );
 
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
@@ -105,7 +108,7 @@ namespace moris::ge
          * @return ADV IDs
          */
         Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
-        
+
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
          * values on each of its ancestors.
@@ -131,6 +134,6 @@ namespace moris::ge
          */
         Matrix< DDRMat > get_dxi_dcoordinate_second_parent() override;
     };
-} // // namespace moris::ge
+}    // namespace moris::ge
 
-#endif // MORIS_CL_GEN_INTERSECTION_NODE_SURFACE_MESH
+#endif    // MORIS_CL_GEN_INTERSECTION_NODE_SURFACE_MESH
