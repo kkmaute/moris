@@ -19,8 +19,6 @@
 
 #include "SDF_Tools.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
-#include "cl_SDF_Triangle.hpp"
-#include "cl_SDF_Line.hpp"
 #include "fn_print.hpp"
 
 namespace moris
@@ -426,6 +424,40 @@ namespace moris
         {
             // get pointer to facet
             return mFacets( aElementIndex )->get_vertex_inds();
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Object::rotate_object( Matrix< DDRMat >& aRotationMatrix )
+        {
+            // rotate all vertices of triangle mesh
+            for ( Facet_Vertex* tVertex : mVertices )
+            {
+                tVertex->rotate_node_coords( aRotationMatrix );
+            }
+
+            // update all facets
+            for ( Facet* tFacet : mFacets )
+            {
+                tFacet->update_data();
+            }
+        }
+
+        inline void
+        Object::undo_rotation()
+        {
+            // rotate all vertices of triangle mesh
+            for ( Facet_Vertex* tVertex : aObject.get_vertices() )
+            {
+                tVertex->reset_node_coords();
+            }
+
+            // update all facets
+            for ( Facet* tFacet : aObject.get_facets() )
+            {
+                tFacet->update_data();
+            }
         }
 
         //-------------------------------------------------------------------------------

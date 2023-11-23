@@ -10,7 +10,6 @@
 
 #include "fn_sort.hpp"
 
-
 #include "fn_SDF_Raycast.hpp"
 
 namespace moris::sdf
@@ -96,7 +95,7 @@ namespace moris::sdf
         // reset the coordinates back to the orginal frame if they were rotated
         if ( tRotation )
         {
-            undo_rotation( aObject );
+            aObject.undo_rotation();
         }
 
         return tPointIsInside;
@@ -497,36 +496,9 @@ namespace moris::sdf
             tRotation              = rotation_matrix( tAxis, tAngle );
         }
 
-        // rotate all vertices of triangle mesh
-        for ( Facet_Vertex* tVertex : aObject.get_vertices() )
-        {
-            tVertex->rotate_node_coords( tRotation );
-        }
-
-        // update all facets
-        for ( Facet* tFacet : aObject.get_facets() )
-        {
-            tFacet->update_data();
-        }
-
+        aObject.rotate_object( tRotation );
         aPoint = tRotation * aPoint;
     }
-
     // -----------------------------------------------------------------------------
 
-    inline void
-    undo_rotation( Object& aObject )
-    {
-        // rotate all vertices of triangle mesh
-        for ( Facet_Vertex* tVertex : aObject.get_vertices() )
-        {
-            tVertex->reset_node_coords();
-        }
-
-        // update all facets
-        for ( Facet* tFacet : aObject.get_facets() )
-        {
-            tFacet->update_data();
-        }
-    }
 }    // namespace moris::sdf
