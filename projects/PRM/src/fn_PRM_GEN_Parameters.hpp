@@ -160,6 +160,23 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
     /**
+     * Creates a parameter list that can be used to construct a surface mesh geometry. Any number of these can be added to
+     * the second cell (index 1) of then parameter lists for GEN.
+     *
+     * @return Geometry parameter list
+     */
+    inline ParameterList
+    create_surface_mesh_geometry_parameter_list()
+    {
+        ParameterList tParameterList = create_geometry_parameter_list(); // Inserts all geometry parameters
+        tParameterList.insert( "offset", "0;0;0" );     // offset all points in the geometry by this much
+
+        return tParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    /**
      * Same as a geometry parameter list, but forces the user to specify two more parameters which name the
      * user-defined functions used to evaluate a geometry field and to evaluate sensitivities.
      *

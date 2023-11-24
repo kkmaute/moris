@@ -16,6 +16,7 @@
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_SDF_Triangle.hpp"
+#include "cl_SDF_Line.hpp"
 
 namespace moris
 {
@@ -27,6 +28,8 @@ namespace moris
             const real                   mMeshHighPass = 1e-9;
             moris::Cell< Facet_Vertex* > mVertices;
             moris::Cell< Facet* >        mFacets;
+            Matrix< DDRMat >             mFacetMinCoords;
+            Matrix< DDRMat >             mFacetMaxCoords;
 
             const Matrix< DDRMat >& mOffsets;
             uint                    mDimension;
@@ -46,6 +49,21 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            /**
+             * Performs a coordinate rotation of the object's facets and vertices
+             *
+             * @param aRotationMatrix the direction cosine matrix defining the rotation
+             */
+            void
+            rotate_object( Matrix< DDRMat >& aRotationMatrix );
+
+            //-------------------------------------------------------------------------------
+
+            void
+            undo_rotation();
+
+            //-------------------------------------------------------------------------------
+
             moris::Cell< Facet* >&
             get_facets()
             {
@@ -53,7 +71,7 @@ namespace moris
             }
 
             //-------------------------------------------------------------------------------
-            
+
             uint
             get_num_facets()
             {
@@ -68,10 +86,28 @@ namespace moris
                 return mVertices;
             }
 
+            //-------------------------------------------------------------------------------
+
             uint
             get_dimension()
             {
                 return mDimension;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            Matrix< DDRMat >&
+            get_facet_min_coords()
+            {
+                return mFacetMinCoords;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            Matrix< DDRMat >&
+            get_facet_max_coords()
+            {
+                return mFacetMaxCoords;
             }
 
             //-------------------------------------------------------------------------------

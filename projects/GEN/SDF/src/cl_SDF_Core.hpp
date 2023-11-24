@@ -15,7 +15,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_SDF_Object.hpp"
-#include "cl_SDF_Raycast.hpp"
+#include "fn_SDF_Raycast.hpp"
 #include "cl_SDF_Mesh.hpp"
 #include "cl_SDF_Parameters.hpp"
 

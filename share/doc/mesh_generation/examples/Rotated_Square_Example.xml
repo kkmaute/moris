@@ -8,22 +8,22 @@
     <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
     <Geometries>
     
-        <Geometry type="pre_defined" geom="plane"> 
+        <Geometry field_type="pre_defined" geom="plane"> 
             <Point>-0.70710678118,0.0</Point>
             <Normal>-1.0,1.0</Normal>
         </Geometry>
     
-        <Geometry type="pre_defined" geom="plane"> 
+        <Geometry field_type="pre_defined" geom="plane"> 
             <Point>-0.70710678118,0.0</Point>
             <Normal>-1.0,-1.0</Normal>
         </Geometry>
         
-        <Geometry type="pre_defined" geom="plane"> 
+        <Geometry field_type="pre_defined" geom="plane"> 
             <Point>0.70710678118,0.0</Point>
             <Normal>1.0,1.0</Normal>
         </Geometry>
         
-        <Geometry type="pre_defined" geom="plane"> 
+        <Geometry field_type="pre_defined" geom="plane"> 
             <Point>0.70710678118,0.0</Point>
             <Normal>1.0,-1.0</Normal>
         </Geometry>

@@ -19,8 +19,6 @@
 
 #include "SDF_Tools.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
-#include "cl_SDF_Triangle.hpp"
-#include "cl_SDF_Line.hpp"
 #include "fn_print.hpp"
 
 namespace moris
@@ -52,6 +50,20 @@ namespace moris
                 MORIS_ERROR( false, "Object(), file type is not supported" );
             }
             MORIS_ASSERT( mNumberOfFacets == mFacets.size(), "SDF - Object(): number of facets not consistent" );
+
+            // Determine and store the minimum and maximum coordinates of each facet
+            std::cout << "dimension: " << mDimension << std::endl;
+            mFacetMinCoords.resize( mNumberOfFacets, mDimension );
+            mFacetMaxCoords.resize( mNumberOfFacets, mDimension );
+            for ( uint iFacetIndex = 0; iFacetIndex < mNumberOfFacets; iFacetIndex++ )
+            {
+                for ( uint iDimensionIndex = 0; iDimensionIndex < mDimension; iDimensionIndex++ )
+                {
+                    mFacetMinCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_min_coord( iDimensionIndex );
+
+                    mFacetMaxCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_max_coord( iDimensionIndex );
+                }
+            }
         }
 
         //-------------------------------------------------------------------------------
@@ -412,6 +424,42 @@ namespace moris
         {
             // get pointer to facet
             return mFacets( aElementIndex )->get_vertex_inds();
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Object::rotate_object( Matrix< DDRMat >& aRotationMatrix )
+        {
+            // rotate all vertices of triangle mesh
+            for ( Facet_Vertex* tVertex : mVertices )
+            {
+                tVertex->rotate_node_coords( aRotationMatrix );
+            }
+
+            // update all facets
+            for ( Facet* tFacet : mFacets )
+            {
+                tFacet->update_data();
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Object::undo_rotation()
+        {
+            // rotate all vertices of triangle mesh
+            for ( Facet_Vertex* tVertex : mVertices )
+            {
+                tVertex->reset_node_coords();
+            }
+
+            // update all facets
+            for ( Facet* tFacet : mFacets )
+            {
+                tFacet->update_data();
+            }
         }
 
         //-------------------------------------------------------------------------------

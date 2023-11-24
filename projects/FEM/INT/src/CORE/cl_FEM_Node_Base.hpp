@@ -154,32 +154,23 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
-            /**
-             * get vertex active flags (if relevant)
-             * @param[ out ] aPdvTypes
-             * @param[ out ] aIsActiveDv
-             */
-            virtual void get_vertex_xyz_active_flags(
-                    Matrix< DDSMat >                       &aIsActiveDv,
-                    const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
+            virtual const mtk::Vertex *
+            get_geometric_vertex() const
             {
-                MORIS_ERROR( false, "Entered virtual function Node_Base::get_vertex_active_flags()" );
+                MORIS_ERROR( false, "fem::Node_Base::get_geometric_vertex() - not implemented in base class" );
+                return nullptr;
             }
 
             //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
             /**
-             * get vertex pdv ids (if relevant)
-             * @param[ out ] aPdvTypes
-             * @param[ out ] aIsActiveDv
+             * get vertex coordinates (if relevant)
+             * @param[ out ] aIndex  id for this node
              */
-            virtual void get_vertex_xyz_pdv_ids(
-                    Matrix< DDSMat >                       &aXYZPdvIds,
-                    const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
+            virtual void
+            get_vertex_coords( Matrix< DDRMat > &aVertexCoords )
             {
-                MORIS_ERROR( false, "Entered virtual function Node_Base::get_vertex_xyz_pdv_ids()" );
+                MORIS_ERROR( false, "fem::Node_Base::get_vertex_coords() - not implemented in base class" );
             }
 
             //------------------------------------------------------------------------------
@@ -191,16 +182,21 @@ namespace moris
             virtual void
             get_vertex_xyz_active_flags(
                     Matrix< DDSMat >                   &aIsActiveDv,
-                    const moris::Cell< enum PDV_Type > &aPdvTypes )
+                    const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_vertex_xyz_active_flags() - not implemented in base class" );
             }
 
-            virtual void set_local_xyz_pdv_assembly_index(
-                    moris_index       aLocalPdvAssemblyIndex,
-                    enum ge::PDV_Type aPdvType )
+            //------------------------------------------------------------------------------
+            /**
+             * set vertex active flags (if relevant)
+             * @param[ out ] aIsActiveDv
+             */
+            virtual void
+            set_vertex_xyz_active_flags(
+                    moris::Cell< Matrix< DDSMat > > &aIsActiveDv )
             {
-                MORIS_ERROR( false, "Entered virtual function Node_Base::set_local_xyz_pdv_assembly_index()" );
+                MORIS_ERROR( false, "fem::Node_Base::set_vertex_xyz_active_flags() - not implemented in base class" );
             }
 
             //------------------------------------------------------------------------------
@@ -212,17 +208,12 @@ namespace moris
             virtual void
             get_vertex_xyz_pdv_ids(
                     Matrix< DDSMat >                   &aXYZPdvIds,
-                    const moris::Cell< enum PDV_Type > &aPdvTypes )
+                    const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_vertex_xyz_pdv_ids() - not implemented in base class" );
             }
 
-            virtual void get_local_xyz_pdv_assembly_indices(
-                    Matrix< DDSMat >                       &aXYZLocalAssemblyIndices,
-                    const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
-            {
-                MORIS_ERROR( false, "Entered virtual function Node_Base::get_local_xyz_pdv_assembly_indices()" );
-            }
+            //------------------------------------------------------------------------------
 
             /**
              * set vertex active flags (if relevant)
@@ -240,7 +231,7 @@ namespace moris
             virtual void
             set_local_xyz_pdv_assembly_index(
                     moris_index   aLocalPdvAssemblyIndex,
-                    enum PDV_Type aPdvType )
+                    enum ge::PDV_Type aPdvType )
             {
                 MORIS_ERROR( false, "fem::Node_Base::set_local_xyz_pdv_assembly_index() - not implemented in base class" );
             }
@@ -258,7 +249,7 @@ namespace moris
             virtual void
             get_local_xyz_pdv_assembly_indices(
                     Matrix< DDSMat >                   &aXYZLocalAssemblyIndices,
-                    const moris::Cell< enum PDV_Type > &aPdvTypes )
+                    const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_local_xyz_pdv_assembly_indices() - not implemented in base class" );
             }
