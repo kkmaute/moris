@@ -41,7 +41,7 @@ namespace moris::ge
             , mInterfaceGeometry( aInterfaceGeometry )
     {
         // Ensure that only two ancestor nodes are provided
-        MORIS_ERROR( aAncestorNodeCoordinates.size() != 2, "GEN - Intersection_Node_Surface_Mesh - Exactly two surface mesh nodes must be supplied." );
+        MORIS_ERROR( aAncestorNodeCoordinates.size() != 2, "GEN: Intersection_Node_Surface_Mesh - Exactly two surface mesh nodes must be supplied." );
     }
 
     Matrix< DDRMat >
@@ -63,44 +63,20 @@ namespace moris::ge
         return std::numeric_limits< double >::quiet_NaN();
     }
 
+    Matrix< DDRMat > compute_raycast_rotation(
+            const Matrix< DDRMat >& aFirstParentNodeGlobalCoordinates,
+            const Matrix< DDRMat >& aSecondParentNodeGlobalCoordinates )
+    {
+        
+    }
+
     real
     Intersection_Node_Surface_Mesh::compute_local_coordinate(
             const Matrix< DDRMat >&         aFirstParentNodeCoordinates,
             const Matrix< DDRMat >&         aSecondParentNodeCoordinates,
             const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates )
     {
-        switch ( mAncestorNodeCoordinates( 0 ).numel() )
-        {
-            case 2:
-            {
-                // assign the x and y coordinates of the parent nodes
-                real tXp1 = aFirstParentNodeCoordinates( 0, 0 );
-                real tXp2 = aSecondParentNodeCoordinates( 0, 0 );
-                real tYp1 = aFirstParentNodeCoordinates( 1, 0 );
-                real tYp2 = aSecondParentNodeCoordinates( 1, 0 );
-                real tXa1 = aAncestorNodeCoordinates( 0 )( 0, 0 );
-                real tXa2 = aAncestorNodeCoordinates( 1 )( 0, 0 );
-                real tYa1 = aAncestorNodeCoordinates( 0 )( 1, 0 );
-                real tYa2 = aAncestorNodeCoordinates( 1 )( 1, 0 );
 
-                real tLocalCoordinate = ( 0.5 * ( tYp1 + tYp2 ) - tYa1 + ( ( tYa1 - tYa2 ) * ( tXp1 - 0.5 * ( tXp1 + tXp2 ) ) ) / ( tXa1 - tXa2 ) )
-                                      / ( 0.5 * ( tYp2 - tYp1 ) + 0.5 * ( tXp1 - tXp2 ) / ( tXa1 - tXa2 ) );
-
-                return tLocalCoordinate;
-            }
-            case 3:
-            {
-                // TODO: facet intersection
-                MORIS_ERROR( false, "GEN - Intersection_Node_Surface_Mesh - compute_local_coordinate: 3D Surface mesh intersections not yet implemented." );
-                return std::numeric_limits< double >::quiet_NaN();
-            }
-            default:
-            {
-                MORIS_ERROR( false, "GEN - Intersection_Node_Surface_Mesh - compute_local_coordinate: Surface Mesh intersection not implemented for %lu dimensional geometries", aFirstParentNodeCoordinates.numel() );
-                return std::numeric_limits< double >::quiet_NaN();
-            }
-        }
-        return std::numeric_limits< double >::quiet_NaN();
     }
 
     void

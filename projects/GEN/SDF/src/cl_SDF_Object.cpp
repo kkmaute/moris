@@ -444,17 +444,19 @@ namespace moris
             }
         }
 
-        inline void
+        //-------------------------------------------------------------------------------
+
+        void
         Object::undo_rotation()
         {
             // rotate all vertices of triangle mesh
-            for ( Facet_Vertex* tVertex : aObject.get_vertices() )
+            for ( Facet_Vertex* tVertex : mVertices )
             {
                 tVertex->reset_node_coords();
             }
 
             // update all facets
-            for ( Facet* tFacet : aObject.get_facets() )
+            for ( Facet* tFacet : mFacets )
             {
                 tFacet->update_data();
             }

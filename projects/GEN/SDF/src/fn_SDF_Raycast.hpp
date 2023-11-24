@@ -203,19 +203,11 @@ namespace moris::sdf
      * @param aObject the object to rotate
      * @param aPoint the cast point to rotate
      */
-    inline void
+    void
     random_rotation(
             Object&           aObject,
             Matrix< DDRMat >& aPoint );
 
     //-------------------------------------------------------------------------------
-
-    /**
-     * Resets aObject to the original coordinate frame in the event that they were rotated
-     *
-     * @param aObject the object to undo the rotation
-     */
-    inline void
-    undo_rotation( Object& aObject );
 
 }    // namespace moris::sdf

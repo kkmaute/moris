@@ -66,6 +66,8 @@ namespace moris::ge
          */
         Matrix< DDRMat > compute_global_coordinates() override;
 
+        //--------------------------------------------------------------------------------------------------------------
+
         /**
          * Determines if the parent nodes are intersected.
          * Used by initialize() to set mIsIntersected. Also sets mFirstParentOnInterface and mSecondParentOnInterface
@@ -78,6 +80,22 @@ namespace moris::ge
                 const Element_Intersection_Type aAncestorBasisFunction,
                 const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) override;
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        /**
+         * Computes the coordinate rotation matrix to move the x axis to point from the first parent node to the second parent node.
+         * Used to raycast to determine local coordinate of intersection node.
+         * 
+         * @param aFirstParentNodeGlobalCoordinates global coordinate of the first parent nodee
+         * @param aSecondParentNodeGlobalCoordinates global coordinates of the second parent node
+         * @return Matrix< DDRMat > direction cosine matrix used to rotate the coordinate frame for raycast
+         */
+        Matrix< DDRMat > compute_raycast_rotation(
+                const Matrix< DDRMat >& aFirstParentNodeGlobalCoordinates,
+                const Matrix< DDRMat >& aSecondParentNodeGlobalCoordinates );
+
+        //--------------------------------------------------------------------------------------------------------------
 
         /**
          * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
@@ -92,6 +110,8 @@ namespace moris::ge
                 const Matrix< DDRMat >&         aSecondParentNodeCoordinates,
                 const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates );
 
+        //--------------------------------------------------------------------------------------------------------------
+
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
          * ancestor nodes.
@@ -102,12 +122,16 @@ namespace moris::ge
          */
         void get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) override;
 
+        //--------------------------------------------------------------------------------------------------------------
+
         /**
          * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
          *
          * @return ADV IDs
          */
         Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
+
+        //--------------------------------------------------------------------------------------------------------------
 
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -118,6 +142,8 @@ namespace moris::ge
          */
         real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) override;
 
+        //--------------------------------------------------------------------------------------------------------------
+
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
          * coordinate values of its first parent.
@@ -126,6 +152,8 @@ namespace moris::ge
          */
         Matrix< DDRMat > get_dxi_dcoordinate_first_parent() override;
 
+        //--------------------------------------------------------------------------------------------------------------
+
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
          * coordinate values of its second parent.
@@ -133,6 +161,8 @@ namespace moris::ge
          * @return Local coordinate sensitivity
          */
         Matrix< DDRMat > get_dxi_dcoordinate_second_parent() override;
+
+        //--------------------------------------------------------------------------------------------------------------
     };
 }    // namespace moris::ge
 

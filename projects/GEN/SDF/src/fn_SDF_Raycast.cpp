@@ -475,7 +475,7 @@ namespace moris::sdf
         return static_cast< Object_Region >( ( tIntersectionsRightOfPoint + aCandidateFacets.size() ) % 2 );
     }
 
-    inline void
+    void
     random_rotation(
             Object&           aObject,
             Matrix< DDRMat >& aPoint )

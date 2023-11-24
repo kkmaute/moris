@@ -36,13 +36,15 @@ namespace moris
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node_Linear(
-                    std::shared_ptr< Intersection_Node > aFirstNode,
-                    std::shared_ptr< Intersection_Node > aSecondNode,
-                    uint                                 aFirstNodeIndex,
-                    uint                                 aSecondNodeIndex,
-                    const Matrix< DDRMat >&              aFirstNodeCoordinates,
-                    const Matrix< DDRMat >&              aSecondNodeCoordinates,
-                    std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry );
+                    std::shared_ptr< Intersection_Node >  aFirstNode,
+                    std::shared_ptr< Intersection_Node >  aSecondNode,
+                    uint                                  aFirstNodeIndex,
+                    uint                                  aSecondNodeIndex,
+                    const Matrix< DDRMat >&               aFirstNodeCoordinates,
+                    const Matrix< DDRMat >&               aSecondNodeCoordinates,
+                    std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
+
+            //--------------------------------------------------------------------------------------------------------------
 
             /**
              * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -55,6 +57,8 @@ namespace moris
                     Field*            aField,
                     Matrix< DDRMat >& aSensitivities );
 
+            //--------------------------------------------------------------------------------------------------------------
+
           private:
             /**
              * Computes the global coordinates of the intersection and the parents.
@@ -64,10 +68,12 @@ namespace moris
              */
             Matrix< DDRMat > compute_global_coordinates() override;
 
+            //--------------------------------------------------------------------------------------------------------------
+
             /**
              * Compute the difference between the phi value of the first parent node and
              * the isocontour threshold of the intersecting geometry. Implementation provided here for parent class.
-             * 
+             *
              * @param aAncestorBasisFunction the basis function type of the ancestor nodes
              * @param aParentNodeLocalCoordinates the parent node whose difference from the threshold that should be comptued
              * @param aParentNodeIndex the index of the parent node whose difference will be computed
@@ -76,8 +82,10 @@ namespace moris
              */
             real compute_diff_from_threshold(
                     const Element_Interpolation_Type aAncestorBasisFunction,
-                    const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
-                    moris_index                     aParentNodeIndex ) override;
+                    const Matrix< DDRMat >&          aParentNodeLocalCoordinates,
+                    moris_index                      aParentNodeIndex ) override;
+
+            //--------------------------------------------------------------------------------------------------------------
 
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -88,6 +96,8 @@ namespace moris
              */
             real get_dxi_dfield_from_ancestor( uint aAncestorIndex );
 
+            //--------------------------------------------------------------------------------------------------------------
+
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
              * coordinate values of its first parent.
@@ -96,6 +106,8 @@ namespace moris
              */
             Matrix< DDRMat > get_dxi_dcoordinate_first_parent();
 
+            //--------------------------------------------------------------------------------------------------------------
+
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
              * coordinate values of its second parent.
@@ -103,6 +115,8 @@ namespace moris
              * @return Local coordinate sensitivity
              */
             Matrix< DDRMat > get_dxi_dcoordinate_second_parent();
+
+            //--------------------------------------------------------------------------------------------------------------
 
             /**
              * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
@@ -115,10 +129,10 @@ namespace moris
              * @return Local coordinates
              */
             real compute_local_coordinate(
-                    uint                        aFirstNodeIndex,
-                    uint                        aSecondNodeIndex,
-                    const Matrix< DDRMat >&     aFirstNodeCoordinates,
-                    const Matrix< DDRMat >&     aSecondNodeCoordinates,
+                    uint                                  aFirstNodeIndex,
+                    uint                                  aSecondNodeIndex,
+                    const Matrix< DDRMat >&               aFirstNodeCoordinates,
+                    const Matrix< DDRMat >&               aSecondNodeCoordinates,
                     std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
         };
     }    // namespace ge
