@@ -70,6 +70,9 @@ namespace moris::hmr
 
     void Mesh_Base::create_elements()
     {
+        // report on this operation
+        MORIS_LOG_INFO( "Creating elements on HMR Mesh" );
+        
         // cell for background elements
         Cell< Background_Element_Base* > tAllBackgroundElements;
 
@@ -111,13 +114,13 @@ namespace moris::hmr
         mAllCoarsestElementsOnProc.resize( tNumberOfElements, nullptr );
 
         // loop over all coarsest elements
-        for( luint e = 0; e < tNumberOfElements; ++e )
+        for( luint iElem = 0; iElem < tNumberOfElements; ++iElem )
         {
             // get pointer to background mesh element
-            Background_Element_Base* tBackElement = mBackgroundMesh->get_coarsest_element_by_subdomain_id( e );
+            Background_Element_Base* tBackElement = mBackgroundMesh->get_coarsest_element_by_subdomain_id( iElem );
 
             // copy pointer into cell of coarsest elements
-            mAllCoarsestElementsOnProc( e ) = mAllElementsOnProc( tBackElement->get_memory_index() );
+            mAllCoarsestElementsOnProc( iElem ) = mAllElementsOnProc( tBackElement->get_memory_index() );
         }
     }
 
@@ -272,7 +275,7 @@ namespace moris::hmr
             uint tNumberOfProcNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
             // get proc neighbors from background mesh
-            const Matrix< IdMat > & tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+            const Matrix< IdMat > & tProcNeighbors = mBackgroundMesh->get_proc_neighbors();
 
             // create cell of matrices to send
             Matrix< DDLUMat > tEmptyLuint;

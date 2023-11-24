@@ -76,8 +76,7 @@ Linear_Solver::Linear_Solver(
 //{}
 
 //--------------------------------------------------------------------------------------------------
-void
-Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
+void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
 {
     if ( mCallCounter == 0 )
     {
@@ -100,8 +99,7 @@ Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > 
 }
 
 //-------------------------------------------------------------------------------------------------------
-void
-Linear_Solver::set_linear_algorithm(
+void Linear_Solver::set_linear_algorithm(
         const moris::uint                          aListEntry,
         std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
 {
@@ -116,8 +114,7 @@ Linear_Solver::set_linear_algorithm(
 }
 
 //-------------------------------------------------------------------------------------------------------
-void
-Linear_Solver::solver_linear_system(
+void Linear_Solver::solver_linear_system(
         dla::Linear_Problem* aLinearProblem,
         const moris::sint    aIter )
 {
@@ -128,6 +125,9 @@ Linear_Solver::solver_linear_system(
 
     moris::sint tMaxNumLinRestarts =
             mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
+
+    std::string tRHSMatrixType = mParameterListLinearSolver.get< std::string >( "RHS_Matrix_Type" );
+    aLinearProblem->set_rhs_matrix_type( tRHSMatrixType );
 
     // if printing of LHS requested through input file, initialize hdf5 files here
     // and save LHS before and after solve
@@ -168,16 +168,15 @@ Linear_Solver::solver_linear_system(
     // Restart the linear solver using the current solution as an initial guess if the previous linear solve failed
     while ( tErrorStatus != 0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && (moris::sint)mLinearSolverList.size() <= tMaxNumLinRestarts )
     {
-        if ( par_rank() == 0 )
-        {
-            // Compute current solution vector norm
-            Cell< moris::real > tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
 
-            MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. ",
-                    tTryRestartOnFailIt,
-                    tMaxNumLinRestarts,
-                    tSolVecNorm( 0 ) );
-        }
+        // Compute current solution vector norm
+        Cell< moris::real > tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
+
+        MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. ",
+                tTryRestartOnFailIt,
+                tMaxNumLinRestarts,
+                tSolVecNorm( 0 ) );
+
 
         // Re-solve scaled linear system with current solution as an initial guess
         tErrorStatus = mLinearSolverList( tTryRestartOnFailIt )->solve_linear_system( aLinearProblem, aIter );
@@ -188,18 +187,25 @@ Linear_Solver::solver_linear_system(
 
     if ( ( tErrorStatus != 0 ) )
     {
-        if ( par_rank() == 0 )
-        {
-            MORIS_LOG( " " );
-            MORIS_LOG( "Linear Solver status absolute value = %i", tErrorStatus );
-            MORIS_LOG( "Linear Solver did not exit with status 0!" );
-        }
+        MORIS_LOG( " " );
+        MORIS_LOG( "Linear Solver status absolute value = %i", tErrorStatus );
+        MORIS_LOG( "Linear Solver did not exit with status 0!" );
+    }
+    
+    // write out condition numbers of the matrix with and without preconditioner
+    if ( mParameterListLinearSolver.get< bool >( "DLA_operator_condition_number_with_moris" ) )
+    {
+        mLinearSolverList( 0 )->compute_operator_condition_number_with_moris();
+    }
+
+    if ( mParameterListLinearSolver.get< bool >( "DLA_prec_operator_condition_number_with_moris" ) )
+    {
+        mLinearSolverList( 0 )->compute_preconditioned_operator_condition_number_with_moris();
     }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-void
-Linear_Solver::set_linear_solver_manager_parameters()
+void Linear_Solver::set_linear_solver_manager_parameters()
 {
     // Maximal number of linear solver restarts on fail
     mParameterListLinearSolver.insert( "DLA_max_lin_solver_restarts", 0 );
@@ -209,4 +215,10 @@ Linear_Solver::set_linear_solver_manager_parameters()
 
     // Determines if lin solve should restart on fail
     mParameterListLinearSolver.insert( "DLA_rebuild_lin_solver_on_fail", false );
+
+    // RHS matrix type ( for eigen analysis )
+    mParameterListLinearSolver.insert( "RHS_Matrix_Type", "" );
+
+    mParameterListLinearSolver.insert( "DLA_operator_condition_number_with_moris", false );
+    mParameterListLinearSolver.insert( "DLA_prec_operator_condition_number_with_moris", false );
 }

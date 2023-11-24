@@ -18,6 +18,7 @@
 #include "cl_Stopwatch.hpp"    //CHR/src
 #include "cl_Cell.hpp"         //CNT/src
 #include "cl_Bitset.hpp"       //CNT/src
+#include "cl_Tracer.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -256,9 +257,9 @@ namespace moris::hmr
         luint aCount = 0;
 
         // loop over frame and count active descendants
-        for ( luint k = 0; k < tNumberOfCoarsestElements; k++ )
+        for ( luint iElem = 0; iElem < tNumberOfCoarsestElements; iElem++ )
         {
-            mCoarsestElementsIncludingAura( k )->get_number_of_active_descendants( mActivePattern, aCount );
+            mCoarsestElementsIncludingAura( iElem )->get_number_of_active_descendants( mActivePattern, aCount );
         }
 
         return aCount;
@@ -289,9 +290,6 @@ namespace moris::hmr
     void
     Background_Mesh_Base::collect_active_elements()
     {
-        // initialize the timer
-        // tic tTimer;
-
         // get number of active elements
         luint tCount = this->count_active_elements();
 
@@ -309,29 +307,14 @@ namespace moris::hmr
         luint tNumberOfElementsInFrame = mCoarsestElements.size();
 
         // loop over all elements in proc domain
-        for ( luint k = 0; k < tNumberOfElementsInFrame; ++k )
+        for ( luint iElem = 0; iElem < tNumberOfElementsInFrame; ++iElem )
         {
             // add children to array  mActiveElements
-            mCoarsestElements( k )->collect_active_descendants( mActivePattern, mActiveElements, tCount );
+            mCoarsestElements( iElem )->collect_active_descendants( mActivePattern, mActiveElements, tCount );
         }
 
-        /*  // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-            // print output
-            if ( tCount == 1 )
-            {
-            MORIS_LOG_INFO("%s Updated list of active elements.\n               Found 1 active element, took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( double ) tElapsedTime / 1000 );
-            }
-            else
-            {
-            MORIS_LOG_INFO("%s Updated list of active elements.\n               Found %lu active elements, took %5.3f seconds.\n\n",
-                        proc_string().c_str(),
-                        ( long unsigned int ) tCount,
-                        ( double ) tElapsedTime / 1000 );
-            }*/
+        // print to console that this operation has been performed
+        // MORIS_LOG_INFO( "Updated list of active elements on HMR background mesh." );
     }
 
     //-------------------------------------------------------------------------------
@@ -351,12 +334,12 @@ namespace moris::hmr
         // reset counter
         tCount = 0;
 
-        // get number of elements in proc domain
+        // get number of elements in proc domain (including aura/padding)
         luint tNumberOfElementsInFrame = mCoarsestElementsIncludingAura.size();
 
-        for ( luint k = 0; k < tNumberOfElementsInFrame; ++k )
+        for ( luint iElem = 0; iElem < tNumberOfElementsInFrame; ++iElem )
         {
-            mCoarsestElementsIncludingAura( k )->collect_active_descendants( mActivePattern, mActiveElementsIncludingAura, tCount );
+            mCoarsestElementsIncludingAura( iElem )->collect_active_descendants( mActivePattern, mActiveElementsIncludingAura, tCount );
         }
     }
 
@@ -532,21 +515,21 @@ namespace moris::hmr
 
         // step 1:  count flagged elements from active list
         // count active elements on proc including aura
-        uint tActiveElementsOnProc = mActiveElementsIncludingAura.size();
+        uint tNumActiveElementsOnProc = mActiveElementsIncludingAura.size();
 
         // reset counter
         luint tCount = 0;
 
-        for ( luint k = 0; k < tActiveElementsOnProc; ++k )
+        for ( luint iActiveElem = 0; iActiveElem < tNumActiveElementsOnProc; ++iActiveElem )
         {
             // check if element is flagged
-            if ( mActiveElementsIncludingAura( k )->is_queued_for_refinement() )
+            if ( mActiveElementsIncludingAura( iActiveElem )->is_queued_for_refinement() )
             {
                 // increment counter
                 ++tCount;
 
                 // perform padding test
-                this->check_queued_element_for_padding( mActiveElementsIncludingAura( k ) );
+                this->check_queued_element_for_padding( mActiveElementsIncludingAura( iActiveElem ) );
             }
         }
 
@@ -558,10 +541,10 @@ namespace moris::hmr
         luint tPaddingCount = 0;
 
         // loop over all coarsest padding elements
-        for ( luint k = 0; k < tNumberOfCoarsestPaddingElements; ++k )
+        for ( luint iPaddingElem = 0; iPaddingElem < tNumberOfCoarsestPaddingElements; ++iPaddingElem )
         {
             // count descendants
-            mCoarsestPaddingElements( k )->get_number_of_descendants( tPaddingCount );
+            mCoarsestPaddingElements( iPaddingElem )->get_number_of_descendants( tPaddingCount );
         }
 
         // array for padding elements
@@ -571,17 +554,17 @@ namespace moris::hmr
         tPaddingCount = 0;
 
         // collect array
-        for ( luint k = 0; k < tNumberOfCoarsestPaddingElements; ++k )
+        for ( luint iPaddingElem = 0; iPaddingElem < tNumberOfCoarsestPaddingElements; ++iPaddingElem )
         {
             // count descendants
-            mCoarsestPaddingElements( k )->collect_descendants( tAllPaddingElements, tPaddingCount );
+            mCoarsestPaddingElements( iPaddingElem )->collect_descendants( tAllPaddingElements, tPaddingCount );
         }
 
         // loop over all padding elements
-        for ( luint k = 0; k < tPaddingCount; ++k )
+        for ( luint iPaddingElem = 0; iPaddingElem < tPaddingCount; ++iPaddingElem )
         {
             // test if element is flagged for refinement
-            if ( tAllPaddingElements( k )->is_queued_for_refinement() )
+            if ( tAllPaddingElements( iPaddingElem )->is_queued_for_refinement() )
             {
                 // increment counter
                 ++tCount;
@@ -595,24 +578,24 @@ namespace moris::hmr
         tCount = 0;
 
         // step 3: add flagged elements from active list
-        for ( luint k = 0; k < tActiveElementsOnProc; ++k )
+        for ( luint iActiveElem = 0; iActiveElem < tNumActiveElementsOnProc; ++iActiveElem )
         {
-            if ( mActiveElementsIncludingAura( k )->is_queued_for_refinement() )
+            if ( mActiveElementsIncludingAura( iActiveElem )->is_queued_for_refinement() )
             {
-                mRefinementQueue( tCount++ ) = mActiveElementsIncludingAura( k );
+                mRefinementQueue( tCount++ ) = mActiveElementsIncludingAura( iActiveElem );
             }
         }
 
         // step 4: add flagged elements from padding list
 
         // loop over all padding elements
-        for ( luint k = 0; k < tPaddingCount; ++k )
+        for ( luint iPaddingElem = 0; iPaddingElem < tPaddingCount; ++iPaddingElem )
         {
             // test if element is flagged for refinement
-            if ( tAllPaddingElements( k )->is_queued_for_refinement() )
+            if ( tAllPaddingElements( iPaddingElem )->is_queued_for_refinement() )
             {
                 // copy pointer to queue
-                mRefinementQueue( tCount++ ) = tAllPaddingElements( k );
+                mRefinementQueue( tCount++ ) = tAllPaddingElements( iPaddingElem );
             }
         }
 
@@ -665,6 +648,9 @@ namespace moris::hmr
     bool
     Background_Mesh_Base::perform_refinement( const uint aPattern )
     {
+        // log & trace this operation
+        Tracer tTracer( "HMR", "Background Mesh", "Perform queued refinement on pattern #" + std::to_string( aPattern ) );
+
         // update buffer size
         mBufferSize = mParameters->get_staircase_buffer();
 
@@ -675,7 +661,7 @@ namespace moris::hmr
         Matrix< DDUMat > tElementCount( tNumberOfProcs, 1, 0 );
         Matrix< DDUMat > tElementCountOld( tNumberOfProcs, 1 );
 
-        uint tNumberOfElements = 0;
+        uint tNumberOfElementsToBeRefined = 0;
 
         bool tPatternChange = false;
         uint tOldPattern    = mActivePattern;
@@ -707,13 +693,13 @@ namespace moris::hmr
             aFlag = aFlag || this->collect_refinement_queue();
 
             // update number of elements on queue
-            tNumberOfElements = mRefinementQueue.size();
+            tNumberOfElementsToBeRefined = mRefinementQueue.size();
 
             // shift counters
             tElementCountOld = tElementCount;
 
             // broadcast element count
-            comm_gather_and_broadcast( tNumberOfElements, tElementCount );
+            comm_gather_and_broadcast( tNumberOfElementsToBeRefined, tElementCount );
 
             // make sure that element count is the same
             if ( all_true( tElementCount == tElementCountOld ) )
@@ -729,11 +715,8 @@ namespace moris::hmr
         // empty list of active elements
         mActiveElements.clear();
 
-        // start timer
-        tic tTimer;
-
         // perform refinement
-        for ( luint iElemToBeRefined = 0; iElemToBeRefined < tNumberOfElements; ++iElemToBeRefined )
+        for ( luint iElemToBeRefined = 0; iElemToBeRefined < tNumberOfElementsToBeRefined; ++iElemToBeRefined )
         {
             this->refine_element( mRefinementQueue( iElemToBeRefined ), false );
         }
@@ -744,29 +727,6 @@ namespace moris::hmr
         if ( tPatternChange )
         {
             mActivePattern = tOldPattern;
-        }
-
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        // print output
-        if ( tNumberOfElements == 1 )
-        {
-            MORIS_LOG_INFO( "%s Performed hierarchical mesh refinement.",
-                    proc_string().c_str() );
-            MORIS_LOG_INFO( "Refined 1 element, took %5.3f seconds.",
-                    (double)tElapsedTime / 1000 );
-            MORIS_LOG_INFO( " " );
-        }
-        else
-        {
-            MORIS_LOG_INFO( "%s Performed hierarchical mesh refinement.",
-                    proc_string().c_str() );
-
-            MORIS_LOG_INFO( "Refined %lu elements, took %5.3f seconds.",
-                    (long unsigned int)tNumberOfElements,
-                    (double)tElapsedTime / 1000 );
-            MORIS_LOG_INFO( " " );
         }
 
         // update database
@@ -1110,22 +1070,22 @@ namespace moris::hmr
         // reserve memory on element list
         aElementList.resize( tCount, nullptr );
 
-        // get number of elements on coarsest level
+        // get number of elements on coarsest level including aura and padding elements
         luint tNumberOfCoarsestElements = mCoarsestElementsIncludingAura.size();
 
         // reset counter
         tCount = 0;
 
         // loop over all elements on coarsest level
-        for ( luint e = 0; e < tNumberOfCoarsestElements; ++e )
+        for ( luint iElem = 0; iElem < tNumberOfCoarsestElements; ++iElem )
         {
-            mCoarsestElementsIncludingAura( e )->collect_descendants( aElementList, tCount );
+            mCoarsestElementsIncludingAura( iElem )->collect_descendants( aElementList, tCount );
         }
 
         // sets memory index for all elements
-        for ( luint k = 0; k < tCount; ++k )
+        for ( luint iActiveElem = 0; iActiveElem < tCount; ++iActiveElem )
         {
-            aElementList( k )->set_memory_index( k );
+            aElementList( iActiveElem )->set_memory_index( iActiveElem );
         }
     }
 
@@ -1134,9 +1094,6 @@ namespace moris::hmr
     void
     Background_Mesh_Base::collect_neighbors()
     {
-        // start timer
-        tic tTimer;
-
         // update counting table
         this->count_elements();
 
@@ -1166,14 +1123,8 @@ namespace moris::hmr
             }
         }
 
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        MORIS_LOG_INFO( "%s Updated neighbors for active or refined elements.",
-                proc_string().c_str() );
-        MORIS_LOG_INFO( "Took %5.3f seconds.",
-                (double)tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
+        // output that this operation was performed
+        // MORIS_LOG_INFO( "Updated neighbors for active or refined elements." );
     }
 
     //--------------------------------------------------------------------------------
@@ -1187,9 +1138,9 @@ namespace moris::hmr
         // FIXME Loop over all patterns
 
         // update local element indices
-        for ( luint k = 0; k < tNumberOfElements; ++k )
+        for ( luint iElem = 0; iElem < tNumberOfElements; ++iElem )
         {
-            mActiveElements( k )->set_domain_index( mActivePattern, k );
+            mActiveElements( iElem )->set_domain_index( mActivePattern, iElem );
         }
 
         // communicate indices to other proc
@@ -1206,9 +1157,9 @@ namespace moris::hmr
         Matrix< DDLUMat > tProcOffset( tNumberOfProcs, 1 );
         tProcOffset( 0 ) = 0;
 
-        for ( uint k = 1; k < tNumberOfProcs; ++k )
+        for ( uint iProc = 1; iProc < tNumberOfProcs; ++iProc )
         {
-            tProcOffset( k ) = tProcOffset( k - 1 ) + tElementsPerProc( k - 1 );
+            tProcOffset( iProc ) = tProcOffset( iProc - 1 ) + tElementsPerProc( iProc - 1 );
         }
 
         mMaxElementDomainIndex = tProcOffset( tNumberOfProcs - 1 ) + tElementsPerProc( tNumberOfProcs - 1 );
@@ -1217,10 +1168,10 @@ namespace moris::hmr
         tNumberOfElements = mActiveElementsIncludingAura.size();
 
         // create global indices
-        for ( luint k = 0; k < tNumberOfElements; ++k )
+        for ( luint iBgElem = 0; iBgElem < tNumberOfElements; ++iBgElem )
         {
             // get pointer to element
-            Background_Element_Base* tElement = mActiveElementsIncludingAura( k );
+            Background_Element_Base* tElement = mActiveElementsIncludingAura( iBgElem );
 
             // get owner of element
             auto tOwner = tElement->get_owner();
@@ -1232,6 +1183,9 @@ namespace moris::hmr
             tElement->set_domain_index( mActivePattern,
                     tIndex + tProcOffset( tOwner ) );
         }
+
+        // print to console that this operation has been performed
+        // MORIS_LOG_INFO( "Updated element indices on background mesh." );
     }
 
     //--------------------------------------------------------------------------------
@@ -1451,10 +1405,10 @@ namespace moris::hmr
             uint tNumberOfNeighbors = tNeighbors.size();
 
             // check neighbors of element
-            for ( uint k = 0; k < tNumberOfNeighbors; ++k )
+            for ( uint iElem = 0; iElem < tNumberOfNeighbors; ++iElem )
             {
                 // get neighbor
-                Background_Element_Base* tNeighbor = tNeighbors( k );
+                Background_Element_Base* tNeighbor = tNeighbors( iElem );
 
                 // test all neighbors
                 // test if neighbor is active and was not flagged
@@ -1505,9 +1459,9 @@ namespace moris::hmr
                                 aHalfBuffer );
                     }
                 }
-            }
-        }
-    }
+            } // end for: each neighboring element
+        } // end if: is refined level
+    } // end function: Background_Mesh_Base::create_staircase_buffer_for_element()
 
     //--------------------------------------------------------------------------------
 
@@ -1517,11 +1471,11 @@ namespace moris::hmr
         // only do something if mBufferSize is set
         if ( mBufferSize > 0 )
         {
-            // update refinement queue
-            //                this->collect_refinement_queue();
+            // // update refinement queue
+            // this->collect_refinement_queue();
 
-            // start timer
-            tic tTimer;
+            // report on this operation
+            MORIS_LOG_INFO( "Creating staircase buffer of width %u.", (unsigned int)mBufferSize );
 
             // element counter
             luint tElementCounter = 0;
@@ -1532,35 +1486,10 @@ namespace moris::hmr
             // create staircase buffer
             for ( auto tElement : mRefinementQueue )
             {
-                this->create_staircase_buffer_for_element( tElement,
+                this->create_staircase_buffer_for_element( 
+                        tElement,
                         tElementCounter,
                         tHalfBuffer );
-            }
-
-            // stop timer
-            real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-            // print output
-            if ( tElementCounter == 1 )
-            {
-                MORIS_LOG_INFO( "%s Created staircase buffer of width %u.",
-                        proc_string().c_str(),
-                        (unsigned int)mBufferSize );
-
-                MORIS_LOG_INFO( "Flagged 1 additional element for refinement, took %5.3f seconds.",
-                        (double)tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
-            }
-            else
-            {
-                MORIS_LOG_INFO( "%s Created staircase buffer of width %u.",
-                        proc_string().c_str(),
-                        (unsigned int)mBufferSize );
-
-                MORIS_LOG_INFO( "Flagged %lu additional elements for refinement, took %5.3f seconds.",
-                        (long unsigned int)tElementCounter,
-                        (double)tElapsedTime / 1000 );
-                MORIS_LOG_INFO( " " );
             }
         }
     }
@@ -1682,8 +1611,8 @@ namespace moris::hmr
     void
     Background_Mesh_Base::save_to_vtk( const std::string& aFilePath )
     {
-        // start timer
-        tic tTimer;
+        // log & trace this operation
+        Tracer tTracer( "HMR", "Background Mesh", "Save to VTK" );
 
         // modify filename
         std::string tFilePath = parallelize_path( aFilePath );
@@ -1761,7 +1690,7 @@ namespace moris::hmr
                 }
             }
 
-            // VTK celltype for Quad4
+            // VTK cell type for Quad4
             tCellType = 9;
         }
         else if ( mParameters->get_number_of_dimensions() == 3 )
@@ -1787,7 +1716,7 @@ namespace moris::hmr
                 }
             }
 
-            // VTK celltype for Hex8
+            // VTK cell type for Hex8
             tCellType = 12;
         }
 
@@ -1895,20 +1824,6 @@ namespace moris::hmr
 
             // close the output file
             tFile.close();
-
-            // stop timer
-            real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-            MORIS_LOG_INFO( "%s Created VTK debug file.",
-                    proc_string().c_str() );
-
-            MORIS_LOG_INFO( "Mesh has %lu Elements and %lu Nodes.",
-                    (long unsigned int)tNumberOfElements,
-                    (long unsigned int)tNumberOfNodes );
-
-            MORIS_LOG_INFO( "Creation took %5.3f seconds.",
-                    (double)tElapsedTime / 1000 );
-            MORIS_LOG_INFO( " " );
         }
     }
 
@@ -1917,7 +1832,8 @@ namespace moris::hmr
     void
     Background_Mesh_Base::reset_pattern( uint aPattern )
     {
-        MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern." );
+        // make sure the pattern is valid
+        MORIS_ERROR( aPattern < gNumberOfPatterns, "Background_Mesh_Base::reset_pattern() - Invalid Pattern." );
 
         // Cell containing all elements
         Cell< Background_Element_Base* > tElements;
@@ -1959,7 +1875,11 @@ namespace moris::hmr
                 }
             }
         }
-    }
+
+        // report on this operation
+        MORIS_LOG_INFO( "Reset pattern #%i on background mesh.", aPattern );
+
+    } // end function: Background_Mesh_Base::reset_pattern()
 
     // -----------------------------------------------------------------------------
 
@@ -2153,9 +2073,11 @@ namespace moris::hmr
     void
     Background_Mesh_Base::create_facets()
     {
-        tic tTimer;
-        //            uint tPattern = mParameters->get_lagrange_output_pattern();
-        //            this->set_activation_pattern( tPattern );
+        // report on this operation
+        MORIS_LOG_INFO( "Creating facets on HMR background mesh" );
+
+        // uint tPattern = mParameters->get_lagrange_output_pattern();
+        // this->set_activation_pattern( tPattern );
 
         // loop over all levels
         for ( uint l = 0; l <= mMaxLevel; ++l )
@@ -2173,15 +2095,6 @@ namespace moris::hmr
                 tElement->create_facets();
             }
         }
-
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        MORIS_LOG_INFO( "%s Created Faces on Background Mesh.",
-                proc_string().c_str() );
-        MORIS_LOG_INFO( "Creation %5.3f seconds.",
-                (double)tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
     }
 
     // -----------------------------------------------------------------------------
@@ -2189,20 +2102,21 @@ namespace moris::hmr
     void
     Background_Mesh_Base::create_faces_and_edges()
     {
-        tic tTimer;
+        // log & trace this operation
+        Tracer tTracer( "HMR", "Background Mesh", "Create faces and edges" );
 
-        // select output pattern
-        //            uint tPattern = mParameters->get_lagrange_output_pattern();
-        //            this->set_activation_pattern( tPattern );
+        // // select output pattern
+        // uint tPattern = mParameters->get_lagrange_output_pattern();
+        // this->set_activation_pattern( tPattern );
 
         // loop over all levels
-        for ( uint l = 0; l <= mMaxLevel; ++l )
+        for ( uint iLevel = 0; iLevel <= mMaxLevel; ++iLevel )
         {
             // list of all elements on this level
             Cell< Background_Element_Base* > tElementList;
 
             // collect all elements on this level
-            this->collect_elements_on_level_including_aura( l, tElementList );
+            this->collect_elements_on_level_including_aura( iLevel, tElementList );
 
             // loop over all elements
             for ( Background_Element_Base* tElement : tElementList )
@@ -2214,15 +2128,6 @@ namespace moris::hmr
                 tElement->create_edges();
             }
         }
-
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        MORIS_LOG_INFO( "%s Created Faces and Edges on Background Mesh.",
-                proc_string().c_str() );
-        MORIS_LOG_INFO( "Creation %5.3f seconds.",
-                (double)tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
     }
 
     // -----------------------------------------------------------------------------
@@ -2276,7 +2181,7 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
     void
-    Background_Mesh_Base::reset_neigbors()
+    Background_Mesh_Base::reset_neighbors()
     {
         // loop over all levels
         for ( uint l = 0; l <= mMaxLevel; ++l )
@@ -2291,7 +2196,7 @@ namespace moris::hmr
             for ( Background_Element_Base* tElement : tElementList )
             {
                 // create edges
-                tElement->reset_neigbors();
+                tElement->reset_neighbors();
             }
         }
     }
@@ -2304,6 +2209,10 @@ namespace moris::hmr
     void
     Background_Mesh_Base::update_database()
     {
+        // report this operation
+        MORIS_LOG_INFO( "Updating HMR Database" );
+        //Tracer tTracer( "HMR", "Database", "Update" );
+
         this->collect_active_elements();
         this->collect_active_elements_including_aura();
         this->update_element_indices();
@@ -2557,12 +2466,12 @@ namespace moris::hmr
     Background_Mesh_Base::clear_refinement_queue()
     {
         // loop over all levels
-        for ( uint l = 0; l <= mMaxLevel; ++l )
+        for ( uint iLevel = 0; iLevel <= mMaxLevel; ++iLevel )
         {
             // collect elements from this level
             moris::Cell< Background_Element_Base* > tElements;
 
-            this->collect_elements_on_level_including_aura( l, tElements );
+            this->collect_elements_on_level_including_aura( iLevel, tElements );
 
             // loop over all elements
             for ( Background_Element_Base* tElement : tElements )

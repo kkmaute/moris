@@ -39,6 +39,7 @@ namespace moris::ge
 
         IntersectionModeMap["LEVEL_SET"]    = Intersection_Mode::LEVEL_SET;
         IntersectionModeMap["COLORING"]     = Intersection_Mode::COLORING;
+        IntersectionModeMap["SURFACE_MESH"] = Intersection_Mode::SURFACE_MESH;
         IntersectionModeMap[""]             = Intersection_Mode::END_ENUM;
 
         return IntersectionModeMap;

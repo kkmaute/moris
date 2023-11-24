@@ -274,7 +274,7 @@ namespace moris
             if( tParamListFuncExists )
             {
                 // log that the parameter list has been recognized
-                MORIS_LOG( "Parameters provided for %s in .so file.", convert_parameter_list_enum_to_string( tParamListType ).c_str() );
+                MORIS_LOG( "Parameters for %s provided in .so file.", convert_parameter_list_enum_to_string( tParamListType ).c_str() );
 
                 // throw out a warning if unknown parameter list types are used
                 if( mSupportedParamListTypes.find( tParamListType ) == mSupportedParamListTypes.end() )

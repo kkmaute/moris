@@ -153,7 +153,7 @@ namespace moris
     std::string tVoidSets = "HMR_dummy_n_p0,HMR_dummy_c_p0";
 
     std::string tDirichletSets = "SideSet_4_n_p1,SideSet_4_n_p1";
-    std::string tLoadSets     = "SideSet_2_n_p1,SideSet_2_n_p1";
+    std::string tLoadSets      = "SideSet_2_n_p1,SideSet_2_n_p1";
 
     std::string tInterfaceVoidSets = "iside_b0_1_b1_0";
 
@@ -1189,8 +1189,8 @@ namespace moris
     void
     SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
     {
-        tParameterlist.resize( 7 );
-        for ( uint Ik = 0; Ik < 7; Ik++ )
+        tParameterlist.resize( 8 );
+        for ( uint Ik = 0; Ik < 8; Ik++ )
         {
             tParameterlist( Ik ).resize( 1 );
         }
@@ -1267,13 +1267,13 @@ namespace moris
         tParameterlist( 3 ).resize( 4 );
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 0
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
-        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );    // set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "THETA" );
         tParameterlist( 3 )( 0 ).set( "NLA_Secondary_DofTypes", "" );
 
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 1
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
-        tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );    // set nonlinear algorithm with index 0
+        tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );             // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "PHID" );
         tParameterlist( 3 )( 1 ).set( "NLA_Secondary_DofTypes", "" );
 
@@ -1285,8 +1285,8 @@ namespace moris
 
         tParameterlist( 3 )( 3 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
         tParameterlist( 3 )( 3 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
-        tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "2" );    // set nonlinear algorithm with index 1.
-        tParameterlist( 3 )( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2" );       // set sub nonlinear solvers with index 0 and 1
+        tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
+        tParameterlist( 3 )( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2" );                // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "THETA;PHID;UX,UY" );
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
@@ -1299,6 +1299,8 @@ namespace moris
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
+
+        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -82,9 +82,9 @@ namespace xtk
 
         // communication table
         moris::Cell< moris_id > mCommTable;
-        
-        // hmr accesor object for each b-spline mesh
-        moris::Cell<HMR_Helper*> mHMRHelper;
+
+        // hmr accessor object for each b-spline mesh
+        moris::Cell< HMR_Helper* > mHMRHelper;
 
       public:
         // ----------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         /**
-         * @brief This function computes the volume of the treshhold volume that will be used to determine
+         * @brief This function computes the volume of the threshold volume that will be used to determine
          *  follower and leader b-spline elements
          *
          */
@@ -278,13 +278,13 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         /**
-         * @brief This function performs the nearest neighbour exchange for the root SPGs
+         * @brief This function performs the nearest neighbor exchange for the root SPGs
          *
          * @param aMeshIndex
          */
 
         void
-        perform_nearest_neighbour_exchange( moris_index aMeshIndex );
+        perform_nearest_neighbor_exchange( moris_index aMeshIndex );
 
         // ----------------------------------------------------------------------------------
 
@@ -331,8 +331,8 @@ namespace xtk
 
         void
         handle_requested_subphase_groups_answers(
-                moris::Cell< moris::Cell< moris_id > >const &        aReceivedSubphaseGroupRootIds,
-                moris::Cell< moris::Cell< moris_id > > const &        aReceivedSubphaseGroupRootOwners,
+                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootIds,
+                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootOwners,
                 moris::Cell< moris::Cell< moris_id > > const & aNotOwnedSpgsToProcs );
 
         //-----------------------------------------------------------------------------------
@@ -349,10 +349,10 @@ namespace xtk
         determine_stopping_criteria();
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
          * @brief constructs a mCommTable based on the layout of the extended and root cells
-         * 
+         *
          */
         void
         construct_comm_table();
@@ -360,11 +360,11 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         /**
-         * @brief paralle call to detrmine the root spg ids for the not owned spgs
-         * 
+         * @brief parallel call to determine the root spg ids for the not owned spgs
+         *
          * @param aMeshIndex  aDiscretization mesh index
-         * @param aNotOwnedSpgsToProcs list of SPGS indices for each neighbouring processor ( identifier that needs to be process the data upon recieving from neighbouring processors )
-         * @param aSPGIDs SPG ids that data is needed for to be able to extende the basis ( identifier that needs to be genereated to request from neighbouring processors )
+         * @param aNotOwnedSpgsToProcs list of SPGS indices for each neighboring processor ( identifier that needs to be process the data upon receiving from neighboring processors )
+         * @param aSPGIDs SPG ids that data is needed for to be able to extended the basis ( identifier that needs to be generated to request from neighboring processors )
          */
 
 
@@ -376,13 +376,13 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         /**
-         * @brief the function that after recieving the SPG ids from the neighbouring processors prepares answers to be sent
-         * 
+         * @brief the function that after receiving the SPG ids from the neighboring processors prepares answers to be sent
+         *
          * @param aMeshIndex aDiscretization mesh index
-         * @param aSendSubphaseGroupRootBsplineElementIds input: procesor index || output: Bspline global element ids from hmr that was requested
-         * @param aSendSubphaseGroupRootBsplineBasisIds input: procesor index || output: enriched bspline basis ids present on the previous b-spline element
-         * @param aSendSubphaseGroupRootBsplineBasisOwners input: procesor index || output: enriched bspline basis owner present on the previous b-spline element
-         * @param aReceivedSPGIds list of SPG ids that the Bspline element IDs corropspond to ( identifier that will be used to prepare the data)
+         * @param aSendSubphaseGroupRootBsplineElementIds input: processor index || output: Bspline global element ids from hmr that was requested
+         * @param aSendSubphaseGroupRootBsplineBasisIds input: processor index || output: enriched bspline basis ids present on the previous b-spline element
+         * @param aSendSubphaseGroupRootBsplineBasisOwners input: processor index || output: enriched bspline basis owner present on the previous b-spline element
+         * @param aReceivedSPGIds list of SPG ids that the Bspline element IDs correspond to ( identifier that will be used to prepare the data)
          */
 
         void
@@ -393,40 +393,40 @@ namespace xtk
                 moris::Cell< moris::Cell< moris_id > > const &              aReceivedSPGIds );
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
-         * @brief after recieving the data from the neighbouring processors this function sets the data
-         * 
+         * @brief after receiving the data from the neighboring processors this function sets the data
+         *
          * @param aMeshIndex aDiscretization mesh index
-         * @param aReceivedSubphaseGroupRootBsplineElementIds input: procesor index || output: Bspline global element ids from hmr that was requested
-         * @param aReceivedSubphaseGroupRootBsplineBasisIds input: procesor index || output: enriched bspline basis ids present on the previous b-spline element
-         * @param aReceivedSubphaseGroupRootBsplineBasisOwners input: procesor index || output: enriched bspline basis owner present on the previous b-spline element
-         * @param aNotOwnedSpgsToProcs list of SPG indices that the Bspline element IDs corropspond to ( identifier that was generated for in-processor data)
+         * @param aReceivedSubphaseGroupRootBsplineElementIds input: processor index || output: Bspline global element ids from hmr that was requested
+         * @param aReceivedSubphaseGroupRootBsplineBasisIds input: processor index || output: enriched bspline basis ids present on the previous b-spline element
+         * @param aReceivedSubphaseGroupRootBsplineBasisOwners input: processor index || output: enriched bspline basis owner present on the previous b-spline element
+         * @param aNotOwnedSpgsToProcs list of SPG indices that the Bspline element IDs corresponding to ( identifier that was generated for in-processor data)
          */
         void
-        handle_requested_root_spg_projections( moris_index aMeshIndex,
-                moris::Cell< moris::Cell< moris_id > >const &        aReceivedSubphaseGroupRootBsplineElementIds,
-                moris::Cell< moris::Cell< moris_id > >const &        aReceivedSubphaseGroupRootBsplineBasisIds,
-                moris::Cell< moris::Cell< moris_id > >const &        aReceivedSubphaseGroupRootBsplineBasisOwners,
+        handle_requested_root_spg_projections( moris_index     aMeshIndex,
+                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineElementIds,
+                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineBasisIds,
+                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineBasisOwners,
                 moris::Cell< moris::Cell< moris_id > > const & aNotOwnedSpgsToProcs );
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
-         * @brief the parallel communication function that does cell to cell extension for the neighbours
-         * 
-         * @param aMeshIndex 
+         * @brief the parallel communication function that does cell to cell extension for the neighbors
+         *
+         * @param aMeshIndex
          */
         void
-        construct_follower_to_leader_basis_weights_indices_neighbours( moris_index aMeshIndex );
+        construct_follower_to_leader_basis_weights_indices_neighbors( moris_index aMeshIndex );
 
         //-----------------------------------------------------------------------------------
 
         /**
-         * @brief constructs cell extension for the extended cell based on the root cell information tat was recieved from the neighbouring processors
-         * 
-         * @param aSubphaseGroupIndex the subphase group index of the extdended cell
-         * @param aRootBsplineId the bpsline global domain id of the root cell
+         * @brief constructs cell extension for the extended cell based on the root cell information tat was received from the neighboring processors
+         *
+         * @param aSubphaseGroupIndex the subphase group index of the extended cell
+         * @param aRootBsplineId the b-spline global domain id of the root cell
          * @param aRootBsplineBasisId  the enriched basis that is present on the root cell
          * @param aRootBsplineBasisOwner the enriched basis owner that is present on the root cell
          * @param aStartRange location of the first basis id that corresponds to the root cell
@@ -434,19 +434,19 @@ namespace xtk
          */
         void
         construct_follower_to_leader_basis_relationship_for_spg(
-                moris_index              aSubphaseGroupIndex,
-                moris_id                 aRootBsplineId,
-                moris::Cell< moris_id >const & aRootBsplineBasisId,
-                moris::Cell< moris_id >const & aRootBsplineBasisOwner,
-                uint                     aStartRange,
-                uint                     aMeshIndex);
+                moris_index                     aSubphaseGroupIndex,
+                moris_id                        aRootBsplineId,
+                moris::Cell< moris_id > const & aRootBsplineBasisId,
+                moris::Cell< moris_id > const & aRootBsplineBasisOwner,
+                uint                            aStartRange,
+                uint                            aMeshIndex );
 
         //-----------------------------------------------------------------------------------
 
         /**
-         * @brief constuctrs cell to cell extension when both the extended and root cell is owned by the current processor
-         * 
-         * @param aMeshIndex 
+         * @brief constructs cell to cell extension when both the extended and root cell is owned by the current processor
+         *
+         * @param aMeshIndex
          */
         void
         construct_follower_to_leader_basis_weights_indices_mine( moris_index aMeshIndex );
@@ -454,10 +454,10 @@ namespace xtk
         //-----------------------------------------------------------------------------------
 
         /**
-         * @brief function that ensures that the replaced basis on each processor is communicated to the neighbouring processors
+         * @brief function that ensures that the replaced basis on each processor is communicated to the neighboring processors
          * such that the replacement is consistent
-         * 
-         * @param aMeshIndex 
+         *
+         * @param aMeshIndex
          */
 
         void
@@ -466,8 +466,8 @@ namespace xtk
         //-----------------------------------------------------------------------------------
 
         /**
-         * @brief function that prepares the basis data to be sent to the neighbouring processors
-         * 
+         * @brief function that prepares the basis data to be sent to the neighboring processors
+         *
          * @param aMeshIndex aDiscretization mesh index
          * @param aBasisIndexToProcs identifies for the basis index that the current processor need to modify
          * @param tSendBasisIds identifier for the basis that needs to be communicated to this processor
@@ -480,14 +480,14 @@ namespace xtk
         //-----------------------------------------------------------------------------------
 
         /**
-         * @brief function that fills in the basis data based on the tSendBasisIds identifer that was recieved from the neighbouring processors
-         * 
+         * @brief function that fills in the basis data based on the tSendBasisIds identifier that was received from the neighboring processors
+         *
          * @param aMeshIndex discretization mesh index
-         * @param tSendFollowerToLeaderBasisIds 
-         * @param tSendFollowerToLeaderBasisOwners 
-         * @param tSendFollowerToLeaderBasisWeights 
-         * @param tSendFollowerToLeaderOffset 
-         * @param aReceivedBasisIds 
+         * @param tSendFollowerToLeaderBasisIds
+         * @param tSendFollowerToLeaderBasisOwners
+         * @param tSendFollowerToLeaderBasisWeights
+         * @param tSendFollowerToLeaderOffset
+         * @param aReceivedBasisIds
          */
         void
         prepare_answers_for_follower_shared_basis(
@@ -501,32 +501,32 @@ namespace xtk
         //-----------------------------------------------------------------------------------
 
         /**
-         * @brief function that handles the recieved basis data and changes the wights and owner and thier replacement based on the recieved data
-         * 
-         * @param aMeshIndex 
-         * @param tReceivedFollwerToLeaderBasisIds 
-         * @param tReceivedFollwerToLeaderBasisOwners 
-         * @param tReceivedFollwerToLeaderBasisWeights 
-         * @param tSendFollowerToLeaderOffset 
-         * @param tBasisIndexToProcs 
+         * @brief function that handles the received basis data and changes the wights and owner and tier replacement based on the received data
+         *
+         * @param aMeshIndex
+         * @param tReceivedFollowerToLeaderBasisIds
+         * @param tReceivedFollowerToLeaderBasisOwners
+         * @param tReceivedFollowerToLeaderBasisWeights
+         * @param tSendFollowerToLeaderOffset
+         * @param tBasisIndexToProcs
          */
         void
         handle_requested_shared_follower_basis(
                 moris_index                                    aMeshIndex,
-                moris::Cell< moris::Cell< moris_id > > const & tReceivedFollwerToLeaderBasisIds,
-                moris::Cell< moris::Cell< moris_id > > const & tReceivedFollwerToLeaderBasisOwners,
-                moris::Cell< moris::Cell< real > > const &     tReceivedFollwerToLeaderBasisWeights,
+                moris::Cell< moris::Cell< moris_id > > const & tReceivedFollowerToLeaderBasisIds,
+                moris::Cell< moris::Cell< moris_id > > const & tReceivedFollowerToLeaderBasisOwners,
+                moris::Cell< moris::Cell< real > > const &     tReceivedFollowerToLeaderBasisWeights,
                 Cell< moris::Cell< moris_id > > const &        tSendFollowerToLeaderOffset,
                 moris::Cell< moris::Cell< moris_id > > const & tBasisIndexToProcs );
-        
+
         //-----------------------------------------------------------------------------------
 
         /**
-         * @brief updates the commtable based on the mCommTable and passes it to the cut integration meesh
-         * 
+         * @brief updates the communication table based on the mCommTable and passes it to the cut integration mesh
+         *
          */
         void
-        update_comm_table(); 
+        update_comm_table();
     };
 
 }    // namespace xtk

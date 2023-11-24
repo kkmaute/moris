@@ -11,8 +11,10 @@
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
+#include "cl_Bitset.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_TSA_Time_Solver.hpp"
@@ -124,12 +126,53 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
     }
 
+    uint
+    get_phase_index( const Bitset< 8 >& aGeometrySigns )
+    {
+        // phase table
+        // 0 - fluid
+        // 1 - void inlet
+        // 2 - cylinder
+        // 3 - void walls
+        // 4 - void outlet (not used)
+
+        // in between lower and upper planes
+        if ( aGeometrySigns.test( 0 ) && !aGeometrySigns.test( 1 ) )
+        {
+            // void inlet
+            if ( !aGeometrySigns.test( 2 ) )
+            {
+                return 1;
+            }
+            // void outlet
+            if ( aGeometrySigns.test( 3 ) )
+            {
+                return 4;
+            }
+            // cylinder
+            if (                                                                 //
+                    !aGeometrySigns.test( 4 ) || !aGeometrySigns.test( 5 ) ||    //
+                    !aGeometrySigns.test( 6 ) || !aGeometrySigns.test( 7 ) )
+            {
+                return 2;
+            }
+            // fluid
+            return 0;
+        }
+
+        // void walls
+        return 3;
+    }
+
     void
     GENParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
+
+        tParameterlist( 0 )( 0 ).set( "number_of_phases", 5 );
+        tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );
 
         uint tGeoCounter = 0;
 
@@ -209,7 +252,7 @@ namespace moris
         uint tIWGIndex  = 3;
         uint tIQIIndex  = 4;
         uint tFEMIndex  = 5;
-        // uint tFieldIndex   = 6;
+
         uint tPhaseIndex = 7;
 
         //------------------------------------------------------------------------------
@@ -218,22 +261,22 @@ namespace moris
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseFluid" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "175" );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "0" );
         tPhaseCounter++;
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseInlet" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "143" );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "1" );
         tPhaseCounter++;
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseCylinder" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "167,171,173,174" );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "2" );
         tPhaseCounter++;
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseWall" );
-        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "47,239" );
+        tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "3" );
         tPhaseCounter++;
 
         //------------------------------------------------------------------------------
@@ -349,7 +392,6 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "1.0" );
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropConductivity,Conductivity" );
-
         tSPCounter++;
 
         // Dirichlet Nitsche for velocity
@@ -639,8 +681,8 @@ namespace moris
     void
     SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
     {
-        tParameterlist.resize( 7 );
-        for ( uint Ik = 0; Ik < 7; Ik++ )
+        tParameterlist.resize( 8 );
+        for ( uint Ik = 0; Ik < 8; Ik++ )
         {
             tParameterlist( Ik ).resize( 1 );
         }
@@ -667,6 +709,8 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+
+        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void
@@ -687,7 +731,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tExoFile ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names", "HMR_dummy_n_p175,HMR_dummy_c_p175" );
+        tParameterlist( 0 )( 0 ).set( "Set_Names", "HMR_dummy_n_p0,HMR_dummy_c_p0" );
         tParameterlist( 0 )( 0 ).set( "Field_Names",
                 "VX,VY,P,TEMP,"
                 "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkTEMP" );
@@ -712,4 +756,3 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
-

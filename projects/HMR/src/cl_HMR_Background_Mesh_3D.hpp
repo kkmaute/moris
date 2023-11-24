@@ -1018,14 +1018,14 @@ namespace moris::hmr
             }
             else    // element has children
             {
-                // activate children if they are deactive
+                // activate children if they are deactivated
                 for ( uint k = 0; k < 8; ++k )
                 {
                     // get child
                     auto tChild = aElement->get_child( k );
 
-                    // test if child is deactive
-                    if ( tChild->is_deactive( mActivePattern ) )
+                    // test if child is deactivated
+                    if ( tChild->is_neither_active_nor_refined( mActivePattern ) )
                     {
                         // activate child
                         tChild->set_active_flag( mActivePattern );

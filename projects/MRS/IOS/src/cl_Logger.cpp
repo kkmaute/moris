@@ -215,9 +215,12 @@ namespace moris
                                   << std::flush;
                     }
                 }
-            }
-        }
-    }
+
+            }    // end if: message is of sufficient severity for console output
+
+        }        // end if: current proc is output proc
+
+    }            // end function: Logger::sign_in(
 
     // -----------------------------------------------------------------------------
 
@@ -324,12 +327,15 @@ namespace moris
                                   << std::flush;
                     }
                 }
-            }
-        }
+
+            } // end if: sufficient output severity
+
+        } // end if: current proc is output rank
 
         // decrement clock
         mGlobalClock.sign_out();
-    }
+
+    } // end function: Logger::sign_out()
 
     //------------------------------------------------------------------------------
 

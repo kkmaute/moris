@@ -61,35 +61,42 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * creates a Lagrange mesh depending on the number of dimensions set
+         * @brief creates a Lagrange mesh depending on the number of dimensions set
          *
          * @param[in] aBackgroundMesh       pointer to background mesh
+         * @param[in] aBSplineMeshes
+         * @param[in] aActivationPattern
          * @param[in] aPolynomialDegree     degree of Lagrange mesh
+         * @param[in] aMeshIndex
          *
-         * @return Mesh* pointer to new Lagrange mesh
+         * @return Lagrange_Mesh_Base* pointer to new Lagrange mesh
          */
         Lagrange_Mesh_Base*
         create_lagrange_mesh(
                 Background_Mesh_Base*      aBackgroundMesh,
                 Cell< BSpline_Mesh_Base* > aBSplineMeshes,
                 uint                       aActivationPattern,
-                luint                      aPolynomialDegree );
+                luint                      aPolynomialDegree,
+                uint                       aMeshIndex = MORIS_UINT_MAX );
 
         // ----------------------------------------------------------------------------
 
         /**
-         * creates a Lagrange mesh depending on the number of dimensions set
+         * @brief creates a Lagrange mesh depending on the number of dimensions set
          *
          * @param[in] aBackgroundMesh       pointer to background mesh
+         * @param[in] aActivationPattern    pattern (i.e. grid) used for building the mesh
          * @param[in] aPolynomialDegree     degree of Lagrange mesh
+         * @param[in] aMeshIndex            index to be assigned to the mesh
          *
-         * @return Mesh* pointer to new Lagrange mesh
+         * @return BSpline_Mesh_Base* pointer to new Lagrange mesh
          */
         BSpline_Mesh_Base*
         create_bspline_mesh(
                 Background_Mesh_Base* aBackgroundMesh,
                 uint                  aActivationPattern,
-                luint                 aPolynomialDegree );
+                luint                 aPolynomialDegree,
+                uint                  aMeshIndex = MORIS_UINT_MAX );
 
         // ----------------------------------------------------------------------------
 

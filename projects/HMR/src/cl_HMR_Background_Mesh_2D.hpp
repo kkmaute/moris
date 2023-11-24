@@ -196,7 +196,8 @@ namespace moris::hmr
             {
                 tIJK[ 0 ] = i;
 
-                this->insert_zero_level_element( tCount++,
+                this->insert_zero_level_element(
+                        tCount++,
                         new Background_Element< 2 >( (Background_Element_Base*)nullptr,
                                 mActivePattern,
                                 tIJK,
@@ -442,7 +443,7 @@ namespace moris::hmr
                 }
             }
         }
-    } // end function: Background_Mesh< 2 >::finalize_coarsest_elements()
+    }    // end function: Background_Mesh< 2 >::finalize_coarsest_elements()
 
     //-------------------------------------------------------------------------------
 
@@ -468,7 +469,8 @@ namespace moris::hmr
 
                 // ask background mesh for IDs of children
                 Matrix< DDLUMat > tIDs;
-                this->calc_element_ids( tLevel,
+                this->calc_element_ids(
+                        tLevel,
                         tIJK,
                         tIDs );
 
@@ -478,46 +480,54 @@ namespace moris::hmr
                 // child 0
                 tCIJK[ 0 ] = tIJK( 0, 0 );
                 tCIJK[ 1 ] = tIJK( 1, 0 );
-                aElement->insert_child( new Background_Element< 2 >( aElement,
-                        mActivePattern,
-                        tCIJK,
-                        tIDs( 0 ),
-                        tLevel,
-                        (uint)0,
-                        tOwner ) );
+                aElement->insert_child(
+                        new Background_Element< 2 >(
+                                aElement,
+                                mActivePattern,
+                                tCIJK,
+                                tIDs( 0 ),
+                                tLevel,
+                                (uint)0,
+                                tOwner ) );
 
                 // child 1
                 tCIJK[ 0 ] = tIJK( 0, 1 );
                 tCIJK[ 1 ] = tIJK( 1, 1 );
-                aElement->insert_child( new Background_Element< 2 >( aElement,
-                        mActivePattern,
-                        tCIJK,
-                        tIDs( 1 ),
-                        tLevel,
-                        (uint)1,
-                        tOwner ) );
+                aElement->insert_child(
+                        new Background_Element< 2 >(
+                                aElement,
+                                mActivePattern,
+                                tCIJK,
+                                tIDs( 1 ),
+                                tLevel,
+                                (uint)1,
+                                tOwner ) );
 
                 // child 2
                 tCIJK[ 0 ] = tIJK( 0, 2 );
                 tCIJK[ 1 ] = tIJK( 1, 2 );
-                aElement->insert_child( new Background_Element< 2 >( aElement,
-                        mActivePattern,
-                        tCIJK,
-                        tIDs( 2 ),
-                        tLevel,
-                        (uint)2,
-                        tOwner ) );
+                aElement->insert_child(
+                        new Background_Element< 2 >(
+                                aElement,
+                                mActivePattern,
+                                tCIJK,
+                                tIDs( 2 ),
+                                tLevel,
+                                (uint)2,
+                                tOwner ) );
 
                 // child 3
                 tCIJK[ 0 ] = tIJK( 0, 3 );
                 tCIJK[ 1 ] = tIJK( 1, 3 );
-                aElement->insert_child( new Background_Element< 2 >( aElement,
-                        mActivePattern,
-                        tCIJK,
-                        tIDs( 3 ),
-                        tLevel,
-                        (uint)3,
-                        tOwner ) );
+                aElement->insert_child(
+                        new Background_Element< 2 >(
+                                aElement,
+                                mActivePattern,
+                                tCIJK,
+                                tIDs( 3 ),
+                                tLevel,
+                                (uint)3,
+                                tOwner ) );
 
                 if ( aKeepState )
                 {
@@ -544,7 +554,7 @@ namespace moris::hmr
                         aElement->get_child( k )->set_padding_flag();
                     }
                 }
-            } // end if: element does NOT have children
+            }       // end if: element does NOT have children
             else    // element has children
             {
                 // activate children if they are inactive
@@ -553,8 +563,8 @@ namespace moris::hmr
                     // get child
                     auto tChild = aElement->get_child( k );
 
-                    // test if child is deactive
-                    if ( tChild->is_deactive( mActivePattern ) )
+                    // test if child is deactivated
+                    if ( tChild->is_neither_active_nor_refined( mActivePattern ) )
                     {
                         // activate child
                         tChild->set_active_flag( mActivePattern );
@@ -564,7 +574,7 @@ namespace moris::hmr
                 // refine element
                 aElement->set_refined_flag( mActivePattern );
             }
-        } // end if: element is 
+        }    // end if: element is
     }
 
     //-------------------------------------------------------------------------------
@@ -703,7 +713,7 @@ namespace moris::hmr
     template<>
     inline void
     Background_Mesh< 2 >::collect_coarsest_elements_on_side(
-            uint                       aSideOrdinal,
+            uint                              aSideOrdinal,
             Cell< Background_Element_Base* >& aCoarsestElementsOnSide )
     {
         // clear output cell
@@ -822,6 +832,6 @@ namespace moris::hmr
     }
 
     //-------------------------------------------------------------------------------
-}    // namespace moris
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_2D_HPP_ */

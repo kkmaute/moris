@@ -32,8 +32,6 @@ namespace moris
                 Cell< Matrix< DDRMat > >  aAncestorNodeCoordinates,
                 Element_Interpolation_Type aBasisFunction,
                 Matrix< DDRMat >          aLocalCoordinatesInAncestor )
-                : mAncestorNodeIndices( aAncestorNodeIndices )
-                , mAncestorNodeCoordinates( aAncestorNodeCoordinates )
         {
             if ( aAncestorNodeIndices.length() == 0 )
             {
@@ -41,7 +39,7 @@ namespace moris
             }
             // Check that ancestor info is consistent
             MORIS_ASSERT( aAncestorNodeIndices.length() == aAncestorNodeCoordinates.size(),
-                    "Number of ancestor node indices must be consistent with the number of sets of node coordinates" );
+                    "Child_Node::Child_Node() - Number of ancestor node indices must be consistent with the number of sets of node coordinates" );
 
             // construct interpolator and evaluate basis function
             mtk::Interpolation_Function_Factory tFactory;
@@ -58,6 +56,7 @@ namespace moris
                             mtk::Interpolation_Order::LINEAR );
 
                     tInterpolation->eval_N( aLocalCoordinatesInAncestor, mBasisValues );
+
                     break;
                 }
                 case Element_Interpolation_Type::Linear_2D:
@@ -85,6 +84,18 @@ namespace moris
                     MORIS_ERROR( false,
                             "Child_Node::Child_Node - Interpolation type not implemented." );
                 }
+            }
+
+            // get number of nodes in interpolation
+            uint tNumIpNodes = mBasisValues.numel();
+
+            // copy over only used nodes' indices and coords
+            mAncestorNodeIndices.set_size( tNumIpNodes, 1 );
+            mAncestorNodeCoordinates.resize( tNumIpNodes );
+            for ( uint iIpNode = 0; iIpNode < tNumIpNodes; iIpNode++ )
+            {
+                mAncestorNodeIndices( iIpNode )     = aAncestorNodeIndices( iIpNode );
+                mAncestorNodeCoordinates( iIpNode ) = aAncestorNodeCoordinates( iIpNode );
             }
 
             // delete interpolator

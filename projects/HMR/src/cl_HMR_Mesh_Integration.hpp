@@ -21,6 +21,7 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Set_Communicator.hpp"
 namespace moris::hmr
 {
 
@@ -201,6 +202,9 @@ namespace moris::hmr
         void
         setup_cell_clusters( Interpolation_Mesh_HMR *aInterpolationMesh )
         {
+            // report on this operation
+            MORIS_LOG_INFO( "Setting up cell clusters" );
+
             // check to see the meshes are the same (since all trivial)
             MORIS_ASSERT( this->get_num_nodes() == aInterpolationMesh->get_num_nodes(),
                     "Mismatch nodes between integration and interpolation mesh nodes. %-5i | %-5i",
@@ -265,9 +269,12 @@ namespace moris::hmr
         void
         setup_blockset_with_cell_clusters()
         {
+            // report on this operation
+            MORIS_LOG_INFO( "Setting up block sets" );
+
             // construct integration to cell cluster relationship
-            moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex(
-                    this->get_num_entities(mtk::EntityRank::ELEMENT),
+            moris::Cell< moris::moris_index > tPrimaryIntegrationCellToClusterIndex(
+                    this->get_num_entities( mtk::EntityRank::ELEMENT ),
                     MORIS_INDEX_MAX );
 
             // iterate through clusters
@@ -344,14 +351,17 @@ namespace moris::hmr
 
             mListOfBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListOfBlocks.size(); Ik++ )
+            for ( uint iBlockSet = 0; iBlockSet < mListOfBlocks.size(); iBlockSet++ )
             {
-                mListOfBlocks( Ik ) = new moris::mtk::Block(
-                        tBlockSetNames( Ik ),
-                        this->get_cell_clusters_in_set( Ik ),
+                mListOfBlocks( iBlockSet ) = new moris::mtk::Block(
+                        tBlockSetNames( iBlockSet ),
+                        this->get_cell_clusters_in_set( iBlockSet ),
                         { { 0 } },
                         this->get_spatial_dim() );
             }
+
+            // communicate block sets
+            mtk::Set_Communicator tSetCommunicator( mListOfBlocks );
         }
 
         //-------------------------------------------------------------------------------
@@ -359,9 +369,13 @@ namespace moris::hmr
         /*
          *  setup the side set cluster interface
          */
-        void setup_side_set_clusters( Interpolation_Mesh_HMR * aInterpMesh )
+        void
+        setup_side_set_clusters( Interpolation_Mesh_HMR *aInterpMesh )
         {
-            moris::Cell<std::string> aSideSetNames = this->get_set_names( mtk::EntityRank::FACE );
+            // report on this operation
+            MORIS_LOG_INFO( "Setting up side set clusters" );
+
+            moris::Cell< std::string > aSideSetNames = this->get_set_names( mtk::EntityRank::FACE );
 
             mSideSets.resize( aSideSetNames.size() );
 
@@ -369,9 +383,9 @@ namespace moris::hmr
             mSideSetLabels.append( aSideSetNames );
 
             // cell info to use for setting up local coords
-            mtk::CellTopology tCellTopo = this->get_blockset_topology( "" );
-            mtk::Cell_Info_Factory tFactory;
-            std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = tFactory.create_cell_info_sp(tCellTopo);
+            mtk::CellTopology                        tCellTopo = this->get_blockset_topology( "" );
+            mtk::Cell_Info_Factory                   tFactory;
+            std::shared_ptr< moris::mtk::Cell_Info > tCellInfo = tFactory.create_cell_info_sp( tCellTopo );
 
             // add to map
             for ( moris::uint i = 0; i < aSideSetNames.size(); i++ )
@@ -423,10 +437,18 @@ namespace moris::hmr
 
             mListOfSideSets.resize( mSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
+            for ( uint iSideSet = 0; iSideSet < mListOfSideSets.size(); iSideSet++ )
             {
-                mListOfSideSets( Ik ) = new moris::mtk::Side_Set( aSideSetNames( Ik ), this->get_side_set_cluster( Ik ), { { 0 } }, this->get_spatial_dim() );
+                mListOfSideSets( iSideSet ) =
+                        new moris::mtk::Side_Set(
+                                aSideSetNames( iSideSet ),
+                                this->get_side_set_cluster( iSideSet ),
+                                { { 0 } },
+                                this->get_spatial_dim() );
             }
+
+            // communicate information across all sets
+            mtk::Set_Communicator tSetCommunicator( mListOfSideSets );
         }
 
         //-------------------------------------------------------------------------------
@@ -434,15 +456,15 @@ namespace moris::hmr
         mtk::EntityRank
         get_cell_rank()
         {
-            if(this->get_spatial_dim() == 1)
+            if ( this->get_spatial_dim() == 1 )
             {
                 return mtk::EntityRank::FACE;
             }
-            else if(this->get_spatial_dim() == 2)
+            else if ( this->get_spatial_dim() == 2 )
             {
                 return mtk::EntityRank::ELEMENT;
             }
-            else if (this->get_spatial_dim() == 3)
+            else if ( this->get_spatial_dim() == 3 )
             {
                 return mtk::EntityRank::ELEMENT;
             }

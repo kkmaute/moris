@@ -122,7 +122,7 @@ namespace xtk
         //------------------------------------------------------------------------------
         // MTK Mesh Core Functionality (see base class mtk::Mesh for documentation)
         //------------------------------------------------------------------------------
-        mtk::MeshType                                    get_mesh_type() const;
+        mtk::MeshType                               get_mesh_type() const;
         moris::uint                                 get_spatial_dim() const;
         uint                                        get_num_entities( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
         Matrix< IndexMat >                          get_entity_connected_to_entity_loc_inds( moris_index aEntityIndex, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const;
@@ -351,7 +351,7 @@ namespace xtk
          */
         moris::Cell< std::string >
         get_field_names(
-                mtk::EntityRank   aEntityRank,
+                mtk::EntityRank          aEntityRank,
                 const moris::moris_index aSetOrdinal = MORIS_INDEX_MAX );
 
         //------------------------------------------------------------------------------
@@ -365,9 +365,9 @@ namespace xtk
          */
         moris::moris_index
         create_field(
-                std::string            aLabel,
-                mtk::EntityRank aEntityRank,
-                moris::moris_index     aSetOrdinal = MORIS_INDEX_MAX );
+                std::string        aLabel,
+                mtk::EntityRank    aEntityRank,
+                moris::moris_index aSetOrdinal = MORIS_INDEX_MAX );
 
         //------------------------------------------------------------------------------
 
@@ -377,9 +377,9 @@ namespace xtk
          */
         moris::moris_index
         get_field_index(
-                const std::string            aLabel,
-                const mtk::EntityRank aEntityRank,
-                const moris::moris_index     aSetOrdinal = MORIS_INDEX_MAX );
+                const std::string        aLabel,
+                const mtk::EntityRank    aEntityRank,
+                const moris::moris_index aSetOrdinal = MORIS_INDEX_MAX );
 
         //------------------------------------------------------------------------------
 
@@ -392,7 +392,7 @@ namespace xtk
         void
         add_field_data(
                 moris::moris_index      aFieldIndex,
-                mtk::EntityRank  aEntityRank,
+                mtk::EntityRank         aEntityRank,
                 Matrix< DDRMat > const &aFieldData,
                 moris::moris_index      aSetOrdinal = MORIS_INDEX_MAX );
 
@@ -406,9 +406,9 @@ namespace xtk
          */
         Matrix< DDRMat > const &
         get_field_data(
-                moris::moris_index     aFieldIndex,
-                mtk::EntityRank aEntityRank,
-                moris::moris_index     aSetOrdinal = MORIS_INDEX_MAX ) const;
+                moris::moris_index aFieldIndex,
+                mtk::EntityRank    aEntityRank,
+                moris::moris_index aSetOrdinal = MORIS_INDEX_MAX ) const;
 
         //------------------------------------------------------------------------------
 
@@ -569,6 +569,14 @@ namespace xtk
 
         void
         commit_block_set( moris_index const &aBlockSetIndex );
+
+        //------------------------------------------------------------------------------
+
+      public:
+        void
+        communicate_sets_of_type( const mtk::SetType aSetType );
+
+        //------------------------------------------------------------------------------
 
       private:
         //------------------------------------------------------------------------------
@@ -781,9 +789,9 @@ namespace xtk
          */
         bool
         field_exists(
-                const std::string            aLabel,
-                const mtk::EntityRank aEntityRank,
-                const moris::moris_index     aSetOrdinal );
+                const std::string        aLabel,
+                const mtk::EntityRank    aEntityRank,
+                const moris::moris_index aSetOrdinal );
 
 
     };    // class Enriched_Integration_Mesh

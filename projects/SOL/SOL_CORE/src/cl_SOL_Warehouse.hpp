@@ -33,6 +33,7 @@ namespace moris
         class Linear_Solver_Algorithm;
         class Linear_Solver;
         class Eigen_Solver;
+        class Preconditioner;
 
     }    // namespace dla
     namespace NLA
@@ -69,6 +70,9 @@ namespace moris
           private:
             // Pointer to the solver interface
             moris::Solver_Interface* mSolverInterface;
+
+            // list of preconditioners
+            Cell< dla::Preconditioner* > mPreconditioners;
 
             // List of solver algorithms and solvers
             Cell< std::shared_ptr< dla::Linear_Solver_Algorithm > > mLinearSolverAlgorithms;
@@ -115,6 +119,15 @@ namespace moris
 
             // RHS Matrix Type
             std::string mRHSMatType = std::string( "" );
+
+            //--------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Create a preconditioner algorithms object
+             *
+             */
+
+            void create_preconditioner_algorithms();
 
             //--------------------------------------------------------------------------------------------------------
 

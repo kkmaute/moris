@@ -33,6 +33,8 @@ Amesos_GenOp::Amesos_GenOp(
     {
         MORIS_ERROR( false, "Amesos_GenOp constructor: mMassMatrix is null" );
     }
+    
+    mEpetraProblem = const_cast<Epetra_LinearProblem*> (mSolver->GetProblem ());
 
     if ( mEpetraProblem == NULL )
     {

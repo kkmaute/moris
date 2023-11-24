@@ -39,7 +39,7 @@ Linear_Solver_Aztec::Linear_Solver_Aztec()
 //----------------------------------------------------------------------------------------
 
 Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterlist )
-        : Linear_Solver_Algorithm( aParameterlist )
+        : Linear_Solver_Algorithm_Trilinos( aParameterlist )
 {
 }
 
@@ -82,19 +82,20 @@ Linear_Solver_Aztec::set_solver_parameters()
 
 //----------------------------------------------------------------------------------------
 
-void
+bool
 Linear_Solver_Aztec::build_external_preconditioner( const sint& aIter )
 {
-    // Initialize preconditioner in first iteration
-    if ( aIter <= 1 )
+    // if it is not null
+    if ( mPreconditioner )
     {
-        mPreconditioner.initialize(
-                mParameterList,
-                mLinearSystem );
+        // build preconditioner
+        mPreconditioner->build( mLinearSystem, aIter );
+
+        // check if preconditioner exists
+        return mPreconditioner->exists();
     }
 
-    // build preconditioner
-    mPreconditioner.build( aIter );
+    return false;
 }
 
 // -----------------------------------------------------------------------------------
@@ -123,12 +124,12 @@ Linear_Solver_Aztec::solve_linear_system()
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
     // Build preconditioner based on input parameters
-    this->build_external_preconditioner();
+    bool tPreconditionerIsBuilt = this->build_external_preconditioner();
 
     // Set external preconditioner if exists
-    if ( mPreconditioner.exists() )
+    if ( tPreconditionerIsBuilt )
     {
-        mAztecSolver->SetPrecOperator( mPreconditioner.get_operator().get() );
+        mAztecSolver->SetPrecOperator( mPreconditioner->get_operator().get() );
     }
 
     // Solve the linear system
@@ -186,7 +187,7 @@ Linear_Solver_Aztec::solve_linear_system(
     moris::real tRelRes = mParameterList.get< moris::real >( "rel_residual" );
 
     // initialize and build external preconditioner based on input parameters
-    this->build_external_preconditioner( aIter );
+    bool tPreconditionerIsBuilt =  this->build_external_preconditioner( aIter );
 
     // initialize error flag
     moris::sint error = 0;
@@ -218,9 +219,9 @@ Linear_Solver_Aztec::solve_linear_system(
             }
 
             // Set external preconditioner if exists
-            if ( mPreconditioner.exists() )
+            if ( tPreconditionerIsBuilt )
             {
-                mAztecSolver->SetPrecOperator( mPreconditioner.get_operator().get() );
+                mAztecSolver->SetPrecOperator( mPreconditioner->get_operator().get() );
             }
         }
         else

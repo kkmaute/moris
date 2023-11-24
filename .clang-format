@@ -22,7 +22,6 @@ AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: false
-AlwaysBreakAfterDefinitionReturnType: true
 BinPackArguments: false
 BinPackParameters: false
 BraceWrapping:

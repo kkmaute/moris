@@ -79,7 +79,7 @@ namespace xtk
         /**
          * fills a moris::cell with pointers to connected vertices
          */
-        // FIXME: SDF's Triangle_Vertex causes this to not be able to return a reference.
+        // FIXME: SDF's Facet_Vertex causes this to not be able to return a reference.
         moris::Cell< mtk::Vertex * >
         get_vertex_pointers() const;
 
