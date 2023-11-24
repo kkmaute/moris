@@ -17,17 +17,17 @@
 namespace moris::ge
 {
     Intersection_Node_Level_Set::Intersection_Node_Level_Set(
-            real                                 aLocalCoordinate,
-            std::shared_ptr< Intersection_Node > aFirstParentNode,
-            std::shared_ptr< Intersection_Node > aSecondParentNode,
-            moris_index                          aFirstParentNodeIndex,
-            moris_index                          aSecondParentNodeIndex,
-            const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
-            const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
-            Matrix< DDUMat >                     aAncestorNodeIndices,
-            Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-            const Element_Interpolation_Type     aAncestorBasisFunction,
-            std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry )
+            real                                  aLocalCoordinate,
+            std::shared_ptr< Intersection_Node >  aFirstParentNode,
+            std::shared_ptr< Intersection_Node >  aSecondParentNode,
+            moris_index                           aFirstParentNodeIndex,
+            moris_index                           aSecondParentNodeIndex,
+            const Matrix< DDRMat >&               aFirstParentNodeLocalCoordinates,
+            const Matrix< DDRMat >&               aSecondParentNodeLocalCoordinates,
+            Matrix< DDUMat >                      aAncestorNodeIndices,
+            Cell< Matrix< DDRMat > >              aAncestorNodeCoordinates,
+            const Element_Interpolation_Type      aAncestorBasisFunction,
+            std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
             : Intersection_Node(
                     aLocalCoordinate,
                     aFirstParentNode,
@@ -48,8 +48,8 @@ namespace moris::ge
     bool
     Intersection_Node_Level_Set::determine_is_intersected(
             const Element_Interpolation_Type aAncestorBasisFunction,
-            const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-            const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates )
+            const Matrix< DDRMat >&          aFirstParentNodeLocalCoordinates,
+            const Matrix< DDRMat >&          aSecondParentNodeLocalCoordinates )
     {
         // get the difference between the phi value of the parents and the isocontour threshold
         real tFirstDiffFromThreshold = this->compute_diff_from_threshold(
@@ -207,4 +207,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::ge

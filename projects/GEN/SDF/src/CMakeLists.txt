@@ -18,7 +18,7 @@ set(HEADERS
     cl_SDF_Line.hpp
     cl_SDF_Facet.hpp
     cl_SDF_Object.hpp
-    cl_SDF_Raycast.hpp
+    fn_SDF_Raycast.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -41,7 +41,7 @@ set(LIB_SOURCES
     cl_SDF_Parameters.cpp
     cl_SDF_STK.cpp
     cl_SDF_Field.cpp
-    cl_SDF_Raycast.cpp
+    fn_SDF_Raycast.cpp
     )
 
 # List library dependencies

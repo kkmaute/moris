@@ -1,15 +1,20 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Geometry_Engine.cpp
+ *
+ */
 
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Tracer.hpp"
 
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
-#include "GEN_typedefs.hpp"
-#include "fn_GEN_create_geometries.hpp"
-#include "cl_GEN_BSpline_Geometry.hpp"
-#include "cl_GEN_BSpline_Property.hpp"
-#include "cl_GEN_Stored_Geometry.hpp"
-#include "fn_GEN_create_properties.hpp"
+#include "GEN_Data_Types.hpp"
+#include "cl_GEN_Design_Factory.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
@@ -19,11 +24,9 @@
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Field.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Enums.hpp"
-
-// XTK FIXME
-#include "cl_XTK_Topology.hpp"
 
 // SOL FIXME
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
@@ -52,9 +55,6 @@ namespace moris
 
             // Requested IQIs
             mRequestedIQIs = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "IQI_types" ) );
-
-            // Set library
-            mLibrary = aLibrary;
 
             // Geometries
             mGeometryFieldFile = aParameterLists( 0 )( 0 ).get< std::string >( "geometry_field_file" );
@@ -85,17 +85,21 @@ namespace moris
                 mUpperBounds          = mUpperBounds.n_rows() == 1 ? trans( mUpperBounds ) : mUpperBounds;
             }
 
-            // Geometries
-            mGeometries = create_geometries(
-                    aParameterLists( 1 ),
-                    mInitialPrimitiveADVs,
-                    mLibrary,
-                    aMesh );
+            // Create designs with the factory
+            for ( uint iParameterIndex = 2; iParameterIndex < aParameterLists.size(); iParameterIndex++ )
+            {
+                aParameterLists( 1 ).append( aParameterLists( iParameterIndex ) );
+            }
+            Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, aLibrary, aMesh );
+
+            // Get geometries and properties from the factory
+            mGeometries = tDesignFactory.get_geometries();
+            mProperties = tDesignFactory.get_properties();
 
             // iterate through geometries if any are multilinear, we turn the linear flag on
             for ( moris::uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
             {
-                if ( mGeometries( iGeom )->get_intersection_interpolation() == Intersection_Interpolation::MULTILINEAR )
+                if ( mGeometries( iGeom )->get_intersection_interpolation() == Int_Interpolation::MULTILINEAR )
                 {
                     MORIS_LOG_INFO( "New Child Vertices will be evaluated as using linear background cells" );
                     mEvaluateNewChildNodeAsLinear = true;
@@ -103,14 +107,7 @@ namespace moris
             }
 
             MORIS_ERROR( mGeometries.size() <= MAX_GEOMETRIES,
-                    "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp" );
-
-            // Properties
-            mProperties = create_properties(
-                    aParameterLists( 2 ),
-                    mInitialPrimitiveADVs,
-                    mGeometries,
-                    mLibrary );
+                    "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_Data_Types.hpp" );
 
             // Set requested PDVs
             Cell< std::string > tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
@@ -148,12 +145,16 @@ namespace moris
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
 
+            // Create integration mesh
             mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
                     aMesh->get_mesh_type(),
                     aMesh );
 
+            // Register mesh pair
             mtk::Mesh_Pair tMeshPair( aMesh, tIntegrationMesh );
-            this->distribute_advs( tMeshPair, {} );
+
+            // Distribute ADVs
+            this->distribute_advs( tMeshPair );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -347,227 +348,77 @@ namespace moris
                 const Matrix< IndexMat >& aNodeIndices,
                 const Matrix< DDRMat >&   aNodeCoordinates )
         {
-            // Check input
-            // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
-            //         "Geometry engine must be provided the same number of node indices as node coordinates for "
-            //         "determining if an element is intersected or not.");
-            // MORIS_ASSERT(aNodeIndices.length() > 0,
-            //         "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
+            // Create node coordinates
+            Cell< std::shared_ptr< Matrix< DDRMat > > > tNodeCoordinates( aNodeIndices.max() + 1 );
 
-            bool tIsIntersected = false;
-
-            switch ( mGeometries( mActiveGeometryIndex )->get_intersection_mode() )
+            // Fill node coordinates
+            for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
             {
-                case Intersection_Mode::LEVEL_SET:
-                {
-                    // get the current geometries level set parameters
-                    real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
-                    real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
-
-                    // Initialize by evaluating the first node
-                    real tMin = mGeometries( mActiveGeometryIndex )->get_field_value( 0, aNodeCoordinates.get_row( 0 ) );
-                    real tMax = tMin;
-
-                    // Evaluate the rest of the nodes
-                    for ( uint tNodeCount = 1; tNodeCount < aNodeIndices.length(); tNodeCount++ )
-                    {
-                        real tEval = mGeometries( mActiveGeometryIndex )->    //
-                                     get_field_value( tNodeCount, aNodeCoordinates.get_row( tNodeCount ) );
-
-                        tMin = std::min( tMin, tEval );
-                        tMax = std::max( tMax, tEval );
-                    }
-
-                    tIsIntersected = ( tMax >= tIsocontourThreshold and tMin <= tIsocontourThreshold )
-                                  or ( std::abs( tMax - tIsocontourThreshold ) < tIsocontourTolerance )
-                                  or ( std::abs( tMin - tIsocontourThreshold ) < tIsocontourTolerance );
-
-                    break;
-                }
-                case Intersection_Mode::COLORING:
-                {
-                    real tFieldValue = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( 0 ), aNodeCoordinates.get_row( aNodeIndices( 0 ) ) );
-
-                    // Evaluate the rest of the nodes
-                    for ( uint Ik = 0; Ik < aNodeIndices.length(); Ik++ )
-                    {
-                        real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( Ik ), aNodeCoordinates.get_row( aNodeIndices( Ik ) ) );
-
-                        if ( tFieldValue != tEval )
-                        {
-                            tIsIntersected = true;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
-                }
+                tNodeCoordinates( aNodeIndices( iNodeInEntityIndex ) ) = std::make_shared< Matrix< DDRMat > >( aNodeCoordinates.get_row( iNodeInEntityIndex ) );
             }
 
             // Return result
-            return tIsIntersected;
+            return is_intersected( aNodeIndices, &tNodeCoordinates );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         bool
         Geometry_Engine::is_intersected(
                 const Matrix< IndexMat >&                                         aNodeIndices,
                 moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates )
         {
-            // Check input
-            // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
-            //         "Geometry engine must be provided the same number of node indices as node coordinates for "
-            //         "determining if an element is intersected or not.");
-            // MORIS_ASSERT(aNodeIndices.length() > 0,
-            //         "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
+            // Get first geometric region
+            Geometric_Region tFirstNodeGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region(
+                    aNodeIndices( 0 ),
+                    *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
 
-            // get the current geometries intersection mode, isocontour threshold
-            Intersection_Mode tIntersectionMode    = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
-            real              tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
-            real              tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
-
-            bool tIsIntersected = false;
-
-            switch ( tIntersectionMode )
+            // Test nodes for other geometric regions
+            for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
             {
-                case Intersection_Mode::LEVEL_SET:
+                // Get test geometric region
+                Geometric_Region tTestGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region(
+                        aNodeIndices( iNodeInEntityIndex ),
+                        *( *aNodeCoordinates )( aNodeIndices( iNodeInEntityIndex ) ) );
+
+                // Test if it is different from the first region. If so, the entity is intersected
+                if ( tTestGeometricRegion != tFirstNodeGeometricRegion )
                 {
-                    // Initialize by evaluating the first node
-                    real tMin = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( 0 ), *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
-                    real tMax = tMin;
-
-                    // Evaluate the rest of the nodes
-                    for ( uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++ )
-                    {
-                        real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( tNodeCount ), *( *aNodeCoordinates )( aNodeIndices( tNodeCount ) ) );
-
-                        tMin = std::min( tMin, tEval );
-                        tMax = std::max( tMax, tEval );
-                    }
-
-                    tIsIntersected = ( tMax >= tIsocontourThreshold and tMin <= tIsocontourThreshold )
-                                  or ( std::abs( tMax - tIsocontourThreshold ) < tIsocontourTolerance )
-                                  or ( std::abs( tMin - tIsocontourThreshold ) < tIsocontourTolerance );
-
-                    break;
-                }
-                case Intersection_Mode::COLORING:
-                {
-                    real tFieldValue = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( 0 ), *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
-
-                    // Evaluate the rest of the nodes
-                    for ( uint Ik = 0; Ik < aNodeIndices.length(); Ik++ )
-                    {
-                        real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( Ik ), *( *aNodeCoordinates )( aNodeIndices( Ik ) ) );
-
-                        if ( tFieldValue != tEval )
-                        {
-                            tIsIntersected = true;
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
+                    return true;
                 }
             }
 
-            // Return result
-            return tIsIntersected;
+            // If no differences were found, this entity is not intersected
+            return false;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         bool
         Geometry_Engine::queue_intersection(
-                uint                            aFirstNodeIndex,
-                uint                            aSecondNodeIndex,
-                const Matrix< DDRMat >&         aFirstNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aSecondNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aFirstNodeGlobalCoordinates,
-                const Matrix< DDRMat >&         aSecondNodeGlobalCoordinates,
+                uint                            aEdgeFirstNodeIndex,
+                uint                            aEdgeSecondNodeIndex,
+                const Matrix< DDRMat >&         aEdgeFirstNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aEdgeSecondNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
+                const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
                 const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
                 const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
         {
-            // Get the current geometries intersection mode
-            Intersection_Mode tIntersectionMode = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
-            // Queue an intersection node
-            switch ( tIntersectionMode )
-            {
-                case Intersection_Mode::LEVEL_SET:
-                {
-                    switch ( mGeometries( mActiveGeometryIndex )->get_intersection_interpolation() )
-                    {
-                        case Intersection_Interpolation::LINEAR:
-                        {
-                            mQueuedIntersectionNode = std::make_shared< Intersection_Node_Linear >(
-                                    mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                    mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
-                                    aFirstNodeIndex,
-                                    aSecondNodeIndex,
-                                    aFirstNodeGlobalCoordinates,
-                                    aSecondNodeGlobalCoordinates,
-                                    mGeometries( mActiveGeometryIndex ) );
-                            break;
-                        }
-                        case Intersection_Interpolation::MULTILINEAR:
-                        {
-                            Element_Intersection_Type tInterpolationType =
-                                    mNumSpatialDimensions == 2 ? Element_Intersection_Type::Linear_2D : Element_Intersection_Type::Linear_3D;
+            // Create intersection node
+            mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node(
+                    aEdgeFirstNodeIndex,
+                    aEdgeSecondNodeIndex,
+                    mPDVHostManager.get_intersection_node( aEdgeFirstNodeIndex ),
+                    mPDVHostManager.get_intersection_node( aEdgeSecondNodeIndex ),
+                    aEdgeFirstNodeLocalCoordinates,
+                    aEdgeSecondNodeLocalCoordinates,
+                    aEdgeFirstNodeGlobalCoordinates,
+                    aEdgeSecondNodeGlobalCoordinates,
+                    aBackgroundElementNodeIndices,
+                    aBackgroundElementNodeCoordinates );
 
-                            mQueuedIntersectionNode = std::make_shared< Intersection_Node_Bilinear >(
-                                    mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                    mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
-                                    aFirstNodeIndex,
-                                    aSecondNodeIndex,
-                                    aFirstNodeLocalCoordinates,
-                                    aSecondNodeLocalCoordinates,
-                                    aBackgroundElementNodeIndices,
-                                    aBackgroundElementNodeCoordinates,
-                                    tInterpolationType,
-                                    mGeometries( mActiveGeometryIndex ) );
-                            break;
-                        }
-                        default:
-                        {
-                            MORIS_ERROR( false, "Intersection interpolation type not implemented yet." );
-                        }
-                    }
-                    break;
-                }
-                case Intersection_Mode::COLORING:
-                {
-                    // Determine if edge is intersected
-                    if ( mGeometries( mActiveGeometryIndex )->get_field_value( aFirstNodeIndex, aFirstNodeGlobalCoordinates ) != mGeometries( mActiveGeometryIndex )->get_field_value( aSecondNodeIndex, aSecondNodeGlobalCoordinates ) )
-                    {
-                        mQueuedIntersectionNode = std::make_shared< Intersection_Node_Linear >(
-                                mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
-                                aFirstNodeIndex,
-                                aSecondNodeIndex,
-                                aFirstNodeGlobalCoordinates,
-                                aSecondNodeGlobalCoordinates,
-                                mGeometries( mActiveGeometryIndex ) );
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
-                }
-            }
-
+            // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();
         }
 
@@ -703,7 +554,7 @@ namespace moris
         void
         Geometry_Engine::create_new_child_nodes(
                 const Cell< moris_index >&               aNewNodeIndices,
-                const Cell< Element_Intersection_Type >& aParentIntersectionType,
+                const Cell< Element_Interpolation_Type >& aParentIntersectionType,
                 const Cell< Matrix< IndexMat > >&        tVertexIndices,
                 const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
                 const Matrix< DDRMat >&                  aGlobalNodeCoord )
@@ -887,7 +738,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDSMat >&
+        const Cell< uint >&
         Geometry_Engine::get_num_refinements( uint aFieldIndex )
         {
             return mGeometries( aFieldIndex )->get_num_refinements();
@@ -895,7 +746,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDSMat >&
+        const Cell< uint >&
         Geometry_Engine::get_refinement_mesh_indices( uint aFieldIndex )
         {
             return mGeometries( aFieldIndex )->get_refinement_mesh_indices();
@@ -906,10 +757,29 @@ namespace moris
         Cell< std::shared_ptr< mtk::Field > >
         Geometry_Engine::get_mtk_fields()
         {
-            Cell< std::shared_ptr< mtk::Field > > tFields( mGeometries.size() + mProperties.size() );
-            std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
-            std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
-            return tFields;
+            // Initialize vector of mtk fields
+            Cell< std::shared_ptr< mtk::Field > > tMTKFields;
+
+            // Loop over geometries
+            for ( auto iGeometry : mGeometries )
+            {
+                // Add MTK fields
+                tMTKFields.append( iGeometry->get_mtk_fields() );
+            }
+
+            // Loop over properties
+            for ( auto iProperty : mProperties )
+            {
+                // Add MTK field, if it exists
+                auto tMTKField = iProperty->get_mtk_field();
+                if ( tMTKField )
+                {
+                    tMTKFields.push_back( tMTKField );
+                }
+            }
+
+            // Return final list
+            return tMTKFields;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -957,25 +827,10 @@ namespace moris
                 tPDVTypeGroup( 0 ) = mProperties( tPropertyIndex )->get_pdv_type();
 
                 // Get mesh set indices and names
-                Matrix< DDUMat > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
-                Cell< std::string > tMeshSetNames = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
-
-                // Convert mesh set names to indices
-                uint tNumSetIndices = tMeshSetIndices.length();
-                tMeshSetIndices.resize( tNumSetIndices + tMeshSetNames.size(), 1 );
-
-                // number of mesh sets for current property
-                uint tTotalNumberOfSets = tMeshSetIndices.length();
-
-                // Set for each property index the list of mesh set indices TODO pass this to property to have it update its own mesh set indices
-                for ( uint tSetIndexPosition = tNumSetIndices; tSetIndexPosition < tTotalNumberOfSets; tSetIndexPosition++ )
-                {
-                    tMeshSetIndices( tSetIndexPosition ) =
-                            tIntegrationMesh->get_set_index_by_name( tMeshSetNames( tSetIndexPosition - tNumSetIndices ) );
-                }
+                Cell< uint > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices( tIntegrationMesh );
 
                 // Assign PDV types to each mesh set
-                for ( uint tSetIndexPosition = 0; tSetIndexPosition < tTotalNumberOfSets; tSetIndexPosition++ )
+                for ( uint tSetIndexPosition = 0; tSetIndexPosition < tMeshSetIndices.size(); tSetIndexPosition++ )
                 {
                     uint tMeshSetIndex = tMeshSetIndices( tSetIndexPosition );
                     tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
@@ -1198,7 +1053,7 @@ namespace moris
             Tracer tTracer( "GEN", "Distribute ADVs" );
 
             // Gather all fields
-            Cell< std::shared_ptr< Field > > tFields( mGeometries.size() + mProperties.size() );
+            Cell< std::shared_ptr< Design_Field > > tFields( mGeometries.size() + mProperties.size() );
             std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
             std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
 
@@ -1228,7 +1083,6 @@ namespace moris
             mOwnedijklIds.set_size( tPrimitiveADVIds.numel(), 1, gNoID );
 
             // Owned and shared ADVs per field
-            Cell< Matrix< DDUMat > > tSharedCoefficientIndices( tFields.size() );
             Cell< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
             Matrix< DDUMat >         tAllOffsetIDs( tFields.size(), 1 );
 
@@ -1340,56 +1194,44 @@ namespace moris
                                 tMesh->get_mesh_type() );
                     }
 
+                    // Count number of owned coefficients
                     uint tOwnedCounter  = 0;
-                    uint tSharedCounter = 0;
-
-                    for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
+                    for ( uint iCoefficientIndex = 0; iCoefficientIndex < tAllCoefIds.numel(); iCoefficientIndex++ )
                     {
-                        if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
+                        if ( tAllCoefIds( iCoefficientIndex ) != gNoID && tAllCoefOwners( iCoefficientIndex ) == par_rank() )
                         {
                             tOwnedCounter++;
                         }
-                        else if ( tAllCoefIds( Ik ) != gNoID )
-                        {
-                            tSharedCounter++;
-                        }
                     }
 
+                    // Create vectors of owned coefficients
                     Matrix< DDUMat > tOwnedCoefficients( tOwnedCounter, 1 );
-                    Matrix< DDUMat > tSharedCoefficients( tSharedCounter, 1 );
 
+                    // Set owned coefficients
                     tOwnedCounter  = 0;
-                    tSharedCounter = 0;
-
                     for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
                     {
                         if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
                         {
                             tOwnedCoefficients( tOwnedCounter++ ) = Ik;
                         }
-                        else if ( tAllCoefIds( Ik ) != gNoID )
-                        {
-                            tSharedCoefficients( tSharedCounter++ ) = Ik;
-                        }
                     }
 
                     // Sizes of ID vectors
                     uint tNumOwnedADVs          = tOwnedADVIds.length();
                     uint tNumOwnedCoefficients  = tOwnedCoefficients.numel();
-                    uint tNumSharedCoefficients = tSharedCoefficients.numel();
 
                     // Resize ID lists and bounds
                     tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mOwnedijklIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                    tSharedADVIds( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
-                    tSharedCoefficientIndices( tFieldIndex ) = tOwnedCoefficients;
+                    tSharedADVIds( tFieldIndex ).resize( tAllCoefIds.length(), 1 );
 
                     // Add owned coefficients to lists
                     for ( uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++ )
                     {
-                        // HMR coeffs are not neccesarily consecutive. Therefore this is a really hacky implementation
+                        // Set the ADV ID as the offset plus the entity ID
                         sint tADVId = tOffsetID
                                     + tMesh->get_glb_entity_id_from_entity_loc_index(
                                             tOwnedCoefficients( tOwnedCoefficient ),
@@ -1406,25 +1248,13 @@ namespace moris
                         {
                             mOwnedijklIds( tNumOwnedADVs + tOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( tOwnedCoefficient ) );
                         }
-
-                        tSharedADVIds( tFieldIndex )( tOwnedCoefficient ) = tADVId;
                     }
 
                     // Add shared coefficients to field-specific list
-                    tSharedCoefficientIndices( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
-                    for ( uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++ )
+                    for ( uint iSharedCoefficientIndex = 0; iSharedCoefficientIndex < tAllCoefIds.length(); iSharedCoefficientIndex++ )
                     {
-                        // HMR coeffs are not neccesarily consecutive. Therefore this is a really hacky implementation
-                        sint tADVId = tOffsetID
-                                    + tMesh->get_glb_entity_id_from_entity_loc_index(
-                                            tSharedCoefficients( tSharedCoefficient ),
-                                            aADVEntityRank,
-                                            tDiscretizationMeshIndex );
-
-                        MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tSharedCoefficients( tSharedCoefficient ) ), "check if this is a problem" );
-
-                        tSharedCoefficientIndices( tFieldIndex )( tNumOwnedCoefficients + tSharedCoefficient ) = tSharedCoefficients( tSharedCoefficient );
-                        tSharedADVIds( tFieldIndex )( tNumOwnedCoefficients + tSharedCoefficient )             = tADVId;
+                        // Set the ADV ID as the offset plus the entity ID
+                        tSharedADVIds( tFieldIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
                     }
 
                     // Update offset based on maximum ID
@@ -1482,8 +1312,6 @@ namespace moris
             //----------------------------------------//
 
             clock_t tStart_Convert_to_Bspline_Fields = clock();
-
-            // FIXME this hole section is super hacky and limiting. has to be rewritten from scratch.
             moris::map< std::string, uint > tFieldNameToIndexMap;
             for ( uint Ik = 0; Ik < aFields.size(); Ik++ )
             {
@@ -1491,102 +1319,68 @@ namespace moris
                 tFieldNameToIndexMap[ tLabel ] = Ik;
             }
 
-            // Loop to find B-spline geometries
-            for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
+            // Loop to discretize geometries when requested
+            for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
             {
+                // Loop over MTK fields to find a match
+                bool tUseMTKField = false;
+                for ( const auto& iMTKField : aFields )
+                {
+                    if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
+                    {
+                        mGeometries( iGeometryIndex )->discretize(
+                                iMTKField,
+                                aMeshPair,
+                                tNewOwnedADVs,
+                                tSharedADVIds( iGeometryIndex ),
+                                tAllOffsetIDs( iGeometryIndex ) );
+                        tUseMTKField = true;
+                        break;
+                    }
+                }
+
+                // Otherwise discretize with original field
+                if ( not tUseMTKField )
+                {
+                    mGeometries( iGeometryIndex )->discretize(
+                            aMeshPair,
+                            tNewOwnedADVs,
+                            tSharedADVIds( iGeometryIndex ),
+                            tAllOffsetIDs( iGeometryIndex ) );
+                }
+
                 // Shape sensitivities logic
-                mShapeSensitivities = ( mShapeSensitivities or mGeometries( tGeometryIndex )->depends_on_advs() );
-
-                // Convert to B-spline field
-                if ( mGeometries( tGeometryIndex )->intended_discretization() )
-                {
-                    // Always have shape sensitivities if B-spline field
-                    mShapeSensitivities = true;
-
-                    std::string tGeoName = mGeometries( tGeometryIndex )->get_name();
-
-                    if ( not tFieldNameToIndexMap.key_exists( tGeoName ) )
-                    {
-                        // Create B-spline geometry FIXME Overwriting the given geometry is obviously wrong
-                        mGeometries( tGeometryIndex ) = std::make_shared< BSpline_Geometry >(
-                                tNewOwnedADVs,
-                                tSharedCoefficientIndices( tGeometryIndex ),
-                                tSharedADVIds( tGeometryIndex ),
-                                tAllOffsetIDs( tGeometryIndex ),
-                                aMeshPair,
-                                mGeometries( tGeometryIndex ) );
-                    }
-                    else
-                    {
-                        uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
-
-                        // Create B-spline geometry
-                        mGeometries( tGeometryIndex ) = std::make_shared< BSpline_Geometry >(
-                                tNewOwnedADVs,
-                                tSharedCoefficientIndices( tGeometryIndex ),
-                                tSharedADVIds( tGeometryIndex ),
-                                tAllOffsetIDs( tGeometryIndex ),
-                                aMeshPair,
-                                mGeometries( tGeometryIndex ),
-                                aFields( tMTKFieldIndex ) );
-                    }
-                }
-                // Store field values if needed. FIXME this is obviously wrong that GEN sets it's own mesh
-                else if ( mGeometries( tGeometryIndex )->intended_storage() )
-                {
-                    // Create stored geometry FIXME this stored geometry stuff is kind of hacky
-                    mGeometries( tGeometryIndex ) = std::make_shared< Stored_Geometry >(
-                            tMesh,
-                            mGeometries( tGeometryIndex ) );
-
-                    mGeometries( tGeometryIndex )->unlock_field();
-                    mGeometries( tGeometryIndex )->set_mesh_pair( aMeshPair );
-                }
-                else
-                {
-                    // Every Field needs a mesh. FIXME setting the mesh here is to late
-                    mGeometries( tGeometryIndex )->unlock_field();
-                    mGeometries( tGeometryIndex )->set_mesh_pair( aMeshPair );
-                    mGeometries( tGeometryIndex )->set_num_original_nodes( aMeshPair.get_interpolation_mesh()->get_num_nodes() );
-                }
+                mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
             }
 
-            // Loop to find B-spline properties
-            for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
+            // Loop to discretize properties when requested
+            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
             {
-                // Convert to B-spline field
-                if ( mProperties( tPropertyIndex )->intended_discretization() )
+                // Loop over MTK fields to find a match
+                bool tUseMTKField = false;
+                for ( const auto& iMTKField : aFields )
                 {
-                    // Always have shape sensitivities if B-spline field
-                    mShapeSensitivities = true;
-
-                    std::string tPropName = mProperties( tPropertyIndex )->get_name();
-
-                    if ( not tFieldNameToIndexMap.key_exists( tPropName ) )
+                    if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
                     {
-                        // Create B-spline property
-                        mProperties( tPropertyIndex ) = std::make_shared< BSpline_Property >(
-                                tNewOwnedADVs,
-                                tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
-                                tSharedADVIds( mGeometries.size() + tPropertyIndex ),
-                                tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
+                        mProperties( iPropertyIndex )->discretize(
+                                iMTKField,
                                 aMeshPair,
-                                mProperties( tPropertyIndex ) );
+                                tNewOwnedADVs,
+                                tSharedADVIds( mGeometries.size() + iPropertyIndex ),
+                                tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                        tUseMTKField = true;
+                        break;
                     }
-                    else
-                    {
-                        uint tMTKFieldIndex = tFieldNameToIndexMap.find( tPropName );
+                }
 
-                        // Create B-spline property
-                        mProperties( tPropertyIndex ) = std::make_shared< BSpline_Property >(
-                                tNewOwnedADVs,
-                                tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
-                                tSharedADVIds( mGeometries.size() + tPropertyIndex ),
-                                tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
-                                aMeshPair,
-                                mProperties( tPropertyIndex ),
-                                aFields( tMTKFieldIndex ) );
-                    }
+                // Otherwise discretize with original field
+                if ( not tUseMTKField )
+                {
+                    mProperties( iPropertyIndex )->discretize(
+                            aMeshPair,
+                            tNewOwnedADVs,
+                            tSharedADVIds( mGeometries.size() + iPropertyIndex ),
+                            tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
                 }
             }
 
@@ -2283,26 +2077,23 @@ namespace moris
                     tNodeCoordinatesPerSet );
 
             // Loop over properties to assign PDVs on this set
-            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
+            for ( std::shared_ptr< Property > iProperty : mProperties )
             {
                 // Check if this is an interpolation PDV
-                MORIS_ERROR( mProperties( iPropertyIndex )->is_interpolation_pdv(),
+                MORIS_ERROR( iProperty->is_interpolation_pdv(),
                         "Assignment of PDVs is only supported with an interpolation mesh right now." );
 
-                // Loop through sets in integration mesh TODO this can be simplified once a property can set its own (total) mesh set indices, see TODO in create_pdvs()
-                for ( uint iMeshSetIndex = 0; iMeshSetIndex < tNumSets; iMeshSetIndex++ )
+                // Get PDV type and all mesh set indices for this property
+                PDV_Type tPdvType = iProperty->get_pdv_type();
+                Cell< uint > tMeshSetIndices = iProperty->get_pdv_mesh_set_indices( aIntegrationMesh );
+
+                // Loop through nodes in these sets
+                for ( uint iMeshSetIndex : tMeshSetIndices )
                 {
-                    // Check with PDVs on this set
-                    for ( uint iPdvTypeIndex = 0; iPdvTypeIndex < aPdvTypes( iMeshSetIndex ).size(); iPdvTypeIndex++ )
+                    for ( uint iNodeInSet = 0; iNodeInSet < tNodeIndicesPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
                     {
-                        PDV_Type tPdvType = mProperties( iPropertyIndex )->get_pdv_type();
-                        if ( tPdvType == aPdvTypes( iMeshSetIndex )( iPdvTypeIndex )( 0 ) )
-                        {
-                            for ( uint iNodeInSet = 0; iNodeInSet < tNodeIndicesPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
-                            {
-                                mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPdvType, mProperties( iPropertyIndex ) );
-                            }
-                        }
+                        // Create interpolation PDV
+                        mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPdvType, iProperty );
                     }
                 }
             }

@@ -49,6 +49,8 @@ namespace moris
         {
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void
         Intersection_Node::initialize(
                 const Element_Interpolation_Type aAncestorBasisFunction,

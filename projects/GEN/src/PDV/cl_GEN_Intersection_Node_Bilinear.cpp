@@ -26,16 +26,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Intersection_Node_Bilinear::Intersection_Node_Bilinear(
-                std::shared_ptr< Intersection_Node > aFirstParentNode,
-                std::shared_ptr< Intersection_Node > aSecondParentNode,
-                uint                                 aFirstParentNodeIndex,
-                uint                                 aSecondParentNodeIndex,
-                const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
-                const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
-                const Matrix< DDUMat >&              aAncestorNodeIndices,
-                const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
-                const Element_Interpolation_Type     aInterpolationType,
-                std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry )
+                std::shared_ptr< Intersection_Node >  aFirstParentNode,
+                std::shared_ptr< Intersection_Node >  aSecondParentNode,
+                uint                                  aFirstParentNodeIndex,
+                uint                                  aSecondParentNodeIndex,
+                const Matrix< DDRMat >&               aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&               aSecondParentNodeLocalCoordinates,
+                const Matrix< DDUMat >&               aAncestorNodeIndices,
+                const Cell< Matrix< DDRMat > >&       aAncestorNodeCoordinates,
+                const Element_Interpolation_Type      aInterpolationType,
+                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
                 : Intersection_Node_Level_Set(
                         compute_local_coordinate(
                                 aFirstParentNodeLocalCoordinates,
@@ -113,8 +113,8 @@ namespace moris
         real
         Intersection_Node_Bilinear::compute_diff_from_threshold(
                 const Element_Interpolation_Type aAncestorBasisFunction,
-                const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
-                moris_index                     aParentNodeIndex )
+                const Matrix< DDRMat >&          aParentNodeLocalCoordinates,
+                moris_index                      aParentNodeIndex )
         {
             // initialize number of basis used by interpolation
             uint tNumBases;
@@ -213,11 +213,11 @@ namespace moris
 
         real
         Intersection_Node_Bilinear::compute_local_coordinate(
-                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
-                const Matrix< DDUMat >&         aAncestorNodeIndices,
-                const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
-                std::shared_ptr< Level_Set_Geometry >     aInterfaceGeometry )
+                const Matrix< DDRMat >&               aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&               aSecondParentNodeLocalCoordinates,
+                const Matrix< DDUMat >&               aAncestorNodeIndices,
+                const Cell< Matrix< DDRMat > >&       aAncestorNodeCoordinates,
+                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
         {
             // get isocontour threshold from geometry
             real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
