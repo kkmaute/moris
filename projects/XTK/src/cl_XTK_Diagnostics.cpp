@@ -136,7 +136,7 @@ verify_interface_vertices(
         for ( moris::uint iGeom = 0; iGeom < tGeomEngine->get_num_geometries(); iGeom++ )
         {
             moris::mtk::Vertex* tVertex = &tCutMesh->get_mtk_vertex( (moris_index)iV );
-            if ( tGeomEngine->is_interface_vertex( tVertex->get_index(), iGeom ) )
+            if ( tGeomEngine->get_geometric_region( iGeom, tVertex->get_index(), tVertex->get_coords() ) == ge::Geometric_Region::INTERFACE )
             {
                 moris::real tGeomVal    = tGeomEngine->get_field_value( iGeom, tVertex->get_index(), tVertex->get_coords() );
                 moris::real tDifference = std::abs( tGeomVal - aIsocontourThreshold( iGeom ) );

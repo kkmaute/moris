@@ -20,7 +20,6 @@
 #include "st_GEN_Geometry_Engine_Parameters.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Geometric_Proximity.hpp"
 #include "cl_GEN_Geometric_Query_Interface.hpp"
 
 // MTK
@@ -93,13 +92,6 @@ namespace moris
             // PDVs
             Pdv_Host_Manager                     mPDVHostManager;
             std::shared_ptr< Intersection_Node > mQueuedIntersectionNode;
-
-            // Keeps track of a vertex proximity to each geometry ( NumVerts x NumGeometries)
-            // 0 - G(x) < threshold
-            // 1 - G(x) == threshold
-            // 2 - G(x) > threshold
-            // Max not set
-            Cell< Geometric_Proximity > mVertexGeometricProximity;
 
             // diagnostic information
             bool        mDiagnostics    = false;
@@ -380,24 +372,30 @@ namespace moris
             size_t get_num_phases();
 
             //-------------------------------------------------------------------------------
-            
+
             /**
-             * For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
+             * Gets the phase of a given node
+             *
+             * @param aNodeIndex Node index
+             * @param aNodeCoordinates Node coordinates
+             * @return Phase index
              */
             size_t get_phase_index(
                     moris_index             aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
+                    const Matrix< DDRMat >& aNodeCoordinates );
 
-            //-------------------------------------------------------------------------------
-            
             /**
-             * Use the geometric proximity to tell me whether this vertex is on the interface wrt a provided geometry indx
+             * Returns if a node is on the given interface or not
+             *
+             * @param aGeometryIndex Geometry index
+             * @param aNodeIndex Node index
+             * @param aNodeCoordinates Node coordinates
+             * @return If the node is on this interface
              */
-            moris_index
-            is_interface_vertex( moris_index aNodeIndex,
-                    moris_index              aGeometryIndex );
-
-            //-------------------------------------------------------------------------------
+            Geometric_Region get_geometric_region(
+                    uint                    aGeometryIndex,
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aNodeCoordinates );
             
             /**
              * @brief Provided the inside and out phase values for an entity, return the phase index
@@ -629,46 +627,6 @@ namespace moris
              * Initialize the PDV type list.
              */
             void initialize_pdv_type_list();
-
-            //-------------------------------------------------------------------------------
-            
-            /**
-             * Setup initial geometric proximities
-             */
-            void
-            setup_initial_geometric_proximities( mtk::Interpolation_Mesh* aMesh );
-
-            //-------------------------------------------------------------------------------
-            
-            /*
-             *   Return the geometric proximity index. Converts from a double value to a index
-             */
-            moris_index
-            get_geometric_proximity_index( real const & aGeometricVal );
-
-            //-------------------------------------------------------------------------------
-            
-            /*
-             * Check whether the proximity index of a node is consistent with that of its parent
-             */
-            bool
-            check_queued_intersection_geometric_proximity_index(
-                    moris_index const & aProximIndex,
-                    moris_index const & aGeomIndex );
-
-            //-------------------------------------------------------------------------------
-            
-            /*
-             * Determine the intersection vertex proximity
-             */
-            moris_index
-            get_queued_intersection_geometric_proximity_index( moris_index const & aGeomIndex );
-
-            /**
-             * Admit the proximity information for an interface vertex
-             */
-            void
-            admit_queued_intersection_geometric_proximity( uint aNodeIndex );
 
             //-------------------------------------------------------------------------------
             
