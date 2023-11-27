@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Base_Node.hpp
+ * cl_GEN_Derived_Node.hpp
  *
  */
 
@@ -14,21 +14,22 @@
 
 namespace moris::ge
 {
-    class Base_Node : public Node
+    class Derived_Node : public Node
     {
       private:
+        Cell< Locator > mLocators;
         Matrix< DDRMat > mCoordinates;
 
       public:
         /**
-         * Base node constructor. Requires a node index as well as coordinates.
+         * Derived node constructor, using other nodal information with locators.
          *
          * @param aIndex Node index
-         * @param aCoordinates Node coordinates
+         * @param aBaseNodes Base nodes
          */
-        Base_Node(
-                uint                    aIndex,
-                const Matrix< DDRMat >& aCoordinates );
+        Derived_Node(
+                uint            aIndex,
+                Cell< Locator > aLocators );
 
         /**
          * Gets the coordinates of this node
@@ -36,5 +37,12 @@ namespace moris::ge
          * @return Node coordinates
          */
         const Matrix< DDRMat >& get_coordinates() override;
+
+        /**
+         * Gets the locators of this derived node
+         *
+         * @return Locators
+         */
+        const Cell< Locator >& get_locators();
     };
 }

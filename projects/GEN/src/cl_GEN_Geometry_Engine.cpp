@@ -16,6 +16,7 @@
 #include "GEN_Data_Types.hpp"
 #include "cl_GEN_Design_Factory.hpp"
 #include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Child_Node.hpp"
 
 // MTK
@@ -499,6 +500,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        // FIXME pointer on cells is redundant
         void
         Geometry_Engine::create_new_child_nodes(
                 const Cell< moris_index >*                   aNewNodeIndices,
@@ -512,10 +514,28 @@ namespace moris
             // Loop over nodes
             for ( uint tNode = 0; tNode < aNewNodeIndices->size(); tNode++ )
             {
+                // Create new child node
                 std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
                         ( *aNewNodeParentCell )( tNode ),
                         ( *aParamCoordRelativeToParent )( tNode ).get(),
                         this->mEvaluateNewChildNodeAsLinear );
+
+                // Get parent cell
+                mtk::Cell* tParentCell = ( *aNewNodeParentCell)( tNode );
+
+                // Create locators
+                Cell< Locator > tLocators;
+                Cell< mtk::Vertex* > tVertices = tParentCell->get_vertex_pointers();
+                uint tNumberOfLocators = tVertices.size();
+                tLocators.reserve( tNumberOfLocators );
+                for ( uint iLocatorIndex = 0; iLocatorIndex < tNumberOfLocators; iLocatorIndex++ )
+                {
+                    // FIXME enable other local coordinates other than the center of the element
+                    tLocators.emplace_back( mNodes( tVertices( iLocatorIndex )->get_index() ), 1.0 / tNumberOfLocators );
+                }
+
+                // Create new derived node
+                mNodes.push_back( new Derived_Node( ( *aNewNodeIndices )( tNode ), tLocators ) );
 
                 // Assign to geometries
                 for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
@@ -556,11 +576,25 @@ namespace moris
                     tParentNodeCoordinates( tParentNode ) = aGlobalNodeCoord.get_row( tParentNodeIndices( tParentNode ) );
                 }
 
+                // Create new child node
                 std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
                         tParentNodeIndices,
                         tParentNodeCoordinates,
                         aParentIntersectionType( tNode ),
                         aParamCoordRelativeToParent( tNode ) );
+
+                // Create locators
+                Cell< Locator > tLocators;
+                uint tNumberOfLocators = tVertexIndices( tNode ).length();
+                tLocators.reserve( tNumberOfLocators );
+                for ( uint iLocatorIndex = 0; iLocatorIndex < tNumberOfLocators; iLocatorIndex++ )
+                {
+                    // FIXME enable other local coordinates other than the center of the element
+                    tLocators.emplace_back( mNodes( tVertexIndices( tNode )( iLocatorIndex ) ), 1.0 / tNumberOfLocators );
+                }
+
+                // Create new derived node
+                mNodes.push_back( new Derived_Node( aNewNodeIndices( tNode ), tLocators ) );
 
                 // Assign to geometries
                 for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
