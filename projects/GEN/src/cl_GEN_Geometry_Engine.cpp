@@ -16,6 +16,7 @@
 #include "GEN_Data_Types.hpp"
 #include "cl_GEN_Design_Factory.hpp"
 #include "cl_GEN_Interpolation.hpp"
+#include "cl_GEN_Base_Node.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
@@ -163,6 +164,10 @@ namespace moris
         {
             delete mOwnedADVs;
             delete mPrimitiveADVs;
+            for ( auto iNode : mNodes )
+            {
+                delete iNode;
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -978,8 +983,22 @@ namespace moris
             std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
             std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
 
-            // Interpolation mesh
+            // Get interpolation mesh
             mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
+
+            // Delete old GEN nodes, if they exist
+            for ( auto iNode : mNodes )
+            {
+                delete iNode;
+            }
+
+            // Create GEN nodes
+            uint tNumberOfNodes = tMesh->get_num_nodes();
+            mNodes.resize( tNumberOfNodes );
+            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
+            {
+                mNodes( iNodeIndex ) = new Base_Node( iNodeIndex, tMesh->get_node_coordinate( iNodeIndex ) );
+            }
 
             //------------------------------------//
             // Determine owned and shared ADV IDs //
@@ -1007,14 +1026,6 @@ namespace moris
             Cell< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
             Matrix< DDUMat >         tAllOffsetIDs( tFields.size(), 1 );
 
-            // Get all node indices from the mesh (for now)
-            uint             tNumNodes = tMesh->get_num_nodes();
-            Matrix< DDUMat > tNodeIndices( tNumNodes, 1 );
-            for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
-            {
-                tNodeIndices( tNodeIndex ) = tNodeIndex;
-            }
-
             moris::Cell< uint > tNumCoeff( tFields.size() );
             // Loop over all geometries to get number of new ADVs
             sint tOffsetID = tPrimitiveADVIds.length();
@@ -1033,7 +1044,7 @@ namespace moris
                     Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
                     Matrix< IdMat >    tAllCoefijklIDs( tMaxNumberOfCoefficients, 1, gNoID );
 
-                    for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
+                    for ( uint tNodeIndex = 0; tNodeIndex < tNumberOfNodes; tNodeIndex++ )
                     {
                         // check whether node has an underlying discretization on this processor
                         bool tNodeHasDiscretization =
