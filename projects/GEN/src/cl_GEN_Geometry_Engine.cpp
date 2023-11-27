@@ -15,11 +15,8 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "GEN_Data_Types.hpp"
 #include "cl_GEN_Design_Factory.hpp"
-#include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Base_Node.hpp"
 #include "cl_GEN_Child_Node.hpp"
-#include "cl_GEN_Intersection_Node_Linear.hpp"
-#include "cl_GEN_Intersection_Node_Bilinear.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Factory.hpp"
