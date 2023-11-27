@@ -357,7 +357,7 @@ namespace moris
                  * set IWG
                  * @param[ in ] aIWG IWG pointer
                  */
-                void set_IWG( std::shared_ptr< fem::IWG > aIWG )
+                void add_IWG( std::shared_ptr< fem::IWG > aIWG )
                 {
                     mIWGs.push_back( aIWG );
                 }
@@ -388,7 +388,7 @@ namespace moris
                  * set IQI
                  * @param[ in ] aIQI IQI pointer
                  */
-                void set_IQI( std::shared_ptr< fem::IQI > aIQI )
+                void add_IQI( std::shared_ptr< fem::IQI > aIQI )
                 {
                     mIQIs.push_back( aIQI );
                 }

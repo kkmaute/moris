@@ -2228,7 +2228,7 @@ namespace moris
                         aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
 
                         // set the IWG
-                        aSetUserInfo.set_IWG( mIWGs( iIWG ) );
+                        aSetUserInfo.add_IWG( mIWGs( iIWG ) );
 
                         // add it to the list of fem set info
                         mSetInfo.push_back( aSetUserInfo );
@@ -2240,7 +2240,7 @@ namespace moris
                                           tMeshSetName,
                                           tTimeContinuity,
                                           tTimeBoundary ) ] )
-                                .set_IWG( mIWGs( iIWG ) );
+                                .add_IWG( mIWGs( iIWG ) );
                     }
                 }
             }
@@ -2340,7 +2340,7 @@ namespace moris
                         aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
 
                         // set the IQI
-                        aSetUserInfo.set_IQI( mIQIs( iIQI ) );
+                        aSetUserInfo.add_IQI( mIQIs( iIQI ) );
 
                         // add it to the list of fem set info
                         mSetInfo.push_back( aSetUserInfo );
@@ -2352,7 +2352,7 @@ namespace moris
                                           tMeshSetName,
                                           tTimeContinuity,
                                           tTimeBoundary ) ] )
-                                .set_IQI( mIQIs( iIQI ) );
+                                .add_IQI( mIQIs( iIQI ) );
                     }
                 }
             }
@@ -3418,54 +3418,35 @@ namespace moris
                     // check for ghost set names and select correct B-spline mesh automatically when new ghost sets need to be used
                     this->check_and_set_ghost_set_names( tMeshSetName, tFirstResidualDofType );
 
+                    // create a tuple with the mesh set name, time continuity and time boundary flags that will be used to
+                    // uniquely identify the fem set
+                    auto tMeshTuple = std::make_tuple( tMeshSetName, tTimeContinuity, tTimeBoundary );
+
                     // check if the mesh set name already in map
-                    if ( tMeshToFemSet.find( std::make_tuple(
-                                 tMeshSetName,
-                                 tTimeContinuity,
-                                 tTimeBoundary ) )
-                            == tMeshToFemSet.end() )
+                    if ( tMeshToFemSet.find( tMeshTuple ) == tMeshToFemSet.end() )
                     {
                         // add the mesh set name map
-                        tMeshToFemSet[ std::make_tuple(
-                                tMeshSetName,
-                                tTimeContinuity,
-                                tTimeBoundary ) ] = tNumFEMSets++;
+                        tMeshToFemSet[ tMeshTuple ] = tNumFEMSets++;
 
                         // create a fem set info for the mesh set
                         Set_User_Info aSetUserInfo;
 
                         // set its mesh set name
                         aSetUserInfo.set_mesh_set_name( tMeshSetName );
-
-                        // set its time continuity flag
                         aSetUserInfo.set_time_continuity( tTimeContinuity );
-
-                        // set its time boundary flag
                         aSetUserInfo.set_time_boundary( tTimeBoundary );
-
-                        // set its sensitivity analysis type flag
                         aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
-
-                        // set its FD scheme for sensitivity analysis
                         aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
-
-                        // set its FD perturbation size for sensitivity analysis
                         aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
-
-                        // set the IWG
-                        aSetUserInfo.set_IWG( mIWGs( iIWG ) );
+                        aSetUserInfo.add_IWG( mIWGs( iIWG ) );
 
                         // add it to the list of fem set info
                         mSetInfo.push_back( aSetUserInfo );
                     }
                     else
                     {
-                        // set the IWG
-                        mSetInfo( tMeshToFemSet[ std::make_tuple(
-                                          tMeshSetName,
-                                          tTimeContinuity,
-                                          tTimeBoundary ) ] )
-                                .set_IWG( mIWGs( iIWG ) );
+                        // add the IWG
+                        mSetInfo( tMeshToFemSet[ tMeshTuple ] ).add_IWG( mIWGs( iIWG ) );
                     }
                 }
             }
@@ -3489,42 +3470,24 @@ namespace moris
                     // get the mesh set name to be treated
                     std::string tMeshSetName = tMeshSetNames( iSetName );
 
+                    auto tMeshTuple = std::make_tuple( tMeshSetName, tTimeContinuity, tTimeBoundary );
+
                     // if the mesh set name not in map
-                    if ( tMeshToFemSet.find( std::make_tuple(
-                                 tMeshSetName,
-                                 tTimeContinuity,
-                                 tTimeBoundary ) )
-                            == tMeshToFemSet.end() )
+                    if ( tMeshToFemSet.find( tMeshTuple ) == tMeshToFemSet.end() )
                     {
                         // add the mesh set name map
-                        tMeshToFemSet[ std::make_tuple(
-                                tMeshSetName,
-                                tTimeContinuity,
-                                tTimeBoundary ) ] = tNumFEMSets++;
+                        tMeshToFemSet[ tMeshTuple ] = tNumFEMSets++;
 
                         // create a fem set info for the mesh set
                         Set_User_Info aSetUserInfo;
 
-                        // set its mesh set name
                         aSetUserInfo.set_mesh_set_name( tMeshSetName );
-
-                        // set its time continuity flag
                         aSetUserInfo.set_time_continuity( tTimeContinuity );
-
-                        // set its time boundary flag
                         aSetUserInfo.set_time_boundary( tTimeBoundary );
-
-                        // set its sensitivity analysis type flag
                         aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
-
-                        // set its FD scheme for sensitivity analysis
                         aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
-
-                        // set its FD perturbation size for sensitivity analysis
                         aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
-
-                        // set the IQI
-                        aSetUserInfo.set_IQI( mIQIs( iIQI ) );
+                        aSetUserInfo.add_IQI( mIQIs( iIQI ) );
 
                         // add it to the list of fem set info
                         mSetInfo.push_back( aSetUserInfo );
@@ -3532,11 +3495,7 @@ namespace moris
                     else
                     {
                         // set the IQI
-                        mSetInfo( tMeshToFemSet[ std::make_tuple(
-                                          tMeshSetName,
-                                          tTimeContinuity,
-                                          tTimeBoundary ) ] )
-                                .set_IQI( mIQIs( iIQI ) );
+                        mSetInfo( tMeshToFemSet[ tMeshTuple ] ).add_IQI( mIQIs( iIQI ) );
                     }
                 }
             }
