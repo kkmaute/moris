@@ -48,8 +48,15 @@ namespace moris::ge
 
         /**
          * Constructor
+         *
+         * @param aNodeManager Node manager, typically from the geometry engine
          */
         explicit Geometry( Node_Manager& aNodeManager );
+
+        /**
+         * Default destructor
+         */
+        virtual ~Geometry() = default;
 
         /**
          * Registers a new node manager (from the geometry engine, if it was created after this geometry)
