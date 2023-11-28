@@ -76,7 +76,8 @@ namespace moris::ge
 
     Derived_Node* Node_Manager::get_derived_node( uint aIndex ) const
     {
-        MORIS_ERROR( aIndex > mNumberOfBaseNodes, "A derived node was requested, but the index corresponds to a base node." );
+        MORIS_ASSERT( aIndex >= mNumberOfBaseNodes,
+                "A derived node was requested from the GEN node manager, but the index corresponds to a base node." );
         return static_cast< Derived_Node* >( mNodes( aIndex ) );
     }
 
