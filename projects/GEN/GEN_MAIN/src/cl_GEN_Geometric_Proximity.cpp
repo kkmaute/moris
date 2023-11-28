@@ -16,7 +16,10 @@ namespace moris
     {
         //-----------------------------------------------------------------------------------------
 
-        Geometric_Proximity::Geometric_Proximity() {}
+        Geometric_Proximity::Geometric_Proximity()
+        {
+            MORIS_ERROR( false, "ge::Geometric_Proximity::Geometric_Proximity() - Default constructor not implemented." );
+        }
 
         //-----------------------------------------------------------------------------------------
 
@@ -25,31 +28,67 @@ namespace moris
                 : mAssociatedVertexIndex( MORIS_INDEX_MAX )
                 , mGeometricProximity( aNumGeometries, MORIS_INDEX_MAX )
         {
+            // do nothing else
         }
 
         //-----------------------------------------------------------------------------------------
 
-        Geometric_Proximity::~Geometric_Proximity() {}
+        Geometric_Proximity::~Geometric_Proximity()
+        {
+            // do nothing
+        }
+
+        //-----------------------------------------------------------------------------------------
+
+        void
+        Geometric_Proximity::set_num_geometries( const uint aNumGeometries )
+        {
+            // check that this function is only used if the number of geometries is not initialized yet
+            MORIS_ASSERT( mGeometricProximity.size() == 0, "Geometric_Proximity::set_num_geometries() - Number of geometries already set." );
+
+            // resize the vector
+            mGeometricProximity.resize( aNumGeometries, MORIS_INDEX_MAX );
+        }
 
         //-----------------------------------------------------------------------------------------
 
         void
         Geometric_Proximity::set_geometric_proximity(
-                moris_index aGeometricProximity,
-                moris_index aGeometryIndex )
+                const moris_index aGeometricProximity,
+                const moris_index aGeometryIndex )
         {
             MORIS_ASSERT( aGeometryIndex < (moris_index)mGeometricProximity.size(),
-                    "Geometry index out of bounds" );
+                    "GEN::Geometric_Proximity::set_geometric_proximity() - Geometry index out of bounds" );
+
+            // make sure the proximity is not already set
+            MORIS_ERROR( mGeometricProximity( aGeometryIndex ) == MORIS_INDEX_MAX,
+                    "GEN::Geometric_Proximity::set_geometric_proximity() - Geometric proximity already set." );
 
             mGeometricProximity( aGeometryIndex ) = aGeometricProximity;
         }
 
         //-----------------------------------------------------------------------------------------
 
-        moris_index
-        Geometric_Proximity::get_geometric_proximity( moris_index aGeometryIndex )
+        bool
+        Geometric_Proximity::is_geometric_proximity_set( const moris_index aGeometricProximity ) const
         {
-            return mGeometricProximity( aGeometryIndex );
+            return ( mGeometricProximity( aGeometricProximity ) != MORIS_INDEX_MAX );
+        }
+
+        //-----------------------------------------------------------------------------------------
+
+        moris_index
+        Geometric_Proximity::get_geometric_proximity( const moris_index aGeometryIndex ) const
+        {
+            moris_index tProximity = mGeometricProximity( aGeometryIndex );
+
+            MORIS_ERROR( 
+                    tProximity != MORIS_INDEX_MAX,
+                    "GEN::Geometric_Proximity::get_geometric_proximity() - "
+                    "Geometric proximity for geometry #%i not set yet.", 
+                    aGeometryIndex );
+
+            return tProximity;
         }
 
         //-----------------------------------------------------------------------------------------

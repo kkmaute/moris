@@ -73,15 +73,15 @@ namespace xtk
         // iterate through geometries
         for ( uint iGeom = 0; iGeom < tActiveGeometries->numel(); iGeom++ )
         {
-            // set a new decomposition data
+            // create a new decomposition data structure to store information in
             *aDecompositionData = Decomposition_Data();
 
             // set the current geometry index
             mCurrentGeomIndex = ( *tActiveGeometries )( iGeom );
 
-            aDecompositionData->mDecompId = 10000 * iGeom + this->get_signature();
+            aDecompositionData->mDecompId = 10000 * iGeom + this->get_signature(); // ID used to identify the associated communication requests later on
 
-            // cell groups relevant to this geometry pick them out
+            // cell groups relevant to this geometry pick them out (i.e. the ones intersected by the current geometry)
             moris::Cell< std::shared_ptr< IG_Cell_Group > > tIgCellGroups;
             this->select_ig_cell_groups( tIgCellGroups );
 
@@ -171,11 +171,14 @@ namespace xtk
         // get first unused index for nodes for numbering new nodes
         moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
+        // get the number of edges to be treated
+        uint tNumEdges = aEdgeConnectivity->mEdgeVertices.size();
+
         // initialize intersection information
         aIntersectedEdges.clear();
-        aIntersectedEdges.reserve( aEdgeConnectivity->mEdgeVertices.size() );
+        aIntersectedEdges.reserve( tNumEdges );
         aEdgeLocalCoordinate.clear();
-        aEdgeLocalCoordinate.reserve( aEdgeConnectivity->mEdgeVertices.size() );
+        aEdgeLocalCoordinate.reserve( tNumEdges );
 
         // the query interface
         // Initialize geometric query
@@ -196,7 +199,7 @@ namespace xtk
         mDecompositionData->mHasSecondaryIdentifier = true;
 
         // iterate through the edges in aEdgeConnectivity ask the geometry engine if we are intersected
-        for ( uint iEdge = 0; iEdge < aEdgeConnectivity->mEdgeVertices.size(); iEdge++ )
+        for ( uint iEdge = 0; iEdge < tNumEdges; iEdge++ )
         {
             // initialize matrix storing intersection point on edge in parametric coords of BG cell
             if ( iEdge == 0 )

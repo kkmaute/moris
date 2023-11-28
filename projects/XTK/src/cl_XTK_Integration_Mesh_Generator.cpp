@@ -838,9 +838,9 @@ namespace xtk
                 moris_index tGenProximity = mGeometryEngine->get_node_proximity_wrt_a_geometry( tVertIndex, iGeom );
 
                 // convert to XTK proximity
-                // 0 - phi(x) <  threshold --> OUTSIDE
-                // 1 - phi(x) == threshold --> INTERFACE
-                // 2 - phi(x) >  threshold --> INSIDE
+                // 0 - phi(x) < threshold --> OUTSIDE
+                // 1 - phi(x) = threshold --> INTERFACE
+                // 2 - phi(x) > threshold --> INSIDE
                 switch ( tGenProximity )
                 {
                     case 0:
@@ -881,7 +881,7 @@ namespace xtk
                         mGeometryEngine->get_num_phases() );
 
                 // return false
-                return -1;
+                return MORIS_INDEX_MAX;
             }
             else if ( tCellProximity == xtk::Geometric_Proximity::OUTSIDE )
             {
@@ -893,13 +893,14 @@ namespace xtk
             }
             else
             {
-                MORIS_ERROR(
-                        false,
-                        "IMG::deduce_ig_cell_bulk_phase_index() - "
-                        "Invalid proximity value " );
+                // debug -- comment back in
+                // MORIS_ERROR(
+                //         false,
+                //         "IMG::deduce_ig_cell_bulk_phase_index() - "
+                //         "Invalid proximity value " );
 
                 // return false
-                return -1;
+                return MORIS_INDEX_MAX;
             }
 
         }    // end: loop over all level-sets
@@ -3167,20 +3168,20 @@ namespace xtk
             std::unordered_map< moris_index, moris_index > tVertexIndexToLocalIndexMap;
 
             // loop over all cells/elements and vertices on them
-            for ( uint i = 0; i < aCells.size(); i++ )
+            for ( uint iCell = 0; iCell < aCells.size(); iCell++ )
             {
-                moris::Cell< mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
+                moris::Cell< mtk::Vertex* > tCellVerts = aCells( iCell )->get_vertex_pointers();
 
-                for ( uint iV = 0; iV < tCellVerts.size(); iV++ )
+                for ( uint iVertOnCell = 0; iVertOnCell < tCellVerts.size(); iVertOnCell++ )
                 {
                     // check if vertex has already been given a new index
-                    if ( tVertexIndexToLocalIndexMap.find( tCellVerts( iV )->get_index() ) == tVertexIndexToLocalIndexMap.end() )
+                    if ( tVertexIndexToLocalIndexMap.find( tCellVerts( iVertOnCell )->get_index() ) == tVertexIndexToLocalIndexMap.end() )
                     {
                         // give new unique vertex new index
-                        tVertexIndexToLocalIndexMap[ tCellVerts( iV )->get_index() ] = (moris_index)tNumNodes;
+                        tVertexIndexToLocalIndexMap[ tCellVerts( iVertOnCell )->get_index() ] = (moris_index)tNumNodes;
 
                         // store vertex pointer
-                        tVertices.push_back( tCellVerts( iV ) );
+                        tVertices.push_back( tCellVerts( iVertOnCell ) );
 
                         // increment counter of unique nodes
                         tNumNodes++;

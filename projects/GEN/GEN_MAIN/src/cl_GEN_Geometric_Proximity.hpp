@@ -22,6 +22,18 @@ namespace moris
           public:
             //-----------------------------------------------------------------------------------------
 
+            moris_index mAssociatedVertexIndex = MORIS_INDEX_MAX;
+
+            // Keeps track of a vertex proximity to each geometry ( NumVerts x NumGeometries)
+            // 0 - G(x) < threshold (outside)
+            // 1 - G(x) == threshold (interface)
+            // 2 - G(x) > threshold (inside)
+            // MORIS_INDEX_MAX - proximity not set
+            moris::Cell< moris_index > mGeometricProximity;    // input: vertex index || output: proximity value
+
+            //-----------------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------------
+
             Geometric_Proximity();
 
             //-----------------------------------------------------------------------------------------
@@ -35,26 +47,31 @@ namespace moris
             //-----------------------------------------------------------------------------------------
 
             void
-            set_geometric_proximity( moris_index aGeometricProximity, moris_index aGeometryIndex );
+            set_num_geometries( const uint aNumGeometries );
+
+            //-----------------------------------------------------------------------------------------
+
+            void
+            set_geometric_proximity( 
+                    const moris_index aGeometricProximity, 
+                    const moris_index aGeometryIndex );
+
+            //-----------------------------------------------------------------------------------------
+
+            bool
+            is_geometric_proximity_set( const moris_index aGeometricProximity ) const;
 
             //-----------------------------------------------------------------------------------------
 
             moris_index
-            get_geometric_proximity( moris_index aGeometryIndex );
+            get_geometric_proximity( const moris_index aGeometryIndex ) const;
 
             //-----------------------------------------------------------------------------------------
 
-            moris_index mAssociatedVertexIndex = MORIS_INDEX_MAX;
+        };    // class Geometric_Proximity
 
-            //-----------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------
 
-            // Keeps track of a vertex proximity to each geometry ( NumVerts x NumGeometries)
-            // 0 - G(x) < threshold
-            // 1 - G(x) == threshold
-            // 2 - G(x) > threshold
-            // Max not set
-            moris::Cell< moris_index > mGeometricProximity; // input: vertex index || output: proximity value
-        };
     }    // namespace ge
 }    // namespace moris
 

@@ -65,12 +65,14 @@ namespace moris
             real tIntersectionTolerance = tLockedInterfaceGeometry->get_intersection_tolerance();
 
             // Whether or not the first parent is on the interface
-            mFirstParentOnInterface = std::abs( tFirstDiffFromThreshold ) < tIntersectionTolerance
-                                   or 0.5 * norm( mParentVector ) * std::abs( 1 + mLocalCoordinate ) < tIntersectionTolerance;
+            mFirstParentOnInterface =
+                    std::abs( tFirstDiffFromThreshold ) < tIntersectionTolerance
+                    or 0.5 * norm( mParentVector ) * std::abs( 1 + mLocalCoordinate ) < tIntersectionTolerance;
 
             // Whether or not the second parent is on the interface
-            mSecondParentOnInterface = std::abs( tSecondDiffFromThreshold ) < tIntersectionTolerance
-                                    or 0.5 * norm( mParentVector ) * std::abs( 1 - mLocalCoordinate ) < tIntersectionTolerance;
+            mSecondParentOnInterface =
+                    std::abs( tSecondDiffFromThreshold ) < tIntersectionTolerance
+                    or 0.5 * norm( mParentVector ) * std::abs( 1 - mLocalCoordinate ) < tIntersectionTolerance;
 
             bool tIsIntersected;
 
@@ -80,16 +82,18 @@ namespace moris
                 tIsIntersected = true;
             }
             // FIXME: This check should be unnecessary as the local edge coordinate should be sufficient
-            // to determine whether edge is intersected; it is only "useful" if parent node's level set value
-            // is determined by method that is different from intersection nodes; for example level set value child node
-            // of child node is computed via analytic field and intersection node via bi-linear interpolation
-            else if ( tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0 )
+            // to determine whether an edge is intersected; it is only "useful" if parent node's level set value
+            // is determined by a method that is different from the intersection nodes; for example when the level set value of the
+            // child node is computed via an analytic field and the intersection node via a bi-linear interpolation
+            else if ( tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0.0 )
             {
                 tIsIntersected = false;
 
                 // check for consistency of parent values and local coordinate
-                MORIS_ASSERT( std::abs( mLocalCoordinate ) > 1,
-                        "Intersection_Node::Intersection_Node - inconsistent parent level set values versus local coordinate - p1 %e p2 %e loc %e.",
+                MORIS_ASSERT(
+                        std::abs( mLocalCoordinate ) > 1,
+                        "Intersection_Node_Level_Set::determine_is_intersected() - "
+                        "Inconsistent parent level set values versus local coordinate - p1 %e p2 %e loc %e.",
                         tFirstDiffFromThreshold,
                         tSecondDiffFromThreshold,
                         mLocalCoordinate );
@@ -100,8 +104,11 @@ namespace moris
 
                 // check for consistency with parent values
                 // this check is currently useless but should be performed is inconsistency issue (see comment above) is resolved
-                MORIS_ASSERT( tIsIntersected ? tFirstDiffFromThreshold * tSecondDiffFromThreshold < 0 : tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0,
-                        "Intersection_Node::Intersection_Node - inconsistent parent level set values - p1 %e p2 %e loc %e.",
+                MORIS_ASSERT(
+                        tIsIntersected ? tFirstDiffFromThreshold * tSecondDiffFromThreshold < 0
+                                       : tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0,
+                        "Intersection_Node_Level_Set::determine_is_intersected() - "
+                        "Inconsistent parent level set values - p1 %e p2 %e loc %e.",
                         tFirstDiffFromThreshold,
                         tSecondDiffFromThreshold,
                         mLocalCoordinate );

@@ -23,10 +23,16 @@ namespace moris
 
         class Intersection_Node_Level_Set : public Intersection_Node
         {
+            //------------------------------------------------------------------------------
+
           protected:
             std::weak_ptr< Geometry > mInterfaceGeometry;
 
+            //------------------------------------------------------------------------------
+
           public:
+            //------------------------------------------------------------------------------
+
             /**
              * Constructor
              *
@@ -59,6 +65,8 @@ namespace moris
                     const Element_Intersection_Type      aAncestorBasisFunction,
                     std::shared_ptr< Geometry >          aInterfaceGeometry );
 
+            //------------------------------------------------------------------------------
+
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
              * ancestor nodes.
@@ -69,6 +77,8 @@ namespace moris
              */
             void get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) override;
 
+            //------------------------------------------------------------------------------
+
             /**
              * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
              *
@@ -76,7 +86,11 @@ namespace moris
              */
             Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
 
+            //------------------------------------------------------------------------------
+
           private:
+            //------------------------------------------------------------------------------
+
             /**
              * Computes the global coordinates of the intersection and the parents.
              * Used by setup() to set global coordinate member data. Implementation provided by child class.
@@ -85,10 +99,12 @@ namespace moris
              */
             virtual Matrix< DDRMat > compute_global_coordinates() = 0;
 
+            //------------------------------------------------------------------------------
+
             /**
              * Compute the difference between the phi value of the first parent node and
              * the isocontour threshold of the intersecting geometry. Implementation provided by child class.
-             * 
+             *
              * @param aAncestorBasisFunction the basis function type of the ancestor nodes
              * @param aParentNodeLocalCoordinates the parent node whose difference from the threshold that should be comptued
              * @param aParentNodeIndex the index of the parent node whose difference will be computed
@@ -98,7 +114,9 @@ namespace moris
             virtual real compute_diff_from_threshold(
                     const Element_Intersection_Type aAncestorBasisFunction,
                     const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
-                    moris_index               aParentNodeIndex ) = 0;
+                    moris_index                     aParentNodeIndex ) = 0;
+
+            //------------------------------------------------------------------------------
 
             /**
              * Determines if the parent nodes are intersected.
@@ -113,6 +131,8 @@ namespace moris
                     const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) override;
 
+            //------------------------------------------------------------------------------
+
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.
@@ -122,6 +142,8 @@ namespace moris
              */
             virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) = 0;
 
+            //------------------------------------------------------------------------------
+
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
              * coordinate values of its first parent.
@@ -130,6 +152,8 @@ namespace moris
              */
             virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() = 0;
 
+            //------------------------------------------------------------------------------
+
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
              * coordinate values of its second parent.
@@ -137,7 +161,12 @@ namespace moris
              * @return Local coordinate sensitivity
              */
             virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() = 0;
-        };
+
+            //------------------------------------------------------------------------------
+
+        };    // class ge::Intersection_Node_Level_Set
+
+        //------------------------------------------------------------------------------
 
     }    // namespace ge
 

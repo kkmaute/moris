@@ -14,6 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Basis_Function.hpp"
 #include "cl_Cell.hpp"
+#include "cl_GEN_Geometric_Proximity.hpp"
 namespace moris
 {
     namespace mtk
@@ -40,20 +41,30 @@ namespace moris
 
         class Child_Node
         {
+            friend class Geometry_Engine;
+
+            //------------------------------------------------------------------------------
+
           protected:
             Matrix< DDUMat >         mAncestorNodeIndices;
             Cell< Matrix< DDRMat > > mAncestorNodeCoordinates;
             Matrix< DDRMat >         mBasisValues;
 
+            //------------------------------------------------------------------------------
+
           private:
             Matrix< DDRMat > mJoinedSensitivities;
 
+            //------------------------------------------------------------------------------
+
           public:
+            //------------------------------------------------------------------------------
+
             /**
              * Constructor
              *
              * @param aAncestorNodeIndices Node indices of the ancestors of this child node
-             * @param aAncestorNodeCoordinates Global coordinates of the ancestors of thissh s child node
+             * @param aAncestorNodeCoordinates Global coordinates of the ancestors of this child node
              * @param aBasisFunction Basis function of the ancestor topology
              * @param aLocalCoordinatesInAncestor Local coordinate of this child inside of the ancestor element
              */
@@ -63,10 +74,14 @@ namespace moris
                     const Element_Intersection_Type aBasisFunction,
                     Matrix< DDRMat >                aLocalCoordinatesInAncestor );
 
+            //------------------------------------------------------------------------------
+
             Child_Node(
                     moris::mtk::Cell* aCell,
                     Matrix< DDRMat >* aLocalCoordinates,
                     bool              aEvaluateAsLinear );
+
+            //------------------------------------------------------------------------------
 
             /**
              * Get the field value on the child node based on values from its ancestors.
@@ -76,6 +91,8 @@ namespace moris
              */
             virtual real interpolate_field_value( Field* aField );
 
+            //------------------------------------------------------------------------------
+
             /**
              * Joins the field sensitivities on the child node based on its ancestors.
              *
@@ -84,6 +101,8 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& join_field_sensitivities( Field* aField );
 
+            //------------------------------------------------------------------------------
+
             /**
              * Joins the depending ADV IDs on the child node based on its ancestors.
              *
@@ -91,6 +110,8 @@ namespace moris
              * @return Field ADV IDs
              */
             virtual Matrix< DDSMat > join_determining_adv_ids( Field* aField );
+
+            //------------------------------------------------------------------------------
 
             /**
              * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -103,10 +124,13 @@ namespace moris
                     Field*            aField,
                     Matrix< DDRMat >& aSensitivities );
 
-            friend class Geometry_Engine;
-        };
+            //------------------------------------------------------------------------------
+
+        };    // class Child_Node
+
+        //------------------------------------------------------------------------------
+
     }    // namespace ge
 }    // namespace moris
 
 #endif    // MORIS_CL_GEN_CHILD_NODE_HPP
-
