@@ -53,6 +53,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    uint Node_Manager::get_number_of_base_nodes()
+    {
+        return mNumberOfBaseNodes;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Node* Node_Manager::get_node( uint aIndex ) const
     {
         return mNodes( aIndex );

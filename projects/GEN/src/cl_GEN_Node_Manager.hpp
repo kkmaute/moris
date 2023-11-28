@@ -51,6 +51,13 @@ namespace moris::ge
         void reset_base_nodes( mtk::Mesh* aMesh );
 
         /**
+         * Gets the number of base nodes currently stored by this node manager.
+         *
+         * @return Number of base nodes
+         */
+        uint get_number_of_base_nodes();
+
+        /**
          * Gets a node stored in this manager.
          *
          * @param aIndex Node index

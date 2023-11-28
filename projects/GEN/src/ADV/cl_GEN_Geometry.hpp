@@ -74,10 +74,7 @@ namespace moris::ge
          */
         Geometric_Region get_geometric_region(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aNodeCoordinates )
-        {
-            return this->get_base_geometric_region( aNodeIndex, aNodeCoordinates );
-        }
+                const Matrix< DDRMat >& aNodeCoordinates );
 
         /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;
@@ -127,5 +124,14 @@ namespace moris::ge
         virtual Geometric_Region get_base_geometric_region(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aNodeCoordinates ) = 0;
+
+        /**
+         * Gets the geometric region of a derived node, based on this geometry.
+         * The default implementation calls the function to get the base geometric region.
+         *
+         * @param aDerivedNode Derived node
+         * @return Geometric region enum
+         */
+        virtual Geometric_Region get_derived_geometric_region( Derived_Node* aDerivedNode );
     };
 }
