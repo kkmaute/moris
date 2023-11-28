@@ -97,6 +97,11 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     xtk::Geometric_Proximity
+    proximity_vote( Cell< xtk::Geometric_Proximity > const & aParentProximities );
+
+    // ----------------------------------------------------------------------------------
+
+    xtk::Geometric_Proximity
     decide_proximity_from_parent_proximities(
             Cell< const Proximity* > const & aParentProximities,
             const moris_index                aGeometryIndex );

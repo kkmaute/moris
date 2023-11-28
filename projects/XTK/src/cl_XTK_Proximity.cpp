@@ -171,6 +171,51 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
+    // FIXME: this function needs to go
+    xtk::Geometric_Proximity
+    proximity_vote( Cell< xtk::Geometric_Proximity > const & aParentProximities )
+    {
+        // get the number of proximities to derive new proximity from
+        uint tNumProximities = aParentProximities.size();
+
+        // initialize voting ballot
+        Cell< uint > tVotingBallot( 2, 0 );
+
+        // go through all proximities and make decision
+        for ( uint iProximity = 0; iProximity < tNumProximities; iProximity++ )
+        {
+            // get the current proximity
+            xtk::Geometric_Proximity tCurrentProximityValue = aParentProximities( iProximity );
+
+            // count votes 
+            if( tCurrentProximityValue == xtk::Geometric_Proximity::OUTSIDE )
+            {
+                tVotingBallot( 0 )++;
+            }
+            else if( tCurrentProximityValue == xtk::Geometric_Proximity::INSIDE )
+            {
+                tVotingBallot( 1 )++;
+            }
+        }
+
+        // return proximity value associated with the winning vote
+        if( tVotingBallot( 0 ) > tVotingBallot( 1 ) )
+        {
+            return xtk::Geometric_Proximity::OUTSIDE;
+        }
+        else if( tVotingBallot( 0 ) < tVotingBallot( 1 ) )
+        {
+            return xtk::Geometric_Proximity::INSIDE;
+        }
+        else
+        {
+            return xtk::Geometric_Proximity::INTERFACE;
+        }
+
+    } // end function: xtk::proximity_vote()
+
+    // ----------------------------------------------------------------------------------
+
     xtk::Geometric_Proximity
     decide_proximity_from_parent_proximities(
             Cell< const Proximity* > const & aParentProximities,

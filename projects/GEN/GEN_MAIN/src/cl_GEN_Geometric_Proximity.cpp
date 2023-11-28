@@ -61,8 +61,8 @@ namespace moris
                     "GEN::Geometric_Proximity::set_geometric_proximity() - Geometry index out of bounds" );
 
             // make sure the proximity is not already set
-            MORIS_ERROR( mGeometricProximity( aGeometryIndex ) == MORIS_INDEX_MAX,
-                    "GEN::Geometric_Proximity::set_geometric_proximity() - Geometric proximity already set." );
+            // MORIS_ERROR( mGeometricProximity( aGeometryIndex ) == MORIS_INDEX_MAX,
+            //         "GEN::Geometric_Proximity::set_geometric_proximity() - Geometric proximity already set." );
 
             mGeometricProximity( aGeometryIndex ) = aGeometricProximity;
         }

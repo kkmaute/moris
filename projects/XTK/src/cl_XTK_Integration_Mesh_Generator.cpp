@@ -837,7 +837,7 @@ namespace xtk
                 // get the proximity of the current vertex wrt. the current geometry
                 moris_index tGenProximity = mGeometryEngine->get_node_proximity_wrt_a_geometry( tVertIndex, iGeom );
 
-                // convert to XTK proximity
+                // convert GEN to XTK proximity
                 // 0 - phi(x) < threshold --> OUTSIDE
                 // 1 - phi(x) = threshold --> INTERFACE
                 // 2 - phi(x) > threshold --> INSIDE
@@ -869,7 +869,7 @@ namespace xtk
             }    // end: loop over all vertices on IG cell
 
             // vote on whether cell is inside or outside
-            xtk::Geometric_Proximity tCellProximity = xtk::decide_proximity_from_parent_proximities( tVertexProximities );
+            xtk::Geometric_Proximity tCellProximity = xtk::proximity_vote( tVertexProximities );
 
             // if all vertices are detected as being on the interface something is wrong
             if ( tCellProximity == xtk::Geometric_Proximity::INTERFACE )
@@ -893,12 +893,6 @@ namespace xtk
             }
             else
             {
-                // debug -- comment back in
-                // MORIS_ERROR(
-                //         false,
-                //         "IMG::deduce_ig_cell_bulk_phase_index() - "
-                //         "Invalid proximity value " );
-
                 // return false
                 return MORIS_INDEX_MAX;
             }
