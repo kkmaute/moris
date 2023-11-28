@@ -19,7 +19,7 @@
 // GEN
 #include "st_GEN_Geometry_Engine_Parameters.hpp"
 #include "cl_GEN_Phase_Table.hpp"
-#include "cl_GEN_Node.hpp"
+#include "cl_GEN_Node_Manager.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Geometric_Query_Interface.hpp"
 
@@ -92,7 +92,7 @@ namespace moris
 
             // PDVs
             Pdv_Host_Manager                     mPDVHostManager;
-            Cell< Node* > mNodes;
+            Node_Manager                         mNodeManager;
             std::shared_ptr< Intersection_Node > mQueuedIntersectionNode;
 
             // diagnostic information

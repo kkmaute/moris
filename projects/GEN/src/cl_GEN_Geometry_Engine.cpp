@@ -45,6 +45,7 @@ namespace moris
                 std::shared_ptr< Library_IO > aLibrary,
                 mtk::Mesh*                    aMesh )
                 : mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
+                , mNodeManager( aMesh )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
@@ -140,6 +141,7 @@ namespace moris
                 , mPhaseTable( create_phase_table( aParameters.mGeometries.size(), aParameters.mBulkPhases ) )
                 , mInitialPrimitiveADVs( aParameters.mADVs )
                 , mTimeOffset( aParameters.mTimeOffset )
+                , mNodeManager( aMesh )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
@@ -162,10 +164,6 @@ namespace moris
         {
             delete mOwnedADVs;
             delete mPrimitiveADVs;
-            for ( auto iNode : mNodes )
-            {
-                delete iNode;
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -531,11 +529,11 @@ namespace moris
                 for ( uint iLocatorIndex = 0; iLocatorIndex < tNumberOfLocators; iLocatorIndex++ )
                 {
                     // FIXME enable other local coordinates other than the center of the element
-                    tLocators.emplace_back( mNodes( tVertices( iLocatorIndex )->get_index() ), 1.0 / tNumberOfLocators );
+                    tLocators.emplace_back( mNodeManager.get_node( tVertices( iLocatorIndex )->get_index() ), 1.0 / tNumberOfLocators );
                 }
 
                 // Create new derived node
-                mNodes.push_back( new Derived_Node( ( *aNewNodeIndices )( tNode ), tLocators ) );
+                mNodeManager.add_derived_node( new Derived_Node( ( *aNewNodeIndices )( tNode ), tLocators ) );
 
                 // Assign to geometries
                 for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
@@ -590,11 +588,11 @@ namespace moris
                 for ( uint iLocatorIndex = 0; iLocatorIndex < tNumberOfLocators; iLocatorIndex++ )
                 {
                     // FIXME enable other local coordinates other than the center of the element
-                    tLocators.emplace_back( mNodes( tVertexIndices( tNode )( iLocatorIndex ) ), 1.0 / tNumberOfLocators );
+                    tLocators.emplace_back( mNodeManager.get_node( tVertexIndices( tNode )( iLocatorIndex ) ), 1.0 / tNumberOfLocators );
                 }
 
                 // Create new derived node
-                mNodes.push_back( new Derived_Node( aNewNodeIndices( tNode ), tLocators ) );
+                mNodeManager.add_derived_node( new Derived_Node( aNewNodeIndices( tNode ), tLocators ) );
 
                 // Assign to geometries
                 for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
@@ -1017,20 +1015,6 @@ namespace moris
             // Get interpolation mesh
             mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
 
-            // Delete old GEN nodes, if they exist
-            for ( auto iNode : mNodes )
-            {
-                delete iNode;
-            }
-
-            // Create GEN nodes
-            uint tNumberOfNodes = tMesh->get_num_nodes();
-            mNodes.resize( tNumberOfNodes );
-            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
-            {
-                mNodes( iNodeIndex ) = new Base_Node( iNodeIndex, tMesh->get_node_coordinate( iNodeIndex ) );
-            }
-
             //------------------------------------//
             // Determine owned and shared ADV IDs //
             //------------------------------------//
@@ -1075,7 +1059,7 @@ namespace moris
                     Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
                     Matrix< IdMat >    tAllCoefijklIDs( tMaxNumberOfCoefficients, 1, gNoID );
 
-                    for ( uint tNodeIndex = 0; tNodeIndex < tNumberOfNodes; tNodeIndex++ )
+                    for ( uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++ )
                     {
                         // check whether node has an underlying discretization on this processor
                         bool tNodeHasDiscretization =
@@ -1488,6 +1472,9 @@ namespace moris
         {
             // Register spatial dimension
             mNumSpatialDimensions = aMesh->get_spatial_dim();
+
+            // Set GEN nodes
+            mNodeManager.reset_base_nodes( aMesh );
 
             // Reset PDV host manager
             mPDVHostManager.reset();

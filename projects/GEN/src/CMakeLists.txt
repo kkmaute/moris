@@ -35,6 +35,7 @@ set(HEADERS
 	cl_GEN_Geometry_Engine.hpp
 	cl_GEN_Geometric_Query_Interface.hpp
 	cl_GEN_Phase_Table.hpp
+	cl_GEN_Node_Manager.hpp
 	cl_GEN_Geometric_Proximity.hpp
     st_GEN_Geometry_Engine_Parameters.hpp
 
@@ -92,6 +93,7 @@ set(LIB_SOURCES
 
 	# GEN
 	cl_GEN_Geometry_Engine.cpp
+	cl_GEN_Node_Manager.cpp
 	cl_GEN_Phase_Table.cpp
 	cl_GEN_Geometric_Proximity.cpp
 

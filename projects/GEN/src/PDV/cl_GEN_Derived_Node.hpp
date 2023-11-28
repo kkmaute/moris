@@ -14,6 +14,45 @@
 
 namespace moris::ge
 {
+    class Locator
+    {
+      private:
+        Node* mNode;
+        real mBasis;
+
+      public:
+        /**
+         * Constructor with a generic node and basis value.
+         *
+         * @param aNode GEN node
+         * @param aBasis Basis value for locating a derived node
+         */
+        Locator(
+                Node* aNode,
+                real aBasis );
+
+        /**
+         * Gets the index of the underlying node.
+         *
+         * @return Node index
+         */
+        uint get_index();
+
+        /**
+         * Gets the coordinates of the underlying node
+         *
+         * @return Node coordinates
+         */
+        const Matrix< DDRMat >& get_coordinates();
+
+        /**
+         * Gets the basis of this locator.
+         *
+         * @return Basis value
+         */
+        real get_basis();
+    };
+
     class Derived_Node : public Node
     {
       private:
