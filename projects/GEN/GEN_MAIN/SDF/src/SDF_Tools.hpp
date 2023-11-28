@@ -129,15 +129,14 @@ namespace moris
         // Linear Algebra
         // =============================================================================
 
-        inline Matrix< F33RMat >
-        rotation_matrix( const Matrix< F31RMat >& aAxis, const real& aAngle )
+        inline Matrix< DDRMat >
+        rotation_matrix( const Matrix< DDRMat >& aAxis, const real& aAngle )
         {
-            Matrix< F33RMat > aT( 3, 3 );
-
+            Matrix< DDRMat > aT( 3, 3 );
             real tCos          = std::cos( aAngle );
             real tSin          = std::sin( aAngle );
             real tCos_minusOne = tCos - 1.0;
-
+            
             aT( 0, 0 ) = tCos - aAxis( 0 ) * aAxis( 0 ) * tCos_minusOne;
             aT( 1, 0 ) = aAxis( 2 ) * tSin - aAxis( 0 ) * aAxis( 1 ) * tCos_minusOne;
             aT( 2, 0 ) = -aAxis( 1 ) * tSin - aAxis( 0 ) * aAxis( 2 ) * tCos_minusOne;
@@ -147,6 +146,20 @@ namespace moris
             aT( 0, 2 ) = aAxis( 1 ) * tSin - aAxis( 0 ) * aAxis( 2 ) * tCos_minusOne;
             aT( 1, 2 ) = -aAxis( 0 ) * tSin - aAxis( 1 ) * aAxis( 2 ) * tCos_minusOne;
             aT( 2, 2 ) = tCos - aAxis( 2 ) * aAxis( 2 ) * tCos_minusOne;
+            return aT;
+        }
+
+        // Creates a 2D rotation matrix of angle aAngle
+        inline Matrix< DDRMat >
+        rotation_matrix( const real& aAngle )
+        {
+            Matrix< DDRMat > aT( 2, 2 );
+            real tCos          = std::cos( aAngle );
+            real tSin          = std::sin( aAngle );
+            aT( 0, 0 ) = tCos;
+            aT( 0, 1 ) = -tSin;
+            aT( 1, 0 ) = tSin;
+            aT( 1, 1 ) = tCos;
             return aT;
         }
 
@@ -183,25 +196,29 @@ namespace moris
          * @return    The random vector. Must be initialized already.
          */
 
-        inline moris::Matrix< F31RMat >
-        random_axis()
+        inline moris::Matrix< DDRMat >
+        random_axis( uint tNumDim )
         {
-            moris::Matrix< F31RMat > aVector( 3, 1 );
+            moris::Matrix< DDRMat > tVector( tNumDim, 1 );
 
             std::srand( random_seed() );
 
-            for ( uint i = 0; i < 3; ++i )
+            // generate random number for each entry of the return vector
+            for ( uint i = 0; i < tNumDim; ++i )
             {
-                aVector( i ) = std::rand();
+                tVector( i ) = std::rand();
             }
-            real tNorm = norm( aVector );
+            
+            // compute the norm of the vector
+            real tNorm = norm( tVector );
 
-            for ( uint i = 0; i < 3; ++i )
+            // Create a unit vector by dividing each entry by the norm
+            for ( uint i = 0; i < tNumDim; ++i )
             {
-                aVector( i ) /= tNorm;
+                tVector( i ) /= tNorm;
             }
 
-            return aVector;
+            return tVector;
         }
 
         // -----------------------------------------------------------------------------

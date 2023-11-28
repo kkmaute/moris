@@ -8,12 +8,11 @@
  *
  */
 
-#ifndef SRC_DISTLINALG_CL_LINEAR_SOLVER_AZTEC_HPP_
-#define SRC_DISTLINALG_CL_LINEAR_SOLVER_AZTEC_HPP_
+#pragma once
 
 #include "AztecOO.h"
 
-#include "cl_DLA_Linear_Solver_Algorithm.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp"
 #include "cl_DLA_Preconditioner_Trilinos.hpp"
 
 #include "cl_Param_List.hpp"    //CNT/src
@@ -23,10 +22,9 @@ namespace moris
     namespace dla
     {
         class Linear_Problem;
-        class Linear_Solver_Aztec : public Linear_Solver_Algorithm
+        class Linear_Solver_Aztec : public Linear_Solver_Algorithm_Trilinos
         {
           private:
-            Linear_Problem *mLinearSystem = nullptr;
 
             AztecOO *mAztecSolver = nullptr;
 
@@ -75,18 +73,7 @@ namespace moris
                     const moris::sint aIter );
 
             // -----------------------------------------------------------------------------------
-            /**
-             * @brief Get method for the preconditioner 
-             * 
-             * @return Preconditioner_Trilinos* 
-             */
-            Preconditioner_Trilinos *
-            get_preconditioner()
-            {
-                return mPreconditioner;
-            }
         };
     }    // namespace dla
 }    // namespace moris
 
-#endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_AZTEC_HPP_ */

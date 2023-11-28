@@ -21,7 +21,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         SDF_Generator::SDF_Generator(
-                const std::string &aObjectPath,
+                const std::string& aObjectPath,
                 const bool         aVerboseFlag )
                 : mObject( aObjectPath )
                 , mVerboseFlag( aVerboseFlag )
@@ -31,8 +31,8 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         SDF_Generator::SDF_Generator(
-                const std::string &aObjectPath,
-                Matrix< DDRMat >   aObjectOffset,
+                const std::string& aObjectPath,
+                Matrix< DDRMat >&  aObjectOffset,
                 const bool         aVerboseFlag )
                 : mObject( aObjectPath, aObjectOffset )
                 , mVerboseFlag( aVerboseFlag )
@@ -43,17 +43,14 @@ namespace moris
 
         void
         SDF_Generator::raycast(
-                mtk::Mesh          *aMesh,
-                Matrix< IndexMat > &aElementsAtSurface )
+                mtk::Mesh*          aMesh,
+                Matrix< IndexMat >& aElementsAtSurface )
         {
             // create mesh wrapper
             Mesh tMesh( aMesh );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData );
+            Core tCore( tMesh, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface );
@@ -63,16 +60,13 @@ namespace moris
         void
         SDF_Generator::raycast(
                 std::shared_ptr< mtk::Mesh > aMesh,
-                Matrix< IndexMat >          &aElementsAtSurface )
+                Matrix< IndexMat >&          aElementsAtSurface )
         {
             // create mesh wrapper
             Mesh tMesh( aMesh );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData );
+            Core tCore( tMesh, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface );
@@ -82,18 +76,15 @@ namespace moris
 
         void
         SDF_Generator::raycast(
-                mtk::Mesh          *aMesh,
-                Matrix< IndexMat > &aElementsAtSurface,
-                Matrix< IndexMat > &aElementsInVolume )
+                mtk::Mesh*          aMesh,
+                Matrix< IndexMat >& aElementsAtSurface,
+                Matrix< IndexMat >& aElementsInVolume )
         {
             // create mesh wrapper
             Mesh tMesh( aMesh );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData );
+            Core tCore( tMesh, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface, aElementsInVolume );
@@ -104,17 +95,14 @@ namespace moris
         void
         SDF_Generator::raycast(
                 std::shared_ptr< mtk::Mesh > aMesh,
-                Matrix< IndexMat >          &aElementsAtSurface,
-                Matrix< IndexMat >          &aElementsInVolume )
+                Matrix< IndexMat >&          aElementsAtSurface,
+                Matrix< IndexMat >&          aElementsInVolume )
         {
             // create mesh wrapper
             Mesh tMesh( aMesh, mVerboseFlag );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mVerboseFlag );
+            Core tCore( tMesh, mObject, mVerboseFlag );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface, aElementsInVolume );
@@ -124,8 +112,8 @@ namespace moris
 
         void
         SDF_Generator::calculate_sdf(
-                mtk::Mesh        *aMesh,
-                Matrix< DDRMat > &aSDF )
+                mtk::Mesh*        aMesh,
+                Matrix< DDRMat >& aSDF )
         {
             // trace this function
             Tracer tTracer( "GEN", "SDF-Generator", "Compute SDF" );
@@ -133,11 +121,8 @@ namespace moris
             // create mesh wrapper
             Mesh tMesh( aMesh, mVerboseFlag );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mVerboseFlag );
+            Core tCore( tMesh, mObject, mVerboseFlag );
 
             // calculate SDF
             tCore.calculate_raycast_and_sdf( aSDF );
@@ -149,22 +134,18 @@ namespace moris
         void
         SDF_Generator::calculate_sdf(
                 std::shared_ptr< mtk::Mesh > aMesh,
-                Matrix< DDRMat >            &aSDF )
+                Matrix< DDRMat >&            aSDF )
         {
             // create mesh wrapper
             Mesh tMesh( aMesh, mVerboseFlag );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mVerboseFlag );
+            Core tCore( tMesh, mObject, mVerboseFlag );
 
             // calculate SDF
             tCore.calculate_raycast_and_sdf( aSDF );
         }
 
         //-------------------------------------------------------------------------------
-
     } /* namespace sdf */
 } /* namespace moris */

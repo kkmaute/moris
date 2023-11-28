@@ -20,7 +20,7 @@ The Eigen Solver class.
 
 // Project header files
 #include "fn_PRM_SOL_Parameters.hpp"
-#include "cl_DLA_Linear_Solver_Algorithm.hpp"
+#include "cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp"
 #include "cl_DLA_Preconditioner_Trilinos.hpp"
 #include "cl_SOL_Amesos_GenOp.hpp"
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
@@ -65,7 +65,7 @@ namespace moris
     namespace dla
     {
         class Linear_Problem;
-        class Eigen_Solver : public Linear_Solver_Algorithm
+        class Eigen_Solver : public Linear_Solver_Algorithm_Trilinos
         {
           private:
             Preconditioner_Trilinos* mLeftPreconditioner = nullptr;
@@ -245,6 +245,16 @@ namespace moris
             {
                 mLeftPreconditioner = aPreconditioner;
             }
+
+            //-------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Compute the preconditioned operator
+             * 
+             */
+
+            void 
+            compute_preconditioned_operator();
         };
 
     }    // namespace dla

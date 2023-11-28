@@ -17,6 +17,7 @@
 #include "cl_Tracer.hpp"
 #include "fn_sort.hpp"
 #include "fn_print.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris
 {
@@ -24,9 +25,9 @@ namespace moris
     {
         //-------------------------------------------------------------------------------
 
-        Core::Core( Mesh &aMesh, Data &aData, bool aVerbose )
+        Core::Core( Mesh& aMesh, Object& aObject, bool aVerbose )
                 : mMesh( aMesh )
-                , mData( aData )
+                , mObject( aObject )
                 , mVerbose( aVerbose )
         {
             // fill unsure nodes list
@@ -36,17 +37,17 @@ namespace moris
 
         void
         Core::calculate_raycast(
-                Matrix< IndexMat > &aElementsAtSurface,
-                Matrix< IndexMat > &aElementsInVolume )
+                Matrix< IndexMat >& aElementsAtSurface,
+                Matrix< IndexMat >& aElementsInVolume )
         {
 
             // call private routine
-            this->calculate_raycast();
+            this->raycast_mesh();
 
             // assign element containers
-            aElementsAtSurface.set_size( mData.mSurfaceElements, 1 );
+            aElementsAtSurface.set_size( mSurfaceElements, 1 );
 
-            aElementsInVolume.set_size( mData.mVolumeElements, 1 );
+            aElementsInVolume.set_size( mVolumeElements, 1 );
 
             // counters
             uint tSurfaceCount = 0;
@@ -59,7 +60,7 @@ namespace moris
             for ( uint k = 0; k < tNumberOfElements; ++k )
             {
                 // get pointer to element
-                Cell *tElement = mMesh.get_cell( k );
+                Cell* tElement = mMesh.get_cell( k );
 
                 if ( tElement->is_on_surface() )
                 {
@@ -72,25 +73,29 @@ namespace moris
             }
 
             // make sure that everything is OK
-            MORIS_ASSERT( tSurfaceCount = mData.mSurfaceElements,
-                    "Number of surface elements does not match" );
+            MORIS_ASSERT( tSurfaceCount == mSurfaceElements,
+                    "Number of surface elements does not match. Surface Count after raycast: %d\t Struct Surface Elements: %d.",
+                    tSurfaceCount,
+                    mSurfaceElements );
 
-            MORIS_ASSERT( tVolumeCount = mData.mVolumeElements,
-                    "Number of volume elements does not match" );
+            MORIS_ASSERT( tVolumeCount == mVolumeElements,
+                    "Number of volume elements does not match. Volume Count after raycast: %d\t Struct Volume Elements: %d.",
+                    tVolumeCount,
+                    mVolumeElements );
         }
 
         //-------------------------------------------------------------------------------
 
         void
         Core::calculate_raycast(
-                Matrix< IndexMat > &aElementsAtSurface )
+                Matrix< IndexMat >& aElementsAtSurface )
         {
 
             // call private routine
-            this->calculate_raycast();
+            this->raycast_mesh();
 
             // assign element containers
-            aElementsAtSurface.set_size( mData.mSurfaceElements, 1 );
+            aElementsAtSurface.set_size( mSurfaceElements, 1 );
 
             // counters
             uint tSurfaceCount = 0;
@@ -102,7 +107,7 @@ namespace moris
             for ( uint k = 0; k < tNumberOfElements; ++k )
             {
                 // get pointer to element
-                Cell *tElement = mMesh.get_cell( k );
+                Cell* tElement = mMesh.get_cell( k );
 
                 if ( tElement->is_on_surface() )
                 {
@@ -111,74 +116,77 @@ namespace moris
             }
 
             // make sure that everything is OK
-            MORIS_ASSERT( tSurfaceCount = mData.mSurfaceElements,
+            MORIS_ASSERT( tSurfaceCount = mSurfaceElements,
                     "Number of surface elements does not match" );
         }
 
         //-------------------------------------------------------------------------------
 
         void
-        Core::calculate_raycast()
+        Core::raycast_mesh()
         {
             // time this function
             Tracer tTracer( "SDF", "Perform Ray-Cast" );
 
+            // create raycaster
+            Raycast tRaycaster( mObject );
+
             // set unsure flag of all nodes to true
             uint tNumberOfNodes = mMesh.get_num_nodes();
 
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
+            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
             {
-                mMesh.get_vertex( k )->reset();
+                mMesh.get_vertex( iNodeIndex )->reset();
             }
-            mData.mUnsureNodesCount = tNumberOfNodes;
 
-            // flag that marks if rotation was called
-            bool tRotation = false;
-
-            while ( mData.mUnsureNodesCount > 0 )
+            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
             {
-                // perform voxelizing algorithm in z-direction
-                voxelize( 2 );
-                if ( mData.mUnsureNodesCount > 0 )
+                if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
                 {
-                    // perform voxelizing algorithm in y-direction
-                    voxelize( 1 );
-                    if ( mData.mUnsureNodesCount > 0 )
+                    // get node coordinate
+                    const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
+
+                    // raycast on this point until the point is determined
+                    tRaycaster.raycast_point( tPoint );
+
+                    switch ( tRaycaster.is_point_inside() )
                     {
-                        // perform voxelizing algorithm in x-direction
-                        voxelize( 0 );
+                        case 0:
+                        {
+                            mMesh.get_vertex( iNodeIndex )->unset_inside_flag();
+                            mMesh.get_vertex( iNodeIndex )->unflag();
+                            break;
+                        }
+                        case 1:
+                        {
+                            mMesh.get_vertex( iNodeIndex )->set_inside_flag();
+                            mMesh.get_vertex( iNodeIndex )->unflag();
+                            break;
+                        }
+                        case 2:
+                        {
+                            mMesh.get_vertex( iNodeIndex )->flag();
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "SDF_Core - raycast_mesh(): Unexpected inside condition returned from Raycast class. Inside condition = %u, should be [0,2]", tRaycaster.is_point_inside() );
+                        }
                     }
                 }
-
-                if ( mData.mUnsureNodesCount > 0 )
-                {
-                    tRotation = true;
-
-                    this->random_rotation();
-                }
             }
 
-            if ( tRotation )
-            {
-                this->undo_rotation();
-            }
-
-            // remaining nodes are pushed outside
-            this->force_unsure_nodes_outside();
-
-            // identify elements in surface, volume and candidates
             this->calculate_candidate_points_and_buffer_diagonal();
+        }
 
-        } // end function: sdf::Core::calculate_raycast()
-
-        //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
         void
-        Core::calculate_raycast_and_sdf( Matrix< DDRMat > &aSDF )
+        Core::calculate_raycast_and_sdf( Matrix< DDRMat >& aSDF )
         {
-            this->calculate_raycast();
+            this->raycast_mesh();
 
-            moris::Cell< Vertex * > tCandidateList;         //========================================
+            moris::Cell< Vertex* > tCandidateList;          //========================================
             tCandidateList = this->set_candidate_list();    //===================================
 
             this->calculate_udf( tCandidateList );
@@ -190,13 +198,13 @@ namespace moris
 
         void
         Core::calculate_raycast_and_sdf(
-                Matrix< DDRMat >   &aSDF,
-                Matrix< IndexMat > &aElementsAtSurface,
-                Matrix< IndexMat > &aElementsInVolume )
+                Matrix< DDRMat >&   aSDF,
+                Matrix< IndexMat >& aElementsAtSurface,
+                Matrix< IndexMat >& aElementsInVolume )
         {
             this->calculate_raycast( aElementsAtSurface, aElementsInVolume );
 
-            moris::Cell< Vertex * > tCandidateList;         //========================================
+            moris::Cell< Vertex* > tCandidateList;          //========================================
             tCandidateList = this->set_candidate_list();    //===================================
 
             this->calculate_udf( tCandidateList );
@@ -207,75 +215,23 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Core::voxelize( const uint aAxis )
+        Core::calculate_udf( moris::Cell< Vertex* >& aCandidateList )
         {
-            // reset unsure nodes counter
-            mData.mUnsureNodesCount = 0;
-
-            // get number of unsure nodes
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            // This loop is currently unnecessary, but may be needed if problems arise
-            // for( Triangle * tTriangle : mData.mTriangles )
-            // {
-            //     tTriangle->unflag();
-            // }
-
-            // loop over all nodes
-            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
-            {
-                if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
-                {
-                    // get node coordinate
-                    const Matrix< F31RMat > &tPoint = mMesh.get_node_coordinate( iNodeIndex );
-
-                    // preselect triangles for intersection test
-                    if ( aAxis == 0 )
-                        this->preselect_triangles_x( tPoint );
-                    else if ( aAxis == 1 )
-                        this->preselect_triangles_y( tPoint );
-                    else
-                        this->preselect_triangles_z( tPoint );
-
-                    // from the candidate triangles, perform intersection
-                    if ( mData.mCandidateTriangles.length() > 0 )
-                    {
-                        this->intersect_triangles( aAxis, tPoint );
-
-                        // intersect ray with triangles and check if node is inside
-                        if ( mData.mIntersectedTriangles.size() > 0 )
-                        {
-                            this->intersect_ray_with_triangles( aAxis, tPoint, iNodeIndex );
-
-                            this->check_if_node_is_inside( aAxis, iNodeIndex );
-                        }
-                    }
-                }
-            }
-        }
-
-        //-------------------------------------------------------------------------------
-        void
-        Core::calculate_udf( moris::Cell< Vertex * > &aCandidateList )
-        {
-            // time this function
             Tracer tTracer( "SDF", "Compute UDF" );
 
-            // get and print the number of triangles
-            uint tNumberOfTriangles = mData.mTriangles.size();
-            MORIS_LOG_SPEC( "Number of triangles", tNumberOfTriangles );
-
+            // get number of triangles
+            uint tNumberOfFacets = mObject.get_num_facets();;
             // loop over all triangles
-            for ( uint k = 0; k < tNumberOfTriangles; ++k )
+            for ( uint k = 0; k < tNumberOfFacets; ++k )
             {
                 // get pointer to triangle
-                Triangle *tTriangle = mData.mTriangles( k );
+                Facet* tFacet = mObject.get_facets()( k );
 
-                // get nodes withing triangle
-                moris::Cell< Vertex * > tNodes;
+                // get nodes within triangle
+                moris::Cell< Vertex* > tNodes;
 
                 this->get_nodes_withing_bounding_box_of_triangle(
-                        tTriangle, tNodes, aCandidateList );
+                        tFacet, tNodes, aCandidateList );
 
                 // get number of nodes
                 uint tNumberOfNodes = tNodes.size();
@@ -285,397 +241,11 @@ namespace moris
                 for ( uint i = 0; i < tNumberOfNodes; ++i )
                 {
                     // update UDF of this node
-                    tNodes( i )->update_udf( tTriangle );
+                    tNodes( i )->update_udf( tFacet );
                 }
 
             }    // end loop over all triangles
 
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::preselect_triangles_x( const Matrix< F31RMat > &aPoint )
-        {
-            // x: k = x, j = z, i = y
-#ifdef MORIS_USE_ARMA
-
-            // check bounding box in J-direction
-            mData.mCandJ = arma::find(
-                    ( aPoint( 2 ) - mData.mTriangleMinCoordsZ ) % ( mData.mTriangleMaxCoordsZ - aPoint( 2 ) ) > -gSDFepsilon );
-
-            // check bounding box in I-direction
-            mData.mCandI = arma::find(
-                    ( aPoint( 1 ) - mData.mTriangleMinCoordsY.elem( mData.mCandJ ) ) % ( mData.mTriangleMaxCoordsY.elem( mData.mCandJ ) - aPoint( 1 ) ) > -gSDFepsilon );
-
-            // help vector to be written in mData.mCandidateTriangles.data()
-            mData.mCandK = mData.mCandJ.elem( mData.mCandI );
-            // resize data object
-            mData.mCandidateTriangles.resize( mData.mCandK.n_elem, 1 );
-
-            // link to current object
-            arma::Mat< uint > &tCand = mData.mCandidateTriangles.matrix_data();
-
-            // write data
-            tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-
-#else
-            // loop over all triangles in J-Direction
-            uint tCountJ = 0;
-            for ( uint k = 0; k < mData.mNumberOfTriangles; ++k )
-            {
-                // check bounding box in J-direction
-                if ( ( aPoint( 2 ) - mData.mTriangleMinCoordsZ( k ) ) * ( mData.mTriangleMaxCoordsZ( k ) - aPoint( 2 ) ) > -gSDFepsilon )
-                {
-                    // remember this triangle
-                    mData.mCandJ( tCountJ ) = k;
-
-                    // increment counter
-                    ++tCountJ;
-                }
-            }
-
-            // counter for triangles
-            uint tCount = 0;
-
-            // reset candidate size
-            mData.mCandidateTriangles.resize( mData.mNumberOfTriangles, 1 );
-
-            // loop over remaining triangles in I-direction
-            for ( uint k = 0; k < tCountJ; ++k )
-            {
-                // check bounding box in I-direction
-                if ( ( aPoint( 1 ) - mData.mTriangleMinCoordsY( mData.mCandJ( k ) ) ) * ( mData.mTriangleMaxCoordsY( mData.mCandJ( k ) ) - aPoint( 1 ) ) > -gSDFepsilon )
-                {
-                    mData.mCandidateTriangles( tCount ) = mData.mCandJ( k );
-                    ++tCount;
-                }
-            }
-
-            mData.mCandidateTriangles.resize( tCount, 1 );
-#endif
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::preselect_triangles_y( const Matrix< F31RMat > &aPoint )
-        {
-            // y: k = y, j = x, i = z
-#ifdef MORIS_USE_ARMA
-            // check bounding box in J-direction
-            mData.mCandJ = arma::find(
-                    ( aPoint( 0 ) - mData.mTriangleMinCoordsX ) % ( mData.mTriangleMaxCoordsX - aPoint( 0 ) ) > -gSDFepsilon );
-
-            // check bounding box in I-direction
-            mData.mCandI = arma::find(
-                    ( aPoint( 2 ) - mData.mTriangleMinCoordsZ.elem( mData.mCandJ ) ) % ( mData.mTriangleMaxCoordsZ.elem( mData.mCandJ ) - aPoint( 2 ) ) > -gSDFepsilon );
-
-            // help vector to be written in mData.mCandidateTriangles.data()
-            mData.mCandK = mData.mCandJ.elem( mData.mCandI );
-
-            // resize data object
-            mData.mCandidateTriangles.resize( mData.mCandK.n_elem, 1 );
-
-            // link to current object
-            arma::Mat< uint > &tCand = mData.mCandidateTriangles.matrix_data();
-
-            // write data
-            tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-
-#else
-            // loop over all triangles in J-Direction
-            uint tCountJ = 0;
-            for ( uint k = 0; k < mData.mNumberOfTriangles; ++k )
-            {
-                // check bounding box in J-direction
-                if ( ( aPoint( 0 ) - mData.mTriangleMinCoordsX( k ) ) * ( mData.mTriangleMaxCoordsX( k ) - aPoint( 0 ) ) > -gSDFepsilon )
-                {
-                    // remember this triangle
-                    mData.mCandJ( tCountJ ) = k;
-
-                    // increment counter
-                    ++tCountJ;
-                }
-            }
-
-            // counter for triangles
-            uint tCount = 0;
-
-            // reset candidate size
-            mData.mCandidateTriangles.resize( mData.mNumberOfTriangles, 1 );
-
-            // loop over remaining triangles in I-direction
-            for ( uint k = 0; k < tCountJ; ++k )
-            {
-                // check bounding box in I-direction
-                if ( ( aPoint( 2 ) - mData.mTriangleMinCoordsZ( mData.mCandJ( k ) ) ) * ( mData.mTriangleMaxCoordsZ( mData.mCandJ( k ) ) - aPoint( 2 ) ) > -gSDFepsilon )
-                {
-                    mData.mCandidateTriangles( tCount ) = mData.mCandJ( k );
-                    ++tCount;
-                }
-            }
-
-            mData.mCandidateTriangles.resize( tCount, 1 );
-#endif
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::preselect_triangles_z( const Matrix< F31RMat > &aPoint )
-        {
-            // z: k = z, j = y, i = x
-#ifdef MORIS_USE_ARMA
-
-            // bool_t tNothingFound = true;
-
-            // check bounding box in J-direction
-            mData.mCandJ = arma::find(
-                    ( aPoint( 1 ) - mData.mTriangleMinCoordsY ) % ( mData.mTriangleMaxCoordsY - aPoint( 1 ) ) > -gSDFepsilon );
-            // check bounding box in I-direction
-            mData.mCandI = arma::find(
-                    ( aPoint( 0 ) - mData.mTriangleMinCoordsX.elem( mData.mCandJ ) ) % ( mData.mTriangleMaxCoordsX.elem( mData.mCandJ ) - aPoint( 0 ) ) > -gSDFepsilon );
-
-            // help vector to be written in mData.mCandidateTriangles.data()
-            mData.mCandK = mData.mCandJ.elem( mData.mCandI );
-
-            // resize data object
-            mData.mCandidateTriangles.resize( mData.mCandK.n_elem, 1 );
-
-            // link to current object
-            arma::Mat< uint > &tCand = mData.mCandidateTriangles.matrix_data();
-
-            // write data
-            tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-#else
-            // loop over all triangles in J-Direction
-            uint tCountJ = 0;
-            for ( uint k = 0; k < mData.mNumberOfTriangles; ++k )
-            {
-                // check bounding box in J-direction
-                if ( ( aPoint( 1 ) - mData.mTriangleMinCoordsY( k ) ) * ( mData.mTriangleMaxCoordsY( k ) - aPoint( 1 ) ) > -gSDFepsilon )
-                {
-                    // remember this triangle
-                    mData.mCandJ( tCountJ ) = k;
-
-                    // increment counter
-                    ++tCountJ;
-                }
-            }
-
-            // counter for triangles
-            uint tCount = 0;
-
-            // reset candidate size
-            mData.mCandidateTriangles.resize( mData.mNumberOfTriangles, 1 );
-
-            // loop over remaining triangles in I-direction
-            for ( uint k = 0; k < tCountJ; ++k )
-            {
-                // check bounding box in I-direction
-                if ( ( aPoint( 0 ) - mData.mTriangleMinCoordsX( mData.mCandJ( k ) ) ) * ( mData.mTriangleMaxCoordsX( mData.mCandJ( k ) ) - aPoint( 0 ) ) > -gSDFepsilon )
-                {
-                    mData.mCandidateTriangles( tCount ) = mData.mCandJ( k );
-                    ++tCount;
-                }
-            }
-
-            mData.mCandidateTriangles.resize( tCount, 1 );
-#endif
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::intersect_triangles( const uint aAxis, const Matrix< F31RMat > &aPoint )
-        {
-            // get number of candidate triangles
-            uint tNumberOfTriangles = mData.mCandidateTriangles.length();
-
-            // initialize counter for intersected triangles
-            uint tCount = 0;
-
-            // loop over all candidates
-            for ( uint k = 0; k < tNumberOfTriangles; ++k )
-            {
-                // get pointer to triangle
-                Triangle *tTriangle = mData.mTriangles( mData.mCandidateTriangles( k ) );
-
-                if ( tTriangle->check_edge( 0, aAxis, aPoint ) )
-                {
-                    if ( tTriangle->check_edge( 1, aAxis, aPoint ) )
-                    {
-                        if ( tTriangle->check_edge( 2, aAxis, aPoint ) )
-                        {
-                            tTriangle->flag();
-                            ++tCount;
-                        }
-                    }
-                }
-            }
-
-            // resize container with intersected triangles
-            mData.mIntersectedTriangles.resize( tCount, nullptr );
-
-            // reset counter
-            tCount = 0;
-
-            // loop over all candidates
-            for ( uint k = 0; k < tNumberOfTriangles; ++k )
-            {
-                // get pointer to triangle
-                Triangle *tTriangle = mData.mTriangles( mData.mCandidateTriangles( k ) );
-
-                if ( tTriangle->is_flagged() )
-                {
-                    // add triangle to list
-                    mData.mIntersectedTriangles( tCount++ ) = tTriangle;
-
-                    // unflag triangle
-                    tTriangle->unflag();
-                }
-            }
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::intersect_ray_with_triangles(
-                const uint               aAxis,
-                const Matrix< F31RMat > &aPoint,
-                const uint               aNodeIndex )
-        {
-            // get number of triangles
-            uint tNumberOfTriangles = mData.mIntersectedTriangles.size();
-
-            // initialize vector with coords in axis
-            Matrix< DDRMat > tCoordsK( tNumberOfTriangles, 1 );
-
-            uint tCount = 0;
-
-            bool tError;
-            // loop over all intersected triangles and find intersection point
-            for ( uint k = 0; k < tNumberOfTriangles; ++k )
-            {
-
-                real tCoordK;
-
-                // calculate intersection coordinate
-                mData.mIntersectedTriangles( k )->intersect_with_coordinate_axis(
-                        aPoint,
-                        aAxis,
-                        tCoordK,
-                        tError );
-
-                // tCoordK = std::max( std::min( tCoordK,  tMaxCoord ), tMinCoord );
-
-                // error meant we would have divided by zero. This triangle is ignored
-                // otherwise, the value is written into the result vector
-
-                if ( !tError )
-                {
-                    tCoordsK( tCount++ ) = std::round( tCoordK / gSDFepsilon ) * gSDFepsilon;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if ( tError )
-            {
-                // this way, the matrix is ignored
-                mData.mCoordsK.set_size( 1, 1, 0.0 );
-            }
-            else
-            {
-                // resize coord array
-                tCoordsK.resize( tCount, 1 );
-
-                // sort array
-                Matrix< DDRMat > tCoordsKSorted;
-                sort( tCoordsK, tCoordsKSorted );
-
-                // make result unique
-                uint tCountUnique = 0;
-
-                // set size of output array
-                mData.mCoordsK.set_size( tCount, 1 );
-
-                real tMinCoord = mMesh.get_min_coord( aAxis );
-                real tMaxCoord = mMesh.get_max_coord( aAxis );
-
-                // set first entry
-                if ( tMinCoord < tCoordsKSorted( 0 ) )
-                {
-                    mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( 0 );
-                }
-
-                // find unique entries
-                for ( uint k = 1; k < tCount; ++k )
-                {
-                    if ( tCoordsKSorted( k ) > tMinCoord && tCoordsKSorted( k ) < tMaxCoord )
-                    {
-
-                        if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * gSDFepsilon )
-                        {
-                            mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( k );
-                        }
-                    }
-                }
-
-                // chop vector
-                mData.mCoordsK.resize( tCountUnique, 1 );
-            }
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::check_if_node_is_inside(
-                const uint aAxis,
-                const uint aNodeIndex )
-        {
-            uint tNumCoordsK = mData.mCoordsK.length();
-
-            bool tNodeIsInside = false;
-
-            const Matrix< F31RMat > &aPoint = mMesh.get_node_coordinate( aNodeIndex );
-
-            // only even number of intersections is considered
-            if ( tNumCoordsK % 2 == 0 )
-            {
-                for ( uint k = 0; k < tNumCoordsK / 2; ++k )
-                {
-                    tNodeIsInside = ( aPoint( aAxis ) > mData.mCoordsK( 2 * k ) ) && ( aPoint( aAxis ) < mData.mCoordsK( 2 * k + 1 ) );
-
-                    // break the loop if inside
-                    if ( tNodeIsInside )
-                    {
-                        break;
-                    }
-                }
-
-                // set the inside flag of this node to the corresponding value
-                if ( tNodeIsInside )
-                {
-                    mMesh.get_vertex( aNodeIndex )->set_inside_flag();
-                }
-                else
-                {
-                    mMesh.get_vertex( aNodeIndex )->unset_inside_flag();
-                }
-                mMesh.get_vertex( aNodeIndex )->unflag();
-            }
-            else
-            {
-                // set unsure flag
-                mMesh.get_vertex( aNodeIndex )->flag();
-
-                // increment counter
-                ++mData.mUnsureNodesCount;
-            }
         }
 
         //-------------------------------------------------------------------------------
@@ -687,20 +257,20 @@ namespace moris
             uint tNumberOfElements = mMesh.get_num_elems();
 
             // counter for elements near surface
-            mData.mSurfaceElements = 0;
+            mSurfaceElements = 0;
 
             // counter for elements in volume
-            mData.mVolumeElements = 0;
+            mVolumeElements = 0;
 
             // reset buffer diagonal
-            mData.mBufferDiagonal = 0;
+            mBufferDiagonal = 0;
 
             // search all elements for sign change
             for ( uint e = 0; e < tNumberOfElements; ++e )
             {
                 // unflag this element
 
-                Cell *tElement = mMesh.get_cell( e );
+                Cell* tElement = mMesh.get_cell( e );
 
                 // reset flags of this element
                 tElement->unflag();
@@ -708,7 +278,7 @@ namespace moris
                 tElement->unset_volume_flag();
 
                 // get pointer to nodes
-                const moris::Cell< Vertex * > tNodes = tElement->get_vertices();
+                const moris::Cell< Vertex* > tNodes = tElement->get_vertices();
 
                 // get number of nodes
                 uint tNumberOfNodes = tNodes.size();
@@ -741,11 +311,11 @@ namespace moris
                     tElement->unset_volume_flag();
 
                     // increment counter
-                    ++mData.mSurfaceElements;
+                    ++mSurfaceElements;
 
                     // update buffer diagonal
-                    mData.mBufferDiagonal = std::max(
-                            mData.mBufferDiagonal,
+                    mBufferDiagonal = std::max(
+                            mBufferDiagonal,
                             tElement->get_buffer_diagonal() );
 
                     // flag to indicate that the buffer of this element
@@ -765,7 +335,7 @@ namespace moris
                     tElement->set_volume_flag();
 
                     // increment counter
-                    ++mData.mVolumeElements;
+                    ++mVolumeElements;
                 }
                 else
                 {
@@ -782,13 +352,13 @@ namespace moris
                 for ( uint e = 0; e < tNumberOfElements; ++e )
                 {
                     // get pointer to element
-                    Cell *tElement = mMesh.get_cell( e );
+                    Cell* tElement = mMesh.get_cell( e );
 
                     // test if element is not flagged
                     if ( !tElement->is_flagged() )
                     {
                         // get pointer to nodes
-                        const moris::Cell< Vertex * > tNodes = tElement->get_vertices();
+                        const moris::Cell< Vertex* > tNodes = tElement->get_vertices();
 
                         // get number of nodes
                         uint tNumberOfNodes = tNodes.size();
@@ -810,8 +380,8 @@ namespace moris
                         if ( tIsCandidate )
                         {
                             // update buffer diagonal
-                            mData.mBufferDiagonal = std::max(
-                                    mData.mBufferDiagonal,
+                            mBufferDiagonal = std::max(
+                                    mBufferDiagonal,
                                     tElement->get_buffer_diagonal() );
 
                             // flag this element
@@ -825,22 +395,21 @@ namespace moris
                         }
                     }    // end loop over all elements
                 }
-            }            // end candidate search depth loop
+            }    // end candidate search depth loop
         }
 
         //-------------------------------------------------------------------------------
 
-        moris::Cell< Vertex * >
+        moris::Cell< Vertex* >
         Core::set_candidate_list()
         {
-
             uint tNumberOfNodes = mMesh.get_num_nodes();
             //        	std::cout<<"number of nodes in mesh   : "<<tNumberOfNodes<<std::endl;
-            moris::Cell< Vertex * > tCandidateVertices;
+            moris::Cell< Vertex* > tCandidateVertices;
 
             for ( uint k = 0; k < tNumberOfNodes; k++ )
             {
-                Vertex *tNode = mMesh.get_vertex( k );
+                Vertex* tNode = mMesh.get_vertex( k );
 
                 if ( tNode->is_candidate() )
                 {
@@ -859,9 +428,9 @@ namespace moris
 
         void
         Core::get_nodes_withing_bounding_box_of_triangle(
-                Triangle                *aTriangle,
-                moris::Cell< Vertex * > &aNodes,
-                moris::Cell< Vertex * > &aCandList )    //===========================================
+                Facet*                  aFacet,
+                moris::Cell< Vertex* >& aNodes,
+                moris::Cell< Vertex* >& aCandList )    //===========================================
         {
             // calculate minimum and maximum coordinate
 
@@ -870,8 +439,8 @@ namespace moris
 
             for ( uint i = 0; i < 3; ++i )
             {
-                tMinCoord( i ) = aTriangle->get_min_coord( i ) - mData.mBufferDiagonal;
-                tMaxCoord( i ) = aTriangle->get_max_coord( i ) + mData.mBufferDiagonal;
+                tMinCoord( i ) = aFacet->get_min_coord( i ) - mBufferDiagonal;
+                tMaxCoord( i ) = aFacet->get_max_coord( i ) + mBufferDiagonal;
             }
 
             // why is this necessary?
@@ -900,7 +469,7 @@ namespace moris
             {
                 // get pointer to node
                 //                Vertex * tNode = mMesh.get_vertex( k );
-                Vertex *tNode = aCandList( k );    //=================================================
+                Vertex* tNode = aCandList( k );    //=================================================
 
                 // unflag this node
                 tNode->unflag();
@@ -909,7 +478,7 @@ namespace moris
                 //                if( tNode->is_candidate() )
                 //                {
                 // get coords of this node
-                const Matrix< F31RMat > &tPoint = tNode->get_coords();
+                const Matrix< F31RMat >& tPoint = tNode->get_coords();
 
                 // assume that node is in triangle
                 bool tNodeIsWithinTriangle = true;
@@ -921,13 +490,6 @@ namespace moris
                         tNodeIsWithinTriangle = false;
                         break;
                     }
-                    /* tNodeIsWithinTriangle = tNodeIsWithinTriangle
-                            && ( tPoint( i ) >= tMinCoord( i ) )
-                            && ( tPoint( i ) <= tMaxCoord( i ) );
-                    if( ! tNodeIsWithinTriangle )
-                    {
-                        break;
-                    } */
                 }
 
                 // if node is in triangle
@@ -957,7 +519,7 @@ namespace moris
             {
                 // get pointer to node
                 //                Vertex * tNode = mMesh.get_vertex( k );
-                Vertex *tNode = aCandList( k );    //==================================================
+                Vertex* tNode = aCandList( k );    //==================================================
 
                 // test if node is flagged
                 if ( tNode->is_flagged() )
@@ -987,7 +549,7 @@ namespace moris
                 for ( uint k = 0; k < tNumberOfVertices; ++k )
                 {
                     // get vertex
-                    Vertex *tVertex = mMesh.get_vertex( k );
+                    Vertex* tVertex = mMesh.get_vertex( k );
 
                     // test if node has sdf
                     if ( tVertex->has_sdf() )
@@ -996,13 +558,29 @@ namespace moris
                         tSweepCount += tVertex->sweep();
                     }
                 }
+
+                if ( mVerbose )
+                {
+                    // stop the timer
+                    real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
+
+                    // print elapsed time
+                    if ( par_size() == 1 )
+                    {
+                        std::fprintf( stdout, "Time for sweeping              : %5.3f [sec]\nSwept %i nodes\n", tElapsedTime / 1000.0, (int)tSweepCount );
+                    }
+                    else
+                    {
+                        std::fprintf( stdout, "Proc % i - Time for sweeping              : %5.3f [sec]\nSwept %i nodes\n", (int)par_rank(), tElapsedTime / 1000.0, (int)tSweepCount );
+                    }
+                }
             }
         }
 
         // -----------------------------------------------------------------------------
 
         void
-        Core::fill_sdf_with_values( Matrix< DDRMat > &aSDF )
+        Core::fill_sdf_with_values( Matrix< DDRMat >& aSDF )
         {
             // get number of vertices
             uint tNumberOfVertices = mMesh.get_num_nodes();
@@ -1018,7 +596,7 @@ namespace moris
             for ( uint k = 0; k < tNumberOfVertices; ++k )
             {
                 // get pointer to vertex
-                Vertex *tVertex = mMesh.get_vertex( k );
+                Vertex* tVertex = mMesh.get_vertex( k );
 
                 // test if vertex has SDF
                 if ( tVertex->has_sdf() )
@@ -1057,7 +635,7 @@ namespace moris
             for ( uint k = 0; k < tNumberOfVertices; ++k )
             {
                 // get pointer to vertex
-                Vertex *tVertex = mMesh.get_vertex( k );
+                Vertex* tVertex = mMesh.get_vertex( k );
 
                 // test if vertex does not have an SDF
                 if ( !tVertex->has_sdf() )
@@ -1077,7 +655,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        Core::save_to_vtk( const std::string &aFilePath )
+        Core::save_to_vtk( const std::string& aFilePath )
         {
             // open the file
             std::ofstream tFile( aFilePath, std::ios::binary );
@@ -1105,15 +683,15 @@ namespace moris
             for ( luint k = 0; k < tNumberOfNodes; ++k )
             {
                 // get coordinate from node
-                const Matrix< F31RMat > &tCoords = mMesh.get_vertex( k )->get_coords();
+                const Matrix< F31RMat >& tCoords = mMesh.get_vertex( k )->get_coords();
 
                 // write coordinates to mesh
                 tFChar = swap_byte_endian( (float)tCoords( 0 ) );
-                tFile.write( (char *)&tFChar, sizeof( float ) );
+                tFile.write( (char*)&tFChar, sizeof( float ) );
                 tFChar = swap_byte_endian( (float)tCoords( 1 ) );
-                tFile.write( (char *)&tFChar, sizeof( float ) );
+                tFile.write( (char*)&tFChar, sizeof( float ) );
                 tFChar = swap_byte_endian( (float)tCoords( 2 ) );
-                tFile.write( (char *)&tFChar, sizeof( float ) );
+                tFile.write( (char*)&tFChar, sizeof( float ) );
                 // tFile << tCoords( 0 ) << " " << tCoords( 1 ) << " " << tCoords( 2 ) << std::endl;
             }
             tFile << std::endl;
@@ -1130,7 +708,7 @@ namespace moris
             for ( luint k = 0; k < tNumberOfElements; ++k )
             {
                 // get pointet to cell
-                Cell *tCell = mMesh.get_cell( k );
+                Cell* tCell = mMesh.get_cell( k );
 
                 // get number of vertices
                 uint tNumberOfCellVerts = tCell->get_number_of_vertices();
@@ -1212,16 +790,14 @@ namespace moris
                 }
 
                 tIChar = swap_byte_endian( (int)tNumberOfCellVerts );
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
 
                 // write indices to file
                 for ( uint i = 0; i < tNumberOfCellVerts; ++i )
                 {
                     tIChar = swap_byte_endian( (int)tIndices( i ) );
-                    tFile.write( (char *)&tIChar, sizeof( int ) );
-                    // tFile << " " << tIndices( i );
+                    tFile.write( (char*)&tIChar, sizeof( int ) );
                 }
-                // tFile << std::endl;
             }
             tFile << std::endl;
             // write cell types
@@ -1230,60 +806,9 @@ namespace moris
             for ( luint k = 0; k < tNumberOfElements; ++k )
             {
                 tIChar = swap_byte_endian( tCellTypes( k ) );
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
             }
             tFile << std::endl;
-
-            /*
-            // write element data
-            tFile << "CELL_DATA " << tNumberOfElements << std::endl;
-            tFile << "SCALARS ELEMENT_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for ( uint k = 0; k <  tNumberOfElements; ++k)
-            {
-                tIChar = swap_byte_endian( (int) mMesh.get_cell( k )->get_id() );
-            }
-            tFile << std::endl;
-
-            tFile << "SCALARS ELEMENT_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for ( uint k = 0; k <  tNumberOfElements; ++k)
-            {
-                tIChar = swap_byte_endian( (int) mMesh.get_cell( k )->get_index() );
-                tFile.write( (char*) &tIChar, sizeof(int));
-            }
-            tFile << std::endl;
-
-            tFile << "SCALARS ELEMENT_IN_VOLUME int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for ( uint k = 0; k <  tNumberOfElements; ++k)
-            {
-                if( mMesh.get_cell( k )->is_in_volume() )
-                {
-                    tIChar = swap_byte_endian( (int) 1 );
-                }
-                else
-                {
-                    tIChar = swap_byte_endian( (int) 0 );
-                }
-                tFile.write( (char*) &tIChar, sizeof(int));
-            }
-            tFile << std::endl;
-
-            tFile << "SCALARS ELEMENT_ON_SURFACE int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for ( uint k = 0; k <  tNumberOfElements; ++k)
-            {
-                if( mMesh.get_cell( k )->is_on_surface() )
-                {
-                    tIChar = swap_byte_endian( (int) 1 );
-                }
-                else
-                {
-                    tIChar = swap_byte_endian( (int) 0 );
-                }
-                tFile.write( (char*) &tIChar, sizeof(int));
-            } */
 
             tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
 
@@ -1293,7 +818,7 @@ namespace moris
             {
 
                 tFChar = swap_byte_endian( (float)tSDF( k ) );
-                tFile.write( (char *)&tFChar, sizeof( float ) );
+                tFile.write( (char*)&tFChar, sizeof( float ) );
             }
 
             tFile << "SCALARS HAS_SDF int" << std::endl;
@@ -1308,7 +833,7 @@ namespace moris
                 {
                     tIChar = swap_byte_endian( (int)0 );
                 }
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
             }
 
             tFile << "SCALARS IS_INSIDE int" << std::endl;
@@ -1323,7 +848,7 @@ namespace moris
                 {
                     tIChar = swap_byte_endian( (int)0 );
                 }
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
             }
 
             tFile << "SCALARS VERTEX_INDEX int" << std::endl;
@@ -1331,7 +856,7 @@ namespace moris
             for ( uint k = 0; k < tNumberOfNodes; ++k )
             {
                 tIChar = swap_byte_endian( (int)mMesh.get_vertex( k )->get_index() );
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
             }
 
             // close the output file
@@ -1340,7 +865,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        Core::save_unsure_to_vtk( const std::string &aFilePath )
+        Core::save_unsure_to_vtk( const std::string& aFilePath )
         {
             // open the file
             std::ofstream tFile( aFilePath, std::ios::binary );
@@ -1368,15 +893,15 @@ namespace moris
             for ( luint k = 0; k < tNumberOfNodes; ++k )
             {
                 // get coordinate from node
-                const Matrix< F31RMat > &tCoords = mMesh.get_vertex( k )->get_coords();
+                const Matrix< F31RMat >& tCoords = mMesh.get_vertex( k )->get_coords();
 
                 // write coordinates to mesh
                 tFChar = swap_byte_endian( (float)tCoords( 0 ) );
-                tFile.write( (char *)&tFChar, sizeof( float ) );
+                tFile.write( (char*)&tFChar, sizeof( float ) );
                 tFChar = swap_byte_endian( (float)tCoords( 1 ) );
-                tFile.write( (char *)&tFChar, sizeof( float ) );
+                tFile.write( (char*)&tFChar, sizeof( float ) );
                 tFChar = swap_byte_endian( (float)tCoords( 2 ) );
-                tFile.write( (char *)&tFChar, sizeof( float ) );
+                tFile.write( (char*)&tFChar, sizeof( float ) );
                 // tFile << tCoords( 0 ) << " " << tCoords( 1 ) << " " << tCoords( 2 ) << std::endl;
             }
             tFile << std::endl;
@@ -1393,7 +918,7 @@ namespace moris
             for ( luint k = 0; k < tNumberOfElements; ++k )
             {
                 // get pointet to cell
-                Cell *tCell = mMesh.get_cell( k );
+                Cell* tCell = mMesh.get_cell( k );
 
                 // get number of vertices
                 uint tNumberOfCellVerts = tCell->get_number_of_vertices();
@@ -1475,13 +1000,13 @@ namespace moris
                 }
 
                 tIChar = swap_byte_endian( (int)tNumberOfCellVerts );
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
 
                 // write indices to file
                 for ( uint i = 0; i < tNumberOfCellVerts; ++i )
                 {
                     tIChar = swap_byte_endian( (int)tIndices( i ) );
-                    tFile.write( (char *)&tIChar, sizeof( int ) );
+                    tFile.write( (char*)&tIChar, sizeof( int ) );
                     // tFile << " " << tIndices( i );
                 }
                 // tFile << std::endl;
@@ -1493,7 +1018,7 @@ namespace moris
             for ( luint k = 0; k < tNumberOfElements; ++k )
             {
                 tIChar = swap_byte_endian( tCellTypes( k ) );
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
             }
             tFile << std::endl;
 
@@ -1516,7 +1041,7 @@ namespace moris
                 {
                     tIChar = swap_byte_endian( (int)1 );
                 }
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
             }
 
             tFile << "SCALARS VERTEX_INDEX int" << std::endl;
@@ -1524,96 +1049,11 @@ namespace moris
             for ( uint k = 0; k < tNumberOfNodes; ++k )
             {
                 tIChar = swap_byte_endian( (int)mMesh.get_vertex( k )->get_index() );
-                tFile.write( (char *)&tIChar, sizeof( int ) );
+                tFile.write( (char*)&tIChar, sizeof( int ) );
             }
 
             // close the output file
             tFile.close();
-        }
-
-        // -----------------------------------------------------------------------------
-
-        void
-        Core::force_unsure_nodes_outside()
-        {
-            // get number of nodes on mesh
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            // loop over all nodes
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
-            {
-                // get pointer to node
-                mMesh.get_vertex( k )->unflag();
-            }
-
-            mData.mUnsureNodesCount = 0;
-        }
-
-        // -----------------------------------------------------------------------------
-
-        void
-        Core::random_rotation()
-        {
-            // generate random angle
-            real tAngle = random_angle();
-
-            // generate random normalized axis
-            Matrix< F31RMat > tAxis = random_axis();
-
-            // generate rotation matrix
-            Matrix< F33RMat > tRotation = rotation_matrix( tAxis, tAngle );
-
-            // rotate all vertices of triangle mesh
-            for ( Triangle_Vertex *tVertex : mData.mVertices )
-            {
-                tVertex->rotate_node_coords( tRotation );
-            }
-
-            // update all triangles
-            for ( Triangle *tTriangle : mData.mTriangles )
-            {
-                tTriangle->update_data();
-            }
-
-            // rotate unsure nodes
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            // loop over all nodes
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
-            {
-                // test if node is unsore
-                if ( mMesh.get_vertex( k )->is_flagged() )
-                {
-                    mMesh.get_vertex( k )->rotate_coords( tRotation );
-                }
-            }
-        }
-
-        // -----------------------------------------------------------------------------
-
-        void
-        Core::undo_rotation()
-        {
-            // rotate all vertices of triangle mesh
-            for ( Triangle_Vertex *tVertex : mData.mVertices )
-            {
-                tVertex->reset_node_coords();
-            }
-
-            // update all triangles
-            for ( Triangle *tTriangle : mData.mTriangles )
-            {
-                tTriangle->update_data();
-            }
-
-            // rotate unsure nodes
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            // loop over all nodes
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
-            {
-                mMesh.get_vertex( k )->reset_coords();
-            }
         }
 
         // -----------------------------------------------------------------------------

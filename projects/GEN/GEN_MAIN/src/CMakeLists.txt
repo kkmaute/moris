@@ -55,6 +55,7 @@ set(HEADERS
 	field/geometry/cl_GEN_Mesh_Field_Geometry.hpp
 	field/geometry/cl_GEN_Voxel_Input.hpp
 	field/geometry/cl_GEN_Single_Grain.hpp
+	field/geometry/cl_GEN_Surface_Mesh.hpp
 	field/geometry/cl_GEN_User_Defined_Geometry.hpp
 	field/geometry/cl_GEN_BSpline_Geometry.hpp
 	field/geometry/cl_GEN_Stored_Geometry.hpp
@@ -84,6 +85,7 @@ set(HEADERS
 	pdv/cl_GEN_Pdv_Property.hpp
 	pdv/cl_GEN_Intersection_Node.hpp
 	pdv/cl_GEN_Intersection_Node_Level_Set.hpp
+	pdv/cl_GEN_Intersection_Node_Surface_Mesh.hpp
 	pdv/cl_GEN_Intersection_Node_Linear.hpp
 	pdv/cl_GEN_Intersection_Node_Bilinear.hpp
     )
@@ -110,11 +112,12 @@ set(LIB_SOURCES
 	field/geometry/cl_GEN_Mesh_Field_Geometry.cpp
 	field/geometry/cl_GEN_Voxel_Input.cpp
 	field/geometry/cl_GEN_Single_Grain.cpp
+	field/geometry/cl_GEN_Surface_Mesh.cpp
 	field/geometry/cl_GEN_User_Defined_Geometry.cpp
 	field/geometry/cl_GEN_BSpline_Geometry.cpp
 	field/geometry/cl_GEN_Stored_Geometry.cpp
 	field/geometry/cl_GEN_Geometry_SDF.cpp
-        field/geometry/cl_GEN_Image_SDF_Geometry.cpp
+    field/geometry/cl_GEN_Image_SDF_Geometry.cpp
 	field/geometry/cl_GEN_Multigeometry.cpp
 	field/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
 	field/geometry/fn_GEN_create_geometries.cpp
@@ -134,6 +137,7 @@ set(LIB_SOURCES
 	pdv/cl_GEN_Child_Node.cpp
 	pdv/cl_GEN_Intersection_Node.cpp
 	pdv/cl_GEN_Intersection_Node_Level_Set.cpp
+	pdv/cl_GEN_Intersection_Node_Surface_Mesh.cpp
 	pdv/cl_GEN_Intersection_Node_Linear.cpp
 	pdv/cl_GEN_Intersection_Node_Bilinear.cpp
     )

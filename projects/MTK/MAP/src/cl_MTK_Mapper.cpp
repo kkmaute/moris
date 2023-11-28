@@ -689,12 +689,18 @@ namespace moris
                     tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
 #endif
                 }
+
+                tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE);
             }
             else
             {
                 tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
-                tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU" );
-                tParameterlist( 0 )( 0 ).set( "fact: level-of-fill", 1 );
+                tParameterlist( 0 )( 0 ).set( "preconditioners", "0"); 
+                
+                tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::IFPACK);
+
+                tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "ILU" );
+                tParameterlist( 7 )( 0 ).set( "fact: level-of-fill", 1 );
             }
 
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
@@ -712,8 +718,6 @@ namespace moris
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Epetra ) );
-
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE);
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 

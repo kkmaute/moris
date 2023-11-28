@@ -91,7 +91,7 @@ namespace moris
         size_t tNumRows    = aMat.n_rows();
         size_t tNumColumns = aMat.n_cols();
 
-        MORIS_ERROR( tNumRows == 1 || tNumColumns == 1, 
+        MORIS_ERROR( tNumRows <= 1 || tNumColumns <= 1, 
                 "print_as_row_vector() - Function should only be called on matrices with size 1 x n or n x 1." );
 
         std::cout << aTitle << " = [ " << std::flush;

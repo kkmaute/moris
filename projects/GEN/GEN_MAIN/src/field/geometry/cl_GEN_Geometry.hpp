@@ -28,14 +28,14 @@ namespace moris
             /**
              * Constructor
              */
-            Geometry(Geometry_Field_Parameters aParameters);
+            Geometry( Geometry_Field_Parameters aParameters );
 
             /**
              * Copy constructor
              *
              * @param aGeometry Geometry to copy
              */
-            Geometry(std::shared_ptr<Geometry> aGeometry);
+            Geometry( std::shared_ptr<Geometry> aGeometry );
 
             /**
              * Sets the intersection interpolation type for this geometry.

@@ -81,6 +81,7 @@ Map_PETSc::Map_PETSc( const Matrix< DDSMat >& aMyGlobalOwnedIds )
     moris::uint tNumMyOwnedDofs = aMyGlobalOwnedIds.n_rows();
 
     // Check that IDs are numbered consecutively from 0 to max(tNumMyDofs)
+    // FIXME: This check is not valid for when a proc is called with no dofs because of max_all
     MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( aMyGlobalOwnedIds.max() ),
             "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
 
@@ -141,6 +142,7 @@ Map_PETSc::Map_PETSc(
     moris::uint tNumMyOwnedDofs = aMyGlobalOwnedIds.n_rows();
 
     // Check that IDs are numbered consecutively from 0 to max(tNumMyDofs)
+    // FIXME: This check is not valid for when a proc is called with no dofs because of max_all
     MORIS_ASSERT( (sint)( sum_all( tNumMyOwnedDofs ) - 1 ) == (sint)max_all( aMyGlobalOwnedIds.max() ),
             "Map_PETSc::Map_PETSc - IDs are not numbered consecutively starting from 0" );
 

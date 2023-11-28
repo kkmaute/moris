@@ -1135,7 +1135,7 @@ namespace moris
         tParameterlist( 0 )( 1 ).set( "Convergence_Tolerance", 1e-02 );
         tParameterlist( 0 )( 1 ).set( "Relative_Convergence_Tolerance", true );
         tParameterlist( 0 )( 1 ).set( "preconditioners", "1" );
-        //tParameterlist( 0 )( 1 ).set( "preconditioners_linear_operator", "0" );
+        tParameterlist( 0 )( 1 ).set( "preconditioners_linear_operator", "0" );
 
         // eigenvalue problem to find the smallest eigenvalues
         tParameterlist( 0 )( 2 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::EIGEN_SOLVER );
@@ -1171,8 +1171,10 @@ namespace moris
 
         tParameterlist( 1 ).resize( 3 );
 
-        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list(); // linear problem index 0
+        tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();    // linear problem index 0
         tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
+        tParameterlist( 1 )( 0 ).set( "DLA_operator_condition_number_with_moris", true );
+        tParameterlist( 1 )( 0 ).set( "DLA_prec_operator_condition_number_with_moris", true );
 
         tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list(); // eigen problem index 1
         tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );

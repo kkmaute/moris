@@ -36,7 +36,7 @@ using namespace moris;
 using namespace dla;
 
 Linear_Solver_Belos::Linear_Solver_Belos( const moris::ParameterList aParameterlist )
-        : Linear_Solver_Algorithm( aParameterlist )
+        : Linear_Solver_Algorithm_Trilinos( aParameterlist )
 {
 }
 

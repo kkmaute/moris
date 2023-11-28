@@ -30,7 +30,6 @@
 #include "cl_SDF_Parameters.hpp"
 #include "cl_SDF_Mesh.hpp"
 #include "cl_SDF_Object.hpp"
-#include "cl_SDF_Data.hpp"
 #include "cl_SDF_Core.hpp"
 #include "cl_SDF_STK.hpp"
 #include "cl_SDF_Field.hpp"
@@ -247,11 +246,8 @@ perform_calculation(
         // create SDF object
         sdf::Object tObject( tObjectParameters( k ).get< std::string >("stl_file") );
 
-        // create data object
-        sdf::Data tData( tObject );
-
         // create core and set verbosity flag
-        sdf::Core tCore( tMesh, tData, tVerbose );
+        sdf::Core tCore( tMesh, tObject, tVerbose );
 
         // set parameters of core
         tCore.set_candidate_search_depth( tObjectParameters( k ).get< sint >("candidate_search_depth") );
@@ -263,7 +259,7 @@ perform_calculation(
         if( ! aCalculateSDF )
         {
             // perform raycast
-            tCore.calculate_raycast();
+            tCore.raycast_mesh();
 
             // create output matrix
             Matrix< DDRMat > tNodeIsInside( tNumberOfNodes, 1 );
