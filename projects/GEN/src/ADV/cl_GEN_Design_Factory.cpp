@@ -23,7 +23,7 @@ namespace moris::ge
             Matrix< DDRMat >&             aADVs,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh,
-            const Node_Manager&           aNodeManager )
+            Node_Manager&                 aNodeManager )
     {
         // Count maximum number of possible designs
         uint tGeometryIndex = 0;

@@ -12,12 +12,21 @@
 
 namespace moris::ge
 {
+
     //--------------------------------------------------------------------------------------------------------------
 
-    Geometry::Geometry( const Node_Manager& aNodeManager )
+    Geometry::Geometry( Node_Manager& aNodeManager )
             : mNodeManager( aNodeManager )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    void Geometry::register_node_manager( Node_Manager& aNodeManager )
+    {
+        mNodeManager = aNodeManager;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }

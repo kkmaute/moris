@@ -79,7 +79,7 @@ namespace moris::ge
          *
          * @return Single trivial node manager
          */
-        static const Node_Manager& get_trivial_instance();
+        static Node_Manager& get_trivial_instance();
 
       private:
         /**

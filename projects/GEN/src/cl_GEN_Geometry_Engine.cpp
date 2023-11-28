@@ -146,6 +146,12 @@ namespace moris
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
 
+            // Register node manager with each geometry
+            for ( const auto& iGeometry : mGeometries )
+            {
+                iGeometry->register_node_manager( mNodeManager );
+            }
+
             // Create integration mesh
             mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
                     aMesh->get_mesh_type(),

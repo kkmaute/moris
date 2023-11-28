@@ -42,14 +42,21 @@ namespace moris::ge
     class Geometry
     {
       private:
-        const Node_Manager& mNodeManager;
+        Node_Manager& mNodeManager;
 
       public:
 
         /**
          * Constructor
          */
-        explicit Geometry( const Node_Manager& aNodeManager );
+        explicit Geometry( Node_Manager& aNodeManager );
+
+        /**
+         * Registers a new node manager (from the geometry engine, if it was created after this geometry)
+         *
+         * @param aNodeManager Geometry engine node manager
+         */
+        void register_node_manager( Node_Manager& aNodeManager );
 
         /**
          * Gets the geometric region of a node, based on this geometry.

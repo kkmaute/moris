@@ -49,7 +49,7 @@ namespace moris::ge
                 Matrix< DDRMat >&             aADVs,
                 std::shared_ptr< Library_IO > aLibrary = nullptr,
                 mtk::Mesh*                    aMesh = nullptr,
-                const Node_Manager&           aNodeManager = Node_Manager::get_trivial_instance() );
+                Node_Manager&                 aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Gets the geometries that the factory has created.

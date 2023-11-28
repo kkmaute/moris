@@ -75,7 +75,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Node_Manager& Node_Manager::get_trivial_instance()
+    Node_Manager& Node_Manager::get_trivial_instance()
     {
         static Node_Manager tManager( nullptr );
         return tManager;

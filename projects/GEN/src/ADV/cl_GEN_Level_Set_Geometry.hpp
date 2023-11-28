@@ -56,7 +56,7 @@ namespace moris::ge
         explicit Level_Set_Geometry(
               std::shared_ptr< Field > aField,
               Level_Set_Parameters     aParameters = Level_Set_Parameters(),
-              const Node_Manager&      aNodeManager = Node_Manager::get_trivial_instance() );
+              Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Gets the intersection interpolation type for this geometry.
