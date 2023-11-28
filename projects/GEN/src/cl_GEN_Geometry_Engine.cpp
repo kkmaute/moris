@@ -90,7 +90,7 @@ namespace moris
             {
                 aParameterLists( 1 ).append( aParameterLists( iParameterIndex ) );
             }
-            Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, aLibrary, aMesh );
+            Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, aLibrary, aMesh, mNodeManager );
 
             // Get geometries and properties from the factory
             mGeometries = tDesignFactory.get_geometries();

@@ -22,7 +22,8 @@ namespace moris::ge
             Cell< ParameterList >         aParameterLists,
             Matrix< DDRMat >&             aADVs,
             std::shared_ptr< Library_IO > aLibrary,
-            mtk::Mesh*                    aMesh )
+            mtk::Mesh*                    aMesh,
+            const Node_Manager&           aNodeManager )
     {
         // Count maximum number of possible designs
         uint tGeometryIndex = 0;
@@ -145,7 +146,7 @@ namespace moris::ge
                         // Level-set field
                         if ( tGeometryType == "level_set" )
                         {
-                            tGeometry = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ) );
+                            tGeometry = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ), aNodeManager );
                         }
                         else
                         {
