@@ -231,7 +231,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
 
         Enriched_Integration_Mesh&   tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
-        tEnrIntegMesh.create_dbl_sided_interface_set( { 1 }, { 0 } );
+        tEnrIntegMesh.create_dbl_sided_interface_sets( { 1 }, { 0 } );
 
         moris::Cell< mtk::Cluster const* > tDoubleSideCluster = tEnrIntegMesh.get_double_side_set_cluster( 0 );
         moris::real                        tGoldVolume        = 2;

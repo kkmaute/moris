@@ -2469,11 +2469,11 @@ namespace moris
 
                 for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
                 {
-                    real tVertGeomVal = mGeometries( iGeometryIndex )->get_field_value( iV, tCoords );
+                    real tVertGeomVal = mGeometries( iGeometryIndex )->get_field_value( iVertex, tCoords );
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
 
-                    mVertexGeometricProximity( iV ).set_geometric_proximity( tGeomProxIndex, iGeometryIndex );
+                    mVertexGeometricProximity( iVertex ).set_geometric_proximity( tGeomProxIndex, iGeometryIndex );
                 }
             }
         }
