@@ -73,6 +73,14 @@ namespace moris::ge
          */
         Derived_Node* get_derived_node( uint aIndex ) const;
 
+        /**
+         * Gets a trivial node manager. This is useful for allowing geometry construction before
+         * the geometry engine has been created.
+         *
+         * @return Single trivial node manager
+         */
+        static const Node_Manager& get_trivial_instance();
+
       private:
         /**
          * Deletes all stored nodes, as cleanup operation.

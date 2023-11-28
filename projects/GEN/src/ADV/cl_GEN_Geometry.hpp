@@ -12,6 +12,7 @@
 
 #include <memory>
 #include "cl_Matrix.hpp"
+#include "cl_GEN_Node_Manager.hpp"
 
 #include "cl_Cell.hpp" // TODO remove
 
@@ -41,14 +42,14 @@ namespace moris::ge
     class Geometry
     {
       private:
-        uint mNumberOfBaseNodes;
+        const Node_Manager& mNodeManager;
 
       public:
 
         /**
          * Constructor
          */
-        Geometry();
+        explicit Geometry( const Node_Manager& aNodeManager );
 
         /**
          * Gets the geometric region of a node, based on this geometry.

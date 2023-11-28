@@ -75,6 +75,14 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Node_Manager& Node_Manager::get_trivial_instance()
+    {
+        static Node_Manager tManager( nullptr );
+        return tManager;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Node_Manager::delete_all_nodes()
     {
         for ( Node* iNode : mNodes )

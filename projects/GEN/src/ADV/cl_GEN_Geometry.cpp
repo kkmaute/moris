@@ -14,7 +14,8 @@ namespace moris::ge
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Geometry::Geometry()
+    Geometry::Geometry( const Node_Manager& aNodeManager )
+            : mNodeManager( aNodeManager )
     {
     }
 
