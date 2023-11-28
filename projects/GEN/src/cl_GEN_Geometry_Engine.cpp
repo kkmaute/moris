@@ -149,7 +149,7 @@ namespace moris
             // Register node manager with each geometry
             for ( const auto& iGeometry : mGeometries )
             {
-                iGeometry->register_node_manager( mNodeManager );
+                iGeometry->set_node_manager( mNodeManager );
             }
 
             // Create integration mesh

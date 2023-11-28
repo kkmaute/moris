@@ -14,7 +14,7 @@
 #include "cl_Param_List.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Library_IO.hpp"
-#include "fn_PRM_GEN_Parameters.hpp"
+#include "cl_GEN_Node_Manager.hpp"
 
 namespace moris::ge
 {
@@ -32,5 +32,6 @@ namespace moris::ge
             Cell< std::shared_ptr< Field > >      aFieldDependencies = {},
             std::shared_ptr<Library_IO>           aLibrary = nullptr,
             mtk::Mesh*                            aMTKMesh = nullptr,
+            Node_Manager&                         aNodeManager = Node_Manager::get_trivial_instance(),
             uint                                  aIndex = 0 );
 }

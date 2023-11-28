@@ -41,12 +41,13 @@ namespace moris::ge
 
     class Design_Field
     {
-      private:
+      protected:
         std::shared_ptr< Field > mField;
+
+      private:
         Field_Parameters         mParameters;
 
       public:
-
         /**
          * Constructor taking in a field pointer and a set of parameters.
          *

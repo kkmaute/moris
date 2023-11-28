@@ -55,8 +55,14 @@ namespace moris::ge
          */
         explicit Level_Set_Geometry(
               std::shared_ptr< Field > aField,
-              Level_Set_Parameters     aParameters = Level_Set_Parameters(),
-              Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
+              Level_Set_Parameters     aParameters = Level_Set_Parameters() );
+
+        /**
+         * Sets a new node manager (from the geometry engine, if it was created after this geometry)
+         *
+         * @param aNodeManager Geometry engine node manager
+         */
+        void set_node_manager( Node_Manager& aNodeManager ) override;
 
         /**
          * Gets the intersection interpolation type for this geometry.
@@ -100,7 +106,7 @@ namespace moris::ge
          * @param aNodeCoordinates Node coordinates
          * @return Geometric region enum
          */
-        Geometric_Region get_base_geometric_region(
+        Geometric_Region get_geometric_region(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aNodeCoordinates ) override;
 
@@ -140,7 +146,6 @@ namespace moris::ge
          */
         Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
 
-      private:
         /**
          * Determines the geometric region of a point based on a level set value
          *

@@ -43,16 +43,13 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aNodeIndex < mNumOriginalNodes )
+        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
         {
             return this->get_field_value( aNodeIndex );
         }
         else
         {
-            MORIS_ASSERT( ( aNodeIndex - mNumOriginalNodes ) < mChildNodes.size(),
-                    "A discrete field value was requested from a node that this field doesn't know. "
-                    "Perhaps a child node was not added to this field?" );
-            return mChildNodes( aNodeIndex - mNumOriginalNodes )->interpolate_field_value( this );
+            return this->get_interpolated_field_value( aNodeIndex, aCoordinates );
         }
     }
 
@@ -62,16 +59,13 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if (aNodeIndex < mNumOriginalNodes)
+        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
         {
-            return this->get_dfield_dadvs(aNodeIndex);
+            return this->get_dfield_dadvs( aNodeIndex );
         }
         else
         {
-            MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                    "A discrete field dfield_dadvs was requested from a node that this field doesn't know. "
-                    "Perhaps a child node was not added to this field?");
-            return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_field_sensitivities(this);
+            return this->get_interpolated_dfield_dadvs( aNodeIndex, aCoordinates );
         }
     }
 
@@ -81,16 +75,13 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if (aNodeIndex < mNumOriginalNodes)
+        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
         {
-            return this->get_determining_adv_ids(aNodeIndex);
+            return this->get_determining_adv_ids( aNodeIndex );
         }
         else
         {
-            MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                         "Determining ADV IDs were requested from a node that this discrete field doesn't know. "
-                         "Perhaps a child node was not added to this field?");
-            return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_determining_adv_ids(this);
+            return this->get_interpolated_determining_adv_ids( aNodeIndex, aCoordinates );
         }
     }
 

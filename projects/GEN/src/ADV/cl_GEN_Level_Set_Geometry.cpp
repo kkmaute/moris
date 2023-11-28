@@ -11,6 +11,7 @@
 #include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
+#include "cl_GEN_Derived_Node.hpp"
 
 namespace moris::ge
 {
@@ -31,12 +32,17 @@ namespace moris::ge
 
     Level_Set_Geometry::Level_Set_Geometry(
             std::shared_ptr< Field > aField,
-            Level_Set_Parameters     aParameters,
-            Node_Manager&            aNodeManager )
+            Level_Set_Parameters     aParameters )
             : Design_Field( aField, aParameters )
-            , Geometry( aNodeManager )
             , mParameters( aParameters )
     {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::set_node_manager( Node_Manager& aNodeManager )
+    {
+        mField->set_node_manager( aNodeManager );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -81,7 +87,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Geometric_Region Level_Set_Geometry::get_base_geometric_region(
+    Geometric_Region Level_Set_Geometry::get_geometric_region(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {

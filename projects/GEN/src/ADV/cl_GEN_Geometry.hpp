@@ -41,17 +41,12 @@ namespace moris::ge
 
     class Geometry
     {
-      private:
-        Node_Manager& mNodeManager;
-
       public:
 
         /**
          * Constructor
-         *
-         * @param aNodeManager Node manager, typically from the geometry engine
          */
-        explicit Geometry( Node_Manager& aNodeManager );
+        Geometry();
 
         /**
          * Default destructor
@@ -59,11 +54,12 @@ namespace moris::ge
         virtual ~Geometry() = default;
 
         /**
-         * Registers a new node manager (from the geometry engine, if it was created after this geometry)
+         * Sets a new node manager (from the geometry engine, if it was created after this geometry).
+         * Default implementation does nothing.
          *
          * @param aNodeManager Geometry engine node manager
          */
-        void register_node_manager( Node_Manager& aNodeManager );
+        virtual void set_node_manager( Node_Manager& aNodeManager );
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -72,9 +68,9 @@ namespace moris::ge
          * @param aNodeCoordinates Node coordinates
          * @return Geometric region enum
          */
-        Geometric_Region get_geometric_region(
+        virtual Geometric_Region get_geometric_region(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aNodeCoordinates );
+                const Matrix< DDRMat >& aNodeCoordinates ) = 0;
 
         /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;
@@ -111,27 +107,5 @@ namespace moris::ge
          * @return Cell of MTK fields for remeshing
          */
         virtual Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() = 0;
-
-      private:
-
-        /**
-         * Gets the geometric region of a node, based on this geometry.
-         *
-         * @param aNodeIndex Node index
-         * @param aNodeCoordinates Node coordinates
-         * @return Geometric region enum
-         */
-        virtual Geometric_Region get_base_geometric_region(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aNodeCoordinates ) = 0;
-
-        /**
-         * Gets the geometric region of a derived node, based on this geometry.
-         * The default implementation calls the function to get the base geometric region.
-         *
-         * @param aDerivedNode Derived node
-         * @return Geometric region enum
-         */
-        virtual Geometric_Region get_derived_geometric_region( Derived_Node* aDerivedNode );
     };
 }
