@@ -16,7 +16,7 @@
 
 namespace moris::ge
 {
-    class Geometry;
+    class Surface_Mesh_Geometry;
 
     class Intersection_Node_Surface_Mesh : public Intersection_Node
     {
@@ -40,20 +40,19 @@ namespace moris::ge
          * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
          * @param aFirstParentNodeIndex Index of the first parent of this node
          * @param aSecondParentNodeIndex Index of the second parent of this node
-         * @param aFirstParentNodeLocalCoordinates Global coordinates of the first parent node
-         * @param aSecondParentNodeLocalCoordinates Global coordinates of the second parent node
+         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node
+         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node
          * @param aAncestorNodeIndices Ancestor node indices
          * @param aAncestorNodeCoordinates Ancestor node global coordinates
          */
         Intersection_Node_Surface_Mesh(
-                std::shared_ptr< Intersection_Node > aFirstParentNode,
-                std::shared_ptr< Intersection_Node > aSecondParentNode,
-                uint                                 aFirstParentNodeIndex,
-                uint                                 aSecondParentNodeIndex,
-                const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
-                const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
-                const Matrix< DDUMat >&              aAncestorNodeIndices,
-                const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates );
+                std::shared_ptr< Intersection_Node >     aFirstParentNode,
+                std::shared_ptr< Intersection_Node >     aSecondParentNode,
+                uint                                     aFirstParentNodeIndex,
+                uint                                     aSecondParentNodeIndex,
+                const Matrix< DDRMat >&                  aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&                  aSecondParentNodeLocalCoordinates,
+                std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry );
 
       protected:
 
@@ -77,28 +76,27 @@ namespace moris::ge
          * @return false if there is no intersection detected
          */
         bool determine_is_intersected(
-                const Element_Intersection_Type aAncestorBasisFunction,
+                const Element_Interpolation_Type aAncestorBasisFunction,
                 const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) override;
 
         //--------------------------------------------------------------------------------------------------------------
 
         /**
-         * Computes the coordinate rotation matrix to move the x axis to point from the first parent node to the second parent node.
+         * Computes the coordinate rotation matrix to move the z axis to point from the first parent node to the second parent node.
          * Used to raycast to determine local coordinate of intersection node.
-         * 
+         *
          * @param aFirstParentNodeGlobalCoordinates global coordinate of the first parent nodee
          * @param aSecondParentNodeGlobalCoordinates global coordinates of the second parent node
          * @return Matrix< DDRMat > direction cosine matrix used to rotate the coordinate frame for raycast
          */
-        Matrix< DDRMat > compute_raycast_rotation(
-                const Matrix< DDRMat >& aFirstParentNodeGlobalCoordinates,
-                const Matrix< DDRMat >& aSecondParentNodeGlobalCoordinates );
+        Matrix< DDRMat > compute_raycast_rotation();
 
         //--------------------------------------------------------------------------------------------------------------
 
         /**
-         * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
+         * Interpolate and return the local coordinates of this intersection node by raycasting in a transformed coordinate axis z direction.
+         * Used to clean up constructor.
          *
          * @param aFirstNodeCoordinates Global coordinates of the first parent of this node
          * @param aSecondNodeCoordinates Global coordinates of the second parent of this node
@@ -107,8 +105,7 @@ namespace moris::ge
          */
         real compute_local_coordinate(
                 const Matrix< DDRMat >&         aFirstParentNodeCoordinates,
-                const Matrix< DDRMat >&         aSecondParentNodeCoordinates,
-                const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates );
+                const Matrix< DDRMat >&         aSecondParentNodeCoordinates );
 
         //--------------------------------------------------------------------------------------------------------------
 
