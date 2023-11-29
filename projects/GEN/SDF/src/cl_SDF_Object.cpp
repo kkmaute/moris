@@ -52,7 +52,6 @@ namespace moris
             MORIS_ASSERT( mNumberOfFacets == mFacets.size(), "SDF - Object(): number of facets not consistent" );
 
             // Determine and store the minimum and maximum coordinates of each facet
-            std::cout << "dimension: " << mDimension << std::endl;
             mFacetMinCoords.resize( mNumberOfFacets, mDimension );
             mFacetMaxCoords.resize( mNumberOfFacets, mDimension );
             for ( uint iFacetIndex = 0; iFacetIndex < mNumberOfFacets; iFacetIndex++ )
