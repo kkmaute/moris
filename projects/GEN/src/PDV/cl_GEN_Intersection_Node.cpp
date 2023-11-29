@@ -32,7 +32,7 @@ namespace moris
                 moris_index                          aSecondParentNodeIndex,
                 const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
-                Matrix< DDUMat >                     aAncestorNodeIndices,
+                const Matrix< DDUMat >&              aAncestorNodeIndices,
                 Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                 const Element_Interpolation_Type     aAncestorBasisFunction )
                 : Child_Node(
@@ -54,12 +54,12 @@ namespace moris
         void
         Intersection_Node::initialize(
                 const Element_Interpolation_Type aAncestorBasisFunction,
-                const Matrix< DDRMat >&         aFirstParentLocalCoordinates,
-                const Matrix< DDRMat >&         aSecondParentLocalCoordinates )
+                const Matrix< DDRMat >&          aFirstParentLocalCoordinates,
+                const Matrix< DDRMat >&          aSecondParentLocalCoordinates )
         {
-            mGlobalCoordinates       = this->compute_global_coordinates();
-            mParentVector            = this->compute_parent_vector( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
-            mIsIntersected           = this->determine_is_intersected( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
+            mGlobalCoordinates = this->compute_global_coordinates();
+            mParentVector      = this->compute_parent_vector( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
+            mIsIntersected     = this->determine_is_intersected( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -67,8 +67,8 @@ namespace moris
         Matrix< DDRMat >
         Intersection_Node::compute_parent_vector(
                 const Element_Interpolation_Type aAncestorBasisFunction,
-                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates )
+                const Matrix< DDRMat >&          aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&          aSecondParentNodeLocalCoordinates )
         {
             // construct interpolator
             mtk::Interpolation_Function_Factory tFactory;

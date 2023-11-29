@@ -67,7 +67,7 @@ namespace moris
                     moris_index                          aSecondParentNodeIndex,
                     const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
-                    Matrix< DDUMat >                     aAncestorNodeIndices,
+                    const Matrix< DDUMat >&              aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                     Element_Interpolation_Type           aAncestorBasisFunction );
             /**
@@ -200,8 +200,8 @@ namespace moris
              */
             void initialize(
                     const Element_Interpolation_Type aAncestorBasisFunction,
-                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
+                    const Matrix< DDRMat >&          aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&          aSecondParentNodeLocalCoordinates );
 
             /**
              * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
@@ -227,8 +227,8 @@ namespace moris
              */
             Matrix< DDRMat > compute_parent_vector(
                     const Element_Interpolation_Type aAncestorBasisFunction,
-                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
+                    const Matrix< DDRMat >&          aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&          aSecondParentNodeLocalCoordinates );
 
             /**
              * Determines if the parent nodes are intersected.
@@ -238,10 +238,9 @@ namespace moris
              * @return false if there is no intersection detected
              */
             virtual bool determine_is_intersected(
-                const Element_Interpolation_Type aAncestorBasisFunction,
-                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates
-            ) = 0;
+                    const Element_Interpolation_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&          aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&          aSecondParentNodeLocalCoordinates ) = 0;
 
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -267,13 +266,6 @@ namespace moris
              * @return Local coordinate sensitivity
              */
             virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() = 0;
-
-            /**
-             * Function for appending to the coordinate sensitivities member variable, eliminating duplicate code
-             *
-             * @param aSensitivitiesToAdd Sensitivities to add
-             */
-            void join_coordinate_sensitivities( const Matrix< DDRMat >& aSensitivitiesToAdd );
         };
     }    // namespace ge
 }    // namespace moris
