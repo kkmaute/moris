@@ -47,17 +47,17 @@ namespace moris
              * @param aDetermineIsIntersected Flag whether determination of intersection should be performed
              */
             Intersection_Node_Level_Set(
-                    real                                 aLocalCoordinate,
-                    std::shared_ptr< Intersection_Node > aFirstParentNode,
-                    std::shared_ptr< Intersection_Node > aSecondParentNode,
-                    moris_index                          aFirstParentNodeIndex,
-                    moris_index                          aSecondParentNodeIndex,
-                    const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
-                    const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
-                    Matrix< DDUMat >                     aAncestorNodeIndices,
-                    Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                    const Element_Interpolation_Type     aAncestorBasisFunction,
-                    std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry );
+                    real                                  aLocalCoordinate,
+                    std::shared_ptr< Intersection_Node >  aFirstParentNode,
+                    std::shared_ptr< Intersection_Node >  aSecondParentNode,
+                    moris_index                           aFirstParentNodeIndex,
+                    moris_index                           aSecondParentNodeIndex,
+                    const Matrix< DDRMat >&               aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&               aSecondParentNodeLocalCoordinates,
+                    const Matrix< DDUMat >&               aAncestorNodeIndices,
+                    Cell< Matrix< DDRMat > >              aAncestorNodeCoordinates,
+                    const Element_Interpolation_Type      aAncestorBasisFunction,
+                    std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
 
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
@@ -88,7 +88,7 @@ namespace moris
             /**
              * Compute the difference between the phi value of the first parent node and
              * the isocontour threshold of the intersecting geometry. Implementation provided by child class.
-             * 
+             *
              * @param aAncestorBasisFunction the basis function type of the ancestor nodes
              * @param aParentNodeLocalCoordinates the parent node whose difference from the threshold that should be comptued
              * @param aParentNodeIndex the index of the parent node whose difference will be computed
@@ -97,8 +97,8 @@ namespace moris
              */
             virtual real compute_diff_from_threshold(
                     const Element_Interpolation_Type aAncestorBasisFunction,
-                    const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
-                    moris_index               aParentNodeIndex ) = 0;
+                    const Matrix< DDRMat >&          aParentNodeLocalCoordinates,
+                    moris_index                      aParentNodeIndex ) = 0;
 
             /**
              * Determines if the parent nodes are intersected.
@@ -110,8 +110,8 @@ namespace moris
              */
             bool determine_is_intersected(
                     const Element_Interpolation_Type aAncestorBasisFunction,
-                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) override;
+                    const Matrix< DDRMat >&          aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&          aSecondParentNodeLocalCoordinates ) override;
 
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field

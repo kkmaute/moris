@@ -24,7 +24,7 @@ namespace moris::ge
             moris_index                           aSecondParentNodeIndex,
             const Matrix< DDRMat >&               aFirstParentNodeLocalCoordinates,
             const Matrix< DDRMat >&               aSecondParentNodeLocalCoordinates,
-            Matrix< DDUMat >                      aAncestorNodeIndices,
+            const Matrix< DDUMat >&               aAncestorNodeIndices,
             Cell< Matrix< DDRMat > >              aAncestorNodeCoordinates,
             const Element_Interpolation_Type      aAncestorBasisFunction,
             std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
