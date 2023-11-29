@@ -157,23 +157,23 @@ namespace moris::sdf
             uint              aAxis )
     {
         // preselect lines in the aAxis direction
-        moris::Cell< uint >   tCandidateFacets;
-        moris::Cell< Facet* > tIntersectedFacets;
-        preselect_lines( aObject, aPoint, aAxis, tCandidateFacets, tIntersectedFacets );
+        moris::Cell< uint >   tIntersectedFacets;
+        moris::Cell< Facet* > tCandidateFacets;
+        preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tCandidateFacets );
 
         // if there are no candidates and no intersected facets, the point is outside
-        if ( tCandidateFacets.size() == 0 && tIntersectedFacets.size() == 0 )
+        if ( tIntersectedFacets.size() == 0 && tIntersectedFacets.size() == 0 )
         {
             return OUTSIDE;
         }
 
         // compute intersection if the point is inside a line's bounding box
-        if ( tIntersectedFacets.size() > 0 )
+        if ( tCandidateFacets.size() > 0 )
         {
-            moris::Cell< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
+            moris::Cell< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, aAxis );
 
             // check if the node is inside the polygon
-            return check_if_node_is_inside_lines( tIntersectionCoords, tCandidateFacets, aPoint, aAxis );
+            return check_if_node_is_inside_lines( tIntersectionCoords, tIntersectedFacets, aPoint, aAxis );
         }
 
         // return unsure if there were no candidates
@@ -312,7 +312,6 @@ namespace moris::sdf
             {
                 // check if the point's !aAxis component is less the facet's minimum aAxis component. If so, the facet is intersected
                 // NOTE: this makes the 2D raycast only cast in the positive axis direction
-                // FIXME: Candidate and intersected variable names are backward, need to be carefully considered to be switched back BRENDAN
                 if ( aObject.get_facet_min_coords()( iLineIndex, aAxis ) - aPoint( aAxis ) > MORIS_REAL_EPS )
                 {
                     aIntersectedFacets( tIntersectedFacetCount ) = iLineIndex;
