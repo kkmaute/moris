@@ -43,12 +43,12 @@ namespace moris::ge
         {
             case sdf::Object_Region::INSIDE:
             {
-                return Geometric_Region::POSITIVE;
+                return Geometric_Region::NEGATIVE;
                 break;
             }
             case sdf::Object_Region::OUTSIDE:
             {
-                return Geometric_Region::NEGATIVE;
+                return Geometric_Region::POSITIVE;
                 break;
             }
             default:
