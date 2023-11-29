@@ -46,7 +46,7 @@ namespace moris::sdf
 
         if ( par_size() == 1 )
         {
-            SECTION( "SDF: Raycast Free Function 3D Test" )
+            SECTION( "SDF: Raycast Free Function Test - 3D" )
             {
                 // create triangle object from object file
                 std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
@@ -100,8 +100,8 @@ namespace moris::sdf
                 Cell< real > tIntersectionCoordinatesExpected = { 0.4718, 0.9024 };
                 Cell< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 2 );
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
-                CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) < gSDFepsilon );
-                CHECK( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) < gSDFepsilon );
+                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < MORIS_REAL_EPS );
+                CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < MORIS_REAL_EPS );
 
                 // check if the point is inside and compare it to expectations
                 Object_Region tPointIsInside         = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 2 );
@@ -148,11 +148,10 @@ namespace moris::sdf
 
 
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
-                CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) < gSDFepsilon );
-                CHECK( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) < gSDFepsilon );
+                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < MORIS_REAL_EPS );
+                CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < MORIS_REAL_EPS );
 
-
-                tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 0 );
+                tPointIsInside         = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 0 );
                 tPointIsInsideExpected = OUTSIDE;
 
                 CHECK( tPointIsInside == tPointIsInsideExpected );
@@ -161,7 +160,7 @@ namespace moris::sdf
 
                 CHECK( tPointIsInside == tPointIsInsideExpected );
             }
-            SECTION( "SDF: Raycast Free Function 2D Test" )
+            SECTION( "SDF: Raycast Free Function Test - 2D" )
             {
                 // create triangle object from object file
                 std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
@@ -197,7 +196,7 @@ namespace moris::sdf
                 real         tIntersectionCoordinateExpected = -0.2;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
-                CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected < gSDFepsilon );
+                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < MORIS_REAL_EPS );
 
                 // determine if the point is inside/outside and check expectation
                 Object_Region tRegion              = check_if_node_is_inside_lines( tIntersectionCoordinates, tIntersectedLines, tTestPoint, 0 );
@@ -224,7 +223,7 @@ namespace moris::sdf
                 tIntersectionCoordinateExpected = 0.25;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
-                CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected < gSDFepsilon );
+                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < MORIS_REAL_EPS );
 
                 tRegion              = check_if_node_is_inside_lines( tIntersectionCoordinates, tIntersectedLines, tTestPoint, 1 );
                 tPointInsideExpected = INSIDE;
@@ -234,6 +233,32 @@ namespace moris::sdf
                 tRegion = raycast_point( tObject, tTestPoint );
 
                 CHECK( tRegion == tPointInsideExpected );
+            }
+            SECTION( "SDF: Compute distance to facets test - 2D" )
+            {
+                // create triangle object from object file
+                std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
+                Object         tObject( tObjectPath );
+                Cell< Facet* > tFacets = tObject.get_facets();
+
+                // define test point
+                Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
+
+                // expected results
+                moris::Cell< real > tLineDistanceXExpected = { -0.2, 0.2 };
+                moris::Cell< real > tLineDistanceYExpected = { -0.25, 0.25 };
+
+                // compute with raycast
+                moris::Cell< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
+                moris::Cell< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
+
+                // compare
+                REQUIRE( tLineDistanceX.size() == 2 );
+                REQUIRE( tLineDistanceY.size() == 2 );
+                REQUIRE( tLineDistanceX( 0 ) == tLineDistanceXExpected( 0 ) );
+                REQUIRE( tLineDistanceX( 1 ) == tLineDistanceXExpected( 1 ) );
+                REQUIRE( tLineDistanceY( 0 ) == tLineDistanceYExpected( 0 ) );
+                REQUIRE( tLineDistanceY( 1 ) == tLineDistanceYExpected( 1 ) );
             }
         }
     }
