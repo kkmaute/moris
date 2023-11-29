@@ -9,8 +9,7 @@
  */
 
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
-#include "cl_GEN_Intersection_Node_Linear.hpp"
-#include "cl_GEN_Intersection_Node_Bilinear.hpp"
+#include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 
 namespace moris::ge
 {
@@ -34,34 +33,31 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Int_Interpolation
-    Surface_Mesh_Geometry::get_intersection_interpolation()
-    {
-        return mParameters.mIntersectionInterpolation;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Geometric_Region Surface_Mesh_Geometry::get_geometric_region(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        sdf::Object_Region tRegion = raycast_point( this, aNodeCoordinates );
+        sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
         switch ( tRegion )
         {
-            case sdf::INSIDE:
+            case sdf::Object_Region::INSIDE:
             {
-                return POSITIVE;
+                return Geometric_Region::POSITIVE;
                 break;
             }
-            case sdf::OUTSIDE:
+            case sdf::Object_Region::OUTSIDE:
             {
-                return NEGATIVE;
+                return Geometric_Region::NEGATIVE;
+                break;
+            }
+            default:
+            {
+                return Geometric_Region::INTERFACE;
                 break;
             }
         }
-        return INTERFACE;
+        
     }
 
     //--------------------------------------------------------------------------------------------------------------
