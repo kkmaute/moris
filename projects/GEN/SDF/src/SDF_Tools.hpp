@@ -30,6 +30,12 @@ namespace moris
 {
     namespace sdf
     {
+<<<<<<< Updated upstream
+=======
+        const real gSDFepsilon = 1e-8; // BRENDAN delete if this works
+        //-------------------------------------------------------------------------------
+
+>>>>>>> Stashed changes
         inline void
         TrianglePermutation( const uint aZ, uint& aX, uint& aY )
         {
