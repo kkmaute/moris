@@ -30,9 +30,6 @@ namespace moris
 {
     namespace sdf
     {
-        const real gSDFepsilon = 1e-8;
-        //-------------------------------------------------------------------------------
-
         inline void
         TrianglePermutation( const uint aZ, uint& aX, uint& aY )
         {
@@ -133,10 +130,10 @@ namespace moris
         rotation_matrix( const Matrix< DDRMat >& aAxis, const real& aAngle )
         {
             Matrix< DDRMat > aT( 3, 3 );
-            real tCos          = std::cos( aAngle );
-            real tSin          = std::sin( aAngle );
-            real tCos_minusOne = tCos - 1.0;
-            
+            real             tCos          = std::cos( aAngle );
+            real             tSin          = std::sin( aAngle );
+            real             tCos_minusOne = tCos - 1.0;
+
             aT( 0, 0 ) = tCos - aAxis( 0 ) * aAxis( 0 ) * tCos_minusOne;
             aT( 1, 0 ) = aAxis( 2 ) * tSin - aAxis( 0 ) * aAxis( 1 ) * tCos_minusOne;
             aT( 2, 0 ) = -aAxis( 1 ) * tSin - aAxis( 0 ) * aAxis( 2 ) * tCos_minusOne;
@@ -154,12 +151,12 @@ namespace moris
         rotation_matrix( const real& aAngle )
         {
             Matrix< DDRMat > aT( 2, 2 );
-            real tCos          = std::cos( aAngle );
-            real tSin          = std::sin( aAngle );
-            aT( 0, 0 ) = tCos;
-            aT( 0, 1 ) = -tSin;
-            aT( 1, 0 ) = tSin;
-            aT( 1, 1 ) = tCos;
+            real             tCos = std::cos( aAngle );
+            real             tSin = std::sin( aAngle );
+            aT( 0, 0 )            = tCos;
+            aT( 0, 1 )            = -tSin;
+            aT( 1, 0 )            = tSin;
+            aT( 1, 1 )            = tCos;
             return aT;
         }
 
@@ -175,7 +172,7 @@ namespace moris
             {
                 char* tMemBlock;
                 int   size = sizeof( moris::uint );
-                tMemBlock   = new char[ size ];
+                tMemBlock  = new char[ size ];
                 file.read( tMemBlock, size );
                 file.close();
                 tSeed = *reinterpret_cast< int* >( tMemBlock );
@@ -208,7 +205,7 @@ namespace moris
             {
                 tVector( i ) = std::rand();
             }
-            
+
             // compute the norm of the vector
             real tNorm = norm( tVector );
 
