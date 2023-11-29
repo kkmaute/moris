@@ -39,8 +39,24 @@ namespace moris::sdf
      */
     Object_Region
     raycast_point(
-            Object&           aObject,
+            Object&                 aObject,
             const Matrix< DDRMat >& aPoint );
+
+    //-------------------------------------------------------------------------------
+
+    /**
+     * Casts in the aAxis direction and returns the distance to every facet the ray hits
+     *
+     * @param aObject water tight collection of facets to cast on to
+     * @param aPoint Point in space that lies within the bounding plane of the candidate triangles
+     * @param aAxis direction in which the ray is cast
+     * @return intersection coordinate locations
+     */
+    moris::Cell< real >
+    compute_distance_to_facets(
+            Object&           aObject,
+            Matrix< DDRMat >& aPoint,
+            uint              aAxis );
 
     //-------------------------------------------------------------------------------
 
@@ -135,10 +151,10 @@ namespace moris::sdf
      */
     moris::Cell< Facet* >
     intersect_triangles(
-            moris::Cell< uint >&    aCandidateFacets,
-            Object&          aObject,
-            Matrix< DDRMat >& aPoint,
-            uint             aAxis );
+            moris::Cell< uint >& aCandidateFacets,
+            Object&              aObject,
+            Matrix< DDRMat >&    aPoint,
+            uint                 aAxis );
 
     //-------------------------------------------------------------------------------
 
@@ -189,10 +205,10 @@ namespace moris::sdf
      */
     Object_Region
     check_if_node_is_inside_lines(
-            const moris::Cell< real >&     aIntersectionCoords,
-            const moris::Cell< uint >&     aCandidateFacets,
-            const Matrix< DDRMat >& aPoint,
-            uint                    aAxis );
+            const moris::Cell< real >& aIntersectionCoords,
+            const moris::Cell< uint >& aCandidateFacets,
+            const Matrix< DDRMat >&    aPoint,
+            uint                       aAxis );
 
     //-------------------------------------------------------------------------------
 
