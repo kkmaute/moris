@@ -121,7 +121,7 @@ namespace moris::sdf
                 moris::Cell< Facet* > tFacetsFromCandidates( tCandidateFacets.size() );
                 for ( uint iLineIndex = 0; iLineIndex < tCandidateFacets.size(); iLineIndex++ )
                 {
-                    tFacetsFromCandidates( iLineIndex ) = aObject.get_facets()( iLineIndex );
+                    tFacetsFromCandidates( iLineIndex ) = aObject.get_facets()( tCandidateFacets( iLineIndex ) );
                 }
 
                 // append the candidates to the intersected facets to compute intersection
@@ -162,7 +162,7 @@ namespace moris::sdf
         preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tCandidateFacets );
 
         // if there are no candidates and no intersected facets, the point is outside
-        if ( tIntersectedFacets.size() == 0 && tIntersectedFacets.size() == 0 )
+        if ( tIntersectedFacets.size() == 0 && tCandidateFacets.size() == 0 )
         {
             return OUTSIDE;
         }
