@@ -99,10 +99,10 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void
-            init_ig_geometry_type() override
-            {
-                mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
+        void
+        init_ig_geometry_type()
+        {
+            mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
 
                 if ( mSetClusters.size() > 0 )
                 {

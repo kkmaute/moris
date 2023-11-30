@@ -155,7 +155,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void
-            init_ig_geometry_type() override
+            init_ig_geometry_type()
             {
                 mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
 
