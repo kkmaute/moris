@@ -30,7 +30,7 @@ namespace moris::mtk
         // class Cluster_Group;
 
       protected:
-        moris::Cell< moris::mtk::Block_Set * >           mListOfBlocks;
+        moris::Cell< moris::mtk::Block_Set * >       mListOfBlocks;
         moris::Cell< moris::mtk::Side_Set * >        mListOfSideSets;
         moris::Cell< moris::mtk::Double_Side_Set * > mListOfDoubleSideSets;
         moris::Cell< moris::mtk::Set * >             mListOfAllSets;
@@ -41,10 +41,10 @@ namespace moris::mtk
 
         // set by color
         moris_index                                                 mMaxColor{};
-        moris::Cell< moris::Cell< moris::mtk::Block_Set * > >           mBlockSetToColor;
-        moris::Cell< moris::Cell< moris::mtk::Side_Set * > >        mSideSetToColor;
-        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > mDoubleSideSetToColor;
-        moris::Cell< moris::Cell< moris::mtk::Set * > >             mAllSetToColor;
+        moris::Cell< moris::Cell< moris::mtk::Block_Set * > >       mColorToBlockSet;         // outer cell: color | inner cell: block set index
+        moris::Cell< moris::Cell< moris::mtk::Side_Set * > >        mColorToSideSet;          // outer cell: color | inner cell: side set index
+        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > mColorToDoubleSideSet;    // outer cell: color | inner cell: double side set index
+        moris::Cell< moris::Cell< moris::mtk::Set * > >             mColorToAllSets;          // outer cell: color | inner cell: set index
 
         // ----------------------------------------------------------------------------
 
