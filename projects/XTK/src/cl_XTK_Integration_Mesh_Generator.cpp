@@ -874,11 +874,13 @@ namespace xtk
             // if all vertices are detected as being on the interface something is wrong
             if ( tCellProximity == xtk::Geometric_Proximity::INTERFACE )
             {
-                MORIS_LOG_WARNING(
-                        "IMG::deduce_ig_cell_bulk_phase_index() - "
-                        "Did not find a non-interface node wrt. geometry #%i for this element, set to dummy: %zu",
-                        iGeom,
-                        mGeometryEngine->get_num_phases() );
+                // un-comment for debugging phase assignment issues
+                // MORIS_LOG_WARNING(
+                //         "IMG::deduce_ig_cell_bulk_phase_index() - "
+                //         "Did not find a non-interface node wrt. geometry #%i for element #%i, set to dummy: %zu",
+                //         iGeom,
+                //         aCell->get_index(),
+                //         mGeometryEngine->get_num_phases() );
 
                 // return false
                 return MORIS_INDEX_MAX;

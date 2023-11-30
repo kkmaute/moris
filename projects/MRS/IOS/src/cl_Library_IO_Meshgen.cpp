@@ -1031,7 +1031,7 @@ namespace moris
         aParameterList( 0 )( 0 ).set( "output_file", "foreground_mesh.exo" );
         aParameterList( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         aParameterList( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
-        aParameterList( 0 )( 0 ).set( "print_enriched_ig_mesh", true );
+        aParameterList( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
         aParameterList( 0 )( 0 ).set( "global_T_matrix_output_file", "" );
         aParameterList( 0 )( 0 ).set( "elemental_T_matrix_output_file", "Elemental_Extraction_Operators" );
     }
