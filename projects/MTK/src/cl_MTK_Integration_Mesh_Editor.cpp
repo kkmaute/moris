@@ -264,7 +264,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::initialize_side_cluster_data()
     {
         // get the side sets from th mesh
-        moris::Cell< moris::mtk::Set* > const & tSideSets = mInputMesh->get_list_of_sets( SetType::SIDESET );
+        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         // initialize side set info offSet
         mIGMeshInfo->mSideSetToSideClusterOffset.resize( tSideSets.size() + 1 );
@@ -345,7 +345,7 @@ namespace moris::mtk
         this->initialize_side_cluster_data();
 
         // get the sets
-        moris::Cell< moris::mtk::Set* > const & tSideSets = mInputMesh->get_list_of_sets( SetType::SIDESET );
+        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         // initialize the cluster counter
         uint iCounter = 0;
@@ -400,7 +400,7 @@ namespace moris::mtk
         this->initialize_double_sided_cluster_data();
 
         // get the old data of the side sets
-        moris::Cell< moris::mtk::Set* > const & tDoubleSideSets = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // counter for the double sided cluster
         size_t iCounter = 0;
@@ -455,7 +455,7 @@ namespace moris::mtk
         size_t tNumDoubleSidedCluster = 0;
 
         // get the double side set
-        moris::Cell< moris::mtk::Set* > const & tSideSets = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tSideSets = mInputMesh->get_double_side_sets();
 
         // set counter
         uint iCounterSet = 0;
@@ -529,7 +529,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::initialize_ghost_data()
     {
         // get double sided sets
-        moris::Cell< moris::mtk::Set* > const & tDoubleSideSets = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // number of ghost dbl sided sets
         size_t tNumberOfGhostSideSets = 0;
@@ -698,7 +698,7 @@ namespace moris::mtk
         this->initialize_ghost_data();
 
         // get the double sided sets
-        moris::Cell< moris::mtk::Set* > const & tDoubleSideSets = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // initialize the counters
         size_t      iDblSideCluster    = 0;
@@ -811,7 +811,7 @@ namespace moris::mtk
         this->initialize_block_set_data();
 
         // get the block sets
-        moris::Cell< moris::mtk::Set* > const & tBlockSets = mInputMesh->get_list_of_sets( SetType::BULK );
+        moris::Cell< moris::mtk::Block* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // set the counter
         uint iCounter = 0;
@@ -841,7 +841,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::initialize_block_set_data()
     {
         // get tge block sets from the mesh
-        moris::Cell< moris::mtk::Set* > const & tBlockSets = mInputMesh->get_list_of_sets( SetType::BULK );
+        moris::Cell< moris::mtk::Block* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // resize the connectivity
         mIGMeshInfo->mBlockSetToCellClusterOffSet.resize( tBlockSets.size() + 1 );
@@ -1168,7 +1168,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_block_sets()
     {
         // call the block sets from the old mesh
-        moris::Cell< moris::mtk::Set* > const & tBlockSets = mInputMesh->get_list_of_sets( SetType::BULK );
+        moris::Cell< moris::mtk::Block* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // resize the new list of block sets for the new mesh
         mOutputMesh->mListOfBlocks.resize( tBlockSets.size() );
@@ -1214,7 +1214,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_side_sets()
     {
         // call the old side sets
-        moris::Cell< moris::mtk::Set* > const & tSideSets = mInputMesh->get_list_of_sets( SetType::SIDESET );
+        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         // resize the new side set list
         mOutputMesh->mListOfSideSets.resize( tSideSets.size() );
@@ -1302,7 +1302,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_double_sided_sets()
     {
         // get the old double sided sets
-        moris::Cell< moris::mtk::Set* > const & tDoubleSideSets = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // resize the new double sided sets
         mOutputMesh->mListOfDoubleSideSets.resize( tDoubleSideSets.size() );
@@ -1440,7 +1440,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_ghost_sets()
     {
         // get the double sided sets for the mesh
-        moris::Cell< moris::mtk::Set* > const & tDoubleSideSets = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // find the start index of the double sided ghost to be added to the list
         size_t iCounterGlobal = tDoubleSideSets.size() - mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset.size() + 1;
@@ -2024,7 +2024,7 @@ namespace moris::mtk
 
             }    // end for: each follower phase
 
-        }        // end for: each leader phase candidate
+        }    // end for: each leader phase candidate
 
         // communicate information across all sets
         mtk::Set_Communicator tSetCommunicator( mOutputMesh->mListOfDoubleSideSets );
@@ -2189,7 +2189,7 @@ namespace moris::mtk
         // // Double Sided Set Data
 
         // get the old double sided sets
-        moris::Cell< moris::mtk::Set* > tDoubleSideSets = mOutputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > tDoubleSideSets = mOutputMesh->get_double_side_sets();
 
         // counter for the DoubleSidedSets
         size_t iCounter = 0;
@@ -2263,7 +2263,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::recreate_side_sets()
     {
         // call the old side sets
-        moris::Cell< moris::mtk::Set* > tSideSets = mOutputMesh->get_list_of_sets( SetType::SIDESET );
+        moris::Cell< moris::mtk::Side_Set* > tSideSets = mOutputMesh->get_side_sets();
 
         // resize the new side set list
         mOutputMesh->mListOfSideSets.resize( tSideSets.size() );
@@ -2317,7 +2317,7 @@ namespace moris::mtk
             delete iSet;
         }
 
-    } // end function: Integration_Mesh_Editor::recreate_side_sets()
+    }    // end function: Integration_Mesh_Editor::recreate_side_sets()
 
     //------------------------------------------------------------------------------------------------------------
 
@@ -2559,7 +2559,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the side sets
-        moris::Cell< moris::mtk::Set* > const & tSideSets = mInputMesh->get_list_of_sets( SetType::SIDESET );
+        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         // counter for clusters
         uint iCounter = 0;
@@ -2690,7 +2690,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old block sets
-        moris::Cell< moris::mtk::Set* > const & tBlocks = mInputMesh->get_list_of_sets( SetType::BULK );
+        moris::Cell< moris::mtk::Block* > const & tBlocks = mInputMesh->get_block_sets();
 
         // loop over the blocks
         for ( uint iSet = 0; iSet < mOutputMesh->mListOfBlocks.size(); iSet++ )
@@ -2772,7 +2772,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old side sets
-        moris::Cell< moris::mtk::Set* > const & tSideSets = mInputMesh->get_list_of_sets( SetType::SIDESET );
+        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         for ( uint iSet = 0; iSet < mOutputMesh->mListOfSideSets.size(); iSet++ )
         {
@@ -2849,7 +2849,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old side sets
-        moris::Cell< moris::mtk::Set* > const & tDoubleSideSets = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // counter for the clusters
         uint iCounter = 0;
@@ -2946,7 +2946,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get list of double sided sets
-        moris::Cell< moris::mtk::Set* > const & tDoubleSideSets = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // counter for number of clusters
         uint iCounter = 0;
@@ -3037,8 +3037,8 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old and new sets
-        moris::Cell< moris::mtk::Set* > const & tSideSetsOld = mInputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
-        moris::Cell< moris::mtk::Set* > const & tSideSetsNew = mOutputMesh->get_list_of_sets( SetType::DOUBLE_SIDED_SIDESET );
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tSideSetsOld = mInputMesh->get_double_side_sets();
+        moris::Cell< moris::mtk::Double_Side_Set* > const & tSideSetsNew = mOutputMesh->get_double_side_sets();
 
         // loop over the sets
         for ( uint iSet = 0; iSet < tSideSetsOld.size(); iSet++ )

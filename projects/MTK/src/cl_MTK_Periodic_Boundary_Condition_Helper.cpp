@@ -56,7 +56,7 @@ namespace moris
             moris::Cell< moris::Cell< Cluster const * > > tDoubleSideSetClusters( mMeshSideSetPairs.size() );
 
             // Double sided side set
-            moris::Cell< mtk::Set* > tDblSideSet( mMeshSideSetPairs.size() );
+            moris::Cell< mtk::Double_Side_Set* > tDblSideSet( mMeshSideSetPairs.size() );
 
             // iterate through periodic pairs to
             for ( uint tPairCounter = 0; tPairCounter < mMeshSideSetPairs.size(); tPairCounter++ )
