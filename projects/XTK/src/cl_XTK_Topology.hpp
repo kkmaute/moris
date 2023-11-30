@@ -26,7 +26,7 @@ namespace xtk
         QUAD_4,
         TET_4,
         TET_10,
-        HEXA_8,    // hexahedron with 8 nodes topology
+        HEX_8,    // hexahedron with 8 nodes topology
 
     };
 

@@ -742,7 +742,7 @@ namespace moris::mig
         moris::mtk::Integration_Mesh *tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
 
         // get all the sidesets
-        moris::Cell< moris::mtk::Set * > const &tListOfSideSets = tIntegrationMesh->get_list_of_sets( mtk::SetType::SIDESET );
+        moris::Cell< moris::mtk::Side_Set * > const &tListOfSideSets = tIntegrationMesh->get_side_sets();
 
         moris::Cell< std::string > tSetNames( tListOfSideSets.size() );
 

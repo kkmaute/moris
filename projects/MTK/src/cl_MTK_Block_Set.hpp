@@ -13,11 +13,11 @@
 
 #include <string>
 
-#include "typedefs.hpp"               //MRS/COR/src
-#include "fn_unique.hpp"              //MRS/COR/src
+#include "typedefs.hpp"     //MRS/COR/src
+#include "fn_unique.hpp"    //MRS/COR/src
 #include "cl_Map.hpp"
-#include "cl_MTK_Vertex.hpp"          //MTK/src
-#include "cl_MTK_Cell.hpp"            //MTK/src
+#include "cl_MTK_Vertex.hpp"    //MTK/src
+#include "cl_MTK_Cell.hpp"      //MTK/src
 
 #include "cl_MTK_Cell_Cluster.hpp"    //MTK/src
 #include "cl_MTK_Set.hpp"             //MTK/src
@@ -28,7 +28,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
-        class Block : public Set
+        class Block_Set : public Set
         {
           private:
             uint                             mNumVerticesOnBlock;
@@ -155,7 +155,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void
-            init_ig_geometry_type() override
+            init_ig_geometry_type()
             {
                 mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
 
@@ -190,7 +190,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( std::string const                     &aName,
+            Block_Set( std::string const                     &aName,
                     moris::Cell< Cluster const * > const &aBlockSetClusters,
                     Matrix< IndexMat > const             &aColors,
                     uint const                           &aSpatialDim )
@@ -209,14 +209,14 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block(){};
+            Block_Set(){};
 
             //------------------------------------------------------------------------------
 
             /**
              * virtual destructor
              */
-            ~Block(){};
+            ~Block_Set(){};
 
             //------------------------------------------------------------------------------
 
@@ -232,7 +232,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             const Cluster *
-            get_clusters_by_index( moris_index aCellClusterIndex ) const
+            get_clusters_by_index( moris_index aCellClusterIndex ) const override
             {
                 return mSetClusters( aCellClusterIndex );
             }
@@ -240,7 +240,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             uint
-            get_num_vertices_on_set( const bool aOnlyPrimary )
+            get_num_vertices_on_set( const bool aOnlyPrimary ) override
             {
                 if ( mOnlyPrimaryVertCheck != aOnlyPrimary )
                 {
@@ -253,7 +253,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat >
-            get_ig_vertices_inds_on_block( const bool aOnlyPrimary )
+            get_ig_vertices_inds_on_block( const bool aOnlyPrimary ) override
             {
                 if ( mOnlyPrimaryVertCheck != aOnlyPrimary )
                 {
@@ -266,7 +266,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             uint
-            get_num_cells_on_set( const bool aOnlyPrimary )
+            get_num_cells_on_set( const bool aOnlyPrimary ) override
             {
                 if ( mOnlyPrimaryCellCheck != aOnlyPrimary )
                 {
@@ -279,7 +279,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat >
-            get_cell_inds_on_block( const bool aOnlyPrimary )
+            get_cell_inds_on_block( const bool aOnlyPrimary ) override
             {
                 if ( mOnlyPrimaryCellCheck != aOnlyPrimary )
                 {
@@ -292,7 +292,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::uint
-            get_num_clusters_on_set() const
+            get_num_clusters_on_set() const override
             {
                 return mSetClusters.size();
             }
@@ -300,7 +300,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::Cell< Cluster const * >
-            get_clusters_on_set() const
+            get_clusters_on_set() const override
             {
                 return mSetClusters;
             }
@@ -308,7 +308,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             size_t
-            capacity()
+            capacity() override
             {
                 // initialize the size
                 size_t tTotalSize = 0;

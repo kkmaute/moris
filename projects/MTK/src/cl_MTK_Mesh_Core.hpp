@@ -327,7 +327,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
             
-            virtual moris::mtk::Set* get_set_by_index( moris::uint aSetIndex ) const;
+            virtual Set* get_set_by_index( moris_index aSetIndex ) const;
 
             // ----------------------------------------------------------------------------
             

@@ -31,7 +31,7 @@ set_property(GLOBAL PROPERTY MTK_SRC_LIST "${MTK_INTERNAL_INCLUDES}")
 set(HEADERS
 cl_MTK_Mesh_Factory.hpp
 cl_MTK_Block_Sets_Info.hpp
-cl_MTK_Block.hpp
+cl_MTK_Block_Set.hpp
 cl_MTK_Cell_Cluster_Input.hpp
 cl_MTK_Cell_Cluster_Proxy.hpp
 cl_MTK_Cell_Cluster.hpp
@@ -203,7 +203,7 @@ set( LIB_SOURCES
 cl_MTK_Mesh_Factory.cpp
 cl_MTK_Integration_Mesh.cpp
 cl_MTK_Integration_Mesh_write_T_matrices.cpp
-cl_MTK_Block.cpp
+		cl_MTK_Block_Set.cpp
 cl_MTK_Mesh_Checker.cpp
 cl_MTK_Exodus_IO_Helper.cpp
 cl_MTK_Field.cpp
@@ -212,7 +212,7 @@ cl_MTK_Field_Discrete.cpp
 cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
-cl_MTK_Block.cpp
+		cl_MTK_Block_Set.cpp
 cl_MTK_Cell.cpp
 cl_MTK_Set_Communicator.cpp
 

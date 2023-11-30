@@ -56,9 +56,9 @@ namespace moris
                 const Matrix< DDRMat >&         aFirstParentLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentLocalCoordinates )
         {
-            mGlobalCoordinates       = this->compute_global_coordinates();
-            mParentVector            = this->compute_parent_vector( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
-            mIsIntersected           = this->determine_is_intersected( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
+            mGlobalCoordinates = this->compute_global_coordinates();
+            mParentVector      = this->compute_parent_vector( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
+            mIsIntersected     = this->determine_is_intersected( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -127,7 +127,8 @@ namespace moris
             delete tInterpolation;
 
             return tParentVector;
-        }
+
+        }    // end function: Intersection_Node::compute_parent_vector()
 
         //--------------------------------------------------------------------------------------------------------------
 

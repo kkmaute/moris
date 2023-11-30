@@ -109,7 +109,7 @@ namespace moris::ge
         MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dcoordinate_dadv() not implemented yet.");
 
         return;
-    };
+    }
     
     Matrix< DDSMat > 
     Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids()

@@ -103,7 +103,7 @@ namespace moris
                     aMesh );
 
             // iterate through geometries if any are multilinear, we turn the linear flag on
-            for ( moris::uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
+            for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
             {
                 if ( mGeometries( iGeom )->get_intersection_interpolation() == Intersection_Interpolation::MULTILINEAR )
                 {
@@ -242,8 +242,8 @@ namespace moris
 
         void
         Geometry_Engine::set_dQIdp(
-                moris::Cell< moris::Matrix< DDRMat >* > adQIdp,
-                moris::Matrix< moris::DDSMat >*         aMap )
+                moris::Cell< Matrix< DDRMat >* > adQIdp,
+                Matrix< DDSMat >*                aMap )
         {
             mPDVHostManager.set_dQIdp( adQIdp, aMap );
         }
@@ -304,13 +304,15 @@ namespace moris
             return &mPDVHostManager;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         bool
         Geometry_Engine::geometric_query( Geometric_Query_Interface* aGeometricQuery )
         {
             if ( aGeometricQuery->get_query_type() == Query_Type::INTERSECTION_NO_LOCATION )
             {
                 mActiveGeometryIndex = aGeometricQuery->get_geometric_index();
-                return is_intersected( aGeometricQuery->get_query_entity_to_vertex_connectivity(),
+                return this->is_intersected( aGeometricQuery->get_query_entity_to_vertex_connectivity(),
                         aGeometricQuery->get_query_indexed_coordinates() );
             }
             else if ( aGeometricQuery->get_query_type() == Query_Type::INTERSECTION_LOCATION )
@@ -318,37 +320,47 @@ namespace moris
                 // this preprocessing can be streamlined a lot
                 mActiveGeometryIndex = aGeometricQuery->get_geometric_index();
 
+                // get the vertex indices connected to the queried edge
                 Matrix< IndexMat > const & tEdgeToVertex = aGeometricQuery->get_query_entity_to_vertex_connectivity();
 
-                moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
+                // get the physical vertex coordinates in the parent BG cell
+                moris::Cell< std::shared_ptr< Matrix< DDRMat > > >* tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
 
+                // get the vertex indices in the parent BG cell
                 Matrix< IndexMat > tParentEntityIndices = aGeometricQuery->get_query_parent_entity_connectivity();
 
-                // annoying copy until I rewrite the queue intersection
+                // Copy the information retrieved above into arrays compatible with the "queue_intersection" function below
+                // TODO: the function below should be re-written to accept a different input format instead of this copying
                 Cell< Matrix< DDRMat > > tParentEntityCoords( tParentEntityIndices.numel() );
-                Matrix< DDUMat >         tParentEntityIndiceUINT( tParentEntityIndices.numel() );
+                Matrix< DDUMat >         tParentEntityIndicesUINT( tParentEntityIndices.numel() );
                 tParentEntityCoords.reserve( tParentEntityIndices.numel() * 3 );
-                for ( moris::uint i = 0; i < tParentEntityIndices.numel(); i++ )
+                for ( uint i = 0; i < tParentEntityIndices.numel(); i++ )
                 {
-                    tParentEntityCoords( i )     = *( *tQueryIndexedCoords )( tParentEntityIndices( i ) );
-                    tParentEntityIndiceUINT( i ) = (uint)tParentEntityIndices( i );
+                    tParentEntityCoords( i )      = *( *tQueryIndexedCoords )( tParentEntityIndices( i ) );
+                    tParentEntityIndicesUINT( i ) = (uint)tParentEntityIndices( i );
                 }
 
-                return queue_intersection( tEdgeToVertex( 0 ),
+                // compute intersection
+                return queue_intersection(
+                        tEdgeToVertex( 0 ),
                         tEdgeToVertex( 1 ),
                         aGeometricQuery->get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
                         aGeometricQuery->get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
                         *( *tQueryIndexedCoords )( tEdgeToVertex( 0 ) ),
                         *( *tQueryIndexedCoords )( tEdgeToVertex( 1 ) ),
-                        tParentEntityIndiceUINT,
+                        tParentEntityIndicesUINT,
                         tParentEntityCoords );
             }
-            else
+            else    // unsupported query type
             {
-                MORIS_ERROR( 0, "In progress" );
+                MORIS_ERROR(
+                        false,
+                        "ge::Geometry_Engine::geometric_query() - "
+                        "Only supports Query_Type::INTERSECTION_NO_LOCATION and Query_Type::INTERSECTION_LOCATION" );
                 return false;
             }
-        }
+
+        }    // end function: Geometry_Engine::geometric_query()
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -424,12 +436,15 @@ namespace moris
 
             // Return result
             return tIsIntersected;
-        }
+
+        }    // end function: Geometry_Engine::is_intersected()
+
+        //--------------------------------------------------------------------------------------------------------------
 
         bool
         Geometry_Engine::is_intersected(
-                const Matrix< IndexMat >&                                         aNodeIndices,
-                moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates )
+                const Matrix< IndexMat >&                           aNodeIndices,
+                moris::Cell< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates )
         {
             // Check input
             // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
@@ -513,35 +528,44 @@ namespace moris
                 const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
                 const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
         {
+            // get access to the geometry
+            std::shared_ptr< ge::Geometry > mGeometry = mGeometries( mActiveGeometryIndex );
+
             // Get the current geometries intersection mode
-            Intersection_Mode tIntersectionMode = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
+            Intersection_Mode tIntersectionMode = mGeometry->get_intersection_mode();
+
+            // get the the intersection nodes
+            std::shared_ptr< ge::Intersection_Node > tFirstIntersectionNode  = mPDVHostManager.get_intersection_node( aFirstNodeIndex );
+            std::shared_ptr< ge::Intersection_Node > tSecondIntersectionNode = mPDVHostManager.get_intersection_node( aSecondNodeIndex );
+
             // Queue an intersection node
             switch ( tIntersectionMode )
             {
                 case Intersection_Mode::LEVEL_SET:
                 {
-                    switch ( mGeometries( mActiveGeometryIndex )->get_intersection_interpolation() )
+                    switch ( mGeometry->get_intersection_interpolation() )
                     {
                         case Intersection_Interpolation::LINEAR:
                         {
                             mQueuedIntersectionNode = std::make_shared< Intersection_Node_Linear >(
-                                    mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                    mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
+                                    tFirstIntersectionNode,
+                                    tSecondIntersectionNode,
                                     aFirstNodeIndex,
                                     aSecondNodeIndex,
                                     aFirstNodeGlobalCoordinates,
                                     aSecondNodeGlobalCoordinates,
-                                    mGeometries( mActiveGeometryIndex ) );
+                                    mGeometry );
                             break;
                         }
+
                         case Intersection_Interpolation::MULTILINEAR:
                         {
                             Element_Intersection_Type tInterpolationType =
                                     mNumSpatialDimensions == 2 ? Element_Intersection_Type::Linear_2D : Element_Intersection_Type::Linear_3D;
 
                             mQueuedIntersectionNode = std::make_shared< Intersection_Node_Bilinear >(
-                                    mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                    mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
+                                    tFirstIntersectionNode,
+                                    tSecondIntersectionNode,
                                     aFirstNodeIndex,
                                     aSecondNodeIndex,
                                     aFirstNodeLocalCoordinates,
@@ -549,16 +573,21 @@ namespace moris
                                     aBackgroundElementNodeIndices,
                                     aBackgroundElementNodeCoordinates,
                                     tInterpolationType,
-                                    mGeometries( mActiveGeometryIndex ) );
+                                    mGeometry );
                             break;
                         }
+
                         default:
                         {
                             MORIS_ERROR( false, "Intersection interpolation type not implemented yet." );
                         }
-                    }
+
+                    }    // end switch: Intersection Interpolation type
+
                     break;
-                }
+
+                }    // end case: Intersection_Mode::LEVEL_SET
+
                 case Intersection_Mode::SURFACE_MESH:
                 {
                     // BRENDAN TODO
@@ -575,19 +604,22 @@ namespace moris
                         aBackgroundElementNodeCoordinates 
                     );
                 }
+
                 case Intersection_Mode::COLORING:
                 {
                     // Determine if edge is intersected
-                    if ( mGeometries( mActiveGeometryIndex )->get_field_value( aFirstNodeIndex, aFirstNodeGlobalCoordinates ) != mGeometries( mActiveGeometryIndex )->get_field_value( aSecondNodeIndex, aSecondNodeGlobalCoordinates ) )
+                    real tFieldValue1 = mGeometry->get_field_value( aFirstNodeIndex, aFirstNodeGlobalCoordinates );
+                    real tFieldValue2 = mGeometry->get_field_value( aSecondNodeIndex, aSecondNodeGlobalCoordinates );
+                    if ( tFieldValue1 != tFieldValue2 )
                     {
                         mQueuedIntersectionNode = std::make_shared< Intersection_Node_Linear >(
-                                mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
+                                tFirstIntersectionNode,
+                                tSecondIntersectionNode,
                                 aFirstNodeIndex,
                                 aSecondNodeIndex,
                                 aFirstNodeGlobalCoordinates,
                                 aSecondNodeGlobalCoordinates,
-                                mGeometries( mActiveGeometryIndex ) );
+                                mGeometry );
                     }
                     else
                     {
@@ -596,14 +628,21 @@ namespace moris
 
                     break;
                 }
+
                 default:
                 {
-                    MORIS_ERROR( false, "Geometry_Engine::queue_intersection(), unknown intersection type." );
+                    MORIS_ERROR( false, "Geometry_Engine::queue_intersection() - Unknown intersection type." );
                 }
-            }
 
-            return mQueuedIntersectionNode->parent_edge_is_intersected();
-        }
+            }    // end switch: Intersection Mode
+
+            //
+            bool tParentEdgeIsIntersected = mQueuedIntersectionNode->parent_edge_is_intersected();
+
+            //
+            return tParentEdgeIsIntersected;
+
+        }    // end function: Geometry_Engine::queue_intersection()
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -709,6 +748,7 @@ namespace moris
 
                 mVertexGeometricProximity( ( *aNewNodeIndices )( tNode ) ).mAssociatedVertexIndex = ( *aNewNodeIndices )( tNode );
 
+                // debug - needs to go
                 Matrix< DDRMat > const & tCoord = ( *aNodeCoordinates )( tNode );
 
                 // Assign to geometries
@@ -730,7 +770,8 @@ namespace moris
             {
                 mPDVHostManager.set_num_background_nodes( ( *aNewNodeIndices )( aNewNodeIndices->size() - 1 ) + 1 );
             }
-        }
+
+        } // end function: Geometry_Engine::create_new_child_nodes()
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -870,6 +911,10 @@ namespace moris
         {
             moris_index tProxIndex = mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( aGeometryIndex );
 
+            // 0 - G(x) < threshold
+            // 1 - G(x) == threshold
+            // 2 - G(x) > threshold
+
             size_t tPhaseOnOff = 0;
 
             if ( tProxIndex == 2 )
@@ -878,6 +923,16 @@ namespace moris
             }
 
             return tPhaseOnOff;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_index
+        Geometry_Engine::get_node_proximity_wrt_a_geometry(
+                uint aNodeIndex,
+                uint aGeometryIndex )
+        {
+            return mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( aGeometryIndex );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1070,16 +1125,16 @@ namespace moris
             tStringStream << "Vert Ind,";
             tStringStream << "Owner,";
             tStringStream << "Prank,";
-            for ( moris::uint iHeader = 0; iHeader < aMesh->get_spatial_dim(); iHeader++ )
+            for ( uint iHeader = 0; iHeader < aMesh->get_spatial_dim(); iHeader++ )
             {
                 tStringStream << "Coords_" + std::to_string( iHeader ) << ",";
             }
 
-            for ( moris::uint iHeader = 0; iHeader < this->get_num_geometries(); iHeader++ )
+            for ( uint iHeader = 0; iHeader < this->get_num_geometries(); iHeader++ )
             {
                 tStringStream << "gval_" + std::to_string( iHeader ) << ",";
             }
-            for ( moris::uint iHeader = 0; iHeader < this->get_num_geometries(); iHeader++ )
+            for ( uint iHeader = 0; iHeader < this->get_num_geometries(); iHeader++ )
             {
                 tStringStream << "gprox_" + std::to_string( iHeader );
                 if ( iHeader != this->get_num_geometries() - 1 )
@@ -1089,24 +1144,24 @@ namespace moris
             }
             tStringStream << std::endl;
             // iterate through vertices
-            for ( moris::uint iV = 0; iV < aMesh->get_num_nodes(); iV++ )
+            for ( uint iV = 0; iV < aMesh->get_num_nodes(); iV++ )
             {
                 mtk::Vertex& tVertex = aMesh->get_mtk_vertex( (moris_index)iV );
                 tStringStream << tVertex.get_id() << ",";
                 tStringStream << tVertex.get_index() << ",";
                 tStringStream << tVertex.get_owner() << ",";
                 tStringStream << par_rank() << ",";
-                moris::Matrix< moris::DDRMat > tCoords = tVertex.get_coords();
+                Matrix< DDRMat > tCoords = tVertex.get_coords();
 
-                for ( moris::uint iSp = 0; iSp < aMesh->get_spatial_dim(); iSp++ )
+                for ( uint iSp = 0; iSp < aMesh->get_spatial_dim(); iSp++ )
                 {
                     tStringStream << std::scientific << tCoords( iSp ) << ",";
                 }
-                for ( moris::uint iGeom = 0; iGeom < this->get_num_geometries(); iGeom++ )
+                for ( uint iGeom = 0; iGeom < this->get_num_geometries(); iGeom++ )
                 {
                     tStringStream << mGeometries( iGeom )->get_field_value( tVertex.get_index(), tCoords ) << ",";
                 }
-                for ( moris::uint iGeom = 0; iGeom < this->get_num_geometries(); iGeom++ )
+                for ( uint iGeom = 0; iGeom < this->get_num_geometries(); iGeom++ )
                 {
                     // 0 - G(x) < threshold
                     // 1 - G(x) == threshold
@@ -1451,7 +1506,7 @@ namespace moris
                     tSharedCoefficientIndices( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
                     for ( uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++ )
                     {
-                        // HMR coeffs are not neccesarily consecutive. Therefore this is a really hacky implementation
+                        // HMR coeffs are not necessarily consecutive. Therefore this is a really hacky implementation
                         sint tADVId = tOffsetID
                                     + tMesh->get_glb_entity_id_from_entity_loc_index(
                                             tSharedCoefficients( tSharedCoefficient ),
@@ -1784,6 +1839,7 @@ namespace moris
                 mProperties( tPropertyIndex )->reset_nodal_data();
             }
 
+            // debug: this needs to go
             // Allocate proximity data
             this->setup_initial_geometric_proximities( aMesh );
         }
@@ -1807,10 +1863,10 @@ namespace moris
             // Build communication table map to determine the right position for each processor rank. +1 because c++ is 0 based
             Matrix< DDSMat > tCommTableMap( tCommTable.max() + 1, 1, -1 );
 
-            moris::uint tNumCommProcs = tCommTable.numel();
+            uint tNumCommProcs = tCommTable.numel();
 
             // Loop over communication table to fill the communication table map
-            for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
+            for ( uint Ik = 0; Ik < tNumCommProcs; Ik++ )
             {
                 tCommTableMap( tCommTable( Ik ) ) = Ik;
             }
@@ -1822,7 +1878,7 @@ namespace moris
             Matrix< DDUMat > tNumSharedCoeffsPerProc( tNumCommProcs, 1, 0 );
 
             // Count number of coeffs per proc which have to be communicated
-            for ( moris::uint Ib = 0; Ib < aAllCoefIds.numel(); Ib++ )
+            for ( uint Ib = 0; Ib < aAllCoefIds.numel(); Ib++ )
             {
                 // Check if coeffs at this position is not NULL
                 if ( aAllCoefIds( Ib ) != gNoID && aAllCoefOwners( Ib ) != par_rank() )
@@ -1842,7 +1898,7 @@ namespace moris
             }
 
             // Set size of the moris::Mats in the Cell
-            for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
+            for ( uint Ik = 0; Ik < tNumCommProcs; Ik++ )
             {
                 if ( tNumSharedCoeffsPerProc( Ik ) != 0 )
                 {
@@ -1855,13 +1911,13 @@ namespace moris
             Matrix< DDUMat > tShredCoeffPosPerProc( tNumCommProcs, 1, 0 );
 
             // Loop over coeffs per type
-            for ( moris::uint Ia = 0; Ia < aAllCoefIds.numel(); Ia++ )
+            for ( uint Ia = 0; Ia < aAllCoefIds.numel(); Ia++ )
             {
                 // Check if coeffs at this position is not NULL
                 if ( aAllCoefIds( Ia ) != gNoID && aAllCoefOwners( Ia ) != par_rank() )
                 {
                     // Get owning processor
-                    moris::uint tProcID = aAllCoefOwners( Ia );
+                    uint tProcID = aAllCoefOwners( Ia );
 
                     moris::sint tProcIdPos = tCommTableMap( tProcID );
 
@@ -1909,9 +1965,9 @@ namespace moris
                     tCoeffGlobalToLocalMap );
 
             // Loop over all Mats set dummy owned coeffs
-            for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
+            for ( uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
             {
-                for ( moris::uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
+                for ( uint Ii = 0; Ii < tMatsToReceive( Ik ).numel(); Ii++ )
                 {
                     // Get owned coeff Index
                     moris_id    tID            = tMatsToReceive( Ik )( Ii );
@@ -2405,19 +2461,19 @@ namespace moris
                     Cell< Geometric_Proximity >( aMesh->get_num_nodes(), Geometric_Proximity( mGeometries.size() ) );
 
             // iterate through vertices then geometries
-            for ( uint iV = 0; iV < aMesh->get_num_nodes(); iV++ )
+            for ( uint iVertex = 0; iVertex < aMesh->get_num_nodes(); iVertex++ )
             {
-                Matrix< DDRMat > tCoords = aMesh->get_node_coordinate( moris_index( iV ) );
+                Matrix< DDRMat > tCoords = aMesh->get_node_coordinate( moris_index( iVertex ) );
 
-                mVertexGeometricProximity( iV ).mAssociatedVertexIndex = (moris_index)iV;
+                mVertexGeometricProximity( iVertex ).mAssociatedVertexIndex = (moris_index)iVertex;
 
                 for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
                 {
-                    real tVertGeomVal = mGeometries( iGeometryIndex )->get_field_value( iV, tCoords );
+                    real tVertGeomVal = mGeometries( iGeometryIndex )->get_field_value( iVertex, tCoords );
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
 
-                    mVertexGeometricProximity( iV ).set_geometric_proximity( tGeomProxIndex, iGeometryIndex );
+                    mVertexGeometricProximity( iVertex ).set_geometric_proximity( tGeomProxIndex, iGeometryIndex );
                 }
             }
         }

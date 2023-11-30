@@ -49,7 +49,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Set*
-        Mesh::get_set_by_index( uint aSetIndex ) const
+        Mesh::get_set_by_index( moris_index aSetIndex ) const
         {
             MORIS_ASSERT( false, "get_set_by_index(), not implemented for base class" );
             return nullptr;

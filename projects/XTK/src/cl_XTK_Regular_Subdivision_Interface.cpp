@@ -70,7 +70,7 @@ Regular_Subdivision_Interface::perform_impl_vertex_requests(
         MORIS_ERROR( false, "Regular_Subdivision_Interface() - spatial dimension not 2 or 3" );
     }
 
-    aDecompositionData->tDecompId = this->get_signature();
+    aDecompositionData->mDecompId = this->get_signature();
 
     aDecompositionData->mHasSecondaryIdentifier = false;
 
