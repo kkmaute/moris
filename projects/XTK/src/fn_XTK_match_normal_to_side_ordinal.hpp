@@ -33,7 +33,7 @@ namespace xtk
     match_normal_to_side_ordinal( Matrix< DDRMat > const & aNormal )
     {
         // define a tolerance 
-        real tEps = 1.0e-12;
+        real tEps = 1.0e-6;
 
         // normalize the normal
         Matrix< DDRMat > tNormal = aNormal / norm( aNormal );

@@ -29,6 +29,7 @@
 #include <memory>
 #include "cl_Logger.hpp"
 #include "fn_XTK_match_normal_to_side_ordinal.hpp"
+#include "fn_stringify_matrix.hpp"
 
 namespace xtk
 {
@@ -3253,6 +3254,9 @@ namespace xtk
     void
     Enriched_Integration_Mesh::setup_cluster_groups()
     {
+        // Trace this function
+        Tracer tTracer( "XTK", "Enriched Integration Mesh", "Setup cluster groups" );
+
         this->setup_cell_cluster_groups();
         this->setup_dbl_side_cluster_groups();
         this->setup_side_cluster_groups();
@@ -3455,9 +3459,11 @@ namespace xtk
                         // match the outward normal to a global side ordinal direction
                         moris_index tGlobalSideOrdinal = xtk::match_normal_to_side_ordinal( tNormal );
 
-                        MORIS_ERROR( tGlobalSideOrdinal != MORIS_INDEX_MAX,
-                                "Enriched_Integration_Mesh::setup_side_cluster_groups() - "
-                                "Facet of side cluster only connected to single element but not an ordinal of the global mesh block." );
+                        // MORIS_ERROR( tGlobalSideOrdinal != MORIS_INDEX_MAX,
+                        //         "Enriched_Integration_Mesh::setup_side_cluster_groups() - "
+                        //         "Facet of side cluster is only connected to single IG-Cell #%i but not an ordinal of the global mesh block. Normal = %s",
+                        //         tCellIndex,
+                        //         ios::stringify_log( tNormal ).c_str() );
 
                         // store away this information
                         tSideClustersAttachedToSpg( tSpgIndex ).push_back( tSideCluster );

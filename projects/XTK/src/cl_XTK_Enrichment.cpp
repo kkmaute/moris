@@ -531,14 +531,18 @@ namespace xtk
                 tNumEnrBfsInBulkPhase( tBulkPhaseBfInterpolatesInto )++;
             }
 
-            // log/output how may enr. basis functions there are in each bulk phase
+            // log/output how may enr. basis functions there are in each bulk phase (skip those with no basis functions)
             for ( uint iBulkPhase = 0; iBulkPhase < tNumBulkPhases; iBulkPhase++ )
             {
-                MORIS_LOG(
-                        "B-spline mesh #%i, Bulk phase #%i, Number of enriched basis functions on material domain: %i",
-                        tMeshIndex,
-                        iBulkPhase,
-                        sum_all( tNumEnrBfsInBulkPhase( iBulkPhase ) ) );
+                uint tNumEnrBfsInCurrentBulkPhase = tNumEnrBfsInBulkPhase( iBulkPhase );
+                if ( tNumEnrBfsInCurrentBulkPhase > 0 )
+                {
+                    MORIS_LOG(
+                            "B-spline mesh #%i, Bulk phase #%i, Number of enriched basis functions on material domain: %i",
+                            tMeshIndex,
+                            iBulkPhase,
+                            tNumEnrBfsInCurrentBulkPhase );
+                }
             }
 
             // find the SPs within one IP cell that are also within the same SPG
