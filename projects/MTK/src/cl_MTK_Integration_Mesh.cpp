@@ -17,7 +17,7 @@
 #include "cl_MTK_Double_Side_Cluster.hpp"
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Block_Set.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Integration_Rule.hpp"
 #include "fn_norm.hpp"
@@ -108,7 +108,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Cell< moris::mtk::Block * > const &
+    moris::Cell< moris::mtk::Block_Set * > const &
     Integration_Mesh::get_block_sets_with_color( moris_index const &aColor )
     {
         MORIS_ASSERT( aColor <= mMaxColor, "Color above maximum color value" );
@@ -753,7 +753,7 @@ namespace moris::mtk
         }
     }
 
-    moris::Cell< moris::mtk::Block * > const &Integration_Mesh::get_block_sets() const
+    moris::Cell< moris::mtk::Block_Set * > const &Integration_Mesh::get_block_sets() const
     {
         return mListOfBlocks;
     }
@@ -825,7 +825,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Cell< moris::Cell< moris::mtk::Block * > > const &
+    moris::Cell< moris::Cell< moris::mtk::Block_Set * > > const &
     Integration_Mesh::get_color_to_block_sets() const
     {
         return mBlockSetToColor;

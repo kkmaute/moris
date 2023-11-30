@@ -28,7 +28,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
-        class Block : public Set
+        class Block_Set : public Set
         {
           private:
             uint                             mNumVerticesOnBlock;
@@ -190,7 +190,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block( std::string const                     &aName,
+            Block_Set( std::string const                     &aName,
                     moris::Cell< Cluster const * > const &aBlockSetClusters,
                     Matrix< IndexMat > const             &aColors,
                     uint const                           &aSpatialDim )
@@ -209,14 +209,14 @@ namespace moris
             /**
              * trivial constructor
              */
-            Block(){};
+            Block_Set(){};
 
             //------------------------------------------------------------------------------
 
             /**
              * virtual destructor
              */
-            ~Block(){};
+            ~Block_Set(){};
 
             //------------------------------------------------------------------------------
 

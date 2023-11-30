@@ -2666,7 +2666,7 @@ namespace xtk
         mListOfBlocks.resize( mListOfBlocks.size() + 1, nullptr );
 
         mListOfBlocks( aBlockSetIndex ) =
-                new moris::mtk::Block(
+                new moris::mtk::Block_Set(
                         mBlockSetNames( aBlockSetIndex ),
                         this->get_cell_clusters_in_set( aBlockSetIndex ),
                         this->get_block_set_colors( aBlockSetIndex ),

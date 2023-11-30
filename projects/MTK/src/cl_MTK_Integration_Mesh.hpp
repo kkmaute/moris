@@ -19,7 +19,7 @@
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Block_Set.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 
@@ -30,7 +30,7 @@ namespace moris::mtk
         // class Cluster_Group;
 
       protected:
-        moris::Cell< moris::mtk::Block * >           mListOfBlocks;
+        moris::Cell< moris::mtk::Block_Set * >           mListOfBlocks;
         moris::Cell< moris::mtk::Side_Set * >        mListOfSideSets;
         moris::Cell< moris::mtk::Double_Side_Set * > mListOfDoubleSideSets;
         moris::Cell< moris::mtk::Set * >             mListOfAllSets;
@@ -41,7 +41,7 @@ namespace moris::mtk
 
         // set by color
         moris_index                                                 mMaxColor{};
-        moris::Cell< moris::Cell< moris::mtk::Block * > >           mBlockSetToColor;
+        moris::Cell< moris::Cell< moris::mtk::Block_Set * > >           mBlockSetToColor;
         moris::Cell< moris::Cell< moris::mtk::Side_Set * > >        mSideSetToColor;
         moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > mDoubleSideSetToColor;
         moris::Cell< moris::Cell< moris::mtk::Set * > >             mAllSetToColor;
@@ -119,7 +119,7 @@ namespace moris::mtk
          * @brief Get block sets with color
          * @param[in] aColor Set color
          */
-        moris::Cell< moris::mtk::Block * > const &get_block_sets_with_color( moris_index const &aColor );
+        moris::Cell< moris::mtk::Block_Set * > const &get_block_sets_with_color( moris_index const &aColor );
 
         // ----------------------------------------------------------------------------
 
@@ -441,7 +441,7 @@ namespace moris::mtk
 
         moris::Cell< moris::mtk::Set * > const &get_sets() const;
 
-        moris::Cell< moris::mtk::Block * > const &get_block_sets() const;
+        moris::Cell< moris::mtk::Block_Set * > const &get_block_sets() const;
 
         moris::Cell< moris::mtk::Side_Set * > const &get_side_sets() const;
 
@@ -461,7 +461,7 @@ namespace moris::mtk
 
         moris::Cell< moris::Cell< moris::mtk::Set * > > const &get_color_to_sets() const;
 
-        moris::Cell< moris::Cell< moris::mtk::Block * > > const &get_color_to_block_sets() const;
+        moris::Cell< moris::Cell< moris::mtk::Block_Set * > > const &get_color_to_block_sets() const;
 
         moris::Cell< moris::Cell< moris::mtk::Side_Set * > > const &get_color_to_side_sets() const;
 

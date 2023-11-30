@@ -811,7 +811,7 @@ namespace moris::mtk
         this->initialize_block_set_data();
 
         // get the block sets
-        moris::Cell< moris::mtk::Block* > const & tBlockSets = mInputMesh->get_block_sets();
+        moris::Cell< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // set the counter
         uint iCounter = 0;
@@ -841,7 +841,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::initialize_block_set_data()
     {
         // get tge block sets from the mesh
-        moris::Cell< moris::mtk::Block* > const & tBlockSets = mInputMesh->get_block_sets();
+        moris::Cell< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // resize the connectivity
         mIGMeshInfo->mBlockSetToCellClusterOffSet.resize( tBlockSets.size() + 1 );
@@ -1168,7 +1168,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_block_sets()
     {
         // call the block sets from the old mesh
-        moris::Cell< moris::mtk::Block* > const & tBlockSets = mInputMesh->get_block_sets();
+        moris::Cell< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // resize the new list of block sets for the new mesh
         mOutputMesh->mListOfBlocks.resize( tBlockSets.size() );
@@ -1194,7 +1194,7 @@ namespace moris::mtk
                     } );
 
             // construct the new block set
-            mOutputMesh->mListOfBlocks( iCounter ) = new mtk::Block(
+            mOutputMesh->mListOfBlocks( iCounter ) = new mtk::Block_Set(
                     iSet->get_set_name(),
                     aBlockSetClusters,
                     iSet->get_set_colors(),
@@ -2690,7 +2690,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old block sets
-        moris::Cell< moris::mtk::Block* > const & tBlocks = mInputMesh->get_block_sets();
+        moris::Cell< moris::mtk::Block_Set* > const & tBlocks = mInputMesh->get_block_sets();
 
         // loop over the blocks
         for ( uint iSet = 0; iSet < mOutputMesh->mListOfBlocks.size(); iSet++ )

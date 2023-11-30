@@ -17,7 +17,7 @@ namespace moris
     {
         // forward declare the mtk::Set
         class Set;
-        class Block;
+        class Block_Set;
         class Side_Set;
         class Double_Side_Set;
 
@@ -36,7 +36,7 @@ namespace moris
             //------------------------------------------------------------------------------
             explicit Set_Communicator( moris::Cell< mtk::Set* >& aSetsToCommunicate );
 
-            explicit Set_Communicator( moris::Cell< mtk::Block* >& aBlocksToCommunicate )
+            explicit Set_Communicator( moris::Cell< mtk::Block_Set* >& aBlocksToCommunicate )
                     : Set_Communicator( (moris::Cell< mtk::Set* >&)aBlocksToCommunicate ){};
 
             explicit Set_Communicator( moris::Cell< mtk::Side_Set* >& aSideSetsToCommunicate )
