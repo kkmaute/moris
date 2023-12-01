@@ -4,43 +4,51 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Node.cpp
+ * cl_GEN_Parent_Derived_Node.cpp
  *
  */
 
-#include "cl_GEN_Node.hpp"
+#include "cl_GEN_Parent_Derived_Node.hpp"
+#include "cl_GEN_Derived_Node.hpp"
 
 namespace moris::ge
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Node::Node( uint aIndex )
-            : mIndex( aIndex )
+    Parent_Derived_Node::Parent_Derived_Node( Derived_Node* aDerivedNode )
+            : mDerivedNode( aDerivedNode )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
-    uint Node::get_index()
+    
+    uint Parent_Derived_Node::get_index() const
     {
-        return mIndex;
+        return mDerivedNode->get_index();
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    const Matrix< DDRMat >& Parent_Derived_Node::get_global_coordinates() const
+    {
+        return mDerivedNode->get_global_coordinates();
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    const Matrix< DDRMat >& Parent_Derived_Node::get_parametric_coordinates() const
+    {
+        return mDerivedNode->get_parametric_coordinates();
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+
+    Node* Parent_Derived_Node::get_node() const
+    {
+        return mDerivedNode;
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
-    void Node::append_dcoordinate_dadv(
-            Matrix< DDRMat >&       aCoordinateSensitivities,
-            const Matrix< DDRMat >& aSensitivityFactor )
-    {
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Matrix< DDSMat > Node::get_coordinate_determining_adv_ids()
-    {
-        return {};
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
+    
 }

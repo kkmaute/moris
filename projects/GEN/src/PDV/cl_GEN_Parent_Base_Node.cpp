@@ -4,43 +4,54 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Node.cpp
+ * cl_GEN_Parent_Base_Node.cpp
  *
  */
 
-#include "cl_GEN_Node.hpp"
+#include "cl_GEN_Parent_Base_Node.hpp"
+#include "cl_GEN_Base_Node.hpp"
 
 namespace moris::ge
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Node::Node( uint aIndex )
-            : mIndex( aIndex )
+    Parent_Base_Node::Parent_Base_Node(
+            Node*                   aBaseNode,
+            const Matrix< DDRMat >& aParametricCoordinates )
+            : mBaseNode( aBaseNode )
+            , mParametricCoordinates( aParametricCoordinates )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Node::get_index()
+    uint Parent_Base_Node::get_index() const
     {
-        return mIndex;
+        return mBaseNode->get_index();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Node::append_dcoordinate_dadv(
-            Matrix< DDRMat >&       aCoordinateSensitivities,
-            const Matrix< DDRMat >& aSensitivityFactor )
+    const Matrix< DDRMat >& Parent_Base_Node::get_global_coordinates() const
     {
+        return mBaseNode->get_global_coordinates();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Node::get_coordinate_determining_adv_ids()
+    const Matrix< DDRMat >& Parent_Base_Node::get_parametric_coordinates() const
     {
-        return {};
+        return mParametricCoordinates;
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    Node* Parent_Base_Node::get_node() const
+    {
+        return mBaseNode;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }

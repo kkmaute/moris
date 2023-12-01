@@ -25,7 +25,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Base_Node::get_coordinates()
+    const Matrix< DDRMat >& Base_Node::get_global_coordinates()
     {
         return mCoordinates;
     }

@@ -23,13 +23,15 @@ namespace moris
     namespace mtk
     {
         class Field;
+        enum class Geometry_Type;
     }
 }
 
 namespace moris::ge
 {
-    // Forward declare intersection node
+    // Forward declare intersection node classes
     class Intersection_Node;
+    class Parent_Node;
 
     // Geometric location, for determining where a node is relative to a specific geometry
     enum class Geometric_Region : signed char
@@ -90,16 +92,11 @@ namespace moris::ge
          * @return Created intersection node
          */
         virtual std::shared_ptr< Intersection_Node > create_intersection_node(
-                uint                                 aEdgeFirstNodeIndex,
-                uint                                 aEdgeSecondNodeIndex,
-                std::shared_ptr< Intersection_Node > aEdgeFirstIntersectionNode,
-                std::shared_ptr< Intersection_Node > aEdgeSecondIntersectionNode,
-                const Matrix< DDRMat >&              aEdgeFirstNodeLocalCoordinates,
-                const Matrix< DDRMat >&              aEdgeSecondNodeLocalCoordinates,
-                const Matrix< DDRMat >&              aEdgeFirstNodeGlobalCoordinates,
-                const Matrix< DDRMat >&              aEdgeSecondNodeGlobalCoordinates,
-                const Matrix< DDUMat >&              aBackgroundElementNodeIndices,
-                const Cell< Matrix< DDRMat > >&      aBackgroundElementNodeCoordinates ) = 0;
+                uint                                  aNodeIndex,
+                const Cell< Node* >&                  aBaseNodes,
+                const Parent_Node&                    aFirstParentNode,
+                const Parent_Node&                    aSecondParentNode,
+                mtk::Geometry_Type                    aBaseGeometryType ) = 0;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh

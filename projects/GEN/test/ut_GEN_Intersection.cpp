@@ -26,6 +26,16 @@
 
 namespace moris::ge
 {
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    static Cell< Matrix< DDRMat > > tQuadParametricCoordinates = {
+        {{ -1.0, -1.0 }},
+        {{ 1.0, -1.0 }},
+        {{ 1.0, 1.0 }},
+        {{ -1.0, 1.0 }}
+    };
+
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
@@ -136,7 +146,12 @@ namespace moris::ge
                 for ( uint tElementIndex = 0; tElementIndex < 4; tElementIndex++ )
                 {
                     // Node indices per element
-                    Matrix< IndexMat > tNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( tElementIndex );
+                    Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( tElementIndex );
+                    Matrix< DDUMat > tNodeIndices( 4, 1 );
+                    for ( uint iNode = 0; iNode < 4; iNode++ )
+                    {
+                        tNodeIndices( iNode ) = tSignedNodeIndices( iNode );
+                    }
 
                     // Check edges for properly queued intersections
                     Matrix< DDRMat > tNodeCoordinates( 4, 2 );
@@ -150,11 +165,11 @@ namespace moris::ge
                         bool tIntersectionQueued = tGeometryEngine.queue_intersection(
                                 tNodeIndices( tNodeNumber ),
                                 tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
-                                { {} },
-                                { {} },
+                                tQuadParametricCoordinates( tNodeNumber ),
+                                tQuadParametricCoordinates( ( tNodeNumber + 1 ) % 4 ),
                                 tFirstNodeCoordinates,
                                 tSecondNodeCoordinates,
-                                { {} },
+                                tNodeIndices,
                                 {} );
                         REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tGeometryIndex )( tElementIndex )( tNodeNumber ) );
 
@@ -200,7 +215,7 @@ namespace moris::ge
                     }
 
                     // Check with solution
-                    bool tIsIntersected = tGeometryEngine.is_intersected( tNodeIndices, tNodeCoordinates );
+                    bool tIsIntersected = tGeometryEngine.is_intersected( tSignedNodeIndices, tNodeCoordinates );
                     CHECK( tIsIntersected == tIsElementIntersected( tGeometryIndex )( tElementIndex ) );
                 }
 
@@ -214,8 +229,8 @@ namespace moris::ge
                             { {} },
                             { {} },
                             { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
-                            { { 0.5, 0 } },
-                            { {} },
+                            { { 0.5, 0.0 } },
+                            { { 1, 4, 5, 2 } },
                             {} );
 
                     // Check intersection on intersection 1
@@ -242,7 +257,7 @@ namespace moris::ge
                             { {} },
                             { { 0.5, 0.0 } },
                             { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
-                            { {} },
+                            { { 2, 5, 8, 6 } },
                             {} );
 
                     // Check intersection on intersection 1
@@ -373,7 +388,7 @@ namespace moris::ge
             {
                 tHostADVSensitivities.set_size( 0.0, 0.0 );
                 eye( 2, 2, tI );
-                tPDVHostManager->get_intersection_node( tNodeIndex )->get_dcoordinate_dadv( tHostADVSensitivities, tI );
+                tPDVHostManager->get_intersection_node( tNodeIndex )->append_dcoordinate_dadv( tHostADVSensitivities, tI );
                 CHECK_EQUAL(
                         tHostADVSensitivities,
                         tIntersectionSensitivities( tNodeIndex - 9 ),

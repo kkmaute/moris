@@ -9,75 +9,74 @@
  */
 
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
+#include "cl_MTK_Interpolation_Function_Factory.hpp"
+#include "cl_MTK_Interpolation_Function.hpp"
 
 namespace moris::ge
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Locator::Locator(
-            Node* aNode,
-            real aBasis )
-            : mNode( aNode )
-            , mBasis( aBasis )
-    {
-        MORIS_ASSERT( aNode, "A GEN Locator must be created with a valid node." );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    uint Locator::get_index()
-    {
-        return mNode->get_index();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const Matrix< DDRMat >& Locator::get_coordinates()
-    {
-        return mNode->get_coordinates();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real Locator::get_basis()
-    {
-        return mBasis;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Derived_Node::Derived_Node(
-            uint            aIndex,
-            Cell< Locator > aLocators )
+            uint                    aIndex,
+            const Cell< Node* >&    aBaseNodes,
+            const Matrix< DDRMat >& aParametricCoordinates,
+            mtk::Geometry_Type      aGeometryType )
             : Node( aIndex )
-            , mLocators( aLocators )
+            , mParametricCoordinates( aParametricCoordinates )
     {
-        MORIS_ASSERT( mLocators.size() > 0, "A derived GEN node must have at least one locator." );
-        // TODO check for basis values here
+        // Check that at least one base node was given
+        MORIS_ASSERT( aBaseNodes.size() > 0, "A derived GEN node must have at least one basis node." );
 
-        // Get contribution from first locator
-        mCoordinates = Matrix< DDRMat >( 1, mLocators( 0 ).get_coordinates().length(), 0.0 );
+        // Create interpolator
+        mtk::Interpolation_Function_Factory tInterpolationFactory;
+        mtk::Interpolation_Function_Base* tInterpolation = tInterpolationFactory.create_interpolation_function(
+                aGeometryType,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
-        // Add contributions from other locators
-        for ( auto iLocator : mLocators )
+        // Perform interpolation using parametric coordinates
+        Matrix< DDRMat > tBasis;
+        tInterpolation->eval_N( mParametricCoordinates, tBasis );
+        delete tInterpolation;
+
+        // Create locators
+        mBasisNodes.reserve( aBaseNodes.size() );
+        for ( uint iBasisIndex = 0; iBasisIndex < aBaseNodes.size(); iBasisIndex++ )
         {
-            mCoordinates += iLocator.get_coordinates() * iLocator.get_basis();
+            mBasisNodes.emplace_back( aBaseNodes( iBasisIndex ), tBasis( iBasisIndex ) );
+        }
+
+        // Size global coordinates based on first locator
+        mGlobalCoordinates = Matrix< DDRMat >( 1, mBasisNodes( 0 ).get_global_coordinates().length(), 0.0 );
+
+        // Add contributions from all locators
+        for ( auto iBasisNode : mBasisNodes )
+        {
+            mGlobalCoordinates += iBasisNode.get_global_coordinates() * iBasisNode.get_basis();
         }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Derived_Node::get_coordinates()
+    const Matrix< DDRMat >& Derived_Node::get_global_coordinates()
     {
-        return mCoordinates;
+        return mGlobalCoordinates;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Locator >& Derived_Node::get_locators()
+    const Matrix< DDRMat >& Derived_Node::get_parametric_coordinates()
     {
-        return mLocators;
+        return mParametricCoordinates;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Cell< Basis_Node >& Derived_Node::get_basis_nodes()
+    {
+        return mBasisNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------

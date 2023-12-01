@@ -97,46 +97,32 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     std::shared_ptr< Intersection_Node > Level_Set_Geometry::create_intersection_node(
-            uint                                 aEdgeFirstNodeIndex,
-            uint                                 aEdgeSecondNodeIndex,
-            std::shared_ptr< Intersection_Node > aEdgeFirstIntersectionNode,
-            std::shared_ptr< Intersection_Node > aEdgeSecondIntersectionNode,
-            const Matrix< DDRMat >&              aEdgeFirstNodeLocalCoordinates,
-            const Matrix< DDRMat >&              aEdgeSecondNodeLocalCoordinates,
-            const Matrix< DDRMat >&              aEdgeFirstNodeGlobalCoordinates,
-            const Matrix< DDRMat >&              aEdgeSecondNodeGlobalCoordinates,
-            const Matrix< DDUMat >&              aBackgroundElementNodeIndices,
-            const Cell< Matrix< DDRMat > >&      aBackgroundElementNodeCoordinates )
+            uint                                  aNodeIndex,
+            const Cell< Node* >&                  aBaseNodes,
+            const Parent_Node&                    aFirstParentNode,
+            const Parent_Node&                    aSecondParentNode,
+            mtk::Geometry_Type                    aBaseGeometryType )
     {
         if ( mParameters.mIntersectionInterpolation == Int_Interpolation::LINEAR )
         {
             // Create linear intersection node
             return std::make_shared< Intersection_Node_Linear >(
-                    aEdgeFirstIntersectionNode,
-                    aEdgeSecondIntersectionNode,
-                    aEdgeFirstNodeIndex,
-                    aEdgeSecondNodeIndex,
-                    aEdgeFirstNodeGlobalCoordinates,
-                    aEdgeSecondNodeGlobalCoordinates,
+                    aNodeIndex,
+                    aBaseNodes,
+                    aFirstParentNode,
+                    aSecondParentNode,
+                    aBaseGeometryType,
                     shared_from_this() );
         }
         else
         {
-            // Get element interpolation type TODO move this into the bilinear intersection node, it should know what spatial dimension it is
-            Element_Interpolation_Type tInterpolationType =
-                    aEdgeFirstNodeLocalCoordinates.length() == 2 ? Element_Interpolation_Type::Linear_2D : Element_Interpolation_Type::Linear_3D;
-
             // Create multilinear intersection node
             return std::make_shared< Intersection_Node_Bilinear >(
-                    aEdgeFirstIntersectionNode,
-                    aEdgeSecondIntersectionNode,
-                    aEdgeFirstNodeIndex,
-                    aEdgeSecondNodeIndex,
-                    aEdgeFirstNodeLocalCoordinates,
-                    aEdgeSecondNodeLocalCoordinates,
-                    aBackgroundElementNodeIndices,
-                    aBackgroundElementNodeCoordinates,
-                    tInterpolationType,
+                    aNodeIndex,
+                    aBaseNodes,
+                    aFirstParentNode,
+                    aSecondParentNode,
+                    aBaseGeometryType,
                     shared_from_this() );
         }
     }

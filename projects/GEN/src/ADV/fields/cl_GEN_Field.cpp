@@ -11,6 +11,7 @@
 #include "cl_GEN_Field.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 #include <utility>
 
@@ -115,9 +116,9 @@ namespace moris::ge
             real tFieldValue = 0.0;
             
             // Add contributions from each locator
-            for ( auto iLocator : mNodeManager.get_derived_node( aNodeIndex )->get_locators() )
+            for ( auto iBasisNode : mNodeManager.get_derived_node( aNodeIndex )->get_basis_nodes() )
             {
-                tFieldValue += this->get_field_value( iLocator.get_index(), iLocator.get_coordinates() ) * iLocator.get_basis();
+                tFieldValue += this->get_field_value( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
             }
             
             // Return result
@@ -139,10 +140,10 @@ namespace moris::ge
         else
         {
             // Add contributions from each locator
-            for ( auto iLocator : mNodeManager.get_derived_node( aNodeIndex )->get_locators() )
+            for ( auto iBasisNode : mNodeManager.get_derived_node( aNodeIndex )->get_basis_nodes() )
             {
                 // Get locator sensitivities
-                Matrix< DDRMat > tLocatorSensitivities = this->get_dfield_dadvs( iLocator.get_index(), iLocator.get_coordinates() ) * iLocator.get_basis();
+                Matrix< DDRMat > tLocatorSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
 
                 // Have to do a resize, since each locator can depend on different number of ADVs
                 mInterpolatedSensitivities.resize( 1, mInterpolatedSensitivities.length() + tLocatorSensitivities.length() );
@@ -151,9 +152,9 @@ namespace moris::ge
                 uint tJoinedSensitivityLength = mInterpolatedSensitivities.length();
 
                 // Append to current list
-                for ( uint iLocatorSensitivity = 0; iLocatorSensitivity < tLocatorSensitivities.length(); iLocatorSensitivity++ )
+                for ( uint iBasisNodeSensitivity = 0; iBasisNodeSensitivity < tLocatorSensitivities.length(); iBasisNodeSensitivity++ )
                 {
-                    mInterpolatedSensitivities( tJoinedSensitivityLength + iLocatorSensitivity ) = tLocatorSensitivities( iLocatorSensitivity );
+                    mInterpolatedSensitivities( tJoinedSensitivityLength + iBasisNodeSensitivity ) = tLocatorSensitivities( iBasisNodeSensitivity );
                 }
             }
 
@@ -185,10 +186,10 @@ namespace moris::ge
         else
         {
             // Add contributions from each locator
-            for ( auto iLocator : mNodeManager.get_derived_node( aNodeIndex )->get_locators() )
+            for ( auto iBasisNode : mNodeManager.get_derived_node( aNodeIndex )->get_basis_nodes() )
             {
                 // Get locator sensitivities
-                Matrix< DDSMat > tLocatorADVIDs = this->get_determining_adv_ids( iLocator.get_index(), iLocator.get_coordinates() ) * iLocator.get_basis();
+                Matrix< DDSMat > tLocatorADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
 
                 // Have to do a resize, since each locator can depend on different number of ADVs
                 mInterpolatedADVIDs.resize( 1, mInterpolatedADVIDs.length() + tLocatorADVIDs.length() );
@@ -197,9 +198,9 @@ namespace moris::ge
                 uint tJoinedADVIDLength = mInterpolatedADVIDs.length();
 
                 // Append to current list
-                for ( uint iLocatorADV = 0; iLocatorADV < tLocatorADVIDs.length(); iLocatorADV++ )
+                for ( uint iBasisNodeADV = 0; iBasisNodeADV < tLocatorADVIDs.length(); iBasisNodeADV++ )
                 {
-                    mInterpolatedADVIDs( tJoinedADVIDLength + iLocatorADV ) = tLocatorADVIDs( iLocatorADV );
+                    mInterpolatedADVIDs( tJoinedADVIDLength + iBasisNodeADV ) = tLocatorADVIDs( iBasisNodeADV );
                 }
             }
 

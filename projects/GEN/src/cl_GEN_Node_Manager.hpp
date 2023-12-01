@@ -58,6 +58,13 @@ namespace moris::ge
         uint get_number_of_base_nodes();
 
         /**
+         * Gets the total number of nodes stored by the node manager.
+         *
+         * @return Total number of nodes
+         */
+        uint get_total_number_of_nodes();
+
+        /**
          * Gets a node stored in this manager.
          *
          * @param aIndex Node index

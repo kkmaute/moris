@@ -128,16 +128,11 @@ namespace moris::ge
          * @return Created intersection node
          */
         std::shared_ptr< Intersection_Node > create_intersection_node(
-                uint                                 aEdgeFirstNodeIndex,
-                uint                                 aEdgeSecondNodeIndex,
-                std::shared_ptr< Intersection_Node > aEdgeFirstIntersectionNode,
-                std::shared_ptr< Intersection_Node > aEdgeSecondIntersectionNode,
-                const Matrix< DDRMat >&              aEdgeFirstNodeLocalCoordinates,
-                const Matrix< DDRMat >&              aEdgeSecondNodeLocalCoordinates,
-                const Matrix< DDRMat >&              aEdgeFirstNodeGlobalCoordinates,
-                const Matrix< DDRMat >&              aEdgeSecondNodeGlobalCoordinates,
-                const Matrix< DDUMat >&              aBackgroundElementNodeIndices,
-                const Cell< Matrix< DDRMat > >&      aBackgroundElementNodeCoordinates ) override;
+                uint                                  aNodeIndex,
+                const Cell< Node* >&                  aBaseNodes,
+                const Parent_Node&                    aFirstParentNode,
+                const Parent_Node&                    aSecondParentNode,
+                mtk::Geometry_Type                    aBaseGeometryType ) override;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh

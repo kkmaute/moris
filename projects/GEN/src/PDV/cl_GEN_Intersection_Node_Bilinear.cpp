@@ -9,614 +9,452 @@
  */
 
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
+#include "cl_GEN_Parent_Node.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Interpolation.hpp"
 
-#include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
-#include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
-#include "cl_MTK_Enums.hpp"                             //MTK/src
+#include "cl_MTK_Interpolation_Function_Base.hpp"
+#include "cl_MTK_Interpolation_Function_Factory.hpp"
+#include "cl_MTK_Enums.hpp"
 
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
+    //--------------------------------------------------------------------------------------------------------------
+
+    Intersection_Node_Bilinear::Intersection_Node_Bilinear(
+            uint                                  aNodeIndex,
+            const Cell< Node* >&                  aBaseNodes,
+            const Parent_Node&                    aFirstParentNode,
+            const Parent_Node&                    aSecondParentNode,
+            mtk::Geometry_Type                    aBaseGeometryType,
+            std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
+            : Intersection_Node_Level_Set(
+                    aNodeIndex,
+                    aBaseNodes,
+                    aFirstParentNode,
+                    aSecondParentNode,
+                    Intersection_Node_Bilinear::compute_local_coordinate( aBaseNodes, aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),
+                    aBaseGeometryType,
+                    aInterfaceGeometry )
     {
-        //--------------------------------------------------------------------------------------------------------------
+        // call required setup function
+        this->initialize();
+    }
 
-        Intersection_Node_Bilinear::Intersection_Node_Bilinear(
-                std::shared_ptr< Intersection_Node >  aFirstParentNode,
-                std::shared_ptr< Intersection_Node >  aSecondParentNode,
-                uint                                  aFirstParentNodeIndex,
-                uint                                  aSecondParentNodeIndex,
-                const Matrix< DDRMat >&               aFirstParentNodeLocalCoordinates,
-                const Matrix< DDRMat >&               aSecondParentNodeLocalCoordinates,
-                const Matrix< DDUMat >&               aAncestorNodeIndices,
-                const Cell< Matrix< DDRMat > >&       aAncestorNodeCoordinates,
-                const Element_Interpolation_Type      aInterpolationType,
-                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
-                : Intersection_Node_Level_Set(
-                        compute_local_coordinate(
-                                aFirstParentNodeLocalCoordinates,
-                                aSecondParentNodeLocalCoordinates,
-                                aAncestorNodeIndices,
-                                aAncestorNodeCoordinates,
-                                aInterfaceGeometry ),
-                        aFirstParentNode,
-                        aSecondParentNode,
-                        aFirstParentNodeIndex,
-                        aSecondParentNodeIndex,
-                        aFirstParentNodeLocalCoordinates,
-                        aSecondParentNodeLocalCoordinates,
-                        aAncestorNodeIndices,
-                        aAncestorNodeCoordinates,
-                        aInterpolationType,
-                        aInterfaceGeometry )
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
+    {
+        return this->compute_intersection_derivative( aAncestorIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent()
+    {
+        MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
+        return { {} };
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent()
+    {
+        MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
+        return { {} };
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Intersection_Node_Bilinear::compute_local_coordinate(
+            const Cell< Node* >&                  aBaseNodes,
+            const Parent_Node&                    aFirstParentNode,
+            const Parent_Node&                    aSecondParentNode,
+            std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
+    {
+        // get isocontour threshold from geometry
+        real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
+
+        // spatial dimension
+        uint tNumDims = aFirstParentNode.get_global_coordinates().length();
+
+        // number of nodes to be used for interpolation
+        uint tNumBases;
+
+        // build interpolator
+        mtk::Interpolation_Function_Factory tFactory;
+
+        mtk::Interpolation_Function_Base* tInterpolation;
+
+        // create interpolation function based on spatial dimension of problem
+        switch ( tNumDims )
         {
-            // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
-            MORIS_ASSERT( aAncestorNodeCoordinates.size() == aAncestorNodeIndices.numel(),
-                    "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
-
-            // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
-            MORIS_ASSERT( aFirstParentNodeLocalCoordinates.numel() == aAncestorNodeCoordinates( 0 ).numel(),
-                    "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
-
-            MORIS_ASSERT( mAncestorNodeCoordinates( 0 ).numel() == 2 || mAncestorNodeCoordinates( 0 ).numel() == 3,
-                    "Intersection_Node_Bilinear::Intersection_Node_Bilinear - Incorrect nodal dimension." );
-
-            // check that number of bases to be used less or equal number of ancestor nodes
-            MORIS_ASSERT( mAncestorNodeCoordinates( 0 ).numel() == 2 ? mAncestorNodeCoordinates.size() >= 4 : true,
-                    "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
-
-            MORIS_ASSERT( mAncestorNodeCoordinates( 0 ).numel() == 3 ? mAncestorNodeCoordinates.size() >= 8 : true,
-                    "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
-
-            // call required setup function
-            this->initialize( aInterpolationType, aFirstParentNodeLocalCoordinates, aSecondParentNodeLocalCoordinates );
-
-            // allocate matrix for coordinates of parent nodes nodes on edge in local background cell CS
-            mParentLocalCoordinates.set_size( aFirstParentNodeLocalCoordinates.numel(), 2 );
-
-            // get coordinates of parent nodes nodes on edge in local background cell CS
-            for ( uint iI = 0; iI < aFirstParentNodeLocalCoordinates.numel(); ++iI )
+            case 2:
             {
-                mParentLocalCoordinates( iI, 0 ) = aFirstParentNodeLocalCoordinates( iI );
-                mParentLocalCoordinates( iI, 1 ) = aSecondParentNodeLocalCoordinates( iI );
+                tInterpolation = tFactory.create_interpolation_function(
+                        mtk::Geometry_Type::QUAD,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Order::LINEAR );
+
+                tNumBases = 4;
+                break;
+            }
+            case 3:
+            {
+                tInterpolation = tFactory.create_interpolation_function(
+                        mtk::Geometry_Type::HEX,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Order::LINEAR );
+
+                tNumBases = 8;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false,
+                        "Intersection_Node_Bilinear::compute_intersection - Interpolation type not implemented." );
             }
         }
 
-        //--------------------------------------------------------------------------------------------------------------
+        // allocate matrix for level set values at background cell nodes
+        Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
-        Intersection_Node_Bilinear::~Intersection_Node_Bilinear()
+        // get level set values of corner nodes
+        for ( uint iBaseNode = 0; iBaseNode < tNumBases; ++iBaseNode )
         {
+            tPhiBCNodes( iBaseNode ) = aInterfaceGeometry->get_field_value(
+                    aBaseNodes( iBaseNode )->get_index(),
+                    aBaseNodes( iBaseNode )->get_global_coordinates() );
         }
 
-        //--------------------------------------------------------------------------------------------------------------
+        // scale element level set field such that norm equals 1.0
+        const real tPhiScaling = 1.0 / norm( tPhiBCNodes );
 
-        Matrix< DDRMat >
-        Intersection_Node_Bilinear::compute_global_coordinates()
+        tPhiBCNodes = tPhiScaling * tPhiBCNodes;
+
+        // scale threshold
+        tIsocontourThreshold *= tPhiScaling;
+
+        real tFirstParentPhi  = aInterfaceGeometry->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+        real tSecondParentPhi = aInterfaceGeometry->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+
+        // check that line is intersected
+        if ( ( tFirstParentPhi - tIsocontourThreshold ) * ( tSecondParentPhi - tIsocontourThreshold ) > 0 )
         {
-            // Global coordinates of intersection and parents
-            Matrix< DDRMat > tGlobalCoordinates = mBasisValues( 0 ) * mAncestorNodeCoordinates( 0 );
+            delete tInterpolation;
 
-            for ( uint tBasisIndex = 1; tBasisIndex < mBasisValues.length(); tBasisIndex++ )
-            {
-                tGlobalCoordinates += mBasisValues( tBasisIndex ) * mAncestorNodeCoordinates( tBasisIndex );
-            }
-
-            return tGlobalCoordinates;
+            return MORIS_REAL_MAX;
         }
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        real
-        Intersection_Node_Bilinear::compute_diff_from_threshold(
-                const Element_Interpolation_Type aAncestorBasisFunction,
-                const Matrix< DDRMat >&          aParentNodeLocalCoordinates,
-                moris_index                      aParentNodeIndex )
+        // check that difference between first and second parent is not smaller than MORIS_REAL_EPS
+        if ( std::abs( tFirstParentPhi - tSecondParentPhi ) < MORIS_REAL_EPS )
         {
-            // initialize number of basis used by interpolation
-            uint tNumBases;
+            delete tInterpolation;
 
-            // build interpolator
-            mtk::Interpolation_Function_Factory tFactory;
+            // return that intersection node is at center of edge
+            return 0.0;
+        }
 
-            mtk::Interpolation_Function_Base* tInterpolation;
+        // set Newton parameters
+        const uint tNewMaxIter  = 20;    // maximum number of iterations in Newton
+        const uint tCurvMaxIter = 10;    // maximum number of iterations using curvature information
 
-            // create interpolation function based on spatial dimension  of problem
-            switch ( aAncestorBasisFunction )
+        const real tNewRelax  = 1.0;      // relaxation factor for solution update
+        const real tNewRelEps = 1e-8;     // required relative residual drop
+        const real tNewAbsEps = 1e-12;    // required absolute residual drop
+        const real tCurvMin   = 1e-8;     // threshold for curvature magnitude above which curvature is used
+
+        // allocate matrices used within Newton loop
+        Matrix< DDRMat > tCellCoordinate( tNumDims, 1 );
+        Matrix< DDRMat > tBasis;
+        Matrix< DDRMat > tDBasisDxi;
+        Matrix< DDRMat > tDBasisDxi2;
+        Matrix< DDRMat > tD2PhiDxi2;
+
+        // vector from first to second parent in local coordinates
+        Matrix< DDRMat > tSecondToFirstParent = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
+
+        // initialized reference residual
+        real tReferenceResidual = 0.0;
+        real tResidual          = 0.0;
+
+        // compute initial guess: location of intersection point along edge in edge CS
+        real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )    //
+                             / ( tSecondParentPhi - tFirstParentPhi );
+
+        Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
+
+        // loop over initial guess trials
+        for ( uint iGuess = 0; iGuess < tInitialGuess.numel(); iGuess++ )
+        {
+            // set initial guess
+            tEdgeCoordinate = tInitialGuess( iGuess );
+
+            // perform iterations
+            for ( uint iNew = 0; iNew < tNewMaxIter; ++iNew )
             {
-                case Element_Interpolation_Type::Linear_2D:
+                // compute local coordinate in background cell CS
+                tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNode.get_parametric_coordinates(),
+                                + 0.5 * ( 1.0 + tEdgeCoordinate ) * aSecondParentNode.get_parametric_coordinates();
+
+                // compute basis function
+                tInterpolation->eval_N( tCellCoordinate, tBasis );
+
+                // compute residual
+                tResidual = dot( tBasis, tPhiBCNodes ) - tIsocontourThreshold;
+
+                // check convergence against absolute residual
+                if ( std::abs( tResidual ) < tNewAbsEps )
                 {
-                    tInterpolation = tFactory.create_interpolation_function(
-                            mtk::Geometry_Type::QUAD,
-                            mtk::Interpolation_Type::LAGRANGE,
-                            mtk::Interpolation_Order::LINEAR );
+                    delete tInterpolation;
 
-                    tNumBases = 4;
-                    break;
+                    return tEdgeCoordinate;
                 }
-                case Element_Interpolation_Type::Linear_3D:
-                {
-                    tInterpolation = tFactory.create_interpolation_function(
-                            mtk::Geometry_Type::HEX,
-                            mtk::Interpolation_Type::LAGRANGE,
-                            mtk::Interpolation_Order::LINEAR );
 
-                    tNumBases = 8;
-                    break;
+                // store reference residual
+                if ( iNew == 0 )
+                {
+                    tReferenceResidual = std::abs( tResidual );
                 }
-                default:
+
+                // check convergence against relative residual
+                if ( std::abs( tResidual ) < tNewRelEps * tReferenceResidual )
                 {
-                    MORIS_ERROR( false,
-                            "Intersection_Node_Bilinear::Intersection_Node_Bilinear - Interpolation type not implemented." );
+                    delete tInterpolation;
+
+                    return tEdgeCoordinate;
                 }
-            }
 
-            // lock interface geometry
-            std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+                // compute Jacobian
+                tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
 
-            // allocate matrix for level set values at background cell nodes
-            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
+                // compute first order gradient of residual with respect to edge coordinate
+                real tGradRes = 0.5 * dot( tSecondToFirstParent, tDBasisDxi * tPhiBCNodes );
 
-            // get level set values of corner nodes
-            for ( uint in = 0; in < tNumBases; ++in )
-            {
-                tPhiBCNodes( in ) = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices( in ), mAncestorNodeCoordinates( in ) );
-            }
+                // initialize solution increment
+                real tSolIncrement;
 
-            // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
-            MORIS_ASSERT( aParentNodeLocalCoordinates.numel() == mAncestorNodeCoordinates( 0 ).numel(),
-                    "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
+                // initialize curvature variable
+                real tSqrt2   = -1.0;
+                real tCurvRes = 0.0;
 
-            // get isocontour threshold from geometry
-            real tIsocontourThreshold = tLockedInterfaceGeometry->get_isocontour_threshold();
-
-            // compute level set value at parent nodes
-            Matrix< DDRMat > tParentBasis;
-
-            tInterpolation->eval_N( aParentNodeLocalCoordinates, tParentBasis );
-
-            real tParentPhi = dot( tParentBasis, tPhiBCNodes );
-
-            return tParentPhi - tIsocontourThreshold;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        real
-        Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
-        {
-            return this->compute_intersection_derivative( aAncestorIndex );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix< DDRMat >
-        Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent()
-        {
-            MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
-            return { {} };
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix< DDRMat >
-        Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent()
-        {
-            MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
-            return { {} };
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        real
-        Intersection_Node_Bilinear::compute_local_coordinate(
-                const Matrix< DDRMat >&               aFirstParentNodeLocalCoordinates,
-                const Matrix< DDRMat >&               aSecondParentNodeLocalCoordinates,
-                const Matrix< DDUMat >&               aAncestorNodeIndices,
-                const Cell< Matrix< DDRMat > >&       aAncestorNodeCoordinates,
-                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
-        {
-            // get isocontour threshold from geometry
-            real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
-
-            // spatial dimension
-            uint tNumDims = aAncestorNodeCoordinates( 0 ).numel();
-
-            // number of nodes to be used for interpolation
-            uint tNumBases;
-
-            // build interpolator
-            mtk::Interpolation_Function_Factory tFactory;
-
-            mtk::Interpolation_Function_Base* tInterpolation;
-
-            // create interpolation function based on spatial dimension of problem
-            switch ( tNumDims )
-            {
-                case 2:
+                // compute second order derivatives
+                if ( iNew < tCurvMaxIter )
                 {
-                    tInterpolation = tFactory.create_interpolation_function(
-                            mtk::Geometry_Type::QUAD,
-                            mtk::Interpolation_Type::LAGRANGE,
-                            mtk::Interpolation_Order::LINEAR );
+                    // compute Hessian
+                    tInterpolation->eval_d2NdXi2( tCellCoordinate, tDBasisDxi2 );
 
-                    tNumBases = 4;
-                    break;
-                }
-                case 3:
-                {
-                    tInterpolation = tFactory.create_interpolation_function(
-                            mtk::Geometry_Type::HEX,
-                            mtk::Interpolation_Type::LAGRANGE,
-                            mtk::Interpolation_Order::LINEAR );
+                    tD2PhiDxi2 = tDBasisDxi2 * tPhiBCNodes;
 
-                    tNumBases = 8;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false,
-                            "Intersection_Node_Bilinear::compute_intersection - Interpolation type not implemented." );
-                }
-            }
-
-            // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
-            MORIS_ASSERT( aAncestorNodeCoordinates.size() == aAncestorNodeIndices.numel(),
-                    "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
-
-            // check that number of bases to be used less or equal number of ancestor nodes
-            MORIS_ASSERT( aAncestorNodeCoordinates.size() >= tNumBases,
-                    "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
-
-            // allocate matrix for level set values at background cell nodes
-            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
-
-            // get level set values of corner nodes
-            for ( uint in = 0; in < tNumBases; ++in )
-            {
-                tPhiBCNodes( in ) = aInterfaceGeometry->get_field_value(
-                        aAncestorNodeIndices( in ),
-                        aAncestorNodeCoordinates( in ) );
-            }
-
-            // scale element level set field such that norm equals 1.0
-            const real tPhiScaling = 1.0 / norm( tPhiBCNodes );
-
-            tPhiBCNodes = tPhiScaling * tPhiBCNodes;
-
-            // scale threshold
-            tIsocontourThreshold *= tPhiScaling;
-
-            // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
-            MORIS_ASSERT( aFirstParentNodeLocalCoordinates.numel() == aAncestorNodeCoordinates( 0 ).numel(),
-                    "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
-
-            // compute level set value at parent nodes
-            Matrix< DDRMat > tFirstParentBasis;
-            Matrix< DDRMat > tSecondParentBasis;
-
-            tInterpolation->eval_N( aFirstParentNodeLocalCoordinates, tFirstParentBasis );
-            tInterpolation->eval_N( aSecondParentNodeLocalCoordinates, tSecondParentBasis );
-
-            const real tFirstParentPhi  = dot( tFirstParentBasis, tPhiBCNodes );
-            const real tSecondParentPhi = dot( tSecondParentBasis, tPhiBCNodes );
-
-            // check that line is intersected
-            if ( ( tFirstParentPhi - tIsocontourThreshold ) * ( tSecondParentPhi - tIsocontourThreshold ) > 0 )
-            {
-                delete tInterpolation;
-
-                return MORIS_REAL_MAX;
-            }
-
-            // check that difference between first and second parent is not smaller than MORIS_REAL_EPS
-            if ( std::abs( tFirstParentPhi - tSecondParentPhi ) < MORIS_REAL_EPS )
-            {
-                delete tInterpolation;
-
-                // return that intersection node is at center of edge
-                return 0.0;
-            }
-
-            // set Newton parameters
-            const uint tNewMaxIter  = 20;    // maximum number of iterations in Newton
-            const uint tCurvMaxIter = 10;    // maximum number of iterations using curvature information
-
-            const real tNewRelax  = 1.0;      // relaxation factor for solution update
-            const real tNewRelEps = 1e-8;     // required relative residual drop
-            const real tNewAbsEps = 1e-12;    // required absolute residual drop
-            const real tCurvMin   = 1e-8;     // threshold for curvature magnitude above which curvature is used
-
-            // allocate matrices used within Newton loop
-            Matrix< DDRMat > tCellCoordinate( aFirstParentNodeLocalCoordinates.numel(), 1 );
-            Matrix< DDRMat > tBasis;
-            Matrix< DDRMat > tDBasisDxi;
-            Matrix< DDRMat > tDBasisDxi2;
-            Matrix< DDRMat > tD2PhiDxi2;
-
-            // vector from first to second parent in local coordinates
-            Matrix< DDRMat > tSecondToFirstParent = aSecondParentNodeLocalCoordinates - aFirstParentNodeLocalCoordinates;
-
-            // initialized reference residual
-            real tReferenceResidual = 0.0;
-            real tResidual          = 0.0;
-
-            // compute initial guess: location of intersection point along edge in edge CS
-            real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )    //
-                                 / ( tSecondParentPhi - tFirstParentPhi );
-
-            Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
-
-            // loop over initial guess trials
-            for ( uint iGuess = 0; iGuess < tInitialGuess.numel(); iGuess++ )
-            {
-                // set initial guess
-                tEdgeCoordinate = tInitialGuess( iGuess );
-
-                // perform iterations
-                for ( uint iNew = 0; iNew < tNewMaxIter; ++iNew )
-                {
-                    // compute local coordinate in background cell CS
-                    tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNodeLocalCoordinates
-                                    + 0.5 * ( 1.0 + tEdgeCoordinate ) * aSecondParentNodeLocalCoordinates;
-
-                    // compute basis function
-                    tInterpolation->eval_N( tCellCoordinate, tBasis );
-
-                    // compute residual
-                    tResidual = dot( tBasis, tPhiBCNodes ) - tIsocontourThreshold;
-
-                    // check convergence against absolute residual
-                    if ( std::abs( tResidual ) < tNewAbsEps )
+                    // compute second order derivative of residual with respect to edge coordinate
+                    if ( tNumDims == 2 )
                     {
-                        delete tInterpolation;
-
-                        return tEdgeCoordinate;
-                    }
-
-                    // store reference residual
-                    if ( iNew == 0 )
-                    {
-                        tReferenceResidual = std::abs( tResidual );
-                    }
-
-                    // check convergence against relative residual
-                    if ( std::abs( tResidual ) < tNewRelEps * tReferenceResidual )
-                    {
-                        delete tInterpolation;
-
-                        return tEdgeCoordinate;
-                    }
-
-                    // compute Jacobian
-                    tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
-
-                    // compute first order gradient of residual with respect to edge coordinate
-                    real tGradRes = 0.5 * dot( tSecondToFirstParent, tDBasisDxi * tPhiBCNodes );
-
-                    // initialize solution increment
-                    real tSolIncrement;
-
-                    // initialize curvature variable
-                    real tSqrt2   = -1.0;
-                    real tCurvRes = 0.0;
-
-                    // compute second order derivatives
-                    if ( iNew < tCurvMaxIter )
-                    {
-                        // compute Hessian
-                        tInterpolation->eval_d2NdXi2( tCellCoordinate, tDBasisDxi2 );
-
-                        tD2PhiDxi2 = tDBasisDxi2 * tPhiBCNodes;
-
-                        // compute second order derivative of residual with respect to edge coordinate
-                        if ( tNumDims == 2 )
-                        {
-                            tCurvRes =                                                                                   //
-                                    0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
-                                    0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
-                                    0.250 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
-                        }
-                        else
-                        {
-                            tCurvRes =                                                                                   //
-                                    0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
-                                    0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
-                                    0.125 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 2 ) * tSecondToFirstParent( 2 ) +    //
-                                    0.250 * tD2PhiDxi2( 3 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 2 ) +    //
-                                    0.250 * tD2PhiDxi2( 4 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 2 ) +    //
-                                    0.250 * tD2PhiDxi2( 5 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
-                        }
-
-                        // compute square of sqrt term in root finding formula for quadratic equations
-                        tSqrt2 = tGradRes * tGradRes - 4.0 * tCurvRes * tResidual;
-                    }
-
-                    // update solution depending on curvature
-                    if ( iNew < tCurvMaxIter && std::abs( tCurvRes ) > tCurvMin && tSqrt2 >= 0.0 )
-                    {
-                        // add roots of quadratic function to current edge coordinate
-                        real tSqrt = std::sqrt( tSqrt2 );
-
-                        real tRootMin = ( -1.0 * tGradRes - tSqrt ) / ( 2.0 * tCurvRes );
-                        real tRootMax = ( -1.0 * tGradRes + tSqrt ) / ( 2.0 * tCurvRes );
-
-                        // check with root is in [-1,1] interval
-                        bool tRootMinIsValid = std::abs( tEdgeCoordinate + tRootMin ) <= 1.0;
-                        bool tRootMaxIsValid = std::abs( tEdgeCoordinate + tRootMax ) <= 1.0;
-
-                        // compute increment
-                        if ( tRootMinIsValid && tRootMaxIsValid )
-                        {
-                            tSolIncrement = std::abs( tRootMin ) < std::abs( tRootMax ) ? tRootMin : tRootMax;
-                        }
-                        else if ( tRootMinIsValid )
-                        {
-                            tSolIncrement = tRootMin;
-                        }
-                        else if ( tRootMaxIsValid )
-                        {
-                            tSolIncrement = tRootMax;
-                        }
-                        else
-                        {
-                            tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
-                        }
+                        tCurvRes =                                                                                   //
+                                0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
+                                0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
+                                0.250 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
                     }
                     else
                     {
-                        // compute increment
-                        tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
+                        tCurvRes =                                                                                   //
+                                0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
+                                0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
+                                0.125 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 2 ) * tSecondToFirstParent( 2 ) +    //
+                                0.250 * tD2PhiDxi2( 3 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 2 ) +    //
+                                0.250 * tD2PhiDxi2( 4 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 2 ) +    //
+                                0.250 * tD2PhiDxi2( 5 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
                     }
 
-                    // update solution
-                    tEdgeCoordinate += tNewRelax * tSolIncrement;
-
-                    // trim solution
-                    tEdgeCoordinate = std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) );
+                    // compute square of sqrt term in root finding formula for quadratic equations
+                    tSqrt2 = tGradRes * tGradRes - 4.0 * tCurvRes * tResidual;
                 }
+
+                // update solution depending on curvature
+                if ( iNew < tCurvMaxIter && std::abs( tCurvRes ) > tCurvMin && tSqrt2 >= 0.0 )
+                {
+                    // add roots of quadratic function to current edge coordinate
+                    real tSqrt = std::sqrt( tSqrt2 );
+
+                    real tRootMin = ( -1.0 * tGradRes - tSqrt ) / ( 2.0 * tCurvRes );
+                    real tRootMax = ( -1.0 * tGradRes + tSqrt ) / ( 2.0 * tCurvRes );
+
+                    // check with root is in [-1,1] interval
+                    bool tRootMinIsValid = std::abs( tEdgeCoordinate + tRootMin ) <= 1.0;
+                    bool tRootMaxIsValid = std::abs( tEdgeCoordinate + tRootMax ) <= 1.0;
+
+                    // compute increment
+                    if ( tRootMinIsValid && tRootMaxIsValid )
+                    {
+                        tSolIncrement = std::abs( tRootMin ) < std::abs( tRootMax ) ? tRootMin : tRootMax;
+                    }
+                    else if ( tRootMinIsValid )
+                    {
+                        tSolIncrement = tRootMin;
+                    }
+                    else if ( tRootMaxIsValid )
+                    {
+                        tSolIncrement = tRootMax;
+                    }
+                    else
+                    {
+                        tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
+                    }
+                }
+                else
+                {
+                    // compute increment
+                    tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
+                }
+
+                // update solution
+                tEdgeCoordinate += tNewRelax * tSolIncrement;
+
+                // trim solution
+                tEdgeCoordinate = std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) );
             }
-
-            // print debug information
-            // for ( uint in = 0; in < tNumBases; ++in )
-            // {
-            //     std::string tStrg = "Anchestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
-            //     print( aAncestorNodeCoordinates( in ), tStrg );
-            // }
-
-            // print( tPhiBCNodes, "tPhiBCNodes" );
-
-            // fprintf( stderr, "tFirstParentPhi =%e   tSecondParentPhi = %e\n", tFirstParentPhi, tSecondParentPhi );
-
-            // print( aFirstParentNodeLocalCoordinates, "aFirstParentNodeLocalCoordinates" );
-            // print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
-
-            MORIS_ERROR( false,
-                    "Intersection_Node_Bilinear::compute_intersection - Newton did not convergence: %s %e %s %e %s %e",
-                    "Reference residual",
-                    tReferenceResidual,
-                    "Current residual",
-                    std::abs( tResidual ),
-                    "Edge coordinate",
-                    tEdgeCoordinate );
-
-            delete tInterpolation;
-
-            return tEdgeCoordinate;
         }
 
-        //--------------------------------------------------------------------------------------------------------------
+        // print debug information
+        // for ( uint in = 0; in < tNumBases; ++in )
+        // {
+        //     std::string tStrg = "Anchestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
+        //     print( aAncestorNodeCoordinates( in ), tStrg );
+        // }
 
-        real
-        Intersection_Node_Bilinear::compute_intersection_derivative( uint aAncestorIndex )
+        // print( tPhiBCNodes, "tPhiBCNodes" );
+
+        // fprintf( stderr, "tFirstParentPhi =%e   tSecondParentPhi = %e\n", tFirstParentPhi, tSecondParentPhi );
+
+        // print( aFirstParentNodeLocalCoordinates, "aFirstParentNodeLocalCoordinates" );
+        // print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
+
+        MORIS_ERROR( false,
+                "Intersection_Node_Bilinear::compute_intersection - Newton did not convergence: %s %e %s %e %s %e",
+                "Reference residual",
+                tReferenceResidual,
+                "Current residual",
+                std::abs( tResidual ),
+                "Edge coordinate",
+                tEdgeCoordinate );
+
+        delete tInterpolation;
+
+        return tEdgeCoordinate;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Intersection_Node_Bilinear::compute_intersection_derivative( uint aAncestorIndex )
+    {
+        // number of nodes to be used for interpolation
+        uint tNumBases;
+
+        // determine number of basis for bi or tri-linear interpolation based on spatial dimensions
+        switch ( this->get_global_coordinates().length() )
         {
-            // number of nodes to be used for interpolation
-            uint tNumBases;
-
-            // determine number of basis for bi or tri-linear interpolation based on spatial dimensions
-            switch ( mAncestorNodeCoordinates( 0 ).numel() )
+            case 2:
             {
-                case 2:
-                {
-                    tNumBases = 4;
-                    break;
-                }
-                case 3:
-                {
-                    tNumBases = 8;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false,
-                            "Intersection_Node_Bilinear::compute_intersection_derivative - Improper spatial dimensions." );
-                }
+                tNumBases = 4;
+                break;
             }
-
-            // check that aAncestorIndex <= number of basis
-            // note: here only bi and tri-linear interpolation used irrespective of interpolation of background cell; thus only
-            // corner nodes values are used; level set values of other nodes do not influence intersection position
-            if ( aAncestorIndex >= tNumBases )
+            case 3:
             {
-                // return zero as only corner node level set values influence intersection
-                return 0.0;
+                tNumBases = 8;
+                break;
             }
-
-            // Locked interface geometry
-            std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
-
-            // build interpolator
-            mtk::Interpolation_Function_Factory tFactory;
-
-            mtk::Interpolation_Function_Base* tInterpolation;
-
-            // create interpolation function based on spatial dimension  of problem
-            switch ( tNumBases )
+            default:
             {
-                case 4:
-                {
-                    tInterpolation = tFactory.create_interpolation_function(
-                            mtk::Geometry_Type::QUAD,
-                            mtk::Interpolation_Type::LAGRANGE,
-                            mtk::Interpolation_Order::LINEAR );
-                    break;
-                }
-                case 8:
-                {
-                    tInterpolation = tFactory.create_interpolation_function(
-                            mtk::Geometry_Type::HEX,
-                            mtk::Interpolation_Type::LAGRANGE,
-                            mtk::Interpolation_Order::LINEAR );
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false,
-                            "Intersection_Node_Bilinear::compute_intersection_derivative - Interpolation type not implemented." );
-                }
+                MORIS_ERROR( false,
+                        "Intersection_Node_Bilinear::compute_intersection_derivative - Improper spatial dimensions." );
             }
-
-            // allocate matrix for level set values at background cell nodes
-            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
-
-            // get level set values of corner nodes
-            for ( uint in = 0; in < tNumBases; ++in )
-            {
-                tPhiBCNodes( in ) = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices( in ), mAncestorNodeCoordinates( in ) );
-            }
-
-            // compute level set value at parent nodes
-            Matrix< DDRMat > aFirstParentNodeLocalCoordinates  = mParentLocalCoordinates.get_column( 0 );
-            Matrix< DDRMat > aSecondParentNodeLocalCoordinates = mParentLocalCoordinates.get_column( 1 );
-
-            // compute local coordinate in background cell CS
-            Matrix< DDRMat > tCellCoordinate = 0.5 * ( 1.0 - mLocalCoordinate ) * aFirstParentNodeLocalCoordinates
-                                             + 0.5 * ( 1.0 + mLocalCoordinate ) * aSecondParentNodeLocalCoordinates;
-
-            // compute basis function
-            Matrix< DDRMat > tBasis;
-            tInterpolation->eval_N( tCellCoordinate, tBasis );
-
-            // compute derivative of residual
-            real tDResidualDPhi = tBasis( aAncestorIndex );
-
-            // compute Jacobian
-            Matrix< DDRMat > tDBasisDxi;
-            tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
-
-            Matrix< DDRMat > tJac = 0.5 * trans( aSecondParentNodeLocalCoordinates - aFirstParentNodeLocalCoordinates ) * tDBasisDxi * tPhiBCNodes;
-
-            // delete interpolator
-            delete tInterpolation;
-
-            // compute derivative of edge coordinate wrt. ancestor level set value
-            return -1.0 * tDResidualDPhi / ( tJac( 0 ) + MORIS_REAL_EPS );
         }
 
-        //--------------------------------------------------------------------------------------------------------------
+        // check that aAncestorIndex <= number of basis
+        // note: here only bi and tri-linear interpolation used irrespective of interpolation of background cell; thus only
+        // corner nodes values are used; level set values of other nodes do not influence intersection position
+        if ( aAncestorIndex >= tNumBases )
+        {
+            // return zero as only corner node level set values influence intersection
+            return 0.0;
+        }
 
-    }    // namespace ge
-}    // namespace moris
+        // Locked interface geometry
+        std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+        // build interpolator
+        mtk::Interpolation_Function_Factory tFactory;
+
+        mtk::Interpolation_Function_Base* tInterpolation;
+
+        // create interpolation function based on spatial dimension  of problem
+        switch ( tNumBases )
+        {
+            case 4:
+            {
+                tInterpolation = tFactory.create_interpolation_function(
+                        mtk::Geometry_Type::QUAD,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Order::LINEAR );
+                break;
+            }
+            case 8:
+            {
+                tInterpolation = tFactory.create_interpolation_function(
+                        mtk::Geometry_Type::HEX,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Order::LINEAR );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false,
+                        "Intersection_Node_Bilinear::compute_intersection_derivative - Interpolation type not implemented." );
+            }
+        }
+
+        // allocate matrix for level set values at background cell nodes
+        Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
+
+        // get level set values of corner nodes
+        const Cell< Basis_Node >& tBasisNodes = this->get_basis_nodes();
+        for ( uint iBasisNodeIndex = 0; iBasisNodeIndex < tNumBases; ++iBasisNodeIndex )
+        {
+            tPhiBCNodes( iBasisNodeIndex ) = tLockedInterfaceGeometry->get_field_value(
+                    tBasisNodes( iBasisNodeIndex ).get_index(),
+                    tBasisNodes( iBasisNodeIndex ).get_global_coordinates() );
+        }
+
+        // compute local coordinate in background cell CS
+        const Matrix< DDRMat >& tCellCoordinate = this->get_parametric_coordinates();
+
+        // compute basis function
+        Matrix< DDRMat > tBasis;
+        tInterpolation->eval_N( tCellCoordinate, tBasis );
+
+        // compute derivative of residual
+        real tDResidualDPhi = tBasis( aAncestorIndex );
+
+        // compute Jacobian
+        Matrix< DDRMat > tDBasisDxi;
+        tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
+
+        Matrix< DDRMat > tJac = 0.5 * trans( mSecondParentNodeParametricCoordinates - mFirstParentNodeParametricCoordinates ) * tDBasisDxi * tPhiBCNodes;
+
+        // delete interpolator
+        delete tInterpolation;
+
+        // compute derivative of edge coordinate wrt. ancestor level set value
+        return -1.0 * tDResidualDPhi / ( tJac( 0 ) + MORIS_REAL_EPS );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+}

@@ -270,8 +270,8 @@ namespace moris
              *
              * @param aEdgeFirstNodeIndex First node index on the intersection edge
              * @param aEdgeSecondNodeIndex Second node index on the intersection edge
-             * @param aEdgeFirstNodeLocalCoordinates Local coordinates of the first node inside the background element
-             * @param aEdgeSecondNodeLocalCoordinates Local coordinates of the second node inside the background element
+             * @param aEdgeFirstNodeParametricCoordinates Local coordinates of the first node inside the background element
+             * @param aEdgeSecondNodeParametricCoordinates Local coordinates of the second node inside the background element
              * @param aEdgeFirstNodeGlobalCoordinates Global coordinates of the first node
              * @param aEdgeSecondNodeGlobalCoordinates Global coordinates of the second node
              * @param aBackgroundElementNodeIndices Node indices of the background element
@@ -281,8 +281,8 @@ namespace moris
             bool queue_intersection(
                     uint                            aEdgeFirstNodeIndex,
                     uint                            aEdgeSecondNodeIndex,
-                    const Matrix< DDRMat >&         aEdgeFirstNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aEdgeSecondNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
+                    const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
                     const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
                     const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
                     const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
@@ -588,8 +588,6 @@ namespace moris
             //-------------------------------------------------------------------------------
             
           private:
-          
-            //-------------------------------------------------------------------------------
             
             void communicate_missing_owned_coefficients(
                     mtk::Mesh_Pair&  aMeshPair,
@@ -600,8 +598,6 @@ namespace moris
                     uint             aFieldIndex,
                     uint             aDiscretizationMeshIndex,
                     mtk::MeshType    aMeshType );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
@@ -613,8 +609,6 @@ namespace moris
                     mtk::Interpolation_Mesh*         aInterpolationMesh,
                     mtk::Integration_Mesh*           aIntegrationMesh,
                     Cell< Cell< Cell< PDV_Type > > > aPdvTypes );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
@@ -622,15 +616,13 @@ namespace moris
              * @param aMeshIndex Integration mesh index
              */
             void set_integration_pdv_types( mtk::Integration_Mesh* aIntegrationMesh );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Initialize the PDV type list.
              */
             void initialize_pdv_type_list();
 
-            //-------------------------------------------------------------------------------
+            const Parent_Node& create_parent_node();
             
             /**
              * Decides how to construct the phase table based on the given arguments.
@@ -641,8 +633,6 @@ namespace moris
             static Phase_Table create_phase_table(
                     Cell< Cell< ParameterList > > aParameterLists,
                     std::shared_ptr< Library_IO > aLibrary );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Decides how to construct the phase table based on the given parameter lists
@@ -658,15 +648,8 @@ namespace moris
                     PHASE_FUNCTION   aPhaseFunction = nullptr,
                     uint             aNumPhases     = 1 );
 
-            //-------------------------------------------------------------------------------
-
-        }; // class Geometry_Engine
-    
-    //-------------------------------------------------------------------------------
-
+        };
     }    // namespace ge
 }    // namespace moris
-
-//-------------------------------------------------------------------------------
 
 #endif /* MORIS_CL_Geometry_Engine_HPP_ */

@@ -17,28 +17,21 @@
 namespace moris::ge
 {
     Intersection_Node_Level_Set::Intersection_Node_Level_Set(
+            uint                                  aNodeIndex,
+            const Cell< Node* >&                  aBaseNodes,
+            const Parent_Node&                    aFirstParentNode,
+            const Parent_Node&                    aSecondParentNode,
             real                                  aLocalCoordinate,
-            std::shared_ptr< Intersection_Node >  aFirstParentNode,
-            std::shared_ptr< Intersection_Node >  aSecondParentNode,
-            moris_index                           aFirstParentNodeIndex,
-            moris_index                           aSecondParentNodeIndex,
-            const Matrix< DDRMat >&               aFirstParentNodeLocalCoordinates,
-            const Matrix< DDRMat >&               aSecondParentNodeLocalCoordinates,
-            Matrix< DDUMat >                      aAncestorNodeIndices,
-            Cell< Matrix< DDRMat > >              aAncestorNodeCoordinates,
-            const Element_Interpolation_Type      aAncestorBasisFunction,
+            mtk::Geometry_Type                    aBaseGeometryType,
             std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
             : Intersection_Node(
-                    aLocalCoordinate,
+                    aNodeIndex,
+                    aBaseNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aFirstParentNodeIndex,
-                    aSecondParentNodeIndex,
-                    aFirstParentNodeLocalCoordinates,
-                    aSecondParentNodeLocalCoordinates,
-                    aAncestorNodeIndices,
-                    aAncestorNodeCoordinates,
-                    aAncestorBasisFunction )
+                    aLocalCoordinate,
+                    aBaseGeometryType,
+                    aInterfaceGeometry )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
     }
@@ -46,37 +39,23 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     bool
-    Intersection_Node_Level_Set::determine_is_intersected(
-            const Element_Interpolation_Type aAncestorBasisFunction,
-            const Matrix< DDRMat >&          aFirstParentNodeLocalCoordinates,
-            const Matrix< DDRMat >&          aSecondParentNodeLocalCoordinates )
+    Intersection_Node_Level_Set::determine_is_intersected()
     {
-        // get the difference between the phi value of the parents and the isocontour threshold
-        real tFirstDiffFromThreshold = this->compute_diff_from_threshold(
-                aAncestorBasisFunction, aFirstParentNodeLocalCoordinates, mFirstParentNodeIndex );
-        real tSecondDiffFromThreshold = this->compute_diff_from_threshold(
-                aAncestorBasisFunction, aSecondParentNodeLocalCoordinates, mSecondParentNodeIndex );
-
-        // lock the interface geometry
+        // Lock the interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
+        // Get the difference between the level set value of the parents and the isocontour threshold
+        real tFirstDiffFromThreshold = tLockedInterfaceGeometry->get_field_value( mFirstParentNode.get_index(), mFirstParentNode.get_global_coordinates() );
+        real tSecondDiffFromThreshold = tLockedInterfaceGeometry->get_field_value( mSecondParentNode.get_index(), mSecondParentNode.get_global_coordinates() );
+
         // get the isocontour thresholds from the geometry
-        real tIntersectionTolerance = tLockedInterfaceGeometry->get_intersection_tolerance();
-
-        // Whether or not the first parent is on the interface
-        mFirstParentOnInterface = std::abs( tFirstDiffFromThreshold ) < tIntersectionTolerance
-                               or 0.5 * norm( mParentVector ) * std::abs( 1 + mLocalCoordinate ) < tIntersectionTolerance;
-
-        // Whether or not the second parent is on the interface
-        mSecondParentOnInterface = std::abs( tSecondDiffFromThreshold ) < tIntersectionTolerance
-                                or 0.5 * norm( mParentVector ) * std::abs( 1 - mLocalCoordinate ) < tIntersectionTolerance;
-
-        bool tIsIntersected;
+        real tLocalCoordinate = this->get_local_coordinate();
 
         // Determine if edge is intersected
-        if ( mFirstParentOnInterface or mSecondParentOnInterface )
+        bool tIsIntersected;
+        if ( this->is_first_parent_on_interface() or this->is_second_parent_on_interface() )
         {
-            tIsIntersected = true;
+            return true;
         }
         // FIXME: This check should be unnecessary as the local edge coordinate should be sufficient
         // to determine whether edge is intersected; it is only "useful" if parent node's level set value
@@ -87,15 +66,15 @@ namespace moris::ge
             tIsIntersected = false;
 
             // check for consistency of parent values and local coordinate
-            MORIS_ASSERT( std::abs( mLocalCoordinate ) > 1,
+            MORIS_ASSERT( std::abs( tLocalCoordinate ) > 1,
                     "Intersection_Node::Intersection_Node - inconsistent parent level set values versus local coordinate - p1 %e p2 %e loc %e.",
                     tFirstDiffFromThreshold,
                     tSecondDiffFromThreshold,
-                    mLocalCoordinate );
+                    tLocalCoordinate );
         }
         else
         {
-            tIsIntersected = ( std::abs( mLocalCoordinate ) <= 1.0 );
+            tIsIntersected = ( std::abs( tLocalCoordinate ) <= 1.0 );
 
             // check for consistency with parent values
             // this check is currently useless but should be performed is inconsistency issue (see comment above) is resolved
@@ -103,7 +82,7 @@ namespace moris::ge
                     "Intersection_Node::Intersection_Node - inconsistent parent level set values - p1 %e p2 %e loc %e.",
                     tFirstDiffFromThreshold,
                     tSecondDiffFromThreshold,
-                    mLocalCoordinate );
+                    tLocalCoordinate );
         }
 
         return tIsIntersected;
@@ -112,19 +91,22 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Intersection_Node_Level_Set::get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, Matrix< DDRMat > const & aSensitivityFactor )
+    Intersection_Node_Level_Set::append_dcoordinate_dadv(
+            Matrix< DDRMat >&       aCoordinateSensitivities,
+            const Matrix< DDRMat >& aSensitivityFactor )
     {
         // Locked interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
         // Get sensitivity values from other ancestors
         Matrix< DDRMat > tSensitivitiesToAdd;
-        for ( uint tAncestorNode = 0; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++ )
+        const Cell< Basis_Node >& tLocators = this->get_basis_nodes();
+        for ( uint tAncestorNode = 0; tAncestorNode < tLocators.size(); tAncestorNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
             const Matrix< DDRMat >& tFieldSensitivities = tLockedInterfaceGeometry->get_dfield_dadvs(
-                    mAncestorNodeIndices( tAncestorNode ),
-                    mAncestorNodeCoordinates( tAncestorNode ) );
+                    tLocators( tAncestorNode ).get_index(),
+                    tLocators( tAncestorNode ).get_global_coordinates() );
 
             // Ancestor sensitivities
             tSensitivitiesToAdd =
@@ -146,25 +128,19 @@ namespace moris::ge
             }
         }
 
-        // Add first parent sensitivities, if needed
-        if ( mFirstParentNode )
-        {
-            Matrix< DDRMat > tLocCoord = ( 1.0 - mLocalCoordinate ) *    //
-                                         eye( mParentVector.n_rows(), mParentVector.n_rows() );
+        // Add first parent sensitivities
+        Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) *
+                                     eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
-            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() );
-            mFirstParentNode->get_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
-        }
+        Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() );
+        mFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
 
-        // Add second parent sensitivities, if needed
-        if ( mSecondParentNode )
-        {
-            Matrix< DDRMat > tLocCoord = ( 1.0 + mLocalCoordinate ) *    //
-                                         eye( mParentVector.n_rows(), mParentVector.n_rows() );
+        // Add second parent sensitivities
+        tLocCoord = ( 1.0 + this->get_local_coordinate() ) *
+                                     eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
-            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() );
-            mSecondParentNode->get_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
-        }
+        tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() );
+        mSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -179,32 +155,26 @@ namespace moris::ge
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
         // Get sensitivity values from other ancestors
-        for ( uint tAncestorNode = 0; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++ )
+        const Cell< Basis_Node >& tLocators = this->get_basis_nodes();
+        for ( uint tAncestorNode = 0; tAncestorNode < tLocators.size(); tAncestorNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
             const Matrix< DDSMat >& tAncestorADVIDs = tLockedInterfaceGeometry->get_determining_adv_ids(
-                    mAncestorNodeIndices( tAncestorNode ),
-                    mAncestorNodeCoordinates( tAncestorNode ) );
+                    tLocators( tAncestorNode ).get_index(),
+                    tLocators( tAncestorNode ).get_global_coordinates() );
 
             // Join IDs
             this->join_adv_ids( tAncestorADVIDs );
         }
 
-        // Add first parent IDs, if needed
-        if ( mFirstParentNode )
-        {
-            this->join_adv_ids( mFirstParentNode->get_coordinate_determining_adv_ids() );
-        }
+        // Add parent IDs
+        this->join_adv_ids( mFirstParentNode.get_coordinate_determining_adv_ids() );
+        this->join_adv_ids( mSecondParentNode.get_coordinate_determining_adv_ids() );
 
-        // Add second parent IDs, if needed
-        if ( mSecondParentNode )
-        {
-            this->join_adv_ids( mSecondParentNode->get_coordinate_determining_adv_ids() );
-        }
-
+        // Return joined ADV IDs
         return mCoordinateDeterminingADVIDs;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+}

@@ -12,52 +12,22 @@
 
 #include "cl_GEN_Node.hpp"
 
+namespace moris::mtk
+{
+    enum class Geometry_Type;
+}
+
 namespace moris::ge
 {
-    class Locator
-    {
-      private:
-        Node* mNode;
-        real mBasis;
-
-      public:
-        /**
-         * Constructor with a generic node and basis value.
-         *
-         * @param aNode GEN node
-         * @param aBasis Basis value for locating a derived node
-         */
-        Locator(
-                Node* aNode,
-                real aBasis );
-
-        /**
-         * Gets the index of the underlying node.
-         *
-         * @return Node index
-         */
-        uint get_index();
-
-        /**
-         * Gets the coordinates of the underlying node
-         *
-         * @return Node coordinates
-         */
-        const Matrix< DDRMat >& get_coordinates();
-
-        /**
-         * Gets the basis of this locator.
-         *
-         * @return Basis value
-         */
-        real get_basis();
-    };
+    // Forward declare basis node
+    class Basis_Node;
 
     class Derived_Node : public Node
     {
       private:
-        Cell< Locator > mLocators;
-        Matrix< DDRMat > mCoordinates;
+        Cell< Basis_Node > mBasisNodes;
+        Matrix< DDRMat > mGlobalCoordinates;
+        Matrix< DDRMat > mParametricCoordinates;
 
       public:
         /**
@@ -67,21 +37,30 @@ namespace moris::ge
          * @param aBaseNodes Base nodes
          */
         Derived_Node(
-                uint            aIndex,
-                Cell< Locator > aLocators );
+                uint                    aIndex,
+                const Cell< Node* >&    aBaseNodes,
+                const Matrix< DDRMat >& aParametricCoordinates,
+                mtk::Geometry_Type      aGeometryType );
 
         /**
-         * Gets the coordinates of this node
+         * Gets the global coordinates of this node
          *
          * @return Node coordinates
          */
-        const Matrix< DDRMat >& get_coordinates() override;
+        const Matrix< DDRMat >& get_global_coordinates() override;
+
+        /**
+         * Gets the parametric coordinates of this derived node relative to its locators
+         *
+         * @return Parametric coordinates
+         */
+        const Matrix< DDRMat >& get_parametric_coordinates();
 
         /**
          * Gets the locators of this derived node
          *
          * @return Locators
          */
-        const Cell< Locator >& get_locators();
+        const Cell< Basis_Node >& get_basis_nodes();
     };
 }

@@ -44,6 +44,23 @@ namespace moris::ge
          *
          * @return Node coordinates
          */
-        virtual const Matrix< DDRMat >& get_coordinates() = 0;
+        virtual const Matrix< DDRMat >& get_global_coordinates() = 0;
+
+        /**
+         * Appends the sensitivities of this node's global coordinates with respect to ADVs. By default, does nothing.
+         *
+         * @param aCoordinateSensitivities Coordinate sensitivities matrix that gets appended to
+         * @param aSensitivityFactor Matrix factor to scale this node's sensitivities based on a calling child's position and orientation.
+         */
+        virtual void append_dcoordinate_dadv(
+                Matrix< DDRMat >&       aCoordinateSensitivities,
+                const Matrix< DDRMat >& aSensitivityFactor );
+
+        /**
+         * Gets the ADV IDs that determine the coordinates of this node. By default, returns an empty vector.
+         *
+         * @return ADV ID vector
+         */
+        virtual Matrix< DDSMat > get_coordinate_determining_adv_ids();
     };
 }

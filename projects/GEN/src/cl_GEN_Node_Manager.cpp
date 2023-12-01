@@ -60,6 +60,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    uint Node_Manager::get_total_number_of_nodes()
+    {
+        return mNodes.size();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Node* Node_Manager::get_node( uint aIndex ) const
     {
         return mNodes( aIndex );

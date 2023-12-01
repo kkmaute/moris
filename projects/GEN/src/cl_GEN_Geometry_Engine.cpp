@@ -18,6 +18,8 @@
 #include "cl_GEN_Base_Node.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Child_Node.hpp"
+#include "cl_GEN_Parent_Base_Node.hpp"
+#include "cl_GEN_Parent_Derived_Node.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Factory.hpp"
@@ -145,12 +147,6 @@ namespace moris
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
-
-            // Register node manager with each geometry
-            for ( const auto& iGeometry : mGeometries )
-            {
-                iGeometry->set_node_manager( mNodeManager );
-            }
 
             // Create integration mesh
             mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
@@ -405,25 +401,64 @@ namespace moris
         Geometry_Engine::queue_intersection(
                 uint                            aEdgeFirstNodeIndex,
                 uint                            aEdgeSecondNodeIndex,
-                const Matrix< DDRMat >&         aEdgeFirstNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aEdgeSecondNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
+                const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
                 const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
                 const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
                 const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
                 const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
         {
-            // Create intersection node
+            // Get base cell geometry type
+            mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
+            if ( aBackgroundElementNodeIndices.length() == 4 )
+            {
+                tGeometryType = mtk::Geometry_Type::QUAD;
+            }
+            else
+            {
+                tGeometryType = mtk::Geometry_Type::HEX;
+            }
+
+            // Get base nodes
+            Cell< Node* > tBaseNodes( aBackgroundElementNodeIndices.length() );
+            for ( uint iNode = 0; iNode < tBaseNodes.size(); iNode++ )
+            {
+                tBaseNodes( iNode ) = mNodeManager.get_node( aBackgroundElementNodeIndices( iNode ) );
+            }
+
+            // Create first parent node
+            Parent_Node* tFirstParentNode;
+            if ( aEdgeFirstNodeIndex < mNodeManager.get_number_of_base_nodes() )
+            {
+                tFirstParentNode = new Parent_Base_Node( mNodeManager.get_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
+            }
+            else
+            {
+                tFirstParentNode = new Parent_Derived_Node( mNodeManager.get_derived_node( aEdgeFirstNodeIndex ) );
+            }
+
+            // Create second parent node
+            Parent_Node* tSecondParentNode;
+            if ( aEdgeSecondNodeIndex < mNodeManager.get_number_of_base_nodes() )
+            {
+                tSecondParentNode = new Parent_Base_Node( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
+            }
+            else
+            {
+                tSecondParentNode = new Parent_Derived_Node( mNodeManager.get_derived_node( aEdgeSecondNodeIndex ) );
+            }
+
+            // Have the active geometry create a new intersection node
             mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node(
-                    aEdgeFirstNodeIndex,
-                    aEdgeSecondNodeIndex,
-                    mPDVHostManager.get_intersection_node( aEdgeFirstNodeIndex ),
-                    mPDVHostManager.get_intersection_node( aEdgeSecondNodeIndex ),
-                    aEdgeFirstNodeLocalCoordinates,
-                    aEdgeSecondNodeLocalCoordinates,
-                    aEdgeFirstNodeGlobalCoordinates,
-                    aEdgeSecondNodeGlobalCoordinates,
-                    aBackgroundElementNodeIndices,
-                    aBackgroundElementNodeCoordinates );
+                    mNodeManager.get_total_number_of_nodes(),
+                    tBaseNodes,
+                    *tFirstParentNode,
+                    *tSecondParentNode,
+                    tGeometryType );
+
+            // Clean up
+            delete tFirstParentNode;
+            delete tSecondParentNode;
 
             // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();
@@ -434,7 +469,7 @@ namespace moris
         bool
         Geometry_Engine::queued_intersection_first_parent_on_interface()
         {
-            return mQueuedIntersectionNode->first_parent_on_interface();
+            return mQueuedIntersectionNode->is_first_parent_on_interface();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -442,7 +477,7 @@ namespace moris
         bool
         Geometry_Engine::queued_intersection_second_parent_on_interface()
         {
-            return mQueuedIntersectionNode->second_parent_on_interface();
+            return mQueuedIntersectionNode->is_second_parent_on_interface();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -463,6 +498,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        // FIXME node index is unnecessary, as an intersection node stores its own index now.
         void
         Geometry_Engine::admit_queued_intersection( uint aNodeIndex )
         {
@@ -475,7 +511,7 @@ namespace moris
             bool tSecondParentIsPDV = mPDVHostManager.get_intersection_node( tSecondParentIndex ) != nullptr;
 
             // Assign as PDV host if constructed on adv dependent geometry or parent nodes are adv dependent
-            if ( mGeometries( mActiveGeometryIndex )->depends_on_advs() || tFirstParentIsPDV || tSecondParentIsPDV )
+            if ( mGeometries( mActiveGeometryIndex )->depends_on_advs() or tFirstParentIsPDV or tSecondParentIsPDV )
             {
                 mPDVHostManager.set_intersection_node( aNodeIndex, mQueuedIntersectionNode );
             }
@@ -484,11 +520,8 @@ namespace moris
                 mPDVHostManager.set_intersection_node( aNodeIndex, nullptr );
             }
 
-            // Assign as child node
-            for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-            {
-                mGeometries( tGeometryIndex )->add_child_node( aNodeIndex, mQueuedIntersectionNode );
-            }
+            // Add new derived node FIXME rework this
+            mNodeManager.add_derived_node( mQueuedIntersectionNode.get() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -504,7 +537,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        // FIXME pointer on cells is redundant
+        // FIXME should pass references instead of pointers
         void
         Geometry_Engine::create_new_child_nodes(
                 const Cell< moris_index >*                   aNewNodeIndices,
@@ -516,35 +549,37 @@ namespace moris
             Tracer tTracer( "GEN", "Create new child nodes" );
 
             // Loop over nodes
-            for ( uint tNode = 0; tNode < aNewNodeIndices->size(); tNode++ )
+            for ( uint iNode = 0; iNode < aNewNodeIndices->size(); iNode++ )
             {
                 // Create new child node
                 std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
-                        ( *aNewNodeParentCell )( tNode ),
-                        ( *aParamCoordRelativeToParent )( tNode ).get(),
+                        ( *aNewNodeParentCell )( iNode ),
+                        ( *aParamCoordRelativeToParent )( iNode ).get(),
                         this->mEvaluateNewChildNodeAsLinear );
 
                 // Get parent cell
-                mtk::Cell* tParentCell = ( *aNewNodeParentCell)( tNode );
+                mtk::Cell* tParentCell = ( *aNewNodeParentCell)( iNode );
 
-                // Create locators
-                Cell< Locator > tLocators;
+                // Get relevant nodes from the node manager
                 Cell< mtk::Vertex* > tVertices = tParentCell->get_vertex_pointers();
-                uint tNumberOfLocators = tVertices.size();
-                tLocators.reserve( tNumberOfLocators );
-                for ( uint iLocatorIndex = 0; iLocatorIndex < tNumberOfLocators; iLocatorIndex++ )
+                uint tNumberOfNodes = tVertices.size();
+                Cell< Node* > tBaseNodes( tNumberOfNodes );
+                for ( uint iBaseNode = 0; iBaseNode < tNumberOfNodes; iBaseNode++ )
                 {
-                    // FIXME enable other local coordinates other than the center of the element
-                    tLocators.emplace_back( mNodeManager.get_node( tVertices( iLocatorIndex )->get_index() ), 1.0 / tNumberOfLocators );
+                    tBaseNodes( iBaseNode ) = mNodeManager.get_node( tVertices( iBaseNode )->get_index() );
                 }
 
                 // Create new derived node
-                mNodeManager.add_derived_node( new Derived_Node( ( *aNewNodeIndices )( tNode ), tLocators ) );
+                mNodeManager.add_derived_node( new Derived_Node(
+                        ( *aNewNodeIndices )( iNode ),
+                        tBaseNodes,
+                        *( *aParamCoordRelativeToParent )( iNode ),
+                        ( *aNewNodeParentCell )( iNode )->get_geometry_type() ) );
 
                 // Assign to geometries
                 for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
                 {
-                    mGeometries( tGeometryIndex )->add_child_node( ( *aNewNodeIndices )( tNode ), tChildNode );
+                    mGeometries( tGeometryIndex )->add_child_node( ( *aNewNodeIndices )( iNode ), tChildNode );
                 }
             }
 
@@ -559,24 +594,24 @@ namespace moris
 
         void
         Geometry_Engine::create_new_child_nodes(
-                const Cell< moris_index >&               aNewNodeIndices,
+                const Cell< moris_index >&                aNewNodeIndices,
                 const Cell< Element_Interpolation_Type >& aParentIntersectionType,
-                const Cell< Matrix< IndexMat > >&        tVertexIndices,
-                const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
-                const Matrix< DDRMat >&                  aGlobalNodeCoord )
+                const Cell< Matrix< IndexMat > >&         tVertexIndices,
+                const Cell< Matrix< DDRMat > >&           aParamCoordRelativeToParent,
+                const Matrix< DDRMat >&                   aGlobalNodeCoord )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create new child nodes" );
 
             // Loop over nodes
-            for ( uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++ )
+            for ( uint iNode = 0; iNode < aNewNodeIndices.size(); iNode++ )
             {
-                Matrix< DDUMat >         tParentNodeIndices( tVertexIndices( tNode ).numel(), 1 );
+                Matrix< DDUMat >         tParentNodeIndices( tVertexIndices( iNode ).numel(), 1 );
                 Cell< Matrix< DDRMat > > tParentNodeCoordinates( tParentNodeIndices.length() );
 
                 for ( uint tParentNode = 0; tParentNode < tParentNodeIndices.length(); tParentNode++ )
                 {
-                    tParentNodeIndices( tParentNode )     = tVertexIndices( tNode )( tParentNode );
+                    tParentNodeIndices( tParentNode )     = tVertexIndices( iNode )( tParentNode );
                     tParentNodeCoordinates( tParentNode ) = aGlobalNodeCoord.get_row( tParentNodeIndices( tParentNode ) );
                 }
 
@@ -584,26 +619,38 @@ namespace moris
                 std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
                         tParentNodeIndices,
                         tParentNodeCoordinates,
-                        aParentIntersectionType( tNode ),
-                        aParamCoordRelativeToParent( tNode ) );
+                        aParentIntersectionType( iNode ),
+                        aParamCoordRelativeToParent( iNode ) );
 
-                // Create locators
-                Cell< Locator > tLocators;
-                uint tNumberOfLocators = tVertexIndices( tNode ).length();
-                tLocators.reserve( tNumberOfLocators );
-                for ( uint iLocatorIndex = 0; iLocatorIndex < tNumberOfLocators; iLocatorIndex++ )
+                // Get base cell geometry type
+                mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
+                if ( tVertexIndices( iNode ).length() == 4 )
                 {
-                    // FIXME enable other local coordinates other than the center of the element
-                    tLocators.emplace_back( mNodeManager.get_node( tVertexIndices( tNode )( iLocatorIndex ) ), 1.0 / tNumberOfLocators );
+                    tGeometryType = mtk::Geometry_Type::QUAD;
+                }
+                else
+                {
+                    tGeometryType = mtk::Geometry_Type::HEX;
+                }
+
+                // Create basis nodes
+                Cell< Node* > tBasisNodes( tVertexIndices( iNode ).length() );
+                for ( uint iBaseNode = 0; iBaseNode < tVertexIndices( iNode ).length(); iBaseNode++ )
+                {
+                    tBasisNodes( iBaseNode ) = mNodeManager.get_node( tVertexIndices( iNode )( iBaseNode ) );
                 }
 
                 // Create new derived node
-                mNodeManager.add_derived_node( new Derived_Node( aNewNodeIndices( tNode ), tLocators ) );
+                mNodeManager.add_derived_node( new Derived_Node(
+                        aNewNodeIndices( iNode ),
+                        tBasisNodes,
+                        aParamCoordRelativeToParent( iNode ),
+                        tGeometryType ) );
 
                 // Assign to geometries
                 for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
                 {
-                    mGeometries( tGeometryIndex )->add_child_node( aNewNodeIndices( tNode ), tChildNode );
+                    mGeometries( tGeometryIndex )->add_child_node( aNewNodeIndices( iNode ), tChildNode );
                 }
             }
 
@@ -1304,6 +1351,12 @@ namespace moris
 
                 // Shape sensitivities logic
                 mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
+            }
+
+            // Register node manager with each geometry TODO figure out a better way to do this; have node manager automatically copy over when discretizing?
+            for ( const auto& iGeometry : mGeometries )
+            {
+                iGeometry->set_node_manager( mNodeManager );
             }
 
             // Loop to discretize properties when requested

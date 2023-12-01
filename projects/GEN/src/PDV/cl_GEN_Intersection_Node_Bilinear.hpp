@@ -8,126 +8,87 @@
  *
  */
 
-#ifndef MORIS_CL_GEN_INTERSECTION_NODE_BILINEAR_HPP
-#define MORIS_CL_GEN_INTERSECTION_NODE_BILINEAR_HPP
+#pragma once
 
 #include "cl_GEN_Intersection_Node_Level_Set.hpp"
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
+    class Intersection_Node_Bilinear : public Intersection_Node_Level_Set
     {
-        class Level_Set_Geometry;
+      private:
+        Matrix< DDRMat > mFirstParentNodeParametricCoordinates;
+        Matrix< DDRMat > mSecondParentNodeParametricCoordinates;
 
-        class Intersection_Node_Bilinear : public Intersection_Node_Level_Set
-        {
-          private:
-            Matrix< DDRMat > mParentLocalCoordinates;
+      public:
+        /**
+         * Constructor
+         *
+         * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
+         * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
+         * @param aFirstParentNodeIndex Index of the first parent of this node
+         * @param aSecondParentNodeIndex Index of the second parent of this node
+         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node with respect to
+         * the given ancestors
+         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
+         * the given ancestors
+         * @param aAncestorNodeIndices Ancestor node indices
+         * @param aAncestorNodeCoordinates Ancestor node global coordinates
+         * @param aInterpolationType Type of interpolation: bi or tri-linear
+         * @param aInterfaceGeometry Geometry that intersects the parent to create this child
+         */
+        Intersection_Node_Bilinear(
+                uint                                  aNodeIndex,
+                const Cell< Node* >&                  aBaseNodes,
+                const Parent_Node&                    aFirstParentNode,
+                const Parent_Node&                    aSecondParentNode,
+                mtk::Geometry_Type                    aBaseGeometryType,
+                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
 
-            Element_Interpolation_Type mInterpolationType;
+      private:
 
-          public:
-            /**
-             * Constructor
-             *
-             * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
-             * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
-             * @param aFirstParentNodeIndex Index of the first parent of this node
-             * @param aSecondParentNodeIndex Index of the second parent of this node
-             * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node with respect to
-             * the given ancestors
-             * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
-             * the given ancestors
-             * @param aAncestorNodeIndices Ancestor node indices
-             * @param aAncestorNodeCoordinates Ancestor node global coordinates
-             * @param aInterpolationType Type of interpolation: bi or tri-linear
-             * @param aInterfaceGeometry Geometry that intersects the parent to create this child
-             */
-            Intersection_Node_Bilinear(
-                    std::shared_ptr< Intersection_Node > aFirstParentNode,
-                    std::shared_ptr< Intersection_Node > aSecondParentNode,
-                    uint                                 aFirstParentNodeIndex,
-                    uint                                 aSecondParentNodeIndex,
-                    const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
-                    const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
-                    const Matrix< DDUMat >&              aAncestorNodeIndices,
-                    const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
-                    const Element_Interpolation_Type     aInterpolationType,
-                    std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry );
+        /**
+         * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
+         * values on each of its ancestors.
+         *
+         * @return Local coordinate sensitivity
+         */
+        real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) override;
 
-            virtual ~Intersection_Node_Bilinear();
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its first parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() override;
 
-          private:
-            /**
-             * Computes the global coordinates of the intersection and the parents.
-             * Used by setup() to set global coordinate member data. Implementation provided for parent class.
-             *
-             * @return Matrix< DDRMat > Global location of the intersection node and its parents
-             */
-            Matrix< DDRMat > compute_global_coordinates() override;
+        /**
+         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
+         * coordinate values of its second parent.
+         *
+         * @return Local coordinate sensitivity
+         */
+        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() override;
 
-            /**
-             * Compute the difference between the phi value of the first parent node and
-             * the isocontour threshold of the intersecting geometry. Implementation provided here for parent class.
-             * 
-             * @param aAncestorBasisFunction the basis function type of the ancestor nodes
-             * @param aParentNodeLocalCoordinates the parent node whose difference from the threshold that should be comptued
-             * @param aParentNodeIndex Unused variable for this function, as all parent nodes are used
-             *
-             * @return Phi value of first parent minus the level set value that determines the interface
-             */
-            real compute_diff_from_threshold(
-                    const Element_Interpolation_Type aAncestorBasisFunction,
-                    const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
-                    moris_index                     aParentNodeIndex ) override;
+        /**
+         * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
+         *
+         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node with respect to
+         * the given ancestors
+         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
+         * the given ancestors
+         * @param aAncestorNodeIndices Ancestor node indices
+         * @param aAncestorNodeCoordinates Ancestor node coordinates
+         * @param aInterfaceGeometry Geometry that intersects the parent to create this child
+         * @return Local coordinates
+         */
+        static real compute_local_coordinate(
+                const Cell< Node* >&                  aBaseNodes,
+                const Parent_Node&                    aFirstParentNode,
+                const Parent_Node&                    aSecondParentNode,
+                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
 
-            /**
-             * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
-             * values on each of its ancestors.
-             *
-             * @return Local coordinate sensitivity
-             */
-            real get_dxi_dfield_from_ancestor( uint aAncestorIndex );
-
-            /**
-             * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-             * coordinate values of its first parent.
-             *
-             * @return Local coordinate sensitivity
-             */
-            Matrix< DDRMat > get_dxi_dcoordinate_first_parent();
-
-            /**
-             * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-             * coordinate values of its second parent.
-             *
-             * @return Local coordinate sensitivity
-             */
-            Matrix< DDRMat > get_dxi_dcoordinate_second_parent();
-
-            /**
-             * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
-             *
-             * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node with respect to
-             * the given ancestors
-             * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
-             * the given ancestors
-             * @param aAncestorNodeIndices Ancestor node indices
-             * @param aAncestorNodeCoordinates Ancestor node coordinates
-             * @param aInterfaceGeometry Geometry that intersects the parent to create this child
-             * @return Local coordinates
-             */
-
-            real compute_local_coordinate(
-                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
-                    const Matrix< DDUMat >&         aAncestorNodeIndices,
-                    const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
-                    std::shared_ptr< Level_Set_Geometry >     aInterfaceGeometry );
-
-            real compute_intersection_derivative( uint aAncestorIndex );
-        };
-    }    // namespace ge
-}    // namespace moris
-
-#endif    // MORIS_CL_GEN_INTERSECTION_NODE_BILINEAR_HPP
+        real compute_intersection_derivative( uint aAncestorIndex );
+    };
+}

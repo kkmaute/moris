@@ -35,6 +35,6 @@ namespace moris::ge
          *
          * @return Node coordinates
          */
-        const Matrix< DDRMat >& get_coordinates() override;
+        const Matrix< DDRMat >& get_global_coordinates() override;
     };
 }

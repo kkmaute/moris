@@ -820,7 +820,7 @@ namespace moris
                     // Parent sensitivities and ADV IDs
                     tHostADVSensitivities.set_size( 0.0, 0.0 );
                     eye( tNumCoordinates, tNumCoordinates, tI );
-                    mIntersectionNodes( tIntersectionIndex )->get_dcoordinate_dadv( tHostADVSensitivities, tI );
+                    mIntersectionNodes( tIntersectionIndex )->append_dcoordinate_dadv( tHostADVSensitivities, tI );
 
                     Matrix< DDSMat > tADVIds =
                             mIntersectionNodes( tIntersectionIndex )->get_coordinate_determining_adv_ids();
