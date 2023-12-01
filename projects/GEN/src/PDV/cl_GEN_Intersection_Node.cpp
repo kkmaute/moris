@@ -47,7 +47,7 @@ namespace moris::ge
     void
     Intersection_Node::initialize()
     {
-        mParentVector  = mSecondParentNode.get_global_coordinates() - mFirstParentNode.get_global_coordinates();
+        mParentVector  = trans( mSecondParentNode.get_global_coordinates() - mFirstParentNode.get_global_coordinates() );
         mIsIntersected = this->determine_is_intersected();
     }
 
