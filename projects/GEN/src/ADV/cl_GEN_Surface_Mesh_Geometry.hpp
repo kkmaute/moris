@@ -58,13 +58,6 @@ namespace moris::ge
                 Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
 
         /**
-         * Gets the intersection interpolation type for this geometry.
-         *
-         * @return Intersection interpolation
-         */
-        Int_Interpolation get_intersection_interpolation();
-
-        /**
          * Gets the geometric region of a node, based on this geometry.
          *
          * @param aNodeIndex Node index

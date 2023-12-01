@@ -16,7 +16,7 @@ namespace moris::sdf
 {
     Object_Region
     raycast_point(
-            Object&           aObject,
+            Object&                 aObject,
             const Matrix< DDRMat >& aOriginalPoint )
     {
         // initialize return value to unsure
@@ -25,7 +25,7 @@ namespace moris::sdf
         // Get information from the object
         uint tDimension = aObject.get_dimension();
 
-        MORIS_ASSERT( aOriginalPoint.numel() == tDimension, "SDF_calculate_raycast() - Dimension mismatch. Point dimension = %lu\tObject Dimension = %d", aOriginalPoint.numel(), tDimension );
+        MORIS_ASSERT( aOriginalPoint.numel() == tDimension, "fn_SDF_Raycast: raycast_point() - Dimension mismatch. Point dimension = %lu\tObject Dimension = %d", aOriginalPoint.numel(), tDimension );
 
         // reset candidate and intersection points
         moris::Cell< uint >   tCandidateFacets;      // index of facets that lie within the bounding box, but might not actually be intersected
@@ -101,6 +101,76 @@ namespace moris::sdf
         return tPointIsInside;
     }
 
+    moris::Cell< real >
+    compute_distance_to_facets(
+            Object&           aObject,
+            Matrix< DDRMat >& aPoint,
+            uint              aAxis )
+    {
+        MORIS_ERROR( aObject.get_dimension() == aPoint.numel(), "SDF-Raycast: dimension mismatch. Object dimension: %d Point dimension: %lu", aObject.get_dimension(), aPoint.numel() );
+        switch ( aObject.get_dimension() )
+        {
+            case 2:
+            {
+                // preselect lines in the aAxis direction
+                moris::Cell< uint >   tCandidateFacets;
+                moris::Cell< Facet* > tIntersectedFacets;
+                preselect_lines( aObject, aPoint, aAxis, tCandidateFacets, tIntersectedFacets );
+
+                // get the facets from the candidates
+                moris::Cell< Facet* > tFacetsFromCandidates( tCandidateFacets.size() );
+                for ( uint iCandidate = 0; iCandidate < tCandidateFacets.size(); iCandidate++ )
+                {
+                    tFacetsFromCandidates( iCandidate ) = aObject.get_facet( tCandidateFacets( iCandidate ) );
+                }
+
+                // append the candidates to the intersected facets to compute intersection
+                tIntersectedFacets.insert( tIntersectedFacets.size(), tFacetsFromCandidates.begin(), tFacetsFromCandidates.end() );
+
+                // compute intersection for all preselected facets
+                return intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
+            }
+            case 3:
+            {
+                // preselect triangles in positive and negative aAxis directions for intersection test
+                moris::Cell< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
+
+                // filter out facets that are definitely in the negative aAxis direction from the point
+                // FIXME: a different preselection function could be written to avoid extra checks
+                for ( uint iCandidate = 0; iCandidate < tCandidateFacets.size(); iCandidate++ )
+                {
+                    if ( aObject.get_facet_max_coord( iCandidate, aAxis ) < aPoint( aAxis ) )
+                    {
+                        tCandidateFacets.erase( iCandidate );
+                    }
+                }
+
+                // from the candidate triangles, perform intersection
+                moris::Cell< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
+
+                // compute intersection locations
+                moris::Cell< real > tIntersectionCoordinates = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
+
+                // remove intersection locations that are behind the point
+                for( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
+                {
+                    if( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
+                    {
+                        tIntersectionCoordinates.erase( iIntersection );
+                    }
+                }
+
+                return tIntersectionCoordinates;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "SDF-Raycast: Object dimension of %d provided. Not supported", aObject.get_dimension() );
+                return {};
+            }
+        }
+    }
+
+
     Object_Region
     voxelize_2D(
             Object&           aObject,
@@ -108,23 +178,23 @@ namespace moris::sdf
             uint              aAxis )
     {
         // preselect lines in the aAxis direction
-        moris::Cell< uint >   tCandidateFacets;
-        moris::Cell< Facet* > tIntersectedFacets;
-        preselect_lines( aObject, aPoint, aAxis, tCandidateFacets, tIntersectedFacets );
+        moris::Cell< uint >   tIntersectedFacets;
+        moris::Cell< Facet* > tCandidateFacets;
+        preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tCandidateFacets );
 
         // if there are no candidates and no intersected facets, the point is outside
-        if ( tCandidateFacets.size() == 0 && tIntersectedFacets.size() == 0 )
+        if ( tIntersectedFacets.size() == 0 && tCandidateFacets.size() == 0 )
         {
             return OUTSIDE;
         }
 
         // compute intersection if the point is inside a line's bounding box
-        if ( tIntersectedFacets.size() > 0 )
+        if ( tCandidateFacets.size() > 0 )
         {
-            moris::Cell< real > tIntersectionCoords = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
+            moris::Cell< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, aAxis );
 
             // check if the node is inside the polygon
-            return check_if_node_is_inside_lines( tIntersectionCoords, tCandidateFacets, aPoint, aAxis );
+            return check_if_node_is_inside_lines( tIntersectionCoords, tIntersectedFacets, aPoint, aAxis );
         }
 
         // return unsure if there were no candidates
@@ -200,7 +270,7 @@ namespace moris::sdf
         for ( uint iFacetIndex = 0; iFacetIndex < aObject.get_num_facets(); ++iFacetIndex )
         {
             // check bounding box in J-direction
-            if ( ( aPoint( tFirstAxis ) - aObject.get_facet_min_coords()( iFacetIndex, tFirstAxis ) ) * ( aObject.get_facet_max_coords()( iFacetIndex, tFirstAxis ) - aPoint( tFirstAxis ) ) > -gSDFepsilon )
+            if ( ( aPoint( tFirstAxis ) - aObject.get_facet_min_coord( iFacetIndex, tFirstAxis ) ) * ( aObject.get_facet_max_coord( iFacetIndex, tFirstAxis ) - aPoint( tFirstAxis ) ) > -MORIS_REAL_EPS )
             {
                 // remember this triangle
                 tCandJ( tCountJ ) = iFacetIndex;
@@ -220,7 +290,7 @@ namespace moris::sdf
         for ( uint k = 0; k < tCountJ; ++k )
         {
             // check bounding box in I-direction
-            if ( ( aPoint( tSecondAxis ) - aObject.get_facet_min_coords()( tCandJ( k ), tSecondAxis ) ) * ( aObject.get_facet_max_coords()( tCandJ( k ), tSecondAxis ) - aPoint( tSecondAxis ) ) > -gSDFepsilon )
+            if ( ( aPoint( tSecondAxis ) - aObject.get_facet_min_coord( tCandJ( k ), tSecondAxis ) ) * ( aObject.get_facet_max_coord( tCandJ( k ), tSecondAxis ) - aPoint( tSecondAxis ) ) > -MORIS_REAL_EPS )
             {
                 tCandidateFacets( tCount ) = tCandJ( k );
                 ++tCount;
@@ -264,24 +334,23 @@ namespace moris::sdf
         for ( uint iLineIndex = 0; iLineIndex < aObject.get_num_facets(); iLineIndex++ )
         {
             // check bounding box of the line against the point (point is above min coord and below max coord)
-            if ( ( aObject.get_facet_max_coords()( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis ) ) * ( aPoint( tOtherAxis ) - aObject.get_facet_min_coords()( iLineIndex, tOtherAxis ) )
-                    > gSDFepsilon )
+            if ( ( aObject.get_facet_max_coord( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis ) ) * ( aPoint( tOtherAxis ) - aObject.get_facet_min_coord( iLineIndex, tOtherAxis ) )
+                    > MORIS_REAL_EPS )
             {
                 // check if the point's !aAxis component is less the facet's minimum aAxis component. If so, the facet is intersected
                 // NOTE: this makes the 2D raycast only cast in the positive axis direction
-                // FIXME: Candidate and intersected variable names are backward, need to be carefully considered to be switched back BRENDAN
-                if ( aObject.get_facet_min_coords()( iLineIndex, aAxis ) - aPoint( aAxis ) > gSDFepsilon )
+                if ( aObject.get_facet_min_coord( iLineIndex, aAxis ) - aPoint( aAxis ) > MORIS_REAL_EPS )
                 {
                     aIntersectedFacets( tIntersectedFacetCount ) = iLineIndex;
                     tIntersectedFacetCount++;
                 }
                 // check the bounding box of the other axis to determine if the point is entirely in the bounding box
-                else if ( ( aObject.get_facet_max_coords()( iLineIndex, aAxis ) - aPoint( aAxis ) )
-                                  * ( aPoint( aAxis ) - aObject.get_facet_min_coords()( iLineIndex, aAxis ) )
-                          > gSDFepsilon )
+                else if ( ( aObject.get_facet_max_coord( iLineIndex, aAxis ) - aPoint( aAxis ) )
+                                  * ( aPoint( aAxis ) - aObject.get_facet_min_coord( iLineIndex, aAxis ) )
+                          > MORIS_REAL_EPS )
                 {
                     // if the point is totally in a line's bounding box, add line to candidate list
-                    aCandidateFacets( tCandidateCount ) = aObject.get_facets()( iLineIndex );
+                    aCandidateFacets( tCandidateCount ) = aObject.get_facet( iLineIndex );
                     tCandidateCount++;
                 }
             }
@@ -312,7 +381,7 @@ namespace moris::sdf
         for ( uint iCandidateFacetIndex = 0; iCandidateFacetIndex < tNumberOfCandidateFacets; ++iCandidateFacetIndex )
         {
             // get pointer to triangle
-            Facet* tFacet = aObject.get_facets()( aCandidateFacets( iCandidateFacetIndex ) );
+            Facet* tFacet = aObject.get_facet( aCandidateFacets( iCandidateFacetIndex ) );
 
             if ( tFacet->check_edge( 0, aAxis, aPoint ) )
             {
@@ -337,7 +406,7 @@ namespace moris::sdf
         for ( uint iCandidateFacetIndex = 0; iCandidateFacetIndex < tNumberOfCandidateFacets; ++iCandidateFacetIndex )
         {
             // get pointer to triangle
-            Facet* tFacet = aObject.get_facets()( aCandidateFacets( iCandidateFacetIndex ) );
+            Facet* tFacet = aObject.get_facet( aCandidateFacets( iCandidateFacetIndex ) );
 
             if ( tFacet->is_flagged() )
             {
@@ -383,7 +452,7 @@ namespace moris::sdf
 
             if ( !tError )
             {
-                tCoordsK( tCount++ ) = std::round( tCoordK / gSDFepsilon ) * gSDFepsilon;
+                tCoordsK( tCount++ ) = std::round( tCoordK / MORIS_REAL_EPS ) * MORIS_REAL_EPS;
             }
             else
             {
@@ -417,7 +486,7 @@ namespace moris::sdf
             // find unique entries
             for ( uint k = 1; k < tCount; ++k )
             {
-                if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * gSDFepsilon )
+                if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * MORIS_REAL_EPS )
                 {
                     tIntersectionCoords( tCountUnique++ ) = tCoordsKSorted( k );
                 }
@@ -471,7 +540,7 @@ namespace moris::sdf
         uint tIntersectionsRightOfPoint = 0;
         for ( uint iIntersectionIndex = 0; iIntersectionIndex < tNumCoordsK; iIntersectionIndex++ )
         {
-            if ( aIntersectionCoords( iIntersectionIndex ) - aPoint( aAxis ) > gSDFepsilon )
+            if ( aIntersectionCoords( iIntersectionIndex ) - aPoint( aAxis ) > MORIS_REAL_EPS )
             {
                 tIntersectionsRightOfPoint++;
             }

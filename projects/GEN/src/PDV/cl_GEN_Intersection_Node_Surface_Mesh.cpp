@@ -12,6 +12,9 @@
 #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 
+#include "fn_norm.hpp"
+#include "fn_eye.hpp"
+
 namespace moris::ge
 {
     Intersection_Node_Surface_Mesh::Intersection_Node_Surface_Mesh(
@@ -19,29 +22,24 @@ namespace moris::ge
             std::shared_ptr< Intersection_Node >     aSecondParentNode,
             uint                                     aFirstParentNodeIndex,
             uint                                     aSecondParentNodeIndex,
-            const Matrix< DDRMat >&                  aFirstParentNodeCoordinates,
-            const Matrix< DDRMat >&                  aSecondParentNodeCoordinates,
-            const Matrix< DDUMat >&                  aAncestorNodeIndices,
-            const Cell< Matrix< DDRMat > >&          aAncestorNodeCoordinates,
+            const Matrix< DDRMat >&                  aFirstParentNodeLocalCoordinates,
+            const Matrix< DDRMat >&                  aSecondParentNodeLocalCoordinates,
             std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry )
             : Intersection_Node(
                     compute_local_coordinate(
-                            aFirstParentNodeCoordinates,
-                            aSecondParentNodeCoordinates,
-                            aAncestorNodeCoordinates ),
+                            aFirstParentNodeLocalCoordinates,
+                            aSecondParentNodeLocalCoordinates ),
                     aFirstParentNode,
                     aSecondParentNode,
                     aFirstParentNodeIndex,
                     aSecondParentNodeIndex,
                     { { -1 } },
                     { { 1 } },
-                    aAncestorNodeIndices,
-                    aAncestorNodeCoordinates,
-                    Element_Intersection_Type::Linear_1D )
+                    { { aFirstParentNodeIndex, aSecondParentNodeIndex } },
+                    { { aFirstParentNodeLocalCoordinates }, { aSecondParentNodeLocalCoordinates } },
+                    Element_Interpolation_Type::Linear_1D )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
-        // Ensure that only two ancestor nodes are provided
-        MORIS_ERROR( aAncestorNodeCoordinates.size() != 2, "GEN: Intersection_Node_Surface_Mesh - Exactly two surface mesh nodes must be supplied." );
     }
 
     Matrix< DDRMat >
@@ -54,29 +52,79 @@ namespace moris::ge
 
     bool
     Intersection_Node_Surface_Mesh::determine_is_intersected(
-            const Element_Intersection_Type aAncestorBasisFunction,
-            const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-            const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates )
+            const Element_Interpolation_Type aAncestorBasisFunction,
+            const Matrix< DDRMat >&          aFirstParentNodeLocalCoordinates,
+            const Matrix< DDRMat >&          aSecondParentNodeLocalCoordinates )
     {
-        // TODO
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - determine_is_intersected() not implemented yet." );
-        return std::numeric_limits< double >::quiet_NaN();
+        // lock interface geometry
+         std::shared_ptr< Surface_Mesh_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+        // compute the global coordinates of the parent nodes
+        Matrix< DDRMat > tFirstParentNodeGlobalCoordinates;
+        Matrix< DDRMat > tSecondParentNodeGlobalCoordinates;
+
+        // determine if the parents are on the interface
+        bool tFirstParentOnInterface = ( tLockedInterfaceGeometry->get_geometric_region( 0, tFirstParentNodeGlobalCoordinates ) == Geometric_Region::INTERFACE );
+        bool tSecondParentOnInterface = ( tLockedInterfaceGeometry->get_geometric_region( 0, tSecondParentNodeGlobalCoordinates ) == Geometric_Region::INTERFACE );
+
+        // FIXME: add assert statements
+        if( tFirstParentOnInterface or tSecondParentOnInterface )
+        {
+            return true;
+        }
+        else
+        {
+            return std:: abs( mLocalCoordinate ) <= 1.0;
+        }
     }
 
-    Matrix< DDRMat > compute_raycast_rotation(
-            const Matrix< DDRMat >& aFirstParentNodeGlobalCoordinates,
-            const Matrix< DDRMat >& aSecondParentNodeGlobalCoordinates )
+    Matrix< DDRMat >
+    Intersection_Node_Surface_Mesh::compute_raycast_rotation()
     {
-        
+        // FIXME: mParentVector interpolates the parent global coordinates with the ancestor coordinates
+        // which may mean the parent vector is computed improperly for surface mesh geometries. Look here if problems arise
+        Matrix< DDRMat > tUnitParentVector = mParentVector / norm( mParentVector );
+
+        real tCosineAngle = tUnitParentVector( 2 );
+
+        Matrix< DDRMat > tRotationMatrix( mParentVector.numel(), mParentVector.numel() );
+        if ( abs( tCosineAngle ) - 1.0 < MORIS_REAL_EPS )
+        {
+            // if the parent vector points in the opposite direction of the z axis, reflect it
+            tRotationMatrix = { { 1.0, 0, 0 }, { 0, 1.0, 0 }, { 0, 0, -1.0 } };
+        }
+        else
+        {
+            // else, the rotation matrix is defined by rodrigues' rotation formula
+            Matrix< DDRMat > tAntiSymmetricCrossProduct = { { 0, 0, tUnitParentVector( 0 ) },
+                { 0, 0, tUnitParentVector( 1 ) },
+                { -tUnitParentVector( 0 ), -tUnitParentVector( 1 ), 0 } };
+
+            tRotationMatrix = eye( mParentVector.numel(), mParentVector.numel() ) + tAntiSymmetricCrossProduct + tAntiSymmetricCrossProduct * tAntiSymmetricCrossProduct / ( 1 + tCosineAngle );
+        }
+        return tRotationMatrix;
     }
 
     real
     Intersection_Node_Surface_Mesh::compute_local_coordinate(
-            const Matrix< DDRMat >&         aFirstParentNodeCoordinates,
-            const Matrix< DDRMat >&         aSecondParentNodeCoordinates,
-            const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates )
+            const Matrix< DDRMat >& aFirstParentNodeCoordinates,
+            const Matrix< DDRMat >& aSecondParentNodeCoordinates )
     {
+        // compute the rotation matrix
+        Matrix< DDRMat > tRotationMatrix = this->compute_raycast_rotation();
 
+        // rotate the geometry and the cast point
+        std::shared_ptr< Surface_Mesh_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+        tLockedInterfaceGeometry->rotate_object( tRotationMatrix );
+        Matrix< DDRMat > tRotatedFirstParentCoordinates = tRotationMatrix * aFirstParentNodeCoordinates;
+
+        // Compute the distance to the facets
+        // FIXME: the interface geometry needs to be put in local coordinate frame
+        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *tLockedInterfaceGeometry, tRotatedFirstParentCoordinates, 2 );
+
+        // Find all intersection locations and return the closest one
+        // FIXME: this ignores the possibility that there are multiple intersection locations between each facet
+        return tLocalCoordinate( 0 );
     }
 
     void

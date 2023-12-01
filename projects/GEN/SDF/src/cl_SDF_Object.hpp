@@ -64,10 +64,11 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            moris::Cell< Facet* >&
-            get_facets()
+            Facet*
+            get_facet( uint aFacetIndex )
             {
-                return mFacets;
+                MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object: get_facet - aFacetIndex needs to be >= 0. Provided index: %u", aFacetIndex );
+                return mFacets( aFacetIndex );
             }
 
             //-------------------------------------------------------------------------------
@@ -96,19 +97,19 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat >&
-            get_facet_min_coords()
-            {
-                return mFacetMinCoords;
-            }
+            real
+            get_facet_min_coord(
+                    uint aFacetIndex,
+                    uint aAxis );
+
 
             //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat >&
-            get_facet_max_coords()
-            {
-                return mFacetMaxCoords;
-            }
+            real
+            get_facet_max_coord(
+                    uint aFacetIndex,
+                    uint aAxis );
+
 
             //-------------------------------------------------------------------------------
             // MTK
