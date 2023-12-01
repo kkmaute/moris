@@ -20,7 +20,7 @@
 #include "cl_MTK_Block_Set.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Integration_Rule.hpp"
-#include "cl_MTK_Cell_Info.cpp"
+#include "cl_MTK_Cell_Info.hpp"
 #include "cl_Tracer.hpp"
 
 #include "fn_norm.hpp"
