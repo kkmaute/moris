@@ -51,6 +51,7 @@ namespace moris
 
             /**
              * Performs a coordinate rotation of the object's facets and vertices
+             * NOTE: This action itself cannot be undone without using reset_object_coordinates, which will also remove any applied scaling or translation.
              *
              * @param aRotationMatrix the direction cosine matrix defining the rotation
              */
@@ -59,8 +60,35 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            /**
+             * Scales all the coordinates of the object.
+             * NOTE: This action can be undone by calling scale_object( aScaling^-1 )
+             *
+             * @param aScaling factor to scale in each coordinate direction
+             */
             void
-            undo_rotation();
+            scale_object( Matrix< DDRMat >& aScaling );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Moves the object's spatial position.
+             * NOTE: This action can be undone by calling translate_object( -aShift )
+             *
+             * @param aShift shift in each coordinate direction that is added to the objects coordinates.
+             */
+            void
+            shift_object( Matrix< DDRMat >& aShift );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Resets the object back to its attitude when it was constructed,
+             * removing any rotation, scaling, or translation that was applied
+             *
+             */
+            void
+            reset_object_coordinates();
 
             //-------------------------------------------------------------------------------
 
