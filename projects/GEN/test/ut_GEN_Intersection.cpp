@@ -623,9 +623,6 @@ namespace moris::ge
 
             CHECK( tIsIntersected );
 
-            // add a node at the of the cell to the geometry engine (This is emulated XTK adding a node like this in regular subdivision)
-            moris::Cell< Element_Interpolation_Type > tElemIntersectionType = { Element_Interpolation_Type::Linear_2D };
-
             moris::Cell< Matrix< IndexMat > > tVertexIndices = { tCell.get_vertex_inds() };
 
             moris::Cell< Matrix< DDRMat > > tLocalCoords( 1 );
@@ -634,7 +631,7 @@ namespace moris::ge
 
             Cell< moris_index > tNewNodeIndices = { 4 };
 
-            tGeometryEngine.create_new_child_nodes( tNewNodeIndices, tElemIntersectionType, tVertexIndices, tLocalCoords, aCoords );
+            tGeometryEngine.create_new_derived_nodes( tNewNodeIndices, tVertexIndices, tLocalCoords );
 
             Matrix< DDRMat >   tVertexCoords  = tCell.get_vertex_coords();
             Matrix< IndexMat > tVertexInds    = tCell.get_vertex_inds();

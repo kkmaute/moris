@@ -344,36 +344,35 @@ namespace moris
                     const moris_index& aNodeIndex,
                     const moris_index& aNodeId,
                     const moris_index& aNodeOwner );
-
-            //-------------------------------------------------------------------------------
             
             /**
-             * create new node geometry objects
-             * @param[ in ] aNodeCoords node coordinates
+             * Creates and registers new derived nodes based on the given information.
+             *
+             * @param aNewNodeIndices New node indices
+             * @param tVertexIndices Indices of the parent cell
+             * @param aParametricCoordinates
              */
-            void create_new_child_nodes(
-                    const Cell< moris_index >&               aNewNodeIndices,
-                    const Cell< Element_Interpolation_Type >& aParentIntersectionType,
-                    const Cell< Matrix< IndexMat > >&        tVertexIndices,
-                    const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
-                    const Matrix< DDRMat >&                  aGlobalNodeCoord );
+            void create_new_derived_nodes(
+                    const Cell< moris_index >&        aNewNodeIndices,
+                    const Cell< Matrix< IndexMat > >& tVertexIndices,
+                    const Cell< Matrix< DDRMat > >&   aParametricCoordinates );
 
-            //-------------------------------------------------------------------------------
-            
-            void create_new_child_nodes(
-                    const Cell< moris_index >*                   aNewNodeIndices,
-                    Cell< mtk::Cell* >*                          aNewNodeParentCell,
-                    Cell< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
-                    Cell< Matrix< DDRMat > >*                    aNodeCoordinates );
-
-            //-------------------------------------------------------------------------------
+            /**
+             * Overloaded version of creating derived nodes. Calls other version internally.
+             *
+             * @param aNewNodeIndices New node indices
+             * @param aNewNodeParentCell MTK cells
+             * @param aParametricCoordinates Parametric coordinates for creating the derived node
+             */
+            void create_new_derived_nodes(
+                    const Cell< moris_index >&                         aNewNodeIndices,
+                    Cell< mtk::Cell* >&                                aNewNodeParentCell,
+                    const Cell< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates );
             
             /**
              * Get the total number of phases in the phase table
              */
             size_t get_num_phases();
-
-            //-------------------------------------------------------------------------------
 
             /**
              * Gets the phase of a given node

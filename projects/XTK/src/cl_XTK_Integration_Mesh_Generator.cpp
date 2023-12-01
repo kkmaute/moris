@@ -3750,11 +3750,10 @@ namespace xtk
         if ( aDecompAlg->has_geometric_independent_vertices() )
         {
             // pass the data in decomposition data to the geometry engine so it can keep track of these newly constructed vertices
-            mGeometryEngine->create_new_child_nodes(
-                    &aDecompositionData->tNewNodeIndex,
-                    &aDecompositionData->mNewNodeParentCells,
-                    &aDecompositionData->mNewVertexLocalCoordWRTParentCell,
-                    &aDecompositionData->tNewNodeCoordinate );
+            mGeometryEngine->create_new_derived_nodes(
+                    aDecompositionData->tNewNodeIndex,
+                    aDecompositionData->mNewNodeParentCells,
+                    aDecompositionData->mNewVertexLocalCoordWRTParentCell );
         }
     }
 

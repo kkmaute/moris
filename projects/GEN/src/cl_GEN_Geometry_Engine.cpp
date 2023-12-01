@@ -537,68 +537,35 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        // FIXME should pass references instead of pointers
         void
-        Geometry_Engine::create_new_child_nodes(
-                const Cell< moris_index >*                   aNewNodeIndices,
-                Cell< moris::mtk::Cell* >*                   aNewNodeParentCell,
-                Cell< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
-                Cell< Matrix< DDRMat > >*                    aNodeCoordinates )
+        Geometry_Engine::create_new_derived_nodes(
+                const Cell< moris_index >&                         aNewNodeIndices,
+                Cell< mtk::Cell* >&                                aNewNodeParentCell,
+                const Cell< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates )
         {
-            // Tracer
-            Tracer tTracer( "GEN", "Create new child nodes" );
+            // Get number of new nodes
+            uint tNumberOfNewDerivedNodes = aNewNodeIndices.size();
 
-            // Loop over nodes
-            for ( uint iNode = 0; iNode < aNewNodeIndices->size(); iNode++ )
+            // Get vertex indices from parent cell and change parametric coordinate type
+            Cell< Matrix< IndexMat > > tVertexIndices( tNumberOfNewDerivedNodes );
+            Cell< Matrix< DDRMat > > tParametricCoordinates( tNumberOfNewDerivedNodes );
+            for ( uint iCellIndex = 0; iCellIndex < tNumberOfNewDerivedNodes; iCellIndex++ )
             {
-                // Create new child node
-                std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
-                        ( *aNewNodeParentCell )( iNode ),
-                        ( *aParamCoordRelativeToParent )( iNode ).get(),
-                        this->mEvaluateNewChildNodeAsLinear );
-
-                // Get parent cell
-                mtk::Cell* tParentCell = ( *aNewNodeParentCell)( iNode );
-
-                // Get relevant nodes from the node manager
-                Cell< mtk::Vertex* > tVertices = tParentCell->get_vertex_pointers();
-                uint tNumberOfNodes = tVertices.size();
-                Cell< Node* > tBaseNodes( tNumberOfNodes );
-                for ( uint iBaseNode = 0; iBaseNode < tNumberOfNodes; iBaseNode++ )
-                {
-                    tBaseNodes( iBaseNode ) = mNodeManager.get_node( tVertices( iBaseNode )->get_index() );
-                }
-
-                // Create new derived node
-                mNodeManager.add_derived_node( new Derived_Node(
-                        ( *aNewNodeIndices )( iNode ),
-                        tBaseNodes,
-                        *( *aParamCoordRelativeToParent )( iNode ),
-                        ( *aNewNodeParentCell )( iNode )->get_geometry_type() ) );
-
-                // Assign to geometries
-                for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-                {
-                    mGeometries( tGeometryIndex )->add_child_node( ( *aNewNodeIndices )( iNode ), tChildNode );
-                }
+                tVertexIndices( iCellIndex ) = aNewNodeParentCell( iCellIndex )->get_vertex_inds();
+                tParametricCoordinates( iCellIndex ) = *aParametricCoordinates( iCellIndex );
             }
 
-            // Set max node index
-            if ( aNewNodeIndices->size() > 0 )
-            {
-                mPDVHostManager.set_num_background_nodes( ( *aNewNodeIndices )( aNewNodeIndices->size() - 1 ) + 1 );
-            }
+            // Call overloaded function
+            this->create_new_derived_nodes( aNewNodeIndices, tVertexIndices, tParametricCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Geometry_Engine::create_new_child_nodes(
-                const Cell< moris_index >&                aNewNodeIndices,
-                const Cell< Element_Interpolation_Type >& aParentIntersectionType,
-                const Cell< Matrix< IndexMat > >&         tVertexIndices,
-                const Cell< Matrix< DDRMat > >&           aParamCoordRelativeToParent,
-                const Matrix< DDRMat >&                   aGlobalNodeCoord )
+        Geometry_Engine::create_new_derived_nodes(
+                const Cell< moris_index >&        aNewNodeIndices,
+                const Cell< Matrix< IndexMat > >& tVertexIndices,
+                const Cell< Matrix< DDRMat > >&   aParametricCoordinates )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create new child nodes" );
@@ -606,22 +573,6 @@ namespace moris
             // Loop over nodes
             for ( uint iNode = 0; iNode < aNewNodeIndices.size(); iNode++ )
             {
-                Matrix< DDUMat >         tParentNodeIndices( tVertexIndices( iNode ).numel(), 1 );
-                Cell< Matrix< DDRMat > > tParentNodeCoordinates( tParentNodeIndices.length() );
-
-                for ( uint tParentNode = 0; tParentNode < tParentNodeIndices.length(); tParentNode++ )
-                {
-                    tParentNodeIndices( tParentNode )     = tVertexIndices( iNode )( tParentNode );
-                    tParentNodeCoordinates( tParentNode ) = aGlobalNodeCoord.get_row( tParentNodeIndices( tParentNode ) );
-                }
-
-                // Create new child node
-                std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
-                        tParentNodeIndices,
-                        tParentNodeCoordinates,
-                        aParentIntersectionType( iNode ),
-                        aParamCoordRelativeToParent( iNode ) );
-
                 // Get base cell geometry type
                 mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
                 if ( tVertexIndices( iNode ).length() == 4 )
@@ -644,14 +595,8 @@ namespace moris
                 mNodeManager.add_derived_node( new Derived_Node(
                         aNewNodeIndices( iNode ),
                         tBasisNodes,
-                        aParamCoordRelativeToParent( iNode ),
+                        aParametricCoordinates( iNode ),
                         tGeometryType ) );
-
-                // Assign to geometries
-                for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-                {
-                    mGeometries( tGeometryIndex )->add_child_node( aNewNodeIndices( iNode ), tChildNode );
-                }
             }
 
             // Set max node index
