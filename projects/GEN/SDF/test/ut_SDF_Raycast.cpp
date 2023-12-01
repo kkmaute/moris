@@ -49,10 +49,10 @@ namespace moris::sdf
             SECTION( "SDF: Raycast Free Function Test - 3D" )
             {
                 // create triangle object from object file
-                std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
-                Object         tObject( tObjectPath );
+                std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
+                Object      tObject( tObjectPath );
 
-                // define test point
+                // define test point that is inside the object
                 Matrix< DDRMat > tTestPoint = {
                     { 0.9 },
                     { 0.6 },
@@ -127,7 +127,6 @@ namespace moris::sdf
                 tCandidatesExpected = { 0, 1, 2 };
                 tCandidateTriangles = preselect_triangles( tObject, tTestPoint, 0 );
 
-
                 REQUIRE( tCandidateTriangles.size() == 3 );
                 CHECK( tCandidateTriangles( 0 ) == tCandidatesExpected( 0 ) );
                 CHECK( tCandidateTriangles( 1 ) == tCandidatesExpected( 1 ) );
@@ -162,8 +161,8 @@ namespace moris::sdf
             SECTION( "SDF: Raycast Free Function Test - 2D" )
             {
                 // create triangle object from object file
-                std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
-                Object         tObject( tObjectPath );
+                std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
+                Object      tObject( tObjectPath );
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
@@ -235,33 +234,38 @@ namespace moris::sdf
             SECTION( "SDF: Compute distance to facets test - 3D" )
             {
                 // create triangle object from object file
-                std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
-                Object         tObject( tObjectPath );
+                std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
+                Object      tObject( tObjectPath );
 
-                // define test point
+                // define test point that is inside the object
                 Matrix< DDRMat > tTestPoint = {
                     { 0.9 },
                     { 0.6 },
                     { 0.7 }
                 };
 
-                // TODO: expected results
-                moris::Cell< real > tLineDistanceXExpected = { -0.2, 0.2 };
-                moris::Cell< real > tLineDistanceYExpected = { -0.25, 0.25 };
-                moris::Cell< real > tLineDistanceZExpected = { 0.0, 0.0 };
+                real tLineDistanceXExpected = 1.284482127272365; // facet index = 2
+                real tLineDistanceYExpected = 0.919532986470608; // facet index = 1
+                real tLineDistanceZExpected = 0.88055620439;     // facet index = 0
 
                 // compute with raycast function
                 moris::Cell< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
                 moris::Cell< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
                 moris::Cell< real > tLineDistanceZ = compute_distance_to_facets( tObject, tTestPoint, 2 );
 
-                // TODO: compare
+                // compare
+                REQUIRE( tLineDistanceX.size() == 1 );
+                REQUIRE( tLineDistanceY.size() == 1 );
+                REQUIRE( tLineDistanceZ.size() == 1 );
+                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected ) < gSDFepsilon );
+                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected ) < gSDFepsilon );
+                CHECK( std::abs( tLineDistanceZ( 0 ) - tLineDistanceZExpected ) < gSDFepsilon );
             }
             SECTION( "SDF: Compute distance to facets test - 2D" )
             {
                 // create triangle object from object file
-                std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
-                Object         tObject( tObjectPath );
+                std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
+                Object      tObject( tObjectPath );
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };

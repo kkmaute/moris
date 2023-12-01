@@ -135,7 +135,7 @@ namespace moris::sdf
                 // preselect triangles in positive and negative aAxis directions for intersection test
                 moris::Cell< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
-                // filter only facets that are in the positive aAxis direction of the point
+                // filter out facets that are definitely in the negative aAxis direction from the point
                 for ( uint iCandidate = 0; iCandidate < tCandidateFacets.size(); iCandidate++ )
                 {
                     if ( aObject.get_facet_max_coord( iCandidate, aAxis ) < aPoint( aAxis ) )
@@ -148,7 +148,17 @@ namespace moris::sdf
                 moris::Cell< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
 
                 // compute intersection locations
-                return intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
+                moris::Cell< real > tIntersectionCoordinates = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
+
+                // remove intersection locations that are behind the point
+                for( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
+                {
+                    if( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
+                    {
+                        tIntersectionCoordinates.erase( iIntersection );
+                    }
+                }
+                return tIntersectionCoordinates;
             }
             default:
             {
