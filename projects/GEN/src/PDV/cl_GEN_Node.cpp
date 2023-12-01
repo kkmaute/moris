@@ -29,6 +29,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Node::depends_on_advs()
+    {
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Node::append_dcoordinate_dadv(
             Matrix< DDRMat >&       aCoordinateSensitivities,
             const Matrix< DDRMat >& aSensitivityFactor )

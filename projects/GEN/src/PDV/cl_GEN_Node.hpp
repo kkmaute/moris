@@ -47,6 +47,13 @@ namespace moris::ge
         virtual const Matrix< DDRMat >& get_global_coordinates() = 0;
 
         /**
+         * Gets if this node's position depends on ADVs.
+         *
+         * @return ADV dependence (default false)
+         */
+        virtual bool depends_on_advs();
+
+        /**
          * Appends the sensitivities of this node's global coordinates with respect to ADVs. By default, does nothing.
          *
          * @param aCoordinateSensitivities Coordinate sensitivities matrix that gets appended to

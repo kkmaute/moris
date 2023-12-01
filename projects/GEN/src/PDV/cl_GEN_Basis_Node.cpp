@@ -60,6 +60,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Basis_Node::depends_on_advs()
+    {
+        return mNode->depends_on_advs();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Basis_Node::append_dcoordinate_dadv(
             Matrix< DDRMat >&       aCoordinateSensitivities,
             const Matrix< DDRMat >& aSensitivityFactor )

@@ -52,6 +52,7 @@ namespace moris::ge
          */
         const Matrix< DDRMat >& get_parametric_coordinates() const override;
 
+      private:
         /**
          * Gets the underlying node, specifically used to create a basis node from a parent node.
          *

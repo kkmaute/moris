@@ -53,6 +53,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Intersection_Node::depends_on_advs()
+    {
+        return mInterfaceGeometry->depends_on_advs() or mFirstParentNode.depends_on_advs() or mSecondParentNode.depends_on_advs();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool
     Intersection_Node::parent_edge_is_intersected()
     {

@@ -59,6 +59,14 @@ namespace moris::ge
                 real                        aLocalCoordinate,
                 mtk::Geometry_Type          aBaseGeometryType,
                 std::shared_ptr< Geometry > aInterfaceGeometry );
+
+        /**
+         * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.
+         *
+         * @return ADV dependence
+         */
+        bool depends_on_advs() override;
+
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
          * ancestor nodes.

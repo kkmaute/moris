@@ -66,6 +66,13 @@ namespace moris::ge
         real get_basis() const;
 
         /**
+         * Gets if the underlying node's position depends on ADVs.
+         *
+         * @return ADV dependence
+         */
+        bool depends_on_advs();
+
+        /**
          * Appends the sensitivities of the underlying node's global coordinates with respect to ADVs.
          *
          * @param aCoordinateSensitivities Coordinate sensitivities matrix that gets appended to

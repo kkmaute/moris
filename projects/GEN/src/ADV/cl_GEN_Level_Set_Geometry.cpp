@@ -87,6 +87,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Level_Set_Geometry::depends_on_advs()
+    {
+        return mField->has_advs();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Geometric_Region Level_Set_Geometry::get_geometric_region(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )

@@ -117,13 +117,6 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates );
 
         /**
-         * Returns if this design object has sensitivities, based on its ADV information.
-         *
-         * @return if this field depends on ADVs
-         */
-        bool depends_on_advs();
-
-        /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
          *
          * @param aNodeIndex Node index

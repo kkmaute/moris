@@ -64,6 +64,13 @@ namespace moris::ge
         virtual void set_node_manager( Node_Manager& aNodeManager );
 
         /**
+         * Gets if this geometry depends on ADVs.
+         *
+         * @return ADV dependence
+         */
+        virtual bool depends_on_advs() = 0;
+
+        /**
          * Gets the geometric region of a node, based on this geometry.
          *
          * @param aNodeIndex Node index

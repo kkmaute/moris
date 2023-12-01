@@ -100,6 +100,13 @@ namespace moris::ge
         real get_intersection_tolerance();
 
         /**
+         * Gets if this geometry depends on ADVs.
+         *
+         * @return ADV dependence
+         */
+        bool depends_on_advs() override;
+
+        /**
          * Gets the geometric region of a node, based on this geometry.
          *
          * @param aNodeIndex Node index
