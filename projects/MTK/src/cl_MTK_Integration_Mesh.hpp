@@ -450,22 +450,21 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         /**
-         * Returns the list of sets to colors based on the a set type specified
+         * @brief Returns the list of sets to colors based on the a set type specified
          * by default it return all set to color list
-         *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset or all
          */
-        [[deprecated(
-                "Use the more expressive getter methods get_color_to_sets, get_color_to_block_sets, "
-                "get_color_to_side_sets or get_color_to_double_side_sets" )]] moris::Cell< moris::Cell< moris::mtk::Set * > > const &
-        get_list_of_set_to_color( SetType aSetType = SetType::UNDEFINED ) const;
 
-        moris::Cell< moris::Cell< moris::mtk::Set * > > const &get_color_to_sets() const;
+        moris::Cell< moris::Cell< moris::mtk::Set * > > const &
+        get_color_to_sets() const;
 
-        moris::Cell< moris::Cell< moris::mtk::Block_Set * > > const &get_color_to_block_sets() const;
+        moris::Cell< moris::Cell< moris::mtk::Block_Set * > > const &
+        get_color_to_block_sets() const;
 
-        moris::Cell< moris::Cell< moris::mtk::Side_Set * > > const &get_color_to_side_sets() const;
+        moris::Cell< moris::Cell< moris::mtk::Side_Set * > > const &
+        get_color_to_side_sets() const;
 
-        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > const &get_color_to_double_side_sets() const;
+        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > const &
+        get_color_to_double_side_sets() const;
 
 
         // ----------------------------------------------------------------------------

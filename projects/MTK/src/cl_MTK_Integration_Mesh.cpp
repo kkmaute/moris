@@ -850,54 +850,6 @@ namespace moris::mtk
         return mColorToAllSets;
     }
 
-    moris::Cell< moris::Cell< moris::mtk::Set * > > const &Integration_Mesh::get_list_of_set_to_color( SetType aSetType ) const
-    {
-        // Determine the set type
-        switch ( aSetType )
-        {
-            // Bulk sets
-            case SetType::BULK:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_list_of_set_to_color( SetType::BULK )"
-                        "Consider using get_color_to_block_sets() instead" );
-                return (moris::Cell< moris::Cell< Set * > > const &)mColorToBlockSet;
-            }
-
-            // Side Sets
-            case SetType::SIDESET:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_list_of_set_to_color( SetType::SIDESET )"
-                        "Consider using get_color_to_side_sets() instead" );
-                return (moris::Cell< moris::Cell< Set * > > const &)mColorToSideSet;
-            }
-
-            // Double Sided Sets
-            case SetType::DOUBLE_SIDED_SIDESET:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_list_of_set_to_color( SetType::DOUBLE_SIDED_SIDESET )"
-                        "Consider using get_color_to_double_side_sets() instead" );
-                return (moris::Cell< moris::Cell< Set * > > const &)mColorToDoubleSideSet;
-            }
-
-            // All sets
-            case SetType::UNDEFINED:
-            {
-                return mColorToAllSets;
-            }
-
-            // Incorrect Input
-            default:
-            {
-                MORIS_ERROR( 0, "Incorrect aSetType" );
-                auto *tDummyCell = new moris::Cell< moris::Cell< moris::mtk::Set * > >( 0 );
-                return *tDummyCell;
-            }
-        }
-    }
-
     // ----------------------------------------------------------------------------
 
     map< std::string, moris_index > const &
