@@ -16,12 +16,12 @@
 namespace moris::ge
 {
     // Forward declare base node FIXME make base node once a base node is specifically requested from the node manager
-    class Node;
+    class Base_Node;
 
     class Parent_Base_Node : public Parent_Node
     {
       private:
-        Node*            mBaseNode;
+        Base_Node*       mBaseNode;
         Matrix< DDRMat > mParametricCoordinates;
 
       public:
@@ -32,7 +32,7 @@ namespace moris::ge
          * @param aParametricCoordinates Parametric coordinates
          */
         Parent_Base_Node(
-                Node*                   aBaseNode,
+                Base_Node*              aBaseNode,
                 const Matrix< DDRMat >& aParametricCoordinates );
 
         /**

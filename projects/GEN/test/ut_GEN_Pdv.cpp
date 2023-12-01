@@ -373,9 +373,9 @@ namespace moris
                     Matrix< DDRMat > tSecondParentCoordinates = { { 1.5 * cos( tRadians ), 1.5 * sin( tRadians ) } };
 
                     // Create parent nodes
-                    Node* tFirstNode = new Base_Node( 0, tFirstParentCoordinates );
+                    auto tFirstNode = new Base_Node( 0, tFirstParentCoordinates );
                     Parent_Base_Node tFirstParentNode( tFirstNode, {{}} );
-                    Node* tSecondNode = new Base_Node( 0, tSecondParentCoordinates );
+                    auto tSecondNode = new Base_Node( 0, tSecondParentCoordinates );
                     Parent_Base_Node tSecondParentNode( tSecondNode, {{}} );
 
                     // Assign as base nodes

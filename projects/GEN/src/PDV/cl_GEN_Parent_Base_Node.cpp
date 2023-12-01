@@ -17,7 +17,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Parent_Base_Node::Parent_Base_Node(
-            Node*                   aBaseNode,
+            Base_Node*              aBaseNode,
             const Matrix< DDRMat >& aParametricCoordinates )
             : mBaseNode( aBaseNode )
             , mParametricCoordinates( aParametricCoordinates )
