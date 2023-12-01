@@ -93,7 +93,7 @@ namespace moris
             // PDVs
             Pdv_Host_Manager                     mPDVHostManager;
             Node_Manager                         mNodeManager;
-            std::shared_ptr< Intersection_Node > mQueuedIntersectionNode;
+            Intersection_Node* mQueuedIntersectionNode = nullptr;
 
             // diagnostic information
             bool        mDiagnostics    = false;

@@ -408,6 +408,9 @@ namespace moris
                 const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
                 const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
         {
+            // If previous intersection node was not admitted, this will delete it
+            delete mQueuedIntersectionNode;
+
             // Get base cell geometry type
             mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
             if ( aBackgroundElementNodeIndices.length() == 4 )
@@ -505,15 +508,18 @@ namespace moris
             // Assign as PDV host if constructed on adv dependent geometry or parent nodes are adv dependent
             if ( mQueuedIntersectionNode->depends_on_advs() )
             {
-                mPDVHostManager.set_intersection_node( aNodeIndex, mQueuedIntersectionNode );
+                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode->get_index(), mQueuedIntersectionNode );
             }
             else
             {
-                mPDVHostManager.set_intersection_node( aNodeIndex, nullptr );
+                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode->get_index(), nullptr );
             }
 
-            // Add new derived node FIXME rework this
-            mNodeManager.add_derived_node( mQueuedIntersectionNode.get() );
+            // Add new derived node to the node manager
+            mNodeManager.add_derived_node( mQueuedIntersectionNode );
+
+            // Set to nullptr to let the geometry engine know it was admitted
+            mQueuedIntersectionNode = nullptr;
         }
 
         //--------------------------------------------------------------------------------------------------------------

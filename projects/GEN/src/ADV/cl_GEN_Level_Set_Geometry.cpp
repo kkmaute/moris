@@ -103,17 +103,17 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::shared_ptr< Intersection_Node > Level_Set_Geometry::create_intersection_node(
-            uint                                  aNodeIndex,
-            const Cell< Node* >&                  aBaseNodes,
-            const Parent_Node&                    aFirstParentNode,
-            const Parent_Node&                    aSecondParentNode,
-            mtk::Geometry_Type                    aBaseGeometryType )
+    Intersection_Node* Level_Set_Geometry::create_intersection_node(
+            uint                 aNodeIndex,
+            const Cell< Node* >& aBaseNodes,
+            const Parent_Node&   aFirstParentNode,
+            const Parent_Node&   aSecondParentNode,
+            mtk::Geometry_Type   aBaseGeometryType )
     {
         if ( mParameters.mIntersectionInterpolation == Int_Interpolation::LINEAR )
         {
             // Create linear intersection node
-            return std::make_shared< Intersection_Node_Linear >(
+            return new Intersection_Node_Linear(
                     aNodeIndex,
                     aBaseNodes,
                     aFirstParentNode,
@@ -124,7 +124,7 @@ namespace moris::ge
         else
         {
             // Create multilinear intersection node
-            return std::make_shared< Intersection_Node_Bilinear >(
+            return new Intersection_Node_Bilinear(
                     aNodeIndex,
                     aBaseNodes,
                     aFirstParentNode,

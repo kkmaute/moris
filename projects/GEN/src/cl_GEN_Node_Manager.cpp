@@ -74,6 +74,8 @@ namespace moris::ge
 
     void Node_Manager::add_derived_node( Derived_Node* aDerivedNode )
     {
+        MORIS_ASSERT( aDerivedNode->get_index() == this->get_total_number_of_nodes(),
+                "Attempted to add a derived node with node index %d when the next index should be %d", aDerivedNode->get_index(), this->get_total_number_of_nodes() );
         mDerivedNodes.push_back( aDerivedNode );
     }
 

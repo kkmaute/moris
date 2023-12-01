@@ -331,8 +331,10 @@ namespace moris
 
                 // Create PDV_Type host manager (here: test version defined above)
                 Pdv_Host_Manager_Test tPDVHostManager;
-
                 tPDVHostManager.set_num_background_nodes( 0 );
+
+                // Create node manager to automatically delete nodes at the end
+                Node_Manager tNodeManager( nullptr );
 
                 // Node IDs/owners per set
                 uint             tNumOwnedNodes = 0;
@@ -382,13 +384,16 @@ namespace moris
                     Cell< Node* > tBaseNodes( { tFirstNode, tSecondNode } );
 
                     // Create intersection node
-                    auto tIntersectionNode = std::make_shared< Intersection_Node_Linear >(
+                    auto tIntersectionNode = new Intersection_Node_Linear(
                             tNodeIndex,
                             tBaseNodes,
                             tFirstParentNode,
                             tSecondParentNode,
                             mtk::Geometry_Type::LINE,
                             tCircleGeometry );
+
+                    // Add to node manager
+                    tNodeManager.add_derived_node( tIntersectionNode );
 
                     // Add intersection node to PDV host manager
                     tPDVHostManager.set_intersection_node( tNodeIndex, tIntersectionNode );
