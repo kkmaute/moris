@@ -43,7 +43,7 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
             return this->get_field_value( aNodeIndex );
         }
@@ -59,7 +59,7 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
             return this->get_dfield_dadvs( aNodeIndex );
         }
@@ -75,7 +75,7 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
             return this->get_determining_adv_ids( aNodeIndex );
         }

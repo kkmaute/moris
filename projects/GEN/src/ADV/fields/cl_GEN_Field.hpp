@@ -50,7 +50,7 @@ namespace moris::ge
       protected:
         uint mNumOriginalNodes = 0;
         ADV_Manager mADVManager;
-        Node_Manager& mNodeManager = Node_Manager::get_trivial_instance();
+        Node_Manager* mNodeManager = &Node_Manager::get_trivial_instance();
         Matrix< DDRMat > mSensitivities;
 
       private:

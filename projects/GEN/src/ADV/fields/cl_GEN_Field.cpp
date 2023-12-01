@@ -11,7 +11,6 @@
 #include "cl_GEN_Field.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 #include "cl_GEN_Derived_Node.hpp"
-#include "cl_GEN_Basis_Node.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 #include <utility>
 
@@ -89,7 +88,7 @@ namespace moris::ge
 
     void Field::set_node_manager( Node_Manager& aNodeManager )
     {
-        mNodeManager = aNodeManager;
+        mNodeManager = &aNodeManager;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -105,7 +104,7 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
             // Get base field value
             return this->get_field_value( aNodeIndex, aCoordinates );
@@ -115,8 +114,8 @@ namespace moris::ge
             // Initialize field value
             real tFieldValue = 0.0;
             
-            // Add contributions from each locator
-            for ( auto iBasisNode : mNodeManager.get_derived_node( aNodeIndex )->get_basis_nodes() )
+            // Add contributions from each basis node
+            for ( auto iBasisNode : mNodeManager->get_derived_node( aNodeIndex )->get_basis_nodes() )
             {
                 tFieldValue += this->get_field_value( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
             }
@@ -132,7 +131,7 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
             // Get base sensitivities
             return this->get_dfield_dadvs( aNodeIndex, aCoordinates );
@@ -140,7 +139,7 @@ namespace moris::ge
         else
         {
             // Add contributions from each locator
-            for ( auto iBasisNode : mNodeManager.get_derived_node( aNodeIndex )->get_basis_nodes() )
+            for ( auto iBasisNode : mNodeManager->get_derived_node( aNodeIndex )->get_basis_nodes() )
             {
                 // Get locator sensitivities
                 Matrix< DDRMat > tLocatorSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
@@ -178,7 +177,7 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aNodeIndex < mNodeManager.get_number_of_base_nodes() )
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
             // Get base sensitivities
             return this->get_determining_adv_ids( aNodeIndex, aCoordinates );
@@ -186,7 +185,7 @@ namespace moris::ge
         else
         {
             // Add contributions from each locator
-            for ( auto iBasisNode : mNodeManager.get_derived_node( aNodeIndex )->get_basis_nodes() )
+            for ( auto iBasisNode : mNodeManager->get_derived_node( aNodeIndex )->get_basis_nodes() )
             {
                 // Get locator sensitivities
                 Matrix< DDSMat > tLocatorADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
