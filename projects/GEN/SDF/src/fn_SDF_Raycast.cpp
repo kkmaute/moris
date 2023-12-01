@@ -136,6 +136,7 @@ namespace moris::sdf
                 moris::Cell< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
                 // filter out facets that are definitely in the negative aAxis direction from the point
+                // FIXME: a different preselection function could be written to avoid extra checks
                 for ( uint iCandidate = 0; iCandidate < tCandidateFacets.size(); iCandidate++ )
                 {
                     if ( aObject.get_facet_max_coord( iCandidate, aAxis ) < aPoint( aAxis ) )
@@ -158,6 +159,7 @@ namespace moris::sdf
                         tIntersectionCoordinates.erase( iIntersection );
                     }
                 }
+
                 return tIntersectionCoordinates;
             }
             default:
