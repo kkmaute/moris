@@ -46,7 +46,6 @@ set(HEADERS
 	ADV/cl_GEN_Design_Field.hpp
 	ADV/cl_GEN_Geometry.hpp
 	ADV/cl_GEN_Level_Set_Geometry.hpp
-	ADV/cl_GEN_Surface_Mesh_Geometry.hpp
 	ADV/cl_GEN_Property.hpp
 
 	# ADV/fields
@@ -91,7 +90,6 @@ set(HEADERS
 	PDV/cl_GEN_Intersection_Node_Level_Set.hpp
 	PDV/cl_GEN_Intersection_Node_Linear.hpp
 	PDV/cl_GEN_Intersection_Node_Bilinear.hpp
-	PDV/cl_GEN_Intersection_Node_Surface_Mesh.hpp
     )
 
 # List library source files
@@ -110,7 +108,6 @@ set(LIB_SOURCES
 	ADV/cl_GEN_Design_Field.cpp
 	ADV/cl_GEN_Geometry.cpp
 	ADV/cl_GEN_Level_Set_Geometry.cpp
-	ADV/cl_GEN_Surface_Mesh_Geometry.cpp
 	ADV/cl_GEN_Property.cpp
 
 	# ADV/fields
@@ -153,7 +150,6 @@ set(LIB_SOURCES
 	PDV/cl_GEN_Intersection_Node_Level_Set.cpp
 	PDV/cl_GEN_Intersection_Node_Linear.cpp
 	PDV/cl_GEN_Intersection_Node_Bilinear.cpp
-	PDV/cl_GEN_Intersection_Node_Surface_Mesh.cpp
     )
 
 # List library dependencies
