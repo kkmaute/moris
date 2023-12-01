@@ -38,6 +38,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Property::set_node_manager( Node_Manager& aNodeManager )
+    {
+        mField->set_node_manager( aNodeManager );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Property::update_dependencies( Cell< std::shared_ptr< Design_Field > > aAllUpdatedFields )
     {
         // Set up dependency fields

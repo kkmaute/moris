@@ -52,6 +52,13 @@ namespace moris::ge
               Property_Parameters      aParameters = Property_Parameters() );
 
         /**
+         * Sets a new node manager (from the geometry engine, if it was created after this property)
+         *
+         * @param aNodeManager Geometry engine node manager
+         */
+        void set_node_manager( Node_Manager& aNodeManager );
+
+        /**
          * Updates the dependencies of the underlying field based on the given fields which the property may depend on
          * (fields may have been mapped/updated).
          *

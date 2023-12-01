@@ -1296,12 +1296,6 @@ namespace moris
                 mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
             }
 
-            // Register node manager with each geometry TODO figure out a better way to do this; have node manager automatically copy over when discretizing?
-            for ( const auto& iGeometry : mGeometries )
-            {
-                iGeometry->set_node_manager( mNodeManager );
-            }
-
             // Loop to discretize properties when requested
             for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
             {
@@ -1331,6 +1325,16 @@ namespace moris
                             tSharedADVIds( mGeometries.size() + iPropertyIndex ),
                             tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
                 }
+            }
+
+            // Register node manager with each geometry/property TODO figure out a better way to do this; have node manager automatically copy over when discretizing?
+            for ( const auto& iGeometry : mGeometries )
+            {
+                iGeometry->set_node_manager( mNodeManager );
+            }
+            for ( const auto& iProperty : mProperties )
+            {
+                iProperty->set_node_manager( mNodeManager );
             }
 
             // Update dependencies
