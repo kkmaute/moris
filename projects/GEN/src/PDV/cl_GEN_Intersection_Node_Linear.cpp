@@ -96,7 +96,7 @@ namespace moris::ge
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
         // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
-        Matrix< DDRMat > tCoordinateSensitivities( 1, this->get_global_coordinates().n_cols() );
+        Matrix< DDRMat > tCoordinateSensitivities( 1, this->get_global_coordinates().n_cols(), 0.0 );
         tLockedInterfaceGeometry->get_dfield_dcoordinates(
                 mFirstParentNode.get_index(),
                 mSecondParentNode.get_global_coordinates(),
