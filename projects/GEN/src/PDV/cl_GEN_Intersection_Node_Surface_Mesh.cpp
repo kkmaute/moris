@@ -59,7 +59,7 @@ namespace moris::ge
         // lock interface geometry
          std::shared_ptr< Surface_Mesh_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
-        // compute the global coordinates of the parent nodes
+        // TODO: compute the global coordinates of the parent nodes
         Matrix< DDRMat > tFirstParentNodeGlobalCoordinates;
         Matrix< DDRMat > tSecondParentNodeGlobalCoordinates;
 
@@ -110,19 +110,28 @@ namespace moris::ge
             const Matrix< DDRMat >& aFirstParentNodeCoordinates,
             const Matrix< DDRMat >& aSecondParentNodeCoordinates )
     {
-        // compute the rotation matrix
-        Matrix< DDRMat > tRotationMatrix = this->compute_raycast_rotation();
-
-        // rotate the geometry and the cast point
+        // lock the interface geometry
         std::shared_ptr< Surface_Mesh_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+        // step 1: scale the object
+        Matrix< DDRMat > tScaling( tLockedInterfaceGeometry->get_dimension(), 1 );
+        tScaling.fill( 0.5 );
+        tLockedInterfaceGeometry->scale_object( tScaling );
+
+        // step 2: shift the object so the first parent is the origin
+        tLockedInterfaceGeometry->shift_object( -aFirstParentNodeCoordinates );
+
+        // rotate the object and the cast point
+        Matrix< DDRMat > tRotationMatrix = this->compute_raycast_rotation();
         tLockedInterfaceGeometry->rotate_object( tRotationMatrix );
         Matrix< DDRMat > tRotatedFirstParentCoordinates = tRotationMatrix * aFirstParentNodeCoordinates;
 
         // Compute the distance to the facets
-        // FIXME: the interface geometry needs to be put in local coordinate frame
         Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *tLockedInterfaceGeometry, tRotatedFirstParentCoordinates, 2 );
 
-        // Find all intersection locations and return the closest one
+        // reset the object
+        tLockedInterfaceGeometry->reset_object_coordinates();
+
         // FIXME: this ignores the possibility that there are multiple intersection locations between each facet
         return tLocalCoordinate( 0 );
     }
