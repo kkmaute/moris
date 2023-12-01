@@ -423,14 +423,14 @@ namespace moris
             Cell< Node* > tBaseNodes( aBackgroundElementNodeIndices.length() );
             for ( uint iNode = 0; iNode < tBaseNodes.size(); iNode++ )
             {
-                tBaseNodes( iNode ) = mNodeManager.get_node( aBackgroundElementNodeIndices( iNode ) );
+                tBaseNodes( iNode ) = mNodeManager.get_base_node( aBackgroundElementNodeIndices( iNode ) );
             }
 
             // Create first parent node
             Parent_Node* tFirstParentNode;
             if ( aEdgeFirstNodeIndex < mNodeManager.get_number_of_base_nodes() )
             {
-                tFirstParentNode = new Parent_Base_Node( mNodeManager.get_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
+                tFirstParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
             }
             else
             {
@@ -441,7 +441,7 @@ namespace moris
             Parent_Node* tSecondParentNode;
             if ( aEdgeSecondNodeIndex < mNodeManager.get_number_of_base_nodes() )
             {
-                tSecondParentNode = new Parent_Base_Node( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
+                tSecondParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
             }
             else
             {
@@ -513,7 +513,7 @@ namespace moris
             }
 
             // Add new derived node FIXME rework this
-            mNodeManager.add_derived_node( mQueuedIntersectionNode.get() );
+            mNodeManager.add_intersection_node( mQueuedIntersectionNode.get() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -577,16 +577,16 @@ namespace moris
                 }
 
                 // Create basis nodes
-                Cell< Node* > tBasisNodes( tVertexIndices( iNode ).length() );
+                Cell< Node* > tBaseNodes( tVertexIndices( iNode ).length() );
                 for ( uint iBaseNode = 0; iBaseNode < tVertexIndices( iNode ).length(); iBaseNode++ )
                 {
-                    tBasisNodes( iBaseNode ) = mNodeManager.get_node( tVertexIndices( iNode )( iBaseNode ) );
+                    tBaseNodes( iBaseNode ) = mNodeManager.get_base_node( tVertexIndices( iNode )( iBaseNode ) );
                 }
 
                 // Create new derived node
                 mNodeManager.add_derived_node( new Derived_Node(
                         aNewNodeIndices( iNode ),
-                        tBasisNodes,
+                        tBaseNodes,
                         aParametricCoordinates( iNode ),
                         tGeometryType ) );
             }

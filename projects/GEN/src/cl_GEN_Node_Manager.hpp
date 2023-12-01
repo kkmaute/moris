@@ -12,6 +12,7 @@
 
 #include "cl_Cell.hpp"
 #include "cl_GEN_Node.hpp"
+#include "cl_GEN_Intersection_Node.hpp"
 
 // Forward declare mtk mesh
 namespace moris::mtk
@@ -22,13 +23,16 @@ namespace moris::mtk
 namespace moris::ge
 {
     // Forward declare derived node
+    class Base_Node;
     class Derived_Node;
+    class Intersection_Node;
 
     class Node_Manager
     {
       private:
-        Cell< Node* > mNodes;
-        uint mNumberOfBaseNodes;
+        Cell< Base_Node* > mBaseNodes;
+        Cell< Derived_Node* > mDerivedNodes;
+        Cell< Intersection_Node* > mIntersectionNodes;
 
       public:
         /**
@@ -70,7 +74,7 @@ namespace moris::ge
          * @param aIndex Node index
          * @return Node pointer
          */
-        Node* get_node( uint aIndex ) const;
+        Base_Node* get_base_node( uint aIndex );
 
         /**
          * Adds a derived node to this manager.
@@ -85,7 +89,22 @@ namespace moris::ge
          * @param aIndex Node index (this must be the index of a derived node, or an error will be thrown)
          * @return Derived node
          */
-        Derived_Node* get_derived_node( uint aIndex ) const;
+        Derived_Node* get_derived_node( uint aIndex );
+
+        /**
+         * Adds an intersection node to this manager.
+         *
+         * @param aIntersectionNode New derived node
+         */
+        void add_intersection_node( Intersection_Node* aIntersectionNode );
+
+        /**
+         * Gets all the intersection nodes stored in the node manager that depend on ADVs.
+         * Useful for the PDV host manager.
+         *
+         * @return Vector of intersection nodes
+         */
+        const Cell< Intersection_Node* >& get_intersection_nodes();
 
         /**
          * Gets a trivial node manager. This is useful for allowing geometry construction before
