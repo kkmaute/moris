@@ -39,19 +39,22 @@ namespace moris
         void
         Triangle::update_data()
         {
-            // step 1: copy node coordinates and determine center
-            this->copy_node_coords_and_inds( mVertices, 3 );
+            // step 1: compute center of the triangle
+            this->compute_center();
+            
+            // step 2: determine the triangle's bounding box
+            this->compute_min_and_max_coordinates();
 
             // help vector
             Matrix< DDRMat > tDirectionOfEdge( 3, 1 );
 
-            // step 2: calculate hesse normal form of plane
+            // step 3: calculate hesse normal form of plane
             this->calculate_hesse_normal_form( tDirectionOfEdge );
 
-            // step 3: calculate barycentric data
+            // step 4: calculate barycentric data
             this->calculate_barycentric_data( tDirectionOfEdge );
 
-            // step 4: calculate helpers for cross prediction
+            // step 5: calculate helpers for cross prediction
             this->calculate_prediction_helpers();
         }
 
@@ -64,10 +67,10 @@ namespace moris
             Matrix< DDRMat > tDirection02( 3, 1 );
 
             // help vectors: direction of sides 1 and 2
-            for ( uint i = 0; i < 3; ++i )
+            for ( uint iAxis = 0; iAxis < 3; ++iAxis )
             {
-                aDirectionOfEdge( i ) = mNodeCoords( i, 1 ) - mNodeCoords( i, 0 );
-                tDirection02( i )     = mNodeCoords( i, 2 ) - mNodeCoords( i, 0 );
+                aDirectionOfEdge( iAxis ) = mVertices( 1 )->get_coord( iAxis ) - mVertices( 0 )->get_coord( iAxis );
+                tDirection02( iAxis )     = mVertices( 2 )->get_coord( iAxis ) - mVertices( 0 )->get_coord( iAxis );
             }
 
             // norm of this triangle
@@ -116,7 +119,7 @@ namespace moris
                     {
                         mBarycentric.mLocalNodeCoordsInPlane( i, k ) +=
                                 mBarycentric.mProjectionMatrix( i, j )
-                                * ( mNodeCoords( j, k ) - mCenter( j ) );
+                                * ( mVertices( k )->get_coord( j ) - mCenter( j ) );
                     }
                 }
             }
@@ -198,7 +201,7 @@ namespace moris
                 for ( uint r = 0; r < 3; ++r )
                 {
                     TrianglePermutation( r, p, q );
-                    real tDelta = mNodeCoords( i, p ) - mNodeCoords( i, q );
+                    real tDelta = mVertices( p )->get_coord( i ) - mVertices( q )->get_coord( i );
                     if ( std::abs( tDelta ) < gSDFepsilon )
                     {
                         if ( tDelta < 0 )
@@ -207,12 +210,12 @@ namespace moris
                             tDelta = gSDFepsilon;
                     }
 
-                    mPredictYRA( r, k ) = ( mNodeCoords( j, p ) - mNodeCoords( j, q ) ) / tDelta;
+                    mPredictYRA( r, k ) = ( mVertices( p )->get_coord( j ) - mVertices( q )->get_coord( j ) ) / tDelta;
 
-                    mPredictY( r, k ) = mNodeCoords( j, p )
-                                      + mPredictYRA( r, k ) * ( mNodeCoords( i, r ) - mNodeCoords( i, p ) );
+                    mPredictY( r, k ) = mVertices( p )->get_coord( j )
+                                      + mPredictYRA( r, k ) * ( mVertices( r )->get_coord( i ) - mVertices( p )->get_coord( i ) );
 
-                    mPredictYRB( r, k ) = mNodeCoords( j, p ) - mNodeCoords( i, p ) * mPredictYRA( r, k );
+                    mPredictYRB( r, k ) = mVertices( p )->get_coord( j ) - mVertices( p )->get_coord( i ) * mPredictYRA( r, k );
                 }
             }
         }
@@ -242,12 +245,12 @@ namespace moris
             real tPredictYR = mPredictYRA( aEdge, aAxis ) * aPoint( tI ) + mPredictYRB( aEdge, aAxis );
 
             // check if point is within all three projected edges
-            return ( ( mPredictY( aEdge, aAxis ) > mNodeCoords( tJ, aEdge ) )
+            return ( ( mPredictY( aEdge, aAxis ) > mVertices( aEdge )->get_coord( tJ ) )
                            && ( tPredictYR + gSDFepsilon > aPoint( tJ ) ) )
-                || ( ( mPredictY( aEdge, aAxis ) < mNodeCoords( tJ, aEdge ) )
+                || ( ( mPredictY( aEdge, aAxis ) < mVertices( aEdge)->get_coord( tJ ) )
                         && ( tPredictYR - gSDFepsilon < aPoint( tJ ) ) )
-                || ( std::abs( ( mNodeCoords( tJ, tP ) - mNodeCoords( tJ, tQ ) )
-                               * ( mNodeCoords( tI, tP ) - aPoint( tI ) ) )
+                || ( std::abs( ( mVertices( tP )->get_coord( tJ ) - mVertices( tQ )->get_coord( tJ ) )
+                               * ( mVertices( tP )->get_coord( tI ) - aPoint( tI ) ) )
                         < gSDFepsilon );
         }
 

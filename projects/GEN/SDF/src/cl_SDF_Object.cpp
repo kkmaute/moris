@@ -197,7 +197,7 @@ namespace moris
                 if ( tBuffer( k ).substr( 0, 2 ) == "f " )
                 {
                     // temporary container for vertices
-                    Cell< Facet_Vertex* > tNodes( 3, nullptr );
+                    Cell< Facet_Vertex* > tNodes( mDimension, nullptr );
                     Matrix< DDUMat >      tNodeIndices( 3, 1 );
                     // read facet topology
                     if ( mDimension == 3 )

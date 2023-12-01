@@ -38,12 +38,6 @@ namespace moris
             // cells with vertex pointers
             moris::Cell< Facet_Vertex* > mVertices;
 
-            // container for node coordinates
-            Matrix< DDRMat > mNodeCoords;
-
-            // container for node indices
-            Matrix< IndexMat > mNodeIndices;
-
             // container for center
             Matrix< DDRMat > mCenter;
 
@@ -121,7 +115,6 @@ namespace moris
             {
                 return mMaxCoord( aDimension );
             }
-
 
             //-------------------------------------------------------------------------------
 
@@ -291,14 +284,19 @@ namespace moris
 
           protected:
             /**
-             * Sets mNodeCoords, mMinCoord, mMaxCoord, and mCenter from the coordinates of mVertices
-             * Each column of mNodeCoords corresponds to a vertex, and each row a dimension
+             * Computes the center of the facet and stores it in mCenter
              *
-             * @param aVertices Cell of Facet_Vertex's that each contain their global coordinates
-             * @param aDimension Number of dimensions for the problem. 2 for line facets and 3 for triangle facets.
              */
             void
-            copy_node_coords_and_inds( moris::Cell< Facet_Vertex* >& aVertices, uint aDimension );
+            compute_center();
+
+            /**
+             * computes the minimum and maximum coordinates for each coordinate direction 
+             * and stores them in mMinCoord and mMaxCoord respectively.
+             *
+             */
+            void
+            compute_min_and_max_coordinates();
 
             //-------------------------------------------------------------------------------
 

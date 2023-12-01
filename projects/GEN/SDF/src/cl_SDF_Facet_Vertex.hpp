@@ -61,11 +61,12 @@ namespace moris
 //-------------------------------------------------------------------------------
 // MTK API functions
 //-------------------------------------------------------------------------------
-
-            Matrix< DDRMat >
-            get_coords() const
+            
+            real
+            get_coord( uint aAxis ) const
             {
-                return mNodeCoords;
+                MORIS_ASSERT( aAxis <= mNodeCoords.numel(), "SDF_Facet_Vertex::get_coord() - Provided axis of %u exceeds the dimension of the vertex.", aAxis );
+                return mNodeCoords( aAxis );
             }
 
 //-------------------------------------------------------------------------------
