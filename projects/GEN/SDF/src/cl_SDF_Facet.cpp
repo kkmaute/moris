@@ -51,7 +51,7 @@ namespace moris
                 real&                   aCoordinate,
                 bool&                   aError )
         {
-            if ( std::abs( mNormal( aAxis ) ) < MORIS_REAL_EPS )
+            if ( std::abs( mNormal( aAxis ) ) < gSDFepsilon )
             {
                 aCoordinate = 0;
                 aError      = true;

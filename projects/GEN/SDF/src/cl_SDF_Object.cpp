@@ -462,5 +462,30 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------
+
+        real
+        Object::get_facet_min_coord(
+                uint aFacetIndex,
+                uint aAxis )
+        {
+            MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_min_coord() - aFacetIndex must be >= 0. Current index: %u", aFacetIndex );
+            MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_min_coord() - aAxis must be >= 0. Current index: %u", aAxis );
+
+            return mFacetMinCoords( aFacetIndex, aAxis );
+        }
+
+        //-------------------------------------------------------------------------------
+
+        real
+        Object::get_facet_max_coord(
+                uint aFacetIndex,
+                uint aAxis )
+
+        {
+            MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_max_coord() - aFacetIndex must be >= 0. Current index: %u", aFacetIndex );
+            MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_max_coord() - aAxis must be >= 0. Current index: %u", aAxis );
+
+            return mFacetMaxCoords( aFacetIndex, aAxis );
+        }
     } /* namespace sdf */
 } /* namespace moris */

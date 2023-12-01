@@ -35,7 +35,6 @@ set(LIB_SOURCES
     cl_SDF_Cell.cpp
     cl_SDF_Vertex.cpp
     cl_SDF_Core.cpp
-    cl_SDF_Data.cpp
     cl_SDF_Mesh.cpp
     cl_SDF_Generator.cpp
     cl_SDF_Parameters.cpp

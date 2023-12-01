@@ -176,7 +176,7 @@ namespace moris
             this->calculate_candidate_points_and_buffer_diagonal();
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void
         Core::calculate_raycast_and_sdf( Matrix< DDRMat >& aSDF )
@@ -217,12 +217,13 @@ namespace moris
             Tracer tTracer( "SDF", "Compute UDF" );
 
             // get number of triangles
-            uint tNumberOfFacets = mObject.get_num_facets();;
+            uint tNumberOfFacets = mObject.get_num_facets();
+
             // loop over all triangles
             for ( uint k = 0; k < tNumberOfFacets; ++k )
             {
                 // get pointer to triangle
-                Facet* tFacet = mObject.get_facets()( k );
+                Facet* tFacet = mObject.get_facet( k );
 
                 // get nodes within triangle
                 moris::Cell< Vertex* > tNodes;
@@ -242,7 +243,6 @@ namespace moris
                 }
 
             }    // end loop over all triangles
-
         }
 
         //-------------------------------------------------------------------------------

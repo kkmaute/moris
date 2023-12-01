@@ -30,6 +30,10 @@ namespace moris
 {
     namespace sdf
     {
+        const real gSDFepsilon = 1e-8;
+
+        //-------------------------------------------------------------------------------
+
         inline void
         TrianglePermutation( const uint aZ, uint& aX, uint& aY )
         {

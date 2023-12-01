@@ -122,11 +122,11 @@ namespace moris
             }
 
             // enlarge triangle
-            mBarycentric.mLocalNodeCoordsInPlane( 0, 0 ) -= MORIS_REAL_EPS;
-            mBarycentric.mLocalNodeCoordsInPlane( 1, 0 ) -= MORIS_REAL_EPS;
-            mBarycentric.mLocalNodeCoordsInPlane( 0, 1 ) += MORIS_REAL_EPS;
-            mBarycentric.mLocalNodeCoordsInPlane( 1, 1 ) -= MORIS_REAL_EPS;
-            mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) += MORIS_REAL_EPS;
+            mBarycentric.mLocalNodeCoordsInPlane( 0, 0 ) -= gSDFepsilon;
+            mBarycentric.mLocalNodeCoordsInPlane( 1, 0 ) -= gSDFepsilon;
+            mBarycentric.mLocalNodeCoordsInPlane( 0, 1 ) += gSDFepsilon;
+            mBarycentric.mLocalNodeCoordsInPlane( 1, 1 ) -= gSDFepsilon;
+            mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) += gSDFepsilon;
 
             // twice the area
             mBarycentric.mTwiceArea = ( mBarycentric.mLocalNodeCoordsInPlane( 0, 0 )
@@ -140,7 +140,7 @@ namespace moris
 
             
             // warn if the the triangle has a volume close to zero
-            if( mBarycentric.mTwiceArea <= 2 * MORIS_REAL_EPS )
+            if( mBarycentric.mTwiceArea <= 2 * gSDFepsilon )
             {
                 MORIS_LOG_WARNING( 
                         "TRI/TET with ID %i is potentially degenerate and has a volume of V = %e. ",
@@ -199,12 +199,12 @@ namespace moris
                 {
                     TrianglePermutation( r, p, q );
                     real tDelta = mNodeCoords( i, p ) - mNodeCoords( i, q );
-                    if ( std::abs( tDelta ) < MORIS_REAL_EPS )
+                    if ( std::abs( tDelta ) < gSDFepsilon )
                     {
                         if ( tDelta < 0 )
-                            tDelta = -MORIS_REAL_EPS;
+                            tDelta = -gSDFepsilon;
                         else
-                            tDelta = MORIS_REAL_EPS;
+                            tDelta = gSDFepsilon;
                     }
 
                     mPredictYRA( r, k ) = ( mNodeCoords( j, p ) - mNodeCoords( j, q ) ) / tDelta;
@@ -243,12 +243,12 @@ namespace moris
 
             // check if point is within all three projected edges
             return ( ( mPredictY( aEdge, aAxis ) > mNodeCoords( tJ, aEdge ) )
-                           && ( tPredictYR + MORIS_REAL_EPS > aPoint( tJ ) ) )
+                           && ( tPredictYR + gSDFepsilon > aPoint( tJ ) ) )
                 || ( ( mPredictY( aEdge, aAxis ) < mNodeCoords( tJ, aEdge ) )
-                        && ( tPredictYR - MORIS_REAL_EPS < aPoint( tJ ) ) )
+                        && ( tPredictYR - gSDFepsilon < aPoint( tJ ) ) )
                 || ( std::abs( ( mNodeCoords( tJ, tP ) - mNodeCoords( tJ, tQ ) )
                                * ( mNodeCoords( tI, tP ) - aPoint( tI ) ) )
-                        < MORIS_REAL_EPS );
+                        < gSDFepsilon );
         }
 
         //-------------------------------------------------------------------------------
@@ -315,13 +315,13 @@ namespace moris
 
             Matrix< F31RMat > aDirection( 3, 1 );
 
-            if ( tParam < MORIS_REAL_EPS )
+            if ( tParam < gSDFepsilon )
             {
                 // snap to point i and set tParam = 0.0;
                 aDirection( 0 ) = aLocalPoint( 0 ) - mBarycentric.mLocalNodeCoordsInPlane( 0, i );
                 aDirection( 1 ) = aLocalPoint( 1 ) - mBarycentric.mLocalNodeCoordsInPlane( 1, i );
             }
-            else if ( tParam > 1.0 - MORIS_REAL_EPS )
+            else if ( tParam > 1.0 - gSDFepsilon )
             {
                 // snap to point j and set tParam = 1.0;
                 aDirection( 0 ) = aLocalPoint( 0 ) - mBarycentric.mLocalNodeCoordsInPlane( 0, j );
@@ -377,9 +377,9 @@ namespace moris
             Matrix< F31RMat > tXi = this->get_barycentric_from_local_cartesian( tLocalPointCoords );
 
             // step 3: check if we are inside the triangle
-            if ( ( tXi( 0 ) >= -MORIS_REAL_EPS )
-                    && ( tXi( 1 ) >= -MORIS_REAL_EPS )
-                    && ( tXi( 2 ) >= -MORIS_REAL_EPS ) )
+            if ( ( tXi( 0 ) >= -gSDFepsilon )
+                    && ( tXi( 1 ) >= -gSDFepsilon )
+                    && ( tXi( 2 ) >= -gSDFepsilon ) )
             {
                 // the absolute value of the local z-coordinate is the distance
                 return std::abs( tLocalPointCoords( 2 ) );
