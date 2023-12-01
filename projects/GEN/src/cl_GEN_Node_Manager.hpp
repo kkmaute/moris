@@ -32,7 +32,6 @@ namespace moris::ge
       private:
         Cell< Base_Node* > mBaseNodes;
         Cell< Derived_Node* > mDerivedNodes;
-        Cell< Intersection_Node* > mIntersectionNodes;
 
       public:
         /**
@@ -90,21 +89,6 @@ namespace moris::ge
          * @return Derived node
          */
         Derived_Node* get_derived_node( uint aIndex );
-
-        /**
-         * Adds an intersection node to this manager.
-         *
-         * @param aIntersectionNode New derived node
-         */
-        void add_intersection_node( Intersection_Node* aIntersectionNode );
-
-        /**
-         * Gets all the intersection nodes stored in the node manager that depend on ADVs.
-         * Useful for the PDV host manager.
-         *
-         * @return Vector of intersection nodes
-         */
-        const Cell< Intersection_Node* >& get_intersection_nodes();
 
         /**
          * Gets a trivial node manager. This is useful for allowing geometry construction before

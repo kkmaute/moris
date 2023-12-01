@@ -85,24 +85,6 @@ namespace moris::ge
                 "A derived node was requested from the GEN node manager, but the index provided corresponds to a base node." );
         return mDerivedNodes( aIndex - mBaseNodes.size() );
     }
-    
-    //--------------------------------------------------------------------------------------------------------------
-    
-    void Node_Manager::add_intersection_node( Intersection_Node* aIntersectionNode )
-    {
-        // All intersection nodes are derived nodes
-        this->add_derived_node( aIntersectionNode );
-
-        // Add to intersection node list
-        mIntersectionNodes.push_back( aIntersectionNode );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const Cell< Intersection_Node* >& Node_Manager::get_intersection_nodes()
-    {
-        return mIntersectionNodes;
-    }
 
     //--------------------------------------------------------------------------------------------------------------
 

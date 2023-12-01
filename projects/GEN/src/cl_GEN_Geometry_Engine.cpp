@@ -513,7 +513,7 @@ namespace moris
             }
 
             // Add new derived node FIXME rework this
-            mNodeManager.add_intersection_node( mQueuedIntersectionNode.get() );
+            mNodeManager.add_derived_node( mQueuedIntersectionNode.get() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
