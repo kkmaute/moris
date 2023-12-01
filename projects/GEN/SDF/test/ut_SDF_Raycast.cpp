@@ -51,7 +51,6 @@ namespace moris::sdf
                 // create triangle object from object file
                 std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
                 Object         tObject( tObjectPath );
-                Cell< Facet* > tFacets = tObject.get_facets();
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = {
@@ -89,8 +88,8 @@ namespace moris::sdf
                 // check for intersection with facets and ensure they are correct
                 Cell< Facet* > tIntersectedTriangles = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 2 );
                 Cell< Facet* > tIntersectedFacetsExpected( 2 );
-                tIntersectedFacetsExpected( 0 ) = tFacets( 0 );
-                tIntersectedFacetsExpected( 1 ) = tFacets( 3 );
+                tIntersectedFacetsExpected( 0 ) = tObject.get_facet( 0 );
+                tIntersectedFacetsExpected( 1 ) = tObject.get_facet( 3 );
 
                 REQUIRE( tIntersectedTriangles.size() == 2 );
                 CHECK( tIntersectedFacetsExpected( 0 ) == tIntersectedTriangles( 0 ) );
@@ -135,8 +134,8 @@ namespace moris::sdf
                 CHECK( tCandidateTriangles( 2 ) == tCandidatesExpected( 2 ) );
 
                 tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 0 );
-                tIntersectedFacetsExpected( 0 ) = tFacets( 1 );
-                tIntersectedFacetsExpected( 1 ) = tFacets( 2 );
+                tIntersectedFacetsExpected( 0 ) = tObject.get_facet( 1 );
+                tIntersectedFacetsExpected( 1 ) = tObject.get_facet( 2 );
 
                 REQUIRE( tIntersectedTriangles.size() == 2 );
                 CHECK( tIntersectedTriangles( 0 ) == tIntersectedFacetsExpected( 0 ) );
@@ -165,7 +164,6 @@ namespace moris::sdf
                 // create triangle object from object file
                 std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
                 Object         tObject( tObjectPath );
-                Cell< Facet* > tFacets = tObject.get_facets();
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
@@ -175,7 +173,7 @@ namespace moris::sdf
                 Cell< Facet* > tCandidateLines;
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
                 uint   tIntersectedLinesExpected = 1;
-                Facet* tCandidateLinesExpected   = tFacets( 2 );
+                Facet* tCandidateLinesExpected   = tObject.get_facet( 2 );
 
                 REQUIRE( tIntersectedLines.size() == 1 );
                 REQUIRE( tCandidateLines.size() == 1 );
@@ -213,7 +211,7 @@ namespace moris::sdf
                 tTestPoint = { { -.25 }, { 0.2 } };
 
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
-                tCandidateLinesExpected = tFacets( 1 );
+                tCandidateLinesExpected = tObject.get_facet( 1 );
 
                 REQUIRE( tCandidateLines.size() == 1 );
                 REQUIRE( tIntersectedLines.size() == 0 );
@@ -239,7 +237,6 @@ namespace moris::sdf
                 // create triangle object from object file
                 std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
                 Object         tObject( tObjectPath );
-                Cell< Facet* > tFacets = tObject.get_facets();
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = {
@@ -248,14 +245,23 @@ namespace moris::sdf
                     { 0.7 }
                 };
 
-                
+                // TODO: expected results
+                moris::Cell< real > tLineDistanceXExpected = { -0.2, 0.2 };
+                moris::Cell< real > tLineDistanceYExpected = { -0.25, 0.25 };
+                moris::Cell< real > tLineDistanceZExpected = { 0.0, 0.0 };
+
+                // compute with raycast function
+                moris::Cell< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
+                moris::Cell< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
+                moris::Cell< real > tLineDistanceZ = compute_distance_to_facets( tObject, tTestPoint, 2 );
+
+                // TODO: compare
             }
             SECTION( "SDF: Compute distance to facets test - 2D" )
             {
                 // create triangle object from object file
                 std::string    tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
                 Object         tObject( tObjectPath );
-                Cell< Facet* > tFacets = tObject.get_facets();
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
