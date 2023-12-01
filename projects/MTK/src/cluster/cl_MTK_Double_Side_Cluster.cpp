@@ -35,12 +35,6 @@ namespace moris
                 : mLeaderSideCluster( aLeaderSideCluster )
                 , mFollowerSideCluster( aFollowerSideCluster )
         {
-            // This check prohibits the construction of double side interfaces between child meshes therefore it is being removed.
-            // if(!this->is_leader_trivial())
-            // {
-            // MORIS_ASSERT(this->get_leader_num_vertices_in_cluster() == this->get_follower_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
-            // }
-
             mLeaderToFollowerVertexPairs.append( aLeftToRightVertexPair );
         }
 
@@ -436,7 +430,7 @@ namespace moris
 
             }    // end switch: Leader_Follower enum
 
-        }        // end function: Double_Side_Cluster::get_vertex_indices_in_cluster()
+        }    // end function: Double_Side_Cluster::get_vertex_indices_in_cluster()
 
 
         //----------------------------------------------------------------------------------

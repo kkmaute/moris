@@ -60,8 +60,6 @@ namespace xtk
         ~Cell_Cluster();
         bool                                          is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
         bool                                          is_full() const;
-        bool                                          is_void() const;
-        bool                                          is_invalid() const;
         moris::Cell< moris::mtk::Cell const* > const& get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
         moris::Cell< moris::mtk::Cell const* > const& get_void_cells_in_cluster() const;
         moris::mtk::Cell const&                       get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;

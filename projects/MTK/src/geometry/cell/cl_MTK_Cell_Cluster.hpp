@@ -25,71 +25,42 @@ namespace moris
         class Cell_Cluster : public Cluster
         {
           public:
-            //------------------------------------------------------------------------------
-
             Cell_Cluster(){};
 
-            //------------------------------------------------------------------------------
 
             virtual ~Cell_Cluster(){};
 
-            //------------------------------------------------------------------------------
 
             // ##############################################
             //  Characteristic functions
             // ##############################################
 
-            //------------------------------------------------------------------------------
 
             virtual bool
             is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
-            //------------------------------------------------------------------------------
-
-            virtual bool
-            is_void() const
-            {
-                MORIS_ERROR( false, "Cell_Cluster::is_void() - not implemented in base class" );
-                return false;
-            }
-
-            //------------------------------------------------------------------------------
-
-            virtual bool
-            is_invalid() const
-            {
-                MORIS_ERROR( false, "Cell_Cluster::is_invalid() - not implemented in base class" );
-                return false;
-            }
-
-            //------------------------------------------------------------------------------
 
             // ##############################################
             //  Cell/Vertex Access
             //  (Pure Virtual)
             // ##############################################
 
-            //------------------------------------------------------------------------------
 
             virtual moris::Cell< moris::mtk::Cell const * > const &
             get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
-            //------------------------------------------------------------------------------
 
             virtual moris::Cell< moris::mtk::Cell const * > const &
             get_void_cells_in_cluster() const = 0;
 
-            //------------------------------------------------------------------------------
 
             virtual moris::mtk::Cell const &
             get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
-            //------------------------------------------------------------------------------
 
             virtual moris::Cell< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
-            //------------------------------------------------------------------------------
 
             virtual void
             set_interpolation_cell( moris::mtk::Cell const *aInterpCell )
@@ -97,7 +68,6 @@ namespace moris
                 MORIS_ERROR( false, "set_interpolation_cell(), not implemented for this class" );
             };
 
-            //------------------------------------------------------------------------------
 
             virtual void
             add_primary_integration_cell( moris::Cell< moris::mtk::Cell const * > const &aIntegrationCell )
@@ -105,7 +75,6 @@ namespace moris
                 MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
             };
 
-            //------------------------------------------------------------------------------
 
             virtual void
             add_void_integration_cell( moris::Cell< moris::mtk::Cell const * > const &aIntegrationCell )
@@ -113,7 +82,6 @@ namespace moris
                 MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
             };
 
-            //------------------------------------------------------------------------------
 
             virtual void
             mark_as_nontrivial()
@@ -121,7 +89,6 @@ namespace moris
                 MORIS_ERROR( false, "mark_as_nontrivial(), not implemented for this class" );
             };
 
-            //------------------------------------------------------------------------------
 
             // ##############################################
             //  Local Coordinate Access
@@ -131,7 +98,6 @@ namespace moris
             virtual moris::Matrix< moris::DDRMat >
             get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
-            //------------------------------------------------------------------------------
 
             /*
              * Access a single local coordinate of a vertex
@@ -141,14 +107,12 @@ namespace moris
                     moris::mtk::Vertex const  *aVertex,
                     const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
-            //------------------------------------------------------------------------------
 
             // ##############################################
             //  Size Access
             //  (Pure Virtual)
             // ##############################################
 
-            //------------------------------------------------------------------------------
 
             /*!
              * Size of the xsi vector in this side cluster
@@ -156,7 +120,6 @@ namespace moris
             virtual moris_index
             get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
-            //------------------------------------------------------------------------------
 
             // ---------------------------------------------
             // EVERYTHING BELOW THIS LINE HAS A DEFAULT
@@ -167,7 +130,6 @@ namespace moris
             //  Cell/Vertex Index Access
             // ##############################################
 
-            //------------------------------------------------------------------------------
 
             virtual moris::Matrix< moris::IndexMat >
             get_primary_cell_indices_in_cluster() const
@@ -190,7 +152,6 @@ namespace moris
                 return tCellIndices;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::Matrix< moris::IndexMat >
             get_void_cell_indices_in_cluster() const
@@ -243,7 +204,6 @@ namespace moris
                 MORIS_ERROR( false, "mtk::Cell_Cluster::set_cluster_group() - only implemented for child xtk::Cell_Cluster" );
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_cell_measure(
@@ -271,7 +231,6 @@ namespace moris
                 return tVolume;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_measure(
@@ -283,7 +242,6 @@ namespace moris
                 return 0.0;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual Matrix< DDRMat >
             compute_cluster_ig_cell_measures(
@@ -311,7 +269,6 @@ namespace moris
                 return tMeasureVec;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_cell_measure_derivative(
@@ -377,7 +334,6 @@ namespace moris
                 return tDerivative;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_measure_derivative(
@@ -391,7 +347,6 @@ namespace moris
                 return 0.0;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_cell_side_measure(
@@ -402,7 +357,6 @@ namespace moris
                 return 0;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_side_measure(
@@ -414,7 +368,6 @@ namespace moris
                 return 0.0;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual Matrix< DDRMat >
             compute_cluster_ig_cell_side_measures(
@@ -425,7 +378,6 @@ namespace moris
                 return { { 0 } };
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_cell_side_measure_derivative(
@@ -438,7 +390,6 @@ namespace moris
                 return 0;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_side_measure_derivative(
@@ -452,7 +403,6 @@ namespace moris
                 return 0.0;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::moris_index
             get_interpolation_cell_index() const
@@ -460,7 +410,6 @@ namespace moris
                 return get_interpolation_cell().get_index();
             }
 
-            //------------------------------------------------------------------------------
             // test
             virtual moris::Matrix< moris::IndexMat >
             get_vertex_indices_in_cluster( mtk::Leader_Follower aLeaderFollower = mtk::Leader_Follower::LEADER ) const
@@ -483,13 +432,11 @@ namespace moris
                 return tVertexIndices;
             }
 
-            //------------------------------------------------------------------------------
 
             // ##############################################
             //  Cell/Vertex Id Access
             // ##############################################
 
-            //------------------------------------------------------------------------------
 
             virtual moris::Matrix< moris::IdMat >
             get_primary_cell_ids_in_cluster() const
@@ -512,7 +459,6 @@ namespace moris
                 return tCellIds;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::Matrix< moris::IdMat >
             get_void_cell_ids_in_cluster() const
@@ -537,7 +483,6 @@ namespace moris
                 return tCellIds;
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::moris_id
             get_interpolation_cell_id() const
@@ -545,7 +490,6 @@ namespace moris
                 return get_interpolation_cell().get_id();
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::Matrix< moris::IdMat >
             get_vertex_ids_in_cluster() const
@@ -568,13 +512,11 @@ namespace moris
                 return tVertexIds;
             }
 
-            //------------------------------------------------------------------------------
 
             // ##############################################
             //  Local Coordinate access
             // ##############################################
 
-            //------------------------------------------------------------------------------
 
             /*!
              * Access a primary integration cells parametric coordinates relative to the interpolation cell
@@ -604,7 +546,6 @@ namespace moris
                 return tVertexParamCoords;
             }
 
-            //------------------------------------------------------------------------------
 
             /*!
              * Access a void integration cells parametric coordinates relative to the interpolation cell
@@ -637,13 +578,11 @@ namespace moris
                 return tVertexParamCoords;
             }
 
-            //------------------------------------------------------------------------------
 
             // ##############################################
             //  Size Access
             // ##############################################
 
-            //------------------------------------------------------------------------------
 
             virtual moris::uint
             get_num_primary_cells() const
@@ -651,7 +590,6 @@ namespace moris
                 return this->get_primary_cells_in_cluster().size();
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::uint
             get_num_void_cells() const
@@ -659,7 +597,6 @@ namespace moris
                 return this->get_void_cells_in_cluster().size();
             }
 
-            //------------------------------------------------------------------------------
 
             virtual moris::uint
             get_num_vertices_in_cluster() const
@@ -667,11 +604,9 @@ namespace moris
                 return this->get_vertices_in_cluster().size();
             }
 
-            //------------------------------------------------------------------------------
 
         };    // class mtk::Cell_Cluster
 
-        //------------------------------------------------------------------------------
 
     }    // namespace mtk
 }    // namespace moris
