@@ -41,12 +41,13 @@ namespace moris::ge
 
     class Design_Field
     {
-      private:
+      protected:
         std::shared_ptr< Field > mField;
+
+      private:
         Field_Parameters         mParameters;
 
       public:
-
         /**
          * Constructor taking in a field pointer and a set of parameters.
          *
@@ -114,13 +115,6 @@ namespace moris::ge
         Matrix< DDSMat > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates );
-
-        /**
-         * Returns if this design object has sensitivities, based on its ADV information.
-         *
-         * @return if this field depends on ADVs
-         */
-        bool depends_on_advs();
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.

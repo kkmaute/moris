@@ -39,6 +39,7 @@ namespace moris::ge
             Cell< std::shared_ptr< Field > > aFieldDependencies,
             std::shared_ptr< Library_IO >    aLibrary,
             mtk::Mesh*                       aMTKMesh,
+            Node_Manager&                    aNodeManager,
             uint                             aIndex )
     {
         // Field type
@@ -248,6 +249,9 @@ namespace moris::ge
             MORIS_ERROR( false, "%s is not recognized as a valid field type in fn_GEN_create_field().", tFieldType.c_str() );
             tField = nullptr;
         }
+
+        // Set node manager
+        tField->set_node_manager( aNodeManager );
 
         // Check for definition of array parameters
         if ( aFieldParameterList.exists( "number_of_fields_x" ) )

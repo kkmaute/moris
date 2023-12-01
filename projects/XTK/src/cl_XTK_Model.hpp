@@ -659,11 +659,6 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-        void
-        create_new_node_association_with_geometry( Decomposition_Data& tDecompData );
-
-        //------------------------------------------------------------------------------
-
         /**
          * Verifies that the nodes in a decomposition have all been assigned node ids
          */

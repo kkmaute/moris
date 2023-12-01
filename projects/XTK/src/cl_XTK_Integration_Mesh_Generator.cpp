@@ -831,11 +831,16 @@ namespace xtk
 
             for ( moris::uint iVert = 0; iVert < tVertices.size(); iVert++ )
             {
-                if ( !mGeometryEngine->is_interface_vertex( tVertices( iVert )->get_index(), iGeom ) )
+                ge::Geometric_Region tRegion = mGeometryEngine->get_geometric_region( iGeom, tVertices( iVert )->get_index(), tVertices( iVert )->get_coords() );
+                if ( tRegion == ge::Geometric_Region::NEGATIVE )
                 {
-                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertices( iVert )->get_index(), iGeom );
                     tFoundNonInterfaceNode  = true;
-                    tPhaseVotes( tPhaseIndex )++;
+                    tPhaseVotes( 0 )++;
+                }
+                else if ( tRegion == ge::Geometric_Region::POSITIVE )
+                {
+                    tFoundNonInterfaceNode  = true;
+                    tPhaseVotes( 1 )++;
                 }
             }    // end: loop over all vertices on IG cell
 
@@ -884,12 +889,16 @@ namespace xtk
             for ( moris::uint iVert = 0; iVert < tVertices.size(); iVert++ )
             {
                 uint tVertexIndex = tVertices( iVert )->get_index();
-
-                if ( !mGeometryEngine->is_interface_vertex( tVertexIndex, iGeom ) )
+                ge::Geometric_Region tRegion = mGeometryEngine->get_geometric_region( iGeom, tVertexIndex, tVertices( iVert )->get_coords() );
+                if ( tRegion == ge::Geometric_Region::NEGATIVE )
                 {
-                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertexIndex, iGeom );
                     tFoundNonInterfaceNode  = true;
-                    tPhaseVotes( tPhaseIndex )++;
+                    tPhaseVotes( 0 )++;
+                }
+                else if ( tRegion == ge::Geometric_Region::POSITIVE )
+                {
+                    tFoundNonInterfaceNode  = true;
+                    tPhaseVotes( 1 )++;
                 }
             }    // end: loop over all vertices on IG cell
 
@@ -1104,7 +1113,7 @@ namespace xtk
     //                 moris::mtk::Vertex* tVertex = aFacetConnectivity->mFacetVertices( iFacet )( iVert );
     //
     //                 // determine whether the Level-Set is zero at the vertex within snapping tolerance
-    //                 if ( !mGeometryEngine->is_interface_vertex( tVertex->get_index(), tGeomIndex ) )
+    //                 if ( !mGeometryEngine->get_geometric_region( tVertex->get_index(), tGeomIndex ) )
     //                 {
     //                     // if any of the vertices on the facet is not on the interface, mark the whole facet to not be an interface and ...
     //                     tIsInterfaceFacet = false;
@@ -3741,11 +3750,10 @@ namespace xtk
         if ( aDecompAlg->has_geometric_independent_vertices() )
         {
             // pass the data in decomposition data to the geometry engine so it can keep track of these newly constructed vertices
-            mGeometryEngine->create_new_child_nodes(
-                    &aDecompositionData->tNewNodeIndex,
-                    &aDecompositionData->mNewNodeParentCells,
-                    &aDecompositionData->mNewVertexLocalCoordWRTParentCell,
-                    &aDecompositionData->tNewNodeCoordinate );
+            mGeometryEngine->create_new_derived_nodes(
+                    aDecompositionData->tNewNodeIndex,
+                    aDecompositionData->mNewNodeParentCells,
+                    aDecompositionData->mNewVertexLocalCoordWRTParentCell );
         }
     }
 

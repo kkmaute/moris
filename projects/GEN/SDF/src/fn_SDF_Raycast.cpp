@@ -257,6 +257,12 @@ namespace moris::sdf
                 tSecondAxis = 0;
                 break;
             }
+            default:
+            {
+                tFirstAxis = 0;
+                tSecondAxis = 0;
+                MORIS_ERROR( false, "Raycasting axis must be given an index 0, 1, or 2. Given: %d", aAxis );
+            }
         }
 
         uint         tCountJ = 0;

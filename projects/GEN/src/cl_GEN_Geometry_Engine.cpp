@@ -15,10 +15,11 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "GEN_Data_Types.hpp"
 #include "cl_GEN_Design_Factory.hpp"
-#include "cl_GEN_Interpolation.hpp"
+#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Child_Node.hpp"
-#include "cl_GEN_Intersection_Node_Linear.hpp"
-#include "cl_GEN_Intersection_Node_Bilinear.hpp"
+#include "cl_GEN_Parent_Base_Node.hpp"
+#include "cl_GEN_Parent_Derived_Node.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Factory.hpp"
@@ -46,6 +47,7 @@ namespace moris
                 std::shared_ptr< Library_IO > aLibrary,
                 mtk::Mesh*                    aMesh )
                 : mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
+                , mNodeManager( aMesh )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
@@ -90,7 +92,7 @@ namespace moris
             {
                 aParameterLists( 1 ).append( aParameterLists( iParameterIndex ) );
             }
-            Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, aLibrary, aMesh );
+            Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, aLibrary, aMesh, mNodeManager );
 
             // Get geometries and properties from the factory
             mGeometries = tDesignFactory.get_geometries();
@@ -141,6 +143,7 @@ namespace moris
                 , mPhaseTable( create_phase_table( aParameters.mGeometries.size(), aParameters.mBulkPhases ) )
                 , mInitialPrimitiveADVs( aParameters.mADVs )
                 , mTimeOffset( aParameters.mTimeOffset )
+                , mNodeManager( aMesh )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
@@ -398,25 +401,67 @@ namespace moris
         Geometry_Engine::queue_intersection(
                 uint                            aEdgeFirstNodeIndex,
                 uint                            aEdgeSecondNodeIndex,
-                const Matrix< DDRMat >&         aEdgeFirstNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aEdgeSecondNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
+                const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
                 const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
                 const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
                 const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
                 const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
         {
-            // Create intersection node
+            // If previous intersection node was not admitted, this will delete it
+            delete mQueuedIntersectionNode;
+
+            // Get base cell geometry type
+            mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
+            if ( aBackgroundElementNodeIndices.length() == 4 )
+            {
+                tGeometryType = mtk::Geometry_Type::QUAD;
+            }
+            else
+            {
+                tGeometryType = mtk::Geometry_Type::HEX;
+            }
+
+            // Get base nodes
+            Cell< Node* > tBaseNodes( aBackgroundElementNodeIndices.length() );
+            for ( uint iNode = 0; iNode < tBaseNodes.size(); iNode++ )
+            {
+                tBaseNodes( iNode ) = mNodeManager.get_base_node( aBackgroundElementNodeIndices( iNode ) );
+            }
+
+            // Create first parent node
+            Parent_Node* tFirstParentNode;
+            if ( aEdgeFirstNodeIndex < mNodeManager.get_number_of_base_nodes() )
+            {
+                tFirstParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
+            }
+            else
+            {
+                tFirstParentNode = new Parent_Derived_Node( mNodeManager.get_derived_node( aEdgeFirstNodeIndex ) );
+            }
+
+            // Create second parent node
+            Parent_Node* tSecondParentNode;
+            if ( aEdgeSecondNodeIndex < mNodeManager.get_number_of_base_nodes() )
+            {
+                tSecondParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
+            }
+            else
+            {
+                tSecondParentNode = new Parent_Derived_Node( mNodeManager.get_derived_node( aEdgeSecondNodeIndex ) );
+            }
+
+            // Have the active geometry create a new intersection node
             mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node(
-                    aEdgeFirstNodeIndex,
-                    aEdgeSecondNodeIndex,
-                    mPDVHostManager.get_intersection_node( aEdgeFirstNodeIndex ),
-                    mPDVHostManager.get_intersection_node( aEdgeSecondNodeIndex ),
-                    aEdgeFirstNodeLocalCoordinates,
-                    aEdgeSecondNodeLocalCoordinates,
-                    aEdgeFirstNodeGlobalCoordinates,
-                    aEdgeSecondNodeGlobalCoordinates,
-                    aBackgroundElementNodeIndices,
-                    aBackgroundElementNodeCoordinates );
+                    mNodeManager.get_total_number_of_nodes(),
+                    tBaseNodes,
+                    *tFirstParentNode,
+                    *tSecondParentNode,
+                    tGeometryType );
+
+            // Clean up
+            delete tFirstParentNode;
+            delete tSecondParentNode;
 
             // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();
@@ -427,7 +472,7 @@ namespace moris
         bool
         Geometry_Engine::queued_intersection_first_parent_on_interface()
         {
-            return mQueuedIntersectionNode->first_parent_on_interface();
+            return mQueuedIntersectionNode->is_first_parent_on_interface();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -435,7 +480,7 @@ namespace moris
         bool
         Geometry_Engine::queued_intersection_second_parent_on_interface()
         {
-            return mQueuedIntersectionNode->second_parent_on_interface();
+            return mQueuedIntersectionNode->is_second_parent_on_interface();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -456,36 +501,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        // FIXME node index is unnecessary, as an intersection node stores its own index now.
         void
         Geometry_Engine::admit_queued_intersection( uint aNodeIndex )
         {
-            // get parent indices
-            moris_index tFirstParentIndex  = mQueuedIntersectionNode->get_first_parent_node_index();
-            moris_index tSecondParentIndex = mQueuedIntersectionNode->get_second_parent_node_index();
-
-            // check if parent nodes are PDVs, i.e. are defined directly or indirectly on variable geometry
-            bool tFirstParentIsPDV  = mPDVHostManager.get_intersection_node( tFirstParentIndex ) != nullptr;
-            bool tSecondParentIsPDV = mPDVHostManager.get_intersection_node( tSecondParentIndex ) != nullptr;
-
             // Assign as PDV host if constructed on adv dependent geometry or parent nodes are adv dependent
-            if ( mGeometries( mActiveGeometryIndex )->depends_on_advs() || tFirstParentIsPDV || tSecondParentIsPDV )
+            if ( mQueuedIntersectionNode->depends_on_advs() )
             {
-                mPDVHostManager.set_intersection_node( aNodeIndex, mQueuedIntersectionNode );
+                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode->get_index(), mQueuedIntersectionNode );
             }
             else
             {
-                mPDVHostManager.set_intersection_node( aNodeIndex, nullptr );
+                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode->get_index(), nullptr );
             }
 
-            // Assign as child node
-            for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-            {
-                // tGeomProx.set_geometric_proximity();
-                mGeometries( tGeometryIndex )->add_child_node( aNodeIndex, mQueuedIntersectionNode );
-            }
+            // Add new derived node to the node manager
+            mNodeManager.add_derived_node( mQueuedIntersectionNode );
 
-            // admit the queued intersection geometric proximity
-            this->admit_queued_intersection_geometric_proximity( aNodeIndex );
+            // Set to nullptr to let the geometry engine know it was admitted
+            mQueuedIntersectionNode = nullptr;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -502,113 +536,65 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Geometry_Engine::create_new_child_nodes(
-                const Cell< moris_index >*                   aNewNodeIndices,
-                Cell< moris::mtk::Cell* >*                   aNewNodeParentCell,
-                Cell< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
-                Cell< Matrix< DDRMat > >*                    aNodeCoordinates )
+        Geometry_Engine::create_new_derived_nodes(
+                const Cell< moris_index >&                         aNewNodeIndices,
+                Cell< mtk::Cell* >&                                aNewNodeParentCell,
+                const Cell< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates )
         {
-            // Tracer
-            Tracer tTracer( "GEN", "Create new child nodes" );
+            // Get number of new nodes
+            uint tNumberOfNewDerivedNodes = aNewNodeIndices.size();
 
-            // resize proximities
-            mVertexGeometricProximity.resize(
-                    mVertexGeometricProximity.size() + aNewNodeIndices->size(),
-                    Geometric_Proximity( mGeometries.size() ) );
-
-            // Loop over nodes
-            for ( uint tNode = 0; tNode < aNewNodeIndices->size(); tNode++ )
+            // Get vertex indices from parent cell and change parametric coordinate type
+            Cell< Matrix< IndexMat > > tVertexIndices( tNumberOfNewDerivedNodes );
+            Cell< Matrix< DDRMat > > tParametricCoordinates( tNumberOfNewDerivedNodes );
+            for ( uint iCellIndex = 0; iCellIndex < tNumberOfNewDerivedNodes; iCellIndex++ )
             {
-                std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
-                        ( *aNewNodeParentCell )( tNode ),
-                        ( *aParamCoordRelativeToParent )( tNode ).get(),
-                        this->mEvaluateNewChildNodeAsLinear );
-
-                mVertexGeometricProximity( ( *aNewNodeIndices )( tNode ) ).mAssociatedVertexIndex = ( *aNewNodeIndices )( tNode );
-
-                Matrix< DDRMat > const & tCoord = ( *aNodeCoordinates )( tNode );
-
-                // Assign to geometries
-                for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-                {
-                    mGeometries( tGeometryIndex )->add_child_node( ( *aNewNodeIndices )( tNode ), tChildNode );
-
-                    // FIXME: need to get value from child element based on element interpolation
-                    real tVertGeomVal = mGeometries( tGeometryIndex )->get_field_value( ( *aNewNodeIndices )( tNode ), tCoord );
-
-                    moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
-
-                    mVertexGeometricProximity( ( *aNewNodeIndices )( tNode ) ).set_geometric_proximity( tGeomProxIndex, tGeometryIndex );
-                }
+                tVertexIndices( iCellIndex ) = aNewNodeParentCell( iCellIndex )->get_vertex_inds();
+                tParametricCoordinates( iCellIndex ) = *aParametricCoordinates( iCellIndex );
             }
 
-            // Set max node index
-            if ( aNewNodeIndices->size() > 0 )
-            {
-                mPDVHostManager.set_num_background_nodes( ( *aNewNodeIndices )( aNewNodeIndices->size() - 1 ) + 1 );
-            }
+            // Call overloaded function
+            this->create_new_derived_nodes( aNewNodeIndices, tVertexIndices, tParametricCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Geometry_Engine::create_new_child_nodes(
-                const Cell< moris_index >&               aNewNodeIndices,
-                const Cell< Element_Interpolation_Type >& aParentIntersectionType,
-                const Cell< Matrix< IndexMat > >&        tVertexIndices,
-                const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
-                const Matrix< DDRMat >&                  aGlobalNodeCoord )
+        Geometry_Engine::create_new_derived_nodes(
+                const Cell< moris_index >&        aNewNodeIndices,
+                const Cell< Matrix< IndexMat > >& tVertexIndices,
+                const Cell< Matrix< DDRMat > >&   aParametricCoordinates )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create new child nodes" );
 
-            // get current geometries level set info
-            real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
-            real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
-
-            // resize proximities
-            mVertexGeometricProximity.resize(
-                    mVertexGeometricProximity.size() + aNewNodeIndices.size(),
-                    Geometric_Proximity( mGeometries.size() ) );
-
             // Loop over nodes
-            for ( uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++ )
+            for ( uint iNode = 0; iNode < aNewNodeIndices.size(); iNode++ )
             {
-                Matrix< DDUMat >         tParentNodeIndices( tVertexIndices( tNode ).numel(), 1 );
-                Cell< Matrix< DDRMat > > tParentNodeCoordinates( tParentNodeIndices.length() );
-
-                for ( uint tParentNode = 0; tParentNode < tParentNodeIndices.length(); tParentNode++ )
+                // Get base cell geometry type
+                mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
+                if ( tVertexIndices( iNode ).length() == 4 )
                 {
-                    tParentNodeIndices( tParentNode )     = tVertexIndices( tNode )( tParentNode );
-                    tParentNodeCoordinates( tParentNode ) = aGlobalNodeCoord.get_row( tParentNodeIndices( tParentNode ) );
+                    tGeometryType = mtk::Geometry_Type::QUAD;
+                }
+                else
+                {
+                    tGeometryType = mtk::Geometry_Type::HEX;
                 }
 
-                std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
-                        tParentNodeIndices,
-                        tParentNodeCoordinates,
-                        aParentIntersectionType( tNode ),
-                        aParamCoordRelativeToParent( tNode ) );
-
-                mVertexGeometricProximity( aNewNodeIndices( tNode ) ).mAssociatedVertexIndex = aNewNodeIndices( tNode );
-
-                Matrix< DDRMat > tCoord = aGlobalNodeCoord.get_row( aNewNodeIndices( tNode ) );
-
-                // Assign to geometries
-                for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
+                // Create basis nodes
+                Cell< Node* > tBaseNodes( tVertexIndices( iNode ).length() );
+                for ( uint iBaseNode = 0; iBaseNode < tVertexIndices( iNode ).length(); iBaseNode++ )
                 {
-                    mGeometries( tGeometryIndex )->add_child_node( aNewNodeIndices( tNode ), tChildNode );
-
-                    real tVertGeomVal = mGeometries( tGeometryIndex )->get_field_value( aNewNodeIndices( tNode ), tCoord );
-
-                    moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
-
-                    if ( std::abs( tVertGeomVal - tIsocontourThreshold ) < tIsocontourTolerance )
-                    {
-                        tGeomProxIndex = 1;
-                    }
-
-                    mVertexGeometricProximity( aNewNodeIndices( tNode ) ).set_geometric_proximity( tGeomProxIndex, tGeometryIndex );
+                    tBaseNodes( iBaseNode ) = mNodeManager.get_base_node( tVertexIndices( iNode )( iBaseNode ) );
                 }
+
+                // Create new derived node
+                mNodeManager.add_derived_node( new Derived_Node(
+                        aNewNodeIndices( iNode ),
+                        tBaseNodes,
+                        aParametricCoordinates( iNode ),
+                        tGeometryType ) );
             }
 
             // Set max node index
@@ -631,33 +617,29 @@ namespace moris
         size_t
         Geometry_Engine::get_phase_index(
                 moris_index             aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates )
+                const Matrix< DDRMat >& aNodeCoordinates )
         {
             // Initialize bitset of geometry signs
             Geometry_Bitset tGeometrySigns( 0 );
 
             // Flip bits as needed
-            for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
+            for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
             {
-                moris_index tProxIndex = mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( (moris_index)tGeometryIndex );
-                tGeometrySigns.set( tGeometryIndex, tProxIndex == 2 );
+                Geometric_Region tGeometricRegion = mGeometries( iGeometryIndex )->get_geometric_region( aNodeIndex, aNodeCoordinates );
+                tGeometrySigns.set( iGeometryIndex, tGeometricRegion == Geometric_Region::POSITIVE );
             }
 
             return mPhaseTable.get_phase_index( tGeometrySigns );
         }
 
-        moris_index
-        Geometry_Engine::is_interface_vertex( moris_index aNodeIndex,
-                moris_index                               aGeometryIndex )
+        //--------------------------------------------------------------------------------------------------------------
+
+        Geometric_Region Geometry_Engine::get_geometric_region(
+                uint                    aGeometryIndex,
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aNodeCoordinates )
         {
-            moris_index tProxIndex = mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( (moris_index)aGeometryIndex );
-
-            if ( tProxIndex == 1 )
-            {
-                return true;
-            }
-
-            return false;
+            return mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndex, aNodeCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -673,25 +655,6 @@ namespace moris
             }
 
             return mPhaseTable.get_phase_index( tGeometrySigns );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        size_t
-        Geometry_Engine::get_node_phase_index_wrt_a_geometry(
-                uint aNodeIndex,
-                uint aGeometryIndex )
-        {
-            moris_index tProxIndex = mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( aGeometryIndex );
-
-            size_t tPhaseOnOff = 0;
-
-            if ( tProxIndex == 2 )
-            {
-                tPhaseOnOff = 1;
-            }
-
-            return tPhaseOnOff;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -926,17 +889,15 @@ namespace moris
                 }
                 for ( moris::uint iGeom = 0; iGeom < this->get_num_geometries(); iGeom++ )
                 {
-                    // 0 - G(x) < threshold
-                    // 1 - G(x) == threshold
-                    // 2 - G(x) > threshold
+                    // Get geometric region
+                    Geometric_Region tGeometricRegion = mGeometries( iGeom )->get_geometric_region( tVertex.get_index(), tVertex.get_coords() );
 
-                    moris_index tGeomProx = mVertexGeometricProximity( tVertex.get_index() ).get_geometric_proximity( iGeom );
-
-                    if ( tGeomProx == 0 )
+                    // Add to string stream based on region
+                    if ( tGeometricRegion == Geometric_Region::NEGATIVE )
                     {
                         tStringStream << "-";
                     }
-                    else if ( tGeomProx == 1 )
+                    else if ( tGeometricRegion == Geometric_Region::INTERFACE )
                     {
                         tStringStream << "=";
                     }
@@ -946,7 +907,6 @@ namespace moris
                     }
                     if ( iGeom != this->get_num_geometries() - 1 )
                     {
-
                         tStringStream << ",";
                     }
                 }
@@ -990,15 +950,6 @@ namespace moris
         {
             MORIS_ASSERT( mDiagnostics, "Only callable with diagnostics on" );
             return mDiagnosticPath + "/id_" + mDiagnosticId + "_p_" + std::to_string( moris::par_rank() ) + "_" + aLabel + ".diag";
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void
-        Geometry_Engine::induce_as_interface_vertex_on_active_geometry( moris_index aVertexIndex )
-        {
-            // to do this I change the geometric proximity to = for the given vertex
-            mVertexGeometricProximity( aVertexIndex ).set_geometric_proximity( 1, this->get_active_geometry_index() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1057,7 +1008,7 @@ namespace moris
             std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
             std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
 
-            // Interpolation mesh
+            // Get interpolation mesh
             mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
 
             //------------------------------------//
@@ -1086,14 +1037,6 @@ namespace moris
             Cell< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
             Matrix< DDUMat >         tAllOffsetIDs( tFields.size(), 1 );
 
-            // Get all node indices from the mesh (for now)
-            uint             tNumNodes = tMesh->get_num_nodes();
-            Matrix< DDUMat > tNodeIndices( tNumNodes, 1 );
-            for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
-            {
-                tNodeIndices( tNodeIndex ) = tNodeIndex;
-            }
-
             moris::Cell< uint > tNumCoeff( tFields.size() );
             // Loop over all geometries to get number of new ADVs
             sint tOffsetID = tPrimitiveADVIds.length();
@@ -1112,7 +1055,7 @@ namespace moris
                     Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
                     Matrix< IdMat >    tAllCoefijklIDs( tMaxNumberOfCoefficients, 1, gNoID );
 
-                    for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
+                    for ( uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++ )
                     {
                         // check whether node has an underlying discretization on this processor
                         bool tNodeHasDiscretization =
@@ -1384,6 +1327,16 @@ namespace moris
                 }
             }
 
+            // Register node manager with each geometry/property TODO figure out a better way to do this; have node manager automatically copy over when discretizing?
+            for ( const auto& iGeometry : mGeometries )
+            {
+                iGeometry->set_node_manager( mNodeManager );
+            }
+            for ( const auto& iProperty : mProperties )
+            {
+                iProperty->set_node_manager( mNodeManager );
+            }
+
             // Update dependencies
             std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
             std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
@@ -1526,6 +1479,9 @@ namespace moris
             // Register spatial dimension
             mNumSpatialDimensions = aMesh->get_spatial_dim();
 
+            // Set GEN nodes
+            mNodeManager.reset_base_nodes( aMesh );
+
             // Reset PDV host manager
             mPDVHostManager.reset();
             mPDVHostManager.set_num_background_nodes( aMesh->get_num_nodes() );
@@ -1540,9 +1496,6 @@ namespace moris
             {
                 mProperties( tPropertyIndex )->reset_nodal_data();
             }
-
-            // Allocate proximity data
-            this->setup_initial_geometric_proximities( aMesh );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -2146,216 +2099,6 @@ namespace moris
             // Set PDV types
             mPDVHostManager.set_integration_pdv_types( tPdvTypes );
             mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePdvs );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void
-        Geometry_Engine::setup_initial_geometric_proximities( mtk::Interpolation_Mesh* aMesh )
-        {
-            // Tracer
-            Tracer tTracer( "GEN", "Setup initial geometric proximities" );
-
-            mVertexGeometricProximity =
-                    Cell< Geometric_Proximity >( aMesh->get_num_nodes(), Geometric_Proximity( mGeometries.size() ) );
-
-            // iterate through vertices then geometries
-            for ( uint iV = 0; iV < aMesh->get_num_nodes(); iV++ )
-            {
-                Matrix< DDRMat > tCoords = aMesh->get_node_coordinate( moris_index( iV ) );
-
-                mVertexGeometricProximity( iV ).mAssociatedVertexIndex = (moris_index)iV;
-
-                for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
-                {
-                    real tVertGeomVal = mGeometries( iGeometryIndex )->get_field_value( iV, tCoords );
-
-                    moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
-
-                    mVertexGeometricProximity( iV ).set_geometric_proximity( tGeomProxIndex, iGeometryIndex );
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        moris_index
-        Geometry_Engine::get_geometric_proximity_index( real const & aGeometricVal )
-        {
-            // get current geometries level set info
-            real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
-            real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
-
-            // initialize index to 1, i.e. vertex is on interface
-            moris_index tGeometricProxIndex = 1;
-
-            if ( aGeometricVal - tIsocontourThreshold < -tIsocontourTolerance )
-            {
-                tGeometricProxIndex = 0;
-            }
-            else if ( aGeometricVal - tIsocontourThreshold > tIsocontourTolerance )
-            {
-                tGeometricProxIndex = 2;
-            }
-
-            return tGeometricProxIndex;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool
-        Geometry_Engine::check_queued_intersection_geometric_proximity_index(
-                moris_index const & aProximIndex,
-                moris_index const & aGeomIndex )
-        {
-            // parent vertex
-            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->get_first_parent_node_index();
-            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->get_second_parent_node_index();
-
-            // parent vertex proximity wrt aGeomIndex
-            moris_index tParentProx0 = mVertexGeometricProximity( tParentVertexIndex0 ).get_geometric_proximity( aGeomIndex );
-            moris_index tParentProx1 = mVertexGeometricProximity( tParentVertexIndex1 ).get_geometric_proximity( aGeomIndex );
-
-            // 0 - G(x) < threshold:  left of interface
-            // 1 - G(x) == threshold: on interface
-            // 2 - G(x) > threshold:  right of interface
-            // add them together
-            moris_index tSum = tParentProx0 + tParentProx1;
-
-            // proximity value
-            switch ( tSum )
-            {
-                case 0:    // both parents are left of interface -> child has to be left of interface
-                {
-                    return aProximIndex == 0;
-                    break;
-                }
-                case 1:    // one parent is left of, one parent is on interface -> child has to be left of or on the interface
-                {
-                    return aProximIndex == 0 || aProximIndex == 1;
-                    break;
-                }
-                case 2:    // one parent is left the other right of interface -> child position cannot be determined yet
-                {
-                    return true;
-                    break;
-                }
-                case 3:    // one parent is on interface the other is right of interface -> child has to be right of or on the interface
-                {
-                    return aProximIndex == 2 || aProximIndex == 1;
-                    break;
-                }
-                case 4:    // both right of interface -> child has to be  right of interface
-                {
-                    return aProximIndex == 2;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ASSERT( 0, "Proximity determination failed." );
-                    return false;
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        moris_index
-        Geometry_Engine::get_queued_intersection_geometric_proximity_index( moris_index const & aGeomIndex )
-        {
-            // parent vertex
-            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->get_first_parent_node_index();
-            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->get_second_parent_node_index();
-
-            // parent vertex proximity wrt aGeomIndex
-            moris_index tParentProx0 = mVertexGeometricProximity( tParentVertexIndex0 ).get_geometric_proximity( aGeomIndex );
-            moris_index tParentProx1 = mVertexGeometricProximity( tParentVertexIndex1 ).get_geometric_proximity( aGeomIndex );
-
-            // 0 - G(x) < threshold:  left of interface
-            // 1 - G(x) == threshold: on interface
-            // 2 - G(x) > threshold:  right of interface
-            // add them together
-            moris_index tSum = tParentProx0 + tParentProx1;
-
-            // proximity value
-            switch ( tSum )
-            {
-                case 0:    // both parents are left of interface -> child is left of interface
-                {
-                    return 0;
-                    break;
-                }
-                case 1:    // one parent is left of, one parent is on interface -> child is left of interface
-                {
-                    return 0;
-                    break;
-                }
-                case 2:    // one parent is left the other right of interface -> child is on interface (correct?)
-                {
-                    return 1;
-                    break;
-                }
-                case 3:    // one parent is on interface the other is right of interface -> child is right of interface
-                {
-                    return 2;
-                    break;
-                }
-                case 4:    // both right of interface -> child is right of interface
-                {
-                    return 2;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ASSERT( 0, "Proximity determination failed." );
-                    return MORIS_INDEX_MAX;
-                }
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void
-        Geometry_Engine::admit_queued_intersection_geometric_proximity( uint aNodeIndex )
-        {
-            MORIS_ERROR( aNodeIndex == mVertexGeometricProximity.size(), "Index mismatch" );
-
-            // initialize proximity data
-            mVertexGeometricProximity.push_back( Geometric_Proximity( mGeometries.size() ) );
-
-            // node index associated with this proximity
-            mVertexGeometricProximity( aNodeIndex ).mAssociatedVertexIndex = aNodeIndex;
-
-            // geometry iteration through previous geometries
-            for ( uint tGeometryIndex = 0; tGeometryIndex < this->get_active_geometry_index(); tGeometryIndex++ )
-            {
-                moris_index tProxIndex = this->get_queued_intersection_geometric_proximity_index( tGeometryIndex );
-
-                mVertexGeometricProximity( aNodeIndex ).set_geometric_proximity( tProxIndex, tGeometryIndex );
-            }
-
-            // place the current one on the interface
-            mVertexGeometricProximity( aNodeIndex ).set_geometric_proximity( 1, this->get_active_geometry_index() );
-
-            if ( this->get_active_geometry_index() != mGeometries.size() - 1 )
-            {
-                // iterate through following geometries (here we just compute the vertex value to determine proximity)
-                for ( uint tGeometryIndex = this->get_active_geometry_index() + 1; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-                {
-                    // FIXME: need to use level set value of child node
-                    real tVertGeomVal = mGeometries( tGeometryIndex )->get_field_value( aNodeIndex, mQueuedIntersectionNode->get_global_coordinates() );
-
-                    // compute proximity index
-                    moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
-
-                    // check that tVertGeomVal is consistent with parent nodes
-                    MORIS_ERROR( check_queued_intersection_geometric_proximity_index( tGeomProxIndex, tGeometryIndex ),
-                            "Geometry_Engine::admit_queued_intersection_geometric_proximity - inconsistent proximity value." );
-
-                    // save proximity index
-                    mVertexGeometricProximity( aNodeIndex ).set_geometric_proximity( tGeomProxIndex, tGeometryIndex );
-                }
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

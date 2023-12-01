@@ -703,23 +703,6 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    void
-    Model::create_new_node_association_with_geometry( Decomposition_Data &tDecompData )
-    {
-        MORIS_ERROR( false,
-                "Model::create_new_node_association_with_geometry - depreciated function." );
-
-        // FIXME: REMOVE
-        //  // create geometry objects for each node
-        //  mGeometryEngine->create_new_child_nodes(
-        //      tDecompData.tNewNodeIndex,
-        //      tDecompData.tNewNodeParentTopology,
-        //      tDecompData.tParamCoordRelativeToParent,
-        //      mBackgroundMesh.get_all_node_coordinates_loc_inds() );
-    }
-
-    // ----------------------------------------------------------------------------------
-
     bool
     Model::verify_successful_node_assignment( Decomposition_Data &aDecompData )
     {

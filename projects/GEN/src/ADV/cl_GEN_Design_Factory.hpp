@@ -42,12 +42,14 @@ namespace moris::ge
          * @param aADVs ADV vector
          * @param aLibrary Pointer to library for loading user-defined functions
          * @param aMesh MTK mesh used for defining some fields
+         * @param aNodeManager Node manager from the geometry engine, if applicable
          */
         Design_Factory(
                 Cell< ParameterList >         aParameterLists,
                 Matrix< DDRMat >&             aADVs,
                 std::shared_ptr< Library_IO > aLibrary = nullptr,
-                mtk::Mesh*                    aMesh = nullptr );
+                mtk::Mesh*                    aMesh = nullptr,
+                Node_Manager&                 aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Gets the geometries that the factory has created.

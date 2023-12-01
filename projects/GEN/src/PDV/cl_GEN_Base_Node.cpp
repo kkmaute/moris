@@ -4,28 +4,31 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Geometry.cpp
+ * cl_GEN_Base_Node.cpp
  *
  */
 
-#include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Base_Node.hpp"
 
 namespace moris::ge
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Geometry::Geometry()
+    Base_Node::Base_Node(
+            uint                    aIndex,
+            const Matrix< DDRMat >& aCoordinates )
+            : Node( aIndex )
+            , mCoordinates( aCoordinates )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Geometry::set_node_manager( Node_Manager& aNodeManager )
+    const Matrix< DDRMat >& Base_Node::get_global_coordinates()
     {
+        return mCoordinates;
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
 }

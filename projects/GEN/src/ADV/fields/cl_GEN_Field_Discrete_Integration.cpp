@@ -10,6 +10,7 @@
 
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
+#include "cl_GEN_Intersection_Node_Linear.hpp"
 
 namespace moris::ge
 {
@@ -43,16 +44,13 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aNodeIndex < mNumOriginalNodes )
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
             return this->get_field_value( aNodeIndex );
         }
         else
         {
-            MORIS_ASSERT( ( aNodeIndex - mNumOriginalNodes ) < mChildNodes.size(),
-                    "A discrete field value was requested from a node that this field doesn't know. "
-                    "Perhaps a child node was not added to this field?" );
-            return mChildNodes( aNodeIndex - mNumOriginalNodes )->interpolate_field_value( this );
+            return this->get_interpolated_field_value( aNodeIndex, aCoordinates );
         }
     }
 
@@ -62,16 +60,13 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if (aNodeIndex < mNumOriginalNodes)
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
-            return this->get_dfield_dadvs(aNodeIndex);
+            return this->get_dfield_dadvs( aNodeIndex );
         }
         else
         {
-            MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                    "A discrete field dfield_dadvs was requested from a node that this field doesn't know. "
-                    "Perhaps a child node was not added to this field?");
-            return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_field_sensitivities(this);
+            return this->get_interpolated_dfield_dadvs( aNodeIndex, aCoordinates );
         }
     }
 
@@ -81,32 +76,35 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if (aNodeIndex < mNumOriginalNodes)
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
         {
-            return this->get_determining_adv_ids(aNodeIndex);
+            return this->get_determining_adv_ids( aNodeIndex );
         }
         else
         {
-            MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                         "Determining ADV IDs were requested from a node that this discrete field doesn't know. "
-                         "Perhaps a child node was not added to this field?");
-            return mChildNodes(aNodeIndex - mNumOriginalNodes)->join_determining_adv_ids(this);
+            return this->get_interpolated_determining_adv_ids( aNodeIndex, aCoordinates );
         }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
+    // FIXME we can remove this altogether if we refactor from the top level intersection node
     void Field_Discrete_Integration::get_dfield_dcoordinates(
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates,
             Matrix<DDRMat>&       aSensitivities)
     {
-        MORIS_ASSERT(aNodeIndex >= mNumOriginalNodes,
-                    "Discrete field dfield_dcoordinates is only valid for intersection node indices.");
-        MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
-                     "A discrete field dfield_dcoordinates was requested from a node that this field doesn't know. "
-                     "Perhaps a child node was not added to this field?");
-        mChildNodes(aNodeIndex - mNumOriginalNodes)->get_dfield_dcoordinates(this, aSensitivities);
+        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
+        {
+            // Base node, there are no sensitivities
+            return;
+        }
+        else
+        {
+            // Get sensitivities from linear intersection node
+            auto tIntersectionNode = dynamic_cast< Intersection_Node_Linear* >( mNodeManager->get_derived_node( aNodeIndex ) );
+            tIntersectionNode->get_dfield_dcoordinates( this, aSensitivities );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

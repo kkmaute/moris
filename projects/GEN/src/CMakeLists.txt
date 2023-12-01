@@ -35,6 +35,7 @@ set(HEADERS
 	cl_GEN_Geometry_Engine.hpp
 	cl_GEN_Geometric_Query_Interface.hpp
 	cl_GEN_Phase_Table.hpp
+	cl_GEN_Node_Manager.hpp
 	cl_GEN_Geometric_Proximity.hpp
     st_GEN_Geometry_Engine_Parameters.hpp
 
@@ -45,7 +46,6 @@ set(HEADERS
 	ADV/cl_GEN_Design_Field.hpp
 	ADV/cl_GEN_Geometry.hpp
 	ADV/cl_GEN_Level_Set_Geometry.hpp
-	ADV/cl_GEN_Surface_Mesh_Geometry.hpp
 	ADV/cl_GEN_Property.hpp
 
 	# ADV/fields
@@ -79,11 +79,17 @@ set(HEADERS
 	PDV/cl_GEN_Pdv.hpp
 	PDV/cl_GEN_Pdv_Value.hpp
 	PDV/cl_GEN_Pdv_Property.hpp
+	PDV/cl_GEN_Node.hpp
+	PDV/cl_GEN_Base_Node.hpp
+	PDV/cl_GEN_Derived_Node.hpp
+	PDV/cl_GEN_Basis_Node.hpp
+	PDV/cl_GEN_Parent_Node.hpp
+	PDV/cl_GEN_Parent_Base_Node.hpp
+	PDV/cl_GEN_Parent_Derived_Node.hpp
 	PDV/cl_GEN_Intersection_Node.hpp
 	PDV/cl_GEN_Intersection_Node_Level_Set.hpp
 	PDV/cl_GEN_Intersection_Node_Linear.hpp
 	PDV/cl_GEN_Intersection_Node_Bilinear.hpp
-	PDV/cl_GEN_Intersection_Node_Surface_Mesh.hpp
     )
 
 # List library source files
@@ -91,6 +97,7 @@ set(LIB_SOURCES
 
 	# GEN
 	cl_GEN_Geometry_Engine.cpp
+	cl_GEN_Node_Manager.cpp
 	cl_GEN_Phase_Table.cpp
 	cl_GEN_Geometric_Proximity.cpp
 
@@ -101,7 +108,6 @@ set(LIB_SOURCES
 	ADV/cl_GEN_Design_Field.cpp
 	ADV/cl_GEN_Geometry.cpp
 	ADV/cl_GEN_Level_Set_Geometry.cpp
-	ADV/cl_GEN_Surface_Mesh_Geometry.cpp
 	ADV/cl_GEN_Property.cpp
 
 	# ADV/fields
@@ -133,12 +139,17 @@ set(LIB_SOURCES
 	PDV/cl_GEN_Pdv.cpp
 	PDV/cl_GEN_Pdv_Value.cpp
 	PDV/cl_GEN_Pdv_Property.cpp
+	PDV/cl_GEN_Node.cpp
+	PDV/cl_GEN_Base_Node.cpp
+	PDV/cl_GEN_Derived_Node.cpp
 	PDV/cl_GEN_Child_Node.cpp
+	PDV/cl_GEN_Basis_Node.cpp
+	PDV/cl_GEN_Parent_Base_Node.cpp
+	PDV/cl_GEN_Parent_Derived_Node.cpp
 	PDV/cl_GEN_Intersection_Node.cpp
 	PDV/cl_GEN_Intersection_Node_Level_Set.cpp
 	PDV/cl_GEN_Intersection_Node_Linear.cpp
 	PDV/cl_GEN_Intersection_Node_Bilinear.cpp
-	PDV/cl_GEN_Intersection_Node_Surface_Mesh.cpp
     )
 
 # List library dependencies

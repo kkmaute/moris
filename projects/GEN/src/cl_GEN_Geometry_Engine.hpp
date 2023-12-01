@@ -19,8 +19,8 @@
 // GEN
 #include "st_GEN_Geometry_Engine_Parameters.hpp"
 #include "cl_GEN_Phase_Table.hpp"
+#include "cl_GEN_Node_Manager.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Geometric_Proximity.hpp"
 #include "cl_GEN_Geometric_Query_Interface.hpp"
 
 // MTK
@@ -92,14 +92,8 @@ namespace moris
 
             // PDVs
             Pdv_Host_Manager                     mPDVHostManager;
-            std::shared_ptr< Intersection_Node > mQueuedIntersectionNode;
-
-            // Keeps track of a vertex proximity to each geometry ( NumVerts x NumGeometries)
-            // 0 - G(x) < threshold
-            // 1 - G(x) == threshold
-            // 2 - G(x) > threshold
-            // Max not set
-            Cell< Geometric_Proximity > mVertexGeometricProximity;
+            Node_Manager                         mNodeManager;
+            Intersection_Node* mQueuedIntersectionNode = nullptr;
 
             // diagnostic information
             bool        mDiagnostics    = false;
@@ -276,8 +270,8 @@ namespace moris
              *
              * @param aEdgeFirstNodeIndex First node index on the intersection edge
              * @param aEdgeSecondNodeIndex Second node index on the intersection edge
-             * @param aEdgeFirstNodeLocalCoordinates Local coordinates of the first node inside the background element
-             * @param aEdgeSecondNodeLocalCoordinates Local coordinates of the second node inside the background element
+             * @param aEdgeFirstNodeParametricCoordinates Local coordinates of the first node inside the background element
+             * @param aEdgeSecondNodeParametricCoordinates Local coordinates of the second node inside the background element
              * @param aEdgeFirstNodeGlobalCoordinates Global coordinates of the first node
              * @param aEdgeSecondNodeGlobalCoordinates Global coordinates of the second node
              * @param aBackgroundElementNodeIndices Node indices of the background element
@@ -287,8 +281,8 @@ namespace moris
             bool queue_intersection(
                     uint                            aEdgeFirstNodeIndex,
                     uint                            aEdgeSecondNodeIndex,
-                    const Matrix< DDRMat >&         aEdgeFirstNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aEdgeSecondNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
+                    const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
                     const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
                     const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
                     const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
@@ -350,54 +344,59 @@ namespace moris
                     const moris_index& aNodeIndex,
                     const moris_index& aNodeId,
                     const moris_index& aNodeOwner );
-
-            //-------------------------------------------------------------------------------
             
             /**
-             * create new node geometry objects
-             * @param[ in ] aNodeCoords node coordinates
+             * Creates and registers new derived nodes based on the given information.
+             *
+             * @param aNewNodeIndices New node indices
+             * @param tVertexIndices Indices of the parent cell
+             * @param aParametricCoordinates
              */
-            void create_new_child_nodes(
-                    const Cell< moris_index >&               aNewNodeIndices,
-                    const Cell< Element_Interpolation_Type >& aParentIntersectionType,
-                    const Cell< Matrix< IndexMat > >&        tVertexIndices,
-                    const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
-                    const Matrix< DDRMat >&                  aGlobalNodeCoord );
+            void create_new_derived_nodes(
+                    const Cell< moris_index >&        aNewNodeIndices,
+                    const Cell< Matrix< IndexMat > >& tVertexIndices,
+                    const Cell< Matrix< DDRMat > >&   aParametricCoordinates );
 
-            //-------------------------------------------------------------------------------
-            
-            void create_new_child_nodes(
-                    const Cell< moris_index >*                   aNewNodeIndices,
-                    Cell< mtk::Cell* >*                          aNewNodeParentCell,
-                    Cell< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
-                    Cell< Matrix< DDRMat > >*                    aNodeCoordinates );
-
-            //-------------------------------------------------------------------------------
+            /**
+             * Overloaded version of creating derived nodes. Calls other version internally.
+             *
+             * @param aNewNodeIndices New node indices
+             * @param aNewNodeParentCell MTK cells
+             * @param aParametricCoordinates Parametric coordinates for creating the derived node
+             */
+            void create_new_derived_nodes(
+                    const Cell< moris_index >&                         aNewNodeIndices,
+                    Cell< mtk::Cell* >&                                aNewNodeParentCell,
+                    const Cell< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates );
             
             /**
              * Get the total number of phases in the phase table
              */
             size_t get_num_phases();
 
-            //-------------------------------------------------------------------------------
-            
             /**
-             * For a given node index, return the phase index relative to each geometry (i.e. inside/outside indicator)
+             * Gets the phase of a given node
+             *
+             * @param aNodeIndex Node index
+             * @param aNodeCoordinates Node coordinates
+             * @return Phase index
              */
             size_t get_phase_index(
                     moris_index             aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
+                    const Matrix< DDRMat >& aNodeCoordinates );
 
-            //-------------------------------------------------------------------------------
-            
             /**
-             * Use the geometric proximity to tell me whether this vertex is on the interface wrt a provided geometry indx
+             * Returns if a node is on the given interface or not
+             *
+             * @param aGeometryIndex Geometry index
+             * @param aNodeIndex Node index
+             * @param aNodeCoordinates Node coordinates
+             * @return If the node is on this interface
              */
-            moris_index
-            is_interface_vertex( moris_index aNodeIndex,
-                    moris_index              aGeometryIndex );
-
-            //-------------------------------------------------------------------------------
+            Geometric_Region get_geometric_region(
+                    uint                    aGeometryIndex,
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aNodeCoordinates );
             
             /**
              * @brief Provided the inside and out phase values for an entity, return the phase index
@@ -588,8 +587,6 @@ namespace moris
             //-------------------------------------------------------------------------------
             
           private:
-          
-            //-------------------------------------------------------------------------------
             
             void communicate_missing_owned_coefficients(
                     mtk::Mesh_Pair&  aMeshPair,
@@ -600,8 +597,6 @@ namespace moris
                     uint             aFieldIndex,
                     uint             aDiscretizationMeshIndex,
                     mtk::MeshType    aMeshType );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
@@ -613,8 +608,6 @@ namespace moris
                     mtk::Interpolation_Mesh*         aInterpolationMesh,
                     mtk::Integration_Mesh*           aIntegrationMesh,
                     Cell< Cell< Cell< PDV_Type > > > aPdvTypes );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
@@ -622,55 +615,13 @@ namespace moris
              * @param aMeshIndex Integration mesh index
              */
             void set_integration_pdv_types( mtk::Integration_Mesh* aIntegrationMesh );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Initialize the PDV type list.
              */
             void initialize_pdv_type_list();
 
-            //-------------------------------------------------------------------------------
-            
-            /**
-             * Setup initial geometric proximities
-             */
-            void
-            setup_initial_geometric_proximities( mtk::Interpolation_Mesh* aMesh );
-
-            //-------------------------------------------------------------------------------
-            
-            /*
-             *   Return the geometric proximity index. Converts from a double value to a index
-             */
-            moris_index
-            get_geometric_proximity_index( real const & aGeometricVal );
-
-            //-------------------------------------------------------------------------------
-            
-            /*
-             * Check whether the proximity index of a node is consistent with that of its parent
-             */
-            bool
-            check_queued_intersection_geometric_proximity_index(
-                    moris_index const & aProximIndex,
-                    moris_index const & aGeomIndex );
-
-            //-------------------------------------------------------------------------------
-            
-            /*
-             * Determine the intersection vertex proximity
-             */
-            moris_index
-            get_queued_intersection_geometric_proximity_index( moris_index const & aGeomIndex );
-
-            /**
-             * Admit the proximity information for an interface vertex
-             */
-            void
-            admit_queued_intersection_geometric_proximity( uint aNodeIndex );
-
-            //-------------------------------------------------------------------------------
+            const Parent_Node& create_parent_node();
             
             /**
              * Decides how to construct the phase table based on the given arguments.
@@ -681,8 +632,6 @@ namespace moris
             static Phase_Table create_phase_table(
                     Cell< Cell< ParameterList > > aParameterLists,
                     std::shared_ptr< Library_IO > aLibrary );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Decides how to construct the phase table based on the given parameter lists
@@ -698,15 +647,8 @@ namespace moris
                     PHASE_FUNCTION   aPhaseFunction = nullptr,
                     uint             aNumPhases     = 1 );
 
-            //-------------------------------------------------------------------------------
-
-        }; // class Geometry_Engine
-    
-    //-------------------------------------------------------------------------------
-
+        };
     }    // namespace ge
 }    // namespace moris
-
-//-------------------------------------------------------------------------------
 
 #endif /* MORIS_CL_Geometry_Engine_HPP_ */

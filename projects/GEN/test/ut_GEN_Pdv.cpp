@@ -17,6 +17,8 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
+#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Parent_Base_Node.hpp"
 
 #define protected public
 #define private public
@@ -329,8 +331,10 @@ namespace moris
 
                 // Create PDV_Type host manager (here: test version defined above)
                 Pdv_Host_Manager_Test tPDVHostManager;
-
                 tPDVHostManager.set_num_background_nodes( 0 );
+
+                // Create node manager to automatically delete nodes at the end
+                Node_Manager tNodeManager( nullptr );
 
                 // Node IDs/owners per set
                 uint             tNumOwnedNodes = 0;
@@ -367,20 +371,29 @@ namespace moris
                 {
                     // Go around a circle to create parent coordinates
                     real tRadians = tIpNodeIdsPerSet( tNodeIndex ) * M_PI / 2.0;
-
                     Matrix< DDRMat > tFirstParentCoordinates  = { { 0.5 * cos( tRadians ), 0.5 * sin( tRadians ) } };
                     Matrix< DDRMat > tSecondParentCoordinates = { { 1.5 * cos( tRadians ), 1.5 * sin( tRadians ) } };
 
+                    // Create parent nodes
+                    auto tFirstNode = new Base_Node( 0, tFirstParentCoordinates );
+                    Parent_Base_Node tFirstParentNode( tFirstNode, {{}} );
+                    auto tSecondNode = new Base_Node( 0, tSecondParentCoordinates );
+                    Parent_Base_Node tSecondParentNode( tSecondNode, {{}} );
+
+                    // Assign as base nodes
+                    Cell< Node* > tBaseNodes( { tFirstNode, tSecondNode } );
+
                     // Create intersection node
-                    std::shared_ptr< Intersection_Node > tIntersectionNode =    //
-                            std::make_shared< Intersection_Node_Linear >(
-                                    nullptr,
-                                    nullptr,
-                                    0,
-                                    0,
-                                    tFirstParentCoordinates,
-                                    tSecondParentCoordinates,
-                                    tCircleGeometry );
+                    auto tIntersectionNode = new Intersection_Node_Linear(
+                            tNodeIndex,
+                            tBaseNodes,
+                            tFirstParentNode,
+                            tSecondParentNode,
+                            mtk::Geometry_Type::LINE,
+                            tCircleGeometry );
+
+                    // Add to node manager
+                    tNodeManager.add_derived_node( tIntersectionNode );
 
                     // Add intersection node to PDV host manager
                     tPDVHostManager.set_intersection_node( tNodeIndex, tIntersectionNode );
