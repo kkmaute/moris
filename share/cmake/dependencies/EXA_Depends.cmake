@@ -16,7 +16,7 @@ endif()
 set(EXA_CONFIGURED_ONCE "YES")
 
 # Add EXA to the source directory list
-list(APPEND MORIS_SOURCE_DIRS ${EXA})
+#list(APPEND MORIS_SOURCE_DIRS ${EXA})
 
 # Include all libraries for EXA
 set(MAIN_TPL_DEPENDENCIES

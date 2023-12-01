@@ -19,8 +19,13 @@
 
 #include "cl_MSI_Equation_Set.hpp"
 
+
+#undef protected
+#undef private
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Reader_Exodus.hpp"
+#define protected public
+#define private public
 
 #include "cl_Param_List.hpp"
 

@@ -11,6 +11,8 @@
 #ifndef MORIS_cl_XTK_Cut_Integration_Mesh_HPP_
 #define MORIS_cl_XTK_Cut_Integration_Mesh_HPP_
 
+#undef protected
+#undef private
 #include "containers.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -29,6 +31,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
+
+#define protected public
+#define private public
 
 using namespace moris;
 
