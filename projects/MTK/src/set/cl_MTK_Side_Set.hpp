@@ -4,12 +4,12 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_MTK_Double_Side_Set.hpp
+ * cl_MTK_Side_Set.hpp
  *
  */
 
-#ifndef SRC_MESH_CL_MTK_DOUBLE_SIDE_SET_HPP_
-#define SRC_MESH_CL_MTK_DOUBLE_SIDE_SET_HPP_
+#ifndef SRC_MESH_CL_MTK_SIDE_SET_HPP_
+#define SRC_MESH_CL_MTK_SIDE_SET_HPP_
 
 #include <string>
 
@@ -17,7 +17,7 @@
 #include "fn_unique.hpp"    //MRS/COR/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src
-#include "cl_MTK_Cell.hpp"      //MTK/src
+#include "cl_MTK_Cell.hpp"    //MTK/src
 
 #include "cl_MTK_Cell_Cluster.hpp"    //MTK/src
 #include "cl_MTK_Set.hpp"             //MTK/src
@@ -26,65 +26,74 @@ namespace moris::mtk
 {
 
     //------------------------------------------------------------------------------
-    class Double_Side_Set : public Set
+    class Side_Set : public Set
     {
-        //------------------------------------------------------------------------------
-
       private:
-        uint                      mNumVerticesOnSet;
-        moris::Matrix< IndexMat > mVerticesOnSet;
+        uint                    mNumVerticesOnSet;
+        moris::Matrix< DDSMat > mVerticesOnSet;
 
         uint                    mNumCellsOnBlock;
         moris::Matrix< DDSMat > mCellsOnBlock;
 
         //------------------------------------------------------------------------------
 
-        // void calculate_vertices_on_set()
-        // {
-        //     uint tMaxNumVert = 0;
-        //
-        //     for( uint Ik = 0; Ik < mSideSetClusters.size(); Ik++)
-        //     {
-        //         Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
-        //                                                   ->get_cell_side_ordinals();
-        //
-        //         for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
-        //         {
-        //             tMaxNumVert = tMaxNumVert + mSideSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-        //                                                               ->get_vertices_ind_on_side_ordinal( tSideOrdinal(Ij) ).numel();
-        //         }
-        //     }
-        //
-        //     moris::Matrix< DDSMat > tVerticesOnSet( 1, tMaxNumVert, -1 );
-        //
-        //     uint tCounter = 0;
-        //
-        //     for( uint Ik = 0; Ik < mSideSetClusters.size(); Ik++)
-        //     {
-        //         Matrix< IndexMat > tSideOrdinal= mSideSetClusters( Ik )
-        //                                                   ->get_cell_side_ordinals();
-        //
-        //         for( uint Ij = 0; Ij < mSideSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++)
-        //         {
-        //             // FIXME rewrite for more readability
-        //             tVerticesOnSet( { 0, 0 },{ tCounter, tCounter + mSideSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-        //                                               ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).numel() - 1 }) =
-        //                                        mSideSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-        //                                        ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).matrix_data();
-        //
-        //             tCounter =tCounter + mSideSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )
-        //                               ->get_vertices_ind_on_side_ordinal(tSideOrdinal(Ij)).numel();
-        //         }
-        //     }
-        //
-        //    // MORIS_ASSERT( tVerticesOnSet.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
-        //
-        //     unique( tVerticesOnSet, mVerticesOnSet);
-        //
-        //     // print(mVerticesOnSet,"mVerticesOnSet");
-        //
-        //     mNumVerticesOnSet = mVerticesOnSet.numel();
-        // }
+        void
+        calculate_vertices_on_set()
+        {
+            uint tMaxNumVert = 0;
+
+            for ( uint Ik = 0; Ik < mSetClusters.size(); Ik++ )
+            {
+                const Matrix< IndexMat > tSideOrdinal = mSetClusters( Ik )->get_cell_side_ordinals();
+
+                const moris::Cell< moris::mtk::Cell const * > &tCellsInCluster =    //
+                        mSetClusters( Ik )->get_primary_cells_in_cluster();
+
+                for ( uint Ij = 0; Ij < tCellsInCluster.size(); Ij++ )
+                {
+                    tMaxNumVert = tMaxNumVert +    //
+                                  tCellsInCluster( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).numel();
+                }
+            }
+
+            moris::Matrix< DDSMat > tVerticesOnSet( 1, tMaxNumVert, -1 );
+
+            uint tCounter = 0;
+
+            for ( uint Ik = 0; Ik < mSetClusters.size(); Ik++ )
+            {
+                Matrix< IndexMat > tSideOrdinal = mSetClusters( Ik )->get_cell_side_ordinals();
+
+                const moris::Cell< moris::mtk::Cell const * > &tCellsInCluster =    //
+                        mSetClusters( Ik )->get_primary_cells_in_cluster();
+
+                for ( uint Ij = 0; Ij < tCellsInCluster.size(); Ij++ )
+                {
+                    uint tNumVertices = tCellsInCluster( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).numel();
+
+                    tVerticesOnSet( { 0, 0 }, { tCounter, tCounter + tNumVertices - 1 } ) =
+                            tCellsInCluster( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).matrix_data();
+
+                    tCounter = tCounter + tNumVertices;
+                }
+            }
+
+            unique( tVerticesOnSet, mVerticesOnSet );
+
+            // FIXME delete this if statement the unique bud in ARMADILLO is fixed.
+            if ( tVerticesOnSet.n_rows() != mVerticesOnSet.n_rows() )
+            {
+                tVerticesOnSet = mVerticesOnSet;
+                mVerticesOnSet.set_size( 1, mVerticesOnSet.numel() );
+
+                for ( uint Ik = 0; Ik < tVerticesOnSet.numel(); Ik++ )
+                {
+                    mVerticesOnSet( Ik ) = tVerticesOnSet( Ik );
+                }
+            }
+
+            mNumVerticesOnSet = mVerticesOnSet.numel();
+        };
 
         //------------------------------------------------------------------------------
 
@@ -99,19 +108,8 @@ namespace moris::mtk
                 mIGGeometryType = mSetClusters( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type();
             }
 
-            // TODO: check if it works with this commented out
-            // uint tRecIGGeometryType = min_all( (uint)mIGGeometryType );
-            // mIGGeometryType = static_cast< Geometry_Type >( tRecIGGeometryType );
-
             mIGGeometryType = get_auto_side_geometry_type( mIGGeometryType );
-
-            // MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " init_ig_geometry_type(); undefined geometry type on all processors");
         }
-
-        //------------------------------------------------------------------------------
-
-      protected:
-        moris::Cell< Cluster const * > mDoubleSideSetClusters;
 
         //------------------------------------------------------------------------------
 
@@ -121,31 +119,26 @@ namespace moris::mtk
         /**
          * trivial constructor
          */
-        Double_Side_Set(
+        Side_Set(
                 std::string const                    &aName,
-                moris::Cell< Cluster const * > const &aDoubleSideSetClusters,
+                moris::Cell< Cluster const * > const &aSideSetClusters,
                 Matrix< IndexMat > const             &aColors,
                 uint const                           &aSpatialDim )
-                : Set( aName, aDoubleSideSetClusters, aColors, aSpatialDim )
+                : Set( aName, aSideSetClusters, aColors, aSpatialDim )
         {
-            mSetType = mtk::SetType::DOUBLE_SIDED_SIDESET;
+            mSetType = mtk::SetType::SIDESET;
+
+            this->calculate_vertices_on_set();
 
             this->init_ig_geometry_type();
-        }
+        };
 
         //------------------------------------------------------------------------------
 
-        ~Double_Side_Set()
-        {
-            if ( mOwnedByPeriodicBCFlag )
-            {
-                for ( auto tSetClusters : mSetClusters )
-                {
-                    delete tSetClusters;
-                }
-                mSetClusters.clear();
-            }
-        }
+        /**
+         * virtual destructor
+         */
+        ~Side_Set(){};
 
         //------------------------------------------------------------------------------
 
@@ -161,9 +154,9 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
         const Cluster *
-        get_clusters_by_index( moris_index aCellClusterIndex ) const override
+        get_clusters_by_index( moris_index aClusterIndex ) const override
         {
-            return mSetClusters( aCellClusterIndex );
+            return mSetClusters( aClusterIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -218,20 +211,17 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
-        size_t
-        capacity() override
+        size_t capacity() override
         {
             size_t tTotalSize = 0;
 
-            // sum up the member data
+            // name of the set
             tTotalSize += sizeof( mNumVerticesOnSet );
             tTotalSize += sizeof( mNumCellsOnBlock );
 
-            // this is approximate
             tTotalSize += sizeof( mVerticesOnSet ) + mVerticesOnSet.capacity();
             tTotalSize += sizeof( mCellsOnBlock ) + mCellsOnBlock.capacity();
 
-            // add up parent class data
             tTotalSize += Set::capacity();
 
             return tTotalSize;
@@ -283,7 +273,7 @@ namespace moris::mtk
          * returns a pointer to a vertex
          */
         // virtual Vertex *
-        // get_vertex_by_index( const moris_index &aIndex );
+        // get_vertex_by_index( const moris_index & aIndex );
 
         //------------------------------------------------------------------------------
 
@@ -291,7 +281,7 @@ namespace moris::mtk
          * returns a pointer to a vertex ( const version )
          */
         // virtual const Vertex *
-        // get_vertex_by_index( const moris_index &aIndex ) const;
+        // get_vertex_by_index( const moris_index & aIndex ) const;
 
         //------------------------------------------------------------------------------
 
@@ -299,7 +289,7 @@ namespace moris::mtk
          * returns a pointer to a cell
          */
         // virtual Cell *
-        // get_cell_by_index( const moris_index &aIndex );
+        // get_cell_by_index( const moris_index & aIndex );
 
         //------------------------------------------------------------------------------
 
@@ -307,7 +297,7 @@ namespace moris::mtk
          * returns a pointer to a cell ( const version )
          */
         // virtual const Cell *
-        // get_cell_by_index( const moris_index &aIndex ) const;
+        // get_cell_by_index( const moris_index & aIndex ) const;
 
         //------------------------------------------------------------------------------
 
@@ -317,7 +307,7 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
         // virtual void
-        // get_adof_map( const uint aOrder, map< moris_id, moris_index > &aAdofMap ) const;
+        // get_adof_map( const uint aOrder, map< moris_id, moris_index > & aAdofMap  ) const;
 
         //------------------------------------------------------------------------------
 
@@ -329,7 +319,7 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
-    };    // end class: mtk::Double_Side_Set
+    };    // end class: mtk::Side_Set
 
     //------------------------------------------------------------------------------
 
@@ -337,4 +327,4 @@ namespace moris::mtk
 
 //------------------------------------------------------------------------------
 
-#endif /* SRC_MESH_CL_MTK_DOUBLE_SIDE_SET_HPP_ */
+#endif /* SRC_MESH_CL_MTK_SIDE_SET_HPP_ */
