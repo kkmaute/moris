@@ -73,7 +73,7 @@ namespace moris::ge
          * @param aIndex Node index
          * @return Node pointer
          */
-        Base_Node* get_base_node( uint aIndex );
+        virtual Base_Node* get_base_node( uint aIndex );
 
         /**
          * Adds a derived node to this manager.
