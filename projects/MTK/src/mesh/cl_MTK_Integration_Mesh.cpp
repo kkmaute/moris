@@ -80,8 +80,11 @@ namespace moris::mtk
     moris::mtk::Set *
     Integration_Mesh::get_set_by_name( std::string aSetLabel ) const
     {
+        if ( !mSetNameToIndexMap.key_exists( aSetLabel ) )
+        {
+            MORIS_ERROR( false, "Integration_Mesh::get_set_by_name - Set with name does not exists: %s", aSetLabel.c_str() );
+        }
         moris_index tSetIndex = mSetNameToIndexMap.find( aSetLabel );
-
         return mListOfAllSets( tSetIndex );
     }
 

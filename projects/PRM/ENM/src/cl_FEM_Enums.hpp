@@ -182,6 +182,7 @@ namespace moris
             MASS_FLOW,
             THERMAL_ENERGY_CONVECTIVE_FLUX,
             THERMAL_ENERGY_DIFFUSIVE_FLUX,
+            NORMAL_VECTOR,
 
             JUMP_DOF,
             JUMP_TRACTION,
