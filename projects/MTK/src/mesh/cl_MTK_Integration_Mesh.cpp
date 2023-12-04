@@ -32,23 +32,29 @@ namespace moris::mtk
 
     Integration_Mesh::~Integration_Mesh()
     {
-        for ( auto tListofBlocks : mListOfBlocks )
+        for ( auto tBlockSet : mListOfBlocks )
         {
-            delete tListofBlocks;
+            delete tBlockSet;
         }
         mListOfBlocks.clear();
 
-        for ( auto tListofSideSets : mListOfSideSets )
+        for ( auto tSideSet : mListOfSideSets )
         {
-            delete tListofSideSets;
+            delete tSideSet;
         }
         mListOfSideSets.clear();
 
-        for ( auto tListofDoubleSideSets : mListOfDoubleSideSets )
+        for ( auto tDoubleSideSet : mListOfDoubleSideSets )
         {
-            delete tListofDoubleSideSets;
+            delete tDoubleSideSet;
         }
         mListOfDoubleSideSets.clear();
+
+        for ( auto tNonconformalSideSet : mListOfNonconformalSideSets )
+        {
+            delete tNonconformalSideSet;
+        }
+        mListOfNonconformalSideSets.clear();
 
         for ( auto p : mDoubleSideClusters )
         {
@@ -263,28 +269,20 @@ namespace moris::mtk
         mSetNameToIndexMap.clear();
 
         // reserve enough space
-        mListOfAllSets.reserve( mListOfBlocks.size() + mListOfSideSets.size() + mListOfDoubleSideSets.size() );
-
+        uint tNumSets = mListOfBlocks.size() + mListOfSideSets.size() + mListOfDoubleSideSets.size() + mListOfNonconformalSideSets.size();
+        mListOfAllSets.reserve( tNumSets );
 
         // Append block sets to list of all sets
-        std::copy(
-                mListOfBlocks.begin(),
-                mListOfBlocks.end(),
-                std::back_inserter( mListOfAllSets ) );
+        std::copy( mListOfBlocks.begin(), mListOfBlocks.end(), std::back_inserter( mListOfAllSets ) );
 
         // Append side sets to list of all sets
-        std::copy(
-                mListOfSideSets.begin(),
-                mListOfSideSets.end(),
-                std::back_inserter( mListOfAllSets ) );
-
-        // FIXME implement cell topology for side set
+        std::copy( mListOfSideSets.begin(), mListOfSideSets.end(), std::back_inserter( mListOfAllSets ) );
 
         // Append double side sets to list of all sets
-        std::copy(
-                mListOfDoubleSideSets.begin(),
-                mListOfDoubleSideSets.end(),
-                std::back_inserter( mListOfAllSets ) );
+        std::copy( mListOfDoubleSideSets.begin(), mListOfDoubleSideSets.end(), std::back_inserter( mListOfAllSets ) );
+
+        // Append nonconformal side sets to list of all sets
+        std::copy( mListOfNonconformalSideSets.begin(), mListOfNonconformalSideSets.end(), std::back_inserter( mListOfAllSets ) );
 
 
         // iterate through all sets and register their index in the map
@@ -332,6 +330,16 @@ namespace moris::mtk
                 mListOfAllSets( tCounter )->set_IG_cell_shape( CellShape::STRAIGHT );
                 mListOfAllSets( tCounter++ )->set_IP_cell_shape( CellShape::STRAIGHT );
             }
+
+            // add the cell topology to the set
+            for ( uint Ik = 0; Ik < mListOfNonconformalSideSets.size(); Ik++ )
+            {
+                std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
+
+                // set the sideset cell topology and shape
+                mListOfAllSets( tCounter )->set_IG_cell_shape( CellShape::STRAIGHT );
+                mListOfAllSets( tCounter++ )->set_IP_cell_shape( CellShape::STRAIGHT );
+            }
         }
 
         // setup color to set data
@@ -347,6 +355,7 @@ namespace moris::mtk
         this->populate_color_to_set_list( mListOfBlocks, mColorToBlockSet );
         this->populate_color_to_set_list( mListOfSideSets, mColorToSideSet );
         this->populate_color_to_set_list( mListOfDoubleSideSets, mColorToDoubleSideSet );
+        this->populate_color_to_set_list( mListOfNonconformalSideSets, mColorToNonconformalSideSet );
         this->populate_color_to_set_list( mListOfAllSets, mColorToAllSets );
     }
 
@@ -735,57 +744,6 @@ namespace moris::mtk
         return mListOfAllSets;
     }
 
-    moris::Cell< moris::mtk::Set * > const &
-    Integration_Mesh::get_list_of_sets( SetType aSetType ) const
-    {
-        // Determine the set type
-        switch ( aSetType )
-        {
-            // Bulk sets
-            case SetType::BULK:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_sets( SetType::BULK )"
-                        "Consider using get_block_sets() instead" );
-                return (moris::Cell< Set * > const &)this->get_block_sets();
-            }
-
-            // Side Sets
-            case SetType::SIDESET:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_sets( SetType::SIDESET )"
-                        "Consider using get_side_sets() instead" );
-                return (moris::Cell< Set * > const &)this->get_side_sets();
-            }
-
-            // Double Sided Sets
-            case SetType::DOUBLE_SIDED_SIDESET:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_sets( SetType::DOUBLE_SIDED_SIDESET )"
-                        "Consider using get_double_side_sets() instead" );
-                return (moris::Cell< Set * > const &)this->get_double_side_sets();
-            }
-
-            // All sets
-            case SetType::UNDEFINED:
-            {
-                return mListOfAllSets;
-            }
-
-            // Incorrect Input
-            default:
-            {
-                MORIS_ERROR( 0, "Incorrect aSetType" );
-                auto *tDummyCell = new moris::Cell< moris::mtk::Set * >( 0 );
-                return *tDummyCell;
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------------------
-
     moris::Cell< moris::Cell< moris::mtk::Block_Set * > > const &
     Integration_Mesh::get_color_to_block_sets() const
     {
@@ -809,54 +767,6 @@ namespace moris::mtk
     Integration_Mesh::get_color_to_sets() const
     {
         return mColorToAllSets;
-    }
-
-    moris::Cell< moris::Cell< moris::mtk::Set * > > const &Integration_Mesh::get_list_of_set_to_color( SetType aSetType ) const
-    {
-        // Determine the set type
-        switch ( aSetType )
-        {
-            // Bulk sets
-            case SetType::BULK:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_list_of_set_to_color( SetType::BULK )"
-                        "Consider using get_color_to_block_sets() instead" );
-                return (moris::Cell< moris::Cell< Set * > > const &)mColorToBlockSet;
-            }
-
-            // Side Sets
-            case SetType::SIDESET:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_list_of_set_to_color( SetType::SIDESET )"
-                        "Consider using get_color_to_side_sets() instead" );
-                return (moris::Cell< moris::Cell< Set * > > const &)mColorToSideSet;
-            }
-
-            // Double Sided Sets
-            case SetType::DOUBLE_SIDED_SIDESET:
-            {
-                MORIS_LOG_WARNING(
-                        "You are using the deprecated function Integration_Mesh::get_list_of_set_to_color( SetType::DOUBLE_SIDED_SIDESET )"
-                        "Consider using get_color_to_double_side_sets() instead" );
-                return (moris::Cell< moris::Cell< Set * > > const &)mColorToDoubleSideSet;
-            }
-
-            // All sets
-            case SetType::UNDEFINED:
-            {
-                return mColorToAllSets;
-            }
-
-            // Incorrect Input
-            default:
-            {
-                MORIS_ERROR( 0, "Incorrect aSetType" );
-                auto *tDummyCell = new moris::Cell< moris::Cell< moris::mtk::Set * > >( 0 );
-                return *tDummyCell;
-            }
-        }
     }
 
     // ----------------------------------------------------------------------------

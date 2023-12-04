@@ -97,8 +97,19 @@ endforeach()
 
 # List header dependencies in /MTK/src                                                                                                                                                                                                                                                    
 set(MTK_INCLUDES
-    "IP"
-    "IG")
+        "cluster"
+        "contact"
+        "field"
+        "geometry"
+        "geometry/cell"
+        "geometry/vertex"
+        "integration"
+        "interpolation"
+        "intersection"
+        "io"
+        "mesh"
+        "set"
+)
 
 set(MTK_INTERNAL_INCLUDES)
 

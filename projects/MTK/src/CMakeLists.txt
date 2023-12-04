@@ -13,8 +13,19 @@ set(${MTK}_VERSION ${MORIS_VERSION})
 
 # List header dependencies                                                                                                                                                                                                                                                     
 set(MTK_INCLUDES
+        "cluster"
+        "contact"
+        "field"
+        "geometry"
+        "geometry/cell"
+        "geometry/vertex"
+        "integration"
         "interpolation"
-        "integration")
+        "intersection"
+        "io"
+        "mesh"
+        "set"
+)
 
 set(MTK_INTERNAL_INCLUDES)
 
@@ -43,6 +54,7 @@ set(HEADERS
         cluster/cl_MTK_Side_Cluster_Group_DataBase.hpp
         cluster/cl_MTK_Side_Cluster_ISC_Impl.hpp
         cluster/cl_MTK_Side_Cluster_Input.hpp
+        cluster/cl_MTK_Nonconformal_Side_Cluster.hpp
 
         field/cl_MTK_Field.hpp
         field/cl_MTK_Field_Analytic.hpp
@@ -173,6 +185,7 @@ set(HEADERS
         mesh/cl_MTK_Mesh_Manager.hpp
         mesh/cl_MTK_Mesh_Pair.hpp
         mesh/cl_MTK_Mesh_Tools.hpp
+        mesh/cl_MTK_Surface_Mesh.hpp
 
         set/cl_MTK_Block_Set.hpp
         set/cl_MTK_Block_Sets_Info.hpp
@@ -183,6 +196,9 @@ set(HEADERS
         set/cl_MTK_Sets_Info.hpp
         set/cl_MTK_Side_Set.hpp
         set/cl_MTK_Side_Sets_Info.hpp
+
+        set/mapper/cl_MTK_PointMapper.hpp
+        set/mapper/cl_MTK_PointMapper_Ray.hpp
 
         stk_impl/cl_MTK_Cell_Cluster_STK.hpp
         stk_impl/cl_MTK_Cell_STK.hpp
@@ -209,6 +225,7 @@ set(LIB_SOURCES
         cluster/cl_MTK_Side_Cluster_Group.cpp
         cluster/cl_MTK_Side_Cluster_Group_DataBase.cpp
         cluster/cl_MTK_Side_Cluster_ISC_Impl.cpp
+        cluster/cl_MTK_Nonconformal_Side_Cluster.cpp
 
         field/cl_MTK_Field.cpp
         field/cl_MTK_Field_Analytic.cpp
@@ -265,10 +282,12 @@ set(LIB_SOURCES
         mesh/cl_MTK_Mesh_Factory.cpp
         mesh/cl_MTK_Mesh_Manager.cpp
         mesh/cl_MTK_Mesh_Pair.cpp
+        mesh/cl_MTK_Surface_Mesh.cpp
 
-        set/cl_MTK_Block_Set.cpp
-        set/cl_MTK_Block_Set.cpp
         set/cl_MTK_Set_Communicator.cpp
+
+        set/mapper/cl_MTK_PointMapper.cpp
+        set/mapper/cl_MTK_PointMapper_Ray.cpp
 
         stk_impl/cl_MTK_Cell_Cluster_STK.cpp
         stk_impl/cl_MTK_Integration_Mesh_STK.cpp
