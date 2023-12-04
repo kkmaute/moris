@@ -288,6 +288,7 @@ namespace moris::mtk
 
 
         // iterate through all sets and register their index in the map
+        uint tCounter = 0;
         for ( moris_index Ik = 0; Ik < static_cast< moris_index >( mListOfAllSets.size() ); Ik++ )
         {
             mListOfAllSets( Ik )->set_set_index( Ik );
