@@ -418,7 +418,7 @@ namespace moris
 
             // Create first parent node
             Parent_Node* tFirstParentNode;
-            if ( aEdgeFirstNodeIndex < mNodeManager.get_number_of_base_nodes() )
+            if ( mNodeManager.is_base_node( aEdgeFirstNodeIndex ) )
             {
                 tFirstParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
             }
@@ -429,7 +429,7 @@ namespace moris
 
             // Create second parent node
             Parent_Node* tSecondParentNode;
-            if ( aEdgeSecondNodeIndex < mNodeManager.get_number_of_base_nodes() )
+            if ( mNodeManager.is_base_node( aEdgeSecondNodeIndex ) )
             {
                 tSecondParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
             }

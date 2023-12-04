@@ -51,9 +51,9 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Node_Manager::get_number_of_base_nodes()
+    bool Node_Manager::is_base_node( uint aNodeIndex )
     {
-        return mBaseNodes.size();
+        return aNodeIndex < mBaseNodes.size();
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
         {
             return this->get_field_value( aNodeIndex );
         }
@@ -60,7 +60,7 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
         {
             return this->get_dfield_dadvs( aNodeIndex );
         }
@@ -76,7 +76,7 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
         {
             return this->get_determining_adv_ids( aNodeIndex );
         }
@@ -94,7 +94,7 @@ namespace moris::ge
             const Matrix<DDRMat>& aCoordinates,
             Matrix<DDRMat>&       aSensitivities)
     {
-        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
         {
             // Base node, there are no sensitivities
             return;
