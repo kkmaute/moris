@@ -784,7 +784,7 @@ namespace moris::ge
             tCircleParameterList.set( "field_type", "circle" );
             tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );
             tCircleParameterList.set( "discretization_mesh_index", 0 );
-            tCircleParameterList.set( "multilinear_interpolation", true );
+            tCircleParameterList.set( "use_multilinear_interpolation", true );
             Matrix< DDRMat > tADVs( 0, 0 );
 
             // Create geometry engine
