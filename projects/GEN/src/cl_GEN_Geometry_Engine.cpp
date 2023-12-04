@@ -52,9 +52,6 @@ namespace moris
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
 
-            // Level set options
-            mEvaluateNewChildNodeAsLinear = aParameterLists( 0 )( 0 ).get< bool >( "evaluate_new_pts_as_linear" );
-
             // Requested IQIs
             mRequestedIQIs = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "IQI_types" ) );
 
@@ -97,16 +94,6 @@ namespace moris
             // Get geometries and properties from the factory
             mGeometries = tDesignFactory.get_geometries();
             mProperties = tDesignFactory.get_properties();
-
-            // iterate through geometries if any are multilinear, we turn the linear flag on
-            for ( moris::uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
-            {
-                if ( mGeometries( iGeom )->get_intersection_interpolation() == Int_Interpolation::MULTILINEAR )
-                {
-                    MORIS_LOG_INFO( "New Child Vertices will be evaluated as using linear background cells" );
-                    mEvaluateNewChildNodeAsLinear = true;
-                }
-            }
 
             MORIS_ERROR( mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_Data_Types.hpp" );

@@ -597,7 +597,7 @@ namespace moris
                 // set parameters that are independent of the particular geometry used
                 tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
-                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
+                tGenParamList( 1 )( iGeom ).set( "multilinear_interpolation", tUseMultiLinearIntersections );
                 tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // -------------------------------- //
@@ -799,7 +799,7 @@ namespace moris
                 tGenParamList( 1 )( iGeom ) = prm::create_image_sdf_field_parameter_list();
                 tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
-                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
+                tGenParamList( 1 )( iGeom ).set( "multilinear_interpolation", tUseMultiLinearIntersections );
                 tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // get the file name and check it for validity
@@ -850,7 +850,7 @@ namespace moris
             {
                 // initialize with the sdf field default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
-                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", false );
+                tGenParamList( 1 )( iGeom ).set( "multilinear_interpolation", false );
                 // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // FIXME: this functionality needs to get added

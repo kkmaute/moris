@@ -600,7 +600,7 @@ namespace moris::ge
 
             Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry( 1 );
             Level_Set_Parameters tLevelSetParameters;
-            tLevelSetParameters.mIntersectionInterpolation = Int_Interpolation::MULTILINEAR;
+            tLevelSetParameters.mUseMultilinearInterpolation = true;
             tLevelSetParameters.mIsocontourThreshold = 0.5;
             tLevelSetParameters.mIsocontourTolerance = 1E-13;
             auto tField = std::make_shared< Mesh_Field >( tMeshData, tLSFName );
@@ -784,7 +784,7 @@ namespace moris::ge
             tCircleParameterList.set( "field_type", "circle" );
             tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );
             tCircleParameterList.set( "discretization_mesh_index", 0 );
-            tCircleParameterList.set( "multilinear_intersections", true );
+            tCircleParameterList.set( "multilinear_interpolation", true );
             Matrix< DDRMat > tADVs( 0, 0 );
 
             // Create geometry engine

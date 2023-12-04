@@ -27,6 +27,7 @@ namespace moris::ge
             , mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
             , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
             , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
+            , mUseMultilinearInterpolation( aParameterList.get< bool >( "use_multilinear_interpolation" ) )
     {
     }
 
@@ -229,6 +230,13 @@ namespace moris::ge
     Design_Field::get_discretization_upper_bound()
     {
         return mParameters.mDiscretizationUpperBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Design_Field::use_multilinear_interpolation()
+    {
+        return mParameters.mUseMultilinearInterpolation;
     }
 
     //--------------------------------------------------------------------------------------------------------------

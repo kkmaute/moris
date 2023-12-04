@@ -62,9 +62,6 @@ namespace moris
             // Phase Table
             Phase_Table mPhaseTable;
 
-            //
-            bool mEvaluateNewChildNodeAsLinear = false;
-
             // Spatial dimensions
             uint mNumSpatialDimensions;
 

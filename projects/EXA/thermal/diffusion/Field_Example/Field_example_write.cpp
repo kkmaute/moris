@@ -228,7 +228,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", true );
+        tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", true );
     }
 
     void

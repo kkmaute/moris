@@ -20,8 +20,6 @@ namespace moris::ge
 
     Level_Set_Parameters::Level_Set_Parameters( const ParameterList& aParameterList )
             : Field_Parameters( aParameterList )
-            , mIntersectionInterpolation( aParameterList.get< bool >( "multilinear_intersections" )
-                    ? Int_Interpolation::MULTILINEAR : Int_Interpolation::LINEAR )
             , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )
             , mIsocontourTolerance( aParameterList.get< real >( "isocontour_tolerance" ) )
             , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
@@ -43,14 +41,6 @@ namespace moris::ge
     void Level_Set_Geometry::set_node_manager( Node_Manager& aNodeManager )
     {
         mField->set_node_manager( aNodeManager );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Int_Interpolation
-    Level_Set_Geometry::get_intersection_interpolation()
-    {
-        return mParameters.mIntersectionInterpolation;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -110,10 +100,10 @@ namespace moris::ge
             const Parent_Node&   aSecondParentNode,
             mtk::Geometry_Type   aBaseGeometryType )
     {
-        if ( mParameters.mIntersectionInterpolation == Int_Interpolation::LINEAR )
+        if ( this->use_multilinear_interpolation() )
         {
-            // Create linear intersection node
-            return new Intersection_Node_Linear(
+            // Create multilinear intersection node
+            return new Intersection_Node_Bilinear(
                     aNodeIndex,
                     aBaseNodes,
                     aFirstParentNode,
@@ -123,8 +113,8 @@ namespace moris::ge
         }
         else
         {
-            // Create multilinear intersection node
-            return new Intersection_Node_Bilinear(
+            // Create linear intersection node
+            return new Intersection_Node_Linear(
                     aNodeIndex,
                     aBaseNodes,
                     aFirstParentNode,

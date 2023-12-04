@@ -27,10 +27,9 @@ namespace moris::ge
      */
     struct Level_Set_Parameters : public Field_Parameters
     {
-        Int_Interpolation mIntersectionInterpolation; // The type of interpolation used to determine intersection location
-        real              mIsocontourThreshold;       // Level set isocontour level
-        real              mIsocontourTolerance;       // Interface tolerance based on geometry value
-        real              mIntersectionTolerance;     // Interface tolerance based on intersecction distance
+        real mIsocontourThreshold;       // Level set isocontour level
+        real mIsocontourTolerance;       // Interface tolerance based on geometry value
+        real mIntersectionTolerance;     // Interface tolerance based on intersecction distance
 
         /**
          * Constructor with a given parameter list
@@ -63,13 +62,6 @@ namespace moris::ge
          * @param aNodeManager Geometry engine node manager
          */
         void set_node_manager( Node_Manager& aNodeManager ) override;
-
-        /**
-         * Gets the intersection interpolation type for this geometry.
-         *
-         * @return Intersection interpolation
-         */
-        Int_Interpolation get_intersection_interpolation();
 
         /**
          * Gets the mode of intersection used for this geometry

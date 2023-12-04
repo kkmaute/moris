@@ -24,12 +24,13 @@ namespace moris::ge
      */
     struct Field_Parameters
     {
-        Cell< uint > mNumberOfRefinements;       //! The number of refinement steps to use for this field
-        Cell< uint > mRefinementMeshIndices;     //! Indices of meshes to perform refinement on
-        sint         mRefinementFunctionIndex;   //! Index of a user-defined refinement function (-1 = default)
-        sint         mDiscretizationIndex;       //! Index of a mesh for discretization (-2 = none, -1 = store nodal values)
-        real         mDiscretizationLowerBound;  //! Lower bound for the B-spline coefficients in this field
-        real         mDiscretizationUpperBound ; //! Upper bound for the B-spline coefficients in this field
+        Cell< uint > mNumberOfRefinements;         // The number of refinement steps to use for this field
+        Cell< uint > mRefinementMeshIndices;       // Indices of meshes to perform refinement on
+        sint         mRefinementFunctionIndex;     // Index of a user-defined refinement function (-1 = default)
+        sint         mDiscretizationIndex;         // Index of a mesh for discretization (-2 = none, -1 = store nodal values)
+        real         mDiscretizationLowerBound;    // Lower bound for the B-spline coefficients in this field
+        real         mDiscretizationUpperBound;    // Upper bound for the B-spline coefficients in this field
+        bool         mUseMultilinearInterpolation; // Whether to use multilinear interpolation for all derived node field values
 
         /**
          * Constructor with a given parameter list
@@ -234,6 +235,13 @@ namespace moris::ge
          * @return Upper bound
          */
         real get_discretization_upper_bound();
+
+        /**
+         * Gets whether this field will be using multilinear interpolation to get derived node field values.
+         *
+         * @return Multilinear interpolation flag
+         */
+        bool use_multilinear_interpolation();
 
         // TODO where should I really put this stuff?
         void set_num_original_nodes( uint aNumOriginalNodes );
