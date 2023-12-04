@@ -133,7 +133,14 @@ touch "$MORISROOT/projects/mains/input_file.cpp"
 
 cd "$MORISROOT/$builddir"
 
-make shared_object_file
+if [ -f "Makefile" ]; then
+    make shared_object_file
+elif [ -f "build.ninja" ]; then
+    ninja shared_object_file
+else
+    echo "No known build system found in $MORISROOT/$builddir"
+    exit 1
+fi
 
 cd "$workdir"
 
