@@ -495,8 +495,36 @@ namespace moris::mtk
       protected:
         void collect_all_sets( bool aSetShape = true );
 
-        void setup_set_to_color();
+        void collect_color_to_set_info();
 
+        /**
+         * @brief Populates the "color to set list". The maximum number of colors should be known before calling this function (see determine_max_color()).
+         * @tparam T The Set-type (Block_Set, Side_Set, Double_Side_Set)
+         * @param aListOfSets The list of sets to populate the color to set list from
+         * @param aColorToSet The color to set list to populate
+         */
+        template< class T >
+        void populate_color_to_set_list( moris::Cell< T > aListOfSets, moris::Cell< moris::Cell< T > > &aColorToSet )
+        {
+            // clear old data
+            aColorToSet.clear();
+            aColorToSet.resize( mMaxColor + 1 );
+
+            for ( moris::uint i = 0; i < aListOfSets.size(); i++ )
+            {
+                Matrix< IndexMat > const &tSetColors = aListOfSets( i )->get_set_colors();
+                // iterate through the colors and add to related color grouping
+                for ( moris::uint j = 0; j < tSetColors.numel(); j++ )
+                {
+                    aColorToSet( tSetColors( j ) ).push_back( aListOfSets( i ) );
+                }
+            }
+        }
+
+        /**
+         * @brief Determines the maximum color number over all mesh sets
+         */
+        void determine_max_color();
     };    // class mtk::Integration_Mesh
 
     // ----------------------------------------------------------------------------
