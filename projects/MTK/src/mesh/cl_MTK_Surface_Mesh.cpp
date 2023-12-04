@@ -22,30 +22,41 @@ namespace moris::mtk
     {
     }
 
-
-    Surface_Mesh::Surface_Mesh( Integration_Mesh_DataBase_IG *aIGMesh, const moris::Cell< std::string > &aSideSetNames )
-            : mIGMesh( aIGMesh )
-            , mSideSetNames( aSideSetNames )
+    Surface_Mesh::Surface_Mesh( moris::Cell< mtk::Side_Set * > aSideSets )
     {
-        initialize_surface_mesh();
+        this->initialize_from_side_sets( aSideSets );
     }
 
-    void Surface_Mesh::initialize_surface_mesh()
+    Surface_Mesh::Surface_Mesh( Integration_Mesh_DataBase_IG *aIGMesh, const moris::Cell< std::string > &aSideSetNames )
     {
+        moris::Cell< mtk::Side_Set * > tSideSets;
+
+        auto tSideSetFromName = [ &aIGMesh ]( std::string const &aSideSetName ) {
+            return dynamic_cast< Side_Set * >( aIGMesh->get_set_by_name( aSideSetName ) );
+        };
+        std::transform( aSideSetNames.begin(), aSideSetNames.end(), std::back_inserter( tSideSets ), tSideSetFromName );
+
+        initialize_from_side_sets( tSideSets );
+    }
+
+    void Surface_Mesh::initialize_from_side_sets( moris::Cell< mtk::Side_Set * > const &aSideSets )
+    {
+        mSideSets = aSideSets;
+
         // temporary map to store the neighbors of each vertex since we do not necessarily know the index of the
         // vertex that we want to add as a neighbor at the time of creation.
         map< moris_index, moris::Cell< moris_index > > tTmpNeighborMap;
 
         // loop over all side sets by name
-        for ( auto &tSetName : mSideSetNames )
+        for ( auto &tSideSet : aSideSets )
         {
-            Set *tSideSet = mIGMesh->get_set_by_name( tSetName );
-            this->initialize_side_set( tTmpNeighborMap, tSideSet );
+            this->initialize_side_set( tTmpNeighborMap, dynamic_cast< Set const * >( tSideSet ) );
         }
 
         // in a last step, the neighbors can actually be correctly assigned since all local indices are known
         this->initialize_neighbors( tTmpNeighborMap );
     }
+
     void Surface_Mesh::initialize_side_set( map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap, Set const *aSideSet )
     {
         // loop over all clusters that the side set consists of
@@ -186,6 +197,8 @@ namespace moris::mtk
 
     Matrix< DDRMat > Surface_Mesh::get_facet_measure()
     {
+        map< moris_index, mtk::Cell_DataBase const * > tCells = get_cells();
+
         // only recalculate facet measures if they have not been calculated before
         if ( mFacetMeasure.n_rows() == 0 )
         {
@@ -193,9 +206,9 @@ namespace moris::mtk
             for ( moris::size_t i = 0; i < mLocalToGlobalCellIndex.size(); i++ )
             {
                 auto tGlobalCellIndex = mLocalToGlobalCellIndex( i );
-                auto tCell            = dynamic_cast< mtk::Cell_DataBase            &>( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
+                auto tCell            = tCells[ tGlobalCellIndex ];
                 auto tSideOrdinal     = mCellSideOrdinals( i );
-                auto tMeasure         = tCell.compute_cell_side_measure( tSideOrdinal );
+                auto tMeasure         = tCell->compute_cell_side_measure( tSideOrdinal );
                 mFacetMeasure( i )    = tMeasure;
             }
         }
@@ -203,16 +216,34 @@ namespace moris::mtk
         return mFacetMeasure;
     }
 
+    map< moris_index, Cell_DataBase const * > Surface_Mesh::get_cells()
+    {
+        map< moris_index, Cell_DataBase const * > tCells{};
+        for ( auto tSideSet : mSideSets )
+        {
+            for ( auto tCluster : tSideSet->get_clusters_on_set() )
+            {
+                for ( auto tCell : tCluster->get_primary_cells_in_cluster() )
+                {
+
+                    tCells[ tCell->get_index() ] = dynamic_cast< Cell_DataBase const * >( tCell );
+                }
+            }
+        }
+        return tCells;
+    }
+
     Matrix< DDRMat > Surface_Mesh::get_vertex_normals()
     {
         // only recalculate vertex normals if they have not been calculated before
+        uint tDim = mSideSets( 0 )->get_spatial_dim();
         if ( mVertexNormals.n_rows() == 0 )
         {
             auto tFacetNormals = this->get_facet_normals();
             auto tFacetMeasure = this->get_facet_measure();
-            mVertexNormals.resize( mLocalToGlobalVertexIndex.size(), mIGMesh->get_spatial_dim() );
+            mVertexNormals.resize( mLocalToGlobalVertexIndex.size(), tDim );
 
-            auto   tNormal = Matrix< DDRMat >( 1, mIGMesh->get_spatial_dim() );
+            auto   tNormal = Matrix< DDRMat >( 1, tDim );
             size_t tNumNeighbors;
             for ( moris::size_t i = 0; i < mLocalToGlobalVertexIndex.size(); i++ )
             {
@@ -250,11 +281,9 @@ namespace moris::mtk
     void Surface_Mesh::set_displacement( Matrix< DDRMat > aDisplacements )
     {
         auto nVertices = mLocalToGlobalVertexIndex.size();
-        auto nDim      = mIGMesh->get_spatial_dim();
+        auto nDim      = mSideSets( 0 )->get_spatial_dim();
         MORIS_ASSERT( aDisplacements.n_rows() == nVertices, "Number of vertices in displacement matrix does not match number of vertices in mesh" );
         MORIS_ASSERT( aDisplacements.n_cols() == nDim, "Number of dimensions in displacement matrix does not match number of dimensions in mesh" );
         mDisplacements = aDisplacements;
     }
-
-
 }    // namespace moris::mtk
