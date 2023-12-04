@@ -14,6 +14,11 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 
+namespace moris::mig
+{
+    class Periodic_Mesh_Editor;
+}
+
 namespace moris
 {
     namespace mtk
@@ -32,6 +37,10 @@ namespace moris
 
         class Integration_Mesh_DataBase_IG : public mtk::Integration_Mesh
         {
+            friend class Periodic2D_Analysis;
+            friend class Integration_Mesh_Editor;
+            friend class moris::mig::Periodic_Mesh_Editor;
+
           private:
             Integration_Mesh_Info* mIGMeshInfo = nullptr;
 
@@ -98,7 +107,7 @@ namespace moris
             // Cell Information
             moris::Cell< Cell_DataBase > mCells;
 
-            moris::map< std::string, enum CellTopology > mCellTopologyToNameMap;
+            moris::map< std::string, enum CellTopology > mNameToCellTopologyMap;    // key: set name, value: cell topology
 
             // vertex map (used in GEN)
             std::unordered_map< moris_id, moris_index > mVertexGlobalIdToLocalIndex;
@@ -694,9 +703,6 @@ namespace moris
 
             moris::Memory_Map
             get_memory_usage();
-
-            friend class Periodic2D_Analysis;
-            friend class Integration_Mesh_Editor;
         };
 
     }    // namespace mtk

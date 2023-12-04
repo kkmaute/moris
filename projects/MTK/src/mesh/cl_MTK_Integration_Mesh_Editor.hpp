@@ -472,19 +472,6 @@ namespace moris::mtk
         add_cells( moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
                 moris::Cell< moris::Cell< moris_index > >&    aCellToVertexIndices );
 
-        // ----------------------------------------------------------------------------
-
-        virtual void
-        construct_periodic_data_base(
-                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
-                Matrix< DDRMat >                           aVerticesCoords,
-                moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-                moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
-                moris::Cell< moris_index >&                aSideClusterToIPCell,
-                Matrix< DDRMat >&                          aVertexParametricCoords,
-                moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
-                uint                                       mNumDblSideCluster,
-                uint                                       aNumGeometry );
 
         // ----------------------------------------------------------------------------
 
@@ -517,22 +504,12 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         void
-        reconstruct_connectivity();
-
-        // ----------------------------------------------------------------------------
-
-        void
-        merge_meshes();
-
-        // ----------------------------------------------------------------------------
-
-        void
         recreate_side_sets();
 
         // ----------------------------------------------------------------------------
 
         void
-        create_parallel_consistnet_cell_ids( moris_index aNumNewCells );
+        create_parallel_consistent_cell_ids( moris_index aNumNewCells );
 
         // ----------------------------------------------------------------------------
 

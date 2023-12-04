@@ -178,7 +178,7 @@ namespace moris::mtk
         // chceck if we have the same toplogy as the old mesh
         // MORIS_ASSERT( mCellTopologyToNameMap[aSetName] == mIGMesh.get_blockset_topology( aSetName ), "No the Same Cell Topo" );
 
-        return mCellTopologyToNameMap[aSetName];
+        return mNameToCellTopologyMap[aSetName];
     }
 
     // ----------------------------------------------------------------------------

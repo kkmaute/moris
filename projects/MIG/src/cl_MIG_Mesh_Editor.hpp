@@ -11,6 +11,10 @@
 #ifndef SRC_cl_MIG_Mesh_Editor
 #define SRC_cl_MIG_Mesh_Editor
 
+#include "cl_TOL_Memory_Map.hpp"
+#include <unordered_map>
+#include "cl_Cell.hpp"
+#include "cl_Matrix.hpp"
 #include "typedefs.hpp"
 #include <memory>
 #include "cl_MTK_Integration_Mesh_Editor.hpp"
@@ -95,7 +99,7 @@ namespace moris::mig
          * @param aNumGeometry
          */
 
-        virtual void
+        void
         construct_periodic_data_base(
                 moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
                 Matrix< DDRMat >                           aVerticesCoords,
@@ -105,7 +109,7 @@ namespace moris::mig
                 Matrix< DDRMat >&                          aVertexParametricCoords,
                 moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
                 uint                                       mNumDblSideCluster,
-                uint                                       aNumGeometry ) override;
+                uint                                       aNumGeometry );
 
         //------------------------------------------------------------------------------------------------------------
 
@@ -136,53 +140,13 @@ namespace moris::mig
          */
 
         void
-        link_nodes_to_geomtry_engine();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        //############################################################################################################/
-        // These function are not used, added here for later development
-        //############################################################################################################/
-
-        void
-        create_vertices();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        void
-        create_cells();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        void
-        create_side_clusters();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        void
-        create_side_sets();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        void
-        create_double_sided_clusters();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        void
-        create_double_sided_set();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        void
-        create_parallel_consistent_new_vertex_ids();
-
-        //------------------------------------------------------------------------------------------------------------
-
-        void
         reconstruct_connectivity();
 
-        //------------------------------------------------------------------------------------------------------------
+      private:
+
+        void
+        link_nodes_to_geomtry_engine();
+
 
         void
         merge_meshes();
