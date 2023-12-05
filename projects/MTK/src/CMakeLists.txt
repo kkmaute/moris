@@ -168,6 +168,8 @@ set(HEADERS
         io/cl_MTK_Exodus_IO_Helper.hpp
         io/cl_MTK_Reader_Exodus.hpp
         io/cl_MTK_Writer_Exodus.hpp
+        io/cl_MTK_Json_Debug_Output.hpp
+        io/json.hpp
 
         mesh/cl_MTK_Integration_Mesh.hpp
         mesh/cl_MTK_Integration_Mesh_Editor.hpp
@@ -268,6 +270,7 @@ set(LIB_SOURCES
         io/cl_MTK_Exodus_IO_Helper.cpp
         io/cl_MTK_Reader_Exodus.cpp
         io/cl_MTK_Writer_Exodus.cpp
+        io/cl_MTK_Json_Debug_Output.cpp
 
         mesh/cl_MTK_Integration_Mesh.cpp
         mesh/cl_MTK_Integration_Mesh_Editor.cpp
