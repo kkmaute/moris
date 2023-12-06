@@ -55,7 +55,7 @@ namespace moris::ge
         real tFieldValue = 0.0;
 
         // Add contributions from each basis node
-        for ( auto iBasisNode : aDerivedNode->get_basis_nodes() )
+        for ( auto iBasisNode : aDerivedNode->get_locator_nodes() )
         {
             tFieldValue += this->get_field_value( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
         }
@@ -78,7 +78,7 @@ namespace moris::ge
     const Matrix< DDRMat >& Field_Discrete_Integration::get_dfield_dadvs( Derived_Node* aDerivedNode )
     {
         // Add contributions from each locator
-        for ( auto iBasisNode : aDerivedNode->get_basis_nodes() )
+        for ( auto iBasisNode : aDerivedNode->get_locator_nodes() )
         {
             // Get locator sensitivities
             Matrix< DDRMat > tLocatorSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
@@ -114,7 +114,7 @@ namespace moris::ge
     Matrix< DDSMat > Field_Discrete_Integration::get_determining_adv_ids( Derived_Node* aDerivedNode )
     {
         // Add contributions from each locator
-        for ( auto iBasisNode : aDerivedNode->get_basis_nodes() )
+        for ( auto iBasisNode : aDerivedNode->get_locator_nodes() )
         {
             // Get locator sensitivities
             Matrix< DDSMat > tLocatorADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();

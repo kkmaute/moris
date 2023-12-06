@@ -100,17 +100,17 @@ namespace moris::ge
 
         // Get sensitivity values from other ancestors
         Matrix< DDRMat > tSensitivitiesToAdd;
-        const Cell< Basis_Node >& tLocators = this->get_basis_nodes();
-        for ( uint tAncestorNode = 0; tAncestorNode < tLocators.size(); tAncestorNode++ )
+        const Cell< Basis_Node >& tLocatorNodes = this->get_locator_nodes();
+        for ( uint iLocatorNode = 0; iLocatorNode < tLocatorNodes.size(); iLocatorNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
             const Matrix< DDRMat >& tFieldSensitivities = tLockedInterfaceGeometry->get_dfield_dadvs(
-                    tLocators( tAncestorNode ).get_index(),
-                    tLocators( tAncestorNode ).get_global_coordinates() );
+                    tLocatorNodes( iLocatorNode ).get_index(),
+                    tLocatorNodes( iLocatorNode ).get_global_coordinates() );
 
             // Ancestor sensitivities
             tSensitivitiesToAdd =
-                    0.5 * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( tAncestorNode ) * mParentVector * tFieldSensitivities;
+                    0.5 * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( iLocatorNode ) * mParentVector * tFieldSensitivities;
 
             // Resize sensitivities
             uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
@@ -155,13 +155,13 @@ namespace moris::ge
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
         // Get sensitivity values from other ancestors
-        const Cell< Basis_Node >& tLocators = this->get_basis_nodes();
-        for ( uint tAncestorNode = 0; tAncestorNode < tLocators.size(); tAncestorNode++ )
+        const Cell< Basis_Node >& tLocatorNodes = this->get_locator_nodes();
+        for ( uint iLocatorNode = 0; iLocatorNode < tLocatorNodes.size(); iLocatorNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
             const Matrix< DDSMat >& tAncestorADVIDs = tLockedInterfaceGeometry->get_determining_adv_ids(
-                    tLocators( tAncestorNode ).get_index(),
-                    tLocators( tAncestorNode ).get_global_coordinates() );
+                    tLocatorNodes( iLocatorNode ).get_index(),
+                    tLocatorNodes( iLocatorNode ).get_global_coordinates() );
 
             // Join IDs
             this->join_adv_ids( tAncestorADVIDs );

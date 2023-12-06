@@ -42,17 +42,17 @@ namespace moris::ge
         delete tInterpolation;
 
         // Create locators
-        mBasisNodes.reserve( aBaseNodes.size() );
+        mBackgroundNodes.reserve( aBaseNodes.size() );
         for ( uint iBasisIndex = 0; iBasisIndex < aBaseNodes.size(); iBasisIndex++ )
         {
-            mBasisNodes.emplace_back( aBaseNodes( iBasisIndex ), tBasis( iBasisIndex ) );
+            mBackgroundNodes.emplace_back( aBaseNodes( iBasisIndex ), tBasis( iBasisIndex ) );
         }
 
         // Size global coordinates based on first locator
-        mGlobalCoordinates = Matrix< DDRMat >( 1, mBasisNodes( 0 ).get_global_coordinates().length(), 0.0 );
+        mGlobalCoordinates = Matrix< DDRMat >( 1, mBackgroundNodes( 0 ).get_global_coordinates().length(), 0.0 );
 
         // Add contributions from all locators
-        for ( auto iBasisNode : mBasisNodes )
+        for ( auto iBasisNode : mBackgroundNodes )
         {
             mGlobalCoordinates += iBasisNode.get_global_coordinates() * iBasisNode.get_basis();
         }
@@ -74,9 +74,16 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_basis_nodes()
+    const Cell< Basis_Node >& Derived_Node::get_background_nodes()
     {
-        return mBasisNodes;
+        return mBackgroundNodes;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Cell< Basis_Node >& Derived_Node::get_locator_nodes()
+    {
+        return mBackgroundNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------

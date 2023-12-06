@@ -424,12 +424,12 @@ namespace moris::ge
         Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
         // get level set values of corner nodes
-        const Cell< Basis_Node >& tBasisNodes = this->get_basis_nodes();
-        for ( uint iBasisNodeIndex = 0; iBasisNodeIndex < tNumBases; ++iBasisNodeIndex )
+        const Cell< Basis_Node >& tBackgroundNodes = this->get_background_nodes();
+        for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
-            tPhiBCNodes( iBasisNodeIndex ) = tLockedInterfaceGeometry->get_field_value(
-                    tBasisNodes( iBasisNodeIndex ).get_index(),
-                    tBasisNodes( iBasisNodeIndex ).get_global_coordinates() );
+            tPhiBCNodes( iBackgroundNodeIndex ) = tLockedInterfaceGeometry->get_field_value(
+                    tBackgroundNodes( iBackgroundNodeIndex ).get_index(),
+                    tBackgroundNodes( iBackgroundNodeIndex ).get_global_coordinates() );
         }
 
         // compute local coordinate in background cell CS
