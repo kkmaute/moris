@@ -44,6 +44,7 @@ namespace moris::ge
     {
       protected:
         std::shared_ptr< Field > mField;
+        Node_Manager* mNodeManager;
 
       private:
         Field_Parameters         mParameters;
@@ -54,10 +55,12 @@ namespace moris::ge
          *
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
+         * @param aNodeManager Node manager from the geometry engine, if available
          */
         Design_Field(
                 std::shared_ptr< Field > aField,
-                Field_Parameters         aParameters );
+                Field_Parameters         aParameters,
+                Node_Manager&            aNodeManager );
 
         /**
          * Gets if this field is to be used for seeding a B-spline field.

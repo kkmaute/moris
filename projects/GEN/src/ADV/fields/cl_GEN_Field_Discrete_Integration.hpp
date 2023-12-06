@@ -22,6 +22,8 @@ namespace moris::ge
 
       private:
         Cell< std::shared_ptr< Child_Node > > mChildNodes;
+        Matrix< DDRMat > mInterpolatedSensitivities;
+        Matrix< DDSMat > mInterpolatedADVIDs;
 
       public:
 
@@ -55,7 +57,15 @@ namespace moris::ge
          */
         real get_field_value(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates ) override;
+                const Matrix< DDRMat >& aCoordinates ) final;
+
+        /**
+         * Gets a field value of a derived node.
+         *
+         * @param aDerivedNode Derived node
+         * @return Field value
+         */
+        real get_field_value( Derived_Node* aDerivedNode ) final;
 
         /**
          * Given a node index, returns the field value
@@ -74,7 +84,15 @@ namespace moris::ge
          */
         const Matrix< DDRMat >& get_dfield_dadvs(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates ) override;
+                const Matrix< DDRMat >& aCoordinates ) final;
+
+        /**
+         * Gets a vector of the field derivatives with respect to ADVs of a derived node.
+         *
+         * @param aDerivedNode Derived node
+         * @return d(field value)/d(ADV_j)
+         */
+        const Matrix< DDRMat >& get_dfield_dadvs( Derived_Node* aDerivedNode ) final;
 
         /**
          * Given a node index, returns a vector of the field derivatives with respect to its ADVs.
@@ -85,7 +103,7 @@ namespace moris::ge
         virtual const Matrix< DDRMat >& get_dfield_dadvs( uint aNodeIndex ) = 0;
 
         /**
-         * Gets the IDs of ADVs which this field depends on for evaluations, including child nodes.
+         * Gets the IDs of ADVs which this field depends on for evaluations.
          *
          * @param aNodeIndex Node index
          * @param aCoordinates Node coordinates
@@ -93,7 +111,15 @@ namespace moris::ge
          */
         Matrix< DDSMat > get_determining_adv_ids(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates ) override;
+                const Matrix< DDRMat >& aCoordinates ) final;
+
+        /**
+         * Gets the IDs of ADVs that this field depends on for evaluations at a derived node.
+         *
+         * @param aDerivedNode Derived node
+         * @return Determining ADV IDs at this node
+         */
+        Matrix< DDSMat > get_determining_adv_ids( Derived_Node* aDerivedNode ) final;
 
         /**
          * Gets the IDs of ADVs which this field depends on for evaluations for non-child nodes.

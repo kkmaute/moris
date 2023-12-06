@@ -35,8 +35,10 @@ namespace moris::ge
 
     Design_Field::Design_Field(
             std::shared_ptr< Field > aField,
-            Field_Parameters aParameters )
+            Field_Parameters         aParameters,
+            Node_Manager&            aNodeManager )
             : mField( std::move( aField ) )
+            , mNodeManager( &aNodeManager )
             , mParameters( std::move( aParameters ) )
     {
         MORIS_ERROR( mField, "A design must be provided a field for computing values." );

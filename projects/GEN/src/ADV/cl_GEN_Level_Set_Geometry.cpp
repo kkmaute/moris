@@ -30,8 +30,9 @@ namespace moris::ge
 
     Level_Set_Geometry::Level_Set_Geometry(
             std::shared_ptr< Field > aField,
-            Level_Set_Parameters     aParameters )
-            : Design_Field( aField, aParameters )
+            Level_Set_Parameters     aParameters,
+            Node_Manager&            aNodeManager )
+            : Design_Field( aField, aParameters, aNodeManager )
             , mParameters( aParameters )
     {
     }
@@ -40,7 +41,7 @@ namespace moris::ge
 
     void Level_Set_Geometry::set_node_manager( Node_Manager& aNodeManager )
     {
-        mField->set_node_manager( aNodeManager );
+        mNodeManager = &aNodeManager;
     }
 
     //--------------------------------------------------------------------------------------------------------------

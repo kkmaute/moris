@@ -44,14 +44,24 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        return this->get_field_value( aNodeIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Field_Discrete_Integration::get_field_value( Derived_Node* aDerivedNode )
+    {
+        // Initialize field value
+        real tFieldValue = 0.0;
+
+        // Add contributions from each basis node
+        for ( auto iBasisNode : aDerivedNode->get_basis_nodes() )
         {
-            return this->get_field_value( aNodeIndex );
+            tFieldValue += this->get_field_value( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
         }
-        else
-        {
-            return this->get_interpolated_field_value( aNodeIndex, aCoordinates );
-        }
+
+        // Return result
+        return tFieldValue;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -60,14 +70,34 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        return this->get_dfield_dadvs( aNodeIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >& Field_Discrete_Integration::get_dfield_dadvs( Derived_Node* aDerivedNode )
+    {
+        // Add contributions from each locator
+        for ( auto iBasisNode : aDerivedNode->get_basis_nodes() )
         {
-            return this->get_dfield_dadvs( aNodeIndex );
+            // Get locator sensitivities
+            Matrix< DDRMat > tLocatorSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
+
+            // Have to do a resize, since each locator can depend on different number of ADVs
+            mInterpolatedSensitivities.resize( 1, mInterpolatedSensitivities.length() + tLocatorSensitivities.length() );
+
+            // Get current joined sensitivity length
+            uint tJoinedSensitivityLength = mInterpolatedSensitivities.length();
+
+            // Append to current list
+            for ( uint iBasisNodeSensitivity = 0; iBasisNodeSensitivity < tLocatorSensitivities.length(); iBasisNodeSensitivity++ )
+            {
+                mInterpolatedSensitivities( tJoinedSensitivityLength + iBasisNodeSensitivity ) = tLocatorSensitivities( iBasisNodeSensitivity );
+            }
         }
-        else
-        {
-            return this->get_interpolated_dfield_dadvs( aNodeIndex, aCoordinates );
-        }
+
+        // Return result
+        return mInterpolatedSensitivities;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -76,14 +106,34 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        return this->get_determining_adv_ids( aNodeIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat > Field_Discrete_Integration::get_determining_adv_ids( Derived_Node* aDerivedNode )
+    {
+        // Add contributions from each locator
+        for ( auto iBasisNode : aDerivedNode->get_basis_nodes() )
         {
-            return this->get_determining_adv_ids( aNodeIndex );
+            // Get locator sensitivities
+            Matrix< DDSMat > tLocatorADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
+
+            // Have to do a resize, since each locator can depend on different number of ADVs
+            mInterpolatedADVIDs.resize( 1, mInterpolatedADVIDs.length() + tLocatorADVIDs.length() );
+
+            // Get current joined ADV ID length
+            uint tJoinedADVIDLength = mInterpolatedADVIDs.length();
+
+            // Append to current list
+            for ( uint iBasisNodeADV = 0; iBasisNodeADV < tLocatorADVIDs.length(); iBasisNodeADV++ )
+            {
+                mInterpolatedADVIDs( tJoinedADVIDLength + iBasisNodeADV ) = tLocatorADVIDs( iBasisNodeADV );
+            }
         }
-        else
-        {
-            return this->get_interpolated_determining_adv_ids( aNodeIndex, aCoordinates );
-        }
+
+        // Return result
+        return mInterpolatedADVIDs;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -94,24 +144,24 @@ namespace moris::ge
             const Matrix<DDRMat>& aCoordinates,
             Matrix<DDRMat>&       aSensitivities)
     {
-        if ( mNodeManager->is_base_node( aNodeIndex ) )
-        {
-            // Base node, there are no sensitivities
-            return;
-        }
-        else
-        {
-            // Get sensitivities from linear intersection node
-            auto tIntersectionNode = dynamic_cast< Intersection_Node_Linear* >( mNodeManager->get_derived_node( aNodeIndex ) );
-            tIntersectionNode->get_dfield_dcoordinates( this, aSensitivities );
-        }
+//        if ( mNodeManager->is_base_node( aNodeIndex ) )
+//        {
+//            // Base node, there are no sensitivities
+//            return;
+//        }
+//        else
+//        {
+//            // Get sensitivities from linear intersection node
+//            auto tIntersectionNode = dynamic_cast< Intersection_Node_Linear* >( mNodeManager->get_derived_node( aNodeIndex ) );
+//            tIntersectionNode->get_dfield_dcoordinates( this, aSensitivities );
+//        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDSMat> Field_Discrete_Integration::get_determining_adv_ids(uint aNodeIndex)
+    Matrix< DDSMat > Field_Discrete_Integration::get_determining_adv_ids( uint aNodeIndex )
     {
-        return Field::get_determining_adv_ids(aNodeIndex, {{}});
+        return Field::get_determining_adv_ids( aNodeIndex, {{}} );
     }
 
     //--------------------------------------------------------------------------------------------------------------

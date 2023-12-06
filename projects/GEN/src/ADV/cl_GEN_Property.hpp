@@ -46,10 +46,12 @@ namespace moris::ge
          *
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
+         * @param aNodeManager Node manager from the geometry engine, if available
          */
         explicit Property(
               std::shared_ptr< Field > aField,
-              Property_Parameters      aParameters = Property_Parameters() );
+              Property_Parameters      aParameters = Property_Parameters(),
+              Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this property)

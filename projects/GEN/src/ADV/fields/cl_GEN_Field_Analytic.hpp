@@ -89,6 +89,17 @@ namespace moris::ge
         }
 
         /**
+         * Gets a field value of a derived node.
+         *
+         * @param aDerivedNode Derived node
+         * @return Field value
+         */
+        real get_field_value( Derived_Node* aDerivedNode ) override
+        {
+            return this->get_field_value( aDerivedNode->get_global_coordinates() );
+        }
+
+        /**
          * Given a node coordinate, returns the field value
          *
          * @param aCoordinates vector of coordinate values
@@ -108,6 +119,17 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates ) override
         {
             return this->get_dfield_dadvs( aCoordinates );
+        }
+
+        /**
+         * Gets a vector of the field derivatives with respect to ADVs of a derived node.
+         *
+         * @param aDerivedNode Derived node
+         * @return d(field value)/d(ADV_j)
+         */
+        const Matrix< DDRMat >& get_dfield_dadvs( Derived_Node* aDerivedNode ) override
+        {
+            return this->get_dfield_dadvs( aDerivedNode->get_global_coordinates() );
         }
 
         /**

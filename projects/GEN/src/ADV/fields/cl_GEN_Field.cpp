@@ -9,7 +9,6 @@
  */
 
 #include "cl_GEN_Field.hpp"
-#include "cl_GEN_Node_Manager.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 #include <utility>
@@ -86,80 +85,9 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field::set_node_manager( Node_Manager& aNodeManager )
-    {
-        mNodeManager = &aNodeManager;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     uint Field::get_number_of_reference_coordinates()
     {
         return 0;
-    }
-    
-    //--------------------------------------------------------------------------------------------------------------
-    
-    real Field::get_interpolated_field_value(
-            uint                    aNodeIndex,
-            const Matrix< DDRMat >& aCoordinates )
-    {
-        if ( mNodeManager->is_base_node( aNodeIndex ) )
-        {
-            // Get base field value
-            return this->get_field_value( aNodeIndex, aCoordinates );
-        }
-        else
-        {
-            // Initialize field value
-            real tFieldValue = 0.0;
-            
-            // Add contributions from each basis node
-            for ( auto iBasisNode : mNodeManager->get_derived_node( aNodeIndex )->get_basis_nodes() )
-            {
-                tFieldValue += this->get_field_value( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
-            }
-            
-            // Return result
-            return tFieldValue;
-        }
-    }
-    
-    //--------------------------------------------------------------------------------------------------------------
-    
-    const Matrix< DDRMat >& Field::get_interpolated_dfield_dadvs(
-            uint                    aNodeIndex,
-            const Matrix< DDRMat >& aCoordinates )
-    {
-        if ( mNodeManager->is_base_node( aNodeIndex ) )
-        {
-            // Get base sensitivities
-            return this->get_dfield_dadvs( aNodeIndex, aCoordinates );
-        }
-        else
-        {
-            // Add contributions from each locator
-            for ( auto iBasisNode : mNodeManager->get_derived_node( aNodeIndex )->get_basis_nodes() )
-            {
-                // Get locator sensitivities
-                Matrix< DDRMat > tLocatorSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
-
-                // Have to do a resize, since each locator can depend on different number of ADVs
-                mInterpolatedSensitivities.resize( 1, mInterpolatedSensitivities.length() + tLocatorSensitivities.length() );
-
-                // Get current joined sensitivity length
-                uint tJoinedSensitivityLength = mInterpolatedSensitivities.length();
-
-                // Append to current list
-                for ( uint iBasisNodeSensitivity = 0; iBasisNodeSensitivity < tLocatorSensitivities.length(); iBasisNodeSensitivity++ )
-                {
-                    mInterpolatedSensitivities( tJoinedSensitivityLength + iBasisNodeSensitivity ) = tLocatorSensitivities( iBasisNodeSensitivity );
-                }
-            }
-
-            // Return result
-            return mInterpolatedSensitivities;
-        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -173,39 +101,9 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Field::get_interpolated_determining_adv_ids(
-            uint                    aNodeIndex,
-            const Matrix< DDRMat >& aCoordinates )
+    Matrix< DDSMat > Field::get_determining_adv_ids( Derived_Node* aDerivedNode )
     {
-        if ( mNodeManager->is_base_node( aNodeIndex ) )
-        {
-            // Get base sensitivities
-            return this->get_determining_adv_ids( aNodeIndex, aCoordinates );
-        }
-        else
-        {
-            // Add contributions from each locator
-            for ( auto iBasisNode : mNodeManager->get_derived_node( aNodeIndex )->get_basis_nodes() )
-            {
-                // Get locator sensitivities
-                Matrix< DDSMat > tLocatorADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
-
-                // Have to do a resize, since each locator can depend on different number of ADVs
-                mInterpolatedADVIDs.resize( 1, mInterpolatedADVIDs.length() + tLocatorADVIDs.length() );
-
-                // Get current joined ADV ID length
-                uint tJoinedADVIDLength = mInterpolatedADVIDs.length();
-
-                // Append to current list
-                for ( uint iBasisNodeADV = 0; iBasisNodeADV < tLocatorADVIDs.length(); iBasisNodeADV++ )
-                {
-                    mInterpolatedADVIDs( tJoinedADVIDLength + iBasisNodeADV ) = tLocatorADVIDs( iBasisNodeADV );
-                }
-            }
-
-            // Return result
-            return mInterpolatedADVIDs;
-        }
+        return this->get_determining_adv_ids( aDerivedNode->get_index(), aDerivedNode->get_global_coordinates() );
     }
 
     //--------------------------------------------------------------------------------------------------------------

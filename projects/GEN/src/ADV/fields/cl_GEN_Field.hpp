@@ -50,13 +50,10 @@ namespace moris::ge
       protected:
         uint mNumOriginalNodes = 0;
         ADV_Manager mADVManager;
-        Node_Manager* mNodeManager = &Node_Manager::get_trivial_instance();
         Matrix< DDRMat > mSensitivities;
 
       private:
         std::string mName;
-        Matrix< DDRMat > mInterpolatedSensitivities;
-        Matrix< DDSMat > mInterpolatedADVIDs;
         inline static uint mCount = 0;
 
       public:
@@ -144,14 +141,6 @@ namespace moris::ge
         virtual void import_advs( sol::Dist_Vector* aOwnedADVs );
 
         /**
-         * Sets a new node manager (from the geometry engine, if it was created after this geometry).
-         * Default implementation does nothing.
-         *
-         * @param aNodeManager Geometry engine node manager
-         */
-        void set_node_manager( Node_Manager& aNodeManager );
-
-        /**
          * Gets the number of reference coordinates this field has.
          *
          * @return Number of reference coordinates
@@ -170,15 +159,12 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates ) = 0;
 
         /**
-         * Gets a field value, interpolating to a derived node when applicable
+         * Gets a field value of a derived node.
          *
-         * @param aNodeIndex Node index
-         * @param aCoordinates Vector of coordinate values
+         * @param aDerivedNode Derived node
          * @return Field value
          */
-        real get_interpolated_field_value(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+        virtual real get_field_value( Derived_Node* aDerivedNode ) = 0;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
@@ -192,15 +178,12 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates ) = 0;
 
         /**
-         * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
+         * Gets a vector of the field derivatives with respect to ADVs of a derived node.
          *
-         * @param aNodeIndex Node index
-         * @param aCoordinates Vector of coordinate values
+         * @param aDerivedNode Derived node
          * @return d(field value)/d(ADV_j)
          */
-        const Matrix< DDRMat >& get_interpolated_dfield_dadvs(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+        virtual const Matrix< DDRMat >& get_dfield_dadvs( Derived_Node* aDerivedNode ) = 0;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -216,7 +199,7 @@ namespace moris::ge
                 Matrix< DDRMat >&       aSensitivities ) = 0;
 
         /**
-         * Gets the IDs of ADVs that this manager depends on for evaluations.
+         * Gets the IDs of ADVs that this field depends on for evaluations.
          *
          * @param aNodeIndex Node index
          * @param aCoordinates Node coordinates
@@ -227,15 +210,12 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates );
 
         /**
-         * Gets the IDs of ADVs that this manager depends on for evaluations.
+         * Gets the IDs of ADVs that this field depends on for evaluations at a derived node.
          *
-         * @param aNodeIndex Node index
-         * @param aCoordinates Node coordinates
+         * @param aDerivedNode Derived node
          * @return Determining ADV IDs at this node
          */
-        Matrix< DDSMat > get_interpolated_determining_adv_ids(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+        virtual Matrix< DDSMat > get_determining_adv_ids( Derived_Node* aDerivedNode );
 
         /**
          * Gets if this manager has ADVs (at least one non-constant parameter)

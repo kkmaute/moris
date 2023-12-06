@@ -51,10 +51,12 @@ namespace moris::ge
          *
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
+         * @param aNodeManager Node manager from the geometry engine, if available
          */
         explicit Level_Set_Geometry(
               std::shared_ptr< Field > aField,
-              Level_Set_Parameters     aParameters = Level_Set_Parameters() );
+              Level_Set_Parameters     aParameters = Level_Set_Parameters(),
+              Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this geometry)
