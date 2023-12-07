@@ -57,7 +57,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            scale_node_coords( Matrix< DDRMat >& aScaling )
+            scale_node_coords( const Matrix< DDRMat >& aScaling )
             {
                 for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
                 {
@@ -68,7 +68,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            shift_node_coords( Matrix< DDRMat >& aShift )
+            shift_node_coords( const Matrix< DDRMat >& aShift )
             {
                 mNodeCoords += aShift;
             }

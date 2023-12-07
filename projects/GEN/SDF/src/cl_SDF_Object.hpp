@@ -56,7 +56,7 @@ namespace moris
              * @param aRotationMatrix the direction cosine matrix defining the rotation
              */
             void
-            rotate_object( Matrix< DDRMat >& aRotationMatrix );
+            rotate_object( const Matrix< DDRMat >& aRotationMatrix );
 
             //-------------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ namespace moris
              * @param aScaling factor to scale in each coordinate direction
              */
             void
-            scale_object( Matrix< DDRMat >& aScaling );
+            scale_object( const Matrix< DDRMat >& aScaling );
 
             //-------------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ namespace moris
              * @param aShift shift in each coordinate direction that is added to the objects coordinates.
              */
             void
-            shift_object( Matrix< DDRMat >& aShift );
+            shift_object( const Matrix< DDRMat >& aShift );
 
             //-------------------------------------------------------------------------------
 
