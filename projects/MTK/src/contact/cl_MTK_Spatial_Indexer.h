@@ -38,7 +38,7 @@ namespace moris::mtk
 
         Target_Info const & operator[]( moris_index aIndex ) const
         {
-            return mTargetMap.find( aIndex );
+            return mTargetMap.at( aIndex );
         }
 
         /**
@@ -80,8 +80,8 @@ namespace moris::mtk
     {
       public:    // constructors
         Spatial_Indexer(
-                moris::Cell< mtk::Surface_Mesh >                     aSurfaceMeshes,
-                moris::Cell< std::pair< moris_index, moris_index > > aCandidatePairs )
+                moris::Cell< mtk::Surface_Mesh > const &                     aSurfaceMeshes,
+                moris::Cell< std::pair< moris_index, moris_index > > const & aCandidatePairs )
                 : mSurfaceMeshes( aSurfaceMeshes )
                 , mCandidatePairs( aCandidatePairs )
         {
@@ -96,7 +96,7 @@ namespace moris::mtk
         /**
          * @brief List of surface mesh entities.
          */
-        moris::Cell< mtk::Surface_Mesh > mSurfaceMeshes;
+        moris::Cell< mtk::Surface_Mesh > const mSurfaceMeshes;
 
         /**
          * @brief List of pairs that define which surface meshes should be compared. The first index defines the source mesh, the second index defines the target mesh.
@@ -104,7 +104,7 @@ namespace moris::mtk
          * @example If the list contains the pair (0,1), then the first surface mesh will be compared to the second one.
          * The pair (0, 0) means that the first surface mesh will be compared to itself (thus allowing a self-intersection).
          */
-        moris::Cell< std::pair< moris_index, moris_index > > mCandidatePairs;
+        moris::Cell< std::pair< moris_index, moris_index > > const mCandidatePairs;
     };
 
 
