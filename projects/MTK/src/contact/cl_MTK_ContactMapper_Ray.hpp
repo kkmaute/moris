@@ -32,7 +32,14 @@ namespace moris::mtk
                 Matrix< DDRMat > const           &aPhysicalCoordinates,
                 Matrix< DDRMat > const           &aNormals );
 
-        static std::pair< bool, double > calculate_ray_line_intersection( Matrix< DDRMat > const &aRayOrigin, Matrix< DDRMat > const &aRayDirection, Matrix< DDRMat > const &aSegmentOrigin, Matrix< DDRMat > const &aSegmentDirection );
+        static std::pair< bool, Matrix< DDRMat > > calculate_ray_line_intersection(
+                Matrix< DDRMat > const &aRayOrigin,
+                Matrix< DDRMat > const &aRayDirection,
+                Matrix< DDRMat > const &aSegmentOrigin,
+                Matrix< DDRMat > const &aSegmentDirection );
+
+      private:    // methods
+        static moris::Cell< Surface_Mesh > initialize_surface_meshes( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > const &aSideSets );
 
       private:    // data
         moris::Cell< Surface_Mesh > mSurfaceMeshes{};

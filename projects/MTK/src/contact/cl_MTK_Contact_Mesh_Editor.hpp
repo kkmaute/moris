@@ -23,15 +23,16 @@ namespace moris::mtk
     {
       public:    // member functions
         Contact_Mesh_Editor(
-                Integration_Mesh_DataBase_IG*   aIGMesh,
-                Interpolation_Mesh_DataBase_IP* aIPMesh,
-                const Integrator&               aIntegrationRule,
-                moris::Cell< Side_Set* >&       aCandidateSideSet )
+                Integration_Mesh_DataBase_IG*                                aIGMesh,
+                Interpolation_Mesh_DataBase_IP*                              aIPMesh,
+                const Integrator&                                            aIntegrationRule,
+                moris::Cell< Side_Set* >&                                    aCandidateSideSet,
+                moris::Cell< std::pair< moris_index, moris_index > > const & aCandidatePairs )
                 : mIGMesh( aIGMesh )
                 , mIPMesh( aIPMesh )
                 , mIntegrationRule( aIntegrationRule )
                 , mSideSets( aCandidateSideSet )
-                , mPointMapper( ContactMapper_Ray( aIGMesh, aCandidateSideSet, moris::Cell< std::pair< moris_index, moris_index > >() ) ){};
+                , mPointMapper( ContactMapper_Ray( aIGMesh, aCandidateSideSet, aCandidatePairs ) ){};
 
         void update_nonconformal_side_sets();
 

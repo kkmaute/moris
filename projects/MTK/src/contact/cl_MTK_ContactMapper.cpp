@@ -14,7 +14,7 @@ namespace moris::mtk
             Integration_Mesh                                           *aIGMesh,
             moris::Cell< Side_Set * >                                  &aSideSets,
             moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs )
-            : mIntegrationMeshes( aIGMesh )
+            : mIGMesh( aIGMesh )
             , mSideSets( aSideSets )
             , mCandidatePairs( aCandidatePairs )
     {

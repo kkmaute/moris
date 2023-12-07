@@ -21,9 +21,9 @@ namespace moris::mtk
 
             /**
              * @brief The parametric coordinates of the point on which the mapping was performed.
-             * The coordinate is only valid if the mapping was successful and a corresponding cell index is not -1.
+             * @attention The coordinate is only valid if the mapping was successful and a corresponding cell index is not -1!
              */
-            moris::Matrix< DDRMat > mParametricCoordinates;
+            Matrix< DDRMat > mParametricCoordinates;
 
             /**
              * @brief The n-th entry of this vector is the row index at which the coordinates of the n-th Side_Set
@@ -52,7 +52,7 @@ namespace moris::mtk
         virtual MappingResult map( Matrix< DDRMat > const &aParametricCoordinate ) = 0;
 
       protected:
-        Integration_Mesh                                    *mIntegrationMeshes;
+        Integration_Mesh                                    *mIGMesh;
         moris::Cell< mtk::Side_Set * >                       mSideSets;
         moris::Cell< std::pair< moris_index, moris_index > > mCandidatePairs;
     };
