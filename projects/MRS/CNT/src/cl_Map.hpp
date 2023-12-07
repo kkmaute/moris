@@ -93,6 +93,34 @@ namespace moris
             return mMap[ aK ];
         }
 
+        /**
+         * Access operator. The mapped values can be accessed directly. If the input parameter aK
+         * matches the key of an element in the container, the function returns a reference to the mapped value. If the input
+         * parameter aK does not match a key of any element in the container, an std::out_of_range exception is thrown.
+         *
+         * @param[in] aK Key value of the element whose mapped value is accessed
+         *
+         * @include CON/src/cl_Map/cl_Map.inc
+         */
+        T2 & at( const T1 &aK )
+        {
+            return mMap.at( aK );
+        }
+
+        /**
+         * Access operator. The mapped values can be accessed directly. If the input parameter aK
+         * matches the key of an element in the container, the function returns a reference to the mapped value. If the input
+         * parameter aK does not match a key of any element in the container, an std::out_of_range exception is thrown.
+         *
+         * @param[in] aK Key value of the element whose mapped value is accessed
+         *
+         * @include CON/src/cl_Map/cl_Map.inc
+         */
+        T2 const & at( const T1 &aK ) const
+        {
+            return mMap.at( aK );
+        }
+
         //--------------------------------------------------------------------------------
 
         /**
