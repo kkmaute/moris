@@ -67,6 +67,14 @@ namespace moris::ge
         bool depends_on_advs() override;
 
         /**
+         * Gets the locator nodes of this derived node.
+         * For intersection nodes, these are its parents.
+         *
+         * @return Locator nodes
+         */
+        const Cell< Basis_Node >& get_locator_nodes() override;
+
+        /**
          * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
          * -1 and 1)
          *

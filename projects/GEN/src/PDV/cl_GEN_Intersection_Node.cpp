@@ -73,6 +73,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Cell< Basis_Node >& Intersection_Node::get_locator_nodes()
+    {
+        return mParentNodes;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool
     Intersection_Node::parent_edge_is_intersected()
     {
