@@ -12,14 +12,17 @@ namespace moris::mtk
 {
     class Spatial_Indexer_BruteForce : public Spatial_Indexer
     {
-      public:
+      public:    // constructors
         Spatial_Indexer_BruteForce( moris::Cell< mtk::Surface_Mesh > aSurfaceMeshes, moris::Cell< std::pair< moris_index, moris_index > > aSurfacePairs )
                 : Spatial_Indexer( aSurfaceMeshes, aSurfacePairs ){};
 
+      public:    // methods
         moris::Cell< Spatial_Indexing_Result > perform( real epsilon ) override;
 
-      private:
+      private:    // methods
         Spatial_Indexing_Result perform_on_mesh_pair( moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, real aEpsilon );
+
+      private:    // data
     };
 }    // namespace moris::mtk
 

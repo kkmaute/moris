@@ -65,9 +65,7 @@ set(HEADERS
         contact/cl_MTK_ContactMapper.hpp
         contact/cl_MTK_ContactMapper_Ray.hpp
         contact/cl_MTK_Contact_Mesh_Editor.hpp
-        contact/cl_MTK_Spatial_Indexer.cpp
         contact/cl_MTK_Spatial_Indexer.h
-        contact/cl_MTK_Spatial_Indexer_BruteForce.cpp
         contact/cl_MTK_Spatial_Indexer_BruteForce.h
 
         field/cl_MTK_Field.hpp
@@ -207,9 +205,6 @@ set(HEADERS
         set/cl_MTK_Side_Set.hpp
         set/cl_MTK_Side_Sets_Info.hpp
 
-        set/mapper/cl_MTK_PointMapper.hpp
-        set/mapper/cl_MTK_PointMapper_Ray.hpp
-
         stk_impl/cl_MTK_Cell_Cluster_STK.hpp
         stk_impl/cl_MTK_Cell_STK.hpp
         stk_impl/cl_MTK_Integration_Mesh_STK.hpp
@@ -239,7 +234,12 @@ set(LIB_SOURCES
         cluster/cl_MTK_Side_Cluster_Group.cpp
         cluster/cl_MTK_Side_Cluster_Group_DataBase.cpp
         cluster/cl_MTK_Side_Cluster_ISC_Impl.cpp
-        cluster/cl_MTK_Nonconformal_Side_Cluster.cpp
+
+        contact/cl_MTK_Contact_Mesh_Editor.cpp
+        contact/cl_MTK_ContactMapper.cpp
+        contact/cl_MTK_ContactMapper_Ray.cpp
+        contact/cl_MTK_Spatial_Indexer.cpp
+        contact/cl_MTK_Spatial_Indexer_BruteForce.cpp
 
         field/cl_MTK_Field.cpp
         field/cl_MTK_Field_Analytic.cpp
@@ -297,9 +297,6 @@ set(LIB_SOURCES
         mesh/cl_MTK_Surface_Mesh.cpp
 
         set/cl_MTK_Set_Communicator.cpp
-
-        set/mapper/cl_MTK_PointMapper.cpp
-        set/mapper/cl_MTK_PointMapper_Ray.cpp
 
         stk_impl/cl_MTK_Cell_Cluster_STK.cpp
         stk_impl/cl_MTK_Integration_Mesh_STK.cpp

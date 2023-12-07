@@ -9,7 +9,7 @@ namespace moris::mtk
     moris::Cell< Spatial_Indexing_Result > Spatial_Indexer_BruteForce::perform( real epsilon )
     {
         moris::Cell< Spatial_Indexing_Result > tResults{ static_cast< uint >( mSurfaceMeshes.size() ) };
-        for ( auto& tPair : mSurfacePairs )
+        for ( auto& tPair : mCandidatePairs )
         {
             Spatial_Indexing_Result tNewResult = perform_on_mesh_pair( tPair.first, tPair.second, epsilon );
             tResults( tPair.first ).merge( tNewResult );
@@ -32,8 +32,8 @@ namespace moris::mtk
         moris::Cell< moris::Cell< moris_index > > mNeighbors;
         if ( tIsSelfIntersectionSearch ) mNeighbors = tSourceMesh.get_vertex_neighbors();
 
-        moris_index tNumSourceVertices = tSourceCoordinates.n_rows();
-        moris_index tNumTargetVertices = tTargetCoordinates.n_rows();
+        moris_index tNumSourceVertices = tSourceCoordinates.n_cols();
+        moris_index tNumTargetVertices = tTargetCoordinates.n_cols();
 
         // outer loop over all source coordinates
         for ( moris_index source_vertex = 0; source_vertex < tNumSourceVertices; source_vertex++ )
@@ -66,11 +66,11 @@ namespace moris::mtk
                 }
 
                 // check if the distance between the two vertices is smaller than the current distance
-                auto tDistance = norm( tSourceCoordinates.get_row( source_vertex ) - tTargetCoordinates.get_row( target_vertex ) );
+                auto tDistance = norm( tSourceCoordinates.get_column( source_vertex ) - tTargetCoordinates.get_column( target_vertex ) );
                 if ( tDistance < tMinDistance )
                 {
                     // check that vertex normals are pointing in different directions
-                    auto tDot = dot( tSourceNormals.get_row( source_vertex ), tTargetNormals.get_row( target_vertex ) );
+                    auto tDot = dot( tSourceNormals.get_column( source_vertex ), tTargetNormals.get_column( target_vertex ) );
                     if ( tDot > 0.0 ) continue;
                     tMinDistance   = tDistance;
                     tClosestVertex = target_vertex;

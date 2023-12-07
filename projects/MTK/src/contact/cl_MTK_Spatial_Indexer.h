@@ -36,6 +36,11 @@ namespace moris::mtk
             return mTargetMap[ aIndex ];
         }
 
+        Target_Info const & operator[]( moris_index aIndex ) const
+        {
+            return mTargetMap.find( aIndex );
+        }
+
         /**
          * @brief Merges the result of two spatial indexing operations.
          * @param aOther
@@ -73,7 +78,21 @@ namespace moris::mtk
 
     class Spatial_Indexer
     {
-      protected:
+      public:    // constructors
+        Spatial_Indexer(
+                moris::Cell< mtk::Surface_Mesh >                     aSurfaceMeshes,
+                moris::Cell< std::pair< moris_index, moris_index > > aCandidatePairs )
+                : mSurfaceMeshes( aSurfaceMeshes )
+                , mCandidatePairs( aCandidatePairs )
+        {
+        }
+
+        virtual ~Spatial_Indexer() = default;
+
+      public:    // methods
+        virtual moris::Cell< Spatial_Indexing_Result > perform( real epsilon ) = 0;
+
+      protected:    // methods
         /**
          * @brief List of surface mesh entities.
          */
@@ -85,20 +104,7 @@ namespace moris::mtk
          * @example If the list contains the pair (0,1), then the first surface mesh will be compared to the second one.
          * The pair (0, 0) means that the first surface mesh will be compared to itself (thus allowing a self-intersection).
          */
-        moris::Cell< std::pair< moris_index, moris_index > > mSurfacePairs;
-
-      public:
-        Spatial_Indexer(
-                moris::Cell< mtk::Surface_Mesh >                     aSurfaceMeshes,
-                moris::Cell< std::pair< moris_index, moris_index > > aSurfacePairs )
-                : mSurfaceMeshes( aSurfaceMeshes )
-                , mSurfacePairs( aSurfacePairs )
-        {
-        }
-
-        virtual ~Spatial_Indexer() = default;
-
-        virtual moris::Cell< Spatial_Indexing_Result > perform( real epsilon ) = 0;
+        moris::Cell< std::pair< moris_index, moris_index > > mCandidatePairs;
     };
 
 

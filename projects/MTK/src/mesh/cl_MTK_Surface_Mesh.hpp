@@ -38,7 +38,7 @@ namespace moris::mtk
       public:    // methods
         /**
          * @brief Returns the coordinates of all vertices in the surface mesh.
-         * @return A (n x d) matrix where n is the number of vertices in the surface mesh and d is the dimension of the mesh.
+         * @return A (d x n) matrix where d is the dimension of the mesh and n is the number of vertices in the surface mesh.
          */
         [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates() const;
 
@@ -51,8 +51,15 @@ namespace moris::mtk
         [[nodiscard]] moris::Cell< moris::Cell< moris_index > > get_vertex_neighbors() const;
 
         /**
+         * @brief Returns the indices of all neighboring vertices for the vertex with the given local index.
+         * @param aLocalVertexIndex The local index of the vertex in the surface mesh.
+         * @return A list of indices of the neighbors of the vertex with the given index.
+         */
+        [[nodiscard]] moris::Cell< moris_index > get_vertex_neighbors(moris_index aLocalVertexIndex) const;
+
+        /**
          * @brief Returns the facet normals for each facet in the surface mesh.
-         * @return A (n x d) matrix where n is the number of facets in the surface mesh and d is the dimension of the mesh (holding the normal components).
+         * @return A (d x n) matrix where d is the dimension of the mesh and n is the number of facets in the surface mesh (holding the normal components).
          */
         [[nodiscard]] Matrix< DDRMat > get_facet_normals();
 
@@ -65,7 +72,7 @@ namespace moris::mtk
         /**
          * @brief Returns the averaged vertex normals for each vertex in the surface mesh.
          * @details The vertex normals are averaged over all facets that are connected to the vertex, weighted by the respective facet measure.
-         * @return A (n x d) matrix where n is the number of vertices in the surface mesh and d is the dimension of the mesh (holding the normal components).
+         * @return A (d x n) matrix where d is the dimension of the mesh (holding the normal components) and n is the number of vertices in the surface mesh.
          */
         [[nodiscard]] Matrix< DDRMat > get_vertex_normals();
 
@@ -90,13 +97,34 @@ namespace moris::mtk
          */
         [[nodiscard]] moris_index get_local_vertex_index( moris_index aGlobalVertexIndex );
 
-
         /**
          * @brief Returns all local vertices that are part of the cell with the given local index.
          * @param aLocalCellIndex The local index of the cell in the surface mesh.
          * @return A list of local vertex indices that are part of the cell with the given index.
          */
-        [[nodiscard]] moris::Cell<moris_index> get_vertices_of_cell( moris_index aLocalCellIndex );
+        [[nodiscard]] moris::Cell< moris_index > get_vertices_of_cell( moris_index aLocalCellIndex );
+
+
+        /**
+         * @brief Returns all local cells that are neighbors of the vertex with the given local index.
+         * @param aLocalVertexIndex The local index of the vertex in the surface mesh.
+         * @return A list of local cell indices that are neighbors of the vertex with the given index.
+         */
+        [[nodiscard]] moris::Cell<moris_index > get_cells_of_vertex( moris_index aLocalVertexIndex );
+
+        /**
+         * @brief Returns the coordinates of all vertices that are part of the cell with the given local index.
+         * @param aLocalCellIndex The local index of the cell in the surface mesh.
+         * @return A (d x n) matrix where d is the dimension of the mesh and n is the number of vertices in the cell.
+         */
+        [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates_of_cell( moris_index aLocalCellIndex );
+
+        /**
+         * @brief Returns the (averaged) vertex normals of all vertices that are part of the cell with the given local index.
+         * @param aLocalCellIndex The local index of the cell in the surface mesh.
+         * @return A (d x n) matrix where d is the dimension of the mesh and n is the number of vertices in the cell.
+         */
+        [[nodiscard]] Matrix< DDRMat > get_vertex_normals_of_cell( moris_index aLocalCellIndex );
 
         /**
          * @brief Returns the local index of a cell with the given global index. Global refers to the whole mesh while local is only valid for the surface mesh.
@@ -105,9 +133,14 @@ namespace moris::mtk
          */
         [[nodiscard]] moris_index get_local_cell_index( moris_index aGlobalCellIndex );
 
+        /**
+         * @brief Returns the number of cells in the mesh
+         */
         [[nodiscard]] uint get_number_of_cells() const;
 
+
         [[nodiscard]] uint get_number_of_vertices() const;
+
 
       private:    // methods
         /**
@@ -164,11 +197,13 @@ namespace moris::mtk
                 moris::Cell< Vertex const * >                  &aSideVertices,
                 Vertex const                                   *aVertex );
 
-        /**
-         * @brief Get all cells that are part of the surface mesh.
-         * @return A map from the global cell index to the cell.
-         */
-        map< moris_index, Cell_DataBase const * > get_cells();
+        void initialize_vertex_coordinates();
+
+        void initialize_facet_measure();
+
+        void initialize_facet_normals();
+
+        void initialize_vertex_normals();
 
       private:    // data
         std::shared_ptr< Integration_Mesh_DataBase_IG > mIGMesh;
@@ -238,21 +273,22 @@ namespace moris::mtk
         moris::Matrix< DDRMat > mDisplacements;
 
         /**
-         * @brief Is used to store the normals of the facet. This member variable should not be accessed directly but via the getter function get_facet_normals().
-         * It is only initialized when the getter function is called for the first time. Subsequent calls will return the already computed value.
+         * @brief Stores the facet normals for each facet in the surface mesh. The indices are the indices of the facets in the surface mesh, not the global indices!
          */
-        Matrix< DDRMat >
-                mFacetNormals = Matrix< DDRMat >( 0, 0 );
+        Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 );
 
         /**
-         * @brief Is used to store the measure of the facet. This member variable should not be accessed directly but via the getter function get_facet_measure().
-         * It is only initialized when the getter function is called for the first time. Subsequent calls will return the already computed value.
+         * @brief Stores the averaged vertex normals for each vertex in the surface mesh. The indices are the indices of the vertices in the surface mesh, not the global indices!
          */
         Matrix< DDRMat > mVertexNormals = Matrix< DDRMat >( 0, 0 );
 
         /**
-         * @brief Is used to store the measure of the facet. This member variable should not be accessed directly but via the getter function get_facet_measure().
-         * It is only initialized when the getter function is called for the first time. Subsequent calls will return the already computed value.
+         * @brief Stores the coordinates of all vertices in the surface mesh. The indices are the indices of the vertices in the surface mesh, not the global indices!
+         */
+        Matrix< DDRMat > mVertexCoordinates = Matrix< DDRMat >( 0, 0 );
+
+        /**
+         * @brief Is used to store the measure of each facet.
          */
         Matrix< DDRMat > mFacetMeasure = Matrix< DDRMat >( 0, 0 );
     };
