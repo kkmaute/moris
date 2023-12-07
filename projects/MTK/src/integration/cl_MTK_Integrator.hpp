@@ -76,7 +76,8 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * get the integration points
+             * get the integration points as a (d x n) matrix, where d is the dimension of the space
+             * and n is the number of integration points (each column contains one point)
              **/
             void get_points( Matrix< DDRMat > &aIntegrationPoints );
 
