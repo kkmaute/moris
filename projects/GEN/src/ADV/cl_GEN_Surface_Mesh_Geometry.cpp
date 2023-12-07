@@ -17,16 +17,15 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Parameters::Surface_Mesh_Parameters( const ParameterList& aParameterList )
-            : Field_Parameters( aParameterList )
+            : mFilePath( aParameterList.get( "file_path" ) )
     {
+        string_to_cell_mat( aParameterList.get< std::string >( "offsets" ), mOffsets );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Surface_Mesh_Geometry::Surface_Mesh_Geometry(
-            const std::string&      aFilePath,
-            Surface_Mesh_Parameters aParameters )
-            : Object( aFilePath, aParameters.mOffsets )
+    Surface_Mesh_Geometry::Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters )
+            : Object( aParameters.mFilePath, aParameters.mOffsets )
             , mParameters( aParameters )
     {
     }
@@ -57,31 +56,20 @@ namespace moris::ge
                 break;
             }
         }
-        
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::shared_ptr< Intersection_Node > Surface_Mesh_Geometry::create_intersection_node(
-            uint                                 aEdgeFirstNodeIndex,
-            uint                                 aEdgeSecondNodeIndex,
-            std::shared_ptr< Intersection_Node > aEdgeFirstIntersectionNode,
-            std::shared_ptr< Intersection_Node > aEdgeSecondIntersectionNode,
-            const Matrix< DDRMat >&              aEdgeFirstNodeLocalCoordinates,
-            const Matrix< DDRMat >&              aEdgeSecondNodeLocalCoordinates,
-            const Matrix< DDRMat >&              aEdgeFirstNodeGlobalCoordinates,
-            const Matrix< DDRMat >&              aEdgeSecondNodeGlobalCoordinates,
-            const Matrix< DDUMat >&              aBackgroundElementNodeIndices,
-            const Cell< Matrix< DDRMat > >&      aBackgroundElementNodeCoordinates )
+    Intersection_Node* Surface_Mesh_Geometry::create_intersection_node(
+            uint                 aNodeIndex,
+            const Cell< Node* >& aBaseNodes,
+            const Parent_Node&   aFirstParentNode,
+            const Parent_Node&   aSecondParentNode,
+            mtk::Geometry_Type   aBaseGeometryType )
     {
         // Create linear intersection node
         return std::make_shared< Intersection_Node_Surface_Mesh >(
-                aEdgeFirstIntersectionNode,
-                aEdgeSecondIntersectionNode,
-                aEdgeFirstNodeIndex,
-                aEdgeSecondNodeIndex,
-                aEdgeFirstNodeGlobalCoordinates,
-                aEdgeSecondNodeGlobalCoordinates,
+                
                 shared_from_this() );
     }
 
