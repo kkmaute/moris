@@ -114,7 +114,24 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mField->get_field_value( aNodeIndex, aCoordinates );
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        {
+            // Get base node field value
+            return mField->get_field_value( aNodeIndex, aCoordinates );
+        }
+        else
+        {
+            if ( mParameters.mUseMultilinearInterpolation )
+            {
+                // If we use multilinear interpolation, it is needed for all derived nodes
+                return mField->get_interpolated_field_value( mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes() );
+            }
+            else
+            {
+                // Let field decide the value
+                return mField->get_field_value( mNodeManager->get_derived_node( aNodeIndex ) );
+            }
+        }
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -123,7 +140,24 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mField->get_dfield_dadvs( aNodeIndex, aCoordinates );
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        {
+            // Get base node sensitivities
+            return mField->get_dfield_dadvs( aNodeIndex, aCoordinates );
+        }
+        else
+        {
+            if ( mParameters.mUseMultilinearInterpolation )
+            {
+                // If we use multilinear interpolation, it is needed for all derived nodes
+                return mField->get_interpolated_dfield_dadvs( mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes() );
+            }
+            else
+            {
+                // Let field decide the sensitivities
+                return mField->get_dfield_dadvs( mNodeManager->get_derived_node( aNodeIndex ) );
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -132,7 +166,24 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mField->get_determining_adv_ids( aNodeIndex, aCoordinates );
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        {
+            // Get base node determining ADV IDs
+            return mField->get_determining_adv_ids( aNodeIndex, aCoordinates );
+        }
+        else
+        {
+            if ( mParameters.mUseMultilinearInterpolation )
+            {
+                // If we use multilinear interpolation, it is needed for all derived nodes
+                return mField->get_interpolated_determining_adv_ids( mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes() );
+            }
+            else
+            {
+                // Let field provide the IDs
+                return mField->get_determining_adv_ids( mNodeManager->get_derived_node( aNodeIndex ) );
+            }
+        }
     }
     
     //--------------------------------------------------------------------------------------------------------------

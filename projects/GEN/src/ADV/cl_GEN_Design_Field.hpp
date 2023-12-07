@@ -219,13 +219,6 @@ namespace moris::ge
         moris_index get_discretization_mesh_index() const;
 
         /**
-         * Gets the order of the discretization mesh.
-         *
-         * @return discretization order
-         */
-        uint get_discretization_order() const;
-
-        /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound

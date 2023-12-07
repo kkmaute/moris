@@ -22,8 +22,6 @@ namespace moris::ge
 
       private:
         Cell< std::shared_ptr< Child_Node > > mChildNodes;
-        Matrix< DDRMat > mInterpolatedSensitivities;
-        Matrix< DDSMat > mInterpolatedADVIDs;
 
       public:
 

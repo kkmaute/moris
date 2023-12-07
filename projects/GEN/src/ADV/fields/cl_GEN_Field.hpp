@@ -54,6 +54,8 @@ namespace moris::ge
 
       private:
         std::string mName;
+        Matrix< DDRMat > mInterpolatedSensitivities;
+        Matrix< DDSMat > mInterpolatedADVIDs;
         inline static uint mCount = 0;
 
       public:
@@ -167,6 +169,14 @@ namespace moris::ge
         virtual real get_field_value( Derived_Node* aDerivedNode ) = 0;
 
         /**
+         * Gets an interpolated field value based on given basis nodes.
+         *
+         * @param aBasisNodes Basis nodes of a derived node
+         * @return Field value
+         */
+        real get_interpolated_field_value( const Cell< Basis_Node >& aBasisNodes );
+
+        /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
          *
          * @param aNodeIndex Node index
@@ -186,17 +196,12 @@ namespace moris::ge
         virtual const Matrix< DDRMat >& get_dfield_dadvs( Derived_Node* aDerivedNode ) = 0;
 
         /**
-         * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
-         * coordinates.
+         * Interpolates the field derivatives with respect to ADVs based on given basis nodes.
          *
-         * @param aNodeIndex Node index
-         * @param aCoordinates Vector of coordinate values
-         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         * @param aBasisNodes Basis nodes of a derived node
+         * @return Appended d(field value)/d(ADV_j)
          */
-        virtual void get_dfield_dcoordinates(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities ) = 0;
+        const Matrix< DDRMat >& get_interpolated_dfield_dadvs( const Cell< Basis_Node >& aBasisNodes );
 
         /**
          * Gets the IDs of ADVs that this field depends on for evaluations.
@@ -216,6 +221,27 @@ namespace moris::ge
          * @return Determining ADV IDs at this node
          */
         virtual Matrix< DDSMat > get_determining_adv_ids( Derived_Node* aDerivedNode );
+
+        /**
+         * Gets the interpolated IDs of ADVs that this field depends on given basis nodes.
+         *
+         * @param aBasisNodes Basis nodes of a derived node
+         * @return Appended determining ADV IDs
+         */
+        Matrix< DDSMat > get_interpolated_determining_adv_ids( const Cell< Basis_Node >& aBasisNodes );
+
+        /**
+         * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
+         * coordinates.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Vector of coordinate values
+         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         */
+        virtual void get_dfield_dcoordinates(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities ) = 0;
 
         /**
          * Gets if this manager has ADVs (at least one non-constant parameter)
