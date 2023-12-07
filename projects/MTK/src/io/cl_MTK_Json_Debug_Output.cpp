@@ -4,10 +4,10 @@
 
 #include <unordered_map>
 #include "cl_MTK_Json_Debug_Output.hpp"
-#include "cl_MTK_Vertex_DataBase.hpp"
-#include "cl_MTK_Cell_Cluster_DataBase.hpp"
-#include "cl_MTK_Cell_DataBase.hpp"
-#include "cl_MTK_Side_Cluster_DataBase.hpp"
+#include "cl_MTK_Vertex.hpp"
+#include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_MTK_Cell.hpp"
+#include "cl_MTK_Side_Cluster.hpp"
 #include "iostream"
 
 using json = nlohmann::json;
@@ -44,7 +44,6 @@ namespace moris
             tMeshObj[ "cells_ip" ]    = serialize_all_cells( mAllIPCells );
 
             std::ofstream tFile( aFileName );
-            //            std::cout << to_string( tMeshObj );
             tFile << to_string( tMeshObj );
             tFile.close();
         }
@@ -59,17 +58,16 @@ namespace moris
             json::array_t tY;
             json::array_t tZ;
 
-            for ( auto tVertexPair : aVertices )
+            for ( auto tVertex : aVertices )
             {
-                auto tDataBase = dynamic_cast< Vertex_DataBase const * >( tVertexPair );
-
-                tIds.emplace_back( tDataBase->get_id() );
-                tIndices.emplace_back( tDataBase->get_index() );
-                tX.emplace_back( tDataBase->get_coords()( 0 ) );
-                tY.emplace_back( tDataBase->get_coords()( 1 ) );
+//                auto tDataBase = dynamic_cast< Vertex const * >( tVertexPair );
+                tIds.emplace_back( tVertex->get_id() );
+                tIndices.emplace_back( tVertex->get_index() );
+                tX.emplace_back( tVertex->get_coords()( 0 ) );
+                tY.emplace_back( tVertex->get_coords()( 1 ) );
                 if ( mMesh->get_spatial_dim() == 3 )
                 {
-                    tZ.emplace_back( tDataBase->get_coords()( 2 ) );
+                    tZ.emplace_back( tVertex->get_coords()( 2 ) );
                 }
             }
             tVertexObj[ "id" ]    = tIds;
@@ -89,7 +87,7 @@ namespace moris
 
             for ( auto tCellPair : aCells )
             {
-                auto tDataBase = dynamic_cast< Cell_DataBase const * >( tCellPair );
+                auto tDataBase = dynamic_cast< Cell const * >( tCellPair );
                 if ( tDataBase == nullptr )
                 {
                     std::cout << "Cell with id " << tCellPair->get_id() << " is not a cell database" << std::endl;
@@ -126,16 +124,17 @@ namespace moris
             for ( auto tSideSet : aDoubleSideSets )
             {
                 json tSideSetObj;
-                tSideSetObj[ "name" ]     = tSideSet->get_set_name();
-                tSideSetObj[ "index" ]    = tSideSet->get_set_index();
+                tSideSetObj[ "name" ]    = tSideSet->get_set_name();
+                tSideSetObj[ "index" ]   = tSideSet->get_set_index();
                 tSideSetObj[ "clusters" ] = json::array();
                 for ( auto tCluster : tSideSet->get_clusters_on_set() )
                 {
                     json tClusterObj;
-                    tClusterObj[ "follower_cluster" ] = serialize_side_cluster( &tCluster->get_follower_side_cluster() );
-                    tClusterObj[ "leader_cluster" ]   = serialize_side_cluster( &tCluster->get_leader_side_cluster() );
+                    auto tDblCluster                  = dynamic_cast< Double_Side_Cluster const                  *>( tCluster );
+                    tClusterObj[ "follower_cluster" ] = serialize_side_cluster( &tDblCluster->get_follower_side_cluster() );
+                    tClusterObj[ "leader_cluster" ]   = serialize_side_cluster( &tDblCluster->get_leader_side_cluster() );
+                    tSideSetObj[ "clusters" ].push_back( tClusterObj );
                 }
-
                 tDoubleSideSetsObj[ tSideSet->get_set_name() ] = tSideSetObj;
             }
             return tDoubleSideSetsObj;
@@ -171,7 +170,7 @@ namespace moris
         json Json_Debug_Output::serialize_cell_cluster( Cluster const *aCluster )
         {
             json tClusterObj;
-            auto tDataBase                    = dynamic_cast< Cell_Cluster_DataBase const                    *>( aCluster );
+            auto tDataBase                    = dynamic_cast< Cell_Cluster const                    *>( aCluster );
             auto tPrimaryCells                = tDataBase->get_primary_cells_in_cluster();
             tClusterObj[ "primary_ig_cells" ] = serialize_cells( tPrimaryCells );
             auto tVoidCells                   = tDataBase->get_void_cells_in_cluster();
@@ -240,7 +239,7 @@ namespace moris
         json Json_Debug_Output::serialize_side_cluster( Cluster const *tCluster )
         {
             json tClusterObj;
-            auto tDataBase = dynamic_cast< Side_Cluster_DataBase const * >( tCluster );
+            auto tDataBase = dynamic_cast< Side_Cluster const * >( tCluster );
             for ( auto tVertex : tDataBase->get_vertices_in_cluster() )
             {
                 mAllIGVertices.insert( tVertex );

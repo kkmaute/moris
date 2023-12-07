@@ -9,7 +9,7 @@
 #include "json.hpp"
 #include "unordered_map"
 #include "cl_MTK_Cell_Cluster_DataBase.hpp"
-#include "cl_MTK_Mesh_DataBase_IG.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
 
 using json = nlohmann::json;
 
@@ -20,13 +20,13 @@ namespace moris
         class Json_Debug_Output
         {
           public:
-            Json_Debug_Output( Integration_Mesh_DataBase_IG const *aMesh )
+            Json_Debug_Output( Integration_Mesh const *aMesh )
                     : mMesh( aMesh ){};
 
             void write_to_json( std::string const &aFileName );
 
           private:
-            Integration_Mesh_DataBase_IG const  *mMesh;
+            Integration_Mesh const  *mMesh;
             std::string                          mFileName;
             std::unordered_set< Vertex const * > mAllIGVertices;
             std::unordered_set< Vertex const * > mAllIPVertices;
