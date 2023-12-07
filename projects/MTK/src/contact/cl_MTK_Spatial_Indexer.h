@@ -2,13 +2,14 @@
 // Created by frank on 11/13/23.
 //
 
-#ifndef MORIS_CL_MIG_SPATIAL_INDEXER_H
-#define MORIS_CL_MIG_SPATIAL_INDEXER_H
+#ifndef MORIS_CL_MTK_SPATIAL_INDEXER_H
+#define MORIS_CL_MTK_SPATIAL_INDEXER_H
 
 #include "cl_Matrix.hpp"
 #include "cl_Map.hpp"
 #include "cl_MTK_Surface_Mesh.hpp"
-namespace moris::mig
+
+namespace moris::mtk
 {
     /**
      * @brief Holds the result of a spatial indexing operation (i.e. closest point search) for a single source surface mesh and (potentially) multiple target surface meshes.
@@ -101,6 +102,6 @@ namespace moris::mig
     };
 
 
-}    // namespace moris::mig
+}    // namespace moris::mtk
 
-#endif    // MORIS_CL_MIG_SPATIAL_INDEXER_H
+#endif    // MORIS_CL_MTK_SPATIAL_INDEXER_H

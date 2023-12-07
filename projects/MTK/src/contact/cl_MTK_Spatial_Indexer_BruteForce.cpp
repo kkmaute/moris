@@ -2,9 +2,9 @@
 // Created by frank on 11/13/23.
 //
 
-#include "cl_MIG_Spatial_Indexer_BruteForce.h"
+#include "cl_MTK_Spatial_Indexer_BruteForce.h"
 
-namespace moris::mig
+namespace moris::mtk
 {
     moris::Cell< Spatial_Indexing_Result > Spatial_Indexer_BruteForce::perform( real epsilon )
     {
@@ -79,9 +79,9 @@ namespace moris::mig
 
             if ( tMinDistance < aEpsilon )
             {
-                tResult[source_vertex] = { tClosestVertex, aTargetMeshIndex, tMinDistance };
+                tResult[ source_vertex ] = { tClosestVertex, aTargetMeshIndex, tMinDistance };
             }
         }    // end outer loop over all coordinates
         return tResult;
     }
-}    // namespace moris::mig
+}    // namespace moris::mtk

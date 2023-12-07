@@ -61,7 +61,14 @@ set(HEADERS
         cluster/cl_MTK_Side_Cluster_Group_DataBase.hpp
         cluster/cl_MTK_Side_Cluster_ISC_Impl.hpp
         cluster/cl_MTK_Side_Cluster_Input.hpp
-        cluster/cl_MTK_Nonconformal_Side_Cluster.hpp
+
+        contact/cl_MTK_ContactMapper.hpp
+        contact/cl_MTK_ContactMapper_Ray.hpp
+        contact/cl_MTK_Contact_Mesh_Editor.hpp
+        contact/cl_MTK_Spatial_Indexer.cpp
+        contact/cl_MTK_Spatial_Indexer.h
+        contact/cl_MTK_Spatial_Indexer_BruteForce.cpp
+        contact/cl_MTK_Spatial_Indexer_BruteForce.h
 
         field/cl_MTK_Field.hpp
         field/cl_MTK_Field_Analytic.hpp

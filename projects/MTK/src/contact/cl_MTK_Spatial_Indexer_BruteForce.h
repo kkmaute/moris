@@ -2,13 +2,13 @@
 // Created by frank on 11/13/23.
 //
 
-#ifndef MORIS_CL_MIG_SPATIAL_INDEXER_BRUTEFORCE_H
-#define MORIS_CL_MIG_SPATIAL_INDEXER_BRUTEFORCE_H
+#ifndef MORIS_CL_MTK_SPATIAL_INDEXER_BRUTEFORCE_H
+#define MORIS_CL_MTK_SPATIAL_INDEXER_BRUTEFORCE_H
 
 
-#include "cl_MIG_Spatial_Indexer.h"
+#include "cl_MTK_Spatial_Indexer.h"
 
-namespace moris::mig
+namespace moris::mtk
 {
     class Spatial_Indexer_BruteForce : public Spatial_Indexer
     {
@@ -21,6 +21,6 @@ namespace moris::mig
       private:
         Spatial_Indexing_Result perform_on_mesh_pair( moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, real aEpsilon );
     };
-}    // namespace moris::mig
+}    // namespace moris::mtk
 
-#endif    // MORIS_CL_MIG_SPATIAL_INDEXER_BRUTEFORCE_H
+#endif    // MORIS_CL_MTK_SPATIAL_INDEXER_BRUTEFORCE_H
