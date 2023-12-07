@@ -416,8 +416,8 @@ namespace moris
             }
 
             // Create first parent node
-            Parent_Node tFirstParentNode( mNodeManager.get_base_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
-            Parent_Node tSecondParentNode( mNodeManager.get_base_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
+            Parent_Node tFirstParentNode( mNodeManager.get_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
+            Parent_Node tSecondParentNode( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
 
             // Have the active geometry create a new intersection node
             mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node(

@@ -54,13 +54,6 @@ namespace moris::ge
         void reset_base_nodes( mtk::Mesh* aMesh );
 
         /**
-         * Gets if the given node index refers to a base node.
-         *
-         * @return If node is a base node.
-         */
-        virtual bool is_base_node( uint aNodeIndex );
-
-        /**
          * Gets the total number of nodes stored by the node manager.
          *
          * @return Total number of nodes
@@ -70,10 +63,25 @@ namespace moris::ge
         /**
          * Gets a node stored in this manager.
          *
-         * @param aIndex Node index
+         * @param aNodeIndex Node index
          * @return Node pointer
          */
-        virtual Base_Node* get_base_node( uint aIndex );
+        Node* get_node( uint aNodeIndex );
+
+        /**
+         * Gets if the given node index refers to a base node.
+         *
+         * @return If node is a base node.
+         */
+        virtual bool is_base_node( uint aNodeIndex );
+
+        /**
+         * Gets a base node stored in this manager.
+         *
+         * @param aBaseNodeIndex Base node index
+         * @return Node pointer
+         */
+        virtual Base_Node* get_base_node( uint aBaseNodeIndex );
 
         /**
          * Adds a derived node to this manager.
@@ -85,10 +93,10 @@ namespace moris::ge
         /**
          * Gets a derived node from this manager
          *
-         * @param aIndex Node index (this must be the index of a derived node, or an error will be thrown)
+         * @param aDerivedNodeIndex Node index (this must be the index of a derived node, or an error will be thrown)
          * @return Derived node
          */
-        Derived_Node* get_derived_node( uint aIndex );
+        Derived_Node* get_derived_node( uint aDerivedNodeIndex );
 
         /**
          * Gets a trivial node manager. This is useful for allowing geometry construction before

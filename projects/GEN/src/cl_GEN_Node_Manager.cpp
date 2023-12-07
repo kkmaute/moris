@@ -89,13 +89,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Node_Manager::is_base_node( uint aNodeIndex )
-    {
-        return aNodeIndex < mBaseNodes.size();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     uint Node_Manager::get_total_number_of_nodes()
     {
         return mBaseNodes.size() + mDerivedNodes.size();
@@ -103,9 +96,30 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Base_Node* Node_Manager::get_base_node( uint aIndex )
+    Node* Node_Manager::get_node( uint aNodeIndex )
     {
-        return mBaseNodes( aIndex );
+        if ( this->is_base_node( aNodeIndex ) )
+        {
+            return this->get_base_node( aNodeIndex );
+        }
+        else
+        {
+            return this->get_derived_node( aNodeIndex );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Node_Manager::is_base_node( uint aNodeIndex )
+    {
+        return aNodeIndex < mBaseNodes.size();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Base_Node* Node_Manager::get_base_node( uint aBaseNodeIndex )
+    {
+        return mBaseNodes( aBaseNodeIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -119,11 +133,11 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Derived_Node* Node_Manager::get_derived_node( uint aIndex )
+    Derived_Node* Node_Manager::get_derived_node( uint aDerivedNodeIndex )
     {
-        MORIS_ASSERT( aIndex >= mBaseNodes.size(),
+        MORIS_ASSERT( aDerivedNodeIndex >= mBaseNodes.size(),
                 "A derived node was requested from the GEN node manager, but the index provided corresponds to a base node." );
-        return mDerivedNodes( aIndex - mBaseNodes.size() );
+        return mDerivedNodes( aDerivedNodeIndex - mBaseNodes.size() );
     }
 
     //--------------------------------------------------------------------------------------------------------------

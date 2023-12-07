@@ -258,13 +258,9 @@ namespace moris::ge
 
                     // Check intersection on intersection 1
                     REQUIRE( tIntersectionQueued == true );
-
                     CHECK( tGeometryEngine.queued_intersection_first_parent_on_interface() == false );
-
                     CHECK( tGeometryEngine.queued_intersection_second_parent_on_interface() == false );
-
                     CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ) );
-
                     CHECK_EQUAL(
                             tGeometryEngine.get_queued_intersection_global_coordinates(),
                             tIntersectionGlobalCoordinates( tIntersectionCount ), );
