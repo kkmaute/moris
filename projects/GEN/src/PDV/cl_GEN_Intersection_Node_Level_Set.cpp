@@ -45,8 +45,8 @@ namespace moris::ge
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
         // Get the difference between the level set value of the parents and the isocontour threshold
-        real tFirstDiffFromThreshold = tLockedInterfaceGeometry->get_field_value( mFirstParentNode.get_index(), mFirstParentNode.get_global_coordinates() );
-        real tSecondDiffFromThreshold = tLockedInterfaceGeometry->get_field_value( mSecondParentNode.get_index(), mSecondParentNode.get_global_coordinates() );
+        real tFirstDiffFromThreshold = tLockedInterfaceGeometry->get_field_value( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() );
+        real tSecondDiffFromThreshold = tLockedInterfaceGeometry->get_field_value( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() );
 
         // get the isocontour thresholds from the geometry
         real tLocalCoordinate = this->get_local_coordinate();
@@ -133,14 +133,14 @@ namespace moris::ge
                                      eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
         Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() );
-        mFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        this->get_first_parent_node().append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
 
         // Add second parent sensitivities
         tLocCoord = ( 1.0 + this->get_local_coordinate() ) *
                                      eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
         tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() );
-        mSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        this->get_second_parent_node().append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -168,8 +168,8 @@ namespace moris::ge
         }
 
         // Add parent IDs
-        this->join_adv_ids( mFirstParentNode.get_coordinate_determining_adv_ids() );
-        this->join_adv_ids( mSecondParentNode.get_coordinate_determining_adv_ids() );
+        this->join_adv_ids( this->get_first_parent_node().get_coordinate_determining_adv_ids() );
+        this->join_adv_ids( this->get_second_parent_node().get_coordinate_determining_adv_ids() );
 
         // Return joined ADV IDs
         return mCoordinateDeterminingADVIDs;

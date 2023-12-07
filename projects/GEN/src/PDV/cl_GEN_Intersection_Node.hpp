@@ -24,10 +24,9 @@ namespace moris::ge
       protected:
         Matrix< DDRMat > mParentVector;
         Matrix< DDSMat > mCoordinateDeterminingADVIDs;
-        Basis_Node mFirstParentNode;
-        Basis_Node mSecondParentNode;
 
       private:
+        Cell< Basis_Node > mParentNodes;
         bool mIsIntersected;
         std::shared_ptr< Geometry > mInterfaceGeometry;
         moris_id mPDVStartingID;
@@ -66,16 +65,6 @@ namespace moris::ge
          * @return ADV dependence
          */
         bool depends_on_advs() override;
-
-        /**
-         * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
-         * ancestor nodes.
-         *
-         * @param aCoordinateSensitivities Coordinate sensitivities matrix that gets appended to
-         * @param aSensitivityFactor Matrix factor to scale this node's sensitivities based on a calling child's position and orientation.
-         * This should be set to identity matrix of number of dimensions for any calls to this function outside of another intersection node.
-         */
-        virtual void append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) = 0;
 
         /**
          * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
@@ -167,22 +156,35 @@ namespace moris::ge
         moris_index
         get_first_parent_node_index()
         {
-            return mFirstParentNode.get_index();
+            return this->get_first_parent_node().get_index();
         }
 
         moris_index
         get_second_parent_node_index()
         {
-            return mSecondParentNode.get_index();
+            return this->get_second_parent_node().get_index();
         }
 
       protected:
         /**
          * Computes basic member data for all intersection node derived classes.
          * Must be called by lowest level child class constructors.
-         *
          */
         void initialize();
+
+        /**
+         * Gets the first parent node of this intersection node.
+         *
+         * @return First parent node
+         */
+        Basis_Node& get_first_parent_node();
+
+        /**
+         * Gets the second parent node of this intersection node.
+         *
+         * @return Second parent node
+         */
+        Basis_Node& get_second_parent_node();
 
         /**
          * Function for appending to the depending ADV IDs member variable, eliminating duplicate code

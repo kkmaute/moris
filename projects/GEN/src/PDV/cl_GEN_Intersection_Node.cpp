@@ -35,8 +35,7 @@ namespace moris::ge
                     aBaseNodes,
                     0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates(),
                     aBaseGeometryType )
-            , mFirstParentNode( aFirstParentNode, 0.5 * ( 1.0 - aLocalCoordinate ) )
-            , mSecondParentNode( aSecondParentNode, 0.5 * ( 1.0 + aLocalCoordinate ) )
+            , mParentNodes( { Basis_Node( aFirstParentNode, 0.5 * ( 1.0 - aLocalCoordinate ) ), Basis_Node( aSecondParentNode, 0.5 * ( 1.0 + aLocalCoordinate ) ) } )
             , mIsIntersected( false )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
@@ -47,15 +46,29 @@ namespace moris::ge
     void
     Intersection_Node::initialize()
     {
-        mParentVector  = trans( mSecondParentNode.get_global_coordinates() - mFirstParentNode.get_global_coordinates() );
+        mParentVector  = trans( this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates() );
         mIsIntersected = this->determine_is_intersected();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Basis_Node& Intersection_Node::get_first_parent_node()
+    {
+        return mParentNodes( 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Basis_Node& Intersection_Node::get_second_parent_node()
+    {
+        return mParentNodes( 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     bool Intersection_Node::depends_on_advs()
     {
-        return mInterfaceGeometry->depends_on_advs() or mFirstParentNode.depends_on_advs() or mSecondParentNode.depends_on_advs();
+        return mInterfaceGeometry->depends_on_advs() or this->get_first_parent_node().depends_on_advs() or this->get_second_parent_node().depends_on_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -71,7 +84,7 @@ namespace moris::ge
     bool
     Intersection_Node::is_first_parent_on_interface()
     {
-        return mInterfaceGeometry->get_geometric_region( mFirstParentNode.get_index(), mFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE;
+        return mInterfaceGeometry->get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -79,7 +92,7 @@ namespace moris::ge
     bool
     Intersection_Node::is_second_parent_on_interface()
     {
-        return mInterfaceGeometry->get_geometric_region( mSecondParentNode.get_index(), mSecondParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE;
+        return mInterfaceGeometry->get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -87,7 +100,7 @@ namespace moris::ge
     real
     Intersection_Node::get_local_coordinate()
     {
-        return 1.0 - 2.0 * mFirstParentNode.get_basis();
+        return 1.0 - 2.0 * this->get_first_parent_node().get_basis();
     }
 
     //--------------------------------------------------------------------------------------------------------------
