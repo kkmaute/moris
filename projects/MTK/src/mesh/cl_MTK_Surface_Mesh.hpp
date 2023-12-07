@@ -27,7 +27,150 @@ namespace moris::mtk
      */
     class Surface_Mesh
     {
-      private:
+
+      public:    // constructors
+        Surface_Mesh( Integration_Mesh *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
+
+        Surface_Mesh( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > &aSideSets );
+
+        Surface_Mesh( Integration_Mesh_DataBase_IG *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
+
+      public:    // methods
+        /**
+         * @brief Returns the coordinates of all vertices in the surface mesh.
+         * @return A (n x d) matrix where n is the number of vertices in the surface mesh and d is the dimension of the mesh.
+         */
+        [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates() const;
+
+        void set_displacement( Matrix< DDRMat > aDisplacements );
+
+        /**
+         * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.
+         * @return A list of lists. The outer list contains the neighbor-lists for each vertex. The inner list contains the indices of the neighbors.
+         */
+        [[nodiscard]] moris::Cell< moris::Cell< moris_index > > get_vertex_neighbors() const;
+
+        /**
+         * @brief Returns the facet normals for each facet in the surface mesh.
+         * @return A (n x d) matrix where n is the number of facets in the surface mesh and d is the dimension of the mesh (holding the normal components).
+         */
+        [[nodiscard]] Matrix< DDRMat > get_facet_normals();
+
+        /**
+         * @brief Returns the facet measure (length/area) for each facet in the surface mesh.
+         * @return A (n x 1) matrix where n is the number of facets in the surface mesh.
+         */
+        [[nodiscard]] Matrix< DDRMat > get_facet_measure();
+
+        /**
+         * @brief Returns the averaged vertex normals for each vertex in the surface mesh.
+         * @details The vertex normals are averaged over all facets that are connected to the vertex, weighted by the respective facet measure.
+         * @return A (n x d) matrix where n is the number of vertices in the surface mesh and d is the dimension of the mesh (holding the normal components).
+         */
+        [[nodiscard]] Matrix< DDRMat > get_vertex_normals();
+
+        /**
+         * @brief Returns the global index of a vertex with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
+         * @param aLocalVertexIndex The local index of the vertex in the surface mesh.
+         * @return The global index of the vertex in the whole mesh.
+         */
+        [[nodiscard]] moris_index get_global_vertex_index( moris_index aLocalVertexIndex );
+
+        /**
+         * @brief Returns the global index of a cell with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
+         * @param aLocalCellIndex The local index of the cell in the surface mesh.
+         * @return The global index of the cell in the whole mesh.
+         */
+        [[nodiscard]] moris_index get_global_cell_index( moris_index aLocalCellIndex );
+
+        /**
+         * @brief Returns the local index of a vertex with the given global index. Global refers to the whole mesh while local is only valid for the surface mesh.
+         * @param aGlobalVertexIndex The global index of the vertex in the whole mesh.
+         * @return The local index of the vertex in the surface mesh.
+         */
+        [[nodiscard]] moris_index get_local_vertex_index( moris_index aGlobalVertexIndex );
+
+
+        /**
+         * @brief Returns all local vertices that are part of the cell with the given local index.
+         * @param aLocalCellIndex The local index of the cell in the surface mesh.
+         * @return A list of local vertex indices that are part of the cell with the given index.
+         */
+        [[nodiscard]] moris::Cell<moris_index> get_vertices_of_cell( moris_index aLocalCellIndex );
+
+        /**
+         * @brief Returns the local index of a cell with the given global index. Global refers to the whole mesh while local is only valid for the surface mesh.
+         * @param aGlobalCellIndex The global index of the cell in the whole mesh.
+         * @return The local index of the cell in the surface mesh.
+         */
+        [[nodiscard]] moris_index get_local_cell_index( moris_index aGlobalCellIndex );
+
+        [[nodiscard]] uint get_number_of_cells() const;
+
+        [[nodiscard]] uint get_number_of_vertices() const;
+
+      private:    // methods
+        /**
+         * @brief This function initializes the surface mesh from an IG Mesh and side set names. It is called by the constructor.
+         * @details The surface mesh is initialized only once. During the initialization, the mapping between the global
+         * to the local indices is created. The local indices are the indices of the vertices/facets in the surface mesh (starting at 0).
+         */
+        void initialize_from_side_sets( const moris::Cell< mtk::Side_Set * > &aSideSets );
+
+
+        /**
+         * @brief Assigns the neighbors to each vertex in the surface mesh after the first pass over all vertices.
+         * This has to be done after all vertices have already been added to the list of vertices as the local indices of neighbors might otherwise not be known.
+         * @param aTmpNeighborMap Map from the global vertex index to the neighbors of the vertex (also global indices). This map is only required for the initialization
+         * of the surface mesh and is created in the initialization call.
+         */
+        void initialize_neighbors(
+                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap );
+
+        /**
+         * @brief Initializes the given side set (calls the cluster initializer for each cluster in the side set).
+         * @param aSideSet
+         */
+        void initialize_side_set( map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap, Set const *aSideSet );
+
+        /**
+         * @brief Initializes the given cluster (calls the cell initializer for each cell in the cluster).
+         * @param aTmpNeighborMap
+         * @param aCluster
+         */
+        void initialize_cluster(
+                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
+                Cluster const *const                           &aCluster );
+
+        /**
+         * @brief Initializes all information for the given cell.
+         * @param aCell
+         */
+        void initialize_cell(
+                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
+                const Cell                                     *aCell,
+                int                                             aCellOrdinal );
+
+        /**
+         * @brief Initializes all information for the given vertex.
+         * @param aTmpNeighborMap
+         * @param aCurrentLocalCellIndex
+         * @param aSideVertices
+         * @param aVertex
+         */
+        void initialize_vertex(
+                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
+                moris_index                                     aCurrentLocalCellIndex,
+                moris::Cell< Vertex const * >                  &aSideVertices,
+                Vertex const                                   *aVertex );
+
+        /**
+         * @brief Get all cells that are part of the surface mesh.
+         * @return A map from the global cell index to the cell.
+         */
+        map< moris_index, Cell_DataBase const * > get_cells();
+
+      private:    // data
         std::shared_ptr< Integration_Mesh_DataBase_IG > mIGMesh;
 
         /**
@@ -112,137 +255,6 @@ namespace moris::mtk
          * It is only initialized when the getter function is called for the first time. Subsequent calls will return the already computed value.
          */
         Matrix< DDRMat > mFacetMeasure = Matrix< DDRMat >( 0, 0 );
-
-
-      public:
-        Surface_Mesh( Integration_Mesh *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
-
-        explicit Surface_Mesh( moris::Cell< mtk::Side_Set * > aSideSets );
-
-        Surface_Mesh( Integration_Mesh_DataBase_IG *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
-
-        /**
-         * @brief Returns the coordinates of all vertices in the surface mesh.
-         * @return A (n x d) matrix where n is the number of vertices in the surface mesh and d is the dimension of the mesh.
-         */
-        [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates() const;
-
-        void set_displacement( Matrix< DDRMat > aDisplacements );
-
-        /**
-         * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.
-         * @return A list of lists. The outer list contains the neighbor-lists for each vertex. The inner list contains the indices of the neighbors.
-         */
-        [[nodiscard]] moris::Cell< moris::Cell< moris_index > > get_vertex_neighbors() const;
-
-        /**
-         * @brief Returns the facet normals for each facet in the surface mesh.
-         * @return A (n x d) matrix where n is the number of facets in the surface mesh and d is the dimension of the mesh (holding the normal components).
-         */
-        [[nodiscard]] Matrix< DDRMat > get_facet_normals();
-
-        /**
-         * @brief Returns the facet measure (length/area) for each facet in the surface mesh.
-         * @return A (n x 1) matrix where n is the number of facets in the surface mesh.
-         */
-        [[nodiscard]] Matrix< DDRMat > get_facet_measure();
-
-        /**
-         * @brief Returns the averaged vertex normals for each vertex in the surface mesh.
-         * @details The vertex normals are averaged over all facets that are connected to the vertex, weighted by the respective facet measure.
-         * @return A (n x d) matrix where n is the number of vertices in the surface mesh and d is the dimension of the mesh (holding the normal components).
-         */
-        [[nodiscard]] Matrix< DDRMat > get_vertex_normals();
-
-        /**
-         * @brief Returns the global index of a vertex with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
-         * @param aLocalVertexIndex The local index of the vertex in the surface mesh.
-         * @return The global index of the vertex in the whole mesh.
-         */
-        [[nodiscard]] moris_index get_global_vertex_index( moris_index aLocalVertexIndex );
-
-        /**
-         * @brief Returns the global index of a cell with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
-         * @param aLocalCellIndex The local index of the cell in the surface mesh.
-         * @return The global index of the cell in the whole mesh.
-         */
-        [[nodiscard]] moris_index get_global_cell_index( moris_index aLocalCellIndex );
-
-        /**
-         * @brief Returns the local index of a vertex with the given global index. Global refers to the whole mesh while local is only valid for the surface mesh.
-         * @param aGlobalVertexIndex The global index of the vertex in the whole mesh.
-         * @return The local index of the vertex in the surface mesh.
-         */
-        [[nodiscard]] moris_index get_local_vertex_index( moris_index aGlobalVertexIndex );
-
-        /**
-         * @brief Returns the local index of a cell with the given global index. Global refers to the whole mesh while local is only valid for the surface mesh.
-         * @param aGlobalCellIndex The global index of the cell in the whole mesh.
-         * @return The local index of the cell in the surface mesh.
-         */
-        [[nodiscard]] moris_index get_local_cell_index( moris_index aGlobalCellIndex );
-
-
-      private:
-        /**
-         * @brief This function initializes the surface mesh from an IG Mesh and side set names. It is called by the constructor.
-         * @details The surface mesh is initialized only once. During the initialization, the mapping between the global
-         * to the local indices is created. The local indices are the indices of the vertices/facets in the surface mesh (starting at 0).
-         */
-        void initialize_from_side_sets( const moris::Cell< mtk::Side_Set * > &aSideSets );
-
-
-        /**
-         * @brief Assigns the neighbors to each vertex in the surface mesh after the first pass over all vertices.
-         * This has to be done after all vertices have already been added to the list of vertices as the local indices of neighbors might otherwise not be known.
-         * @param aTmpNeighborMap Map from the global vertex index to the neighbors of the vertex (also global indices). This map is only required for the initialization
-         * of the surface mesh and is created in the initialization call.
-         */
-         void initialize_neighbors(
-                 map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap );
-
-         /**
-          * @brief Initializes the given side set (calls the cluster initializer for each cluster in the side set).
-          * @param aSideSet
-          */
-         void initialize_side_set( map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap, Set const *aSideSet );
-
-         /**
-          * @brief Initializes the given cluster (calls the cell initializer for each cell in the cluster).
-          * @param aTmpNeighborMap
-          * @param aCluster
-          */
-         void initialize_cluster(
-                 map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
-                 Cluster const *const                           &aCluster );
-
-         /**
-          * @brief Initializes all information for the given cell.
-          * @param aCell
-          */
-         void initialize_cell(
-                 map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
-                 const Cell                                     *aCell,
-                 int                                             aCellOrdinal );
-
-         /**
-          * @brief Initializes all information for the given vertex.
-          * @param aTmpNeighborMap
-          * @param aCurrentLocalCellIndex
-          * @param aSideVertices
-          * @param aVertex
-          */
-         void initialize_vertex(
-                 map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
-                 moris_index                                     aCurrentLocalCellIndex,
-                 moris::Cell< Vertex const * >                  &aSideVertices,
-                 Vertex const                                   *aVertex );
-
-         /**
-          * @brief Get all cells that are part of the surface mesh.
-          * @return A map from the global cell index to the cell.
-          */
-         map< moris_index, Cell_DataBase const * > get_cells();
     };
 
 

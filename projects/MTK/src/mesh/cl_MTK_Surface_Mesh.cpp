@@ -22,7 +22,8 @@ namespace moris::mtk
     {
     }
 
-    Surface_Mesh::Surface_Mesh( moris::Cell< mtk::Side_Set * > aSideSets )
+    Surface_Mesh::Surface_Mesh( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > &aSideSets )
+            : mIGMesh( dynamic_cast< Integration_Mesh_DataBase_IG * >( aIGMesh ) )
     {
         this->initialize_from_side_sets( aSideSets );
     }
@@ -121,12 +122,12 @@ namespace moris::mtk
         {    // check that the vertex has not already been added to the surface mesh
             this->mGlobalToLocalVertexIndex[ tVertexIndex ] = tCurrentLocalVertexIndex;
             this->mLocalToGlobalVertexIndex.push_back( tVertexIndex );
-            this->mCellToVertexIndices( aCurrentLocalCellIndex ).push_back( tCurrentLocalVertexIndex );
             this->mVertexToCellIndices.push_back( moris::Cell< moris_index >() );
         }
 
-        // update the vertex to cell map for this vertex
+        // update the vertex to cell and cell to vertex map for this vertex
         this->mVertexToCellIndices( tCurrentLocalVertexIndex ).push_back( aCurrentLocalCellIndex );
+        this->mCellToVertexIndices( aCurrentLocalCellIndex ).push_back( tCurrentLocalVertexIndex );
 
         for ( auto &tNeighbor : aSideVertices )
         {    // update neighbors for this vertex for this cell
@@ -262,22 +263,27 @@ namespace moris::mtk
         }
         return mVertexNormals;
     }
+
     moris_index Surface_Mesh::get_global_vertex_index( moris_index aLocalVertexIndex )
     {
         return mLocalToGlobalVertexIndex( aLocalVertexIndex );
     }
+
     moris_index Surface_Mesh::get_global_cell_index( moris_index aLocalCellIndex )
     {
         return mLocalToGlobalCellIndex( aLocalCellIndex );
     }
+
     moris_index Surface_Mesh::get_local_vertex_index( moris_index aGlobalVertexIndex )
     {
         return mGlobalToLocalVertexIndex[ aGlobalVertexIndex ];
     }
+
     moris_index Surface_Mesh::get_local_cell_index( moris_index aGlobalCellIndex )
     {
         return mGlobalToLocalCellIndex[ aGlobalCellIndex ];
     }
+
     void Surface_Mesh::set_displacement( Matrix< DDRMat > aDisplacements )
     {
         auto nVertices = mLocalToGlobalVertexIndex.size();
@@ -285,5 +291,20 @@ namespace moris::mtk
         MORIS_ASSERT( aDisplacements.n_rows() == nVertices, "Number of vertices in displacement matrix does not match number of vertices in mesh" );
         MORIS_ASSERT( aDisplacements.n_cols() == nDim, "Number of dimensions in displacement matrix does not match number of dimensions in mesh" );
         mDisplacements = aDisplacements;
+    }
+
+    moris::Cell< moris_index > Surface_Mesh::get_vertices_of_cell( moris_index aLocalCellIndex )
+    {
+        return mCellToVertexIndices( aLocalCellIndex );
+    }
+
+    uint Surface_Mesh::get_number_of_cells() const
+    {
+        return static_cast< uint >( mLocalToGlobalCellIndex.size() );
+    }
+
+    uint Surface_Mesh::get_number_of_vertices() const
+    {
+        return static_cast< uint >( mLocalToGlobalVertexIndex.size() );
     }
 }    // namespace moris::mtk
