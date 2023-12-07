@@ -32,7 +32,7 @@ namespace moris::ge
     Basis_Node::Basis_Node(
             const Parent_Node& aParentNode,
             real               aBasis )
-            : mNode( aParentNode.get_node() )
+            : mNode( aParentNode.mNode )
             , mBasis( aBasis )
     {
     }

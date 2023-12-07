@@ -18,8 +18,7 @@
 #include "cl_GEN_Base_Node.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Child_Node.hpp"
-#include "cl_GEN_Parent_Base_Node.hpp"
-#include "cl_GEN_Parent_Derived_Node.hpp"
+#include "cl_GEN_Parent_Node.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Factory.hpp"
@@ -417,38 +416,16 @@ namespace moris
             }
 
             // Create first parent node
-            Parent_Node* tFirstParentNode;
-            if ( mNodeManager.is_base_node( aEdgeFirstNodeIndex ) )
-            {
-                tFirstParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
-            }
-            else
-            {
-                tFirstParentNode = new Parent_Derived_Node( mNodeManager.get_derived_node( aEdgeFirstNodeIndex ) );
-            }
-
-            // Create second parent node
-            Parent_Node* tSecondParentNode;
-            if ( mNodeManager.is_base_node( aEdgeSecondNodeIndex ) )
-            {
-                tSecondParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
-            }
-            else
-            {
-                tSecondParentNode = new Parent_Derived_Node( mNodeManager.get_derived_node( aEdgeSecondNodeIndex ) );
-            }
+            Parent_Node tFirstParentNode( mNodeManager.get_base_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
+            Parent_Node tSecondParentNode( mNodeManager.get_base_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
 
             // Have the active geometry create a new intersection node
             mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node(
                     mNodeManager.get_total_number_of_nodes(),
                     tBaseNodes,
-                    *tFirstParentNode,
-                    *tSecondParentNode,
+                    tFirstParentNode,
+                    tSecondParentNode,
                     tGeometryType );
-
-            // Clean up
-            delete tFirstParentNode;
-            delete tSecondParentNode;
 
             // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();

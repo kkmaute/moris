@@ -226,11 +226,11 @@ namespace moris::ge
                     bool tIntersectionQueued = tGeometryEngine.queue_intersection(
                             9,
                             11,
-                            { {} },
-                            { {} },
-                            { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
-                            { { 0.5, 0.0 } },
-                            { { 1, 4, 5, 2 } },
+                            {{ -1.0, -tFrac }},
+                            {{ 0.0, 1.0 }},
+                            {{}},
+                            {{}},
+                            {{ 1, 4, 5, 2 }},
                             {} );
 
                     // Check intersection on intersection 1
@@ -249,11 +249,11 @@ namespace moris::ge
                     tIntersectionQueued = tGeometryEngine.queue_intersection(
                             11,
                             14,
-                            { {} },
-                            { {} },
-                            { { 0.5, 0.0 } },
-                            { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
-                            { { 2, 5, 8, 6 } },
+                            {{ 0.0, -1.0 }},
+                            {{ -1.0, tFrac }},
+                            {{}},
+                            {{}},
+                            {{}},
                             {} );
 
                     // Check intersection on intersection 1

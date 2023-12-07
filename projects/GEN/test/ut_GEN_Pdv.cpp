@@ -18,7 +18,7 @@
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_GEN_Base_Node.hpp"
-#include "cl_GEN_Parent_Base_Node.hpp"
+#include "cl_GEN_Parent_Node.hpp"
 
 #define protected public
 #define private public
@@ -376,9 +376,9 @@ namespace moris
 
                     // Create parent nodes
                     auto tFirstNode = new Base_Node( 0, tFirstParentCoordinates );
-                    Parent_Base_Node tFirstParentNode( tFirstNode, {{}} );
+                    Parent_Node tFirstParentNode( tFirstNode, {{}} );
                     auto tSecondNode = new Base_Node( 0, tSecondParentCoordinates );
-                    Parent_Base_Node tSecondParentNode( tSecondNode, {{}} );
+                    Parent_Node tSecondParentNode( tSecondNode, {{}} );
 
                     // Assign as base nodes
                     Cell< Node* > tBaseNodes( { tFirstNode, tSecondNode } );
