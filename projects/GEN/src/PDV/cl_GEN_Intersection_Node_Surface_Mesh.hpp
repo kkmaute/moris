@@ -32,8 +32,8 @@ namespace moris::ge
          *
          * @param aNodeIndex the index assigned to this node
          * @param aBaseNodes the background nodes that correspond to this intersection node
-         * @param aFirstParentNode the first node that this intersection node lies between. can be a base node or a derived node such as another intersection node
-         * @param aSecondParentNode the other node that this intersection node lies between. can be a base node or a derived node such as another intersection node
+         * @param aFirstParentNode the first node that this intersection node lies between
+         * @param aSecondParentNode the other node that this intersection node lies between
          * @param aBaseGeometryType type of collection of base nodes. QUAD for 2D and HEX for 3D
          * @param aInterfaceGeometry geometry that intersects the parents to create this intersection node
          */
@@ -68,7 +68,9 @@ namespace moris::ge
          *
          * @return Matrix< DDRMat > direction cosine matrix used to rotate the coordinate frame for raycast
          */
-        Matrix< DDRMat > compute_raycast_rotation();
+        Matrix< DDRMat > compute_raycast_rotation(
+                const Parent_Node& aFirstParentNode,
+                const Parent_Node& aSecondParentNode );
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -82,8 +84,9 @@ namespace moris::ge
          * @return Local coordinate of the intersection with respect to the first parent node
          */
         real compute_local_coordinate(
-                const Parent_Node& aFirstParentNode,
-                const Parent_Node& aSecondParentNode );
+                const Parent_Node&                       aFirstParentNode,
+                const Parent_Node&                       aSecondParentNode,
+                std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry );
 
         //--------------------------------------------------------------------------------------------------------------
 
