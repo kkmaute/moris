@@ -24,22 +24,14 @@ namespace moris::ge
       public:
         /**
          * Constructor
-         *
-         * @param aLocalCoordinate Local coordinate inside of parent edge
-         * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
-         * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
-         * @param aFirstParentNodeIndex Index of the first parent of this node
-         * @param aSecondParentNodeIndex Index of the second parent of this node
-         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent of this node
-         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent of this node
-         * @param aAncestorNodeIndices Node indices of the ancestors of this intersection node
-         * @param aAncestorNodeCoordinates Coordinates of the ancestors of this intersection node
-         * @param aAncestorBasisFunction Basis function of the ancestor topology
-         * @param aInterfaceGeometry Geometry that intersects the parent to create this node
-         * @param aIsocontourThreshold Threshold for determining the intersection location of this node
-         * @param aIsocontourTolerance Tolerance for determining interface parent nodes based on geometry value
-         * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
-         * @param aDetermineIsIntersected Flag whether determination of intersection should be performed
+         * 
+         * @param aNodeIndex the index that will be assigned to this node if it is admitted
+         * @param aBaseNodes the background nodes that correspond to this intersection node
+         * @param aFirstParentNode the first node that this intersection node lies between
+         * @param aSecondParentNode the other node that this intersection node lies between
+         * @param aLocalCoordinate parametric coordinate of the intersection with respect to the parent nodes
+         * @param aBaseGeometryType type of collection of base nodes. QUAD for 2D and HEX for 3D
+         * @param aInterfaceGeometry geometry that intersects the parents to create this intersection node
          */
         Intersection_Node_Level_Set(
                 uint                                  aNodeIndex,

@@ -21,15 +21,13 @@ namespace moris::ge
       public:
         /**
          * Constructor
-         *
-         * @param aFirstNode First parent node if it is also an intersection node, otherwise nullptr
-         * @param aSecondNode Second parent node if it is also an intersection node, otherwise nullptr
-         * @param aFirstNodeIndex Index of the first parent of this node
-         * @param aSecondNodeIndex Index of the second parent of this node
-         * @param aFirstNodeCoordinates Coordinates of the first parent of this node
-         * @param aSecondNodeCoordinates Coordinates of the second parent of this node
-         * @param aInterfaceGeometry Geometry that intersects the parent to create this child
-         * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
+         * 
+         * @param aNodeIndex the index that will be assigned to this node if it is admitted
+         * @param aBaseNodes the background nodes that correspond to this intersection node
+         * @param aFirstParentNode the first node that this intersection node lies between
+         * @param aSecondParentNode the other node that this intersection node lies between
+         * @param aBaseGeometryType type of collection of base nodes. QUAD for 2D and HEX for 3D
+         * @param aInterfaceGeometry geometry that intersects the parents to create this intersection node
          */
         Intersection_Node_Linear(
                 uint                                  aNodeIndex,
