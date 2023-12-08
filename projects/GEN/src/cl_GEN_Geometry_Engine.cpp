@@ -284,6 +284,8 @@ namespace moris
             return &mPDVHostManager;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         bool
         Geometry_Engine::geometric_query( Geometric_Query_Interface* aGeometricQuery )
         {
@@ -300,17 +302,12 @@ namespace moris
 
                 Matrix< IndexMat > const & tEdgeToVertex = aGeometricQuery->get_query_entity_to_vertex_connectivity();
 
-                moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
-
                 Matrix< IndexMat > tParentEntityIndices = aGeometricQuery->get_query_parent_entity_connectivity();
 
                 // annoying copy until I rewrite the queue intersection
-                Cell< Matrix< DDRMat > > tParentEntityCoords( tParentEntityIndices.numel() );
                 Matrix< DDUMat >         tParentEntityIndiceUINT( tParentEntityIndices.numel() );
-                tParentEntityCoords.reserve( tParentEntityIndices.numel() * 3 );
                 for ( moris::uint i = 0; i < tParentEntityIndices.numel(); i++ )
                 {
-                    tParentEntityCoords( i )     = *( *tQueryIndexedCoords )( tParentEntityIndices( i ) );
                     tParentEntityIndiceUINT( i ) = (uint)tParentEntityIndices( i );
                 }
 
@@ -318,10 +315,7 @@ namespace moris
                         tEdgeToVertex( 1 ),
                         aGeometricQuery->get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
                         aGeometricQuery->get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
-                        *( *tQueryIndexedCoords )( tEdgeToVertex( 0 ) ),
-                        *( *tQueryIndexedCoords )( tEdgeToVertex( 1 ) ),
-                        tParentEntityIndiceUINT,
-                        tParentEntityCoords );
+                        tParentEntityIndiceUINT );
             }
             else
             {
@@ -389,10 +383,7 @@ namespace moris
                 uint                            aEdgeSecondNodeIndex,
                 const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
                 const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
-                const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
-                const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
-                const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
-                const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
+                const Matrix< DDUMat >&         aBackgroundElementNodeIndices )
         {
             // If previous intersection node was not admitted, this will delete it
             delete mQueuedIntersectionNode;
@@ -403,7 +394,7 @@ namespace moris
             {
                 tGeometryType = mtk::Geometry_Type::QUAD;
             }
-            else
+            else if ( aBackgroundElementNodeIndices.length() == 8 )
             {
                 tGeometryType = mtk::Geometry_Type::HEX;
             }
@@ -415,7 +406,7 @@ namespace moris
                 tBaseNodes( iNode ) = mNodeManager.get_base_node( aBackgroundElementNodeIndices( iNode ) );
             }
 
-            // Create first parent node
+            // Create parent nodes
             Parent_Node tFirstParentNode( mNodeManager.get_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
             Parent_Node tSecondParentNode( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
 
@@ -465,9 +456,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        // FIXME node index is unnecessary, as an intersection node stores its own index now.
-        void
-        Geometry_Engine::admit_queued_intersection( uint aNodeIndex )
+        void Geometry_Engine::admit_queued_intersection()
         {
             // Assign as PDV host if constructed on adv dependent geometry or parent nodes are adv dependent
             if ( mQueuedIntersectionNode->depends_on_advs() )

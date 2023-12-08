@@ -167,10 +167,7 @@ namespace moris::ge
                                 tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
                                 tQuadParametricCoordinates( tNodeNumber ),
                                 tQuadParametricCoordinates( ( tNodeNumber + 1 ) % 4 ),
-                                tFirstNodeCoordinates,
-                                tSecondNodeCoordinates,
-                                tNodeIndices,
-                                {} );
+                                tNodeIndices );
                         REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tGeometryIndex )( tElementIndex )( tNodeNumber ) );
 
                         // Check queued intersection
@@ -207,7 +204,8 @@ namespace moris::ge
                             }
 
                             // Admit intersection
-                            tGeometryEngine.admit_queued_intersection( 9 + tIntersectionCount++ );
+                            tGeometryEngine.admit_queued_intersection();
+                            tIntersectionCount++;
                         }
 
                         // Set node coordinates for element checking
@@ -228,10 +226,7 @@ namespace moris::ge
                             11,
                             {{ -1.0, -tFrac }},
                             {{ 0.0, 1.0 }},
-                            {{}},
-                            {{}},
-                            {{ 1, 4, 5, 2 }},
-                            {} );
+                            {{ 1, 4, 5, 2 }} );
 
                     // Check intersection on intersection 1
                     REQUIRE( tIntersectionQueued == true );
@@ -243,7 +238,8 @@ namespace moris::ge
                             tIntersectionGlobalCoordinates( tIntersectionCount ), );
 
                     // Admit intersection on intersection 1
-                    tGeometryEngine.admit_queued_intersection( 9 + tIntersectionCount++ );
+                    tGeometryEngine.admit_queued_intersection();
+                    tIntersectionCount++;
 
                     // Queue intersection on intersection 2
                     tIntersectionQueued = tGeometryEngine.queue_intersection(
@@ -251,10 +247,7 @@ namespace moris::ge
                             14,
                             {{ 0.0, -1.0 }},
                             {{ -1.0, tFrac }},
-                            {{}},
-                            {{}},
-                            {{ 2, 5, 8, 6 }},
-                            {} );
+                            {{ 2, 5, 8, 6 }} );
 
                     // Check intersection on intersection 1
                     REQUIRE( tIntersectionQueued == true );
@@ -266,7 +259,8 @@ namespace moris::ge
                             tIntersectionGlobalCoordinates( tIntersectionCount ), );
 
                     // Admit intersection on intersection 1
-                    tGeometryEngine.admit_queued_intersection( 9 + tIntersectionCount++ );
+                    tGeometryEngine.admit_queued_intersection();
+                    tIntersectionCount++;
                 }
 
                 // Advance geometry index
@@ -445,7 +439,12 @@ namespace moris::ge
                 for ( uint tElementIndex = 0; tElementIndex < 4; tElementIndex++ )
                 {
                     // Node indices per element
-                    Matrix< IndexMat > tNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( tElementIndex );
+                    Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( tElementIndex );
+                    Matrix< DDUMat > tNodeIndices( 4, 1 );
+                    for ( uint iNode = 0; iNode < 4; iNode++ )
+                    {
+                        tNodeIndices( iNode ) = tSignedNodeIndices( iNode );
+                    }
 
                     // Check edges for properly queued intersections
                     Matrix< DDRMat > tNodeCoordinates( 4, 2 );
@@ -459,12 +458,9 @@ namespace moris::ge
                         bool tIntersectionQueued = tGeometryEngine.queue_intersection(
                                 tNodeIndices( tNodeNumber ),
                                 tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
-                                { {} },
-                                { {} },
                                 tFirstNodeCoordinates,
                                 tSecondNodeCoordinates,
-                                { {} },
-                                {} );
+                                tNodeIndices );
                         REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tGeometryIndex )( tElementIndex )( tNodeNumber ) );
 
                         // Check queued intersection
@@ -500,7 +496,8 @@ namespace moris::ge
                             }
 
                             // Admit intersection
-                            tGeometryEngine.admit_queued_intersection( 9 + tIntersectionCount++ );
+                            tGeometryEngine.admit_queued_intersection();
+                            tIntersectionCount++;
                         }
 
                         // Set node coordinates for element checking
@@ -508,7 +505,7 @@ namespace moris::ge
                     }
 
                     // Check with solution
-                    CHECK( tGeometryEngine.is_intersected( tNodeIndices, tNodeCoordinates ) == tIsElementIntersected( tGeometryIndex )( tElementIndex ) );
+                    CHECK( tGeometryEngine.is_intersected( tSignedNodeIndices, tNodeCoordinates ) == tIsElementIntersected( tGeometryIndex )( tElementIndex ) );
                 }
 
                 // Advance geometry index
@@ -652,10 +649,7 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    aCoords.get_row( tNodeIndex1 ),
-                    aCoords.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU,
-                    tBGCellCoords );
+                    tVertexIndsDDU );
 
             CHECK( !tIntersectionQueued );
 
@@ -668,10 +662,7 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    aCoords.get_row( tNodeIndex1 ),
-                    aCoords.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU,
-                    tBGCellCoords );
+                    tVertexIndsDDU );
 
             CHECK( tIntersectionQueued );
 
@@ -683,10 +674,7 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    aCoords.get_row( tNodeIndex1 ),
-                    aCoords.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU,
-                    tBGCellCoords );
+                    tVertexIndsDDU );
             CHECK( tIntersectionQueued );
 
             tNodeIndex1 = 0;
@@ -697,10 +685,7 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    aCoords.get_row( tNodeIndex1 ),
-                    aCoords.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU,
-                    tBGCellCoords );
+                    tVertexIndsDDU );
             CHECK( !tIntersectionQueued );
 
             // check that the cell is intersected
@@ -712,10 +697,7 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    aCoords.get_row( tNodeIndex1 ),
-                    aCoords.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU,
-                    tBGCellCoords );
+                    tVertexIndsDDU );
 
             CHECK( !tIntersectionQueued );
 
@@ -728,10 +710,7 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    aCoords.get_row( tNodeIndex1 ),
-                    aCoords.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU,
-                    tBGCellCoords );
+                    tVertexIndsDDU );
 
             CHECK( !tIntersectionQueued );
 
@@ -744,10 +723,7 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    aCoords.get_row( tNodeIndex1 ),
-                    aCoords.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU,
-                    tBGCellCoords );
+                    tVertexIndsDDU );
 
             CHECK( tIntersectionQueued );
 
@@ -760,10 +736,7 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    aCoords.get_row( tNodeIndex1 ),
-                    aCoords.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU,
-                    tBGCellCoords );
+                    tVertexIndsDDU );
             CHECK( !tIntersectionQueued );
         }
     }
@@ -843,10 +816,7 @@ namespace moris::ge
                             tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
                             get_quad_local_coordinates( tNodeNumber ),
                             get_quad_local_coordinates( ( tNodeNumber + 1 ) % 4 ),
-                            tNodeCoordinates( tNodeNumber ),
-                            tNodeCoordinates( ( tNodeNumber + 1 ) % 4 ),
-                            tNodeIndices,
-                            tNodeCoordinates );
+                            tNodeIndices );
                     REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tElementIndex )( tNodeNumber ) );
 
                     // Check queued intersection
@@ -871,7 +841,7 @@ namespace moris::ge
                                 Approx( tIntersectionGlobalCoordinates( tIntersectionCount )( 1 ) ).margin( 1e-9 ) );
 
                         // Admit intersection
-                        tGeometryEngine.admit_queued_intersection( 9 + tIntersectionCount );
+                        tGeometryEngine.admit_queued_intersection();
 
                         // Increment intersection count
                         tIntersectionCount++;
@@ -904,17 +874,17 @@ namespace moris::ge
 
             // Queue custom intersection 1 and check for bilinear intersection
             bool tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    0, 2, { { -1.0, -1.0 } }, { { 1.0, 1.0 } }, { {} }, { {} }, tNodeIndices, tNodeCoordinates );
+                    0, 2, { { -1.0, -1.0 } }, { { 1.0, 1.0 } }, tNodeIndices );
             REQUIRE( tIntersectionQueued );
 
             // Queue custom intersection 2 and check for no bilinear intersection
             tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    1, 3, { { 1.0, -1.0 } }, { { -1.0, 1.0 } }, { {} }, { {} }, tNodeIndices, tNodeCoordinates );
+                    1, 3, { { 1.0, -1.0 } }, { { -1.0, 1.0 } }, tNodeIndices );
             REQUIRE( not tIntersectionQueued );
 
             // Queue custom intersection 3 and check for bilinear intersection
             tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    0, 0, { { 0.75, 0.0 } }, { { -0.75, 0.0 } }, { {} }, { {} }, tNodeIndices, tNodeCoordinates );
+                    0, 0, { { 0.75, 0.0 } }, { { -0.75, 0.0 } }, tNodeIndices );
             REQUIRE( tIntersectionQueued );
 
             // Clean up
