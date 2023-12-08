@@ -253,7 +253,7 @@ namespace moris::ge
                             {{ -1.0, tFrac }},
                             {{}},
                             {{}},
-                            {{}},
+                            {{ 2, 5, 8, 6 }},
                             {} );
 
                     // Check intersection on intersection 1
