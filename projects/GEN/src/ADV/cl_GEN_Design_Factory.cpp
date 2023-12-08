@@ -148,6 +148,11 @@ namespace moris::ge
                         {
                             tGeometry = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ) );
                         }
+                        else if( tGeometryType == "surface_mesh" )
+                        {
+                            // FIXME BRENDAN: this won't work. tGeometry needs to be a pointer to a Geometry, not specifically level set. requires engine changes.
+                            // tGeometry = std::make_shared< Surface_Mesh_Geometry >( Surface_Mesh_Parameters( iParameterList ) );
+                        }
                         else
                         {
                             MORIS_ERROR( false, "GEN does not recognize geometry type: %s", tGeometryType.c_str() );
