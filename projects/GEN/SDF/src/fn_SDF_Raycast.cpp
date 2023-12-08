@@ -429,6 +429,12 @@ namespace moris::sdf
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis )
     {
+        // return nothing if there are no intersected facets
+        if( aIntersectedFacets.size() == 0 )
+        {
+            return {};
+        }
+
         // get number of triangles
         uint tNumberOfFacets = aIntersectedFacets.size();
 
