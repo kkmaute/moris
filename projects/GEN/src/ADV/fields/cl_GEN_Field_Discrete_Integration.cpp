@@ -51,7 +51,7 @@ namespace moris::ge
 
     real Field_Discrete_Integration::get_field_value( Derived_Node* aDerivedNode )
     {
-        return this->get_interpolated_field_value( aDerivedNode->get_locator_nodes() );
+        return this->get_interpolated_field_value( aDerivedNode->get_background_nodes() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ namespace moris::ge
 
     const Matrix< DDRMat >& Field_Discrete_Integration::get_dfield_dadvs( Derived_Node* aDerivedNode )
     {
-        return this->get_interpolated_dfield_dadvs( aDerivedNode->get_locator_nodes() );
+        return this->get_interpolated_dfield_dadvs( aDerivedNode->get_background_nodes() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ namespace moris::ge
 
     Matrix< DDSMat > Field_Discrete_Integration::get_determining_adv_ids( Derived_Node* aDerivedNode )
     {
-        return this->get_interpolated_determining_adv_ids( aDerivedNode->get_locator_nodes() );
+        return this->get_interpolated_determining_adv_ids( aDerivedNode->get_background_nodes() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
