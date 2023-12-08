@@ -1,0 +1,86 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * ut_GEN_Intersection_Surface_Mesh.cpp
+ *
+ */
+
+#include "catch.hpp"
+#include <cmath>
+#include "fn_eye.hpp"
+#include "paths.hpp"
+
+#include "cl_GEN_Circle.hpp"
+#include "cl_GEN_Geometry_Engine_Test.hpp"
+#include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_BSpline_Field.hpp"
+#include "cl_GEN_Design_Factory.hpp"
+#include "fn_check_equal.hpp"
+#include "fn_GEN_create_simple_mesh.hpp"
+#include "cl_GEN_Mesh_Field.hpp"
+#include "cl_MTK_Mesh_Factory.hpp"
+
+#include "fn_PRM_GEN_Parameters.hpp"
+
+// BRENDAN delete these once they have been added to the design factory
+// #include "cl_GEN_Surface_Mesh_Geometry.hpp"
+// #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
+
+#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Parent_Base_Node.hpp"
+#include "cl_GEN_Parent_Derived_Node.hpp"
+
+namespace moris::ge
+{
+    //--------------------------------------------------------------------------------------------------------------
+
+    TEST_CASE( "Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh intersection]" )
+    {
+        if ( par_size() == 1 )
+        {
+            // create surface mesh geometry
+            ParameterList tParameters = prm::create_surface_mesh_geometry_parameter_list();
+            tParameters.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/SDF/test/data/rhombus.obj" );
+            Surface_Mesh_Parameters tSurfaceMeshParameters( tParameters );
+            Surface_Mesh_Geometry   tSurfaceMesh( tSurfaceMeshParameters );
+            std::shared_ptr< Surface_Mesh_Geometry > tSurfaceMeshPointer = std::make_shared< Surface_Mesh_Geometry >( tSurfaceMeshParameters );
+
+            // initialize counter for nodes
+            moris_index tNodeIndex = 0;
+
+            // create base nodes with parent coordinates
+            Matrix< DDRMat > tFirstParentGlobalCoordinates  = { { 0.2, 0.35 } };
+            Matrix< DDRMat > tSecondParentGlobalCoordinates = { { 0.3, 0.15 } };
+
+            Base_Node            tFirstBase( tNodeIndex++, tFirstParentGlobalCoordinates );
+            Base_Node            tSecondBase( tNodeIndex++, tSecondParentGlobalCoordinates );
+            Base_Node            tThirdBase( tNodeIndex++, { { 0.25, 0.15 } } );
+            Base_Node            tFourthBase( tNodeIndex++, { { 0.1, 0.2 } } );
+            moris::Cell< Node* > tBaseNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
+
+
+            Matrix< DDRMat > tFirstParentParametricCoordinates  = { { -1.0, 1.0 } };
+            Matrix< DDRMat > tSecondParentParametricCoordinates = { { 1.0, 1.0 } };
+
+            Base_Node tBaseFirstParent( tNodeIndex++, tFirstParentGlobalCoordinates );
+            Base_Node tBaseSecondParent( tNodeIndex++, tSecondParentGlobalCoordinates );
+
+            Parent_Base_Node tFirstParentNode( &tBaseFirstParent, tFirstParentParametricCoordinates );
+            Parent_Base_Node tSecondParentNode( &tBaseSecondParent, tSecondParentParametricCoordinates );
+
+            // create the intersection node
+            Intersection_Node* tIntersectionNode = tSurfaceMeshPointer->create_intersection_node( tNodeIndex++, tBaseNodes, tFirstParentNode, tSecondParentNode, mtk::Geometry_Type::QUAD );
+
+            // check the local coordinate
+            real tLocalCoordinateExpected = 0.0;
+            real tLocalCoordinate         = tIntersectionNode->get_local_coordinate();
+            CHECK( abs( tLocalCoordinateExpected - tLocalCoordinate ) < MORIS_REAL_EPS );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+}    // namespace moris::ge
