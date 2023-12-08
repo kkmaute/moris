@@ -80,6 +80,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Intersection_Node::is_on_interface( const std::shared_ptr< Geometry >& aGeometry )
+    {
+        return aGeometry == mInterfaceGeometry;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool
     Intersection_Node::parent_edge_is_intersected()
     {

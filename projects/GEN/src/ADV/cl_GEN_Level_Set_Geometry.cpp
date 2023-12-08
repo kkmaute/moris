@@ -89,7 +89,52 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
+        // If it's a base node, can get geometric region from field value
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        {
+            return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
+        }
+        else
+        {
+            // Get derived node
+            Derived_Node* tDerivedNode = mNodeManager->get_derived_node( aNodeIndex );
+
+            // If derived node knows it is on this interface, can return interface
+            if ( tDerivedNode->is_on_interface( shared_from_this() ) )
+            {
+                return Geometric_Region::INTERFACE;
+            }
+
+            // Initialize possible region
+            Geometric_Region tPossibleRegion = Geometric_Region::INTERFACE;
+
+            // Test for locators
+            for ( auto iLocator : tDerivedNode->get_locator_nodes() )
+            {
+                // Get locator region
+                Geometric_Region tLocatorRegion = this->get_geometric_region( iLocator.get_index(), iLocator.get_global_coordinates() );
+
+                // Update possible region
+                if ( tPossibleRegion == Geometric_Region::INTERFACE )
+                {
+                    // Can be any possible region, so set as locator region
+                    tPossibleRegion = tLocatorRegion;
+                }
+                else if ( tLocatorRegion == Geometric_Region::INTERFACE )
+                {
+                    // No change needed to possible region
+                    continue;
+                }
+                else if ( tLocatorRegion != tPossibleRegion )
+                {
+                    // Resort to field value
+                    return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
+                }
+            }
+
+            // If nothing returned yet, possible region is definite region
+            return tPossibleRegion;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

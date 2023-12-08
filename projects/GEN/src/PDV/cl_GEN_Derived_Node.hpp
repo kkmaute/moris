@@ -21,6 +21,7 @@ namespace moris::ge
 {
     // Forward declare basis node
     class Basis_Node;
+    class Geometry;
 
     class Derived_Node : public Node
     {
@@ -71,5 +72,13 @@ namespace moris::ge
          * @return Locator nodes
          */
         virtual const Cell< Basis_Node >& get_locator_nodes();
+
+        /**
+         * Gets if this derived node can be determined that it is on a specific interface without any field evaluation.
+         *
+         * @param aGeometry Potential interface geometry
+         * @return If this node is on the requested interface
+         */
+        virtual bool is_on_interface( const std::shared_ptr< Geometry >& aGeometry );
     };
 }
