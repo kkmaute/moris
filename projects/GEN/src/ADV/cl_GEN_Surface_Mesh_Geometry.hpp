@@ -48,7 +48,7 @@ namespace moris::ge
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        explicit Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
+        Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -81,15 +81,22 @@ namespace moris::ge
                 mtk::Geometry_Type   aBaseGeometryType ) override;
 
         /**
+         *
+         * Whether or not the surface mesh has ADVs
+         *
+         */
+        bool
+        depends_on_advs()
+        {
+            // BRENDAN TODO
+            return false;
+        }
+
+        /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
          *
          * @return MTK field
          */
         Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
-
-      private:
-        void find_candidate_ancestors()
-        {
-        }
     };
 }    // namespace moris::ge

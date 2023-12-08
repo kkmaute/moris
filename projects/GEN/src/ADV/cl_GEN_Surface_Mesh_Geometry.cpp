@@ -17,9 +17,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Parameters::Surface_Mesh_Parameters( const ParameterList& aParameterList )
-            : mFilePath( aParameterList.get( "file_path" ) )
+            : mFilePath( aParameterList.get< std::string >( "file_path" ) )
     {
-        string_to_cell_mat( aParameterList.get< std::string >( "offsets" ), mOffsets );
+        string_to_mat( aParameterList.get< std::string >( "offset" ), mOffsets );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -66,10 +66,14 @@ namespace moris::ge
             const Parent_Node&   aFirstParentNode,
             const Parent_Node&   aSecondParentNode,
             mtk::Geometry_Type   aBaseGeometryType )
-    {
+    {   
         // Create linear intersection node
-        return std::make_shared< Intersection_Node_Surface_Mesh >(
-                
+        return new Intersection_Node_Surface_Mesh(
+                aNodeIndex,
+                aBaseNodes,
+                aFirstParentNode,
+                aSecondParentNode,
+                aBaseGeometryType,
                 shared_from_this() );
     }
 
@@ -77,7 +81,7 @@ namespace moris::ge
 
     Cell< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
     {
-        // TODO: maybe?
+        // TODO BRENDAN: maybe?
         return {};
     }
 
