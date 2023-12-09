@@ -80,9 +80,9 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Intersection_Node::is_on_interface( const std::shared_ptr< Geometry >& aGeometry )
+    bool Intersection_Node::is_on_interface( Geometry* aGeometry )
     {
-        return aGeometry == mInterfaceGeometry;
+        return aGeometry == mInterfaceGeometry.get();
     }
 
     //--------------------------------------------------------------------------------------------------------------

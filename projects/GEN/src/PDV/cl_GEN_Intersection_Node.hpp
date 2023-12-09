@@ -80,7 +80,7 @@ namespace moris::ge
          * @param aGeometry Potential interface geometry
          * @return If this node is on the requested interface
          */
-        bool is_on_interface( const std::shared_ptr< Geometry >& aGeometry ) override;
+        bool is_on_interface( Geometry* aGeometry ) override;
 
         /**
          * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between

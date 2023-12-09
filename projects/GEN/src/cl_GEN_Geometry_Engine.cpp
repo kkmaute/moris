@@ -461,11 +461,11 @@ namespace moris
             // Assign as PDV host if constructed on adv dependent geometry or parent nodes are adv dependent
             if ( mQueuedIntersectionNode->depends_on_advs() )
             {
-                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode->get_index(), mQueuedIntersectionNode );
+                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode );
             }
             else
             {
-                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode->get_index(), nullptr );
+                mPDVHostManager.set_intersection_node( nullptr );
             }
 
             // Add new derived node to the node manager
@@ -1406,7 +1406,6 @@ namespace moris
 
             // Reset mesh information
             clock_t tStart_Reset_Mesh_Info = clock();
-
             this->reset_mesh_information( tMesh );
 
             MORIS_LOG_INFO( "Time to reset mesh information: %f sec", ( moris::real )( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );

@@ -88,7 +88,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Derived_Node::is_on_interface( const std::shared_ptr< Geometry >& aGeometry )
+    bool Derived_Node::is_on_interface( Geometry* aGeometry )
     {
         return false;
     }

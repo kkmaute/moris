@@ -79,6 +79,6 @@ namespace moris::ge
          * @param aGeometry Potential interface geometry
          * @return If this node is on the requested interface
          */
-        virtual bool is_on_interface( const std::shared_ptr< Geometry >& aGeometry );
+        virtual bool is_on_interface( Geometry* aGeometry );
     };
 }

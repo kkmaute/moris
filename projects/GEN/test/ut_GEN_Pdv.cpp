@@ -396,7 +396,7 @@ namespace moris
                     tNodeManager.add_derived_node( tIntersectionNode );
 
                     // Add intersection node to PDV host manager
-                    tPDVHostManager.set_intersection_node( tNodeIndex, tIntersectionNode );
+                    tPDVHostManager.set_intersection_node( tIntersectionNode );
                     tPDVHostManager.update_intersection_node(
                             tNodeIndex,
                             tIpNodeIdsPerSet( tNodeIndex ),

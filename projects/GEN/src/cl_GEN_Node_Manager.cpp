@@ -152,10 +152,19 @@ namespace moris::ge
 
     void Node_Manager::delete_all_nodes()
     {
-        for ( Node* iNode : mBaseNodes )
+        // Delete base nodes
+        for ( Base_Node* iBaseNode : mBaseNodes )
         {
-            delete iNode;
+            delete iBaseNode;
         }
+        mBaseNodes.clear();
+
+        // Delete derived nodes
+        for ( Derived_Node* iDerivedNode : mDerivedNodes )
+        {
+            delete iDerivedNode;
+        }
+        mDerivedNodes.clear();
     }
 
     //--------------------------------------------------------------------------------------------------------------

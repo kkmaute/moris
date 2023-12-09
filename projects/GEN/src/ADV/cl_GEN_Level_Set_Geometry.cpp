@@ -100,7 +100,7 @@ namespace moris::ge
             Derived_Node* tDerivedNode = mNodeManager->get_derived_node( aNodeIndex );
 
             // If derived node knows it is on this interface, can return interface
-            if ( tDerivedNode->is_on_interface( shared_from_this() ) )
+            if ( tDerivedNode->is_on_interface( this ) )
             {
                 return Geometric_Region::INTERFACE;
             }
