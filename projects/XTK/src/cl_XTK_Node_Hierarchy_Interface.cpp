@@ -253,7 +253,7 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
                             mGeometryEngine->get_queued_intersection_global_coordinates() );
 
                     // create new node in GEN
-                    mGeometryEngine->admit_queued_intersection( tNewNodeIndex );
+                    mGeometryEngine->admit_queued_intersection();
 
                     // count number of new nodes created
                     tNewNodeIndex++;

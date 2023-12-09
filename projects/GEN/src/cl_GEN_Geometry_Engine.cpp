@@ -700,18 +700,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real
-        Geometry_Engine::get_field_value(
-                uint                    aFieldIndex,
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates )
-        {
-            // TODO can return property field too
-            return mGeometries( aFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         sint
         Geometry_Engine::get_refinement_function_index(
                 uint aFieldIndex,

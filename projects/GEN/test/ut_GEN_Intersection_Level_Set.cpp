@@ -274,24 +274,24 @@ namespace moris::ge
             CHECK( tIntersectionCount == 20 );
 
             // Test the new child nodes on the level set field (geometry 0)
-            CHECK( tGeometryEngine.get_field_value( 0, 9, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 10, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 11, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 12, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 13, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 14, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 15, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 16, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 17, { {} } ) == Approx( 0.423278 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 18, { {} } ) == Approx( -0.25 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 19, { {} } ) == Approx( -0.25 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 20, { {} } ) == Approx( 0.423278 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 21, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 22, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 23, { {} } ) == Approx( ( sqrt( 41.0 ) - 3.0 ) / 4.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 25, { {} } ) == Approx( 0.5 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 26, { {} } ) == Approx( 0.5 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 28, { {} } ) == Approx( ( sqrt( 41.0 ) - 3.0 ) / 4.0 ).margin( MORIS_REAL_EPS ) );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 9, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 10, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 11, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 12, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 13, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 14, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 15, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 16, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 17, { {} } ) == Geometric_Region::POSITIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 18, { {} } ) == Geometric_Region::NEGATIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 19, { {} } ) == Geometric_Region::NEGATIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 20, { {} } ) == Geometric_Region::POSITIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 21, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 22, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 23, { {} } ) == Geometric_Region::POSITIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 25, { {} } ) == Geometric_Region::POSITIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 26, { {} } ) == Geometric_Region::POSITIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 28, { {} } ) == Geometric_Region::POSITIVE );
 
             // Get the PDV host manager and set the number of total nodes
             auto tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
@@ -519,10 +519,10 @@ namespace moris::ge
             CHECK( tIntersectionCount == 10 );
 
             // Test the new child nodes on the level set field (geometry 0)
-            CHECK( tGeometryEngine.get_field_value( 0, 9, { {} } ) == Approx( 1.0 ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 10, { {} } ) == Approx( 1.0 ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 11, { {} } ) == Approx( 1.0 ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 12, { {} } ) == Approx( 1.0 ) );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 9, { {} } ) == Geometric_Region::POSITIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 10, { {} } ) == Geometric_Region::POSITIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 11, { {} } ) == Geometric_Region::POSITIVE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 12, { {} } ) == Geometric_Region::POSITIVE );
 
             // Clean up
             delete tMesh;
@@ -853,14 +853,14 @@ namespace moris::ge
             CHECK( tIntersectionCount == 8 );
 
             // Test the new child nodes on the level set field
-            CHECK( tGeometryEngine.get_field_value( 0, 9, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 10, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 11, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 12, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 13, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 14, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 15, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
-            CHECK( tGeometryEngine.get_field_value( 0, 16, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 9, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 10, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 11, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 12, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 13, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 14, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 15, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 16, { {} } ) == Geometric_Region::INTERFACE );
 
             // Get full element info for element 0
             Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );

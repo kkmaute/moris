@@ -330,12 +330,12 @@ namespace moris
                     const Matrix< DDRMat >& aNodeCoordinates );
 
             /**
-             * Returns if a node is on the given interface or not
+             * Gets the geometric region of a node with respect to a given geometry.
              *
              * @param aGeometryIndex Geometry index
              * @param aNodeIndex Node index
-             * @param aNodeCoordinates Node coordinates
-             * @return If the node is on this interface
+             * @param aCoordinates Node coordinates
+             * @return Geometric region
              */
             Geometric_Region get_geometric_region(
                     uint                    aGeometryIndex,
@@ -400,8 +400,6 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             const Cell< uint >& get_refinement_mesh_indices( uint aFieldIndex );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets all of the MTK fields that the geometry engine is using.
@@ -409,22 +407,6 @@ namespace moris
              * @return MTK fields
              */
             Cell< std::shared_ptr< mtk::Field > > get_mtk_fields();
-
-            //-------------------------------------------------------------------------------
-            
-            /**
-             * Returns fields so that HMR can perform refinement based on the data from this performer
-             *
-             * @param aFieldIndex Index of the field
-             * @param aNodeIndex Index of the node
-             * @param aCoordinates Coordinates of the node
-             */
-            real get_field_value(
-                    uint                    aFieldIndex,
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the index of an HMR user-defined refinement function for the given field index
@@ -436,8 +418,6 @@ namespace moris
             sint get_refinement_function_index(
                     uint aFieldIndex,
                     uint aRefinementIndex );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Discretize GEN fields on the given mesh and distribute parallel ADVs based on these fields.
@@ -448,8 +428,6 @@ namespace moris
                     mtk::Mesh_Pair                        aMeshPair,
                     Cell< std::shared_ptr< mtk::Field > > aFields = {},
                     mtk::EntityRank                       aADVEntityRank = mtk::EntityRank::BSPLINE );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Resets the information that the geometry engine stores about a mesh.
@@ -457,8 +435,6 @@ namespace moris
              * @param aMesh Mesh for computing level set data
              */
             void reset_mesh_information( mtk::Interpolation_Mesh* aMesh );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Outputs geometry and property fields on the given mesh, and writes level set fields to a text file.
@@ -467,8 +443,6 @@ namespace moris
              * @param aMesh Mesh to evaluate fields on
              */
             void output_fields( mtk::Mesh* aMesh );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Creates geometry and property fields on the given mesh, and writes the mesh to an exodus file.
@@ -479,8 +453,6 @@ namespace moris
             void output_fields_on_mesh(
                     mtk::Mesh*  aMesh,
                     std::string aExodusFileName );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Writes all geometry fields to separate text files with the given base file name (suffix appended on to
@@ -492,8 +464,6 @@ namespace moris
             void write_geometry_fields(
                     mtk::Mesh*  aMesh,
                     std::string aBaseFileName );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Assign PDV hosts based on properties constructed through parameter lists
@@ -519,14 +489,6 @@ namespace moris
 
             std::string
             get_diagnostic_file_name( std::string const & aLabel ) const;
-
-            //-------------------------------------------------------------------------------
-            
-            /**
-             *
-             */
-            void
-            induce_as_interface_vertex_on_active_geometry( moris_index aVertexIndex );
 
             //-------------------------------------------------------------------------------
             

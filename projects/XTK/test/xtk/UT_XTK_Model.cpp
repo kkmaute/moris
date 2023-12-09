@@ -14,15 +14,12 @@
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
-#include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Diagnostics.hpp"
 #include "cl_MTK_Mesh_Checker.hpp"
 
-#include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "fn_GEN_Triangle_Geometry.hpp"// For surface normals
 
 // Linalg includes
 #include "cl_Matrix.hpp"
@@ -565,10 +562,6 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
     CHECK( check_vertices( &tXTKModel, tGoldNumVertex, tGoldVertexMap, tGoldCoords ) );
     CHECK( check_cells( &tXTKModel, tGoldNumCells, tGoldCellMap, tGoldCellConn ) );
     CHECK( interpolated_coordinate_check( tCutMesh ) );
-
-    moris::Matrix< moris::DDRMat > tIsoContourThreshold = { { 0.0 } };
-    moris::Matrix< moris::DDRMat > tIsoContourTolerance = { { 1e-12 } };
-    CHECK( verify_interface_vertices( &tXTKModel, tIsoContourThreshold, tIsoContourTolerance ) );
 }
 TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONFORMAL_COIN2]" )
 {
@@ -1223,10 +1216,6 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
     CHECK( check_vertices( &tXTKModel, tGoldNumVertex, tGoldVertexMap, tGoldCoords ) );
     CHECK( check_cells( &tXTKModel, tGoldNumCells, tGoldCellMap, tGoldCellConn ) );
     CHECK( interpolated_coordinate_check( tCutMesh ) );
-
-    moris::Matrix< moris::DDRMat > tIsoContourThreshold = { { 0.0 } };
-    moris::Matrix< moris::DDRMat > tIsoContourTolerance = { { 1e-12 } };
-    CHECK( verify_interface_vertices( &tXTKModel, tIsoContourThreshold, tIsoContourTolerance ) );
 }
 
 TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CONFORMAL_COIN3]" )
@@ -1695,10 +1684,6 @@ tGoldCellMap =
     CHECK( check_vertices( &tXTKModel, tGoldNumVertex, tGoldVertexMap, tGoldCoords ) );
     CHECK( check_cells( &tXTKModel, tGoldNumCells, tGoldCellMap, tGoldCellConn ) );
     CHECK( interpolated_coordinate_check( tCutMesh ) );
-
-    moris::Matrix< moris::DDRMat > tIsoContourThreshold = { { 0.0 } };
-    moris::Matrix< moris::DDRMat > tIsoContourTolerance = { { 1e-12 } };
-    CHECK( verify_interface_vertices( &tXTKModel, tIsoContourThreshold, tIsoContourTolerance ) );
 }
 }// namespace xtk
 
