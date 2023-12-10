@@ -66,7 +66,7 @@ echo "TMPDIR             $TMPDIR"           >> moris_config.log
 echo "VERBOSE            $VERBOSE"          >> moris_config.log
 echo ""
 
-if [ $VERBOSE = "0" ];then
+if [ "$VERBOSE" = "1" ];then
     cat moris_config.log
     echo "Press return to continue; to abort press ctrl+c"
     echo ""
