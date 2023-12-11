@@ -6,12 +6,10 @@
 #define MORIS_CL_MTK_JSON_DEBUG_OUTPUT_HPP
 
 #include <unordered_set>
-#include "json.hpp"
 #include "unordered_map"
 #include "cl_MTK_Cell_Cluster_DataBase.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
-
-using json = nlohmann::json;
+#include "cl_Json_Object.hpp"
 
 namespace moris
 {
@@ -20,30 +18,30 @@ namespace moris
         class Json_Debug_Output
         {
           public:
-            Json_Debug_Output( Integration_Mesh const *aMesh )
+            explicit Json_Debug_Output( Integration_Mesh const *aMesh )
                     : mMesh( aMesh ){};
 
             void write_to_json( std::string const &aFileName );
 
           private:
-            Integration_Mesh const  *mMesh;
+            Integration_Mesh const              *mMesh;
             std::string                          mFileName;
             std::unordered_set< Vertex const * > mAllIGVertices;
             std::unordered_set< Vertex const * > mAllIPVertices;
             std::unordered_set< Cell const * >   mAllIGCells;
             std::unordered_set< Cell const * >   mAllIPCells;
 
-            json          serialize_side_sets( moris::Cell< moris::mtk::Side_Set          *> &aSideSets );
-            json::array_t serialize_side_clusters( moris::Cell< Cluster const * > &aSideClusters );
-            json          serialize_side_cluster( Cluster const *tCluster );
-            json          serialize_double_side_sets( moris::Cell< moris::mtk::Double_Side_Set          *> &aDoubleSideSets );
-            json          serialize_block_sets( moris::Cell< moris::mtk::Block_Set          *> &tBlockSets );
-            json          serialize_cell_cluster( Cluster const *aCluster );
-            json::array_t serialize_cell_clusters( moris::Cell< Cluster const * > &tClusters );
-            json          serialize_all_vertices( const std::unordered_set< Vertex const          *> &aVertices );
-
-            json::array_t serialize_all_cells( const std::unordered_set< Cell const * >& aCells );
-            json::array_t serialize_cells( moris::Cell< moris::mtk::Cell const * > &aCells, bool aIsIPCell = false );
+            Json serialize_side_sets( moris::Cell< moris::mtk::Side_Set * > &aSideSets );
+            Json serialize_side_clusters( moris::Cell< Cluster const * > &aSideClusters );
+            Json serialize_side_cluster( Cluster const *tCluster );
+            Json serialize_double_side_sets( moris::Cell< moris::mtk::Double_Side_Set * > &aDoubleSideSets );
+            Json serialize_block_sets( moris::Cell< moris::mtk::Block_Set * > &tBlockSets );
+            Json serialize_cell_cluster( Cluster const *aCluster );
+            Json serialize_cell_clusters( moris::Cell< Cluster const * > &tClusters );
+            Json serialize_all_vertices( const std::unordered_set< Vertex const * > &aVertices );
+            Json serialize_all_cells( const std::unordered_set< Cell const * > &aCells );
+            Json serialize_ig_cells( moris::Cell< moris::mtk::Cell const * > &aCells );
+            Json serialize_ip_cell( moris::mtk::Cell const *&aCell );
         };
     }    // namespace mtk
 }    // namespace moris

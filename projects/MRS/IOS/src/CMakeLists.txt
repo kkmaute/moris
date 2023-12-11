@@ -31,7 +31,8 @@ set(HEADERS
 	IO_Tools.hpp
 	ios.hpp
 	Log_Constants.hpp
-	)
+		cl_Json_Object.hpp
+)
 
 # List library source files
 set(LIB_SOURCES
@@ -47,7 +48,8 @@ set(LIB_SOURCES
     cl_Tracer_Enums.cpp
     cl_XML_Parser.cpp
     cl_Ascii.cpp
-    )
+        cl_Json_Object.cpp
+)
 
 
 # List library dependencies

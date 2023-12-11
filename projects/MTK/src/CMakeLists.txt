@@ -175,7 +175,6 @@ set(HEADERS
         io/cl_MTK_Reader_Exodus.hpp
         io/cl_MTK_Writer_Exodus.hpp
         io/cl_MTK_Json_Debug_Output.hpp
-        io/json.hpp
 
         mesh/cl_MTK_Integration_Mesh.hpp
         mesh/cl_MTK_Integration_Mesh_Editor.hpp

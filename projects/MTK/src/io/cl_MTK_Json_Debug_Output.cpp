@@ -9,9 +9,7 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "iostream"
-
-using json = nlohmann::json;
-
+#include "cl_Json_Object.hpp"
 
 namespace moris
 {
@@ -19,237 +17,244 @@ namespace moris
     {
         void Json_Debug_Output::write_to_json( std::string const &aFileName )
         {
-            json tMeshObj;
+            Json tMeshObj;
             mAllIGVertices.clear();
             mAllIPVertices.clear();
             mAllIGCells.clear();
             mAllIPCells.clear();
 
+            Json tSets;
+
             // get all block sets
-            auto tBlockSets                    = mMesh->get_block_sets();
-            tMeshObj[ "sets" ][ "block_sets" ] = serialize_block_sets( tBlockSets );
+            auto tBlockSets = mMesh->get_block_sets();
+            tSets.push_back( { "block_sets", serialize_block_sets( tBlockSets ) } );
 
             // side sets
-            auto tSideSets                    = mMesh->get_side_sets();
-            tMeshObj[ "sets" ][ "side_sets" ] = serialize_side_sets( tSideSets );
+            auto tSideSets = mMesh->get_side_sets();
+            tSets.push_back( { "side_sets", serialize_side_sets( tSideSets ) } );
 
             // double side sets
-            auto tDoubleSideSets                     = mMesh->get_double_side_sets();
-            tMeshObj[ "sets" ][ "double_side_sets" ] = serialize_double_side_sets( tDoubleSideSets );
+            auto tDoubleSideSets = mMesh->get_double_side_sets();
+            tSets.push_back( { "double_side_sets", serialize_double_side_sets( tDoubleSideSets ) } );
 
             // store vertices
-            tMeshObj[ "vertices_ig" ] = serialize_all_vertices( mAllIGVertices );
-            tMeshObj[ "vertices_ip" ] = serialize_all_vertices( mAllIPVertices );
-            tMeshObj[ "cells_ig" ]    = serialize_all_cells( mAllIGCells );
-            tMeshObj[ "cells_ip" ]    = serialize_all_cells( mAllIPCells );
+            tMeshObj.push_back( { "sets", tSets } );
+            tMeshObj.push_back( { "vertices_ig", serialize_all_vertices( mAllIGVertices ) } );
+            tMeshObj.push_back( { "vertices_ip", serialize_all_vertices( mAllIPVertices ) } );
+            tMeshObj.push_back( { "cells_ig", serialize_all_cells( mAllIGCells ) } );
+            tMeshObj.push_back( { "cells_ip", serialize_all_cells( mAllIPCells ) } );
 
-            std::ofstream tFile( aFileName );
-            tFile << to_string( tMeshObj );
-            tFile.close();
+            write_json( aFileName, tMeshObj );
         }
 
-        json Json_Debug_Output::serialize_all_vertices( const std::unordered_set< Vertex const * > &aVertices )
+        Json Json_Debug_Output::serialize_all_vertices( const std::unordered_set< Vertex const * > &aVertices )
         {
-            json tVertexObj;
+            Json tVertexObj;
 
-            json::array_t tIds;
-            json::array_t tIndices;
-            json::array_t tX;
-            json::array_t tY;
-            json::array_t tZ;
-
-            for ( auto tVertex : aVertices )
+            moris::Cell< moris_id >    tIds;
+            moris::Cell< moris_index > tIndices;
+            moris::Cell< real >        tX;
+            moris::Cell< real >        tY;
+            moris::Cell< real >        tZ;
+            for ( auto *tVertex : aVertices )
             {
-//                auto tDataBase = dynamic_cast< Vertex const * >( tVertexPair );
-                tIds.emplace_back( tVertex->get_id() );
-                tIndices.emplace_back( tVertex->get_index() );
-                tX.emplace_back( tVertex->get_coords()( 0 ) );
-                tY.emplace_back( tVertex->get_coords()( 1 ) );
+                // Add values to corresponding arrays
+                tIds.push_back( tVertex->get_id() );
+                tIndices.push_back( tVertex->get_index() );
+                tX.push_back( tVertex->get_coords()( 0 ) );
+                tY.push_back( tVertex->get_coords()( 1 ) );
                 if ( mMesh->get_spatial_dim() == 3 )
                 {
-                    tZ.emplace_back( tVertex->get_coords()( 2 ) );
+                    tZ.push_back( tVertex->get_coords()( 2 ) );
                 }
             }
-            tVertexObj[ "id" ]    = tIds;
-            tVertexObj[ "index" ] = tIndices;
-            tVertexObj[ "x" ]     = tX;
-            tVertexObj[ "y" ]     = tY;
+
+            tVertexObj.put_child( "id", to_json( tIds ) );
+            tVertexObj.put_child( "index", to_json( tIndices ) );
+            tVertexObj.put_child( "x", to_json( tX ) );
+            tVertexObj.put_child( "y", to_json( tY ) );
+
             if ( mMesh->get_spatial_dim() == 3 )
             {
-                tVertexObj[ "z" ] = tZ;
+                tVertexObj.put_child( "z", to_json( tZ ) );
             }
             return tVertexObj;
         }
 
-        json::array_t Json_Debug_Output::serialize_all_cells( const std::unordered_set< Cell const * > &aCells )
+        Json Json_Debug_Output::serialize_all_cells( const std::unordered_set< Cell const * > &aCells )
         {
-            json::array_t tAllCells;
+            Json tAllCells;
 
-            for ( auto tCellPair : aCells )
+            for ( auto *tCell : aCells )
             {
-                auto tDataBase = dynamic_cast< Cell const * >( tCellPair );
-                if ( tDataBase == nullptr )
-                {
-                    std::cout << "Cell with id " << tCellPair->get_id() << " is not a cell database" << std::endl;
-                    continue;
-                }
-                json     tCellObj;
-                moris_id tId         = tDataBase->get_id();
-                tCellObj[ "id" ]     = tId;
-                tCellObj[ "index" ]  = tDataBase->get_index();
-                tCellObj[ "facets" ] = json::array();
+                Json tCellObj;
+                // Assuming get_id and get_index are member functions of Cell
+                tCellObj.put( "id", tCell->get_id() );
+                tCellObj.put( "index", tCell->get_index() );
 
-                for ( uint iSide = 0; iSide < tDataBase->get_number_of_facets(); ++iSide )
+                Json tFacets;
+                for ( unsigned iSide = 0; iSide < tCell->get_number_of_facets(); ++iSide )
                 {
-                    json tSideObj;
-                    tSideObj[ "ordinal" ]    = iSide;
-                    tSideObj[ "vertex_ids" ] = json::array();
-                    //                    tSideObj[ "vertex_indices" ] = json::array();
-                    auto tSideVertices = tDataBase->get_vertices_on_side_ordinal( iSide );
-                    for ( auto tVertex : tSideVertices )
+                    Json tSideObj;
+                    tSideObj.put( "ordinal", iSide );
+
+                    Json tVertexIds;
+                    auto tSideVertices = tCell->get_vertices_on_side_ordinal( iSide );
+                    for ( auto *tVertex : tSideVertices )
                     {
-                        tSideObj[ "vertex_ids" ].push_back( tVertex->get_id() );
-                        //                        tSideObj[ "vertex_indices" ].push_back( tVertex->get_index() );
+                        Json tVertexId;
+                        tVertexId.put( "", tVertex->get_id() );
+                        tVertexIds.push_back( { "", tVertexId } );
                     }
-                    tCellObj[ "facets" ].push_back( tSideObj );
+                    tSideObj.push_back( { "vertex_ids", tVertexIds } );
+                    tFacets.push_back( { "", tSideObj } );
                 }
-                tAllCells.push_back( tCellObj );
+                tCellObj.push_back( { "facets", tFacets } );
+                tAllCells.push_back( { "", tCellObj } );
             }
             return tAllCells;
         }
 
-        json Json_Debug_Output::serialize_double_side_sets( moris::Cell< moris::mtk::Double_Side_Set * > &aDoubleSideSets )
+        Json Json_Debug_Output::serialize_double_side_sets( moris::Cell< moris::mtk::Double_Side_Set * > &aDoubleSideSets )
         {
-            json tDoubleSideSetsObj;
+            Json tDoubleSideSetsObj;
             for ( auto tSideSet : aDoubleSideSets )
             {
-                json tSideSetObj;
-                tSideSetObj[ "name" ]    = tSideSet->get_set_name();
-                tSideSetObj[ "index" ]   = tSideSet->get_set_index();
-                tSideSetObj[ "clusters" ] = json::array();
+                Json tSideSetObj;
+                tSideSetObj.put( "name", tSideSet->get_set_name() );
+                tSideSetObj.put( "index", tSideSet->get_set_index() );
+
+                Json tClusterObj;
                 for ( auto tCluster : tSideSet->get_clusters_on_set() )
                 {
-                    json tClusterObj;
-                    auto tDblCluster                  = dynamic_cast< Double_Side_Cluster const                  *>( tCluster );
-                    tClusterObj[ "follower_cluster" ] = serialize_side_cluster( &tDblCluster->get_follower_side_cluster() );
-                    tClusterObj[ "leader_cluster" ]   = serialize_side_cluster( &tDblCluster->get_leader_side_cluster() );
-                    tSideSetObj[ "clusters" ].push_back( tClusterObj );
+                    auto tDblCluster = dynamic_cast< Double_Side_Cluster const * >( tCluster );
+                    Json tDblClusterObj;
+                    tDblClusterObj.put_child( "follower_cluster", serialize_side_cluster( &tDblCluster->get_follower_side_cluster() ) );
+                    tDblClusterObj.put_child( "leader_cluster", serialize_side_cluster( &tDblCluster->get_leader_side_cluster() ) );
+                    tClusterObj.push_back( { "", tDblClusterObj } );
                 }
-                tDoubleSideSetsObj[ tSideSet->get_set_name() ] = tSideSetObj;
+                tSideSetObj.push_back( { "clusters", tClusterObj } );
+                tDoubleSideSetsObj.push_back( { tSideSet->get_set_name(), tSideSetObj } );
             }
             return tDoubleSideSetsObj;
         }
 
-        json Json_Debug_Output::serialize_block_sets( moris::Cell< moris::mtk::Block_Set * > &tBlockSets )
+        Json Json_Debug_Output::serialize_block_sets( moris::Cell< moris::mtk::Block_Set * > &tBlockSets )
         {
-            json tBlockSetsObj;
+            Json tBlockSetsObj;
             for ( auto tBlockSet : tBlockSets )
             {
-                json tBlockSetObj;
-                tBlockSetObj[ "name" ]  = tBlockSet->get_set_name();
-                tBlockSetObj[ "index" ] = tBlockSet->get_set_index();
+                Json tBlockSetObj;
+                tBlockSetObj.put( "name", tBlockSet->get_set_name() );
+                tBlockSetObj.put( "index", tBlockSet->get_set_index() );
 
-                auto tClusters             = tBlockSet->get_clusters_on_set();
-                tBlockSetObj[ "clusters" ] = serialize_cell_clusters( tClusters );
+                auto tClusters = tBlockSet->get_clusters_on_set();
+                tBlockSetObj.push_back( { "clusters", serialize_cell_clusters( tClusters ) } );
 
-                tBlockSetsObj[ tBlockSet->get_set_name() ] = tBlockSetObj;
+                tBlockSetsObj.push_back( { tBlockSet->get_set_name(), tBlockSetObj } );
             }
             return tBlockSetsObj;
         }
 
-        json::array_t Json_Debug_Output::serialize_cell_clusters( moris::Cell< Cluster const * > &tClusters )
+        Json Json_Debug_Output::serialize_cell_clusters( moris::Cell< Cluster const * > &tClusters )
         {
-            json::array_t tClusterArr;
+            Json tClusterArr;
             for ( auto tCluster : tClusters )
             {
-                tClusterArr.push_back( serialize_cell_cluster( tCluster ) );
+                tClusterArr.push_back( { "", serialize_cell_cluster( tCluster ) } );
             }
             return tClusterArr;
         }
 
-        json Json_Debug_Output::serialize_cell_cluster( Cluster const *aCluster )
+        Json Json_Debug_Output::serialize_cell_cluster( Cluster const *aCluster )
         {
-            json tClusterObj;
-            auto tDataBase                    = dynamic_cast< Cell_Cluster const                    *>( aCluster );
-            auto tPrimaryCells                = tDataBase->get_primary_cells_in_cluster();
-            tClusterObj[ "primary_ig_cells" ] = serialize_cells( tPrimaryCells );
-            auto tVoidCells                   = tDataBase->get_void_cells_in_cluster();
-            tClusterObj[ "void_ig_cells" ]    = serialize_cells( tVoidCells );
-            moris::Cell< const moris::mtk::Cell * > tIPCells{ &tDataBase->get_interpolation_cell() };
-            tClusterObj[ "ip_cell" ] = serialize_cells( tIPCells, true )[ 0 ];
+            Json tClusterObj;
+
+            auto tDataBase = dynamic_cast< Cell_Cluster const * >( aCluster );
+
+            auto tPrimaryCells = tDataBase->get_primary_cells_in_cluster();
+            tClusterObj.put_child( "primary_ig_cells", serialize_ig_cells( tPrimaryCells ) );
+
+            auto tVoidCells = tDataBase->get_void_cells_in_cluster();
+            tClusterObj.put_child( "void_ig_cells", serialize_ig_cells( tVoidCells ) );
+
+            const moris::mtk::Cell *tIPCell = &tDataBase->get_interpolation_cell();
+            tClusterObj.put_child( "ip_cell", serialize_ip_cell( tIPCell ) );
+
             return tClusterObj;
         }
 
-        json::array_t Json_Debug_Output::serialize_cells( moris::Cell< moris::mtk::Cell const * > &aCells, bool aIsIPCell )
+        Json Json_Debug_Output::serialize_ig_cells( moris::Cell< moris::mtk::Cell const * > &aCells )
         {
-            json::array_t tPrimaryCells;
+            Json tPrimaryCells;
             for ( auto tCell : aCells )
             {
                 for ( auto tVertex : tCell->get_vertex_pointers() )
                 {
-                    if ( aIsIPCell )
-                    {
-                        mAllIPVertices.insert( tVertex );
-                    }
-                    else
-                    {
-                        mAllIGVertices.insert( tVertex );
-                    }
+                    mAllIGVertices.insert( tVertex );
                 }
-                if ( aIsIPCell )
-                {
-                    mAllIPCells.insert( tCell );
-                }
-                else
-                {
-                    mAllIGCells.insert( tCell );
-                }
-                tPrimaryCells.push_back( tCell->get_id() );
+                mAllIGCells.insert( tCell );
+                Json tCellId;
+                tCellId.put( "", tCell->get_id() );
+                tPrimaryCells.push_back( { "", tCellId } );
             }
             return tPrimaryCells;
         }
 
-        json Json_Debug_Output::serialize_side_sets( moris::Cell< moris::mtk::Side_Set * > &aSideSets )
+        Json Json_Debug_Output::serialize_ip_cell( moris::mtk::Cell const *&aCell )
         {
-            json tSideSetsObj;
+            Json tPrimaryCells;
+            for ( auto tVertex : aCell->get_vertex_pointers() )
+            {
+                mAllIPVertices.insert( tVertex );
+            }
+            mAllIPCells.insert( aCell );
+            tPrimaryCells.put( "", aCell->get_id() );
+            return tPrimaryCells;
+        }
+
+        Json Json_Debug_Output::serialize_side_sets( moris::Cell< moris::mtk::Side_Set * > &aSideSets )
+        {
+            Json tSideSetsObj;
             for ( auto tSideSet : aSideSets )
             {
-                json tObj;
+                Json tObj;
                 auto tSideClusters = tSideSet->get_clusters_on_set();
-                tObj[ "clusters" ] = serialize_side_clusters( tSideClusters );
-                tObj[ "index" ]    = tSideSet->get_set_index();
-                tObj[ "name" ]     = tSideSet->get_set_name();
-
-
-                tSideSetsObj[ tSideSet->get_set_name() ] = tObj;
+                tObj.put_child( "clusters", serialize_side_clusters( tSideClusters ) );
+                tObj.put( "index", tSideSet->get_set_index() );
+                tObj.put( "name", tSideSet->get_set_name() );
+                tSideSetsObj.push_back( { tSideSet->get_set_name(), tObj } );
             }
             return tSideSetsObj;
         }
 
-        json::array_t Json_Debug_Output::serialize_side_clusters( moris::Cell< Cluster const * > &aSideClusters )
+        Json Json_Debug_Output::serialize_side_clusters( moris::Cell< Cluster const * > &aSideClusters )
         {
-            json::array_t tSideClustersList;
+            Json tSideClustersList;
             for ( auto tCluster : aSideClusters )
             {
-                tSideClustersList.push_back( serialize_side_cluster( tCluster ) );
+                tSideClustersList.push_back( { "", serialize_side_cluster( tCluster ) } );
             }
             return tSideClustersList;
         }
 
-        json Json_Debug_Output::serialize_side_cluster( Cluster const *tCluster )
+        Json Json_Debug_Output::serialize_side_cluster( Cluster const *tCluster )
         {
-            json tClusterObj;
+            Json tClusterObj;
             auto tDataBase = dynamic_cast< Side_Cluster const * >( tCluster );
             for ( auto tVertex : tDataBase->get_vertices_in_cluster() )
             {
                 mAllIGVertices.insert( tVertex );
-                auto tCells                       = tDataBase->get_cells_in_side_cluster();
-                tClusterObj[ "primary_ig_cells" ] = serialize_cells( tCells );
-                moris::Cell< const moris::mtk::Cell * > tIPCells{ &tDataBase->get_interpolation_cell() };
-                tClusterObj[ "ip_cell" ] = serialize_cells( tIPCells, true )[ 0 ];
             }
+
+            auto tCells = tDataBase->get_cells_in_side_cluster();
+            tClusterObj.put_child( "primary_ig_cells", serialize_ig_cells( tCells ) );
+
+            const moris::mtk::Cell *tIPCell = &tDataBase->get_interpolation_cell();
+            tClusterObj.put_child( "ip_cell", serialize_ip_cell( tIPCell ) );
+
+
             return tClusterObj;
         }
-
     }    // namespace mtk
 }    // namespace moris
