@@ -194,7 +194,7 @@ namespace moris
     std::string tTotalDomainAGhost = tTotalDomain + "," + tInteriorGhost;
 
     //------------------------------------------------------------------------------
-    enum hmr::ElementalRefienmentIndicator
+    enum hmr::ElementalRefinementIndicator
     refinement_function(
             mtk::Cell*                    aElement,
             std::shared_ptr< mtk::Field > aField,
@@ -230,7 +230,7 @@ namespace moris
                 tValues,
                 tFieldIndex );
 
-        enum hmr::ElementalRefienmentIndicator tRefine = hmr::ElementalRefienmentIndicator::DROP;
+        enum hmr::ElementalRefinementIndicator tRefine = hmr::ElementalRefinementIndicator::DROP;
 
         // refinement strategy
         if ( tValues.max() >= lsth - lsbwabs )
@@ -244,11 +244,11 @@ namespace moris
             {
                 if ( tLevel < tMaxLevel )
                 {
-                    tRefine = hmr::ElementalRefienmentIndicator::REFINE;
+                    tRefine = hmr::ElementalRefinementIndicator::REFINE;
                 }
                 else
                 {
-                    tRefine = hmr::ElementalRefienmentIndicator::HOLD;
+                    tRefine = hmr::ElementalRefinementIndicator::HOLD;
                 }
             }
         }
@@ -268,7 +268,7 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-    enum hmr::ElementalRefienmentIndicator
+    enum hmr::ElementalRefinementIndicator
     refinement_function_stress(
             mtk::Cell*                    aElement,
             std::shared_ptr< mtk::Field > aField,
@@ -295,7 +295,7 @@ namespace moris
         // real tMaxStressValue = aField->get_max_value();
         real tMaxStressValue = 0.1;
 
-        enum hmr::ElementalRefienmentIndicator tRefine = hmr::ElementalRefienmentIndicator::DROP;
+        enum hmr::ElementalRefinementIndicator tRefine = hmr::ElementalRefinementIndicator::DROP;
 
         if ( tValues( 0 ) != MORIS_REAL_MIN )
         {
@@ -304,16 +304,16 @@ namespace moris
             {
                 if ( tLevel < tMaxLevel )
                 {
-                    tRefine = hmr::ElementalRefienmentIndicator::REFINE;
+                    tRefine = hmr::ElementalRefinementIndicator::REFINE;
                 }
             }
             else if ( tValues( 0 ) / tMaxStressValue >= 0.2 )
             {
-                tRefine = hmr::ElementalRefienmentIndicator::HOLD;
+                tRefine = hmr::ElementalRefinementIndicator::HOLD;
             }
             else
             {
-                tRefine = hmr::ElementalRefienmentIndicator::COARSEN;
+                tRefine = hmr::ElementalRefinementIndicator::COARSEN;
             }
         }
 

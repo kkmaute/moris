@@ -48,122 +48,122 @@ namespace moris::hmr
         {
             case( 0 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 0 );
-                mVertices[ 1 ] = mLeader->get_basis( 1 );
-                mVertices[ 2 ] = mLeader->get_basis( 5 );
-                mVertices[ 3 ] = mLeader->get_basis( 4 );
-                mVertices[ 4 ] = mLeader->get_basis( 8 );
-                mVertices[ 5 ] = mLeader->get_basis( 9 );
-                mVertices[ 6 ] = mLeader->get_basis( 16 );
-                mVertices[ 7 ] = mLeader->get_basis( 17 );
-                mVertices[ 8 ] = mLeader->get_basis( 25 );
-                mVertices[ 9 ] = mLeader->get_basis( 24 );
-                mVertices[ 10 ] = mLeader->get_basis( 13 );
-                mVertices[ 11 ] = mLeader->get_basis( 12 );
-                mVertices[ 12 ] = mLeader->get_basis( 36 );
-                mVertices[ 13 ] = mLeader->get_basis( 37 );
-                mVertices[ 14 ] = mLeader->get_basis( 38 );
-                mVertices[ 15 ] = mLeader->get_basis( 39 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 0 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 1 );
+                mVertices[ 2 ] = mLeader->get_basis_function( 5 );
+                mVertices[ 3 ] = mLeader->get_basis_function( 4 );
+                mVertices[ 4 ] = mLeader->get_basis_function( 8 );
+                mVertices[ 5 ] = mLeader->get_basis_function( 9 );
+                mVertices[ 6 ] = mLeader->get_basis_function( 16 );
+                mVertices[ 7 ] = mLeader->get_basis_function( 17 );
+                mVertices[ 8 ] = mLeader->get_basis_function( 25 );
+                mVertices[ 9 ] = mLeader->get_basis_function( 24 );
+                mVertices[ 10 ] = mLeader->get_basis_function( 13 );
+                mVertices[ 11 ] = mLeader->get_basis_function( 12 );
+                mVertices[ 12 ] = mLeader->get_basis_function( 36 );
+                mVertices[ 13 ] = mLeader->get_basis_function( 37 );
+                mVertices[ 14 ] = mLeader->get_basis_function( 38 );
+                mVertices[ 15 ] = mLeader->get_basis_function( 39 );
                 break;
             }
             case( 1 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 1 );
-                mVertices[ 1 ] = mLeader->get_basis( 2 );
-                mVertices[ 2 ] = mLeader->get_basis( 6 );
-                mVertices[ 3 ] = mLeader->get_basis( 5 );
-                mVertices[ 4 ] = mLeader->get_basis( 14 );
-                mVertices[ 5 ] = mLeader->get_basis( 15 );
-                mVertices[ 6 ] = mLeader->get_basis( 20 );
-                mVertices[ 7 ] = mLeader->get_basis( 21 );
-                mVertices[ 8 ] = mLeader->get_basis( 29 );
-                mVertices[ 9 ] = mLeader->get_basis( 28 );
-                mVertices[ 10 ] = mLeader->get_basis( 17 );
-                mVertices[ 11 ] = mLeader->get_basis( 16 );
-                mVertices[ 12 ] = mLeader->get_basis( 44 );
-                mVertices[ 13 ] = mLeader->get_basis( 45 );
-                mVertices[ 14 ] = mLeader->get_basis( 46 );
-                mVertices[ 15 ] = mLeader->get_basis( 47 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 1 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 2 );
+                mVertices[ 2 ] = mLeader->get_basis_function( 6 );
+                mVertices[ 3 ] = mLeader->get_basis_function( 5 );
+                mVertices[ 4 ] = mLeader->get_basis_function( 14 );
+                mVertices[ 5 ] = mLeader->get_basis_function( 15 );
+                mVertices[ 6 ] = mLeader->get_basis_function( 20 );
+                mVertices[ 7 ] = mLeader->get_basis_function( 21 );
+                mVertices[ 8 ] = mLeader->get_basis_function( 29 );
+                mVertices[ 9 ] = mLeader->get_basis_function( 28 );
+                mVertices[ 10 ] = mLeader->get_basis_function( 17 );
+                mVertices[ 11 ] = mLeader->get_basis_function( 16 );
+                mVertices[ 12 ] = mLeader->get_basis_function( 44 );
+                mVertices[ 13 ] = mLeader->get_basis_function( 45 );
+                mVertices[ 14 ] = mLeader->get_basis_function( 46 );
+                mVertices[ 15 ] = mLeader->get_basis_function( 47 );
                 break;
             }
             case( 2 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 2 );
-                mVertices[ 1 ] = mLeader->get_basis( 3 );
-                mVertices[ 2 ] = mLeader->get_basis( 7 );
-                mVertices[ 3 ] = mLeader->get_basis( 6 );
-                mVertices[ 4 ] = mLeader->get_basis( 18 );
-                mVertices[ 5 ] = mLeader->get_basis( 19 );
-                mVertices[ 6 ] = mLeader->get_basis( 22 );
-                mVertices[ 7 ] = mLeader->get_basis( 23 );
-                mVertices[ 8 ] = mLeader->get_basis( 31 );
-                mVertices[ 9 ] = mLeader->get_basis( 30 );
-                mVertices[ 10 ] = mLeader->get_basis( 21 );
-                mVertices[ 11 ] = mLeader->get_basis( 20 );
-                mVertices[ 12 ] = mLeader->get_basis( 48 );
-                mVertices[ 13 ] = mLeader->get_basis( 49 );
-                mVertices[ 14 ] = mLeader->get_basis( 50 );
-                mVertices[ 15 ] = mLeader->get_basis( 51 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 2 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 3 );
+                mVertices[ 2 ] = mLeader->get_basis_function( 7 );
+                mVertices[ 3 ] = mLeader->get_basis_function( 6 );
+                mVertices[ 4 ] = mLeader->get_basis_function( 18 );
+                mVertices[ 5 ] = mLeader->get_basis_function( 19 );
+                mVertices[ 6 ] = mLeader->get_basis_function( 22 );
+                mVertices[ 7 ] = mLeader->get_basis_function( 23 );
+                mVertices[ 8 ] = mLeader->get_basis_function( 31 );
+                mVertices[ 9 ] = mLeader->get_basis_function( 30 );
+                mVertices[ 10 ] = mLeader->get_basis_function( 21 );
+                mVertices[ 11 ] = mLeader->get_basis_function( 20 );
+                mVertices[ 12 ] = mLeader->get_basis_function( 48 );
+                mVertices[ 13 ] = mLeader->get_basis_function( 49 );
+                mVertices[ 14 ] = mLeader->get_basis_function( 50 );
+                mVertices[ 15 ] = mLeader->get_basis_function( 51 );
                 break;
             }
             case( 3 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 3 );
-                mVertices[ 1 ] = mLeader->get_basis( 0 );
-                mVertices[ 2 ] = mLeader->get_basis( 4 );
-                mVertices[ 3 ] = mLeader->get_basis( 7 );
-                mVertices[ 4 ] = mLeader->get_basis( 11 );
-                mVertices[ 5 ] = mLeader->get_basis( 10 );
-                mVertices[ 6 ] = mLeader->get_basis( 12 );
-                mVertices[ 7 ] = mLeader->get_basis( 13 );
-                mVertices[ 8 ] = mLeader->get_basis( 26 );
-                mVertices[ 9 ] = mLeader->get_basis( 27 );
-                mVertices[ 10 ] = mLeader->get_basis( 23 );
-                mVertices[ 11 ] = mLeader->get_basis( 22 );
-                mVertices[ 12 ] = mLeader->get_basis( 43 );
-                mVertices[ 13 ] = mLeader->get_basis( 40 );
-                mVertices[ 14 ] = mLeader->get_basis( 41 );
-                mVertices[ 15 ] = mLeader->get_basis( 42 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 3 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 0 );
+                mVertices[ 2 ] = mLeader->get_basis_function( 4 );
+                mVertices[ 3 ] = mLeader->get_basis_function( 7 );
+                mVertices[ 4 ] = mLeader->get_basis_function( 11 );
+                mVertices[ 5 ] = mLeader->get_basis_function( 10 );
+                mVertices[ 6 ] = mLeader->get_basis_function( 12 );
+                mVertices[ 7 ] = mLeader->get_basis_function( 13 );
+                mVertices[ 8 ] = mLeader->get_basis_function( 26 );
+                mVertices[ 9 ] = mLeader->get_basis_function( 27 );
+                mVertices[ 10 ] = mLeader->get_basis_function( 23 );
+                mVertices[ 11 ] = mLeader->get_basis_function( 22 );
+                mVertices[ 12 ] = mLeader->get_basis_function( 43 );
+                mVertices[ 13 ] = mLeader->get_basis_function( 40 );
+                mVertices[ 14 ] = mLeader->get_basis_function( 41 );
+                mVertices[ 15 ] = mLeader->get_basis_function( 42 );
                 break;
             }
             case( 4 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 3 );
-                mVertices[ 1 ] = mLeader->get_basis( 2 );
-                mVertices[ 2 ] = mLeader->get_basis( 1 );
-                mVertices[ 3 ] = mLeader->get_basis( 0 );
-                mVertices[ 4 ] = mLeader->get_basis( 19 );
-                mVertices[ 5 ] = mLeader->get_basis( 18 );
-                mVertices[ 6 ] = mLeader->get_basis( 15 );
-                mVertices[ 7 ] = mLeader->get_basis( 14 );
-                mVertices[ 8 ] = mLeader->get_basis( 9 );
-                mVertices[ 9 ] = mLeader->get_basis( 8 );
-                mVertices[ 10 ] = mLeader->get_basis( 10 );
-                mVertices[ 11 ] = mLeader->get_basis( 11 );
-                mVertices[ 12 ] = mLeader->get_basis( 33 );
-                mVertices[ 13 ] = mLeader->get_basis( 34 );
-                mVertices[ 14 ] = mLeader->get_basis( 35 );
-                mVertices[ 15 ] = mLeader->get_basis( 32 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 3 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 2 );
+                mVertices[ 2 ] = mLeader->get_basis_function( 1 );
+                mVertices[ 3 ] = mLeader->get_basis_function( 0 );
+                mVertices[ 4 ] = mLeader->get_basis_function( 19 );
+                mVertices[ 5 ] = mLeader->get_basis_function( 18 );
+                mVertices[ 6 ] = mLeader->get_basis_function( 15 );
+                mVertices[ 7 ] = mLeader->get_basis_function( 14 );
+                mVertices[ 8 ] = mLeader->get_basis_function( 9 );
+                mVertices[ 9 ] = mLeader->get_basis_function( 8 );
+                mVertices[ 10 ] = mLeader->get_basis_function( 10 );
+                mVertices[ 11 ] = mLeader->get_basis_function( 11 );
+                mVertices[ 12 ] = mLeader->get_basis_function( 33 );
+                mVertices[ 13 ] = mLeader->get_basis_function( 34 );
+                mVertices[ 14 ] = mLeader->get_basis_function( 35 );
+                mVertices[ 15 ] = mLeader->get_basis_function( 32 );
                 break;
             }
             case( 5 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 4 );
-                mVertices[ 1 ] = mLeader->get_basis( 5 );
-                mVertices[ 2 ] = mLeader->get_basis( 6 );
-                mVertices[ 3 ] = mLeader->get_basis( 7 );
-                mVertices[ 4 ] = mLeader->get_basis( 24 );
-                mVertices[ 5 ] = mLeader->get_basis( 25 );
-                mVertices[ 6 ] = mLeader->get_basis( 28 );
-                mVertices[ 7 ] = mLeader->get_basis( 29 );
-                mVertices[ 8 ] = mLeader->get_basis( 30 );
-                mVertices[ 9 ] = mLeader->get_basis( 31 );
-                mVertices[ 10 ] = mLeader->get_basis( 27 );
-                mVertices[ 11 ] = mLeader->get_basis( 26 );
-                mVertices[ 12 ] = mLeader->get_basis( 52 );
-                mVertices[ 13 ] = mLeader->get_basis( 53 );
-                mVertices[ 14 ] = mLeader->get_basis( 54 );
-                mVertices[ 15 ] = mLeader->get_basis( 55 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 4 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 5 );
+                mVertices[ 2 ] = mLeader->get_basis_function( 6 );
+                mVertices[ 3 ] = mLeader->get_basis_function( 7 );
+                mVertices[ 4 ] = mLeader->get_basis_function( 24 );
+                mVertices[ 5 ] = mLeader->get_basis_function( 25 );
+                mVertices[ 6 ] = mLeader->get_basis_function( 28 );
+                mVertices[ 7 ] = mLeader->get_basis_function( 29 );
+                mVertices[ 8 ] = mLeader->get_basis_function( 30 );
+                mVertices[ 9 ] = mLeader->get_basis_function( 31 );
+                mVertices[ 10 ] = mLeader->get_basis_function( 27 );
+                mVertices[ 11 ] = mLeader->get_basis_function( 26 );
+                mVertices[ 12 ] = mLeader->get_basis_function( 52 );
+                mVertices[ 13 ] = mLeader->get_basis_function( 53 );
+                mVertices[ 14 ] = mLeader->get_basis_function( 54 );
+                mVertices[ 15 ] = mLeader->get_basis_function( 55 );
                 break;
             }
         }

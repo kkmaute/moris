@@ -106,7 +106,7 @@ namespace moris::hmr
         for ( uint k = 0; k < tNumberOfVertices; ++k )
         {
             // copy id into matrix
-            aIDs( k ) = this->get_basis( k )->get_id();
+            aIDs( k ) = this->get_basis_function( k )->get_id();
         }
 
         // return ids
@@ -128,7 +128,7 @@ namespace moris::hmr
         for ( uint k = 0; k < tNumberOfVertices; ++k )
         {
             // copy id into matrix
-            aIndices( k ) = this->get_basis( k )->get_index();
+            aIndices( k ) = this->get_basis_function( k )->get_index();
         }
 
         // return indices
@@ -150,7 +150,7 @@ namespace moris::hmr
         for ( uint k = 0; k < tNumberOfVertices; ++k )
         {
             // fixme: do this in one line
-            Matrix< DDRMat > tNodeCoords = this->get_basis( k )->get_coords();
+            Matrix< DDRMat > tNodeCoords = this->get_basis_function( k )->get_coords();
 
             // copy coords from vertex
             aCoords.set_row( k, trans( tNodeCoords ) );

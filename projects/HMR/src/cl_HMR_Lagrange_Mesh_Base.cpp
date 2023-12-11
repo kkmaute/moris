@@ -250,7 +250,7 @@ namespace moris::hmr
                 for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to node
-                    Basis* tNode = tElement->get_basis( k );
+                    Basis_Function* tNode = tElement->get_basis_function( k );
 
                     if ( !tNode->is_flagged() )
                     {
@@ -268,7 +268,7 @@ namespace moris::hmr
         Matrix< DDLUMat > tNumberOfElementsPerDirection = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
 
         // assign Cell for nodes to be deleted
-        Cell< Basis* > tNodes( mNumberOfAllBasis - tCount, nullptr );
+        Cell< Basis_Function* > tNodes( mNumberOfAllBasis - tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -286,7 +286,7 @@ namespace moris::hmr
                 for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to node
-                    Basis* tNode = tElement->get_basis( k );
+                    Basis_Function* tNode = tElement->get_basis_function( k );
 
                     // test if node exists
                     if ( tNode != nullptr )
@@ -328,7 +328,7 @@ namespace moris::hmr
                 for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to node
-                    Basis* tNode = tElement->get_basis( k );
+                    Basis_Function* tNode = tElement->get_basis_function( k );
 
                     // unset flag
                     tNode->unflag();
@@ -377,7 +377,7 @@ namespace moris::hmr
                 {
                     for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                     {
-                        tElement->get_basis( k )->use();
+                        tElement->get_basis_function( k )->use();
                     }
 
                     // increment element counter
@@ -387,7 +387,7 @@ namespace moris::hmr
                 // flag nodes that are owned and shared on this proc. this includes the aura
                 for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
-                    tElement->get_basis( k )->use_owned_and_shared();
+                    tElement->get_basis_function( k )->use_owned_and_shared();
                 }
 
                 // increment element counter including aura
@@ -397,7 +397,7 @@ namespace moris::hmr
                 for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to node
-                    Basis* tNode = tElement->get_basis( k );
+                    Basis_Function* tNode = tElement->get_basis_function( k );
 
                     // test if node is flagged
                     if ( !tNode->is_flagged() )
@@ -618,7 +618,7 @@ namespace moris::hmr
                 if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                 {
                     // cell with basis in aura
-                    Cell< Basis* > tNodes;
+                    Cell< Basis_Function* > tNodes;
 
                     // collect nodes within aura
                     this->collect_basis_from_aura( p, 0, tNodes );
@@ -626,7 +626,7 @@ namespace moris::hmr
                     // count nodes that belong to neighbor
                     uint tCount = 0;
 
-                    for ( Basis* tNode : tNodes )
+                    for ( Basis_Function* tNode : tNodes )
                     {
                         // test if node belongs to neighbor
                         if ( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
@@ -654,7 +654,7 @@ namespace moris::hmr
                     tCount = 0;
 
                     // fill matrix with IDs
-                    for ( Basis* tNode : tNodes )
+                    for ( Basis_Function* tNode : tNodes )
                     {
                         // test if node belongs to neighbor
                         if ( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
@@ -697,7 +697,7 @@ namespace moris::hmr
                 if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                 {
                     // cell with basis in aura
-                    Cell< Basis* > tNodes;
+                    Cell< Basis_Function* > tNodes;
 
                     // collect nodes within inverse aura
                     this->collect_basis_from_aura( p, 1, tNodes );
@@ -705,7 +705,7 @@ namespace moris::hmr
                     // create Map
                     map< luint, moris_id > tMap;
 
-                    for ( Basis* tNode : tNodes )
+                    for ( Basis_Function* tNode : tNodes )
                     {
                         if ( tNode->get_owner() == tMyRank )
                         {
@@ -745,7 +745,7 @@ namespace moris::hmr
                 if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                 {
                     // cell with basis in aura
-                    Cell< Basis* > tNodes;
+                    Cell< Basis_Function* > tNodes;
 
                     // collect nodes within aura
                     this->collect_basis_from_aura( p, 0, tNodes );
@@ -753,7 +753,7 @@ namespace moris::hmr
                     // initialize counter
                     uint tCount = 0;
 
-                    for ( Basis* tNode : tNodes )
+                    for ( Basis_Function* tNode : tNodes )
                     {
                         if ( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
                         {
@@ -808,7 +808,7 @@ namespace moris::hmr
                 }
             }
 
-            Cell< Basis* > tBasisWithoutId( tCounter );
+            Cell< Basis_Function* > tBasisWithoutId( tCounter );
             tCounter = 0;
 
             for ( auto tBasis : mAllBasisOnProc )
@@ -908,7 +908,7 @@ namespace moris::hmr
                                     tMemoryCounter );
 
                     // pick requested basis
-                    Basis* tBasis = mAllElementsOnProc( tElement->get_memory_index() )->get_basis( tReceiveBasisIndex( p )( k ) );
+                    Basis_Function* tBasis = mAllElementsOnProc( tElement->get_memory_index() )->get_basis_function( tReceiveBasisIndex( p )( k ) );
 
                     // write basis owner into send array
                     tSendId( p )( k ) = tBasis->get_hmr_index();
@@ -984,8 +984,8 @@ namespace moris::hmr
             uint tNeighborProcRank = 0;
 
             // Initialize an inverse aura flag
-            Cell< Basis* > tAuraNodes;
-            Cell< Basis* > tInverseAuraNodes;
+            Cell< Basis_Function* > tAuraNodes;
+            Cell< Basis_Function* > tInverseAuraNodes;
             bool           tInverseAuraFlag = true;
 
             // Counter
@@ -1071,7 +1071,7 @@ namespace moris::hmr
                 // Add basis sharing information to the basis itself;
                 for ( auto tBoundNodeMemoryIndex : tBoundaryNodeMemoryIndex )
                 {
-                    Basis* tBoundBasis = get_basis_by_memory_index( tBoundNodeMemoryIndex );
+                    Basis_Function* tBoundBasis = get_basis_by_memory_index( tBoundNodeMemoryIndex );
                     tBoundBasis->add_node_sharing( tNeighborProcRank );
                 }
             }
@@ -1181,7 +1181,7 @@ namespace moris::hmr
         for ( luint k = 0; k < tNumberOfNodes; ++k )
         {
             // get node
-            Basis* tNode = mAllBasisOnProc( k );
+            Basis_Function* tNode = mAllBasisOnProc( k );
 
             // get level of node
             luint tLevel = tNode->get_level();
@@ -1588,7 +1588,7 @@ namespace moris::hmr
                     {
                         tIChar = swap_byte_endian( (int)tNodes( i ) );
                         tFile.write( (char*)&tIChar, sizeof( int ) );
-                        // tFile << " " << (int) mAllElementsOnProc( k )->get_basis( i )->get_memory_index();
+                        // tFile << " " << (int) mAllElementsOnProc( k )->get_basis_function( i )->get_memory_index();
                     }
                     // tFile << std::endl;
                 }
@@ -1995,7 +1995,7 @@ namespace moris::hmr
         // step 7 : link facets to basis
 
         // reset facet containers
-        for ( Basis* tBasis : mAllBasisOnProc )
+        for ( Basis_Function* tBasis : mAllBasisOnProc )
         {
             tBasis->delete_facet_container();
         }
@@ -2012,7 +2012,7 @@ namespace moris::hmr
 
                 for ( uint k = 0; k < tNumberOfBasis; ++k )
                 {
-                    tFacet->get_basis( k )->increment_facet_counter();
+                    tFacet->get_basis_function( k )->increment_facet_counter();
                 }
             }
 
@@ -2021,7 +2021,7 @@ namespace moris::hmr
         }
 
         // insert facet containers
-        for ( Basis* tBasis : mAllBasisOnProc )
+        for ( Basis_Function* tBasis : mAllBasisOnProc )
         {
             tBasis->init_facet_container();
         }
@@ -2036,7 +2036,7 @@ namespace moris::hmr
 
                 for ( uint k = 0; k < tNumberOfBasis; ++k )
                 {
-                    tFacet->get_basis( k )->insert_facet( tFacet );
+                    tFacet->get_basis_function( k )->insert_facet( tFacet );
                 }
             }
         }
@@ -2200,7 +2200,7 @@ namespace moris::hmr
 
         // step 7 : link edges to basis
         // reset edge containers
-        for ( Basis* tBasis : mAllBasisOnProc )
+        for ( Basis_Function* tBasis : mAllBasisOnProc )
         {
             tBasis->delete_edge_container();
         }
@@ -2216,7 +2216,7 @@ namespace moris::hmr
 
                 for ( uint k = 0; k < tNumberOfBasis; ++k )
                 {
-                    tEdge->get_basis( k )->increment_edge_counter();
+                    tEdge->get_basis_function( k )->increment_edge_counter();
                 }
             }
 
@@ -2225,7 +2225,7 @@ namespace moris::hmr
         }
 
         // insert edge containers
-        for ( Basis* tBasis : mAllBasisOnProc )
+        for ( Basis_Function* tBasis : mAllBasisOnProc )
         {
             tBasis->init_edge_container();
         }
@@ -2240,7 +2240,7 @@ namespace moris::hmr
 
                 for ( uint k = 0; k < tNumberOfBasis; ++k )
                 {
-                    tEdge->get_basis( k )->insert_edge( tEdge );
+                    tEdge->get_basis_function( k )->insert_edge( tEdge );
                 }
             }
         }
@@ -3180,7 +3180,7 @@ namespace moris::hmr
                 for ( int k = 0; k < tNumberOfNodesPerElement; ++k )
                 {
                     // write node to mesh file
-                    tIChar = swap_byte_endian( (int)tFacet->get_basis( k )->get_memory_index() );
+                    tIChar = swap_byte_endian( (int)tFacet->get_basis_function( k )->get_memory_index() );
                     tFile.write( (char*)&tIChar, sizeof( int ) );
                 }
             }
@@ -3401,7 +3401,7 @@ namespace moris::hmr
                 for ( int k = 0; k < tNumberOfNodesPerElement; ++k )
                 {
                     // write node to mesh file
-                    tIChar = swap_byte_endian( (int)tEdge->get_basis( k )->get_memory_index() );
+                    tIChar = swap_byte_endian( (int)tEdge->get_basis_function( k )->get_memory_index() );
                     tFile.write( (char*)&tIChar, sizeof( int ) );
                 }
             }
@@ -4093,7 +4093,7 @@ namespace moris::hmr
 
         for ( uint Ik = 0; Ik < tNumberOfNodes; Ik++ )
         {
-            Basis* tBasis = this->get_node_by_index( Ik );
+            Basis_Function* tBasis = this->get_node_by_index( Ik );
 
             MORIS_ERROR( tBasis->has_interpolation( 1 ), "Lagrange_Mesh_Base:: node has no first order basis" );
 
@@ -4107,13 +4107,13 @@ namespace moris::hmr
         Matrix< DDSMat > tReverseIndexMap( tMaxID + 1, 1, -1 );
         Matrix< DDSMat > tReverseIDMap( tMaxID + 1, 1, -1 );
 
-        moris::Cell< Basis* > tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
+        moris::Cell< Basis_Function* > tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
 
         this->calculate_t_matrices( false );
 
         for ( uint Ik = 0; Ik < tNumberOfNodes; Ik++ )
         {
-            Basis* tBasis = this->get_node_by_index( Ik );
+            Basis_Function* tBasis = this->get_node_by_index( Ik );
 
             MORIS_ERROR( tBasis->has_interpolation( 1 ), "Lagrange_Mesh_Base:: node has no first order basis" );
 
@@ -4162,7 +4162,7 @@ namespace moris::hmr
         tReverseIndexMap.resize( tMaxID + tNonBSplineBasis.size() + 1, 1 );
         tReverseIDMap.resize( tMaxID + tNonBSplineBasis.size() + 1, 1 );
 
-        for ( Basis* tBasis : tNonBSplineBasis )
+        for ( Basis_Function* tBasis : tNonBSplineBasis )
         {
             tReverseIndexMap( tMaxID ) = tBasis->get_index();
             tReverseIDMap( tMaxID )    = tBasis->get_hmr_index();

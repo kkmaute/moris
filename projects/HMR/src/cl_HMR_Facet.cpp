@@ -36,11 +36,11 @@ namespace moris::hmr
             mFollower = aMesh->get_element_by_memory_index( aBackgroundFacet->get_follower()->get_memory_index() );
 
             // fixme: this is not clean
-            if ( mLeader->get_basis( 0 ) == nullptr )
+            if ( mLeader->get_basis_function( 0 ) == nullptr )
             {
                 this->swap_leader_and_follower();
             }
-            MORIS_ASSERT( mLeader->get_basis( 0 ) != nullptr, "Tried to create a facet without nodes" );
+            MORIS_ASSERT( mLeader->get_basis_function( 0 ) != nullptr, "Tried to create a facet without nodes" );
         }
         else
         {

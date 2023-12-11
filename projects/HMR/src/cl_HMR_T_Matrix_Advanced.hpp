@@ -11,13 +11,13 @@
 #ifndef SRC_HMR_CL_HMR_T_MATRIX_2_HPP_
 #define SRC_HMR_CL_HMR_T_MATRIX_2_HPP_
 
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "typedefs.hpp" //COR/src
-#include "cl_Matrix.hpp" //LINALG/src
-#include "cl_Cell.hpp" //CNT/src
-#include "cl_HMR_T_Matrix.hpp" //CNT/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"     //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_Parameters.hpp"            //HMR/src
+#include "typedefs.hpp"                     //COR/src
+#include "cl_Matrix.hpp"                    //LINALG/src
+#include "cl_Cell.hpp"                      //CNT/src
+#include "cl_HMR_T_Matrix.hpp"              //CNT/src
 
 namespace moris::hmr
 {
@@ -29,10 +29,15 @@ namespace moris::hmr
     template< uint N >
     class T_Matrix_Advanced : public T_Matrix< N >
     {
-        //! Pointer to coarse Lagrange mesh
-        Lagrange_Mesh_Base * mLagrangeMeshCoarse;
+        // -------------------------------------------------------------------------------------------------------------
 
-    public:
+        //! Pointer to coarse Lagrange mesh
+        Lagrange_Mesh_Base* mLagrangeMeshCoarse;
+
+        // -------------------------------------------------------------------------------------------------------------
+
+      public:
+        // -------------------------------------------------------------------------------------------------------------
 
         /**
          * Constructor
@@ -43,10 +48,10 @@ namespace moris::hmr
          * @param aTruncate Whether or not to truncate B-splines
          */
         T_Matrix_Advanced(
-                Lagrange_Mesh_Base * aLagrangeMesh,
-                BSpline_Mesh_Base  * aBSplineMesh,
-                Lagrange_Mesh_Base * aLagrangeMeshCoarse,
-                bool                 aTruncate = true )
+                Lagrange_Mesh_Base* aLagrangeMesh,
+                BSpline_Mesh_Base*  aBSplineMesh,
+                Lagrange_Mesh_Base* aLagrangeMeshCoarse,
+                bool                aTruncate = true )
                 : T_Matrix< N >( aLagrangeMesh, aBSplineMesh, aTruncate )
                 , mLagrangeMeshCoarse( aLagrangeMeshCoarse )
         {
@@ -84,7 +89,7 @@ namespace moris::hmr
             uint tCoarseOrder = this->mLagrangeMeshCoarse->get_order();
 
             // number of nodes per element
-            uint tNumberOfNodesPerElement = this->mLagrangeMesh->get_number_of_bases_per_element();
+            uint tNumberOfNodesPerElement       = this->mLagrangeMesh->get_number_of_bases_per_element();
             uint tNumberOfCoarseNodesPerElement = this->mLagrangeMeshCoarse->get_number_of_bases_per_element();
 
             // unity matrix
@@ -95,14 +100,14 @@ namespace moris::hmr
             Matrix< DDRMat > tL( this->get_lagrange_matrix() );
 
             // loop over all elements
-            for( luint e = 0; e < tNumberOfElements; ++e )
+            for ( luint e = 0; e < tNumberOfElements; ++e )
             {
                 // get pointer to element
                 auto tLagrangeElement       = this->mLagrangeMesh->get_element( e );
                 auto tLagrangeElementCoarse = this->mLagrangeMeshCoarse->get_element( e );
 
                 // FIXME : activate this flag
-                //if ( tLagrangeElement->get_t_matrix_flag() )
+                // if ( tLagrangeElement->get_t_matrix_flag() )
                 {
                     // get pointer to background element
                     auto tBackgroundElement = tLagrangeElement->get_background_element();
@@ -110,21 +115,21 @@ namespace moris::hmr
                     // initialize refinement Matrix
                     Matrix< DDRMat > tR;
 
-                    bool tLagrangeEqualBspline = false;
+                    bool tLagrangeEqualBspline    = false;
                     bool tFirstLagrangeRefinement = true;
 
-                    while( ! tBackgroundElement->is_active( tBSplinePattern ) )
+                    while ( !tBackgroundElement->is_active( tBSplinePattern ) )
                     {
-                        if( tFirstLagrangeRefinement )
+                        if ( tFirstLagrangeRefinement )
                         {
                             // right multiply refinement matrix
-                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
+                            tR                       = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
                             tFirstLagrangeRefinement = false;
-                            tLagrangeEqualBspline = true;
+                            tLagrangeEqualBspline    = true;
                         }
                         else
                         {
-                            tR = tR* this->get_refinement_matrix( tBackgroundElement->get_child_index() );
+                            tR = tR * this->get_refinement_matrix( tBackgroundElement->get_child_index() );
                         }
 
                         // jump to parent
@@ -133,7 +138,7 @@ namespace moris::hmr
 
                     // calculate the B-Spline T-Matrix
                     Matrix< DDRMat > tB;
-                    Cell< Basis* > tDOFs;
+                    Cell< Basis_Function* >   tDOFs;
 
                     this->calculate_t_matrix(
                             tBackgroundElement->get_memory_index(),
@@ -141,11 +146,11 @@ namespace moris::hmr
                             tDOFs );
 
                     // get change order matrix
-                    const Matrix< DDRMat > & tC = this->get_change_order_matrix( tCoarseOrder );
+                    const Matrix< DDRMat >& tC = this->get_change_order_matrix( tCoarseOrder );
 
                     Matrix< DDRMat > tT;
 
-                    if(tLagrangeEqualBspline)
+                    if ( tLagrangeEqualBspline )
                     {
                         // transposed T-Matrix
                         tT = tC * tR * tL * tB;
@@ -162,13 +167,13 @@ namespace moris::hmr
                     real tEpsilon = 1e-12;
 
                     // loop over all nodes of this element
-                    for( uint k = 0; k<tNumberOfCoarseNodesPerElement; ++k  )
+                    for ( uint k = 0; k < tNumberOfCoarseNodesPerElement; ++k )
                     {
                         // pointer to node
-                        auto tNode = tLagrangeElementCoarse->get_basis( k );
+                        auto tNode = tLagrangeElementCoarse->get_basis_function( k );
 
                         // test if node is flagged
-                        if ( ! tNode->is_flagged() )
+                        if ( !tNode->is_flagged() )
                         {
                             // initialize counter
                             uint tCount = 0;
@@ -180,7 +185,7 @@ namespace moris::hmr
                             Matrix< DDRMat > tCoefficients( tNCols, 1 );
 
                             // loop over all nonzero entries
-                            for( uint i=0; i<tNCols; ++i )
+                            for ( uint i = 0; i < tNCols; ++i )
                             {
                                 if ( std::abs( tT( k, i ) ) > tEpsilon )
                                 {
@@ -215,14 +220,17 @@ namespace moris::hmr
                             // flag this node as processed
                             tNode->flag();
                         }
-                    } // end loop over all nodes of this element
-                } // end if element is flagged
-            } // end loop over all elements
+                    }    // end loop over all nodes of this element
+                }        // end if element is flagged
+            }            // end loop over all elements
         }
 
         // -------------------------------------------------------------------------------------------------------------
-    };
-}
+
+    };    // end class: hmr::T_Matrix_Advanced
+
+    // -------------------------------------------------------------------------------------------------------------
+
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_T_MATRIX_2_HPP_ */
-

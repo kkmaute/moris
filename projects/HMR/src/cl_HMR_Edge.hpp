@@ -183,11 +183,11 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        virtual const Basis* get_basis( const uint aIndex ) const = 0;
+        virtual const Basis_Function* get_basis_function( const uint aIndex ) const = 0;
 
         // ----------------------------------------------------------------------------
 
-        virtual Basis* get_basis( const uint aIndex ) = 0;
+        virtual Basis_Function* get_basis_function( const uint aIndex ) = 0;
 
         // ----------------------------------------------------------------------------
 

@@ -34,8 +34,8 @@ namespace moris
         Vertex_Interpolation_DataBase::get_ids() const
         {
             // get the basis pointer and number of elements
-            moris_id*   tBasisIdPtr = mMesh->get_basis_ids( mVertexIndex, mVertexOrder );
-            moris_index tOffset     = mMesh->get_basis_length( mVertexIndex, mVertexOrder );
+            moris_id*   tBasisIdPtr = mMesh->get_basis_function_ids( mVertexIndex, mVertexOrder );
+            moris_index tOffset     = mMesh->get_num_basis_functions_on_vertex( mVertexIndex, mVertexOrder );
 
             Matrix< IdMat > tBasisIds( tBasisIdPtr, tOffset, 1, false, true );
 
@@ -48,8 +48,8 @@ namespace moris
         Vertex_Interpolation_DataBase::get_indices() const
         {
             // get the basis pointer and number of elements
-            moris_index* tBasisIndicesPtr = mMesh->get_basis_indicies( mVertexIndex, mVertexOrder );
-            moris_index  tOffset          = mMesh->get_basis_length( mVertexIndex, mVertexOrder );
+            moris_index* tBasisIndicesPtr = mMesh->get_basis_function_indicies( mVertexIndex, mVertexOrder );
+            moris_index  tOffset          = mMesh->get_num_basis_functions_on_vertex( mVertexIndex, mVertexOrder );
 
             Matrix< IdMat > tBasisIndices( tBasisIndicesPtr, tOffset, 1, false, true );
 
@@ -62,8 +62,8 @@ namespace moris
         Vertex_Interpolation_DataBase::get_owners() const
         {
             // get the basis pointer and number of elements
-            moris_id*   tBasisOwnersPtr = mMesh->get_basis_owners( mVertexIndex, mVertexOrder );
-            moris_index tOffset         = mMesh->get_basis_length( mVertexIndex, mVertexOrder );
+            moris_id*   tBasisOwnersPtr = mMesh->get_basis_function_owners( mVertexIndex, mVertexOrder );
+            moris_index tOffset         = mMesh->get_num_basis_functions_on_vertex( mVertexIndex, mVertexOrder );
 
             Matrix< IdMat > tBasisOwners( tBasisOwnersPtr, tOffset, 1, false, true );
 
@@ -128,8 +128,8 @@ namespace moris
         void
         Vertex_Interpolation_DataBase::set_outward_data()
         {
-            moris::real* tBasisWightsPtr = mMesh->get_basis_weights( mVertexIndex, mVertexOrder );
-            moris_index  tOffset         = mMesh->get_basis_length( mVertexIndex, mVertexOrder );
+            moris::real* tBasisWightsPtr = mMesh->get_basis_function_weights( mVertexIndex, mVertexOrder );
+            moris_index  tOffset         = mMesh->get_num_basis_functions_on_vertex( mVertexIndex, mVertexOrder );
 
             mWeights = Matrix< DDRMat >( tBasisWightsPtr, tOffset, 1, false, true );
         }

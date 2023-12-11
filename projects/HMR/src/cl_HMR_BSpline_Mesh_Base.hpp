@@ -25,18 +25,18 @@ namespace moris::hmr
     {
       protected:
         //! Cell containing all basis this proc knows about
-        Cell< Basis* > mAllCoarsestBasisOnProc;
+        Cell< Basis_Function* > mAllCoarsestBasisOnProc;
 
         //! Cell of basis that are assigned an HMR index ( moris ID );
-        Cell< Basis* > mIndexedBasis;
+        Cell< Basis_Function* > mIndexedBasis;
 
         //! number of all basis (including unused on padding)
         luint mNumberOfAllBasis = 0;
 
         luint          mNumberOfActiveBasisOnProc  = 0;
         luint          mNumberOfRefinedBasisOnProc = 0;
-        Cell< Basis* > mActiveBasisOnProc;
-        Cell< Basis* > mRefinedBasisOnProc;
+        Cell< Basis_Function* > mActiveBasisOnProc;
+        Cell< Basis_Function* > mRefinedBasisOnProc;
 
         Matrix< DDRMat > mChildStencil;
 
@@ -121,7 +121,7 @@ namespace moris::hmr
         /**
          * returns an active basis by a position in the memory
          */
-        Basis*
+        Basis_Function*
         get_active_basis( luint aIndex )
         {
             return mActiveBasisOnProc( aIndex );
@@ -132,7 +132,7 @@ namespace moris::hmr
         /**
          * returns an active basis by a position in the memory ( const version )
          */
-        const Basis*
+        const Basis_Function*
         get_active_basis( luint aIndex ) const
         {
             return mActiveBasisOnProc( aIndex );
@@ -140,7 +140,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        Basis*
+        Basis_Function*
         get_basis_by_index( luint aIndex )
         {
             return mIndexedBasis( aIndex );
@@ -321,7 +321,7 @@ namespace moris::hmr
          * @param[ inout ]  aBasis   cell containing found basis
          */
         virtual void collect_bases_from_level( uint aLevel,
-                Cell< Basis* >&                     aBasis ) = 0;
+                Cell< Basis_Function* >&                     aBasis ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -342,7 +342,7 @@ namespace moris::hmr
          */
         virtual void preprocess_bases_from_level(
                 Cell< Element* >& aElements,
-                Cell< Basis* >&   aBases ) = 0;
+                Cell< Basis_Function* >&   aBases ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -351,7 +351,7 @@ namespace moris::hmr
          *
          * @param aBases Bases on the current level
          */
-        virtual void determine_basis_state( Cell< Basis* >& aBases ) = 0;
+        virtual void determine_basis_state( Cell< Basis_Function* >& aBases ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -384,7 +384,7 @@ namespace moris::hmr
 
         virtual void delete_unused_bases( uint    aLevel,
                 Cell< Background_Element_Base* >& aBackgroundElements,
-                Cell< Basis* >&                   aBasis ) = 0;
+                Cell< Basis_Function* >&                   aBasis ) = 0;
     };
     //------------------------------------------------------------------------------
 }    // namespace moris::hmr

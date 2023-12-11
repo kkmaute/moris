@@ -120,7 +120,7 @@ main(
 //                    for( uint k=0; k<tNumberOfNodes; ++k )
 //                    {
 //                        // get pointer to node
-//                        moris::hmr::Basis * tNode
+//                        moris::hmr::Basis_Function * tNode
 //                        = tLagrangeMesh->get_basis_by_memory_index( k );
 //
 //                        // get node coordinate

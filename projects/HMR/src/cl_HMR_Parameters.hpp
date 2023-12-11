@@ -31,7 +31,7 @@ namespace moris::mtk
 {
     class Cell;
     class Field;
-}
+}    // namespace moris::mtk
 namespace moris::hmr
 {
     class Element;
@@ -42,7 +42,7 @@ namespace moris::hmr
             const Matrix< DDRMat >& aElementLocalValues );
 
     // User-defined refinement function
-    typedef hmr::ElementalRefienmentIndicator ( *Refinement_Function_2 )(
+    typedef hmr::ElementalRefinementIndicator ( *Refinement_Function_2 )(
             mtk::Cell*                    aElement,
             std::shared_ptr< mtk::Field > aField,
             uint                          tActivationPattern,
@@ -78,7 +78,7 @@ namespace moris::hmr
         //! coordinate of first visible node
         Matrix< DDRMat > mDomainOffset;
 
-        // --- Begin changable parameters.
+        // --- Begin changeable parameters.
         //     Make sure to add them to copy_selected_parameters()
 
         //! size of staircase buffer
@@ -94,7 +94,7 @@ namespace moris::hmr
         //! flag telling if truncation is used
         bool mBSplineTruncationFlag = true;
 
-        // --- End changable parameters.
+        // --- End changeable parameters.
 
         //! tells if critical features of the settings object are locked
         bool mParametersAreLocked = false;
@@ -142,8 +142,8 @@ namespace moris::hmr
         Matrix< DDUMat > mUnionMeshes;
 
         //! Lagrange Meshes that are used for the output meshes
-        Cell< Matrix< DDUMat > > mOutputMeshes     = { { { 0 } } };
-        Cell< std::string >      mOutputMesheNames = { { { "" } } };
+        Cell< Matrix< DDUMat > > mOutputMeshes    = { { { 0 } } };
+        Cell< std::string >      mOutputMeshNames = { { { "" } } };
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
@@ -174,7 +174,7 @@ namespace moris::hmr
 
         bool mWriteRefinementPatternFileFlag = false;
 
-        std::string mRestartfromRefinedPattern = "";
+        std::string mRestartFromRefinedPattern = "";
 
         //! maximum level for refinement. Default value is specified
         //! by global constant
@@ -561,12 +561,12 @@ namespace moris::hmr
          * set output mesh names
          */
         void
-        set_output_mesh_names( const Cell< std::string >& aOutputMesheNames )
+        set_output_mesh_names( const Cell< std::string >& aOutputMeshNames )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_output_meshes_names" );
 
-            mOutputMesheNames = aOutputMesheNames;
+            mOutputMeshNames = aOutputMeshNames;
         }
 
         //--------------------------------------------------------------------------------
@@ -577,7 +577,7 @@ namespace moris::hmr
         const Cell< std::string >&
         get_output_mesh_names() const
         {
-            return mOutputMesheNames;
+            return mOutputMeshNames;
         }
 
         //--------------------------------------------------------------------------------
@@ -1244,9 +1244,9 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void
-        set_restart_refinement_pattern_file( const std::string& aRestartfromRefinedPattern )
+        set_restart_refinement_pattern_file( const std::string& aRestartFromRefinedPattern )
         {
-            mRestartfromRefinedPattern = aRestartfromRefinedPattern;
+            mRestartFromRefinedPattern = aRestartFromRefinedPattern;
         }
 
         //-------------------------------------------------------------------------------
@@ -1286,7 +1286,7 @@ namespace moris::hmr
         const std::string&
         get_restart_refinement_pattern_file()
         {
-            return mRestartfromRefinedPattern;
+            return mRestartFromRefinedPattern;
         }
 
         //-------------------------------------------------------------------------------
@@ -1417,7 +1417,6 @@ namespace moris::hmr
     ParameterList create_hmr_parameter_list( const Parameters* aParameters );
 
     // -----------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_PARAMETERS_HPP_ */
-

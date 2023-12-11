@@ -46,7 +46,7 @@ namespace moris::hmr
 
         // @fixme: confirm that this is not identical to mAllNodesOnProc
         //! Cell containing used Nodes
-        Cell< Basis * > mNodes;
+        Cell< Basis_Function * > mNodes;
 
         //! Cells containing real field data
 
@@ -257,7 +257,7 @@ namespace moris::hmr
         //
         //                    for( uint Ii = 0; Ii < tNumberElementsWithoutAura; Ii++ )
         //                    {
-        //                        moris_index tBasisIndex = tElement->get_basis( Ii )->get_index();
+        //                        moris_index tBasisIndex = tElement->get_basis_function( Ii )->get_index();
         //                    }
         //                }
         //                return mNumberOfUsedNodes;
@@ -268,7 +268,7 @@ namespace moris::hmr
         /**
          * returns a node pointer
          */
-        Basis * get_node_by_index( uint aIndex )
+        Basis_Function * get_node_by_index( uint aIndex )
         {
             MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
             return mNodes( aIndex );
@@ -279,7 +279,7 @@ namespace moris::hmr
         /**
          * returns a node pointer ( const version )
          */
-        const Basis * get_node_by_index( uint aIndex ) const
+        const Basis_Function * get_node_by_index( uint aIndex ) const
         {
             MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
             return mNodes( aIndex );
@@ -290,7 +290,7 @@ namespace moris::hmr
         /**
          * returns a node pointer
          */
-        Basis * get_node_by_index_including_aura( uint aIndex )
+        Basis_Function * get_node_by_index_including_aura( uint aIndex )
         {
             MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
             return mAllBasisOnProc( aIndex );
@@ -301,7 +301,7 @@ namespace moris::hmr
         /**
          * returns a node pointer ( const version )
          */
-        const Basis * get_node_by_index_including_aura( uint aIndex ) const
+        const Basis_Function * get_node_by_index_including_aura( uint aIndex ) const
         {
             MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
             return mAllBasisOnProc( aIndex );
@@ -412,7 +412,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        Basis * get_bspline( const uint aMeshIndex,
+        Basis_Function * get_bspline( const uint aMeshIndex,
                 uint aBasisIndex )                      //FIXME
         {
             // check that the requested BSpline-Mesh exists
@@ -589,7 +589,7 @@ namespace moris::hmr
                 const uint                    aBasisIndex,
                 Matrix< IndexMat > & aElementIndices )
         {
-            Basis * tBasis = nullptr;
+            Basis_Function * tBasis = nullptr;
 
             if( mBSplineMeshes( aMeshIndex )!= nullptr)
             {
@@ -661,7 +661,7 @@ namespace moris::hmr
                 for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
                 {
                     // unflag basis
-                    tElement->get_basis( k )->unflag();
+                    tElement->get_basis_function( k )->unflag();
                 }
             }
 
@@ -674,7 +674,7 @@ namespace moris::hmr
                 for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
                 {
                     // get node pointer
-                    Basis * tNode = tElement->get_basis( k );
+                    Basis_Function * tNode = tElement->get_basis_function( k );
 
                     if( !tNode->is_flagged() )
                     {

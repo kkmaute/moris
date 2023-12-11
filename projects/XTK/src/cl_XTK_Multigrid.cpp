@@ -379,7 +379,7 @@ namespace xtk
         {
             moris_index tBackgroundIndex = mEnrichedBasisToBackgroundBasis( Ik );
 
-            mEnrichedBasisLevel( Ik ) = tInterpolationMesh.get_basis_level( 0, tBackgroundIndex );
+            mEnrichedBasisLevel( Ik ) = tInterpolationMesh.get_basis_function_level( 0, tBackgroundIndex );
 #ifdef MORIS_HAVE_DEBUG
             mEnrichedBasisStatus( Ik )                                                     = tInterpolationMesh.get_basis_status( 0, tBackgroundIndex );
             mEnrichedBasisCoords( { Ik, Ik }, { 0, mXTKModelPtr->get_spatial_dim() - 1 } ) = tInterpolationMesh.get_basis_coords( 0, tBackgroundIndex ).matrix_data();

@@ -19,7 +19,7 @@ namespace moris::hmr
     template< uint D >
     class Lagrange_Edge : public Edge
     {
-        Basis * mVertices[ D ] = { nullptr };
+        Basis_Function * mVertices[ D ] = { nullptr };
 
 // ----------------------------------------------------------------------------
     public :
@@ -52,14 +52,14 @@ namespace moris::hmr
 
 // ----------------------------------------------------------------------------
         inline
-        const Basis * get_basis( const uint aIndex ) const
+        const Basis_Function * get_basis_function( const uint aIndex ) const
         {
             return mVertices[ aIndex ];
         }
 
 // ----------------------------------------------------------------------------
         inline
-        Basis * get_basis( const uint aIndex )
+        Basis_Function * get_basis_function( const uint aIndex )
         {
             return mVertices[ aIndex ];
         }

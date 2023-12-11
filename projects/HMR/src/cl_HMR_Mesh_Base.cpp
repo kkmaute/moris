@@ -182,7 +182,7 @@ namespace moris::hmr
             for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
             {
                 // get node pointer
-                Basis* tNode = tElement->get_basis( k );
+                Basis_Function* tNode = tElement->get_basis_function( k );
 
                 // increment element counter
                 tNode->increment_element_counter();
@@ -209,7 +209,7 @@ namespace moris::hmr
             for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
             {
                 // get node pointer
-                Basis* tNode = tElement->get_basis( k );
+                Basis_Function* tNode = tElement->get_basis_function( k );
 
                 // link this element with the node
                 tNode->insert_element( tElement );
@@ -297,7 +297,7 @@ namespace moris::hmr
                 if ( tNeihgborRank != tMyRank && tNeihgborRank != gNoProcNeighbor )
                 {
                     // cell containing basis pointers
-                    Cell< Basis* > tBasisInAura;
+                    Cell< Basis_Function* > tBasisInAura;
 
                     // collect basis within inverse aura
                     this->collect_basis_from_aura( p, 2, tBasisInAura );
@@ -372,8 +372,8 @@ namespace moris::hmr
                             tMemoryCounter );
 
                     // pick requested basis
-                    Basis * tBasis = mAllElementsOnProc( tElement->get_memory_index() )->
-                            get_basis( tReceiveBasisIndex( p )( k ) );
+                    Basis_Function * tBasis = mAllElementsOnProc( tElement->get_memory_index() )->
+                            get_basis_function( tReceiveBasisIndex( p )( k ) );
 
                     // write basis owner into send array
                     tSendOwner( p )( k ) = tBasis->get_owner();
@@ -405,7 +405,7 @@ namespace moris::hmr
                 if ( tNeihgborRank != tMyRank && tNeihgborRank != gNoProcNeighbor )
                 {
                     // cell containing basis pointers
-                    Cell< Basis* > tBasisInAura;
+                    Cell< Basis_Function* > tBasisInAura;
 
                     // collect basis within inverse aura
                     this->collect_basis_from_aura( p, 2, tBasisInAura );
@@ -432,7 +432,7 @@ namespace moris::hmr
     void Mesh_Base::collect_basis_from_aura(
             uint            aProcNeighborIndex,
             uint            aMode,
-            Cell< Basis* >& aBasisList )
+            Cell< Basis_Function* >& aBasisList )
     {
         // clear basis list
         aBasisList.clear();
@@ -461,7 +461,7 @@ namespace moris::hmr
                 for( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( k );
+                    Basis_Function* tBasis = tElement->get_basis_function( k );
 
                     // test if basis exists
                     if ( tBasis != nullptr )
@@ -495,7 +495,7 @@ namespace moris::hmr
                 for( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( k );
+                    Basis_Function* tBasis = tElement->get_basis_function( k );
 
                     // test if basis exists
                     if ( tBasis != nullptr )
@@ -519,7 +519,7 @@ namespace moris::hmr
 
     void
     Mesh_Base::encode_foreign_basis_path(
-            Cell< Basis* >    & aBasis,
+            Cell< Basis_Function* >    & aBasis,
             const moris_id    & aOwner,
             Matrix< DDLUMat > & aElementAncestors,
             Matrix< DDUMat >  & aElementPedigree,
@@ -600,7 +600,7 @@ namespace moris::hmr
 
     void
     Mesh_Base::get_reference_element_of_basis(
-            Basis * aBasis,
+            Basis_Function * aBasis,
             luint & aElementMemoryIndex,
             uint  & aElementLocalBasisIndex )
     {
@@ -637,7 +637,7 @@ namespace moris::hmr
         for( uint k = 0; k < mNumberOfBasesPerElement; ++k )
         {
             // get pointer to basis
-            Basis* tBasis = tElement->get_basis( k );
+            Basis_Function* tBasis = tElement->get_basis_function( k );
 
             // test if basis exists
             if( tBasis != nullptr )
@@ -694,7 +694,7 @@ namespace moris::hmr
         for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
         {
             // get pointer to basis
-            Basis* tBasis = tElement->get_basis( k );
+            Basis_Function* tBasis = tElement->get_basis_function( k );
 
             // get array of node coordinates
             const real * tXYZ = tBasis->get_xyz();

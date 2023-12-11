@@ -722,7 +722,7 @@ namespace xtk
                 tVertexInterpolations( iProc )( iVert ) = tTMatrix;
 
                 // check the size of the nodal T-matrix
-                moris_index tNumBasisIdsOnTMat = tTMatrix->get_basis_indices().numel();
+                moris_index tNumBasisIdsOnTMat = tTMatrix->get_basis_function_indices().numel();
 
                 // store the offsets in the linear data array
                 aTMatrixOffsets( iProc )( iVert ) = tDataSize( iProc );
@@ -762,8 +762,8 @@ namespace xtk
                 moris_index tEnd   = aTMatrixOffsets( iProc )( iVert + 1 ) - 1;
 
                 // fill the communication arrays
-                aTMatrixWeights( iProc )( { tStart, tEnd }, { 0, 0 } ) = tEnrTMat->get_basis_weights().matrix_data();
-                aTMatrixIds( iProc )( { tStart, tEnd }, { 0, 0 } )     = tEnrTMat->get_basis_ids().matrix_data();
+                aTMatrixWeights( iProc )( { tStart, tEnd }, { 0, 0 } ) = tEnrTMat->get_basis_function_weights().matrix_data();
+                aTMatrixIds( iProc )( { tStart, tEnd }, { 0, 0 } )     = tEnrTMat->get_basis_function_ids().matrix_data();
                 aTMatrixOwners( iProc )( { tStart, tEnd }, { 0, 0 } )  = tEnrTMat->get_owners().matrix_data();
             }
         }
@@ -862,7 +862,7 @@ namespace xtk
                 }
 
                 // Setup the basis index to ID map for the T-matrix
-                IndexMap& tVertEnrichMap = tEnrTMat->get_basis_map();
+                IndexMap& tVertEnrichMap = tEnrTMat->get_basis_function_map();
                 for ( uint iBF = 0; iBF < tSize; iBF++ )
                 {
                     moris_index tBasisIndex       = tBasisIndices( iBF );
@@ -871,8 +871,8 @@ namespace xtk
 
                 // get the basis indices from the basis ids
                 tEnrTMat->add_basis_information( tBasisIndices, tBasisIds );
-                tEnrTMat->add_basis_weights( tBasisIndices, tBasisWeights );
-                tEnrTMat->add_basis_owners( tBasisIndices, tBasisOwners );
+                tEnrTMat->add_basis_function_weights( tBasisIndices, tBasisWeights );
+                tEnrTMat->add_basis_function_owners( tBasisIndices, tBasisOwners );
                 tEnrTMat->add_base_vertex_interpolation( nullptr );
                 // base vertex interpolation does not exists (other  proc)
 

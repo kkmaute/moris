@@ -183,7 +183,7 @@ namespace moris::hmr
         const Cell< Matrix< DDUMat > >& OutputMeshIndex = mParameters->get_output_mesh();
 
         MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1,
-                "HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!" );
+                "HMR::perform() - Only one output mesh allowed. To allow more implement multiple side sets." );
 
         // get mesh with numbered aura (aura number is requested)
         uint tLagrangeMeshIndex = OutputMeshIndex( 0 )( 0 );
@@ -1317,12 +1317,12 @@ namespace moris::hmr
         mMeshes.clear();
 
         // get number of Lagrange meshes
-        uint tNumberOfMeshes = mParameters->get_number_of_lagrange_meshes();
+        uint tNumberOfLagMeshes = mParameters->get_number_of_lagrange_meshes();
 
         // create meshes
-        for ( uint Ik = 0; Ik < tNumberOfMeshes; ++Ik )
+        for ( uint iLagMesh = 0; iLagMesh < tNumberOfLagMeshes; ++iLagMesh )
         {
-            mMeshes.push_back( this->create_mesh( Ik ) );
+            mMeshes.push_back( this->create_mesh( iLagMesh ) );
         }
     }
 
@@ -1379,16 +1379,16 @@ namespace moris::hmr
                 mDatabase->update_bspline_meshes( tPattern );
                 mDatabase->update_lagrange_meshes( tPattern );
             }
-        } // end for: each pattern which initial refinement is performed upon
+        }    // end for: each pattern which initial refinement is performed upon
 
         // call update in case there is no refinement for this pattern.
-        // all meshes have to be updated in such that all meshes are updated with the maximal refined background mesh
+        // all meshes have to be updated such that all meshes are updated with the maximally refined background mesh/grid
         mDatabase->update_bspline_meshes();
         mDatabase->update_lagrange_meshes();
 
         mDatabase->set_activation_pattern( tActivationPattern );
 
-    } // end function: HMR::perform_initial_refinement()
+    }    // end function: HMR::perform_initial_refinement()
 
     // ----------------------------------------------------------------------------
 

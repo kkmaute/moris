@@ -499,7 +499,7 @@ namespace moris::hmr
         /**
          * Populates the container of coarse basis pointers based on IJK positions
          *
-         * @param D Number of dimensions left to process
+         * @tparam D Number of dimensions left to process
          * @param aIJK IJK position to fill and use
          * @param aBasisIndex Index in the basis container to fill next
          */
@@ -567,7 +567,7 @@ namespace moris::hmr
         void
         preprocess_bases_from_level(
                 Cell< Element* >& aElements,
-                Cell< Basis* >&   aBasisFunctions ) override
+                Cell< Basis_Function* >&   aBasisFunctions ) override
         {
             // reset flags for basis
             for ( Element* tElement : aElements )
@@ -576,7 +576,7 @@ namespace moris::hmr
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                    Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
 
                     if ( tBasis != nullptr )
                     {
@@ -600,13 +600,13 @@ namespace moris::hmr
 
             // ======================
             // go over all elements on the current level and mark the basis functions interpolating into them for usage and count them
-            for ( Element* tElement : aElements )
+            for ( Element* iElement : aElements )
             {
                 // loop over all basis from this element
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                    Basis_Function* tBasis = iElement->get_basis_function( iBasisIndexInElement );
 
                     if ( tBasis != nullptr )
                     {
@@ -623,13 +623,13 @@ namespace moris::hmr
                 }
 
                 // use basis if element is owned
-                if ( tElement->get_owner() == tMyRank )
+                if ( iElement->get_owner() == tMyRank )
                 {
                     // loop over all basis from this element
                     for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                     {
                         // get pointer to basis
-                        Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                        Basis_Function* tBasis = iElement->get_basis_function( iBasisIndexInElement );
                         if ( tBasis != nullptr )
                         {
                             tBasis->use();
@@ -652,7 +652,7 @@ namespace moris::hmr
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
                     // get pointer to basis
-                    Basis* tBasis = iElement->get_basis( iBasisIndexInElement );
+                    Basis_Function* tBasis = iElement->get_basis_function( iBasisIndexInElement );
 
                     if ( tBasis != nullptr )
                     {
@@ -675,7 +675,7 @@ namespace moris::hmr
                     for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                     {
                         // get pointer to basis
-                        Basis* tBasis = iElement->get_basis( iBasisIndexInElement );
+                        Basis_Function* tBasis = iElement->get_basis_function( iBasisIndexInElement );
 
                         if ( tBasis != nullptr )
                         {
@@ -700,7 +700,7 @@ namespace moris::hmr
                 // loop over all basis from this element
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
-                    Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                    Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
 
                     if ( tBasis != nullptr )
                     {
@@ -736,10 +736,10 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        determine_basis_state( Cell< Basis* >& aBases ) override
+        determine_basis_state( Cell< Basis_Function* >& aBases ) override
         {
             // loop over all basis functions parsed into this function and flag them as (de-)activated and as (non-)refined
-            for ( Basis* iBasisFunction : aBases )
+            for ( Basis_Function* iBasisFunction : aBases )
             {
                 // only process basis that are used by this proc
                 if ( iBasisFunction->is_used() )
@@ -756,7 +756,7 @@ namespace moris::hmr
                     else    // Basis function is fully supported within domain + padding
                     {
                         // check if any element in the BF's support are neither active nor refined which also indicates irrelevance
-                        // TODO: for the truncation refactor the condition is that any element within the BF's support is active to be considered
+                        // TODO: for the truncation refactor the condition is that any element within the BF's support is considered a candidate
                         bool tHasDeactivatedElement = false;
                         for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
                         {
@@ -816,13 +816,13 @@ namespace moris::hmr
             uint tMaxLevel = mBackgroundMesh->get_max_level();
 
             // Cell containing children
-            Cell< Basis* > tChildren;
+            Cell< Basis_Function* > tChildren;
 
             // loop over all levels but the last
             for ( uint iLevel = 0; iLevel < tMaxLevel; iLevel++ )
             {
                 // make children from last step to parents
-                Cell< Basis* > tBasis;
+                Cell< Basis_Function* > tBasis;
                 this->collect_bases_from_level( iLevel, tBasis );
 
                 // loop over all basis on this level
@@ -834,7 +834,7 @@ namespace moris::hmr
                         // loop over all children
                         for ( uint iChildIndex = 0; iChildIndex < C; iChildIndex++ )
                         {
-                            Basis* tChild = tParent->get_child( iChildIndex );
+                            Basis_Function* tChild = tParent->get_child( iChildIndex );
 
                             // pointer may be null because we deleted unused basis
                             if ( tChild != nullptr )
@@ -855,7 +855,7 @@ namespace moris::hmr
                         // loop over all children
                         for ( uint iChildIndex = 0; iChildIndex < C; iChildIndex++ )
                         {
-                            Basis* tChild = tParent->get_child( iChildIndex );
+                            Basis_Function* tChild = tParent->get_child( iChildIndex );
 
                             // pointer may be null because we deleted unused basis
                             if ( tChild != nullptr )
@@ -875,7 +875,7 @@ namespace moris::hmr
         delete_unused_bases(
                 uint                              aLevel,
                 Cell< Background_Element_Base* >& aBackgroundElements,
-                Cell< Basis* >&                   aBasis ) override
+                Cell< Basis_Function* >&                   aBasis ) override
         {
             // start timer
             tic tTimer;
@@ -888,7 +888,7 @@ namespace moris::hmr
                 // step 1: remove basis from parents
 
                 // collect basis from upper level
-                Cell< Basis* > tParents;
+                Cell< Basis_Function* > tParents;
 
                 this->collect_bases_from_level( aLevel - 1, tParents );
 
@@ -899,7 +899,7 @@ namespace moris::hmr
                     for ( uint iChildIndex = 0; iChildIndex < C; iChildIndex++ )
                     {
                         // get pointer to child
-                        Basis* tChild = tParent->get_child( iChildIndex );
+                        Basis_Function* tChild = tParent->get_child( iChildIndex );
 
                         // test if child exists
                         if ( tChild != nullptr )
@@ -925,7 +925,7 @@ namespace moris::hmr
                     for ( uint k = 0; k < mNumberOfNeighborsPerElement; ++k )
                     {
                         // get pointer to neighbor
-                        Basis* tNeighbor = tBasis->get_neighbor( k );
+                        Basis_Function* tNeighbor = tBasis->get_neighbor( k );
 
                         // test if neighbor exists
                         if ( tNeighbor != nullptr )
@@ -950,7 +950,7 @@ namespace moris::hmr
                     for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                     {
                         // get pointer to basis
-                        Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                        Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
 
                         // test if basis exists
                         if ( tBasis != nullptr )
@@ -980,7 +980,7 @@ namespace moris::hmr
                 }
 
                 // initialize output array
-                Cell< Basis* > tBasisOut( tBasisCount, nullptr );
+                Cell< Basis_Function* > tBasisOut( tBasisCount, nullptr );
 
                 // reset counter
                 tBasisCount = 0;
@@ -1027,7 +1027,7 @@ namespace moris::hmr
         void
         collect_bases_from_level(
                 uint            aLevel,
-                Cell< Basis* >& aBasis ) override
+                Cell< Basis_Function* >& aBasis ) override
         {
             Cell< Element* > tElements;
 
@@ -1040,7 +1040,7 @@ namespace moris::hmr
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                    Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
 
                     // test if basis exists
                     if ( tBasis != nullptr )
@@ -1060,7 +1060,7 @@ namespace moris::hmr
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                    Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
 
                     // test if basis exists
                     if ( tBasis != nullptr )
@@ -1090,7 +1090,7 @@ namespace moris::hmr
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
                     // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                    Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
 
                     // test if basis exists
                     if ( tBasis != nullptr )
@@ -1130,7 +1130,7 @@ namespace moris::hmr
                             for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                             {
                                 // get pointer to basis
-                                Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                                Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
 
                                 // flag basis if it is refined
                                 if ( tBasis->is_refined() )

@@ -30,7 +30,7 @@ namespace moris::hmr
      * the mesh. The class also contains all information on parallel mesh
      * decomposition, and manages parallel communication. class is templated
      * against the dimension, 2D or 3D. The background mesh does not contain
-     * any node or basis information.
+     * any node or basis function information.
      */
     class Background_Mesh_Base
     {

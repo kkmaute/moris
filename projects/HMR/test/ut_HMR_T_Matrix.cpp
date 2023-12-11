@@ -126,7 +126,7 @@ namespace moris::hmr
                         for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
                         {
                             // get pointer to node
-                            Basis* tNode = tLagrangeMesh->get_basis_by_memory_index( iNodeIndex );
+                            Basis_Function* tNode = tLagrangeMesh->get_basis_by_memory_index( iNodeIndex );
 
                             // get node coordinate
                             auto tXYZ = tNode->get_coords();
@@ -174,7 +174,7 @@ namespace moris::hmr
 
                         // Calculate T-matrix
                         Matrix< DDRMat > tTMatrixCalculated;
-                        Cell< Basis* >   tBasis;
+                        Cell< Basis_Function* >   tBasis;
                         tTMatrix->calculate_t_matrix( tBSplineMesh->get_element( 0 )->get_memory_index(),
                                 tTMatrixCalculated,
                                 tBasis );

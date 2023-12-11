@@ -142,7 +142,7 @@ namespace xtk
             moris::map< moris::moris_id, moris::moris_index > tHMRMap;
             tXTKModel.mBackgroundMesh->get_adof_map( tMeshIndices( 0 ), tHMRMap );
 
-            // loop over the vertex enrichments to see if the t-matrics are actually overwritten
+            // loop over the vertex enrichments to see if the T-matrices are actually overwritten
             for ( Vertex_Enrichment* iVertexEnrichment : tInterpMesh.mInterpVertEnrichment( tInterpMesh.mUnenrichedMeshIndices( 0 ) ) )
             {
                 // if it is not nullptr
@@ -152,10 +152,10 @@ namespace xtk
                     if ( tBaseVertex )
                     {
                         moris::Matrix< moris::IndexMat >         tBaseIndices = tBaseVertex->get_indices();
-                        moris::Matrix< moris::IndexMat > const & tIndices     = iVertexEnrichment->get_basis_indices();
+                        moris::Matrix< moris::IndexMat > const & tIndices     = iVertexEnrichment->get_indices();
 
                         moris::Matrix< moris::IdMat >         tBaseIds = tBaseVertex->get_ids();
-                        moris::Matrix< moris::IdMat > const & tIds     = iVertexEnrichment->get_basis_ids();
+                        moris::Matrix< moris::IdMat > const & tIds     = iVertexEnrichment->get_ids();
 
 
                         moris::Matrix< moris::IdMat >         tBaseOwners = tBaseVertex->get_owners();
@@ -178,12 +178,12 @@ namespace xtk
                         CHECK( tItisOverwritten );
                     }
 
-                    // if it has interpolation data but does not have a base vertex them it is created during the ghost and it is in auro
+                    // if it has interpolation data but does not have a base vertex them it is created during the ghost and it is in the aura
                     // we will check that ids created during the ghost
                     else
                     {
-                        moris::Matrix< moris::IndexMat > const & tIndices = iVertexEnrichment->get_basis_indices();
-                        moris::Matrix< moris::IdMat > const &    tIds     = iVertexEnrichment->get_basis_ids();
+                        moris::Matrix< moris::IndexMat > const & tIndices = iVertexEnrichment->get_indices();
+                        moris::Matrix< moris::IdMat > const &    tIds     = iVertexEnrichment->get_ids();
                         moris::Matrix< moris::IdMat > const &    tOwners  = iVertexEnrichment->get_owners();
 
                         // if there is a vertex that belongs to the other processor, it should be added to the map and
@@ -210,10 +210,10 @@ namespace xtk
             {
                 // get the indices from two maps
                 moris_index tHMRIndex         = iHMRGlobalToLocal.second;
-                moris_index tNonEnirhcedIndex = tUnenrichedMap.find( iHMRGlobalToLocal.first );
+                moris_index tNonEnrichedIndex = tUnenrichedMap.find( iHMRGlobalToLocal.first );
 
                 // compare the indices to be the same
-                CHECK( tHMRIndex == tNonEnirhcedIndex );
+                CHECK( tHMRIndex == tNonEnrichedIndex );
 
                 // update the max index
                 tMaxIndex = std::max( tMaxIndex, tHMRIndex );

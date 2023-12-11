@@ -423,7 +423,7 @@ namespace moris
              */
 
             virtual moris_id*
-            get_basis_ids( moris_index aVertexIndex, moris_index aOrder ) override;
+            get_basis_function_ids( moris_index aVertexIndex, moris_index aOrder ) override;
 
             // -------------------------------------------------------------------------------
 
@@ -436,7 +436,7 @@ namespace moris
              */
 
             virtual moris_index*
-            get_basis_indicies( moris_index aVertexIndex, moris_index aOrder ) override;
+            get_basis_function_indicies( moris_index aVertexIndex, moris_index aOrder ) override;
 
             // -------------------------------------------------------------------------------
 
@@ -449,7 +449,7 @@ namespace moris
              */
 
             virtual real*
-            get_basis_weights( moris_index aVertexIndex, moris_index aOrder ) override;
+            get_basis_function_weights( moris_index aVertexIndex, moris_index aOrder ) override;
 
             // -------------------------------------------------------------------------------
 
@@ -462,7 +462,7 @@ namespace moris
              */
 
             virtual moris_id*
-            get_basis_owners( moris_index aVertexIndex, moris_index aOrder ) override;
+            get_basis_function_owners( moris_index aVertexIndex, moris_index aOrder ) override;
 
             // -------------------------------------------------------------------------------
 
@@ -475,7 +475,7 @@ namespace moris
              */
 
             virtual moris_index
-            get_basis_length( moris_index aVertexIndex, moris_index aOrder ) override;
+            get_num_basis_functions_on_vertex( moris_index aVertexIndex, moris_index aOrder ) override;
 
             // -------------------------------------------------------------------------------
 

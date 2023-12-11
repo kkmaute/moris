@@ -161,7 +161,7 @@ namespace xtk
         uint                    get_num_interpolations();
         uint                    get_max_level( const moris_index aInterpolationIndex );
         uint                    get_num_basis( const moris_index aInterpolationIndex );
-        uint                    get_basis_level( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
+        uint                    get_basis_function_level( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
         uint                    get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
         uint                    get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex, const moris_index aCoarseParentIndex );
         moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
@@ -252,7 +252,7 @@ namespace xtk
          * get basis owner
          */
         moris_index
-        get_basis_owner(
+        get_basis_function_owner(
                 moris_index aBasisIndex,
                 moris_index aMeshIndex );
 

@@ -229,7 +229,7 @@ namespace moris
 
                         uint tMaxLevel = MORIS_UINT_MAX;
 
-                        enum hmr::ElementalRefienmentIndicator tRefIndicator =
+                        enum hmr::ElementalRefinementIndicator tRefIndicator =
                                 tRefinementFunctions( Ik )( Ia )( &tCell, tField, tActivationPattern, tMaxLevel );
 
                         hmr::Background_Element_Base* tBGElementOld =
@@ -250,19 +250,19 @@ namespace moris
                         }
 
                         // in the case that the BG level is equal the max level, hold this element
-                        if ( tRefIndicator == hmr::ElementalRefienmentIndicator::REFINE && tBGElementNew->get_level() >= tMaxLevel )
+                        if ( tRefIndicator == hmr::ElementalRefinementIndicator::REFINE && tBGElementNew->get_level() >= tMaxLevel )
                         {
-                            tRefIndicator = hmr::ElementalRefienmentIndicator::HOLD;
+                            tRefIndicator = hmr::ElementalRefinementIndicator::HOLD;
                         }
 
                         switch ( tRefIndicator )
                         {
-                            case hmr::ElementalRefienmentIndicator::REFINE:
+                            case hmr::ElementalRefinementIndicator::REFINE:
                             {
                                 tBGElementNew->set_refined_flag( tWorkingPattern );
                                 break;
                             }
-                            case hmr::ElementalRefienmentIndicator::HOLD:
+                            case hmr::ElementalRefinementIndicator::HOLD:
                             {
                                 if ( tBGElementNew->get_level() > 0 )
                                 {
@@ -272,7 +272,7 @@ namespace moris
 
                                 break;
                             }
-                            case hmr::ElementalRefienmentIndicator::COARSEN:
+                            case hmr::ElementalRefinementIndicator::COARSEN:
                             {
                                 if ( tBGElementNew->get_level() > 1 )
                                 {
@@ -283,7 +283,7 @@ namespace moris
 
                                 break;
                             }
-                            case hmr::ElementalRefienmentIndicator::DROP:
+                            case hmr::ElementalRefinementIndicator::DROP:
                             {
                                 // do nothing
                                 break;
@@ -537,10 +537,10 @@ namespace moris
                     aHMR->perform_refinement( tLagrangeMeshPattern );
                     aHMR->update_refinement_pattern( tLagrangeMeshPattern );
 
-                    // TODO: ?
+                    // TODO: can the below be removed?
                     tBackgroundMesh->update_database();
-                    tDataBase->update_bspline_meshes();
-                    tDataBase->update_lagrange_meshes();
+                    // tDataBase->update_bspline_meshes(); // TODO: aren't this and the following operation redundant as they are already performed in update_refinement_pattern()?
+                    // tDataBase->update_lagrange_meshes();
 
                 }    // end for: each refinement step
 

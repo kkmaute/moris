@@ -41,7 +41,7 @@ namespace moris::hmr
     T_Matrix_Base::calculate_t_matrix(
             luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
-            Cell< Basis* >&   aDOFs )
+            Cell< Basis_Function* >&   aDOFs )
     {
         if ( mTruncate )
         {
@@ -59,7 +59,7 @@ namespace moris::hmr
     T_Matrix_Base::calculate_untruncated_t_matrix(
             luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
-            Cell< Basis* >&   aDOFs )
+            Cell< Basis_Function* >&   aDOFs )
     {
         aDOFs.clear();
 
@@ -96,16 +96,16 @@ namespace moris::hmr
             for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasisPerElement; iBasisIndex++ )
             {
                 // get pointer to basis
-                Basis* tBasis = tParent->get_basis( iBasisIndex );
+                Basis_Function* tBasisFunction = tParent->get_basis_function( iBasisIndex );
 
                 // test if basis is active
-                if ( tBasis->is_active() )
+                if ( tBasisFunction->is_active() )
                 {
                     // copy columns into matrix
                     aTMatrixTransposed.set_column( tBasisCount, tT.get_column( iBasisIndex ) );
 
                     // copy pointer to basis into output array
-                    aDOFs( tBasisCount++ ) = tBasis;
+                    aDOFs( tBasisCount++ ) = tBasisFunction;
                 }
             }
 
@@ -127,7 +127,7 @@ namespace moris::hmr
     T_Matrix_Base::calculate_truncated_t_matrix(
             luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
-            Cell< Basis* >&   aDOFs )
+            Cell< Basis_Function* >&   aDOFs )
     {
         // Clear adofs
         aDOFs.clear();
@@ -138,122 +138,117 @@ namespace moris::hmr
         // get level of element
         uint tLevel = tElement->get_level();
 
-        // get number of basis per element
-        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_bases_per_element();
+        // get number of basis functions per element
+        uint tNumberOfBFsPerElement = mBSplineMesh->get_number_of_bases_per_element();
 
         // help index for total number of basis
-        uint tNumberOfBasis = ( tLevel + 1 ) * tNumberOfBasisPerElement;
+        uint tNumberOfBFsOnAllLevels = ( tLevel + 1 ) * tNumberOfBFsPerElement;
 
-        // initialize counter
+        // initialize counters
         uint tDOFCount   = 0;
-        uint tBasisCount = 0;
+        uint tNumBFsOnElement = 0;
 
-        // container for basis levels
-        moris::Cell< Basis* > tAllBasis( tNumberOfBasis, nullptr );
+        // initialize container of basis functions interpolating into the element
+        moris::Cell< Basis_Function* > tBFsInterpolatingIntoElement( tNumberOfBFsOnAllLevels, nullptr );
 
         // size T-matrix
-        aTMatrixTransposed.set_size( tNumberOfBasisPerElement, tNumberOfBasis, 0.0 );
-        aDOFs.resize( tNumberOfBasis, nullptr );
+        aTMatrixTransposed.set_size( tNumberOfBFsPerElement, tNumberOfBFsOnAllLevels, 0.0 );
+        aDOFs.resize( tNumberOfBFsOnAllLevels, nullptr );
 
-        // copy basis on lowest level into output
-        for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasisPerElement; iBasisIndex++ )
+        // copy basis functions on lowest level into output
+        for ( uint iElemLocalBF = 0; iElemLocalBF < tNumberOfBFsPerElement; iElemLocalBF++ )
         {
-            Basis* tBasis              = tElement->get_basis( iBasisIndex );
-            tAllBasis( tBasisCount++ ) = tBasis;
+            Basis_Function* tBasisFunction      = tElement->get_basis_function( iElemLocalBF );
+            tBFsInterpolatingIntoElement( tNumBFsOnElement++ ) = tBasisFunction;
 
-            if ( tBasis->is_active() )
+            if ( tBasisFunction->is_active() )
             {
-                aTMatrixTransposed.set_column( tDOFCount, mEye.get_column( iBasisIndex ) );
-                aDOFs( tDOFCount++ ) = tBasis;
+                aTMatrixTransposed.set_column( tDOFCount, mEye.get_column( iElemLocalBF ) );
+                aDOFs( tDOFCount++ ) = tBasisFunction;
             }
         }
 
-        // jump to next parent
+        // if the current element is refined from level zero
         if ( tLevel > 0 )
         {
             // Get parent of element
-            Element* tParent = mBSplineMesh->get_parent_of_element( tElement );
+            Element* tParentElement = mBSplineMesh->get_parent_of_element( tElement );
 
-            // loop over all basis of this level
-            for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasisPerElement; iBasisIndex++ )
+            // loop over all basis functions interpolating into the parent element
+            for ( uint iParentElemLocalBF = 0; iParentElemLocalBF < tNumberOfBFsPerElement; iParentElemLocalBF++ )
             {
-                // get pointer to basis
-                Basis* tBasis = tParent->get_basis( iBasisIndex );
+                // get a pointer to the current basis function of the parent element
+                Basis_Function* tParentElemBF = tParentElement->get_basis_function( iParentElemLocalBF );
 
-                // test if basis is active
-                if ( tBasis->is_active() )
+                // test if basis function is active
+                if ( tParentElemBF->is_active() )
                 {
-                    // Get number of children of basis
-                    uint tNumberOfChildrenOfBasis = tBasis->get_number_of_children();
+                    // Get number of children of basis function
+                    uint tNumberOfChildrenOfBasis = tParentElemBF->get_number_of_children();
 
-                    // loop over all children of this basis
+                    // loop over all children of this basis function
                     for ( uint iChildNumber = 0; iChildNumber < tNumberOfChildrenOfBasis; iChildNumber++ )
                     {
-                        // get pointer to child of basis
-                        Basis* tChild = tBasis->get_child( iChildNumber );
+                        // get pointer to child of basis function
+                        Basis_Function* tChildBF = tParentElemBF->get_child( iChildNumber );
 
-                        // test if child exists
-                        if ( tChild != nullptr )
+                        // test if child BF exists
+                        if ( tChildBF != nullptr )
                         {
                             // test if child is not active
-                            if ( !tChild->is_active() && !tChild->is_refined() )
+                            if ( !tChildBF->is_active() && !tChildBF->is_refined() )
                             {
                                 // get memory index of child
-                                luint tChildBasisIndex = tChild->get_memory_index();
+                                luint tChildBasisFunctionMemoryIndex = tChildBF->get_memory_index();
 
-                                // search for child in element
-                                for ( uint iBasisSearchIndex = 0; iBasisSearchIndex < tNumberOfBasisPerElement; iBasisSearchIndex++ )
+                                // search for the child BF in the refined input element
+                                for ( uint iBasisSearchIndex = 0; iBasisSearchIndex < tNumberOfBFsPerElement; iBasisSearchIndex++ )
                                 {
-                                    if ( tAllBasis( iBasisSearchIndex )->get_memory_index() == tChildBasisIndex )
+                                    if ( tBFsInterpolatingIntoElement( iBasisSearchIndex )->get_memory_index() == tChildBasisFunctionMemoryIndex )
                                     {
                                         // fixme: this operation is supposed to work the same way for both Armadillo and Eigen.
 #ifdef MORIS_USE_EIGEN
-                                        //                                                aTMatrixTransposed.set_column( tCount,
-                                        //                                                        aTMatrixTransposed.get_column( tCount ).matrix_data()
-                                        //                                                        + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-                                        // aTMatrixTransposed.set_column( tCount,
-                                        //         aTMatrixTransposed.get_column( tCount ).matrix_data()
-                                        //         + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-                                        aTMatrixTransposed.set_column( tCount,
-                                                aTMatrixTransposed.get_column( tCount ).matrix_data()
-                                                        + mTruncationWeights( j ) * mEye.get_column( tCounter_2 ).matrix_data() );
+                                        auto tVal = aTMatrixTransposed.get_column( tDOFCount ).matrix_data() + mTruncationWeights( iChildNumber ) * mEye.get_column( iBasisSearchIndex ).matrix_data();
+                                        aTMatrixTransposed.set_column( tDOFCount, tVal );
 #else
-                                        /*                                                tTMatrixTruncatedTransposed.set_column( tCount,
-                                                tTMatrixTruncatedTransposed.get_column( tCount )
-                                                + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) ); */
-                                        // try direct arma access, see how much time we loose
-                                        //                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-                                        //                                                          + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
-                                        aTMatrixTransposed.matrix_data().col( tDOFCount ) = aTMatrixTransposed.matrix_data().col( tDOFCount )
-                                                                                          + mTruncationWeights( iChildNumber ) * mEye.matrix_data().col( iBasisSearchIndex );
+                                        // compute the T-matrix weights in terms of the weights for the basis functions interpolating into the refined element
+                                        auto tCol = aTMatrixTransposed.matrix_data().col( tDOFCount );
+                                        tCol += mTruncationWeights( iChildNumber ) * mEye.matrix_data().col( iBasisSearchIndex );
 #endif
                                         break;
-                                    }
-                                }
-                            }
-                        }
-                    }
 
+                                    } // end if: child is found
+                                } // end for: search for child in element
+                            } // end if: child is neither active nor refined (i.e. it is disabled)
+                        } // end if: child BF of the basis function interpolating into the parent element actually exists
+                    } // end for: each child BF of the basis function interpolating into the parent element
+
+                    // If there is are weights associated with the parent basis function, then add it to the list of DOFs for the input element
                     if ( aTMatrixTransposed.get_column( tDOFCount ).min() < -gEpsilon || aTMatrixTransposed.get_column( tDOFCount ).max() > gEpsilon )
                     {
                         // copy parent index
-                        aDOFs( tDOFCount++ ) = tBasis;
+                        aDOFs( tDOFCount++ ) = tParentElemBF;
                     }
-                    else
+                    else // otherwise, don't and just have zero weights
                     {
                         // reset this column to zero
                         aTMatrixTransposed.set_column( tDOFCount, mZero.get_column( 0 ) );
                     }
-                }
 
-                tAllBasis( tBasisCount++ ) = tBasis;
-            }
-        }
+                }    // end if: tBasisFunction is active
+
+                // add the truncated parent basis functions to the list of BFs interpolating into the element
+                tBFsInterpolatingIntoElement( tNumBFsOnElement++ ) = tParentElemBF;
+
+            } // end for: each basis function interpolating into the parent element
+
+        } // end if: the current element is refined from level zero
 
         // Shrink output to exact size
-        aTMatrixTransposed.resize( tNumberOfBasisPerElement, tDOFCount );
+        aTMatrixTransposed.resize( tNumberOfBFsPerElement, tDOFCount );
         aDOFs.resize( tDOFCount, nullptr );
-    }
+
+    }    // end function: hmr::T_Matrix_Base::calculate_truncated_t_matrix()
 
     //-------------------------------------------------------------------------------
 
@@ -270,7 +265,7 @@ namespace moris::hmr
         // matrix containing parameter coordinates for points
         Matrix< DDRMat > tXi( tNumberOfNodes, 1, 0.0 );
 
-        // stepwidth
+        // step width
         real tDeltaXi = 2.0 / mLagrangeOrder;
 
         // first value
@@ -344,7 +339,7 @@ namespace moris::hmr
                 // initialize refinement Matrix
                 Matrix< DDRMat > tR;
 
-                bool tLagrangeEqualBspline    = false;
+                bool tLagrangeNotEqualBspline = false;
                 bool tFirstLagrangeRefinement = true;
 
                 while ( !tBackgroundElement->is_active( tBSplinePattern ) )
@@ -354,7 +349,7 @@ namespace moris::hmr
                         // right multiply refinement matrix
                         tR                       = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
                         tFirstLagrangeRefinement = false;
-                        tLagrangeEqualBspline    = true;
+                        tLagrangeNotEqualBspline = true;
                     }
                     else
                     {
@@ -367,7 +362,7 @@ namespace moris::hmr
 
                 // calculate the B-Spline T-Matrix
                 Matrix< DDRMat > tB;
-                Cell< Basis* >   tDOFs;
+                Cell< Basis_Function* >   tDOFs;
 
                 uint tElemMemIndex = tBackgroundElement->get_memory_index();
                 this->calculate_t_matrix(
@@ -377,12 +372,12 @@ namespace moris::hmr
 
                 Matrix< DDRMat > tT;
 
-                if ( tLagrangeEqualBspline )
+                if ( tLagrangeNotEqualBspline )    // need to consider refinement
                 {
                     // transposed T-Matrix
                     tT = tR * tL * tB;
                 }
-                else
+                else    // no refinement
                 {
                     tT = tL * tB;
                 }
@@ -397,7 +392,7 @@ namespace moris::hmr
                 for ( uint iLagNode = 0; iLagNode < tNumberOfNodesPerElement; iLagNode++ )
                 {
                     // pointer to node
-                    auto tNode = tLagrangeElement->get_basis( iLagNode );
+                    auto tNode = tLagrangeElement->get_basis_function( iLagNode );
 
                     // test if node is flagged
                     if ( !tNode->is_flagged() )
@@ -482,7 +477,7 @@ namespace moris::hmr
             for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodesPerElement; iNodeIndex++ )
             {
                 // pointer to node
-                auto tNode = tLagrangeElement->get_basis( iNodeIndex );
+                auto tNode = tLagrangeElement->get_basis_function( iNodeIndex );
 
                 // test if node is flagged
                 if ( !tNode->is_flagged() )
@@ -574,7 +569,7 @@ namespace moris::hmr
 
         // calculate the B-Spline T-Matrix
         Matrix< DDRMat > tB;
-        Cell< Basis* >   tDOFs;
+        Cell< Basis_Function* >   tDOFs;
 
         this->calculate_t_matrix(
                 aBSpBackgroundElement->get_memory_index(),

@@ -59,7 +59,7 @@ namespace moris::hmr
         Cell< Element* > mAllCoarsestElementsOnProc;
 
         //! Cell containing all nodes this proc has
-        Cell< Basis* > mAllBasisOnProc;
+        Cell< Basis_Function* > mAllBasisOnProc;
 
         //! all elements on proc, including aura, active and refined
         luint mNumberOfAllElementsOnProc = 0;
@@ -144,7 +144,7 @@ namespace moris::hmr
          * @param[in]    aBasisIndex           number of node in memory
          * @return const Basis*  pointer to node
          */
-        Basis*
+        Basis_Function*
         get_basis_by_memory_index( luint aBasisIndex )
         {
             return mAllBasisOnProc( aBasisIndex );
@@ -415,7 +415,7 @@ namespace moris::hmr
       protected:
         // ----------------------------------------------------------------------------
         /**
-         * deletes all nodes and elements
+         * deletes all basis functions and elements
          *
          * @ return void
          */
@@ -457,7 +457,7 @@ namespace moris::hmr
          */
         void collect_basis_from_aura( uint aProcNeighborIndex,
                 uint                       aMode,
-                Cell< Basis* >&            aNodeList );
+                Cell< Basis_Function* >&            aNodeList );
 
       protected:
         // ----------------------------------------------------------------------------
@@ -481,7 +481,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void get_reference_element_of_basis(
-                Basis* aBasis,
+                Basis_Function* aBasis,
                 luint& aElementMemoryIndex,
                 uint&  aElementLocalBasisIndex );
         // ----------------------------------------------------------------------------
@@ -523,7 +523,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void encode_foreign_basis_path(
-                Cell< Basis* >&    aBasis,
+                Cell< Basis_Function* >&    aBasis,
                 const moris_id&    aOwner,
                 Matrix< DDLUMat >& aElementAncestors,
                 Matrix< DDUMat >&  aElementPedigree,

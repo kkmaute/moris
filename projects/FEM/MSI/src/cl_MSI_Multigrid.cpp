@@ -150,7 +150,7 @@ namespace moris
                 moris::sint tMeshIndex = mModelSolverInterface->get_adof_index_for_type( tDofType );
 
                 // Ask mesh for the level of this mesh index
-                moris::uint tDofLevel = mMesh->get_basis_level( tMeshIndex, mListAdofExtIndMap( Ik )( Ii, 0 ) );
+                moris::uint tDofLevel = mMesh->get_basis_function_level( tMeshIndex, mListAdofExtIndMap( Ik )( Ii, 0 ) );
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
                 if( tDofLevel < tMaxMeshLevel - Ik )                                                      // FIXME assumes that all max levels are the same

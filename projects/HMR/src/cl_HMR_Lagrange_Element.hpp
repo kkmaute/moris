@@ -34,7 +34,7 @@ namespace moris::hmr
     class Lagrange_Element : public Element
     {
         // pointer to nodes
-        Basis** mNodes;
+        Basis_Function** mNodes;
 
         // pointers to twin on B-Spline mesh
         moris::Cell< Element* > mTwins;
@@ -95,7 +95,7 @@ namespace moris::hmr
                     "Basis container of element already initiated" );
 
             mHaveBasis = true;
-            mNodes     = new Basis*[ D ];
+            mNodes     = new Basis_Function*[ D ];
             for ( uint k = 0; k < D; ++k )
             {
                 mNodes[ k ] = nullptr;
@@ -208,7 +208,7 @@ namespace moris::hmr
             for ( uint k = 0; k < D; ++k )
             {
                 // get node
-                Basis* tNode = this->get_basis( k );
+                Basis_Function* tNode = this->get_basis_function( k );
                 std::fprintf( stdout,
                         "    %2u :  Node %lu , ID %lu, MEM %lu \n",
                         (unsigned int)k,
@@ -229,8 +229,8 @@ namespace moris::hmr
          * @return    Basis* pointer to Lagrange node
          *
          */
-        Basis*
-        get_basis( uint aIndex )
+        Basis_Function*
+        get_basis_function( uint aIndex )
         {
             if ( mHaveBasis )
             {
@@ -243,8 +243,8 @@ namespace moris::hmr
             }
         }
 
-        const Basis*
-        get_basis( uint aIndex ) const
+        const Basis_Function*
+        get_basis_function( uint aIndex ) const
         {
             if ( mHaveBasis )
             {
@@ -271,7 +271,7 @@ namespace moris::hmr
         void
         insert_basis(
                 uint aIndex,
-                Basis*      aBasis )
+                Basis_Function*      aBasis )
         {
             MORIS_ASSERT( aIndex < D, "Try to insert bases into mNodes with index being out of bound.\n" );
             mNodes[ aIndex ] = aBasis;

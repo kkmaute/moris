@@ -18,9 +18,9 @@ namespace moris::hmr
 {
 // ----------------------------------------------------------------------------
 
-    void get_basis_neighbors_2d(       Basis  * aBasis,
+    void get_basis_neighbors_2d(       Basis_Function  * aBasis,
                                  uint aOrder,
-                                       Basis ** aNeighbors )
+                                       Basis_Function ** aNeighbors )
     {
          // make sure order is not too big
          MORIS_ASSERT( 0 < aOrder && aOrder <= 3, "Neighbor order too big.");
@@ -43,7 +43,7 @@ namespace moris::hmr
              }
 
              // placeholder for basis neighbor
-             Basis* tNeighbor;
+             Basis_Function* tNeighbor;
 
              // test if neighbor 0 exists
              if ( aNeighbors[ 0 ] != nullptr )

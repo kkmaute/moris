@@ -253,7 +253,7 @@ namespace moris::hmr
         // write values into matrix
         for( uint k=0; k<tNumberOfNodes; ++k )
         {
-            aValues( k ) = this->get_node_values()( tElement->get_basis( k )->get_index() );
+            aValues( k ) = this->get_node_values()( tElement->get_basis_function( k )->get_index() );
         }
     }
 

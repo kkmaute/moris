@@ -48,26 +48,26 @@ namespace moris::hmr
         {
             case( 0 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 0 );
-                mVertices[ 1 ] = mLeader->get_basis( 1 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 0 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 1 );
                 break;
             }
             case( 1 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 1 );
-                mVertices[ 1 ] = mLeader->get_basis( 2 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 1 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 2 );
                 break;
             }
             case( 2 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 2 );
-                mVertices[ 1 ] = mLeader->get_basis( 3 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 2 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 3 );
                 break;
             }
             case( 3 ) :
             {
-                mVertices[ 0 ] = mLeader->get_basis( 3 );
-                mVertices[ 1 ] = mLeader->get_basis( 0 );
+                mVertices[ 0 ] = mLeader->get_basis_function( 3 );
+                mVertices[ 1 ] = mLeader->get_basis_function( 0 );
                 break;
             }
         }

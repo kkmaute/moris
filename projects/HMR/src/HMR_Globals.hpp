@@ -60,7 +60,7 @@ namespace moris::hmr
         END_ENUM
     };
 
-    enum class ElementalRefienmentIndicator
+    enum class ElementalRefinementIndicator
     {
         REFINE,
         HOLD,

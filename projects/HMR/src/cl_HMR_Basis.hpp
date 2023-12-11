@@ -27,31 +27,31 @@ namespace moris::hmr
     // Cell< mtk::Vertex* > gEmptyVertexCell;
     //------------------------------------------------------------------------------
     /**
-     * \brief base class for templated Lagrange Nodes and B-Splines
+     * @brief base class for templated Lagrange Nodes and B-Splines
      */
-    class Basis : public mtk::Vertex
+    class Basis_Function : public mtk::Vertex
     {
         //------------------------------------------------------------------------------
 
       protected:
         //------------- -----------------------------------------------------------------
 
-        //! Level on which basis is defined
+        //! Level on which basis function is defined
         const uint mLevel;
 
-        //! owner of basis
+        //! owner of basis function
         moris_id mOwner = gNoProcOwner;
 
-        //! processors whom share basis (in ascending proc rank order)
+        //! processors whom share basis function (in ascending proc rank order)
         Matrix< IdMat > mSharingProcs;
 
-        //! counts how many elements are connected to this basis
+        //! counts how many elements are connected to this basis function
         uint mNumberOfConnectedElements = 0;
 
         //! multi purpose flag
         bool mFlag = false;
 
-        //! ID of basis on global domain
+        //! ID of basis function on global domain
         luint mDomainID = gNoEntityID;
 
         //! global index in whole domain
@@ -72,13 +72,13 @@ namespace moris::hmr
         //  array containing connected elements
         moris::Cell< Element* > mElements;
 
-        //! counts how many facets are connected to this basis
+        //! counts how many facets are connected to this basis function
         uint mNumberOfConnectedFacets = 0;
 
         //  array containing connected facets
         Facet** mFacets = nullptr;
 
-        //! counts how many edges are connected to this basis
+        //! counts how many edges are connected to this basis function
         uint mNumberOfConnectedEdges = 0;
 
         //  array containing connected facets
@@ -90,13 +90,14 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         /**
-         * default basis constructor
+         * default basis function constructor
          *
-         * @param[in]   aLevel        level on which basis exists
-         * @param[in]   aOwner        owner of basis
+         * @param[in]   aLevel        level on which basis function exists
+         * @param[in]   aOwner        owner of basis function
          */
 
-        Basis( uint  aLevel,
+        Basis_Function(
+                uint aLevel,
                 uint aOwner )
                 : mLevel( aLevel )
                 , mOwner( aOwner )
@@ -109,14 +110,14 @@ namespace moris::hmr
         /**
          * Virtual destructor. Does nothing.
          */
-        virtual ~Basis(){};
+        virtual ~Basis_Function(){};
 
         // -----------------------------------------------------------------------------
 
         /**
-         * MTK Interface: returns owner of basis
+         * MTK Interface: returns owner of basis function
          *
-         * @return uint    ID of proc that owns this basis
+         * @return uint ID of proc that owns this basis function
          */
         moris_id
         get_owner() const
@@ -126,9 +127,9 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         /**
-         * MTK Interface: returns all procs which share this basis
+         * MTK Interface: returns all procs which share this basis function
          *
-         * @return const Matrix<IdMat> &    IDs of proc that share this basis
+         * @return const Matrix<IdMat> & IDs of proc that share this basis function
          */
         const Matrix< IdMat >&
         get_node_sharing() const
@@ -195,7 +196,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * sets the flag of the basis to true
+         * sets the flag of the basis function to true
          *
          * @return void
          */
@@ -208,7 +209,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * sets the active flag of the basis to false
+         * sets the active flag of the basis function to false
          *
          * @return void
          */
@@ -221,7 +222,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * tests if the basis is flagged
+         * tests if the basis function is flagged
          *
          * @return bool
          */
@@ -234,9 +235,9 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         /**
-         * returns the level of a basis
+         * returns the level of a basis function 
          *
-         * @return   uint level of basis
+         * @return   uint level of basis function
          */
         uint
         get_level() const
@@ -247,9 +248,9 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         /**
-         * Sets the proc owner of basis to specified value
+         * Sets the proc owner of basis function to specified value
          *
-         * @param[in]  aOwner   ID of proc that will own this basis
+         * @param[in]  aOwner   ID of proc that will own this basis function
          *
          * @return void
          */
@@ -378,7 +379,7 @@ namespace moris::hmr
         /**
          * set ID of global domain
          *
-         * param[in]  aIndex    new index of basis
+         * param[in]  aIndex    new index of basis function
          *
          * @return void
          */
@@ -393,7 +394,7 @@ namespace moris::hmr
         /**
          * get index of global domain
          *
-         * @return luint global index of basis
+         * @return luint global index of basis function
          */
         auto
         get_hmr_id() const
@@ -407,7 +408,7 @@ namespace moris::hmr
         /**
          * set index of  global domain
          *
-         * param[in]  aIndex    new index of basis
+         * param[in]  aIndex    new index of basis function
          *
          * @return void
          */
@@ -433,7 +434,7 @@ namespace moris::hmr
         /**
          * get index of global domain
          *
-         * @return luint global index of basis
+         * @return luint global index of basis function
          */
         auto
         get_hmr_index()
@@ -445,7 +446,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * sets the used flag of this basis to true
+         * sets the used flag of this basis function to true
          *
          * @return void
          */
@@ -458,7 +459,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * sets the used flag of this basis to false
+         * sets the used flag of this basis function to false
          *
          * @return void
          */
@@ -471,7 +472,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * tells if this basis is used by curreny proc
+         * tells if this basis function is used by current proc
          *
          * @return bool
          */
@@ -485,7 +486,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * sets the owned and shared used flag of this basis to true
+         * sets the owned and shared used flag of this basis function to true
          *
          * @return void
          */
@@ -498,7 +499,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * sets the owned and shared used flag of this basis to false
+         * sets the owned and shared used flag of this basis function to false
          *
          * @return void
          */
@@ -511,7 +512,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * tells if this basis, owned and shared,is used by curreny proc
+         * tells if this basis function, owned and shared,is used by current proc
          *
          * @return bool
          */
@@ -526,7 +527,7 @@ namespace moris::hmr
 
         /**
          * Returns an array of size [N] telling the proc local ijk-position
-         * of the basis on the current level.
+         * of the basis function on the current level.
          *
          * @return luint pointer to array containing ijk-position
          *               careful: element must not go out of scope.
@@ -830,7 +831,7 @@ namespace moris::hmr
         virtual void
         set_active_flag()
         {
-            MORIS_ERROR( false, "set_active_flag() not available for selected basis type." );
+            MORIS_ERROR( false, "set_active_flag() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -838,7 +839,7 @@ namespace moris::hmr
         virtual void
         set_refined_flag()
         {
-            MORIS_ERROR( false, "set_refined_flag() not available for selected basis type." );
+            MORIS_ERROR( false, "set_refined_flag() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -846,7 +847,7 @@ namespace moris::hmr
         virtual void
         unset_active_flag()
         {
-            MORIS_ERROR( false, "unset_active_flag() not available for selected basis type." );
+            MORIS_ERROR( false, "unset_active_flag() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -854,7 +855,7 @@ namespace moris::hmr
         virtual bool
         is_active() const
         {
-            MORIS_ERROR( false, "is_active() not available for selected basis type." );
+            MORIS_ERROR( false, "is_active() not available for selected basis function type." );
             return false;
         }
 
@@ -863,7 +864,7 @@ namespace moris::hmr
         virtual bool
         is_refined()
         {
-            MORIS_ERROR( false, "is_refined() not available for selected basis type." );
+            MORIS_ERROR( false, "is_refined() not available for selected basis function type." );
             return false;
         }
 
@@ -877,7 +878,7 @@ namespace moris::hmr
         virtual void
         init_neighbor_container()
         {
-            MORIS_ERROR( false, "init_neighbor_container() not available for selected basis type." );
+            MORIS_ERROR( false, "init_neighbor_container() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -890,7 +891,7 @@ namespace moris::hmr
         virtual void
         delete_neighbor_container()
         {
-            MORIS_ERROR( false, "delete_neighbor_container() not available for selected basis type." );
+            MORIS_ERROR( false, "delete_neighbor_container() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -903,16 +904,16 @@ namespace moris::hmr
         virtual void
         init_children_container()
         {
-            MORIS_ERROR( false, "init_children_container() not available for selected basis type." );
+            MORIS_ERROR( false, "init_children_container() not available for selected basis function type." );
         }
 
         /**
-         * Gets the number of children of this basis
+         * Gets the number of children of this basis function
          */
         virtual uint
         get_number_of_children()
         {
-            MORIS_ERROR( false, "get_number_of_children() not available for selected basis type." );
+            MORIS_ERROR( false, "get_number_of_children() not available for selected basis function type." );
             return 0;
         }
 
@@ -921,23 +922,23 @@ namespace moris::hmr
         virtual void
         increment_parent_counter()
         {
-            MORIS_ERROR( false, "increment_parent_counter() not available for selected basis type." );
+            MORIS_ERROR( false, "increment_parent_counter() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
 
         virtual void
-        insert_parent( Basis* aParent )
+        insert_parent( Basis_Function* aParent )
         {
-            MORIS_ERROR( false, "insert_parent() not available for selected basis type." );
+            MORIS_ERROR( false, "insert_parent() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
 
-        virtual Basis*
+        virtual Basis_Function*
         get_parent( uint aParentNumber )
         {
-            MORIS_ERROR( false, "get_parent() not available for selected basis type." );
+            MORIS_ERROR( false, "get_parent() not available for selected basis function type." );
             return nullptr;
         }
         //------------------------------------------------------------------------------
@@ -945,7 +946,7 @@ namespace moris::hmr
         virtual uint
         get_number_of_parents()
         {
-            MORIS_ERROR( false, "get_number_of_parents() not available for selected basis type." );
+            MORIS_ERROR( false, "get_number_of_parents() not available for selected basis function type." );
             return 0;
         }
 
@@ -953,17 +954,17 @@ namespace moris::hmr
 
         virtual void
         insert_neighbor( uint aaNeighborNumber,
-                Basis*        aNeighbor )
+                Basis_Function*        aNeighbor )
         {
-            MORIS_ERROR( false, "insert_neighbor() not available for selected basis type." );
+            MORIS_ERROR( false, "insert_neighbor() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
 
-        virtual Basis*
+        virtual Basis_Function*
         get_neighbor( uint aNeighborNumber )
         {
-            MORIS_ERROR( false, "get_neighbor() not available for selected basis type." );
+            MORIS_ERROR( false, "get_neighbor() not available for selected basis function type." );
             return nullptr;
         }
 
@@ -972,17 +973,17 @@ namespace moris::hmr
         virtual void
         insert_child(
                 uint   aChildNumbner,
-                Basis* aChild )
+                Basis_Function* aChild )
         {
-            MORIS_ERROR( false, "insert_child() not available for selected basis type." );
+            MORIS_ERROR( false, "insert_child() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
 
-        virtual Basis*
+        virtual Basis_Function*
         get_child( uint aChildNumber )
         {
-            MORIS_ERROR( false, "get_child() not available for selected basis type." );
+            MORIS_ERROR( false, "get_child() not available for selected basis function type." );
             return nullptr;
         }
 
@@ -991,7 +992,7 @@ namespace moris::hmr
         virtual bool
         has_children()
         {
-            MORIS_ERROR( false, "has_children() not available for selected basis type." );
+            MORIS_ERROR( false, "has_children() not available for selected basis function type." );
             return false;
         }
 
@@ -1000,7 +1001,7 @@ namespace moris::hmr
         virtual void
         flag_descendants()
         {
-            MORIS_ERROR( false, "flag_descendants() not available for selected basis type." );
+            MORIS_ERROR( false, "flag_descendants() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -1008,17 +1009,17 @@ namespace moris::hmr
         virtual void
         unflag_descendants()
         {
-            MORIS_ERROR( false, "unflag_descendants() not available for selected basis type." );
+            MORIS_ERROR( false, "unflag_descendants() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
 
         virtual void
         collect_descendants(
-                Cell< Basis* >& aBasisList,
+                Cell< Basis_Function* >& aBasisList,
                 luint&          aBasisCount )
         {
-            MORIS_ERROR( false, "collect_descendants() not available for selected basis type." );
+            MORIS_ERROR( false, "collect_descendants() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -1026,7 +1027,7 @@ namespace moris::hmr
         virtual luint
         count_descendants()
         {
-            MORIS_ERROR( false, " count_descendants() not available for selected basis type." );
+            MORIS_ERROR( false, " count_descendants() not available for selected basis function type." );
             return 0;
         }
 
@@ -1035,7 +1036,7 @@ namespace moris::hmr
         virtual void
         set_active_index( luint aIndex )
         {
-            MORIS_ERROR( false, "set_active_index() not available for selected basis type." );
+            MORIS_ERROR( false, "set_active_index() not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -1043,7 +1044,7 @@ namespace moris::hmr
         virtual luint
         get_active_index()
         {
-            MORIS_ERROR( false, "get_active_index() not available for selected basis type." );
+            MORIS_ERROR( false, "get_active_index() not available for selected basis function type." );
             return gNoEntityID;
         }
 
@@ -1052,7 +1053,7 @@ namespace moris::hmr
         virtual mtk::Vertex_Interpolation*
         get_interpolation( const uint aBSplineMeshIndex )
         {
-            MORIS_ERROR( false, "get_interpolation() not available for for selected basis type." );
+            MORIS_ERROR( false, "get_interpolation() not available for for selected basis function type." );
             return nullptr;
         }
 
@@ -1061,7 +1062,7 @@ namespace moris::hmr
         virtual bool
         has_interpolation( const uint aBSplineMeshIndex )
         {
-            MORIS_ERROR( false, "has_interpolation() not available for for selected basis type." );
+            MORIS_ERROR( false, "has_interpolation() not available for for selected basis function type." );
             return false;
         }
 
@@ -1070,7 +1071,7 @@ namespace moris::hmr
         virtual const mtk::Vertex_Interpolation*
         get_interpolation( const uint aBSplineMeshIndex ) const
         {
-            MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type." );
+            MORIS_ERROR( false, "get_interpolation() const not available for for selected basis function type." );
             return nullptr;
         }
 
@@ -1083,7 +1084,7 @@ namespace moris::hmr
         set_coefficients( const uint  aBSplineMeshIndex,
                 Cell< mtk::Vertex* >& aDOFs )
         {
-            MORIS_ERROR( false, "set_coefficients() not available for for selected basis type." );
+            MORIS_ERROR( false, "set_coefficients() not available for for selected basis function type." );
         }
 
         // ----------------------------------------------------------------------------
@@ -1095,14 +1096,14 @@ namespace moris::hmr
         set_weights( const uint         aBSplineMeshIndex,
                 const Matrix< DDRMat >& aTMatrix )
         {
-            MORIS_ERROR( false, "set_weights() not available for for selected basis type." );
+            MORIS_ERROR( false, "set_weights() not available for for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
         // virtual Mat< moris_id >
         // get_adof_ids() const
         // {
-        //    MORIS_ERROR( false, "get_adof_ids() not available for for selected basis type.");
+        //    MORIS_ERROR( false, "get_adof_ids() not available for for selected basis function type.");
         //    return Mat< moris_id >(0,0);
         // }
 
@@ -1111,7 +1112,7 @@ namespace moris::hmr
         // virtual Mat< moris_index >
         // get_adof_indices() const
         //{
-        //    MORIS_ERROR( false, "get_adof_indices() not available for for selected basis type.");
+        //    MORIS_ERROR( false, "get_adof_indices() not available for for selected basis function type.");
         //    return Mat< moris_index >(0,0);
         //}
 
@@ -1120,7 +1121,7 @@ namespace moris::hmr
         // virtual Matrix< DDUMat >
         // get_adof_owners() const
         //  {
-        //      MORIS_ERROR( false, "get_adof_owners() not available for for selected basis type.");
+        //      MORIS_ERROR( false, "get_adof_owners() not available for for selected basis function type.");
         //      return Matrix< DDUMat >(0,0);
         //  }
 
@@ -1129,7 +1130,7 @@ namespace moris::hmr
         // virtual Cell< mtk::Vertex* > &
         // get_adof_pointers()
         //  {
-        //      MORIS_ERROR( false, "get_adof_pointers() not available for for selected basis type.");
+        //      MORIS_ERROR( false, "get_adof_pointers() not available for for selected basis function type.");
         //      return gEmptyVertexCell;
         //  }
 
@@ -1138,7 +1139,7 @@ namespace moris::hmr
         // virtual const Cell< mtk::Vertex* > &
         // get_adof_pointers() const
         //{
-        //     MORIS_ERROR( false, "get_adof_pointers() const not available for for selected basis type.");
+        //     MORIS_ERROR( false, "get_adof_pointers() const not available for for selected basis function type.");
         //      return gEmptyVertexCell;
         //  }
 
@@ -1147,7 +1148,7 @@ namespace moris::hmr
         /*virtual const Matrix< DDRMat > *
      get_weights( const uint aOrder ) const
      {
-         MORIS_ERROR( false, "get_weights() not available for for selected basis type.");
+         MORIS_ERROR( false, "get_weights() not available for for selected basis function type.");
          return nullptr;
      }*/
 
@@ -1156,16 +1157,16 @@ namespace moris::hmr
         virtual Matrix< DDRMat >
         get_coords() const
         {
-            MORIS_ERROR( false, "get_coords() not available for for selected basis type." );
+            MORIS_ERROR( false, "get_coords() not available for for selected basis function type." );
             return Matrix< DDRMat >( 0, 0 );
         }
 
         //------------------------------------------------------------------------------
 
         virtual void
-        get_basis_local_child_inds( Matrix< DDSMat >& aChildren )
+        get_basis_function_local_child_inds( Matrix< DDSMat >& aChildren )
         {
-            MORIS_ERROR( false, "get_basis_local_child_inds() not available for for selected basis type." );
+            MORIS_ERROR( false, "get_basis_function_local_child_inds() not available for for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -1173,7 +1174,7 @@ namespace moris::hmr
         virtual void
         init_interpolation( uint aOrder )
         {
-            MORIS_ERROR( false, "init_interpolation() not available for for selected basis type." );
+            MORIS_ERROR( false, "init_interpolation() not available for for selected basis function type." );
         }
     };
     //------------------------------------------------------------------------------

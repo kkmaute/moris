@@ -248,7 +248,7 @@ namespace xtk
         {
             tStringStream << std::to_string( tLocToGlbEnrBasisId( iEB ) ) << ",";
             tStringStream << std::to_string( aMeshIndex ) << ",";
-            tStringStream << std::to_string( mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_basis_owner( (moris_index)iEB, aMeshIndex ) ) << ",";
+            tStringStream << std::to_string( mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_basis_function_owner( (moris_index)iEB, aMeshIndex ) ) << ",";
             tStringStream << std::to_string( par_rank() ) << ",";
             for ( size_t iSp = 0; iSp < tSubphasesInEnrBasis( iEB ).numel(); iSp++ )
             {
@@ -3717,13 +3717,13 @@ namespace xtk
         Matrix< DDRMat >   tBasisWeights( 1, 1, std::numeric_limits< real >::signaling_NaN() );
 
         // create map storing relationship between proc-local basis index and the position in the map
-        IndexMap& tBasisIndexToPositionMap              = aDummyEnrichedTmatrix.get_basis_map();
+        IndexMap& tBasisIndexToPositionMap              = aDummyEnrichedTmatrix.get_basis_function_map();
         tBasisIndexToPositionMap[ MORIS_INDEX_MAX - 1 ] = 0;
 
         // add the dummy information to the T-matrix
         aDummyEnrichedTmatrix.add_basis_information( tBasisIndices, tBasisIds );
-        aDummyEnrichedTmatrix.add_basis_owners( tBasisIndices, tBasisOwners );
-        aDummyEnrichedTmatrix.add_basis_weights( tBasisIndices, tBasisWeights );
+        aDummyEnrichedTmatrix.add_basis_function_owners( tBasisIndices, tBasisOwners );
+        aDummyEnrichedTmatrix.add_basis_function_weights( tBasisIndices, tBasisWeights );
         aDummyEnrichedTmatrix.add_base_vertex_interpolation( nullptr );
     }
 
@@ -3740,7 +3740,7 @@ namespace xtk
                 "Enrichment::average_T_matrices() - Number of T-matrices and weights provided do not match." );
 
         // initialize map finding position of basis indices in complete list of indices
-        IndexMap& tBasisIndexToPositionMap = aAverageEnrichedTmatrix.get_basis_map();
+        IndexMap& tBasisIndexToPositionMap = aAverageEnrichedTmatrix.get_basis_function_map();
         MORIS_ASSERT( tBasisIndexToPositionMap.size() == 0,
                 "Enrichment::average_T_matrices() - Non-empty T-matrix passed for output." );
 
@@ -3751,7 +3751,7 @@ namespace xtk
         for ( uint iTmatrix = 0; iTmatrix < aAverageTmatrices.size(); iTmatrix++ )
         {
             // get all the basis indices
-            Matrix< IndexMat > const & tBasisIndices = aAverageTmatrices( iTmatrix )->get_basis_indices();
+            Matrix< IndexMat > const & tBasisIndices = aAverageTmatrices( iTmatrix )->get_basis_function_indices();
 
             // loop  over the basis indices in the current T-matrix and register them
             for ( uint iBF = 0; iBF < tBasisIndices.numel(); iBF++ )
@@ -3781,10 +3781,10 @@ namespace xtk
         for ( uint iTmatrix = 0; iTmatrix < aAverageTmatrices.size(); iTmatrix++ )
         {
             // get the information
-            Matrix< IndexMat > const & tBasisIndices = aAverageTmatrices( iTmatrix )->get_basis_indices();
-            Matrix< IdMat > const &    tBasisIds     = aAverageTmatrices( iTmatrix )->get_basis_ids();
+            Matrix< IndexMat > const & tBasisIndices = aAverageTmatrices( iTmatrix )->get_basis_function_indices();
+            Matrix< IdMat > const &    tBasisIds     = aAverageTmatrices( iTmatrix )->get_basis_function_ids();
             Matrix< IdMat >            tBasisOwners  = aAverageTmatrices( iTmatrix )->get_owners();
-            Matrix< DDRMat > const &   tBasisWeights = aAverageTmatrices( iTmatrix )->get_basis_weights();
+            Matrix< DDRMat > const &   tBasisWeights = aAverageTmatrices( iTmatrix )->get_basis_function_weights();
 
             // loop  over the basis indices in the current T-matrix and register them
             for ( uint iBF = 0; iBF < tBasisIndices.numel(); iBF++ )
@@ -3811,8 +3811,8 @@ namespace xtk
 
         // copy the information into the
         aAverageEnrichedTmatrix.add_basis_information( tAvgBasisIndices, tAvgBasisIds );
-        aAverageEnrichedTmatrix.add_basis_owners( tAvgBasisIndices, tAvgBasisOwners );
-        aAverageEnrichedTmatrix.add_basis_weights( tAvgBasisIndices, tAvgBasisWeights );
+        aAverageEnrichedTmatrix.add_basis_function_owners( tAvgBasisIndices, tAvgBasisOwners );
+        aAverageEnrichedTmatrix.add_basis_function_weights( tAvgBasisIndices, tAvgBasisWeights );
         aAverageEnrichedTmatrix.add_base_vertex_interpolation( nullptr );
 
         // return: filled aAverageEnrichedTmatrix
@@ -3890,7 +3890,7 @@ namespace xtk
         xtk::convert_cell_to_map( tBasisInSpg, tBasisInSpgMap );
 
         // initialize map tracking where in the T-matrices the basis indices go
-        IndexMap& tEnrBasisIndexToPositionMap = aAveragedTmatrix->get_basis_map();
+        IndexMap& tEnrBasisIndexToPositionMap = aAveragedTmatrix->get_basis_function_map();
 
         // initialize tracker for number of basis functions active on current enr. IP cell
         uint tNumActiveBFs = 0;
@@ -3999,8 +3999,8 @@ namespace xtk
 
         // Fill the information of the enriched T-matrix
         aAveragedTmatrix->add_basis_information( tEnrBasisIndices, tEnrBasisIds );
-        aAveragedTmatrix->add_basis_owners( tEnrBasisIndices, tEnrBasisOwners );
-        aAveragedTmatrix->add_basis_weights( tEnrBasisIndices, tAveragedWeights );
+        aAveragedTmatrix->add_basis_function_owners( tEnrBasisIndices, tEnrBasisOwners );
+        aAveragedTmatrix->add_basis_function_weights( tEnrBasisIndices, tAveragedWeights );
         aAveragedTmatrix->add_base_vertex_interpolation( nullptr );
     }
 
@@ -4448,7 +4448,7 @@ namespace xtk
             }
 
             // get access to the basis to local index map of the vertex enrichment for modification
-            IndexMap& tVertEnrichMap = aVertexEnrichment.get_basis_map();
+            IndexMap& tVertEnrichMap = aVertexEnrichment.get_basis_function_map();
 
             // store in the vertex enrichment the list of enriched BF coefficients associated with it (in the form of an index map)
             for ( uint iBC = 0; iBC < tEnrichCoeffInds.numel(); iBC++ )
@@ -4459,8 +4459,8 @@ namespace xtk
 
             // feed the generated data about the enriched vertex interpolation to the vertex enrichment object
             aVertexEnrichment.add_basis_information( tEnrichCoeffInds, tEnrichCoeffIds );
-            aVertexEnrichment.add_basis_owners( tEnrichCoeffInds, tBaseVertOwners );
-            aVertexEnrichment.add_basis_weights( tEnrichCoeffInds, *tBaseVertWeights );
+            aVertexEnrichment.add_basis_function_owners( tEnrichCoeffInds, tBaseVertOwners );
+            aVertexEnrichment.add_basis_function_weights( tEnrichCoeffInds, *tBaseVertWeights );
             aVertexEnrichment.add_base_vertex_interpolation( aBaseVertexInterp );
         }
     }

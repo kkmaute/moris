@@ -8,29 +8,29 @@
  *
  */
 
-#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Element.hpp"    //HMR/src
 
 #include "cl_HMR_Edge.hpp"
 #include "cl_HMR_Facet.hpp"
 
 namespace moris::hmr
 {
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     Element::Element(
-            Background_Element_Base  * aElement,
-            uint aActivationPattern )
-    : mElement( aElement )
-    , mActivationPattern( aActivationPattern )
-    , mIndex(MORIS_INDEX_MAX)
+            Background_Element_Base* aElement,
+            uint                     aActivationPattern )
+            : mElement( aElement )
+            , mActivationPattern( aActivationPattern )
+            , mIndex( MORIS_INDEX_MAX )
     {
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    Element * Element::get_neighbor(
-            moris::Cell< Element * > & aAllElementsOnProc,
-            luint aNeighborNumber )
+    Element* Element::get_neighbor(
+            moris::Cell< Element* >& aAllElementsOnProc,
+            luint                    aNeighborNumber )
     {
         // get neighbor of background element
         Background_Element_Base* tElement = mElement->get_neighbor( aNeighborNumber );
@@ -54,13 +54,13 @@ namespace moris::hmr
         }
     }
 
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-    Element * Element::get_child(
-            moris::Cell< Element * > & aAllElementsOnProc,
-            uint aChildIndex )
+    Element* Element::get_child(
+            moris::Cell< Element* >& aAllElementsOnProc,
+            uint                     aChildIndex )
     {
-        if( mElement->has_children() )
+        if ( mElement->has_children() )
         {
             return aAllElementsOnProc( mElement->get_child( aChildIndex )->get_memory_index() );
         }
@@ -70,44 +70,44 @@ namespace moris::hmr
         }
     }
 
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-    // special funciton for HMR
-    Facet * Element::get_hmr_facet( uint aIndex )
+    // special function for HMR
+    Facet* Element::get_hmr_facet( uint aIndex )
     {
-        MORIS_ERROR( false, "get_lagrange_facet() cannot be called from this element type" );
+        MORIS_ERROR( false, "hmr::Element:get_lagrange_facet() - cannot be called from this element type" );
         return nullptr;
     }
 
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-    void Element::set_hmr_facet( Facet * aFacet, uint aIndex )
+    void Element::set_hmr_facet( Facet* aFacet, uint aIndex )
     {
-        MORIS_ERROR( false, "set_hmr_facet() cannot be called from this element type" );
+        MORIS_ERROR( false, "hmr::Element:set_hmr_facet() - cannot be called from this element type" );
     }
 
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-    Edge * Element::get_hmr_edge( uint aIndex )
+    Edge* Element::get_hmr_edge( uint aIndex )
     {
-        MORIS_ERROR( false, "get_hmr_edge() cannot be called from this element type" );
+        MORIS_ERROR( false, "hmr::Element:get_hmr_edge() - cannot be called from this element type" );
         return nullptr;
     }
 
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-    const Edge * Element::get_hmr_edge( uint aIndex ) const
+    const Edge* Element::get_hmr_edge( uint aIndex ) const
     {
-        MORIS_ERROR( false, "get_hmr_edge() cannot be called from this element type" );
+        MORIS_ERROR( false, "hmr::Element:get_hmr_edge() - cannot be called from this element type" );
         return nullptr;
     }
 
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-    void Element::set_hmr_edge( Edge * aEdge, uint aIndex )
+    void Element::set_hmr_edge( Edge* aEdge, uint aIndex )
     {
-        MORIS_ERROR( false, "set_hmr_edge() cannot be called from this element type" );
+        MORIS_ERROR( false, "hmr::Element::set_hmr_edge() cannot be called from this element type" );
     }
 
-//-------------------------------------------------------------------------------
-} /* namespace moris */
+    //-------------------------------------------------------------------------------
+}    // namespace moris::hmr

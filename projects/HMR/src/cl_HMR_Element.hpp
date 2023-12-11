@@ -24,7 +24,7 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     // forward declaration of node base type
-    class Basis;
+    class Basis_Function;
 
     // forward declaration of facet type
     class Facet;
@@ -325,9 +325,9 @@ namespace moris::hmr
          * @return Basis* pointer to Lagrange node
          *
          */
-        virtual Basis* get_basis( uint aIndex ) = 0;
+        virtual Basis_Function* get_basis_function( uint aIndex ) = 0;
 
-        virtual const Basis* get_basis( uint aIndex ) const = 0;
+        virtual const Basis_Function* get_basis_function( uint aIndex ) const = 0;
 
         //------------------------------------------------------------------------------
 
@@ -342,7 +342,7 @@ namespace moris::hmr
          */
         virtual void insert_basis(
                 uint   aIndex,
-                Basis* aBasis ) = 0;
+                Basis_Function* aBasis ) = 0;
 
         //------------------------------------------------------------------------------
 

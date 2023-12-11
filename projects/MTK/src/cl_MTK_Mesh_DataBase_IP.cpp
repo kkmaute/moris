@@ -376,7 +376,7 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     moris_id*
-    Interpolation_Mesh_DataBase_IP::get_basis_ids( moris_index aVertexIndex, moris_index aOrder )
+    Interpolation_Mesh_DataBase_IP::get_basis_function_ids( moris_index aVertexIndex, moris_index aOrder )
     {
         // moris_id* tBasisIdPointer = const_cast< moris_id* >( mBasisIds( aOrder ).memptr() + mOffSetTMatrix( aOrder )( aVertexIndex ) );
         moris_id* tBasisIdPointer = mBasisIds( aOrder ).memptr() + mOffSetTMatrix( aOrder )( aVertexIndex );
@@ -386,7 +386,7 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index*
-    Interpolation_Mesh_DataBase_IP::get_basis_indicies( moris_index aVertexIndex, moris_index aOrder )
+    Interpolation_Mesh_DataBase_IP::get_basis_function_indicies( moris_index aVertexIndex, moris_index aOrder )
     {
         moris_id* tBasisIndPointer =  mBasisIndices( aOrder ).memptr() + mOffSetTMatrix( aOrder )( aVertexIndex ) ;
         return tBasisIndPointer;
@@ -395,7 +395,7 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     moris::real*
-    Interpolation_Mesh_DataBase_IP::get_basis_weights( moris_index aVertexIndex, moris_index aOrder )
+    Interpolation_Mesh_DataBase_IP::get_basis_function_weights( moris_index aVertexIndex, moris_index aOrder )
     {
         real* tBasisWeightsPointer = const_cast< real* >( mWeights( aOrder ).memptr() + mOffSetTMatrix( aOrder )( aVertexIndex ) );
 
@@ -405,7 +405,7 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     moris_id*
-    Interpolation_Mesh_DataBase_IP::get_basis_owners( moris_index aVertexIndex, moris_index aOrder )
+    Interpolation_Mesh_DataBase_IP::get_basis_function_owners( moris_index aVertexIndex, moris_index aOrder )
     {
         return mBasisOwners( aOrder ).memptr() + mOffSetTMatrix( aOrder )( aVertexIndex );
     }
@@ -413,7 +413,7 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Interpolation_Mesh_DataBase_IP::get_basis_length( moris_index aVertexIndex, moris_index aOrder )
+    Interpolation_Mesh_DataBase_IP::get_num_basis_functions_on_vertex( moris_index aVertexIndex, moris_index aOrder )
     {
         return mOffSetTMatrix( aOrder )( aVertexIndex + 1 ) - mOffSetTMatrix( aOrder )( aVertexIndex );
     }

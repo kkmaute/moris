@@ -76,7 +76,7 @@ namespace moris::hmr
             // Log Trace this function
             Tracer tTracer( "HMR", "Background Mesh", "Create" );
 
-            // create mesh decomposition
+            // mesh parallel decomposition
             this->decompose_mesh();
 
             // calculate element with, length and height for each level
@@ -1026,8 +1026,8 @@ namespace moris::hmr
          *
          */
         void
-        insert_zero_level_element( 
-                luint aPosition,
+        insert_zero_level_element(
+                luint                    aPosition,
                 Background_Element_Base* aElement )
         {
             mCoarsestElementsIncludingAura( aPosition ) = aElement;

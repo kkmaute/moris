@@ -103,24 +103,24 @@ namespace moris::hmr
 
                             BSpline_Mesh_Base* tMesh = tHMR.mDatabase->mBSplineMeshes( 0 );
 
-                            Cell< Basis* >& mActiveBasisOnProc = tMesh->mActiveBasisOnProc;
+                            Cell< Basis_Function* >& mActiveBasisOnProc = tMesh->mActiveBasisOnProc;
 
                             tActiveBasis.set_size( mActiveBasisOnProc.size(), 1 );
 
                             // loop over all active basis
-                            for ( Basis* tBasis: mActiveBasisOnProc )
+                            for ( Basis_Function* tBasis: mActiveBasisOnProc )
                             {
                                 tActiveBasis( tCount++ ) = tBasis->get_id();
                             }
 
                             if ( tParameters.use_multigrid() )
                             {
-                                Cell< Basis* >& mRefinedBasisOnProc = tMesh->mRefinedBasisOnProc;
+                                Cell< Basis_Function* >& mRefinedBasisOnProc = tMesh->mRefinedBasisOnProc;
 
                                 tCount = 0;
                                 tRefinedBasis.set_size( mRefinedBasisOnProc.size(), 1 );
 
-                                for ( Basis* tBasis: mRefinedBasisOnProc )
+                                for ( Basis_Function* tBasis: mRefinedBasisOnProc )
                                 {
                                     tRefinedBasis( tCount++ ) = tBasis->get_id();
                                 }

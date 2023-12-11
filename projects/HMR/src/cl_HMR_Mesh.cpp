@@ -748,7 +748,7 @@ namespace moris::hmr
     Mesh::get_nodes_connected_to_node_loc_inds( moris_index aNodeIndex ) const
     {
         // get pointer to basis
-        const Basis* tBasis = mMesh->get_node_by_index( aNodeIndex );
+        const Basis_Function* tBasis = mMesh->get_node_by_index( aNodeIndex );
 
         // get number of connected elements
         uint tNumberOfElements = tBasis->get_element_counter();
@@ -782,10 +782,10 @@ namespace moris::hmr
             for ( uint k = 0; k < tNumberOfVertices; ++k )
             {
                 // test if this vertex is not myself
-                if ( tElement->get_basis( k )->get_hmr_id() != tMyID )
+                if ( tElement->get_basis_function( k )->get_hmr_id() != tMyID )
                 {
                     // add basis index to Indices
-                    tNodeIndices( tCount++ ) = tElement->get_basis( k )->get_index();
+                    tNodeIndices( tCount++ ) = tElement->get_basis_function( k )->get_index();
                 }
             }
         }
@@ -838,7 +838,7 @@ namespace moris::hmr
         // populate output
         for ( uint k = 0; k < tNumberOfNodes; ++k )
         {
-            aIndices( k ) = tElement->get_basis( k )->get_index();
+            aIndices( k ) = tElement->get_basis_function( k )->get_index();
         }
 
         return aIndices;
@@ -850,7 +850,7 @@ namespace moris::hmr
     Mesh::get_edges_connected_to_node_loc_inds( moris_index aNodeIndex ) const
     {
         // get pointer to basis
-        Basis* tBasis = mMesh->get_node_by_index( aNodeIndex );
+        Basis_Function* tBasis = mMesh->get_node_by_index( aNodeIndex );
 
         uint tNumberOfEdges = tBasis->get_edge_counter();
 
@@ -906,7 +906,7 @@ namespace moris::hmr
     Mesh::get_faces_connected_to_node_loc_inds( moris_index aNodeIndex ) const
     {
         // get pointer to basis
-        Basis* tBasis = mMesh->get_node_by_index( aNodeIndex );
+        Basis_Function* tBasis = mMesh->get_node_by_index( aNodeIndex );
 
         uint tNumberOfFacets = tBasis->get_facet_counter();
 
@@ -1570,7 +1570,7 @@ namespace moris::hmr
         uint tPattern = mMesh->get_activation_pattern();
 
         // get pointer to node
-        Basis* tNode = mMesh->get_node_by_index( aNodeIndex );
+        Basis_Function* tNode = mMesh->get_node_by_index( aNodeIndex );
 
         // get number of elements
         luint tElementCounter = tNode->get_element_counter();
@@ -1915,7 +1915,7 @@ namespace moris::hmr
 
         for ( moris_index k = 0; k < tNumberOfBSplines; ++k )
         {
-            Basis* tBasis                = mMesh->get_bspline( aBSplineIndex, k );
+            Basis_Function* tBasis                = mMesh->get_bspline( aBSplineIndex, k );
             aAdofMap[ tBasis->get_id() ] = tBasis->get_index();
         }
     }
@@ -2283,7 +2283,7 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
     Matrix< IndexMat >
-    Mesh::get_inds_of_active_elements_connected_to_basis( const Basis* aBasis ) const
+    Mesh::get_inds_of_active_elements_connected_to_basis( const Basis_Function* aBasis ) const
     {
         // ask basis for number of elements
         luint tNumberOfElements = aBasis->get_element_counter();

@@ -1086,7 +1086,7 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     moris_index
-    Enriched_Interpolation_Mesh::get_basis_owner(
+    Enriched_Interpolation_Mesh::get_basis_function_owner(
             moris_index aBasisIndex,
             moris_index aMeshIndex )
     {
@@ -2308,7 +2308,7 @@ namespace xtk
                 }
                 else
                 {
-                    // MORIS_ASSERT(this->get_basis_owner(mEnrichCoeffLocToGlob(iM)(iB),iM) != par_rank(),"Merging basis required for owned basis.");
+                    // MORIS_ASSERT(this->get_basis_function_owner(mEnrichCoeffLocToGlob(iM)(iB),iM) != par_rank(),"Merging basis required for owned basis.");
                 }
             }
         }
@@ -2700,11 +2700,11 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     uint
-    Enriched_Interpolation_Mesh::get_basis_level(
+    Enriched_Interpolation_Mesh::get_basis_function_level(
             const moris_index aInterpolationIndex,
             const moris_index aBasisIndex )
     {
-        return mXTKModel->get_multigrid_ptr()->get_basis_level(
+        return mXTKModel->get_multigrid_ptr()->get_basis_function_level(
                 aInterpolationIndex,
                 aBasisIndex );
     }
@@ -2849,7 +2849,7 @@ namespace xtk
                         moris::Matrix< IndexMat > tBaseCoeffInds = tBaseVertexInterpolation->get_indices();
 
                         // get access to the basis to local index map of the vertex enrichment for modification
-                        IndexMap& tVertEnrichMap = iVertexEnrichment->get_basis_map();
+                        IndexMap& tVertEnrichMap = iVertexEnrichment->get_basis_function_map();
 
                         // clear the map and populate it with the new indices
                         tVertEnrichMap.clear();

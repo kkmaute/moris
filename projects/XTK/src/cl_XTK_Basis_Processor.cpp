@@ -896,11 +896,11 @@ namespace xtk
                         tListOfBGVertices.insert( tXTKUIPVs( iLocalVertIndex )->get_index() );
 
                         // access the basis indices and weights
-                        moris::Matrix< moris::IndexMat > const & tBasisIndices = tVertexEnrichment->get_basis_indices();
-                        moris::Matrix< moris::IndexMat > const & tBasisIds     = tVertexEnrichment->get_basis_ids();
-                        moris::Matrix< moris::DDRMat >&          tBasisWeights = tVertexEnrichment->get_basis_weights();
+                        moris::Matrix< moris::IndexMat > const & tBasisIndices = tVertexEnrichment->get_basis_function_indices();
+                        moris::Matrix< moris::IndexMat > const & tBasisIds     = tVertexEnrichment->get_basis_function_ids();
+                        moris::Matrix< moris::DDRMat >&          tBasisWeights = tVertexEnrichment->get_basis_function_weights();
                         moris::Matrix< IdMat >                   tBasisOwners  = tVertexEnrichment->get_owners();
-                        IndexMap&                                tBasisMap     = tVertexEnrichment->get_basis_map();
+                        IndexMap&                                tBasisMap     = tVertexEnrichment->get_basis_function_map();
                         tBasisMap.clear();
 
                         // probably need to do a resize call here
@@ -1000,8 +1000,8 @@ namespace xtk
 
                         //  add basis information to the vertex enrichment
                         tVertexEnrichment->add_basis_information( tAgglomeratedBasisIndices, tAgglomeratedBasisIds );
-                        tVertexEnrichment->add_basis_weights( tAgglomeratedBasisIndices, tAgglomeratedBasisWeights );
-                        tVertexEnrichment->add_basis_owners( tAgglomeratedBasisIndices, tAgglomeratedBasisOwners );
+                        tVertexEnrichment->add_basis_function_weights( tAgglomeratedBasisIndices, tAgglomeratedBasisWeights );
+                        tVertexEnrichment->add_basis_function_owners( tAgglomeratedBasisIndices, tAgglomeratedBasisOwners );
                     }
                 }
             }
@@ -1185,9 +1185,9 @@ namespace xtk
                         xtk::Vertex_Enrichment* tVertexEnrichment = tXTKUIPVs( iLocalVertIndex )->get_xtk_interpolation( aMeshIndex );
 
                         // access the basis indices
-                        moris::Matrix< moris::IndexMat > const & tBasisIndices = tVertexEnrichment->get_basis_indices();
-                        moris::Matrix< moris::DDRMat >&          tBasisWeights = tVertexEnrichment->get_basis_weights();
-                        IndexMap&                                tBasisMap     = tVertexEnrichment->get_basis_map();
+                        moris::Matrix< moris::IndexMat > const & tBasisIndices = tVertexEnrichment->get_basis_function_indices();
+                        moris::Matrix< moris::DDRMat >&          tBasisWeights = tVertexEnrichment->get_basis_function_weights();
+                        IndexMap&                                tBasisMap     = tVertexEnrichment->get_basis_function_map();
 
                         // probably need to do a resize call here
                         // overallocation basis Indices
@@ -1282,7 +1282,7 @@ namespace xtk
 
                         // add vertex enrichment data
                         tVertexEnrichment->add_basis_information( tAgglomeratedBasisIndices, tAgglomeratedBasisIds );
-                        tVertexEnrichment->add_basis_weights( tAgglomeratedBasisIndices, tAgglomeratedBasisWeights );
+                        tVertexEnrichment->add_basis_function_weights( tAgglomeratedBasisIndices, tAgglomeratedBasisWeights );
                     }
                 }
             }
@@ -1993,7 +1993,7 @@ namespace xtk
         // get the L2 projection matrix for the extended cell
         Matrix< DDRMat > const & tL2Projection = mHMRHelper( aMeshIndex )->get_l2_projection_matrix( tExtendedBspCell, aRootBsplineId );
 
-        // get the list of BG Basis Indices that exist on the extened SPG index
+        // get the list of BG Basis function Indices that exist on the extened SPG index
         moris::Cell< moris_index > const & tExtenedBGBspIndices = mHMRHelper( aMeshIndex )->get_bg_basis_indices_of_cell( tExtendedBspCell );
 
         // loop over the enriched basis functions in the SPG

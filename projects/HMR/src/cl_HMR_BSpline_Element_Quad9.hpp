@@ -129,7 +129,7 @@ namespace moris::hmr
           moris::Cell< Element* > & aAllElementsOnProc )
     {
          // initialize frame of basis around basis from this element
-         Basis* tBasis[ 16 ] = { nullptr };
+         Basis_Function* tBasis[ 16 ] = { nullptr };
 
          // get pointer to neighbor  0
          Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
@@ -138,9 +138,9 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   1 ] = tNeighbor->get_basis(   0 );
-             tBasis[   2 ] = tNeighbor->get_basis(   4 );
-             tBasis[   3 ] = tNeighbor->get_basis(   1 );
+             tBasis[   1 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   2 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[   3 ] = tNeighbor->get_basis_function(   1 );
          }
 
          // get pointer to neighbor  1
@@ -150,9 +150,9 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   6 ] = tNeighbor->get_basis(   1 );
-             tBasis[   8 ] = tNeighbor->get_basis(   5 );
-             tBasis[  10 ] = tNeighbor->get_basis(   2 );
+             tBasis[   6 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[   8 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  10 ] = tNeighbor->get_basis_function(   2 );
          }
 
          // get pointer to neighbor  2
@@ -162,9 +162,9 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  12 ] = tNeighbor->get_basis(   3 );
-             tBasis[  13 ] = tNeighbor->get_basis(   6 );
-             tBasis[  14 ] = tNeighbor->get_basis(   2 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(   6 );
+             tBasis[  14 ] = tNeighbor->get_basis_function(   2 );
          }
 
          // get pointer to neighbor  3
@@ -174,9 +174,9 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   5 ] = tNeighbor->get_basis(   0 );
-             tBasis[   7 ] = tNeighbor->get_basis(   7 );
-             tBasis[   9 ] = tNeighbor->get_basis(   3 );
+             tBasis[   5 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[   9 ] = tNeighbor->get_basis_function(   3 );
          }
 
          // get pointer to neighbor  4
@@ -186,11 +186,11 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   0 ] = tNeighbor->get_basis(   0 );
-             tBasis[   1 ] = tNeighbor->get_basis(   4 );
-             tBasis[   2 ] = tNeighbor->get_basis(   1 );
-             tBasis[   5 ] = tNeighbor->get_basis(   7 );
-             tBasis[   7 ] = tNeighbor->get_basis(   3 );
+             tBasis[   0 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   1 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[   2 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[   5 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(   3 );
          }
 
          // get pointer to neighbor  5
@@ -200,11 +200,11 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   2 ] = tNeighbor->get_basis(   0 );
-             tBasis[   3 ] = tNeighbor->get_basis(   4 );
-             tBasis[   4 ] = tNeighbor->get_basis(   1 );
-             tBasis[   6 ] = tNeighbor->get_basis(   5 );
-             tBasis[   8 ] = tNeighbor->get_basis(   2 );
+             tBasis[   2 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   3 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[   4 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[   6 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[   8 ] = tNeighbor->get_basis_function(   2 );
          }
 
          // get pointer to neighbor  6
@@ -214,11 +214,11 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   8 ] = tNeighbor->get_basis(   1 );
-             tBasis[  10 ] = tNeighbor->get_basis(   5 );
-             tBasis[  13 ] = tNeighbor->get_basis(   3 );
-             tBasis[  14 ] = tNeighbor->get_basis(   6 );
-             tBasis[  15 ] = tNeighbor->get_basis(   2 );
+             tBasis[   8 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  10 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  14 ] = tNeighbor->get_basis_function(   6 );
+             tBasis[  15 ] = tNeighbor->get_basis_function(   2 );
          }
 
          // get pointer to neighbor  7
@@ -228,11 +228,11 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   7 ] = tNeighbor->get_basis(   0 );
-             tBasis[   9 ] = tNeighbor->get_basis(   7 );
-             tBasis[  11 ] = tNeighbor->get_basis(   3 );
-             tBasis[  12 ] = tNeighbor->get_basis(   6 );
-             tBasis[  13 ] = tNeighbor->get_basis(   2 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   9 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  11 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(   6 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(   2 );
          }
 
          // test if basis 0 exists
@@ -449,7 +449,7 @@ namespace moris::hmr
         luint tBasisCounter = 0;
         
         // get pointer to basis
-        Basis* tBasis = mBasis[ aBasisNumber ];
+        Basis_Function* tBasis = mBasis[ aBasisNumber ];
 
         // test if basis exists
         if ( tBasis != nullptr )
@@ -461,7 +461,7 @@ namespace moris::hmr
                 tBasis->init_children_container();
 
                 // pointer to basis neighbor
-                Basis* tNeighbor;
+                Basis_Function* tNeighbor;
 
                 // get neighbor 0
                 tNeighbor = tBasis->get_neighbor( 0 );
@@ -687,7 +687,7 @@ namespace moris::hmr
         }
 
         // initialize temporary basis pattern
-        Basis* tBasis[ 16 ] = { nullptr };
+        Basis_Function* tBasis[ 16 ] = { nullptr };
 
         // populate basis pattern
         if ( mBasis[   0 ] != nullptr )

@@ -420,7 +420,7 @@ namespace moris
                 for ( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
                 {
                     // get pointer to source node
-                    auto tNode  = tSourceElement->get_basis( Ik );
+                    auto tNode  = tSourceElement->get_basis_function( Ik );
                     auto tIndex = tNode->get_index();
 
                     // copy data from source mesh
@@ -431,7 +431,7 @@ namespace moris
                 for ( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
                 {
                     // get pointer to target node
-                    auto tNode = tTargetElement->get_basis( Ik );
+                    auto tNode = tTargetElement->get_basis_function( Ik );
 
                     // test if data has already been written to target
                     if ( !tNode->is_flagged() )
@@ -519,7 +519,7 @@ namespace moris
 
                 for ( uint Ii = 0; Ii < tNumberOfNodesPerSourceElement; ++Ii )
                 {
-                    tLocalSourceValues( Ii ) = tSourceValues( tSourceElement->get_basis( Ii )->get_index() );
+                    tLocalSourceValues( Ii ) = tSourceValues( tSourceElement->get_basis_function( Ii )->get_index() );
                 }
 
                 // get pointer to target element
@@ -529,7 +529,7 @@ namespace moris
                 for ( uint Ik = 0; Ik < tNumberOfNodesPerTargetElement; ++Ik )
                 {
                     // get basis
-                    hmr::Basis* tNode = tTargetElement->get_basis( Ik );
+                    hmr::Basis_Function* tNode = tTargetElement->get_basis_function( Ik );
 
                     if ( !tNode->is_flagged() )
                     {

@@ -37,7 +37,7 @@ namespace xtk
     Matrix< IndexMat >
     Vertex_Enrichment::get_indices() const
     {
-        return this->get_basis_indices();
+        return this->get_basis_function_indices();
     }
 
     //------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ namespace xtk
     const Matrix< DDRMat >*
     Vertex_Enrichment::get_weights() const
     {
-        return &this->get_basis_weights();
+        return &this->get_basis_function_weights();
     }
 
     //------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ namespace xtk
         // iterate to store data
         for ( uint i = 0; i < aBasisIndices.numel(); i++ )
         {
-            uint tBasisLocInd             = this->local_basis_index( aBasisIndices( i ) );
+            uint tBasisLocInd             = this->local_basis_function_index( aBasisIndices( i ) );
             mBasisIndices( tBasisLocInd ) = aBasisIndices( i );
             mBasisIds( tBasisLocInd )     = aBasisId( i );
         }
@@ -100,12 +100,12 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Vertex_Enrichment::add_basis_weights( moris::Matrix< moris::IndexMat > const & aBasisIndices,
+    Vertex_Enrichment::add_basis_function_weights( moris::Matrix< moris::IndexMat > const & aBasisIndices,
             moris::Matrix< moris::DDRMat > const &                                 aBasisWeight )
     {
         for ( uint i = 0; i < aBasisIndices.numel(); i++ )
         {
-            uint tBasisLocInd             = this->local_basis_index( aBasisIndices( i ) );
+            uint tBasisLocInd             = this->local_basis_function_index( aBasisIndices( i ) );
             mBasisWeights( tBasisLocInd ) = aBasisWeight( i );
         }
     }
@@ -113,12 +113,12 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Vertex_Enrichment::add_basis_owners( moris::Matrix< moris::IndexMat > const & aBasisIndices,
+    Vertex_Enrichment::add_basis_function_owners( moris::Matrix< moris::IndexMat > const & aBasisIndices,
             moris::Matrix< moris::IndexMat > const &                              aBasisOwners )
     {
         for ( uint i = 0; i < aBasisIndices.numel(); i++ )
         {
-            uint tBasisLocInd            = this->local_basis_index( aBasisIndices( i ) );
+            uint tBasisLocInd            = this->local_basis_function_index( aBasisIndices( i ) );
             mBasisOwners( tBasisLocInd ) = aBasisOwners( i );
         }
     }
@@ -142,7 +142,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     IndexMap&
-    Vertex_Enrichment::get_basis_map()
+    Vertex_Enrichment::get_basis_function_map()
     {
         return mBasisMap;
     }
@@ -150,7 +150,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     uint
-    Vertex_Enrichment::get_num_bases_in_map() const
+    Vertex_Enrichment::get_num_basis_functions_in_map() const
     {
         return mBasisMap.size();
     }
@@ -158,14 +158,14 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     uint
-    Vertex_Enrichment::local_basis_index( uint aBasisIndex ) const
+    Vertex_Enrichment::local_basis_function_index( uint aBasisIndex ) const
     {
         auto tIter = mBasisMap.find( aBasisIndex );
 
         MORIS_ASSERT( mBasisMap.size() > 0,
-                "Vertex_Enrichment::local_basis_index() - Basis map not constructed yet." );
+                "Vertex_Enrichment::local_basis_function_index() - Basis map not constructed yet." );
         MORIS_ASSERT( tIter != mBasisMap.end(),
-                "Vertex_Enrichment::local_basis_index() - Provided basis index not found in map." );
+                "Vertex_Enrichment::local_basis_function_index() - Provided basis index not found in map." );
 
         return tIter->second;
     }
@@ -203,7 +203,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris::Matrix< moris::IndexMat > const &
-    Vertex_Enrichment::get_basis_indices() const
+    Vertex_Enrichment::get_basis_function_indices() const
     {
         return mBasisIndices;
     }
@@ -211,13 +211,13 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris::Matrix< moris::DDRMat > const &
-    Vertex_Enrichment::get_basis_weights() const
+    Vertex_Enrichment::get_basis_function_weights() const
     {
         return mBasisWeights;
     }
 
     moris::Matrix< moris::IndexMat > const &
-    Vertex_Enrichment::get_basis_ids() const
+    Vertex_Enrichment::get_basis_function_ids() const
     {
         return mBasisIds;
     }
@@ -225,7 +225,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris::Matrix< moris::DDRMat >&
-    Vertex_Enrichment::get_basis_weights()
+    Vertex_Enrichment::get_basis_function_weights()
     {
         return mBasisWeights;
     }

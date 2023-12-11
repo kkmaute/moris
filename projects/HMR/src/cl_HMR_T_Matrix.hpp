@@ -174,8 +174,8 @@ namespace moris::hmr
             }
 
             // initialize the basis for the root cell and extended cell
-            moris::Cell< const Basis* > tRootBasis;
-            moris::Cell< const Basis* > tExtendedBasis;
+            moris::Cell< const Basis_Function* > tRootBasis;
+            moris::Cell< const Basis_Function* > tExtendedBasis;
 
             // reserve enough memory for each of them
             tRootBasis.reserve( tNumberOfBases );
@@ -185,7 +185,7 @@ namespace moris::hmr
             for ( uint i = 0; i < tNumberOfBases; i++ )
             {
                 // get the basis
-                const Basis* tBasis = aRootBsplineElement->get_basis( i );
+                const Basis_Function* tBasis = aRootBsplineElement->get_basis_function( i );
 
                 // if it is active add it to the cell
                 if ( tBasis->is_active() )
@@ -194,7 +194,7 @@ namespace moris::hmr
                 }
 
                 // get the basis
-                const Basis* tBasisExtended = aExtendedBsplineElement->get_basis( i );
+                const Basis_Function* tBasisExtended = aExtendedBsplineElement->get_basis_function( i );
 
                 // if it is active add it to the cell
                 if ( tBasisExtended->is_active() )

@@ -1016,7 +1016,7 @@ namespace moris::hmr
 
             for ( uint Ik = 0; Ik < tNumNodes; Ik++ )
             {
-                if ( reinterpret_cast< Basis* >( &( tInterpolationMesh->get_mtk_vertex( Ik ) ) )->is_used() )
+                if ( reinterpret_cast< Basis_Function* >( &( tInterpolationMesh->get_mtk_vertex( Ik ) ) )->is_used() )
                 {
                     Matrix< DDRMat > tMat = *( tInterpolationMesh->get_mtk_vertex( Ik ).get_interpolation(
                             1 )->get_weights() );

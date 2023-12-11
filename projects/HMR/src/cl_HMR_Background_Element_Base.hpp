@@ -32,7 +32,7 @@ namespace moris::hmr
      *
      * Pointers to this class are stored in the background mesh.
      * This class contains level, position, neighborhood and parent-child
-     * information, but none about Lagrange nodes or B-Spline basis.
+     * information, but none about Lagrange nodes or B-Spline basis functions.
      *
      */
     class Background_Element_Base
@@ -49,7 +49,7 @@ namespace moris::hmr
         //! Global ID of an element. Unique and not to be changed after
         //! element is created.
         //! Domain: all possible elements over all procs
-        //! acces using get_hmr_id()  //FIXME change to HMR_ID
+        //! access using get_hmr_id()  //FIXME change to HMR_ID
         const luint mDomainID;
 
         //! Level on which element is defined. Can not be changed after element is created.

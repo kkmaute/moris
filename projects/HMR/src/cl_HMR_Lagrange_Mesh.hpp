@@ -504,7 +504,7 @@ namespace moris::hmr
                     if ( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
                     {
                         MORIS_ERROR( mLagrangeMeshForTMatrix( iBspMesh ) != nullptr,
-                                "Lagrange_Mesh_Base::calculate_t_matrices(), Higher order Lagrange mesh for T-Matrices does not exist." );
+                                "hmr::Lagrange_Mesh_Base::calculate_t_matrices() - Higher order Lagrange mesh for T-Matrices does not exist." );
 
                         mLagrangeMeshForTMatrix( iBspMesh )->update_mesh();
                     }

@@ -28,7 +28,7 @@ namespace moris
          * G : Geometry
          * T : Type
          * N : Dimension
-         * B : Number of Basis
+         * B : Number of Basis functions
          */
         template< Geometry_Type G, Interpolation_Type T, uint N, uint B >
         class Interpolation_Function : public Interpolation_Function_Base

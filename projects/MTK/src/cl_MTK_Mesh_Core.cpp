@@ -1122,10 +1122,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         uint
-        Mesh::get_basis_level( const moris_index aInterpolationIndex,
+        Mesh::get_basis_function_level( const moris_index aInterpolationIndex,
                 const moris_index                aBasisIndex )
         {
-            MORIS_ERROR( false, "get_basis_level(), not implemented for this mesh type." );
+            MORIS_ERROR( false, "get_basis_function_level(), not implemented for this mesh type." );
             return 0;
         }
 
@@ -1363,41 +1363,41 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         moris_id*
-        Mesh::get_basis_ids( moris_index aVertexIndex, moris_index aOrder )
+        Mesh::get_basis_function_ids( moris_index aVertexIndex, moris_index aOrder )
         {
-            MORIS_ERROR( 0, "get_basis_ids not implemented" );
+            MORIS_ERROR( 0, "get_basis_function_ids not implemented" );
             return nullptr;
         }
         //--------------------------------------------------------------------------------------------------------------
 
         moris_index*
-        Mesh::get_basis_indicies( moris_index aVertexIndex, moris_index aOrder )
+        Mesh::get_basis_function_indicies( moris_index aVertexIndex, moris_index aOrder )
         {
-            MORIS_ERROR( 0, "get_basis_indicies not implemented" );
+            MORIS_ERROR( 0, "get_basis_function_indicies not implemented" );
             return nullptr;
         }
         //--------------------------------------------------------------------------------------------------------------
 
         real*
-        Mesh::get_basis_weights( moris_index aVertexIndex, moris_index aOrder )
+        Mesh::get_basis_function_weights( moris_index aVertexIndex, moris_index aOrder )
         {
-            MORIS_ERROR( 0, "get_basis_weights not implemented" );
+            MORIS_ERROR( 0, "get_basis_function_weights not implemented" );
             return nullptr;
         }
         //--------------------------------------------------------------------------------------------------------------
 
         moris_id*
-        Mesh::get_basis_owners( moris_index aVertexIndex, moris_index aOrder )
+        Mesh::get_basis_function_owners( moris_index aVertexIndex, moris_index aOrder )
         {
-            MORIS_ERROR( 0, "get_basis_owners not implemented" );
+            MORIS_ERROR( 0, "get_basis_function_owners not implemented" );
             return nullptr;
         }
         //--------------------------------------------------------------------------------------------------------------
 
         moris_index
-        Mesh::get_basis_length( moris_index aVertexIndex, moris_index aOrder )
+        Mesh::get_num_basis_functions_on_vertex( moris_index aVertexIndex, moris_index aOrder )
         {
-            MORIS_ERROR( 0, "get_basis_length not implemented" );
+            MORIS_ERROR( 0, "get_num_basis_functions_on_vertex not implemented" );
             return 0;
         }
 

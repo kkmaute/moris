@@ -698,7 +698,7 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        Matrix< IndexMat > get_inds_of_active_elements_connected_to_basis( const Basis* aBasis ) const;
+        Matrix< IndexMat > get_inds_of_active_elements_connected_to_basis( const Basis_Function* aBasisFunction ) const;
 
         //-------------------------------------------------------------------------------
 
@@ -742,7 +742,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         uint
-        get_basis_level(
+        get_basis_function_level(
                 const moris_index aInterpolationIndex,
                 const moris_index aBasisIndex )
         {

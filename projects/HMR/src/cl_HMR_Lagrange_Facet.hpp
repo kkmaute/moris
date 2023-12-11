@@ -31,7 +31,7 @@ namespace moris::hmr
        class Lagrange_Facet : public Facet
        {
            //! vertices of this face
-           Basis * mVertices[ D ] = { nullptr };
+           Basis_Function * mVertices[ D ] = { nullptr };
 
 //------------------------------------------------------------------------------
        public:
@@ -98,14 +98,14 @@ namespace moris::hmr
 
 // ----------------------------------------------------------------------------
            inline
-           const Basis * get_basis( uint aIndex ) const
+           const Basis_Function * get_basis_function( uint aIndex ) const
            {
                return mVertices[ aIndex ];
            }
 
 // ----------------------------------------------------------------------------
            inline
-           Basis * get_basis( uint aIndex )
+           Basis_Function * get_basis_function( uint aIndex )
            {
                return mVertices[ aIndex ];
            }

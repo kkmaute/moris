@@ -22,7 +22,7 @@ namespace moris::hmr
      * \brief Lagrange Node class, templated against dimension
      */
     template< uint N >
-    class Lagrange_Node : public Basis
+    class Lagrange_Node : public Basis_Function
     {
         //! local ijk position on proc
         luint         mIJK[ N ];
@@ -57,7 +57,7 @@ namespace moris::hmr
                 const luint        * aIJK,
                 const  uint        & aLevel,
                 const  uint        & aOwner) :
-                    Basis( aLevel, aOwner ),
+                    Basis_Function( aLevel, aOwner ),
                     mInterpolations( gNumberOfMeshes, nullptr )
         {
             // save ijk position in memory.

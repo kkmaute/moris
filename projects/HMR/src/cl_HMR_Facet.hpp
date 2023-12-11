@@ -24,7 +24,7 @@ namespace moris::hmr
     class Mesh_Base;
 
     class Element;
-    class Basis;
+    class Basis_Function;
     // ----------------------------------------------------------------------------
 
     class Facet : public mtk::Facet
@@ -226,11 +226,11 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        virtual Basis* get_basis( uint aIndex ) = 0;
+        virtual Basis_Function* get_basis_function( uint aIndex ) = 0;
 
         // ----------------------------------------------------------------------------
 
-        virtual const Basis* get_basis( uint aIndex ) const = 0;
+        virtual const Basis_Function* get_basis_function( uint aIndex ) const = 0;
 
         // ----------------------------------------------------------------------------
 

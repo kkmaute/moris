@@ -76,7 +76,7 @@ namespace dla
                 moris::uint tDofIdentifier = mListAdofTypeTimeIdentifier( Ik )( Ii, 0 );
 
                 // Ask mesh for the level of this dof index
-                moris::uint tDofLevel = mMesh->get_basis_level( tMeshIndex, tExtDofInd );
+                moris::uint tDofLevel = mMesh->get_basis_function_level( tMeshIndex, tExtDofInd );
 
                 // If Index is inside of the set of dofs on this multigrid level, than add it to list.
                 if( ( tDofLevel <= tMaxMeshLevel - Ik ) && ( Ii < tRemainingOldDofsOnLevel( Ik-1, 0 ) ) )

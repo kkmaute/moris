@@ -309,7 +309,7 @@ namespace moris::hmr
           moris::Cell< Element* > & aAllElementsOnProc )
     {
          // initialize frame of basis around basis from this element
-         Basis* tBasis[ 98 ] = { nullptr };
+         Basis_Function* tBasis[ 98 ] = { nullptr };
 
          // get pointer to neighbor  0
          Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
@@ -318,15 +318,15 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  26 ] = tNeighbor->get_basis(   0 );
-             tBasis[  27 ] = tNeighbor->get_basis(   8 );
-             tBasis[  28 ] = tNeighbor->get_basis(   1 );
-             tBasis[  42 ] = tNeighbor->get_basis(  12 );
-             tBasis[  43 ] = tNeighbor->get_basis(  25 );
-             tBasis[  44 ] = tNeighbor->get_basis(  13 );
-             tBasis[  58 ] = tNeighbor->get_basis(   4 );
-             tBasis[  59 ] = tNeighbor->get_basis(  16 );
-             tBasis[  60 ] = tNeighbor->get_basis(   5 );
+             tBasis[  26 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  27 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  28 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  42 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  44 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  58 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  59 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  60 ] = tNeighbor->get_basis_function(   5 );
          }
 
          // get pointer to neighbor  1
@@ -336,15 +336,15 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  31 ] = tNeighbor->get_basis(   1 );
-             tBasis[  33 ] = tNeighbor->get_basis(   9 );
-             tBasis[  35 ] = tNeighbor->get_basis(   2 );
-             tBasis[  47 ] = tNeighbor->get_basis(  13 );
-             tBasis[  49 ] = tNeighbor->get_basis(  24 );
-             tBasis[  51 ] = tNeighbor->get_basis(  14 );
-             tBasis[  63 ] = tNeighbor->get_basis(   5 );
-             tBasis[  65 ] = tNeighbor->get_basis(  17 );
-             tBasis[  67 ] = tNeighbor->get_basis(   6 );
+             tBasis[  31 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  33 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  35 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  47 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  51 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  63 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  65 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  67 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  2
@@ -354,15 +354,15 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  37 ] = tNeighbor->get_basis(   3 );
-             tBasis[  38 ] = tNeighbor->get_basis(  10 );
-             tBasis[  39 ] = tNeighbor->get_basis(   2 );
-             tBasis[  53 ] = tNeighbor->get_basis(  15 );
-             tBasis[  54 ] = tNeighbor->get_basis(  26 );
-             tBasis[  55 ] = tNeighbor->get_basis(  14 );
-             tBasis[  69 ] = tNeighbor->get_basis(   7 );
-             tBasis[  70 ] = tNeighbor->get_basis(  18 );
-             tBasis[  71 ] = tNeighbor->get_basis(   6 );
+             tBasis[  37 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  38 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  39 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  53 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  55 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  69 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  70 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  71 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  3
@@ -372,15 +372,15 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  30 ] = tNeighbor->get_basis(   0 );
-             tBasis[  32 ] = tNeighbor->get_basis(  11 );
-             tBasis[  34 ] = tNeighbor->get_basis(   3 );
-             tBasis[  46 ] = tNeighbor->get_basis(  12 );
-             tBasis[  48 ] = tNeighbor->get_basis(  23 );
-             tBasis[  50 ] = tNeighbor->get_basis(  15 );
-             tBasis[  62 ] = tNeighbor->get_basis(   4 );
-             tBasis[  64 ] = tNeighbor->get_basis(  19 );
-             tBasis[  66 ] = tNeighbor->get_basis(   7 );
+             tBasis[  30 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  32 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  34 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  46 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  50 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  62 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  64 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  66 ] = tNeighbor->get_basis_function(   7 );
          }
 
          // get pointer to neighbor  4
@@ -390,15 +390,15 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   6 ] = tNeighbor->get_basis(   0 );
-             tBasis[   7 ] = tNeighbor->get_basis(   8 );
-             tBasis[   8 ] = tNeighbor->get_basis(   1 );
-             tBasis[  11 ] = tNeighbor->get_basis(  11 );
-             tBasis[  12 ] = tNeighbor->get_basis(  21 );
-             tBasis[  13 ] = tNeighbor->get_basis(   9 );
-             tBasis[  16 ] = tNeighbor->get_basis(   3 );
-             tBasis[  17 ] = tNeighbor->get_basis(  10 );
-             tBasis[  18 ] = tNeighbor->get_basis(   2 );
+             tBasis[   6 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[   8 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  11 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  16 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  17 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  18 ] = tNeighbor->get_basis_function(   2 );
          }
 
          // get pointer to neighbor  5
@@ -408,15 +408,15 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  79 ] = tNeighbor->get_basis(   4 );
-             tBasis[  80 ] = tNeighbor->get_basis(  16 );
-             tBasis[  81 ] = tNeighbor->get_basis(   5 );
-             tBasis[  84 ] = tNeighbor->get_basis(  19 );
-             tBasis[  85 ] = tNeighbor->get_basis(  22 );
-             tBasis[  86 ] = tNeighbor->get_basis(  17 );
-             tBasis[  89 ] = tNeighbor->get_basis(   7 );
-             tBasis[  90 ] = tNeighbor->get_basis(  18 );
-             tBasis[  91 ] = tNeighbor->get_basis(   6 );
+             tBasis[  79 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  80 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  81 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  84 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  86 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  89 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  90 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  91 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  6
@@ -426,21 +426,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   1 ] = tNeighbor->get_basis(   0 );
-             tBasis[   2 ] = tNeighbor->get_basis(   8 );
-             tBasis[   3 ] = tNeighbor->get_basis(   1 );
-             tBasis[   6 ] = tNeighbor->get_basis(  11 );
-             tBasis[   7 ] = tNeighbor->get_basis(  21 );
-             tBasis[   8 ] = tNeighbor->get_basis(   9 );
-             tBasis[  11 ] = tNeighbor->get_basis(   3 );
-             tBasis[  12 ] = tNeighbor->get_basis(  10 );
-             tBasis[  13 ] = tNeighbor->get_basis(   2 );
-             tBasis[  26 ] = tNeighbor->get_basis(  12 );
-             tBasis[  27 ] = tNeighbor->get_basis(  25 );
-             tBasis[  28 ] = tNeighbor->get_basis(  13 );
-             tBasis[  42 ] = tNeighbor->get_basis(   4 );
-             tBasis[  43 ] = tNeighbor->get_basis(  16 );
-             tBasis[  44 ] = tNeighbor->get_basis(   5 );
+             tBasis[   1 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   2 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[   3 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[   6 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[   8 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  11 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  26 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  27 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  28 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  42 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  44 ] = tNeighbor->get_basis_function(   5 );
          }
 
          // get pointer to neighbor  7
@@ -450,21 +450,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   7 ] = tNeighbor->get_basis(   0 );
-             tBasis[   8 ] = tNeighbor->get_basis(   8 );
-             tBasis[   9 ] = tNeighbor->get_basis(   1 );
-             tBasis[  12 ] = tNeighbor->get_basis(  11 );
-             tBasis[  13 ] = tNeighbor->get_basis(  21 );
-             tBasis[  14 ] = tNeighbor->get_basis(   9 );
-             tBasis[  17 ] = tNeighbor->get_basis(   3 );
-             tBasis[  18 ] = tNeighbor->get_basis(  10 );
-             tBasis[  19 ] = tNeighbor->get_basis(   2 );
-             tBasis[  31 ] = tNeighbor->get_basis(  13 );
-             tBasis[  33 ] = tNeighbor->get_basis(  24 );
-             tBasis[  35 ] = tNeighbor->get_basis(  14 );
-             tBasis[  47 ] = tNeighbor->get_basis(   5 );
-             tBasis[  49 ] = tNeighbor->get_basis(  17 );
-             tBasis[  51 ] = tNeighbor->get_basis(   6 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   8 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[   9 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[  14 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  17 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  18 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  19 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  31 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  33 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  35 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  47 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  51 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  8
@@ -474,21 +474,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  11 ] = tNeighbor->get_basis(   0 );
-             tBasis[  12 ] = tNeighbor->get_basis(   8 );
-             tBasis[  13 ] = tNeighbor->get_basis(   1 );
-             tBasis[  16 ] = tNeighbor->get_basis(  11 );
-             tBasis[  17 ] = tNeighbor->get_basis(  21 );
-             tBasis[  18 ] = tNeighbor->get_basis(   9 );
-             tBasis[  21 ] = tNeighbor->get_basis(   3 );
-             tBasis[  22 ] = tNeighbor->get_basis(  10 );
-             tBasis[  23 ] = tNeighbor->get_basis(   2 );
-             tBasis[  37 ] = tNeighbor->get_basis(  15 );
-             tBasis[  38 ] = tNeighbor->get_basis(  26 );
-             tBasis[  39 ] = tNeighbor->get_basis(  14 );
-             tBasis[  53 ] = tNeighbor->get_basis(   7 );
-             tBasis[  54 ] = tNeighbor->get_basis(  18 );
-             tBasis[  55 ] = tNeighbor->get_basis(   6 );
+             tBasis[  11 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  16 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  17 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[  18 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  21 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  22 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  23 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  37 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  38 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  39 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  53 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  55 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  9
@@ -498,21 +498,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   5 ] = tNeighbor->get_basis(   0 );
-             tBasis[   6 ] = tNeighbor->get_basis(   8 );
-             tBasis[   7 ] = tNeighbor->get_basis(   1 );
-             tBasis[  10 ] = tNeighbor->get_basis(  11 );
-             tBasis[  11 ] = tNeighbor->get_basis(  21 );
-             tBasis[  12 ] = tNeighbor->get_basis(   9 );
-             tBasis[  15 ] = tNeighbor->get_basis(   3 );
-             tBasis[  16 ] = tNeighbor->get_basis(  10 );
-             tBasis[  17 ] = tNeighbor->get_basis(   2 );
-             tBasis[  30 ] = tNeighbor->get_basis(  12 );
-             tBasis[  32 ] = tNeighbor->get_basis(  23 );
-             tBasis[  34 ] = tNeighbor->get_basis(  15 );
-             tBasis[  46 ] = tNeighbor->get_basis(   4 );
-             tBasis[  48 ] = tNeighbor->get_basis(  19 );
-             tBasis[  50 ] = tNeighbor->get_basis(   7 );
+             tBasis[   5 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   6 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  10 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  11 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  15 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  16 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  17 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  30 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  32 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  34 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  46 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  50 ] = tNeighbor->get_basis_function(   7 );
          }
 
          // get pointer to neighbor  10
@@ -522,21 +522,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  25 ] = tNeighbor->get_basis(   0 );
-             tBasis[  26 ] = tNeighbor->get_basis(   8 );
-             tBasis[  27 ] = tNeighbor->get_basis(   1 );
-             tBasis[  30 ] = tNeighbor->get_basis(  11 );
-             tBasis[  32 ] = tNeighbor->get_basis(   3 );
-             tBasis[  41 ] = tNeighbor->get_basis(  12 );
-             tBasis[  42 ] = tNeighbor->get_basis(  25 );
-             tBasis[  43 ] = tNeighbor->get_basis(  13 );
-             tBasis[  46 ] = tNeighbor->get_basis(  23 );
-             tBasis[  48 ] = tNeighbor->get_basis(  15 );
-             tBasis[  57 ] = tNeighbor->get_basis(   4 );
-             tBasis[  58 ] = tNeighbor->get_basis(  16 );
-             tBasis[  59 ] = tNeighbor->get_basis(   5 );
-             tBasis[  62 ] = tNeighbor->get_basis(  19 );
-             tBasis[  64 ] = tNeighbor->get_basis(   7 );
+             tBasis[  25 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  26 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  27 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  30 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  32 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  41 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  42 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  46 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  57 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  58 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  59 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  62 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  64 ] = tNeighbor->get_basis_function(   7 );
          }
 
          // get pointer to neighbor  11
@@ -546,21 +546,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  27 ] = tNeighbor->get_basis(   0 );
-             tBasis[  28 ] = tNeighbor->get_basis(   8 );
-             tBasis[  29 ] = tNeighbor->get_basis(   1 );
-             tBasis[  31 ] = tNeighbor->get_basis(   9 );
-             tBasis[  33 ] = tNeighbor->get_basis(   2 );
-             tBasis[  43 ] = tNeighbor->get_basis(  12 );
-             tBasis[  44 ] = tNeighbor->get_basis(  25 );
-             tBasis[  45 ] = tNeighbor->get_basis(  13 );
-             tBasis[  47 ] = tNeighbor->get_basis(  24 );
-             tBasis[  49 ] = tNeighbor->get_basis(  14 );
-             tBasis[  59 ] = tNeighbor->get_basis(   4 );
-             tBasis[  60 ] = tNeighbor->get_basis(  16 );
-             tBasis[  61 ] = tNeighbor->get_basis(   5 );
-             tBasis[  63 ] = tNeighbor->get_basis(  17 );
-             tBasis[  65 ] = tNeighbor->get_basis(   6 );
+             tBasis[  27 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  28 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  29 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  31 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  33 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  44 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  45 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  47 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  59 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  60 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  61 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  63 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  65 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  12
@@ -570,21 +570,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  33 ] = tNeighbor->get_basis(   1 );
-             tBasis[  35 ] = tNeighbor->get_basis(   9 );
-             tBasis[  38 ] = tNeighbor->get_basis(   3 );
-             tBasis[  39 ] = tNeighbor->get_basis(  10 );
-             tBasis[  40 ] = tNeighbor->get_basis(   2 );
-             tBasis[  49 ] = tNeighbor->get_basis(  13 );
-             tBasis[  51 ] = tNeighbor->get_basis(  24 );
-             tBasis[  54 ] = tNeighbor->get_basis(  15 );
-             tBasis[  55 ] = tNeighbor->get_basis(  26 );
-             tBasis[  56 ] = tNeighbor->get_basis(  14 );
-             tBasis[  65 ] = tNeighbor->get_basis(   5 );
-             tBasis[  67 ] = tNeighbor->get_basis(  17 );
-             tBasis[  70 ] = tNeighbor->get_basis(   7 );
-             tBasis[  71 ] = tNeighbor->get_basis(  18 );
-             tBasis[  72 ] = tNeighbor->get_basis(   6 );
+             tBasis[  33 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  35 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  38 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  39 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  40 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  51 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  55 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  56 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  65 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  67 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  70 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  71 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  72 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  13
@@ -594,21 +594,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  32 ] = tNeighbor->get_basis(   0 );
-             tBasis[  34 ] = tNeighbor->get_basis(  11 );
-             tBasis[  36 ] = tNeighbor->get_basis(   3 );
-             tBasis[  37 ] = tNeighbor->get_basis(  10 );
-             tBasis[  38 ] = tNeighbor->get_basis(   2 );
-             tBasis[  48 ] = tNeighbor->get_basis(  12 );
-             tBasis[  50 ] = tNeighbor->get_basis(  23 );
-             tBasis[  52 ] = tNeighbor->get_basis(  15 );
-             tBasis[  53 ] = tNeighbor->get_basis(  26 );
-             tBasis[  54 ] = tNeighbor->get_basis(  14 );
-             tBasis[  64 ] = tNeighbor->get_basis(   4 );
-             tBasis[  66 ] = tNeighbor->get_basis(  19 );
-             tBasis[  68 ] = tNeighbor->get_basis(   7 );
-             tBasis[  69 ] = tNeighbor->get_basis(  18 );
-             tBasis[  70 ] = tNeighbor->get_basis(   6 );
+             tBasis[  32 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  34 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  36 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  37 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  38 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  50 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  52 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  53 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  64 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  66 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  68 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  69 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  70 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  14
@@ -618,21 +618,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  42 ] = tNeighbor->get_basis(   0 );
-             tBasis[  43 ] = tNeighbor->get_basis(   8 );
-             tBasis[  44 ] = tNeighbor->get_basis(   1 );
-             tBasis[  58 ] = tNeighbor->get_basis(  12 );
-             tBasis[  59 ] = tNeighbor->get_basis(  25 );
-             tBasis[  60 ] = tNeighbor->get_basis(  13 );
-             tBasis[  74 ] = tNeighbor->get_basis(   4 );
-             tBasis[  75 ] = tNeighbor->get_basis(  16 );
-             tBasis[  76 ] = tNeighbor->get_basis(   5 );
-             tBasis[  79 ] = tNeighbor->get_basis(  19 );
-             tBasis[  80 ] = tNeighbor->get_basis(  22 );
-             tBasis[  81 ] = tNeighbor->get_basis(  17 );
-             tBasis[  84 ] = tNeighbor->get_basis(   7 );
-             tBasis[  85 ] = tNeighbor->get_basis(  18 );
-             tBasis[  86 ] = tNeighbor->get_basis(   6 );
+             tBasis[  42 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  44 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  58 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  59 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  60 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  74 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  75 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  76 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  79 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  80 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  81 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  84 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  86 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  15
@@ -642,21 +642,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  47 ] = tNeighbor->get_basis(   1 );
-             tBasis[  49 ] = tNeighbor->get_basis(   9 );
-             tBasis[  51 ] = tNeighbor->get_basis(   2 );
-             tBasis[  63 ] = tNeighbor->get_basis(  13 );
-             tBasis[  65 ] = tNeighbor->get_basis(  24 );
-             tBasis[  67 ] = tNeighbor->get_basis(  14 );
-             tBasis[  80 ] = tNeighbor->get_basis(   4 );
-             tBasis[  81 ] = tNeighbor->get_basis(  16 );
-             tBasis[  82 ] = tNeighbor->get_basis(   5 );
-             tBasis[  85 ] = tNeighbor->get_basis(  19 );
-             tBasis[  86 ] = tNeighbor->get_basis(  22 );
-             tBasis[  87 ] = tNeighbor->get_basis(  17 );
-             tBasis[  90 ] = tNeighbor->get_basis(   7 );
-             tBasis[  91 ] = tNeighbor->get_basis(  18 );
-             tBasis[  92 ] = tNeighbor->get_basis(   6 );
+             tBasis[  47 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  51 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  63 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  65 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  67 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  80 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  81 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  82 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  86 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  87 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  90 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  91 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  92 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  16
@@ -666,21 +666,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  53 ] = tNeighbor->get_basis(   3 );
-             tBasis[  54 ] = tNeighbor->get_basis(  10 );
-             tBasis[  55 ] = tNeighbor->get_basis(   2 );
-             tBasis[  69 ] = tNeighbor->get_basis(  15 );
-             tBasis[  70 ] = tNeighbor->get_basis(  26 );
-             tBasis[  71 ] = tNeighbor->get_basis(  14 );
-             tBasis[  84 ] = tNeighbor->get_basis(   4 );
-             tBasis[  85 ] = tNeighbor->get_basis(  16 );
-             tBasis[  86 ] = tNeighbor->get_basis(   5 );
-             tBasis[  89 ] = tNeighbor->get_basis(  19 );
-             tBasis[  90 ] = tNeighbor->get_basis(  22 );
-             tBasis[  91 ] = tNeighbor->get_basis(  17 );
-             tBasis[  94 ] = tNeighbor->get_basis(   7 );
-             tBasis[  95 ] = tNeighbor->get_basis(  18 );
-             tBasis[  96 ] = tNeighbor->get_basis(   6 );
+             tBasis[  53 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  55 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  69 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  70 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  71 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  84 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  86 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  89 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  90 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  91 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  94 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  95 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  96 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  17
@@ -690,21 +690,21 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  46 ] = tNeighbor->get_basis(   0 );
-             tBasis[  48 ] = tNeighbor->get_basis(  11 );
-             tBasis[  50 ] = tNeighbor->get_basis(   3 );
-             tBasis[  62 ] = tNeighbor->get_basis(  12 );
-             tBasis[  64 ] = tNeighbor->get_basis(  23 );
-             tBasis[  66 ] = tNeighbor->get_basis(  15 );
-             tBasis[  78 ] = tNeighbor->get_basis(   4 );
-             tBasis[  79 ] = tNeighbor->get_basis(  16 );
-             tBasis[  80 ] = tNeighbor->get_basis(   5 );
-             tBasis[  83 ] = tNeighbor->get_basis(  19 );
-             tBasis[  84 ] = tNeighbor->get_basis(  22 );
-             tBasis[  85 ] = tNeighbor->get_basis(  17 );
-             tBasis[  88 ] = tNeighbor->get_basis(   7 );
-             tBasis[  89 ] = tNeighbor->get_basis(  18 );
-             tBasis[  90 ] = tNeighbor->get_basis(   6 );
+             tBasis[  46 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  50 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  62 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  64 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  66 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  78 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  79 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  80 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  83 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  84 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  88 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  89 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  90 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  18
@@ -714,25 +714,25 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   0 ] = tNeighbor->get_basis(   0 );
-             tBasis[   1 ] = tNeighbor->get_basis(   8 );
-             tBasis[   2 ] = tNeighbor->get_basis(   1 );
-             tBasis[   5 ] = tNeighbor->get_basis(  11 );
-             tBasis[   6 ] = tNeighbor->get_basis(  21 );
-             tBasis[   7 ] = tNeighbor->get_basis(   9 );
-             tBasis[  10 ] = tNeighbor->get_basis(   3 );
-             tBasis[  11 ] = tNeighbor->get_basis(  10 );
-             tBasis[  12 ] = tNeighbor->get_basis(   2 );
-             tBasis[  25 ] = tNeighbor->get_basis(  12 );
-             tBasis[  26 ] = tNeighbor->get_basis(  25 );
-             tBasis[  27 ] = tNeighbor->get_basis(  13 );
-             tBasis[  30 ] = tNeighbor->get_basis(  23 );
-             tBasis[  32 ] = tNeighbor->get_basis(  15 );
-             tBasis[  41 ] = tNeighbor->get_basis(   4 );
-             tBasis[  42 ] = tNeighbor->get_basis(  16 );
-             tBasis[  43 ] = tNeighbor->get_basis(   5 );
-             tBasis[  46 ] = tNeighbor->get_basis(  19 );
-             tBasis[  48 ] = tNeighbor->get_basis(   7 );
+             tBasis[   0 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   1 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[   2 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[   5 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[   6 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  10 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  11 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  25 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  26 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  27 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  30 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  32 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  41 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  42 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  46 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(   7 );
          }
 
          // get pointer to neighbor  19
@@ -742,25 +742,25 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[   2 ] = tNeighbor->get_basis(   0 );
-             tBasis[   3 ] = tNeighbor->get_basis(   8 );
-             tBasis[   4 ] = tNeighbor->get_basis(   1 );
-             tBasis[   7 ] = tNeighbor->get_basis(  11 );
-             tBasis[   8 ] = tNeighbor->get_basis(  21 );
-             tBasis[   9 ] = tNeighbor->get_basis(   9 );
-             tBasis[  12 ] = tNeighbor->get_basis(   3 );
-             tBasis[  13 ] = tNeighbor->get_basis(  10 );
-             tBasis[  14 ] = tNeighbor->get_basis(   2 );
-             tBasis[  27 ] = tNeighbor->get_basis(  12 );
-             tBasis[  28 ] = tNeighbor->get_basis(  25 );
-             tBasis[  29 ] = tNeighbor->get_basis(  13 );
-             tBasis[  31 ] = tNeighbor->get_basis(  24 );
-             tBasis[  33 ] = tNeighbor->get_basis(  14 );
-             tBasis[  43 ] = tNeighbor->get_basis(   4 );
-             tBasis[  44 ] = tNeighbor->get_basis(  16 );
-             tBasis[  45 ] = tNeighbor->get_basis(   5 );
-             tBasis[  47 ] = tNeighbor->get_basis(  17 );
-             tBasis[  49 ] = tNeighbor->get_basis(   6 );
+             tBasis[   2 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[   3 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[   4 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[   7 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[   8 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[   9 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  14 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  27 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  28 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  29 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  31 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  33 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  44 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  45 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  47 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  20
@@ -770,25 +770,25 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  12 ] = tNeighbor->get_basis(   0 );
-             tBasis[  13 ] = tNeighbor->get_basis(   8 );
-             tBasis[  14 ] = tNeighbor->get_basis(   1 );
-             tBasis[  17 ] = tNeighbor->get_basis(  11 );
-             tBasis[  18 ] = tNeighbor->get_basis(  21 );
-             tBasis[  19 ] = tNeighbor->get_basis(   9 );
-             tBasis[  22 ] = tNeighbor->get_basis(   3 );
-             tBasis[  23 ] = tNeighbor->get_basis(  10 );
-             tBasis[  24 ] = tNeighbor->get_basis(   2 );
-             tBasis[  33 ] = tNeighbor->get_basis(  13 );
-             tBasis[  35 ] = tNeighbor->get_basis(  24 );
-             tBasis[  38 ] = tNeighbor->get_basis(  15 );
-             tBasis[  39 ] = tNeighbor->get_basis(  26 );
-             tBasis[  40 ] = tNeighbor->get_basis(  14 );
-             tBasis[  49 ] = tNeighbor->get_basis(   5 );
-             tBasis[  51 ] = tNeighbor->get_basis(  17 );
-             tBasis[  54 ] = tNeighbor->get_basis(   7 );
-             tBasis[  55 ] = tNeighbor->get_basis(  18 );
-             tBasis[  56 ] = tNeighbor->get_basis(   6 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  13 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  14 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  17 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  18 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[  19 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  22 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  23 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  24 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  33 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  35 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  38 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  39 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  40 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  51 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  55 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  56 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  21
@@ -798,25 +798,25 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  10 ] = tNeighbor->get_basis(   0 );
-             tBasis[  11 ] = tNeighbor->get_basis(   8 );
-             tBasis[  12 ] = tNeighbor->get_basis(   1 );
-             tBasis[  15 ] = tNeighbor->get_basis(  11 );
-             tBasis[  16 ] = tNeighbor->get_basis(  21 );
-             tBasis[  17 ] = tNeighbor->get_basis(   9 );
-             tBasis[  20 ] = tNeighbor->get_basis(   3 );
-             tBasis[  21 ] = tNeighbor->get_basis(  10 );
-             tBasis[  22 ] = tNeighbor->get_basis(   2 );
-             tBasis[  32 ] = tNeighbor->get_basis(  12 );
-             tBasis[  34 ] = tNeighbor->get_basis(  23 );
-             tBasis[  36 ] = tNeighbor->get_basis(  15 );
-             tBasis[  37 ] = tNeighbor->get_basis(  26 );
-             tBasis[  38 ] = tNeighbor->get_basis(  14 );
-             tBasis[  48 ] = tNeighbor->get_basis(   4 );
-             tBasis[  50 ] = tNeighbor->get_basis(  19 );
-             tBasis[  52 ] = tNeighbor->get_basis(   7 );
-             tBasis[  53 ] = tNeighbor->get_basis(  18 );
-             tBasis[  54 ] = tNeighbor->get_basis(   6 );
+             tBasis[  10 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  11 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  12 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  15 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  16 ] = tNeighbor->get_basis_function(  21 );
+             tBasis[  17 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  20 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  21 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  22 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  32 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  34 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  36 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  37 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  38 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  50 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  52 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  53 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  22
@@ -826,25 +826,25 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  41 ] = tNeighbor->get_basis(   0 );
-             tBasis[  42 ] = tNeighbor->get_basis(   8 );
-             tBasis[  43 ] = tNeighbor->get_basis(   1 );
-             tBasis[  46 ] = tNeighbor->get_basis(  11 );
-             tBasis[  48 ] = tNeighbor->get_basis(   3 );
-             tBasis[  57 ] = tNeighbor->get_basis(  12 );
-             tBasis[  58 ] = tNeighbor->get_basis(  25 );
-             tBasis[  59 ] = tNeighbor->get_basis(  13 );
-             tBasis[  62 ] = tNeighbor->get_basis(  23 );
-             tBasis[  64 ] = tNeighbor->get_basis(  15 );
-             tBasis[  73 ] = tNeighbor->get_basis(   4 );
-             tBasis[  74 ] = tNeighbor->get_basis(  16 );
-             tBasis[  75 ] = tNeighbor->get_basis(   5 );
-             tBasis[  78 ] = tNeighbor->get_basis(  19 );
-             tBasis[  79 ] = tNeighbor->get_basis(  22 );
-             tBasis[  80 ] = tNeighbor->get_basis(  17 );
-             tBasis[  83 ] = tNeighbor->get_basis(   7 );
-             tBasis[  84 ] = tNeighbor->get_basis(  18 );
-             tBasis[  85 ] = tNeighbor->get_basis(   6 );
+             tBasis[  41 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  42 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  46 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  57 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  58 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  59 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  62 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  64 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  73 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  74 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  75 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  78 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  79 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  80 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  83 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  84 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  23
@@ -854,25 +854,25 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  43 ] = tNeighbor->get_basis(   0 );
-             tBasis[  44 ] = tNeighbor->get_basis(   8 );
-             tBasis[  45 ] = tNeighbor->get_basis(   1 );
-             tBasis[  47 ] = tNeighbor->get_basis(   9 );
-             tBasis[  49 ] = tNeighbor->get_basis(   2 );
-             tBasis[  59 ] = tNeighbor->get_basis(  12 );
-             tBasis[  60 ] = tNeighbor->get_basis(  25 );
-             tBasis[  61 ] = tNeighbor->get_basis(  13 );
-             tBasis[  63 ] = tNeighbor->get_basis(  24 );
-             tBasis[  65 ] = tNeighbor->get_basis(  14 );
-             tBasis[  75 ] = tNeighbor->get_basis(   4 );
-             tBasis[  76 ] = tNeighbor->get_basis(  16 );
-             tBasis[  77 ] = tNeighbor->get_basis(   5 );
-             tBasis[  80 ] = tNeighbor->get_basis(  19 );
-             tBasis[  81 ] = tNeighbor->get_basis(  22 );
-             tBasis[  82 ] = tNeighbor->get_basis(  17 );
-             tBasis[  85 ] = tNeighbor->get_basis(   7 );
-             tBasis[  86 ] = tNeighbor->get_basis(  18 );
-             tBasis[  87 ] = tNeighbor->get_basis(   6 );
+             tBasis[  43 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  44 ] = tNeighbor->get_basis_function(   8 );
+             tBasis[  45 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  47 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  59 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  60 ] = tNeighbor->get_basis_function(  25 );
+             tBasis[  61 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  63 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  65 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  75 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  76 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  77 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  80 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  81 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  82 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  86 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  87 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  24
@@ -882,25 +882,25 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  49 ] = tNeighbor->get_basis(   1 );
-             tBasis[  51 ] = tNeighbor->get_basis(   9 );
-             tBasis[  54 ] = tNeighbor->get_basis(   3 );
-             tBasis[  55 ] = tNeighbor->get_basis(  10 );
-             tBasis[  56 ] = tNeighbor->get_basis(   2 );
-             tBasis[  65 ] = tNeighbor->get_basis(  13 );
-             tBasis[  67 ] = tNeighbor->get_basis(  24 );
-             tBasis[  70 ] = tNeighbor->get_basis(  15 );
-             tBasis[  71 ] = tNeighbor->get_basis(  26 );
-             tBasis[  72 ] = tNeighbor->get_basis(  14 );
-             tBasis[  85 ] = tNeighbor->get_basis(   4 );
-             tBasis[  86 ] = tNeighbor->get_basis(  16 );
-             tBasis[  87 ] = tNeighbor->get_basis(   5 );
-             tBasis[  90 ] = tNeighbor->get_basis(  19 );
-             tBasis[  91 ] = tNeighbor->get_basis(  22 );
-             tBasis[  92 ] = tNeighbor->get_basis(  17 );
-             tBasis[  95 ] = tNeighbor->get_basis(   7 );
-             tBasis[  96 ] = tNeighbor->get_basis(  18 );
-             tBasis[  97 ] = tNeighbor->get_basis(   6 );
+             tBasis[  49 ] = tNeighbor->get_basis_function(   1 );
+             tBasis[  51 ] = tNeighbor->get_basis_function(   9 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  55 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  56 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  65 ] = tNeighbor->get_basis_function(  13 );
+             tBasis[  67 ] = tNeighbor->get_basis_function(  24 );
+             tBasis[  70 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  71 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  72 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  86 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  87 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  90 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  91 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  92 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  95 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  96 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  97 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // get pointer to neighbor  25
@@ -910,25 +910,25 @@ namespace moris::hmr
          if ( tNeighbor != nullptr )
          {
              // copy pointers into frame
-             tBasis[  48 ] = tNeighbor->get_basis(   0 );
-             tBasis[  50 ] = tNeighbor->get_basis(  11 );
-             tBasis[  52 ] = tNeighbor->get_basis(   3 );
-             tBasis[  53 ] = tNeighbor->get_basis(  10 );
-             tBasis[  54 ] = tNeighbor->get_basis(   2 );
-             tBasis[  64 ] = tNeighbor->get_basis(  12 );
-             tBasis[  66 ] = tNeighbor->get_basis(  23 );
-             tBasis[  68 ] = tNeighbor->get_basis(  15 );
-             tBasis[  69 ] = tNeighbor->get_basis(  26 );
-             tBasis[  70 ] = tNeighbor->get_basis(  14 );
-             tBasis[  83 ] = tNeighbor->get_basis(   4 );
-             tBasis[  84 ] = tNeighbor->get_basis(  16 );
-             tBasis[  85 ] = tNeighbor->get_basis(   5 );
-             tBasis[  88 ] = tNeighbor->get_basis(  19 );
-             tBasis[  89 ] = tNeighbor->get_basis(  22 );
-             tBasis[  90 ] = tNeighbor->get_basis(  17 );
-             tBasis[  93 ] = tNeighbor->get_basis(   7 );
-             tBasis[  94 ] = tNeighbor->get_basis(  18 );
-             tBasis[  95 ] = tNeighbor->get_basis(   6 );
+             tBasis[  48 ] = tNeighbor->get_basis_function(   0 );
+             tBasis[  50 ] = tNeighbor->get_basis_function(  11 );
+             tBasis[  52 ] = tNeighbor->get_basis_function(   3 );
+             tBasis[  53 ] = tNeighbor->get_basis_function(  10 );
+             tBasis[  54 ] = tNeighbor->get_basis_function(   2 );
+             tBasis[  64 ] = tNeighbor->get_basis_function(  12 );
+             tBasis[  66 ] = tNeighbor->get_basis_function(  23 );
+             tBasis[  68 ] = tNeighbor->get_basis_function(  15 );
+             tBasis[  69 ] = tNeighbor->get_basis_function(  26 );
+             tBasis[  70 ] = tNeighbor->get_basis_function(  14 );
+             tBasis[  83 ] = tNeighbor->get_basis_function(   4 );
+             tBasis[  84 ] = tNeighbor->get_basis_function(  16 );
+             tBasis[  85 ] = tNeighbor->get_basis_function(   5 );
+             tBasis[  88 ] = tNeighbor->get_basis_function(  19 );
+             tBasis[  89 ] = tNeighbor->get_basis_function(  22 );
+             tBasis[  90 ] = tNeighbor->get_basis_function(  17 );
+             tBasis[  93 ] = tNeighbor->get_basis_function(   7 );
+             tBasis[  94 ] = tNeighbor->get_basis_function(  18 );
+             tBasis[  95 ] = tNeighbor->get_basis_function(   6 );
          }
 
          // test if basis 0 exists
@@ -2027,7 +2027,7 @@ namespace moris::hmr
         luint tBasisCounter = 0;
 
         // get pointer to basis
-        Basis* tBasis = mBasis[ aBasisNumber ];
+        Basis_Function* tBasis = mBasis[ aBasisNumber ];
 
         // test if basis exists
         if ( tBasis != nullptr )
@@ -2039,7 +2039,7 @@ namespace moris::hmr
                 tBasis->init_children_container();
 
                 // pointer to basis neighbor
-                Basis* tNeighbor;
+                Basis_Function* tNeighbor;
 
                 // get neighbor 0
                 tNeighbor = tBasis->get_neighbor( 0 );
@@ -2908,7 +2908,7 @@ namespace moris::hmr
         }
 
         // initialize temporary basis pattern
-        Basis* tBasis[ 64 ] = { nullptr };
+        Basis_Function* tBasis[ 64 ] = { nullptr };
 
         // populate basis pattern
         if ( mBasis[   0 ] != nullptr )

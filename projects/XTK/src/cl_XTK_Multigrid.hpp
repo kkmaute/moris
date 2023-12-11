@@ -113,7 +113,7 @@ namespace xtk
         //-------------------------------------------------------------------------------
 
         uint
-        get_basis_level( const moris_index aInterpolationIndex,
+        get_basis_function_level( const moris_index aInterpolationIndex,
                 const moris_index          aBasisIndex )
         {
             return mEnrichedBasisLevel( aBasisIndex );

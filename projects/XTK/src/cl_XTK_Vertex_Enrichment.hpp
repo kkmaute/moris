@@ -163,12 +163,12 @@ namespace xtk
                 moris::Matrix< moris::IndexMat > const & aBasisId );
 
         void
-        add_basis_weights(
+        add_basis_function_weights(
                 moris::Matrix< moris::IndexMat > const & aBasisIndices,
                 moris::Matrix< moris::DDRMat > const &   aBasisWeight );
 
         void
-        add_basis_owners(
+        add_basis_function_owners(
                 moris::Matrix< moris::IndexMat > const & aBasisIndices,
                 moris::Matrix< moris::IndexMat > const & aBasisOwners );
 
@@ -176,28 +176,28 @@ namespace xtk
         add_base_vertex_interpolation( mtk::Vertex_Interpolation* aBaseVertInterp );
 
         IndexMap&
-        get_basis_map();
+        get_basis_function_map();
 
         uint
-        get_num_bases_in_map() const;
+        get_num_basis_functions_in_map() const;
 
         uint
-        local_basis_index( uint aBasisIndex ) const;
+        local_basis_function_index( uint aBasisIndex ) const;
 
         void
         condense_out_basis_with_0_weight();
 
         moris::Matrix< moris::IndexMat > const &
-        get_basis_indices() const;
+        get_basis_function_indices() const;
 
         moris::Matrix< moris::IndexMat > const &
-        get_basis_ids() const;
+        get_basis_function_ids() const;
 
         moris::Matrix< moris::DDRMat > const &
-        get_basis_weights() const;
+        get_basis_function_weights() const;
 
         moris::Matrix< moris::DDRMat >&
-        get_basis_weights();
+        get_basis_function_weights();
 
         bool
         basis_exists_in_enrichment( moris_index aBasisIndex ) const;
@@ -235,8 +235,8 @@ namespace xtk
         // check basis indices ...............
 
         // get basis indices of aA,aB
-        moris::Matrix< moris::IndexMat > const & tBasisIndicesA = aA.get_basis_indices();
-        moris::Matrix< moris::IndexMat > const & tBasisIndicesB = aB.get_basis_indices();
+        moris::Matrix< moris::IndexMat > const & tBasisIndicesA = aA.get_basis_function_indices();
+        moris::Matrix< moris::IndexMat > const & tBasisIndicesB = aB.get_basis_function_indices();
 
         uint tSizeA = tBasisIndicesA.numel();
         uint tSizeB = tBasisIndicesB.numel();
@@ -249,7 +249,7 @@ namespace xtk
 
         // if their index maps have different length something must be wrong
         MORIS_ERROR(
-                ( aA.get_num_bases_in_map() == aB.get_num_bases_in_map() ) && ( aA.get_num_bases_in_map() == tSizeA ),
+                ( aA.get_num_basis_functions_in_map() == aB.get_num_basis_functions_in_map() ) && ( aA.get_num_basis_functions_in_map() == tSizeA ),
                 "xtk::Vertex_Enrichment::operator== - "
                 "Basis maps of Vertex Enrichments compared have same number of indices, but different size of basis index maps." );
 
@@ -268,8 +268,8 @@ namespace xtk
         // check weights ...............
 
         // get basis weights of aA,aB
-        moris::Matrix< moris::DDRMat > const & tWeightsA = aA.get_basis_weights();
-        moris::Matrix< moris::DDRMat > const & tWeightsB = aB.get_basis_weights();
+        moris::Matrix< moris::DDRMat > const & tWeightsA = aA.get_basis_function_weights();
+        moris::Matrix< moris::DDRMat > const & tWeightsB = aB.get_basis_function_weights();
 
         // check size
         MORIS_ASSERT( tWeightsA.numel() == tSizeA, "xtk::Vertex_Enrichment::operator== - Size of weights and indices don't match for A." );
@@ -282,7 +282,7 @@ namespace xtk
             moris_index tBasisIndex = tBasisIndicesA( iWeight );
 
             // find the position of this index in B
-            uint tBasisIndexPositionInB = aB.local_basis_index( tBasisIndex );
+            uint tBasisIndexPositionInB = aB.local_basis_function_index( tBasisIndex );
 
             // get the two weights
             real tWeightA = tWeightsA( iWeight );
@@ -304,9 +304,9 @@ namespace xtk
     inline std::ostream&
     operator<<( std::ostream& os, const xtk::Vertex_Enrichment& dt )
     {
-        moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_indices();
+        moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_function_indices();
         moris::Matrix< moris::IndexMat > const & tBasisOwner   = dt.get_owners();
-        moris::Matrix< moris::DDRMat > const &   tBasisWeights = dt.get_basis_weights();
+        moris::Matrix< moris::DDRMat > const &   tBasisWeights = dt.get_basis_function_weights();
 
         // base vertex
         mtk::Vertex_Interpolation const * tBaseVertIp       = dt.get_base_vertex_interpolation();

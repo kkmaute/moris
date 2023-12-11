@@ -155,7 +155,7 @@ namespace moris::hmr
         void calculate_t_matrix(
                 luint             aElementMemoryIndex,
                 Matrix< DDRMat >& aTMatrixTransposed,
-                Cell< Basis* >&   aDOFs );
+                Cell< Basis_Function* >&   aDOFs );
 
       private:
         /**
@@ -168,7 +168,7 @@ namespace moris::hmr
         void calculate_untruncated_t_matrix(
                 luint             aElementMemoryIndex,
                 Matrix< DDRMat >& aTMatrixTransposed,
-                Cell< Basis* >&   aDOFs );
+                Cell< Basis_Function* >&   aDOFs );
 
         /**
          * Calculates the truncated T-matrix for a B-spline element.
@@ -180,7 +180,7 @@ namespace moris::hmr
         void calculate_truncated_t_matrix(
                 luint             aElementMemoryIndex,
                 Matrix< DDRMat >& aTMatrixTransposed,
-                Cell< Basis* >&   aDOFs );
+                Cell< Basis_Function* >&   aDOFs );
 
         /**
          * Initializes lagrange coefficients for Lagrange interpolation

@@ -101,7 +101,7 @@ namespace xtk
         for ( uint i = 0; i < mNumberOfBasis; i++ )
         {
             // get the ith basis
-            const hmr::Basis* tBasis = tHMRElement->get_basis( i );
+            const hmr::Basis_Function* tBasis = tHMRElement->get_basis_function( i );
 
             // if it is active add it to the cell
             if ( tBasis->is_active() )
@@ -183,7 +183,7 @@ namespace xtk
         for ( uint i = 0; i < mNumberOfBasis; i++ )
         {
             // get the basis
-            const hmr::Basis* tBasis = tHMRElement->get_basis( i );
+            const hmr::Basis_Function* tBasis = tHMRElement->get_basis_function( i );
 
             // if it is active add it to the cell
             if ( tBasis->is_active() )
@@ -532,7 +532,7 @@ namespace xtk
         for ( uint i = 0; i < mNumberOfBasis; i++ )
         {
             // get the basis
-            const hmr::Basis* tBasis = tHMRElement->get_basis( i );
+            const hmr::Basis_Function* tBasis = tHMRElement->get_basis_function( i );
 
             // if it is active add it to the cell
             if ( tBasis->is_active() )

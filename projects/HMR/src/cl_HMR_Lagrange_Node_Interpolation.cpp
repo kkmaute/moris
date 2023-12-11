@@ -128,7 +128,7 @@ Matrix< IdMat > Lagrange_Node_Interpolation::get_ijkl_id() const
     // loop over all basis
     for( uint k=0; k<tNumberOfBasis; ++k )
     {
-        aIJKId( k ) = reinterpret_cast<hmr::Basis*>(mCoefficients( k ))->get_hmr_id();
+        aIJKId( k ) = reinterpret_cast<hmr::Basis_Function*>(mCoefficients( k ))->get_hmr_id();
     }
 
     // return id matrix

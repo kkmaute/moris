@@ -168,48 +168,48 @@ namespace moris::hmr
 
             if ( tOutputMeshSize == 1 )
             {
-                mOutputMesheNames.resize( 1, "HMR_Mesh_Main" );
+                mOutputMeshNames.resize( 1, "HMR_Mesh_Main" );
                 mOutputNameToIndexMap[ "HMR_Mesh_Main" ] = mOutputMeshes( 0 )( 0 );
             }
             else if ( tOutputMeshSize == 2 )
             {
                 uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
-                mOutputMesheNames.resize( 1 + tNumSecOutputMeshes );
+                mOutputMeshNames.resize( 1 + tNumSecOutputMeshes );
                 mOutputNameToIndexMap[ "HMR_Mesh_Main" ] = mOutputMeshes( 0 )( 0 );
 
-                mOutputMesheNames( 1 ) = "HMR_Mesh_Main";
+                mOutputMeshNames( 1 ) = "HMR_Mesh_Main";
                 for ( uint Ik = 1; Ik < tNumSecOutputMeshes + 1; Ik++ )
                 {
                     std::string tName              = "HMR_Sec_Mesh" + std::to_string( Ik );
-                    mOutputMesheNames( Ik )        = tName;
+                    mOutputMeshNames( Ik )        = tName;
                     mOutputNameToIndexMap[ tName ] = mOutputMeshes( 1 )( Ik - 1 );
                 }
             }
         }
         else
         {
-            string_to_cell( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMesheNames );
+            string_to_cell( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMeshNames );
 
             uint tOutputMeshSize = mOutputMeshes.size();
 
             if ( tOutputMeshSize == 1 )
             {
-                MORIS_ERROR( mOutputMesheNames.size() == 1,
+                MORIS_ERROR( mOutputMeshNames.size() == 1,
                         "Number of output mesh names must be the same than number of output meshes" );
 
-                mOutputNameToIndexMap[ mOutputMesheNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
+                mOutputNameToIndexMap[ mOutputMeshNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
             }
             else if ( tOutputMeshSize == 2 )
             {
                 uint tNumSecOutputMeshes = mOutputMeshes( 1 ).numel();
-                MORIS_ERROR( mOutputMesheNames.size() == ( 1 + tNumSecOutputMeshes ),
+                MORIS_ERROR( mOutputMeshNames.size() == ( 1 + tNumSecOutputMeshes ),
                         "Number of output mesh names must be the same than number of output meshes" );
 
-                mOutputNameToIndexMap[ mOutputMesheNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
+                mOutputNameToIndexMap[ mOutputMeshNames( 0 ) ] = mOutputMeshes( 0 )( 0 );
 
                 for ( uint Ik = 0; Ik < mOutputMeshes( 1 ).numel(); Ik++ )
                 {
-                    mOutputNameToIndexMap[ mOutputMesheNames( Ik + 1 ) ] = mOutputMeshes( 1 )( Ik );
+                    mOutputNameToIndexMap[ mOutputMeshNames( Ik + 1 ) ] = mOutputMeshes( 1 )( Ik );
                 }
             }
         }

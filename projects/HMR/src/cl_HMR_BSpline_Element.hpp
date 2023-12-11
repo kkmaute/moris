@@ -30,17 +30,17 @@ namespace moris::hmr
     template< uint P, uint Q, uint R >
     class BSpline_Element : public Element
     {
-        //! Number of dimensions
+        //! Number of spatial dimensions
         static constexpr uint N = ( P > 0 ) + ( Q > 0 ) + ( R > 0 );
 
-        //! Number of bases
+        //! Number of basis functions interpolating into element
         static constexpr uint B = ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
 
-        //! Container of bases in each direction, used to avoid repeated conditionals
+        //! Container of basis functions in each direction, used to avoid repeated conditionals
         static constexpr uint BXYZ[ 3 ] = { P + 1, Q + 1, R + 1 };
 
         //! pointer to nodes
-        Basis** mBasis;
+        Basis_Function** mBasis;
 
       public:
         /**
@@ -68,10 +68,10 @@ namespace moris::hmr
         void
         init_basis_container() override
         {
-            MORIS_ASSERT( !mHaveBasis, "Basis container of element already initiated" );
+            MORIS_ASSERT( !mHaveBasis, "hmr::BSpline_Element::init_basis_container() - Basis function container of element already initiated" );
 
             mHaveBasis = true;
-            mBasis     = new Basis*[ B ];
+            mBasis     = new Basis_Function*[ B ];
             for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
             {
                 mBasis[ iBasisIndex ] = nullptr;
@@ -97,18 +97,18 @@ namespace moris::hmr
          *
          * @param[in]    aIndex   element local index of basis
          *
-         * @return Basis* pointer to Lagrange node
+         * @return Basis_Function* pointer to Lagrange node
          *
          */
-        Basis*
-        get_basis( uint aIndex ) override
+        Basis_Function*
+        get_basis_function( uint aIndex ) override
         {
             MORIS_ASSERT( mHaveBasis, "can't return basis if container is not initialized" );
             return mBasis[ aIndex ];
         }
 
-        const Basis*
-        get_basis( uint aIndex ) const override
+        const Basis_Function*
+        get_basis_function( uint aIndex ) const override
         {
             MORIS_ASSERT( mHaveBasis, "can't return basis if container is not initialized" );
             return mBasis[ aIndex ];
@@ -127,7 +127,7 @@ namespace moris::hmr
         void
         insert_basis(
                 uint   aIndex,
-                Basis* aBasis ) override
+                Basis_Function* aBasis ) override
         {
             MORIS_ASSERT( mHaveBasis, "can't insert basis if container is not initialized" );
             mBasis[ aIndex ] = aBasis;
@@ -171,9 +171,9 @@ namespace moris::hmr
             for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
             {
                 // get node
-                Basis* tNode = this->get_basis( iBasisIndex );
+                Basis_Function* tNode = this->get_basis_function( iBasisIndex );
                 std::fprintf( stdout,
-                        "    %2u :  Basis %lu , ID %lu, MEM %lu \n",
+                        "    %2u :  Basis_Function %lu , ID %lu, MEM %lu \n",
                         (unsigned int)iBasisIndex,
                         (long unsigned int)tNode->get_hmr_index(),
                         (long unsigned int)tNode->get_hmr_id(),
@@ -206,7 +206,7 @@ namespace moris::hmr
         /**
          * Gets the basis indices needed for basis output
          *
-         * @param aBasis Basis indices
+         * @param aBasis Basis_Function indices
          */
         void get_basis_indices_for_vtk( Matrix< DDLUMat >& aBasisIndices ) override;
 

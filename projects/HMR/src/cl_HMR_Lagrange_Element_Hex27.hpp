@@ -43,85 +43,85 @@ namespace moris::hmr
         std::string aString = "12 2 0 1";
 
         aString += " " + std::to_string(
-                         this->get_basis(  0 )->get_memory_index() + 1 );
+                         this->get_basis_function(  0 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  1 )->get_memory_index() + 1 );
+                         this->get_basis_function(  1 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  2 )->get_memory_index() + 1 );
+                         this->get_basis_function(  2 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  3 )->get_memory_index() + 1 );
+                         this->get_basis_function(  3 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  4 )->get_memory_index() + 1 );
+                         this->get_basis_function(  4 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  5 )->get_memory_index() + 1 );
+                         this->get_basis_function(  5 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  6 )->get_memory_index() + 1 );
+                         this->get_basis_function(  6 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  7 )->get_memory_index() + 1 );
+                         this->get_basis_function(  7 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  8 )->get_memory_index() + 1 );
+                         this->get_basis_function(  8 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 11 )->get_memory_index() + 1 );
+                         this->get_basis_function( 11 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 12 )->get_memory_index() + 1 );
+                         this->get_basis_function( 12 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis(  9 )->get_memory_index() + 1 );
+                         this->get_basis_function(  9 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 13 )->get_memory_index() + 1 );
+                         this->get_basis_function( 13 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 10 )->get_memory_index() + 1 );
+                         this->get_basis_function( 10 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 14 )->get_memory_index() + 1 );
+                         this->get_basis_function( 14 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 15 )->get_memory_index() + 1 );
+                         this->get_basis_function( 15 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 16 )->get_memory_index() + 1 );
+                         this->get_basis_function( 16 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 19 )->get_memory_index() + 1 );
+                         this->get_basis_function( 19 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 17 )->get_memory_index() + 1 );
+                         this->get_basis_function( 17 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 18 )->get_memory_index() + 1 );
+                         this->get_basis_function( 18 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 21 )->get_memory_index() + 1 );
+                         this->get_basis_function( 21 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 25 )->get_memory_index() + 1 );
+                         this->get_basis_function( 25 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 23 )->get_memory_index() + 1 );
+                         this->get_basis_function( 23 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 24 )->get_memory_index() + 1 );
+                         this->get_basis_function( 24 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 26 )->get_memory_index() + 1 );
+                         this->get_basis_function( 26 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 22 )->get_memory_index() + 1 );
+                         this->get_basis_function( 22 )->get_memory_index() + 1 );
 
         aString += " " + std::to_string(
-                         this->get_basis( 20 )->get_memory_index() + 1 );
+                         this->get_basis_function( 20 )->get_memory_index() + 1 );
 
         // return the string that goes into the gmsh file
         return aString;
@@ -431,15 +431,15 @@ namespace moris::hmr
         if ( tNeighbor != nullptr )
         {
             // copy nodes from this neighbor
-            mNodes[  0 ] = tNeighbor->get_basis(  4 );
-            mNodes[  1 ] = tNeighbor->get_basis(  5 );
-            mNodes[  2 ] = tNeighbor->get_basis(  6 );
-            mNodes[  3 ] = tNeighbor->get_basis(  7 );
-            mNodes[  8 ] = tNeighbor->get_basis( 16 );
-            mNodes[  9 ] = tNeighbor->get_basis( 17 );
-            mNodes[ 10 ] = tNeighbor->get_basis( 18 );
-            mNodes[ 11 ] = tNeighbor->get_basis( 19 );
-            mNodes[ 21 ] = tNeighbor->get_basis( 22 );
+            mNodes[  0 ] = tNeighbor->get_basis_function(  4 );
+            mNodes[  1 ] = tNeighbor->get_basis_function(  5 );
+            mNodes[  2 ] = tNeighbor->get_basis_function(  6 );
+            mNodes[  3 ] = tNeighbor->get_basis_function(  7 );
+            mNodes[  8 ] = tNeighbor->get_basis_function( 16 );
+            mNodes[  9 ] = tNeighbor->get_basis_function( 17 );
+            mNodes[ 10 ] = tNeighbor->get_basis_function( 18 );
+            mNodes[ 11 ] = tNeighbor->get_basis_function( 19 );
+            mNodes[ 21 ] = tNeighbor->get_basis_function( 22 );
         }
 
         // get pointer to neighbor 0
@@ -449,15 +449,15 @@ namespace moris::hmr
         if ( tNeighbor != nullptr )
         {
             // copy nodes from this neighbor
-            mNodes[  0 ] = tNeighbor->get_basis(  3 );
-            mNodes[  1 ] = tNeighbor->get_basis(  2 );
-            mNodes[  4 ] = tNeighbor->get_basis(  7 );
-            mNodes[  5 ] = tNeighbor->get_basis(  6 );
-            mNodes[  8 ] = tNeighbor->get_basis( 10 );
-            mNodes[ 12 ] = tNeighbor->get_basis( 15 );
-            mNodes[ 13 ] = tNeighbor->get_basis( 14 );
-            mNodes[ 16 ] = tNeighbor->get_basis( 18 );
-            mNodes[ 25 ] = tNeighbor->get_basis( 26 );
+            mNodes[  0 ] = tNeighbor->get_basis_function(  3 );
+            mNodes[  1 ] = tNeighbor->get_basis_function(  2 );
+            mNodes[  4 ] = tNeighbor->get_basis_function(  7 );
+            mNodes[  5 ] = tNeighbor->get_basis_function(  6 );
+            mNodes[  8 ] = tNeighbor->get_basis_function( 10 );
+            mNodes[ 12 ] = tNeighbor->get_basis_function( 15 );
+            mNodes[ 13 ] = tNeighbor->get_basis_function( 14 );
+            mNodes[ 16 ] = tNeighbor->get_basis_function( 18 );
+            mNodes[ 25 ] = tNeighbor->get_basis_function( 26 );
         }
 
         // get pointer to neighbor 3
@@ -467,15 +467,15 @@ namespace moris::hmr
         if ( tNeighbor != nullptr )
         {
             // copy nodes from this neighbor
-            mNodes[  0 ] = tNeighbor->get_basis(  1 );
-            mNodes[  3 ] = tNeighbor->get_basis(  2 );
-            mNodes[  4 ] = tNeighbor->get_basis(  5 );
-            mNodes[  7 ] = tNeighbor->get_basis(  6 );
-            mNodes[ 11 ] = tNeighbor->get_basis(  9 );
-            mNodes[ 12 ] = tNeighbor->get_basis( 13 );
-            mNodes[ 15 ] = tNeighbor->get_basis( 14 );
-            mNodes[ 19 ] = tNeighbor->get_basis( 17 );
-            mNodes[ 23 ] = tNeighbor->get_basis( 24 );
+            mNodes[  0 ] = tNeighbor->get_basis_function(  1 );
+            mNodes[  3 ] = tNeighbor->get_basis_function(  2 );
+            mNodes[  4 ] = tNeighbor->get_basis_function(  5 );
+            mNodes[  7 ] = tNeighbor->get_basis_function(  6 );
+            mNodes[ 11 ] = tNeighbor->get_basis_function(  9 );
+            mNodes[ 12 ] = tNeighbor->get_basis_function( 13 );
+            mNodes[ 15 ] = tNeighbor->get_basis_function( 14 );
+            mNodes[ 19 ] = tNeighbor->get_basis_function( 17 );
+            mNodes[ 23 ] = tNeighbor->get_basis_function( 24 );
         }
 
         // loop over all nodes
@@ -513,7 +513,7 @@ namespace moris::hmr
         luint tBasisCounter = 0;
 
         // create temporary array containing all nodes
-        Basis* tNodes[ 125 ] = { nullptr };
+        Basis_Function* tNodes[ 125 ] = { nullptr };
 
         // copy my own nodes into this array
         tNodes[   0 ] = mNodes[   0 ];
@@ -560,67 +560,67 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[   1 ] = tChild->get_basis(  10 );
+                tNodes[   1 ] = tChild->get_basis_function(  10 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[   3 ] = tChild->get_basis(  10 );
+                tNodes[   3 ] = tChild->get_basis_function(  10 );
 
                 // get pointer to child 2
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[  25 ] = tChild->get_basis(  15 );
-                tNodes[  26 ] = tChild->get_basis(  26 );
-                tNodes[  27 ] = tChild->get_basis(  14 );
+                tNodes[  25 ] = tChild->get_basis_function(  15 );
+                tNodes[  26 ] = tChild->get_basis_function(  26 );
+                tNodes[  27 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[  28 ] = tChild->get_basis(  26 );
-                tNodes[  29 ] = tChild->get_basis(  14 );
+                tNodes[  28 ] = tChild->get_basis_function(  26 );
+                tNodes[  29 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 2
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[  51 ] = tChild->get_basis(  18 );
+                tNodes[  51 ] = tChild->get_basis_function(  18 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[  53 ] = tChild->get_basis(  18 );
+                tNodes[  53 ] = tChild->get_basis_function(  18 );
 
                 // get pointer to child 6
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[  75 ] = tChild->get_basis(  15 );
-                tNodes[  76 ] = tChild->get_basis(  26 );
-                tNodes[  77 ] = tChild->get_basis(  14 );
+                tNodes[  75 ] = tChild->get_basis_function(  15 );
+                tNodes[  76 ] = tChild->get_basis_function(  26 );
+                tNodes[  77 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[  78 ] = tChild->get_basis(  26 );
-                tNodes[  79 ] = tChild->get_basis(  14 );
+                tNodes[  78 ] = tChild->get_basis_function(  26 );
+                tNodes[  79 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 6
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[ 101 ] = tChild->get_basis(  18 );
+                tNodes[ 101 ] = tChild->get_basis_function(  18 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[ 103 ] = tChild->get_basis(  18 );
+                tNodes[ 103 ] = tChild->get_basis_function(  18 );
             }
         }
 
@@ -641,67 +641,67 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[   9 ] = tChild->get_basis(  11 );
+                tNodes[   9 ] = tChild->get_basis_function(  11 );
 
                 // get pointer to child 2
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[  19 ] = tChild->get_basis(  11 );
+                tNodes[  19 ] = tChild->get_basis_function(  11 );
 
                 // get pointer to child 0
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[  29 ] = tChild->get_basis(  12 );
-                tNodes[  34 ] = tChild->get_basis(  23 );
-                tNodes[  39 ] = tChild->get_basis(  15 );
+                tNodes[  29 ] = tChild->get_basis_function(  12 );
+                tNodes[  34 ] = tChild->get_basis_function(  23 );
+                tNodes[  39 ] = tChild->get_basis_function(  15 );
 
                 // get pointer to child 2
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[  44 ] = tChild->get_basis(  23 );
-                tNodes[  49 ] = tChild->get_basis(  15 );
+                tNodes[  44 ] = tChild->get_basis_function(  23 );
+                tNodes[  49 ] = tChild->get_basis_function(  15 );
 
                 // get pointer to child 0
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[  59 ] = tChild->get_basis(  19 );
+                tNodes[  59 ] = tChild->get_basis_function(  19 );
 
                 // get pointer to child 2
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[  69 ] = tChild->get_basis(  19 );
+                tNodes[  69 ] = tChild->get_basis_function(  19 );
 
                 // get pointer to child 4
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[  79 ] = tChild->get_basis(  12 );
-                tNodes[  84 ] = tChild->get_basis(  23 );
-                tNodes[  89 ] = tChild->get_basis(  15 );
+                tNodes[  79 ] = tChild->get_basis_function(  12 );
+                tNodes[  84 ] = tChild->get_basis_function(  23 );
+                tNodes[  89 ] = tChild->get_basis_function(  15 );
 
                 // get pointer to child 6
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[  94 ] = tChild->get_basis(  23 );
-                tNodes[  99 ] = tChild->get_basis(  15 );
+                tNodes[  94 ] = tChild->get_basis_function(  23 );
+                tNodes[  99 ] = tChild->get_basis_function(  15 );
 
                 // get pointer to child 4
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[ 109 ] = tChild->get_basis(  19 );
+                tNodes[ 109 ] = tChild->get_basis_function(  19 );
 
                 // get pointer to child 6
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[ 119 ] = tChild->get_basis(  19 );
+                tNodes[ 119 ] = tChild->get_basis_function(  19 );
             }
         }
 
@@ -722,67 +722,67 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[  21 ] = tChild->get_basis(   8 );
+                tNodes[  21 ] = tChild->get_basis_function(   8 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[  23 ] = tChild->get_basis(   8 );
+                tNodes[  23 ] = tChild->get_basis_function(   8 );
 
                 // get pointer to child 0
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[  45 ] = tChild->get_basis(  12 );
-                tNodes[  46 ] = tChild->get_basis(  25 );
-                tNodes[  47 ] = tChild->get_basis(  13 );
+                tNodes[  45 ] = tChild->get_basis_function(  12 );
+                tNodes[  46 ] = tChild->get_basis_function(  25 );
+                tNodes[  47 ] = tChild->get_basis_function(  13 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[  48 ] = tChild->get_basis(  25 );
-                tNodes[  49 ] = tChild->get_basis(  13 );
+                tNodes[  48 ] = tChild->get_basis_function(  25 );
+                tNodes[  49 ] = tChild->get_basis_function(  13 );
 
                 // get pointer to child 0
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[  71 ] = tChild->get_basis(  16 );
+                tNodes[  71 ] = tChild->get_basis_function(  16 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[  73 ] = tChild->get_basis(  16 );
+                tNodes[  73 ] = tChild->get_basis_function(  16 );
 
                 // get pointer to child 4
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[  95 ] = tChild->get_basis(  12 );
-                tNodes[  96 ] = tChild->get_basis(  25 );
-                tNodes[  97 ] = tChild->get_basis(  13 );
+                tNodes[  95 ] = tChild->get_basis_function(  12 );
+                tNodes[  96 ] = tChild->get_basis_function(  25 );
+                tNodes[  97 ] = tChild->get_basis_function(  13 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[  98 ] = tChild->get_basis(  25 );
-                tNodes[  99 ] = tChild->get_basis(  13 );
+                tNodes[  98 ] = tChild->get_basis_function(  25 );
+                tNodes[  99 ] = tChild->get_basis_function(  13 );
 
                 // get pointer to child 4
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[ 121 ] = tChild->get_basis(  16 );
+                tNodes[ 121 ] = tChild->get_basis_function(  16 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[ 123 ] = tChild->get_basis(  16 );
+                tNodes[ 123 ] = tChild->get_basis_function(  16 );
             }
         }
 
@@ -803,67 +803,67 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[   5 ] = tChild->get_basis(   9 );
+                tNodes[   5 ] = tChild->get_basis_function(   9 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[  15 ] = tChild->get_basis(   9 );
+                tNodes[  15 ] = tChild->get_basis_function(   9 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[  25 ] = tChild->get_basis(  13 );
-                tNodes[  30 ] = tChild->get_basis(  24 );
-                tNodes[  35 ] = tChild->get_basis(  14 );
+                tNodes[  25 ] = tChild->get_basis_function(  13 );
+                tNodes[  30 ] = tChild->get_basis_function(  24 );
+                tNodes[  35 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[  40 ] = tChild->get_basis(  24 );
-                tNodes[  45 ] = tChild->get_basis(  14 );
+                tNodes[  40 ] = tChild->get_basis_function(  24 );
+                tNodes[  45 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[  55 ] = tChild->get_basis(  17 );
+                tNodes[  55 ] = tChild->get_basis_function(  17 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[  65 ] = tChild->get_basis(  17 );
+                tNodes[  65 ] = tChild->get_basis_function(  17 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[  75 ] = tChild->get_basis(  13 );
-                tNodes[  80 ] = tChild->get_basis(  24 );
-                tNodes[  85 ] = tChild->get_basis(  14 );
+                tNodes[  75 ] = tChild->get_basis_function(  13 );
+                tNodes[  80 ] = tChild->get_basis_function(  24 );
+                tNodes[  85 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[  90 ] = tChild->get_basis(  24 );
-                tNodes[  95 ] = tChild->get_basis(  14 );
+                tNodes[  90 ] = tChild->get_basis_function(  24 );
+                tNodes[  95 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[ 105 ] = tChild->get_basis(  17 );
+                tNodes[ 105 ] = tChild->get_basis_function(  17 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[ 115 ] = tChild->get_basis(  17 );
+                tNodes[ 115 ] = tChild->get_basis_function(  17 );
             }
         }
 
@@ -884,67 +884,67 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[   1 ] = tChild->get_basis(  16 );
+                tNodes[   1 ] = tChild->get_basis_function(  16 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[   3 ] = tChild->get_basis(  16 );
+                tNodes[   3 ] = tChild->get_basis_function(  16 );
 
                 // get pointer to child 4
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[   5 ] = tChild->get_basis(  19 );
-                tNodes[   6 ] = tChild->get_basis(  22 );
-                tNodes[   7 ] = tChild->get_basis(  17 );
+                tNodes[   5 ] = tChild->get_basis_function(  19 );
+                tNodes[   6 ] = tChild->get_basis_function(  22 );
+                tNodes[   7 ] = tChild->get_basis_function(  17 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[   8 ] = tChild->get_basis(  22 );
-                tNodes[   9 ] = tChild->get_basis(  17 );
+                tNodes[   8 ] = tChild->get_basis_function(  22 );
+                tNodes[   9 ] = tChild->get_basis_function(  17 );
 
                 // get pointer to child 4
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[  11 ] = tChild->get_basis(  18 );
+                tNodes[  11 ] = tChild->get_basis_function(  18 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[  13 ] = tChild->get_basis(  18 );
+                tNodes[  13 ] = tChild->get_basis_function(  18 );
 
                 // get pointer to child 6
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[  15 ] = tChild->get_basis(  19 );
-                tNodes[  16 ] = tChild->get_basis(  22 );
-                tNodes[  17 ] = tChild->get_basis(  17 );
+                tNodes[  15 ] = tChild->get_basis_function(  19 );
+                tNodes[  16 ] = tChild->get_basis_function(  22 );
+                tNodes[  17 ] = tChild->get_basis_function(  17 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[  18 ] = tChild->get_basis(  22 );
-                tNodes[  19 ] = tChild->get_basis(  17 );
+                tNodes[  18 ] = tChild->get_basis_function(  22 );
+                tNodes[  19 ] = tChild->get_basis_function(  17 );
 
                 // get pointer to child 6
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[  21 ] = tChild->get_basis(  18 );
+                tNodes[  21 ] = tChild->get_basis_function(  18 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[  23 ] = tChild->get_basis(  18 );
+                tNodes[  23 ] = tChild->get_basis_function(  18 );
             }
         }
 
@@ -965,67 +965,67 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[ 101 ] = tChild->get_basis(   8 );
+                tNodes[ 101 ] = tChild->get_basis_function(   8 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[ 103 ] = tChild->get_basis(   8 );
+                tNodes[ 103 ] = tChild->get_basis_function(   8 );
 
                 // get pointer to child 0
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[ 105 ] = tChild->get_basis(  11 );
-                tNodes[ 106 ] = tChild->get_basis(  21 );
-                tNodes[ 107 ] = tChild->get_basis(   9 );
+                tNodes[ 105 ] = tChild->get_basis_function(  11 );
+                tNodes[ 106 ] = tChild->get_basis_function(  21 );
+                tNodes[ 107 ] = tChild->get_basis_function(   9 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[ 108 ] = tChild->get_basis(  21 );
-                tNodes[ 109 ] = tChild->get_basis(   9 );
+                tNodes[ 108 ] = tChild->get_basis_function(  21 );
+                tNodes[ 109 ] = tChild->get_basis_function(   9 );
 
                 // get pointer to child 0
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[ 111 ] = tChild->get_basis(  10 );
+                tNodes[ 111 ] = tChild->get_basis_function(  10 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[ 113 ] = tChild->get_basis(  10 );
+                tNodes[ 113 ] = tChild->get_basis_function(  10 );
 
                 // get pointer to child 2
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[ 115 ] = tChild->get_basis(  11 );
-                tNodes[ 116 ] = tChild->get_basis(  21 );
-                tNodes[ 117 ] = tChild->get_basis(   9 );
+                tNodes[ 115 ] = tChild->get_basis_function(  11 );
+                tNodes[ 116 ] = tChild->get_basis_function(  21 );
+                tNodes[ 117 ] = tChild->get_basis_function(   9 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[ 118 ] = tChild->get_basis(  21 );
-                tNodes[ 119 ] = tChild->get_basis(   9 );
+                tNodes[ 118 ] = tChild->get_basis_function(  21 );
+                tNodes[ 119 ] = tChild->get_basis_function(   9 );
 
                 // get pointer to child 2
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[ 121 ] = tChild->get_basis(  10 );
+                tNodes[ 121 ] = tChild->get_basis_function(  10 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[ 123 ] = tChild->get_basis(  10 );
+                tNodes[ 123 ] = tChild->get_basis_function(  10 );
             }
         }
 
@@ -1046,13 +1046,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[   1 ] = tChild->get_basis(  18 );
+                tNodes[   1 ] = tChild->get_basis_function(  18 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[   3 ] = tChild->get_basis(  18 );
+                tNodes[   3 ] = tChild->get_basis_function(  18 );
             }
         }
 
@@ -1073,13 +1073,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[   9 ] = tChild->get_basis(  19 );
+                tNodes[   9 ] = tChild->get_basis_function(  19 );
 
                 // get pointer to child 6
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[  19 ] = tChild->get_basis(  19 );
+                tNodes[  19 ] = tChild->get_basis_function(  19 );
             }
         }
 
@@ -1100,13 +1100,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[  21 ] = tChild->get_basis(  16 );
+                tNodes[  21 ] = tChild->get_basis_function(  16 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[  23 ] = tChild->get_basis(  16 );
+                tNodes[  23 ] = tChild->get_basis_function(  16 );
             }
         }
 
@@ -1127,13 +1127,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[   5 ] = tChild->get_basis(  17 );
+                tNodes[   5 ] = tChild->get_basis_function(  17 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[  15 ] = tChild->get_basis(  17 );
+                tNodes[  15 ] = tChild->get_basis_function(  17 );
             }
         }
 
@@ -1154,13 +1154,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[  25 ] = tChild->get_basis(  14 );
+                tNodes[  25 ] = tChild->get_basis_function(  14 );
 
                 // get pointer to child 7
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 7 )->get_memory_index() );
 
-                tNodes[  75 ] = tChild->get_basis(  14 );
+                tNodes[  75 ] = tChild->get_basis_function(  14 );
             }
         }
 
@@ -1181,13 +1181,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[  29 ] = tChild->get_basis(  15 );
+                tNodes[  29 ] = tChild->get_basis_function(  15 );
 
                 // get pointer to child 6
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 6 )->get_memory_index() );
 
-                tNodes[  79 ] = tChild->get_basis(  15 );
+                tNodes[  79 ] = tChild->get_basis_function(  15 );
             }
         }
 
@@ -1208,13 +1208,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[  49 ] = tChild->get_basis(  12 );
+                tNodes[  49 ] = tChild->get_basis_function(  12 );
 
                 // get pointer to child 4
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 4 )->get_memory_index() );
 
-                tNodes[  99 ] = tChild->get_basis(  12 );
+                tNodes[  99 ] = tChild->get_basis_function(  12 );
             }
         }
 
@@ -1235,13 +1235,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[  45 ] = tChild->get_basis(  13 );
+                tNodes[  45 ] = tChild->get_basis_function(  13 );
 
                 // get pointer to child 5
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 5 )->get_memory_index() );
 
-                tNodes[  95 ] = tChild->get_basis(  13 );
+                tNodes[  95 ] = tChild->get_basis_function(  13 );
             }
         }
 
@@ -1262,13 +1262,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[ 101 ] = tChild->get_basis(  10 );
+                tNodes[ 101 ] = tChild->get_basis_function(  10 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[ 103 ] = tChild->get_basis(  10 );
+                tNodes[ 103 ] = tChild->get_basis_function(  10 );
             }
         }
 
@@ -1289,13 +1289,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[ 109 ] = tChild->get_basis(  11 );
+                tNodes[ 109 ] = tChild->get_basis_function(  11 );
 
                 // get pointer to child 2
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 2 )->get_memory_index() );
 
-                tNodes[ 119 ] = tChild->get_basis(  11 );
+                tNodes[ 119 ] = tChild->get_basis_function(  11 );
             }
         }
 
@@ -1316,13 +1316,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 0 )->get_memory_index() );
 
-                tNodes[ 121 ] = tChild->get_basis(   8 );
+                tNodes[ 121 ] = tChild->get_basis_function(   8 );
 
                 // get pointer to child 1
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[ 123 ] = tChild->get_basis(   8 );
+                tNodes[ 123 ] = tChild->get_basis_function(   8 );
             }
         }
 
@@ -1343,13 +1343,13 @@ namespace moris::hmr
                 Element* tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 1 )->get_memory_index() );
 
-                tNodes[ 105 ] = tChild->get_basis(   9 );
+                tNodes[ 105 ] = tChild->get_basis_function(   9 );
 
                 // get pointer to child 3
                 tChild = aAllElementsOnProc(
                     tBackNeighbor->get_child( 3 )->get_memory_index() );
 
-                tNodes[ 115 ] = tChild->get_basis(   9 );
+                tNodes[ 115 ] = tChild->get_basis_function(   9 );
             }
         }
 

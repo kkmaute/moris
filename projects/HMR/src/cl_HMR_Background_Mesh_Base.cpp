@@ -1843,7 +1843,7 @@ namespace moris::hmr
 
         for ( auto tElement : tElements )
         {
-            // do only of not a padding element
+            // do only if not a padding element
             if ( tElement->is_padding() )
             {
                 // padding elements are always refined
