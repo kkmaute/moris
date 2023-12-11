@@ -10,8 +10,7 @@
 
 #include "cl_GEN_Node_Manager.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
-#include "cl_GEN_Base_Node.hpp"
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::ge
 {

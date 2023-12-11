@@ -46,6 +46,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Cell< Basis_Node >& Intersection_Node_Bilinear::get_field_basis_nodes()
+    {
+        return this->get_background_nodes();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real
     Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
     {

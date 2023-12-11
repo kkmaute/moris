@@ -11,8 +11,8 @@
 #pragma once
 
 #include "cl_Cell.hpp"
-#include "cl_GEN_Node.hpp"
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Derived_Node.hpp"
 
 // Forward declare mtk mesh
 namespace moris::mtk
@@ -22,11 +22,6 @@ namespace moris::mtk
 
 namespace moris::ge
 {
-    // Forward declare derived node
-    class Base_Node;
-    class Derived_Node;
-    class Intersection_Node;
-
     class Node_Manager
     {
       private:

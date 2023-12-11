@@ -70,6 +70,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Cell< Basis_Node >& Intersection_Node_Linear::get_field_basis_nodes()
+    {
+        return this->get_locator_nodes();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real
     Intersection_Node_Linear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
     {

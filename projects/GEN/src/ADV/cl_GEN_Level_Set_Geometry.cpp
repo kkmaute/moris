@@ -12,6 +12,7 @@
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::ge
 {

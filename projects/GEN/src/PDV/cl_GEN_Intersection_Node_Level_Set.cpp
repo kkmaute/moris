@@ -10,6 +10,7 @@
 
 #include "cl_GEN_Intersection_Node_Level_Set.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 
 #include "fn_eye.hpp"
 #include "fn_norm.hpp"
@@ -48,7 +49,7 @@ namespace moris::ge
 
         // Get sensitivity values from other ancestors
         Matrix< DDRMat > tSensitivitiesToAdd;
-        const Cell< Basis_Node >& tLocatorNodes = this->get_locator_nodes();
+        const Cell< Basis_Node >& tLocatorNodes = this->get_field_basis_nodes();
         for ( uint iLocatorNode = 0; iLocatorNode < tLocatorNodes.size(); iLocatorNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
@@ -76,17 +77,13 @@ namespace moris::ge
             }
         }
 
-        // Add first parent sensitivities
-        Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) *
-                                     eye( mParentVector.n_rows(), mParentVector.n_rows() );
-
+        // Add first parent coordinate sensitivities
+        Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) * eye( mParentVector.n_rows(), mParentVector.n_rows() );
         Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() );
         this->get_first_parent_node().append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
 
-        // Add second parent sensitivities
-        tLocCoord = ( 1.0 + this->get_local_coordinate() ) *
-                                     eye( mParentVector.n_rows(), mParentVector.n_rows() );
-
+        // Add second parent coordinate sensitivities
+        tLocCoord = ( 1.0 + this->get_local_coordinate() ) * eye( mParentVector.n_rows(), mParentVector.n_rows() );
         tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() );
         this->get_second_parent_node().append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
     }

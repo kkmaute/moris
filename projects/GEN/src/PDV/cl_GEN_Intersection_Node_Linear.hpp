@@ -53,6 +53,14 @@ namespace moris::ge
       private:
 
         /**
+         * Gets the basis nodes that provided the field values for this level set intersection node to be created;
+         * For a linear intersection node, these are the parent nodes.
+         *
+         * @return Basis nodes for interpolating sensitivities
+         */
+        const Cell< Basis_Node >& get_field_basis_nodes() override;
+
+        /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
          * values on each of its ancestors.
          *

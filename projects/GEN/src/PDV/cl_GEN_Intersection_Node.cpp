@@ -12,10 +12,7 @@
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
-
 #include "cl_MTK_Enums.hpp"
-
-#include "fn_norm.hpp"
 
 namespace moris::ge
 {

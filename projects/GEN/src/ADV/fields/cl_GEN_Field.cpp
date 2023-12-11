@@ -10,6 +10,7 @@
 
 #include "cl_GEN_Field.hpp"
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 #include <utility>
 

@@ -11,12 +11,12 @@
 #pragma once
 
 #include "cl_GEN_Derived_Node.hpp"
-#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::ge
 {
-    // Forward declare parent node base class
+    // Forward declare necessary classes
     class Geometry;
+    class Basis_Node;
     class Parent_Node;
 
     class Intersection_Node : public Derived_Node
@@ -167,19 +167,6 @@ namespace moris::ge
          */
         moris_index get_owner();
 
-        // FIXME where this is called in the geometry engine, it just uses it to grab an intersection node. We can just provide this information directly instead.
-        moris_index
-        get_first_parent_node_index()
-        {
-            return this->get_first_parent_node().get_index();
-        }
-
-        moris_index
-        get_second_parent_node_index()
-        {
-            return this->get_second_parent_node().get_index();
-        }
-
       protected:
         /**
          * Computes basic member data for all intersection node derived classes.
@@ -207,30 +194,5 @@ namespace moris::ge
          * @param aIDsToAdd IDs to add
          */
         void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
-
-        /**
-         * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
-         * values on each of its ancestors.
-         *
-         * @param aAncestorIndex Ancestor index
-         * @return Local coordinate sensitivity
-         */
-        virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) = 0;
-
-        /**
-         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-         * coordinate values of its first parent.
-         *
-         * @return Local coordinate sensitivity
-         */
-        virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() = 0;
-
-        /**
-         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-         * coordinate values of its second parent.
-         *
-         * @return Local coordinate sensitivity
-         */
-        virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() = 0;
     };
 }
