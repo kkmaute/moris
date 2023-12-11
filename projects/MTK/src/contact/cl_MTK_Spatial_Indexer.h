@@ -90,7 +90,9 @@ namespace moris::mtk
         virtual ~Spatial_Indexer() = default;
 
       public:    // methods
-        virtual moris::Cell< Spatial_Indexing_Result > perform( real epsilon ) = 0;
+
+
+        virtual Spatial_Indexing_Result perform( moris_index aSourceMeshIndex, real epsilon ) = 0;
 
       protected:    // methods
         /**

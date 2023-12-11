@@ -17,7 +17,7 @@ namespace moris::mtk
                 : Spatial_Indexer( aSurfaceMeshes, aSurfacePairs ){};
 
       public:    // methods
-        moris::Cell< Spatial_Indexing_Result > perform( real epsilon ) override;
+        Spatial_Indexing_Result perform( moris_index aSourceMeshIndex, real epsilon ) override;
 
       private:    // methods
         Spatial_Indexing_Result perform_on_mesh_pair( moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, real aEpsilon );

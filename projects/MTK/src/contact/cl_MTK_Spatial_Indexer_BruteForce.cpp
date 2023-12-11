@@ -6,15 +6,18 @@
 
 namespace moris::mtk
 {
-    moris::Cell< Spatial_Indexing_Result > Spatial_Indexer_BruteForce::perform( real epsilon )
+    Spatial_Indexing_Result Spatial_Indexer_BruteForce::perform( moris_index aSourceMeshIndex, real epsilon )
     {
-        moris::Cell< Spatial_Indexing_Result > tResults{ static_cast< uint >( mSurfaceMeshes.size() ) };
+        Spatial_Indexing_Result tResult;
         for ( auto& tPair : mCandidatePairs )
         {
-            Spatial_Indexing_Result tNewResult = perform_on_mesh_pair( tPair.first, tPair.second, epsilon );
-            tResults( tPair.first ).merge( tNewResult );
+            if ( tPair.first == aSourceMeshIndex )
+            {
+                Spatial_Indexing_Result tNewResult = perform_on_mesh_pair( tPair.first, tPair.second, epsilon );
+                tResult.merge( tNewResult );
+            }
         }
-        return tResults;
+        return tResult;
     }
 
     Spatial_Indexing_Result Spatial_Indexer_BruteForce::perform_on_mesh_pair( moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, real aEpsilon )
