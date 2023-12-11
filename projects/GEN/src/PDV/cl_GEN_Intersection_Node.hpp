@@ -27,7 +27,6 @@ namespace moris::ge
 
       private:
         Cell< Basis_Node > mParentNodes;
-        bool mIsIntersected;
         std::shared_ptr< Geometry > mInterfaceGeometry;
         moris_id mPDVStartingID;
         bool     mPDVStartingIDSet = false;
@@ -233,16 +232,5 @@ namespace moris::ge
          * @return Local coordinate sensitivity
          */
         virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() = 0;
-
-      private:
-
-        /**
-         * Determines if the parent nodes are intersected.
-         * Used by initialize() to set mIsIntersected. Implementation provided by child class.
-         *
-         * @return if the parent nodes are intersected
-         * @return false if there is no intersection detected
-         */
-        virtual bool determine_is_intersected() = 0;
     };
 }

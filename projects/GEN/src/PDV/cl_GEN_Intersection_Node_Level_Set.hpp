@@ -68,18 +68,5 @@ namespace moris::ge
          * @return ADV IDs
          */
         Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
-
-      private:
-
-        /**
-         * Determines if the parent nodes are intersected.
-         * Used by initialize() to set mIsIntersected. Also sets mFirstParentOnInterface and mSecondParentOnInterface
-         * Implementation provided here for parent class.
-         *
-         * @return if the parent nodes are intersected
-         * @return false if there is no intersection detected
-         */
-        bool determine_is_intersected() override;
     };
-
 }

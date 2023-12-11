@@ -36,7 +36,6 @@ namespace moris::ge
                     0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates(),
                     aBaseGeometryType )
             , mParentNodes( { Basis_Node( aFirstParentNode, 0.5 * ( 1.0 - aLocalCoordinate ) ), Basis_Node( aSecondParentNode, 0.5 * ( 1.0 + aLocalCoordinate ) ) } )
-            , mIsIntersected( false )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
     }
@@ -47,7 +46,6 @@ namespace moris::ge
     Intersection_Node::initialize()
     {
         mParentVector  = trans( this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates() );
-        mIsIntersected = this->determine_is_intersected();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -90,7 +88,7 @@ namespace moris::ge
     bool
     Intersection_Node::parent_edge_is_intersected()
     {
-        return mIsIntersected;
+        return std::abs( this->get_local_coordinate() ) <= 1.0 or this->is_first_parent_on_interface() or this->is_second_parent_on_interface();
     }
 
     //--------------------------------------------------------------------------------------------------------------
