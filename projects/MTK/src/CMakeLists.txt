@@ -62,8 +62,8 @@ set(HEADERS
         cluster/cl_MTK_Side_Cluster_ISC_Impl.hpp
         cluster/cl_MTK_Side_Cluster_Input.hpp
 
-        contact/cl_MTK_ContactMapper.hpp
-        contact/cl_MTK_ContactMapper_Ray.hpp
+        contact/cl_MTK_QuadraturePointMapper.hpp
+        contact/cl_MTK_QuadraturePointMapper_Ray.hpp
         contact/cl_MTK_Contact_Mesh_Editor.hpp
         contact/cl_MTK_Spatial_Indexer.h
         contact/cl_MTK_Spatial_Indexer_BruteForce.h
@@ -235,8 +235,8 @@ set(LIB_SOURCES
         cluster/cl_MTK_Side_Cluster_ISC_Impl.cpp
 
         contact/cl_MTK_Contact_Mesh_Editor.cpp
-        contact/cl_MTK_ContactMapper.cpp
-        contact/cl_MTK_ContactMapper_Ray.cpp
+        contact/cl_MTK_QuadraturePointMapper.cpp
+        contact/cl_MTK_QuadraturePointMapper_Ray.cpp
         contact/cl_MTK_Spatial_Indexer.cpp
         contact/cl_MTK_Spatial_Indexer_BruteForce.cpp
 
@@ -303,6 +303,8 @@ set(LIB_SOURCES
         stk_impl/cl_MTK_Mesh_Core_STK.cpp
         stk_impl/cl_MTK_Side_Cluster_STK.cpp
         stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
+        contact/cl_MTK_MappingResult.cpp
+        contact/cl_MTK_MappingResult.hpp
 )
 
 # List library dependencies

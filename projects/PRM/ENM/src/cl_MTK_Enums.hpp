@@ -97,6 +97,7 @@ namespace moris::mtk
         BULK,                    // Bulk Set
         SIDESET,                 // SideSet
         DOUBLE_SIDED_SIDESET,    // DoubleSided SideSet
+        NONCONFORMAL_SIDESET,    // Nonconformal SideSet
         UNDEFINED                //
     };
 
