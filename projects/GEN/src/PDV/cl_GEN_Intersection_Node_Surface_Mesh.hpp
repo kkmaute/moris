@@ -68,10 +68,11 @@ namespace moris::ge
          *
          * @return Matrix< DDRMat > direction cosine matrix used to rotate the coordinate frame for raycast
          */
-        Matrix< DDRMat > compute_raycast_rotation(
-                const Parent_Node& aFirstParentNode,
-                const Parent_Node& aSecondParentNode );
-
+        void transform_surface_mesh_to_local_coordinate(
+                const Parent_Node&                       aFirstParentNode,
+                const Parent_Node&                       aSecondParentNode,
+                std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry,
+                uint&                                    aRotationAxis );
         //--------------------------------------------------------------------------------------------------------------
 
         /**

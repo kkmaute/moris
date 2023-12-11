@@ -14,8 +14,8 @@
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 
 #include "fn_norm.hpp"
-#include "fn_eye.hpp"
 #include "fn_trans.hpp"
+#include "fn_cross.hpp"
 
 namespace moris::ge
 {
@@ -59,51 +59,66 @@ namespace moris::ge
         }
     }
 
-    Matrix< DDRMat >
-    Intersection_Node_Surface_Mesh::compute_raycast_rotation(
-            const Parent_Node& aFirstParentNode,
-            const Parent_Node& aSecondParentNode )
+    void
+    Intersection_Node_Surface_Mesh::transform_surface_mesh_to_local_coordinate(
+            const Parent_Node&                       aFirstParentNode,
+            const Parent_Node&                       aSecondParentNode,
+            std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry,
+            uint&                                    aRotationAxis )
     {
+        // step 1: shift the object so the first parent is at the origin
+        aInterfaceGeometry->shift_object( -1.0 * trans( aFirstParentNode.get_global_coordinates() ) );
+
+        // BRENDAN
+        std::cout << "shift done" << std::endl;
+
+        // step 2: rotate the object
         // get unit axis to rotate to
-        Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
-
-        Matrix< DDRMat > tUnitParentVector = tParentVector / norm( tParentVector );
-
-        // compute the cos of the angle between the two axes
-        real tCosineAngle = tUnitParentVector( 0 );
-
-        // initialize matrices for computation
-        Matrix< DDRMat > tRotationMatrix( tParentVector.numel(), tParentVector.numel() );
-        Matrix< DDRMat > tAntiSymmetricCrossProduct( tParentVector.numel(), tParentVector.numel() );
-
-        // if the parent vector points in the opposite direction of the x axis, rotation matrix is a reflection
-        if ( abs( tCosineAngle - 1.0 ) < MORIS_REAL_EPS )
+        Matrix< DDRMat > tParentVector( 3, 1 );
+        if ( aFirstParentNode.get_global_coordinates().numel() == 2 )
         {
-            tRotationMatrix         = eye( tParentVector.numel(), tParentVector.numel() );
-            tRotationMatrix( 0, 0 ) = -1.0;
+            // BRENDAN [2ndParent 0] - [1stParent 0] is what should be here
+            tParentVector =
         }
         else
         {
-            // else, the rotation matrix is defined by rodrigues' rotation formula
-            switch ( tParentVector.numel() )
+            tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
+        }
+        tParentVector = tParentVector / norm( tParentVector );
+
+        // create vector orthogonal to parent vector and coordinate axis
+        Matrix< DDRMat > tFirstBasis = cross( tParentVector, { { 1.0, 0.0, 0.0 } } );
+        aRotationAxis                = 0;
+        if ( norm( tFirstBasis ) < MORIS_REAL_EPS )
+        {
+            tFirstBasis   = cross( tParentVector, { { 0.0, 1.0, 0.0 } } );
+            aRotationAxis = 1;
+
+            // rotate along z axis only if basis is 3D
+            if ( norm( tFirstBasis ) < MORIS_REAL_EPS && aFirstParentNode.get_global_coordinates().numel() > 2 )
             {
-                case 2:
-                {
-                    tAntiSymmetricCrossProduct = { { 0, -tUnitParentVector( 1 ) }, { tUnitParentVector( 1 ), 0 } };
-                    break;
-                }
-                case 3:
-                {
-                    tAntiSymmetricCrossProduct = { { 0, -tUnitParentVector( 1 ), -tUnitParentVector( 2 ) },
-                        { tUnitParentVector( 1 ), 0, 0 },
-                        { tUnitParentVector( 2 ), 0, 0 } };
-                        break;
-                }
+                tFirstBasis   = cross( tParentVector, { { 0.0, 0.0, 1.0 } } );
+                aRotationAxis = 2;
             }
-            tRotationMatrix = eye( tParentVector.numel(), tParentVector.numel() ) + tAntiSymmetricCrossProduct + tAntiSymmetricCrossProduct * tAntiSymmetricCrossProduct / ( 1 + tCosineAngle );
         }
 
-        return tRotationMatrix;
+        // create second vector orthogonal to parent vector and first basis
+        Matrix< DDRMat > tSecondBasis = cross( tParentVector, tFirstBasis );
+
+        // BRENDAN create transformation matrix from set of vectors
+        // basically: tRotationMatrix = [ tParentVector tSecondBasis tFirstBasis ]
+        Matrix< DDRMat > tRotationMatrix( 3, 3 );
+
+        // rotate the object
+        aInterfaceGeometry->rotate_object( trans( tRotationMatrix ) );
+
+        // step 3: scale the object
+        Matrix< DDRMat > tScaling( aInterfaceGeometry->get_dimension(), 1 );
+        tScaling.fill( 0.5 );
+        aInterfaceGeometry->scale_object( tScaling );
+
+        // BRENDAN
+        std::cout << "scaling happened already" << std::endl;
     }
 
     real Intersection_Node_Surface_Mesh::compute_local_coordinate(
@@ -111,29 +126,14 @@ namespace moris::ge
             const Parent_Node&                       aSecondParentNode,
             std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry )
     {
-        // step 1: scale the object
-        Matrix< DDRMat > tScaling( aInterfaceGeometry->get_dimension(), 1 );
-        tScaling.fill( 0.5 );
-        aInterfaceGeometry->scale_object( tScaling );
-
-        // BRENDAN
-        std::cout << "scaling happened already" << std::endl;
-
-        // step 2: shift the object so the first parent is the origin
-        aInterfaceGeometry->shift_object( -1.0 * trans( aFirstParentNode.get_global_coordinates() ) );
-
-        // BRENDAN
-        std::cout << "shift done" << std::endl;
-
-        // step 3: rotate the object and the cast poin
-        // FIXME BRENDAN: rotate to cast from x axis for 2D friendliness
-        Matrix< DDRMat > tRotationMatrix = this->compute_raycast_rotation( aFirstParentNode, aSecondParentNode );
-        aInterfaceGeometry->rotate_object( trans( tRotationMatrix ) );
+        // transform the interface geometry to local coordinates
+        uint tRotatedAxis;
+        transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode, aInterfaceGeometry, tRotatedAxis );
 
         // Compute the distance to the facets
         Matrix< DDRMat > tCastPoint( aInterfaceGeometry->get_dimension(), 1 );
         tCastPoint.fill( 0.0 );
-        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *aInterfaceGeometry, tCastPoint, 0 );
+        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *aInterfaceGeometry, tCastPoint, tRotatedAxis );
 
         // shift local coordinate to be between -1 and 1
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
