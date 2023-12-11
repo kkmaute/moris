@@ -12,8 +12,6 @@
 
 
 #include "cl_MTK_Double_Side_Set.hpp"
-#include "cl_MTK_Side_Set.hpp"
-#include "MTK/src/contact/cl_MTK_ContactMapper.hpp"
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 

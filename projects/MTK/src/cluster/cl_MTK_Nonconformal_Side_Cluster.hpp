@@ -8,7 +8,6 @@
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
 #include "cl_MTK_Integration_Rule.hpp"
-#include "MTK/src/contact/cl_MTK_ContactMapper.hpp"
 
 namespace moris::mtk
 {
