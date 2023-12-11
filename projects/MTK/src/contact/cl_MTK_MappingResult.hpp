@@ -25,10 +25,21 @@ namespace moris::mtk
         Matrix< DDRMat > mSourcePhysicalCoordinate;
 
         /**
+         * @brief The cluster index (w.r.t the side set) of the point from which the mapping was performed.
+         */
+        moris::Cell< moris_index > mSourceClusterIndex;
+
+        /**
+         * @brief The cluster index of the mapped point w.r.t the side set given in mTargetSideSetIndices.
+         */
+        moris::Cell<moris_index > mTargetClusterIndex;
+
+        /**
          * @brief The n-th entry is the cell index of the n-th matching point in the mParametricCoordinates matrix.
          * If the mapping was not successful, the cell index is -1.
          */
         moris::Cell< moris_index > mTargetCellIndices;
+
         /**
          * @brief The physical coordinates of the point on which the mapping was performed.
          */

@@ -21,7 +21,9 @@ namespace moris::mtk
                 moris::Cell< Side_Set * >                                  &aSideSets,
                 moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs );
 
-        virtual MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate ) = 0;
+        virtual ~QuadraturePointMapper() = default;
+
+        virtual auto map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate ) -> MappingResult = 0;
 
       protected:
         Integration_Mesh                                    *mIGMesh;

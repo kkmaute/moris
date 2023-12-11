@@ -43,7 +43,7 @@ namespace moris::mtk
          */
         [[nodiscard]] Matrix< DDRMat > get_vertex_coordinates() const;
 
-        void set_displacement( Matrix< DDRMat > aDisplacements );
+        void set_displacement( Matrix< DDRMat > const &aDisplacements );
 
         /**
          * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.
@@ -56,7 +56,7 @@ namespace moris::mtk
          * @param aLocalVertexIndex The local index of the vertex in the surface mesh.
          * @return A list of indices of the neighbors of the vertex with the given index.
          */
-        [[nodiscard]] moris::Cell< moris_index > get_vertex_neighbors(moris_index aLocalVertexIndex) const;
+        [[nodiscard]] moris::Cell< moris_index > get_vertex_neighbors( moris_index aLocalVertexIndex ) const;
 
         /**
          * @brief Returns the facet normals for each facet in the surface mesh.
@@ -98,6 +98,9 @@ namespace moris::mtk
          */
         [[nodiscard]] moris_index get_local_vertex_index( moris_index aGlobalVertexIndex ) const;
 
+
+        [[nodiscard]] moris_index get_cluster_of_cell( moris_index aLocalCellIndex ) const;
+
         /**
          * @brief Returns all local vertices that are part of the cell with the given local index.
          * @param aLocalCellIndex The local index of the cell in the surface mesh.
@@ -111,7 +114,7 @@ namespace moris::mtk
          * @param aLocalVertexIndex The local index of the vertex in the surface mesh.
          * @return A list of local cell indices that are neighbors of the vertex with the given index.
          */
-        [[nodiscard]] moris::Cell<moris_index > get_cells_of_vertex( moris_index aLocalVertexIndex ) const;
+        [[nodiscard]] moris::Cell< moris_index > get_cells_of_vertex( moris_index aLocalVertexIndex ) const;
 
         /**
          * @brief Returns the coordinates of all vertices that are part of the cell with the given local index.
@@ -174,18 +177,13 @@ namespace moris::mtk
          * @param aTmpNeighborMap
          * @param aCluster
          */
-        void initialize_cluster(
-                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
-                Cluster const *const                           &aCluster );
+        void initialize_cluster( map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap, Cluster const *const &aCluster, moris_index aClusterIndex );
 
         /**
          * @brief Initializes all information for the given cell.
          * @param aCell
          */
-        void initialize_cell(
-                map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap,
-                const Cell                                     *aCell,
-                int                                             aCellOrdinal );
+        void initialize_cell( map< moris_index, moris::Cell< moris_index > > &aTmpNeighborMap, const Cell *aCell, int aCellOrdinal, moris_index aClusterIndex );
 
         /**
          * @brief Initializes all information for the given vertex.
@@ -274,6 +272,10 @@ namespace moris::mtk
         moris::Cell< moris::Cell< moris_index > > mSideSetToClusterIndices;
 
         moris::Matrix< DDRMat > mDisplacements;
+
+        moris::Cell< moris::Cell< moris_index > > mClusterToCellIndices;
+
+        moris::Cell< moris_index > mCellToClusterIndices;
 
         /**
          * @brief Stores the facet normals for each facet in the surface mesh. The indices are the indices of the facets in the surface mesh, not the global indices!

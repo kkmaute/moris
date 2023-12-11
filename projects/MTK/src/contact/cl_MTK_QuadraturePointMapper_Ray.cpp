@@ -5,6 +5,8 @@
 #include <deque>
 #include <set>
 #include "cl_MTK_QuadraturePointMapper_Ray.hpp"
+
+#include <math.h>
 #include "cl_MTK_Surface_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
@@ -23,7 +25,7 @@ namespace moris::mtk
     {
         Json  tSurfaceMeshes;
         auto &tMeshes = tSurfaceMeshes.put_child( "surface_meshes", Json() );
-        for ( auto tSurfaceMesh : mSurfaceMeshes )
+        for ( auto const &tSurfaceMesh : mSurfaceMeshes )
         {
             tMeshes.push_back( { "", tSurfaceMesh.to_json() } );
         }
@@ -33,7 +35,7 @@ namespace moris::mtk
     moris::Cell< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > const &aSideSets )
     {
         moris::Cell< Surface_Mesh > tSurfaceMeshes;
-        for ( auto &tSideSet : aSideSets )
+        for ( auto const &tSideSet : aSideSets )
         {
             // initialize one surface mesh per side set
             moris::Cell< mtk::Side_Set * > tSideSetCast{ tSideSet };
@@ -45,7 +47,7 @@ namespace moris::mtk
 
     MappingResult QuadraturePointMapper_Ray::map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates )
     {
-        Interpolation_Rule tInterpolationRule(
+        Interpolation_Rule const tInterpolationRule(
                 mSideSets( aSourceSideSetIndex )->get_integration_cell_geometry_type(),
                 Interpolation_Type::LAGRANGE,
                 Interpolation_Order::LINEAR,
@@ -54,20 +56,21 @@ namespace moris::mtk
 
         // using two Interpolator instances for faster processing of each point
         // (because the coefficients do not have to be changed between calculation of coordinates and normals each time
-        Space_Interpolator      tCoordinateInterpolator( tInterpolationRule );
-        Space_Interpolator      tNormalInterpolator( tInterpolationRule );
-        Surface_Mesh            tSurfaceMesh           = mSurfaceMeshes( aSourceSideSetIndex );
-        Spatial_Indexing_Result tSpatialIndexingResult = mSpatialIndexer.perform( aSourceSideSetIndex, 1.0 );
+        Space_Interpolator            tCoordinateInterpolator( tInterpolationRule );
+        Space_Interpolator            tNormalInterpolator( tInterpolationRule );
+        Surface_Mesh const            tSurfaceMesh           = mSurfaceMeshes( aSourceSideSetIndex );
+        Spatial_Indexing_Result const tSpatialIndexingResult = mSpatialIndexer.perform( aSourceSideSetIndex, 1.0 );
 
         // preallocate the MappingResult
-        auto tNumParametricCoordinates = static_cast< moris_index >( aParametricCoordinates.n_cols() );
-        uint tDim                      = mSideSets( aSourceSideSetIndex )->get_spatial_dim();
-        uint tNumCells                 = tSurfaceMesh.get_number_of_cells();
-        uint tTotalNumPoints           = tNumCells * tNumParametricCoordinates;
+        auto const tNumParametricCoordinates = static_cast< moris_index >( aParametricCoordinates.n_cols() );
+        uint const tDim                      = mSideSets( aSourceSideSetIndex )->get_spatial_dim();
+        uint const tNumCells                 = tSurfaceMesh.get_number_of_cells();
+        uint const tTotalNumPoints           = tNumCells * tNumParametricCoordinates;
 
         MappingResult tMappingResult( tDim, tTotalNumPoints );
 
-        // for each cell in the surface mesh
+        // for each cell in the surface mesh (source mesh), interpolate the parametric coordinates and normals of the rays
+        // and populate the results of the ray-casting in the MappingResult instance
         for ( moris_index iCell = 0; iCell < static_cast< moris_index >( tNumCells ); iCell++ )
         {
             QuadraturePointMapper_Ray::interpolate_source_point(
@@ -80,10 +83,10 @@ namespace moris::mtk
 
 
             this->raycast_cell(
+                    aSourceSideSetIndex,
                     iCell,
                     tNumParametricCoordinates,
                     tMappingResult,
-                    tSurfaceMesh.get_vertices_of_cell( iCell ),
                     tSpatialIndexingResult );
         }
 
@@ -98,13 +101,13 @@ namespace moris::mtk
             Surface_Mesh const     &aSurfaceMesh,
             MappingResult          &aMappingResult )
     {    // initialize the coordinate-interpolator with the vertex coordinates
-        uint tNumRays    = aParametricCoordinates.n_cols();
-        uint tStartIndex = aCellIndex * tNumRays;
+        uint const tNumRays    = aParametricCoordinates.n_cols();
+        uint const tStartIndex = aCellIndex * tNumRays;
 
-        Matrix< DDRMat > tVertexCoordinates = aSurfaceMesh.get_vertex_coordinates_of_cell( aCellIndex );
+        Matrix< DDRMat > const tVertexCoordinates = aSurfaceMesh.get_vertex_coordinates_of_cell( aCellIndex );
         aCoordinateInterpolator.set_space_coeff( tVertexCoordinates );
 
-        Matrix< DDRMat > tVertexNormals = aSurfaceMesh.get_vertex_normals_of_cell( aCellIndex );
+        Matrix< DDRMat > const tVertexNormals = aSurfaceMesh.get_vertex_normals_of_cell( aCellIndex );
         aNormalInterpolator.set_space_coeff( tVertexNormals );
 
         for ( uint iPoint = 0; iPoint < tNumRays; iPoint++ )
@@ -120,142 +123,221 @@ namespace moris::mtk
     }
 
     void QuadraturePointMapper_Ray::raycast_cell(
-            moris_index                       aCellIndex,
-            moris_index                       aNumberOfRays,
-            MappingResult                    &aMappingResult,
-            moris::Cell< moris_index > const &aVertexIndices,
-            Spatial_Indexing_Result const    &aSpatialIndexingResult )
+            moris_index const              aSourceMeshIndex,
+            moris_index const              aSourceCellIndex,
+            moris_index const              aNumberOfRays,
+            MappingResult                 &aMappingResult,
+            Spatial_Indexing_Result const &aSpatialIndexingResult ) const
     {
         // calculate the start index of the current cell i.e. the index at which the rays of the current cell start in the MappingResult
-        uint tStartIndex = aCellIndex * aNumberOfRays;
+        uint const tResultOffset = aSourceCellIndex * aNumberOfRays;
 
         // use a deque to store unprocessed rays
         std::deque< moris_index > tUnprocessedRays( aNumberOfRays );
         std::iota( tUnprocessedRays.begin(), tUnprocessedRays.end(), 0 );
 
-        std::set< moris_index > tCheckedCells;
-        moris_index             tClosestVertex;
-        moris_index             tClosestMeshIndex;
+        // first, try to map the rays using the spatial indexing results.
+        // In this case, the information about the closest vertices to each vertex of the current cell is used to find potential target cells.
+        bool tBruteForce = false;
+        process_rays(
+                aSourceMeshIndex,
+                aSourceCellIndex,
+                aSpatialIndexingResult,
+                tResultOffset,
+                aMappingResult,
+                tUnprocessedRays,
+                tBruteForce );
 
-        for ( moris_index iSourceVertex : aVertexIndices )
+        if ( !tUnprocessedRays.empty() )
         {
-            tClosestVertex    = aSpatialIndexingResult[ iSourceVertex ].vertex;
-            tClosestMeshIndex = aSpatialIndexingResult[ iSourceVertex ].mesh_index;
+            // if there are still unprocessed rays, try to map them using brute force
+            // i.e. check all cells of all meshes. This is slow and inefficient and should be replaced by a better algorithm.
+            tBruteForce = true;
+            process_rays(
+                    aSourceMeshIndex,
+                    aSourceCellIndex,
+                    aSpatialIndexingResult,
+                    tResultOffset,
+                    aMappingResult,
+                    tUnprocessedRays,
+                    tBruteForce );
+        }
 
-            // get the neighboring cells of the closest vertex
-            Surface_Mesh const        &tSurfaceMesh   = mSurfaceMeshes( tClosestMeshIndex );
-            moris::Cell< moris_index > tNeighborCells = tSurfaceMesh.get_cells_of_vertex( tClosestVertex );
-            for ( moris_index iNeighborCell : tNeighborCells )
+        if ( !tUnprocessedRays.empty() )
+        {
+            MORIS_LOG_INFO( "Cell %d: %zu rays could not be mapped.", aSourceCellIndex, tUnprocessedRays.size() );
+        }
+    }
+
+    void QuadraturePointMapper_Ray::process_rays(
+            moris_index                    aSourceMeshIndex,
+            moris_index                    aSourceCellIndex,
+            Spatial_Indexing_Result const &aSpatialIndexingResult,
+            uint                           aResultOffset,
+            MappingResult                 &aMappingResult,
+            std::deque< moris_index >     &aUnprocessedRays,
+            bool                           aBruteForce ) const
+    {
+
+        std::set< moris_index > const tPotentialTargetMeshesIndices = get_potential_target_meshes( aBruteForce, aSourceMeshIndex, aSourceCellIndex, aSpatialIndexingResult );
+
+        for ( auto const iTargetMeshIndex : tPotentialTargetMeshesIndices )
+        {
+            std::set< moris_index > tPotentialTargetCells = get_potential_target_cells( aBruteForce, aSourceMeshIndex, iTargetMeshIndex, aSourceCellIndex, aSpatialIndexingResult );
+            std::set< moris_index > tCheckedCells;
+
+            for ( moris_index iTargetCell : tPotentialTargetCells )
             {
                 // if the cell has not been checked yet
-                if ( tCheckedCells.find( iNeighborCell ) == tCheckedCells.end() )
+                if ( tCheckedCells.find( iTargetCell ) == tCheckedCells.end() )
                 {
-                    Matrix< DDRMat > tCellVertexCoordinates = tSurfaceMesh.get_vertex_coordinates_of_cell( iNeighborCell );
-                    Matrix< DDRMat > tSegmentOrigin         = tCellVertexCoordinates.get_column( 0 );
-                    Matrix< DDRMat > tSegmentDirection      = tCellVertexCoordinates.get_column( 1 ) - tSegmentOrigin;
-                    tCheckedCells.insert( iNeighborCell );
-
-                    // keep the initial size of the deque because it might get smaller over time
-                    uint tNumUnprocessedRays = tUnprocessedRays.size();
-
-                    // check all rays with the current cell
-                    for ( uint tCounter = 0; tCounter < tNumUnprocessedRays; tCounter++ )
-                    {
-                        moris_index iRay = tUnprocessedRays.front();
-                        tUnprocessedRays.pop_front();
-
-                        std::tuple< bool, real, Matrix< DDRMat >, Matrix< DDRMat > > tIntersection =
-                                calculate_ray_line_intersection(
-                                        aMappingResult.mSourcePhysicalCoordinate.get_column( tStartIndex + iRay ),
-                                        aMappingResult.mNormal.get_column( tStartIndex + iRay ),
-                                        tSegmentOrigin,
-                                        tSegmentDirection );
-
-                        if ( std::get< 0 >( tIntersection ) )
-                        {    // it has an intersection
-                            aMappingResult.mDistances( tStartIndex + iRay ) = std::get< 1 >( tIntersection );
-                            aMappingResult.mTargetParametricCoordinate.set_column( tStartIndex + iRay, std::get< 2 >( tIntersection ) );
-                            aMappingResult.mTargetPhysicalCoordinate.set_column( tStartIndex + iRay, std::get< 3 >( tIntersection ) );
-                            aMappingResult.mTargetCellIndices( tStartIndex + iRay )    = iNeighborCell;
-                            aMappingResult.mTargetSideSetIndices( tStartIndex + iRay ) = tClosestMeshIndex;
-                        }
-                        else
-                        {    // push back into the unprocessed deque
-                            tUnprocessedRays.push_back( iRay );
-                        }
-                    }
+                    tCheckedCells.insert( iTargetCell );
+                    check_ray_cell_intersection(
+                            aMappingResult,
+                            aUnprocessedRays,
+                            aSourceMeshIndex,
+                            iTargetMeshIndex,
+                            aSourceCellIndex,
+                            iTargetCell,
+                            aResultOffset );
                 }
                 // if all rays have been processed, stop the loop
-                if ( tUnprocessedRays.empty() )
+                if ( aUnprocessedRays.empty() )
                 {
                     break;
                 }
             }    // end loop over neighboring cells
             // if all rays have been processed, stop the loop
-            if ( tUnprocessedRays.empty() )
+            if ( aUnprocessedRays.empty() )
             {
                 break;
             }
+
         }    // end loop over source vertices
+    }
 
-        // get the neighboring cells of the closest vertex
-        for ( uint iSurfaceMesh = 0; iSurfaceMesh < mSurfaceMeshes.size(); iSurfaceMesh++ )
+    std::set< moris_index > QuadraturePointMapper_Ray::get_potential_target_cells(
+            bool const                     aBruteForce,
+            moris_index const              aSourceMeshIndex,
+            moris_index const              tTargetMeshIndex,
+            moris_index const              aSourceCellIndex,
+            Spatial_Indexing_Result const &aSpatialIndexingResult ) const
+    {
+        Surface_Mesh const     &tTargetMesh = mSurfaceMeshes( tTargetMeshIndex );
+        std::set< moris_index > tPotentialTargetCells;
+        if ( aBruteForce )
         {
-            Surface_Mesh const &tSurfaceMesh = mSurfaceMeshes( tClosestMeshIndex );
-            for ( uint iCell = 0; iCell < tSurfaceMesh.get_number_of_cells(); iCell++ )
+            for ( moris_index iCell = 0; iCell < static_cast< moris_index >( tTargetMesh.get_number_of_cells() ); iCell++ )
             {
-                // if the cell has not been checked yet
-                if ( tCheckedCells.find( iCell ) == tCheckedCells.end() )
-                {
-                    Matrix< DDRMat > tCellVertexCoordinates = tSurfaceMesh.get_vertex_coordinates_of_cell( iCell );
-                    Matrix< DDRMat > tSegmentOrigin         = tCellVertexCoordinates.get_column( 0 );
-                    Matrix< DDRMat > tSegmentDirection      = tCellVertexCoordinates.get_column( 1 ) - tSegmentOrigin;
-                    tCheckedCells.insert( iCell );
-
-                    // keep the initial size of the deque because it might get smaller over time
-                    uint tNumUnprocessedRays = tUnprocessedRays.size();
-
-                    // check all rays with the current cell
-                    for ( uint tCounter = 0; tCounter < tNumUnprocessedRays; tCounter++ )
-                    {
-                        moris_index iRay = tUnprocessedRays.front();
-                        tUnprocessedRays.pop_front();
-
-                        std::tuple< bool, real, Matrix< DDRMat >, Matrix< DDRMat > > tIntersection =
-                                calculate_ray_line_intersection(
-                                        aMappingResult.mSourcePhysicalCoordinate.get_column( tStartIndex + iRay ),
-                                        aMappingResult.mNormal.get_column( tStartIndex + iRay ),
-                                        tSegmentOrigin,
-                                        tSegmentDirection );
-
-                        if ( std::get< 0 >( tIntersection ) )
-                        {    // it has an intersection
-                            aMappingResult.mDistances( tStartIndex + iRay ) = std::get< 1 >( tIntersection );
-                            aMappingResult.mTargetParametricCoordinate.set_column( tStartIndex + iRay, std::get< 2 >( tIntersection ) );
-                            aMappingResult.mTargetPhysicalCoordinate.set_column( tStartIndex + iRay, std::get< 3 >( tIntersection ) );
-                            aMappingResult.mTargetCellIndices( tStartIndex + iRay )    = iCell;
-                            aMappingResult.mTargetSideSetIndices( tStartIndex + iRay ) = iSurfaceMesh;
-                        }
-                        else
-                        {    // push back into the unprocessed deque
-                            tUnprocessedRays.push_back( iRay );
-                        }
-                    }
-                }
-                if ( tUnprocessedRays.empty() )
-                {
-                    break;
-                }
-            }
-            if ( tUnprocessedRays.empty() )
-            {
-                break;
+                tPotentialTargetCells.insert( iCell );
             }
         }
-
-        if ( !tUnprocessedRays.empty() )
+        else
         {
-            MORIS_LOG_INFO( "Cell %d: %zu rays could not be mapped.", aCellIndex, tUnprocessedRays.size() );
+            // get the neighboring cells of the closest vertex to both vertices of the current cell on this target cell
+            auto tSegmentVertices = mSurfaceMeshes( aSourceMeshIndex ).get_vertices_of_cell( aSourceCellIndex );
+            for ( auto const tVertex : tSegmentVertices )
+            {
+                // only consider the vertices that are actually closest to the target mesh
+                if ( aSpatialIndexingResult[ tVertex ].mesh_index == tTargetMeshIndex )
+                {
+                    moris_index const          tClosestVertex    = aSpatialIndexingResult[ tVertex ].vertex;
+                    moris::Cell< moris_index > tNeighboringCells = tTargetMesh.get_cells_of_vertex( tClosestVertex );
+                    tPotentialTargetCells.insert( tNeighboringCells.begin(), tNeighboringCells.end() );
+                }
+            }
+        }
+        return tPotentialTargetCells;
+    }
+
+    std::set< moris_index > QuadraturePointMapper_Ray::get_potential_target_meshes(
+            bool const                     aBruteForce,
+            moris_index const              aSourceMeshIndex,
+            moris_index const              aSourceCellIndex,
+            Spatial_Indexing_Result const &aSpatialIndexingResult ) const
+    {
+        std::set< moris_index > tPotentialTargetMeshesIndices;
+        if ( aBruteForce )
+        {
+            for ( auto const &[ tSourceCandidate, tTargetCandidate ] : mCandidatePairs )
+            {
+                if ( tSourceCandidate == aSourceMeshIndex )
+                {
+                    tPotentialTargetMeshesIndices.insert( tTargetCandidate );
+                }
+            }
+        }
+        else
+        {
+            // check the meshes that contain the closest vertices of all vertices of the current cell
+            // e.g. a triangle with three vertices could have a different closest mesh for each of the three vertices
+            auto tSegmentVertices = mSurfaceMeshes( aSourceMeshIndex ).get_vertices_of_cell( aSourceCellIndex );
+            for ( auto const tVertex : tSegmentVertices )
+            {
+                tPotentialTargetMeshesIndices.insert( aSpatialIndexingResult[ tVertex ].mesh_index );
+            }
+        }
+        return tPotentialTargetMeshesIndices;
+    }
+
+    void QuadraturePointMapper_Ray::check_ray_cell_intersection(
+            MappingResult             &aMappingResult,
+            std::deque< moris_index > &aUnprocessedRays,
+            moris_index const          aSourceMeshIndex,
+            moris_index const          aTargetMeshIndex,
+            moris_index const          aSourceCellIndex,
+            moris_index const          aTargetCellIndex,
+            uint const                 aResultOffset ) const
+    {
+        Surface_Mesh const &tSourceMesh = mSurfaceMeshes( aSourceMeshIndex );
+        Surface_Mesh const &tTargetMesh = mSurfaceMeshes( aTargetMeshIndex );
+
+        // get the basic information from the cell like the vertex coordinates and calculate the origin and direction of the cell facet
+        // i.e. the line segment between the first and second vertex which will be called "segment" in the following
+        Matrix< DDRMat >       tTargetCellCoordinates = tTargetMesh.get_vertex_coordinates_of_cell( aTargetCellIndex );
+        Matrix< DDRMat > const tSegmentOrigin         = tTargetCellCoordinates.get_column( 0 );
+        Matrix< DDRMat > const tSegmentDirection      = tTargetCellCoordinates.get_column( 1 ) - tSegmentOrigin;
+
+        // Keep the initial size of the deque because it might get smaller over time (because rays are removed from the deque if they got mapped)
+        // If they are not mapped, they are pushed back into the deque. To prevent an infinite loop, the initial size is stored (i.e. each ray is processed once).
+        uint const tNumUnprocessedRays = aUnprocessedRays.size();
+        for ( uint tCounter = 0; tCounter < tNumUnprocessedRays; tCounter++ )
+        {
+            moris_index iRay = aUnprocessedRays.front();
+            aUnprocessedRays.pop_front();
+
+            // the next call is the actual ray-casting. The resulting array contains the following information:
+            // 0. bool: true if the ray intersects with the segment, false otherwise
+            // 1. real: the distance between the ray origin and the intersection point
+            // 2. Matrix< DDRMat >: the parametric coordinate of the intersection point
+            // 3. Matrix< DDRMat >: the physical coordinate of the intersection point (mainly for debugging purposes)
+            auto const &[ tHasIntersection, tDistance, tParamCoord, tPhysCoord ] =
+                    calculate_ray_line_intersection(
+                            aMappingResult.mSourcePhysicalCoordinate.get_column( aResultOffset + iRay ),
+                            aMappingResult.mNormal.get_column( aResultOffset + iRay ),
+                            tSegmentOrigin,
+                            tSegmentDirection );
+
+            if ( tHasIntersection )
+            {
+                // it has an intersection: the ray information can be stored in the MappingResult
+                // the results will be inserted relative to the start index of the current cell
+                uint const tInsertIndex = aResultOffset + iRay;
+
+                aMappingResult.mTargetParametricCoordinate.set_column( tInsertIndex, tParamCoord );
+                aMappingResult.mTargetPhysicalCoordinate.set_column( tInsertIndex, tPhysCoord );
+
+                aMappingResult.mDistances( tInsertIndex )            = tDistance;
+                aMappingResult.mTargetCellIndices( tInsertIndex )    = aTargetCellIndex;
+                aMappingResult.mTargetSideSetIndices( tInsertIndex ) = aTargetMeshIndex;
+                aMappingResult.mSourceClusterIndex( tInsertIndex )   = tSourceMesh.get_cluster_of_cell( aSourceCellIndex );
+                aMappingResult.mTargetClusterIndex( tInsertIndex )   = tTargetMesh.get_cluster_of_cell( aTargetCellIndex );
+            }
+            else
+            {
+                // push back into the unprocessed deque because no intersection was found
+                aUnprocessedRays.push_back( iRay );
+            }
         }
     }
 
@@ -277,11 +359,11 @@ namespace moris::mtk
         //        -> q(v) = s + v * ds
 
         // distance between origins r and s
-        // dO = s - r
-        Matrix< DDRMat > dO = aSegmentOrigin - aRayOrigin;
+        // dOrigins = s - r
+        Matrix< DDRMat > dOrigins = aSegmentOrigin - aRayOrigin;
 
         // determinant of the matrix D = [dr, ds]
-        real detD = aSegmentDirection( 0 ) * aRayDirection( 1 ) - aSegmentDirection( 1 ) * aRayDirection( 0 );
+        real const detD = aSegmentDirection( 0 ) * aRayDirection( 1 ) - aSegmentDirection( 1 ) * aRayDirection( 0 );
 
         // For 2D faces (e.g. triangles), the parametric coordinate would be 2x1. We therefore store the result in a matrix and not as a scalar.
         // TODO: For memory efficiency, this could be changed...
@@ -291,17 +373,17 @@ namespace moris::mtk
         real             tGap             = 0.0;
 
         // if detD is zero, the lines are parallel and no calculation is necessary
-        if ( std::abs( detD ) > 1e-12 )
+        if ( std::abs( detD ) > 1e-16 )
         {
             // scaling factor u and v for the ray and the line segment, respectively
-            real u;
-            real v;
+            real u = NAN;
+            real v = NAN;
 
-            // u = (dO_y * ds_x - dO_x * ds_y) / detD
-            u = ( dO( 1 ) * aSegmentDirection( 0 ) - dO( 0 ) * aSegmentDirection( 1 ) ) / detD;
+            // u = (dOrigins_y * ds_x - dOrigins_x * ds_y) / detD
+            u = ( dOrigins( 1 ) * aSegmentDirection( 0 ) - dOrigins( 0 ) * aSegmentDirection( 1 ) ) / detD;
 
-            // v = (dO_y * dr_x - dO_x * dr_y) / detD
-            v = ( dO( 1 ) * aRayDirection( 0 ) - dO( 0 ) * aRayDirection( 1 ) ) / detD;
+            // v = (dOrigins_y * dr_x - dOrigins_x * dr_y) / detD
+            v = ( dOrigins( 1 ) * aRayDirection( 0 ) - dOrigins( 0 ) * aRayDirection( 1 ) ) / detD;
 
             // if v is between 0 and 1, the intersection point is on the line segment
             if ( v >= 0.0 && v <= 1.0 )

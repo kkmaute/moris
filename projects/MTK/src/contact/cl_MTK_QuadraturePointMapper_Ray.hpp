@@ -11,6 +11,8 @@
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Spatial_Indexer_BruteForce.h"
 #include "cl_Json_Object.hpp"
+#include <deque>
+#include <set>
 
 
 namespace moris::mtk
@@ -18,6 +20,8 @@ namespace moris::mtk
     class QuadraturePointMapper_Ray : public QuadraturePointMapper
     {
       public:
+        ~QuadraturePointMapper_Ray() override = default;
+
         QuadraturePointMapper_Ray(
                 mtk::Integration_Mesh                                      *aIGMesh,
                 moris::Cell< mtk::Side_Set * >                             &aSideSets,
@@ -25,13 +29,9 @@ namespace moris::mtk
 
         MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates ) override;
 
-      private:    // methods
-        void raycast_cell(
-                moris_index                       aCellIndex,
-                moris_index                       aNumberOfRays,
-                MappingResult                    &aMappingResult,
-                moris::Cell< moris_index > const &aVertexIndices,
-                Spatial_Indexing_Result const    &aSpatialIndexingResult );
+      private:
+        // methods
+        void raycast_cell( moris_index aSourceMeshIndex, moris_index aSourceCellIndex, moris_index aNumberOfRays, MappingResult &aMappingResult, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
 
         static std::tuple< bool, real, Matrix< DDRMat >, Matrix< DDRMat > > calculate_ray_line_intersection(
                 Matrix< DDRMat > const &aRayOrigin,
@@ -39,14 +39,13 @@ namespace moris::mtk
                 Matrix< DDRMat > const &aSegmentOrigin,
                 Matrix< DDRMat > const &aSegmentDirection );
 
-      private:    // methods
         /**
          * @brief
          * @param aIGMesh
          * @param aSideSets
          * @return
          */
-        static moris::Cell< Surface_Mesh > initialize_surface_meshes( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > const &aSideSets );
+        static auto initialize_surface_meshes( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > const &aSideSets ) -> moris::Cell< Surface_Mesh >;
 
         /**
          * @brief
@@ -57,11 +56,15 @@ namespace moris::mtk
          * @param aSurfaceMesh
          * @param aMappingResult
          */
-        static void interpolate_source_point( moris_index aCellIndex, Matrix< DDRMat > const &aParametricCoordinates, Space_Interpolator &aCoordinateInterpolator, Space_Interpolator &aNormalInterpolator, Surface_Mesh const &aSurfaceMesh, MappingResult &aMappingResult ) ;
+        static void interpolate_source_point( moris_index aCellIndex, Matrix< DDRMat > const &aParametricCoordinates, Space_Interpolator &aCoordinateInterpolator, Space_Interpolator &aNormalInterpolator, Surface_Mesh const &aSurfaceMesh, MappingResult &aMappingResult );
 
-      private:    // data
+        // data
         moris::Cell< Surface_Mesh > mSurfaceMeshes{};
         Spatial_Indexer_BruteForce  mSpatialIndexer;
+        void                        check_ray_cell_intersection( MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, moris_index aSourceCellIndex, moris_index aTargetCellIndex, uint aResultOffset ) const;
+        void                        process_rays( moris_index aSourceMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult, uint aResultOffset, MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, bool aBruteForce ) const;
+        std::set< moris_index >     get_potential_target_meshes( bool aBruteForce, moris_index aSourceMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
+        std::set< moris_index >     get_potential_target_cells( bool aBruteForce, moris_index aSourceMeshIndex, moris_index tTargetMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
     };
 }    // namespace moris::mtk
 
