@@ -14,6 +14,7 @@
 #include "cl_MTK_Mesh_DataBase_IG.hpp"
 #include "typedefs.hpp"
 #include "cl_MTK_Side_Set.hpp"
+#include "cl_Json_Object.hpp"
 #include <ostream>
 
 namespace moris::mtk
@@ -140,6 +141,8 @@ namespace moris::mtk
 
 
         [[nodiscard]] uint get_number_of_vertices() const;
+
+        Json to_json() const;
 
 
       private:    // methods

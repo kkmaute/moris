@@ -14,6 +14,7 @@
 #include "cl_MTK_Cell_DataBase.hpp"
 #include "fn_trans.hpp"
 #include "cl_MTK_Vertex_DataBase.hpp"
+#include "cl_Json_Object.hpp"
 
 namespace moris::mtk
 {
@@ -243,7 +244,7 @@ namespace moris::mtk
 
     moris::Cell< moris_index > Surface_Mesh::get_vertex_neighbors( moris_index aLocalVertexIndex ) const
     {
-        MORIS_ASSERT( aLocalVertexIndex < static_cast<moris_index>(mVertexNeighbors.size()), "Vertex index out of bounds" );
+        MORIS_ASSERT( aLocalVertexIndex < static_cast< moris_index >( mVertexNeighbors.size() ), "Vertex index out of bounds" );
         return mVertexNeighbors( aLocalVertexIndex );
     }
 
@@ -324,6 +325,7 @@ namespace moris::mtk
         }
         return tCellVertexCoordinates;
     }
+
     Matrix< DDRMat > Surface_Mesh::get_vertex_normals_of_cell( moris_index aLocalCellIndex ) const
     {
         Matrix< DDRMat >           tVertexNormals = this->get_vertex_normals();
@@ -336,5 +338,39 @@ namespace moris::mtk
             tCellVertexNormals.set_column( i, tVertexNormals.get_column( tVertexIndices( i ) ) );
         }
         return tCellVertexNormals;
+    }
+
+    Json Surface_Mesh::to_json() const
+    {
+        Json tMesh;
+
+        Json tVertexMap;
+        for ( moris::size_t i = 0; i < mLocalToGlobalVertexIndex.size(); i++ )
+        {
+            moris_index tGlobalIndex = mLocalToGlobalVertexIndex( i );
+            moris_id    tGlobalID    = mIGMesh->get_mtk_vertex( tGlobalIndex ).get_id();
+            tVertexMap.add( std::to_string( tGlobalID ), i );
+        }
+        tMesh.put_child( "vertex_map", tVertexMap );
+
+        Json tCellMap;
+        for ( moris::size_t i = 0; i < mLocalToGlobalCellIndex.size(); i++ )
+        {
+            moris_index tGlobalIndex = mLocalToGlobalCellIndex( i );
+            moris_id    tGlobalID    = mIGMesh->get_mtk_cell( tGlobalIndex ).get_id();
+            tCellMap.add( std::to_string( tGlobalID ), i );
+        }
+        tMesh.put_child( "cell_map", tCellMap );
+
+        Json tSideSetMap;
+        for ( auto tSideSet : mSideSets )
+        {
+            Json tObj;
+            tObj.put( "", tSideSet->get_set_name() );
+            tSideSetMap.push_back( { "", tObj } );
+        }
+        tMesh.put_child( "side_sets", tSideSetMap );
+
+        return tMesh;
     }
 }    // namespace moris::mtk
