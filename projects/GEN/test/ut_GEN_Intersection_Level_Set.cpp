@@ -820,22 +820,15 @@ namespace moris::ge
                     if ( tIntersectionQueued )
                     {
                         // Check parents
-                        bool tFirstParentOnInterface  = false;
-                        bool tSecondParentOnInterface = false;
-
-                        CHECK( tGeometryEngine.queued_intersection_first_parent_on_interface() == tFirstParentOnInterface );
-                        CHECK( tGeometryEngine.queued_intersection_second_parent_on_interface() == tSecondParentOnInterface );
+                        CHECK( not tGeometryEngine.queued_intersection_first_parent_on_interface() );
+                        CHECK( not tGeometryEngine.queued_intersection_second_parent_on_interface() );
 
                         // Check local coordinates
-                        CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() ==    //
+                        CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() ==
                                 Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
 
                         // Check global coordinates
-                        CHECK( tGeometryEngine.get_queued_intersection_global_coordinates()( 0 ) ==    //
-                                Approx( tIntersectionGlobalCoordinates( tIntersectionCount )( 0 ) ).margin( 1e-9 ) );
-
-                        CHECK( tGeometryEngine.get_queued_intersection_global_coordinates()( 1 ) ==    //
-                                Approx( tIntersectionGlobalCoordinates( tIntersectionCount )( 1 ) ).margin( 1e-9 ) );
+                        CHECK_EQUAL( tGeometryEngine.get_queued_intersection_global_coordinates(), tIntersectionGlobalCoordinates( tIntersectionCount ), );
 
                         // Admit intersection
                         tGeometryEngine.admit_queued_intersection();
@@ -881,7 +874,7 @@ namespace moris::ge
 
             // Queue custom intersection 3 and check for bilinear intersection
             tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    0, 0, { { 0.75, 0.0 } }, { { -0.75, 0.0 } }, tNodeIndices );
+                    9, 10, {{ 1.0, tFrac }}, {{ -1.0, 1.0 }}, tNodeIndices );
             REQUIRE( tIntersectionQueued );
 
             // Clean up

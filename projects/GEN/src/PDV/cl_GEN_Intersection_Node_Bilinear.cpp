@@ -134,16 +134,14 @@ namespace moris::ge
                     aBaseNodes( iBaseNode )->get_global_coordinates() );
         }
 
-        // scale element level set field such that norm equals 1.0
-        const real tPhiScaling = 1.0 / norm( tPhiBCNodes );
-
+        // Scale element level set field such that norm equals 1.0
+        real tPhiScaling = 1.0 / norm( tPhiBCNodes );
         tPhiBCNodes = tPhiScaling * tPhiBCNodes;
-
-        // scale threshold
         tIsocontourThreshold *= tPhiScaling;
 
-        real tFirstParentPhi  = aInterfaceGeometry->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
-        real tSecondParentPhi = aInterfaceGeometry->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+        // Get scaled parent level set values
+        real tFirstParentPhi  = tPhiScaling * aInterfaceGeometry->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+        real tSecondParentPhi = tPhiScaling * aInterfaceGeometry->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
 
         // check that line is intersected
         if ( ( tFirstParentPhi - tIsocontourThreshold ) * ( tSecondParentPhi - tIsocontourThreshold ) > 0 )
@@ -178,17 +176,16 @@ namespace moris::ge
         Matrix< DDRMat > tDBasisDxi2;
         Matrix< DDRMat > tD2PhiDxi2;
 
-        // vector from first to second parent in local coordinates
-        Matrix< DDRMat > tSecondToFirstParent = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
+        // vector from first to second parent in parametric coordinates
+        Matrix< DDRMat > tSecondToFirstParent = aSecondParentNode.get_parametric_coordinates() - aFirstParentNode.get_parametric_coordinates();
 
         // initialized reference residual
         real tReferenceResidual = 0.0;
         real tResidual          = 0.0;
 
         // compute initial guess: location of intersection point along edge in edge CS
-        real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )    //
+        real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
                              / ( tSecondParentPhi - tFirstParentPhi );
-
         Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
 
         // loop over initial guess trials
@@ -201,7 +198,7 @@ namespace moris::ge
             for ( uint iNew = 0; iNew < tNewMaxIter; ++iNew )
             {
                 // compute local coordinate in background cell CS
-                tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNode.get_parametric_coordinates(),
+                tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNode.get_parametric_coordinates()
                                 + 0.5 * ( 1.0 + tEdgeCoordinate ) * aSecondParentNode.get_parametric_coordinates();
 
                 // compute basis function
@@ -336,7 +333,7 @@ namespace moris::ge
         // print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
 
         MORIS_ERROR( false,
-                "Intersection_Node_Bilinear::compute_intersection - Newton did not convergence: %s %e %s %e %s %e",
+                "Intersection_Node_Bilinear::compute_intersection - Newton did not converge: %s %e %s %e %s %e",
                 "Reference residual",
                 tReferenceResidual,
                 "Current residual",
