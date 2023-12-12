@@ -428,7 +428,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::rotate_object( const Matrix< DDRMat >& aRotationMatrix )
+        Object::rotate( const Matrix< DDRMat >& aRotationMatrix )
         {
             // rotate all vertices of facet mesh
             for ( Facet_Vertex* tVertex : mVertices )
@@ -446,7 +446,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::scale_object( const Matrix< DDRMat >& aScaling )
+        Object::scale( const Matrix< DDRMat >& aScaling )
         {
             MORIS_ASSERT( aScaling.numel() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
 
@@ -466,7 +466,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::shift_object( const Matrix< DDRMat >& aShift )
+        Object::shift( const Matrix< DDRMat >& aShift )
         {
             MORIS_ASSERT( aShift.numel() == mDimension, "SDF_Object: shift_object() - Shift must be equal to object dimension." );
 
@@ -487,7 +487,7 @@ namespace moris
 
 
         void
-        Object::reset_object_coordinates()
+        Object::reset_coordinates()
         {
             // rotate all vertices of facet mesh
             for ( Facet_Vertex* tVertex : mVertices )

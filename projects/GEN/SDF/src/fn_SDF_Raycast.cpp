@@ -95,7 +95,7 @@ namespace moris::sdf
         // reset the coordinates back to the orginal frame if they were rotated
         if ( tRotation )
         {
-            aObject.reset_object_coordinates();
+            aObject.reset_coordinates();
         }
 
         return tPointIsInside;
@@ -577,7 +577,7 @@ namespace moris::sdf
             tRotation              = rotation_matrix( tAxis, tAngle );
         }
 
-        aObject.rotate_object( tRotation );
+        aObject.rotate( tRotation );
         aPoint = tRotation * aPoint;
     }
     // -----------------------------------------------------------------------------
