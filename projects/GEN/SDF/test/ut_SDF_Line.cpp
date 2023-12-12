@@ -18,7 +18,6 @@
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
 
-#include "cl_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "cl_SDF_Line.hpp"
 

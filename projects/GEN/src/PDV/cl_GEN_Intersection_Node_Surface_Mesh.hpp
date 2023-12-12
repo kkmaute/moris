@@ -48,17 +48,6 @@ namespace moris::ge
       protected:
 
       private:
-        //--------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Determines if the parent nodes are intersected.
-         * Used by initialize() to set mIsIntersected. Also sets mFirstParentOnInterface and mSecondParentOnInterface
-         * Implementation provided here for parent class.
-         *
-         * @return if the parent nodes are intersected
-         * @return false if there is no intersection detected
-         */
-        bool determine_is_intersected() override;
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -109,37 +98,6 @@ namespace moris::ge
          * @return ADV IDs
          */
         Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
-         * values on each of its ancestors.
-         *
-         * @param aAncestorIndex Ancestor index
-         * @return Local coordinate sensitivity
-         */
-        real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) override;
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-         * coordinate values of its first parent.
-         *
-         * @return Local coordinate sensitivity
-         */
-        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() override;
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-         * coordinate values of its second parent.
-         *
-         * @return Local coordinate sensitivity
-         */
-        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() override;
 
         //--------------------------------------------------------------------------------------------------------------
     };

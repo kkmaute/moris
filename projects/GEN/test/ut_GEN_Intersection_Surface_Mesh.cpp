@@ -13,7 +13,6 @@
 #include "fn_eye.hpp"
 #include "paths.hpp"
 
-#include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
@@ -30,8 +29,7 @@
 // #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 
 #include "cl_GEN_Base_Node.hpp"
-#include "cl_GEN_Parent_Base_Node.hpp"
-#include "cl_GEN_Parent_Derived_Node.hpp"
+#include "cl_GEN_Parent_Node.hpp"
 
 namespace moris::ge
 {
@@ -68,8 +66,8 @@ namespace moris::ge
             Base_Node tBaseFirstParent( tNodeIndex++, tFirstParentGlobalCoordinates );
             Base_Node tBaseSecondParent( tNodeIndex++, tSecondParentGlobalCoordinates );
 
-            Parent_Base_Node tFirstParentNode( &tBaseFirstParent, tFirstParentParametricCoordinates );
-            Parent_Base_Node tSecondParentNode( &tBaseSecondParent, tSecondParentParametricCoordinates );
+            Parent_Node tFirstParentNode( &tBaseFirstParent, tFirstParentParametricCoordinates );
+            Parent_Node tSecondParentNode( &tBaseSecondParent, tSecondParentParametricCoordinates );
 
             // create the intersection node
             Intersection_Node* tIntersectionNode = tSurfaceMeshPointer->create_intersection_node( tNodeIndex++, tBaseNodes, tFirstParentNode, tSecondParentNode, mtk::Geometry_Type::QUAD );

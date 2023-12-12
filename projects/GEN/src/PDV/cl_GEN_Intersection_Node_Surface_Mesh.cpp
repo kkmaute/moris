@@ -9,9 +9,9 @@
  */
 
 #include <limits>
-#include "cl_GEN_Parent_Node.hpp"
 #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
+#include "cl_GEN_Parent_Node.hpp"
 
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
@@ -38,27 +38,6 @@ namespace moris::ge
     {
     }
 
-    bool
-    Intersection_Node_Surface_Mesh::determine_is_intersected()
-    {
-        // lock interface geometry
-        std::shared_ptr< Surface_Mesh_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
-
-        // determine if the parents are on the interface
-        bool tFirstParentOnInterface  = ( tLockedInterfaceGeometry->get_geometric_region( 0, mFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE );
-        bool tSecondParentOnInterface = ( tLockedInterfaceGeometry->get_geometric_region( 0, mSecondParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE );
-
-        // FIXME: add assert statements
-        if ( tFirstParentOnInterface or tSecondParentOnInterface )
-        {
-            return true;
-        }
-        else
-        {
-            return std::abs( this->get_local_coordinate() ) <= 1.0;
-        }
-    }
-
     void
     Intersection_Node_Surface_Mesh::transform_surface_mesh_to_local_coordinate(
             const Parent_Node&                       aFirstParentNode,
@@ -67,55 +46,63 @@ namespace moris::ge
             uint&                                    aRotationAxis )
     {
         // step 1: shift the object so the first parent is at the origin
-        aInterfaceGeometry->shift_object( -1.0 * trans( aFirstParentNode.get_global_coordinates() ) );
+        aInterfaceGeometry->shift( -1.0 * trans( aFirstParentNode.get_global_coordinates() ) );
 
         // BRENDAN
         std::cout << "shift done" << std::endl;
 
         // step 2: rotate the object
         // get unit axis to rotate to
-        Matrix< DDRMat > tParentVector( 3, 1 );
-        if ( aFirstParentNode.get_global_coordinates().numel() == 2 )
+        Matrix< DDRMat > tTransformationMatrix( 3, 3 );
+
+        Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
+
+        // augment with zero if 2D
+        if ( tParentVector.numel() == 2 )
         {
-            // BRENDAN [2ndParent 0] - [1stParent 0] is what should be here
-            tParentVector =
+            tParentVector.reshape( 3, 1 );
+            tParentVector( 2, 0 ) = 0.0;
         }
-        else
-        {
-            tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
-        }
+
         tParentVector = tParentVector / norm( tParentVector );
 
         // create vector orthogonal to parent vector and coordinate axis
-        Matrix< DDRMat > tFirstBasis = cross( tParentVector, { { 1.0, 0.0, 0.0 } } );
-        aRotationAxis                = 0;
-        if ( norm( tFirstBasis ) < MORIS_REAL_EPS )
+        // in 2D, this vector is the z axis
+        tTransformationMatrix.set_column( 2, cross( tParentVector, { { 1.0, 0.0, 0.0 } } ) );
+        aRotationAxis = 0;
+        if ( norm( tTransformationMatrix.get_column( 2 ) ) < MORIS_REAL_EPS )
         {
-            tFirstBasis   = cross( tParentVector, { { 0.0, 1.0, 0.0 } } );
+            tTransformationMatrix.set_column( 2, cross( tParentVector, { { 0.0, 1.0, 0.0 } } ) );
             aRotationAxis = 1;
 
             // rotate along z axis only if basis is 3D
-            if ( norm( tFirstBasis ) < MORIS_REAL_EPS && aFirstParentNode.get_global_coordinates().numel() > 2 )
+            if ( norm( tTransformationMatrix.get_column( 2 ) ) < MORIS_REAL_EPS && aFirstParentNode.get_global_coordinates().numel() > 2 )
             {
-                tFirstBasis   = cross( tParentVector, { { 0.0, 0.0, 1.0 } } );
+                tTransformationMatrix.set_column( 2, cross( tParentVector, { { 0.0, 0.0, 1.0 } } ) );
                 aRotationAxis = 2;
             }
         }
+        tTransformationMatrix.set_column( 2, tTransformationMatrix.get_column( 2 ) / norm( tTransformationMatrix.get_column( 2 ) ) );
 
-        // create second vector orthogonal to parent vector and first basis
-        Matrix< DDRMat > tSecondBasis = cross( tParentVector, tFirstBasis );
+        // create a second vector orthogonal to parent vector and first basis
+        tTransformationMatrix.set_column( 1, cross( tParentVector, tTransformationMatrix.get_column( 2 ) ) );
 
-        // BRENDAN create transformation matrix from set of vectors
-        // basically: tRotationMatrix = [ tParentVector tSecondBasis tFirstBasis ]
-        Matrix< DDRMat > tRotationMatrix( 3, 3 );
+        // the third vector of the transformation matrix is the parent vector
+        tTransformationMatrix.set_column( 0, tParentVector );
+
+        // trim the transformation matrix if 2D
+        if ( aInterfaceGeometry->get_dimension() == 2 )
+        {
+            tTransformationMatrix.resize( 2, 2 );
+        }
 
         // rotate the object
-        aInterfaceGeometry->rotate_object( trans( tRotationMatrix ) );
+        aInterfaceGeometry->rotate( tTransformationMatrix );
 
         // step 3: scale the object
         Matrix< DDRMat > tScaling( aInterfaceGeometry->get_dimension(), 1 );
         tScaling.fill( 0.5 );
-        aInterfaceGeometry->scale_object( tScaling );
+        aInterfaceGeometry->scale( tScaling );
 
         // BRENDAN
         std::cout << "scaling happened already" << std::endl;
@@ -142,7 +129,7 @@ namespace moris::ge
         }
 
         // reset the object
-        aInterfaceGeometry->reset_object_coordinates();
+        aInterfaceGeometry->reset_coordinates();
 
         if ( tLocalCoordinate.size() == 0 )
         {
@@ -171,29 +158,5 @@ namespace moris::ge
         // TODO
         MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_coordinate_determining_adv_ids() not implemented yet." );
         return { { -1 } };
-    }
-
-    real Intersection_Node_Surface_Mesh::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
-    {
-        // TODO
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dxi_dfield_from_ancestor() not implemented yet." );
-
-        return std::numeric_limits< double >::quiet_NaN();
-    }
-
-    Matrix< DDRMat >
-    Intersection_Node_Surface_Mesh::get_dxi_dcoordinate_first_parent()
-    {
-        // TODO
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dxi_dcoordinate_first_parent() not implemented yet." );
-        return { { std::numeric_limits< double >::quiet_NaN() } };
-    }
-
-    Matrix< DDRMat >
-    Intersection_Node_Surface_Mesh::get_dxi_dcoordinate_second_parent()
-    {
-        // TODO
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dxi_dcoordinate_second_parent() not implemented yet." );
-        return { { std::numeric_limits< double >::quiet_NaN() } };
     }
 }    // namespace moris::ge
