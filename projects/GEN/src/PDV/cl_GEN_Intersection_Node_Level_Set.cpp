@@ -47,22 +47,27 @@ namespace moris::ge
         // Locked interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
+        // Get parent nodes
+        Basis_Node& tFirstParentNode = this->get_first_parent_node();
+        Basis_Node& tSecondParentNode = this->get_second_parent_node();
+
         // Compute parent vector
-        Matrix< DDRMat > tParentVector = trans( this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates() );
+        Matrix< DDRMat > tParentVector = trans( tFirstParentNode.get_global_coordinates() - tSecondParentNode.get_global_coordinates() );
 
         // Get sensitivity values from other ancestors
         Matrix< DDRMat > tSensitivitiesToAdd;
-        const Cell< Basis_Node >& tLocatorNodes = this->get_field_basis_nodes();
-        for ( uint iLocatorNode = 0; iLocatorNode < tLocatorNodes.size(); iLocatorNode++ )
+        const Cell< Basis_Node >& tFieldBasisNodes = this->get_field_basis_nodes();
+        real tConstant = 1.0 / tFieldBasisNodes.size();
+        for ( uint iLocatorNode = 0; iLocatorNode < tFieldBasisNodes.size(); iLocatorNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
             const Matrix< DDRMat >& tFieldSensitivities = tLockedInterfaceGeometry->get_dfield_dadvs(
-                    tLocatorNodes( iLocatorNode ).get_index(),
-                    tLocatorNodes( iLocatorNode ).get_global_coordinates() );
+                    tFieldBasisNodes( iLocatorNode ).get_index(),
+                    tFieldBasisNodes( iLocatorNode ).get_global_coordinates() );
 
             // Ancestor sensitivities
             tSensitivitiesToAdd =
-                    0.5 * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( iLocatorNode ) * tParentVector * tFieldSensitivities;
+                    tConstant * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( iLocatorNode ) * tParentVector * tFieldSensitivities;
 
             // Resize sensitivities
             uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
@@ -83,12 +88,12 @@ namespace moris::ge
         // Add first parent coordinate sensitivities
         Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
         Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
-        this->get_first_parent_node().append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        tFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
 
         // Add second parent coordinate sensitivities
         tLocCoord = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
         tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
-        this->get_second_parent_node().append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
     }
 
     //--------------------------------------------------------------------------------------------------------------
