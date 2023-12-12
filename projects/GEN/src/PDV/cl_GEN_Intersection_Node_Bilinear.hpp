@@ -96,7 +96,5 @@ namespace moris::ge
                 const Parent_Node&                    aFirstParentNode,
                 const Parent_Node&                    aSecondParentNode,
                 std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
-
-        real compute_intersection_derivative( uint aAncestorIndex );
     };
 }

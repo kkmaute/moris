@@ -95,7 +95,7 @@ namespace moris::ge
          * @param aInterfaceGeometry Geometry that intersects the parent to create this node
          * @return Local coordinates
          */
-        real compute_local_coordinate(
+        static real compute_local_coordinate(
                 const Parent_Node&                    aFirstParentNode,
                 const Parent_Node&                    aSecondParentNode,
                 std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
