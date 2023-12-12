@@ -23,19 +23,13 @@ namespace moris::ge
       public:
         /**
          * Constructor
-         *
-         * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
-         * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
-         * @param aFirstParentNodeIndex Index of the first parent of this node
-         * @param aSecondParentNodeIndex Index of the second parent of this node
-         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node with respect to
-         * the given ancestors
-         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
-         * the given ancestors
-         * @param aAncestorNodeIndices Ancestor node indices
-         * @param aAncestorNodeCoordinates Ancestor node global coordinates
-         * @param aInterpolationType Type of interpolation: bi or tri-linear
-         * @param aInterfaceGeometry Geometry that intersects the parent to create this child
+         * 
+         * @param aNodeIndex the index that will be assigned to this node if it is admitted
+         * @param aBaseNodes the background nodes that correspond to this intersection node
+         * @param aFirstParentNode the first node that this intersection node lies between
+         * @param aSecondParentNode the other node that this intersection node lies between
+         * @param aBaseGeometryType type of collection of base nodes. QUAD for 2D and HEX for 3D
+         * @param aInterfaceGeometry geometry that intersects the parents to create this intersection node
          */
         Intersection_Node_Bilinear(
                 uint                                  aNodeIndex,

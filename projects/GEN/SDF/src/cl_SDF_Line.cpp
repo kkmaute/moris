@@ -34,9 +34,13 @@ namespace moris::sdf
     void
     Line::update_data()
     {
-        // step 1: copy node coordinates and determine center
-        this->copy_node_coords_and_inds( mVertices, 2 );
+        // step 1: compute center
+        this->compute_center();
+        
+        // step 2: compute the bounding box
+        this->compute_min_and_max_coordinates();
 
+        // compute the normal and hesse
         this->calculate_hesse_normal_form();
     }
 
@@ -44,8 +48,8 @@ namespace moris::sdf
     Line::calculate_hesse_normal_form()
     {
         // Normal vector defined by (-dy, dx)
-        mNormal( 0 ) = -( mNodeCoords( 1, 1 ) - mNodeCoords( 1, 0 ) );
-        mNormal( 1 ) = mNodeCoords( 0, 1 ) - mNodeCoords( 0, 0 );
+        mNormal( 0 ) = -( mVertices( 1 )->get_coord( 1 ) - mVertices( 0 )->get_coord( 1 ) );
+        mNormal( 1 ) = mVertices( 1 )->get_coord( 0 ) - mVertices( 0 )->get_coord( 0 );
 
         // Make normal a unit vector
         real tNorm = norm( mNormal );

@@ -18,18 +18,13 @@
 
 namespace moris::ge
 {
-    enum class Int_Interpolation
-    {
-        LINEAR,
-        MULTILINEAR
-    };
-
     /**
      * This is a struct used to simplify \ref moris::ge::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Surface_Mesh_Parameters : public Field_Parameters
+    struct Surface_Mesh_Parameters
     {
         Matrix< DDRMat > mOffsets;
+        std::string      mFilePath;
 
         /**
          * Constructor with a given parameter list
@@ -53,9 +48,7 @@ namespace moris::ge
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        explicit Surface_Mesh_Geometry(
-                const std::string&      aFilePath,
-                Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
+        Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -73,29 +66,31 @@ namespace moris::ge
          * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be
          * requested from the created intersection node.
          *
-         * @param aEdgeFirstNodeIndex First node index on the intersection edge
-         * @param aEdgeSecondNodeIndex Second node index on the intersection edge
-         * @param aEdgeFirstIntersectionNode First intersection node on the intersection edge, if it is also an intersection
-         * @param aEdgeSecondIntersectionNode Second intersection node on the intersection edge, if it is also an intersection
-         * @param aEdgeFirstNodeLocalCoordinates Local coordinates of the first node inside the background element
-         * @param aEdgeSecondNodeLocalCoordinates Local coordinates of the second node inside the background element
-         * @param aEdgeFirstNodeGlobalCoordinates Global coordinates of the first node
-         * @param aEdgeSecondNodeGlobalCoordinates Global coordinates of the second node
-         * @param aBackgroundElementNodeIndices Node indices of the background element
-         * @param aBackgroundElementNodeCoordinates Node coordinates of the background element
-         * @return Created intersection node
+         * @param aNodeIndex Node index of the new intersection node
+         * @param aBaseNodes Base nodes of the element where the intersection lies
+         * @param aFirstParentNode Node marking the starting point of the intersection edge
+         * @param aSecondParentNode Node marking the ending point of the intersection edge
+         * @param aBaseGeometryType Geometry type of the base node element
+         * @return New intersection node
          */
-        std::shared_ptr< Intersection_Node > create_intersection_node(
-                uint                                 aEdgeFirstNodeIndex,
-                uint                                 aEdgeSecondNodeIndex,
-                std::shared_ptr< Intersection_Node > aEdgeFirstIntersectionNode,
-                std::shared_ptr< Intersection_Node > aEdgeSecondIntersectionNode,
-                const Matrix< DDRMat >&              aEdgeFirstNodeLocalCoordinates,
-                const Matrix< DDRMat >&              aEdgeSecondNodeLocalCoordinates,
-                const Matrix< DDRMat >&              aEdgeFirstNodeGlobalCoordinates,
-                const Matrix< DDRMat >&              aEdgeSecondNodeGlobalCoordinates,
-                const Matrix< DDUMat >&              aBackgroundElementNodeIndices,
-                const Cell< Matrix< DDRMat > >&      aBackgroundElementNodeCoordinates ) override;
+        Intersection_Node* create_intersection_node(
+                uint                 aNodeIndex,
+                const Cell< Node* >& aBaseNodes,
+                const Parent_Node&   aFirstParentNode,
+                const Parent_Node&   aSecondParentNode,
+                mtk::Geometry_Type   aBaseGeometryType ) override;
+
+        /**
+         *
+         * Whether or not the surface mesh has ADVs
+         *
+         */
+        bool
+        depends_on_advs()
+        {
+            // BRENDAN TODO
+            return false;
+        }
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
@@ -103,10 +98,5 @@ namespace moris::ge
          * @return MTK field
          */
         Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
-
-      private:
-        void find_candidate_ancestors()
-        {
-        }
     };
 }    // namespace moris::ge

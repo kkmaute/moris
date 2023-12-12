@@ -12,6 +12,7 @@
 
 #include "cl_Cell.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
+#include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_Param_List.hpp"
 

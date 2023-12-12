@@ -64,12 +64,12 @@ namespace moris::prm
      */
     static void insert_field_parameters( ParameterList& aDesignParameterList )
     {
-        aDesignParameterList.insert( "name", "" );                         // Name of field
-        aDesignParameterList.insert( "field_type", "" );                   // Type of field
-        aDesignParameterList.insert( "dependencies", "" );                 // Names of other fields that this field depends on
-        aDesignParameterList.insert( "field_variable_indices", "" );       // Indices of field variables to fill
-        aDesignParameterList.insert( "adv_indices", "" );                  // ADVs used to fill in variables
-        aDesignParameterList.insert( "constant_parameters", "" );          // Remaining geometry parameters that are constant
+        aDesignParameterList.insert( "name", "" );                      // Name of field
+        aDesignParameterList.insert( "field_type", "" );                // Type of field
+        aDesignParameterList.insert( "dependencies", "" );              // Names of other fields that this field depends on
+        aDesignParameterList.insert( "field_variable_indices", "" );    // Indices of field variables to fill
+        aDesignParameterList.insert( "adv_indices", "" );               // ADVs used to fill in variables
+        aDesignParameterList.insert( "constant_parameters", "" );       // Remaining geometry parameters that are constant
     }
 
     /**
@@ -129,8 +129,8 @@ namespace moris::prm
     static ParameterList create_geometry_parameter_list()
     {
         ParameterList tParameterList;
-        tParameterList.insert( "design_type", "geometry" );    // Set the design type to a geometry
-        tParameterList.insert( "geometry_type", "level_set" ); // Set the geometry type to level set as default
+        tParameterList.insert( "design_type", "geometry" );       // Set the design type to a geometry
+        tParameterList.insert( "geometry_type", "level_set" );    // Set the geometry type to level set as default
 
         return tParameterList;
     }
@@ -147,12 +147,12 @@ namespace moris::prm
     inline ParameterList
     create_level_set_geometry_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tParameterList = create_geometry_parameter_list(); // Inserts all geometry parameters
-        insert_design_field_parameters( tParameterList, aIncludeField ); // Inserts all design parameters
-        tParameterList.insert( "intersection_mode", "LEVEL_SET" );       // Deprecated
-        tParameterList.insert( "isocontour_threshold", 0.0 );            // Level set isocontour level
-        tParameterList.insert( "isocontour_tolerance", 1e-12 );          // Interface tolerance based on geometry value
-        tParameterList.insert( "intersection_tolerance", 1e-12 );        // Interface tolerance based on intersection distance
+        ParameterList tParameterList = create_geometry_parameter_list();   // Inserts all geometry parameters
+        insert_design_field_parameters( tParameterList, aIncludeField );   // Inserts all design parameters
+        tParameterList.insert( "intersection_mode", "LEVEL_SET" );         // Deprecated
+        tParameterList.insert( "isocontour_threshold", 0.0 );              // Level set isocontour level
+        tParameterList.insert( "isocontour_tolerance", 1e-12 );            // Interface tolerance based on geometry value
+        tParameterList.insert( "intersection_tolerance", 1e-12 );          // Interface tolerance based on intersection distance
 
         return tParameterList;
     }
@@ -168,8 +168,10 @@ namespace moris::prm
     inline ParameterList
     create_surface_mesh_geometry_parameter_list()
     {
-        ParameterList tParameterList = create_geometry_parameter_list(); // Inserts all geometry parameters
-        tParameterList.insert( "offset", "0;0;0" );     // offset all points in the geometry by this much
+        ParameterList tParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
+        tParameterList.insert( "offset", "0;0;0" );                         // offset all points in the geometry by this much
+        tParameterList.insert( "file_path", "" );                           // path to .obj file
+        tParameterList.set( "geometry_type", "surface_mesh" );              // set the geometry type to surface mesh
 
         return tParameterList;
     }
@@ -185,8 +187,8 @@ namespace moris::prm
     inline ParameterList
     create_user_defined_geometry_parameter_list()
     {
-        ParameterList tParameterList = create_level_set_geometry_parameter_list(); // Level set geometry parameters
-        insert_user_defined_field_parameters( tParameterList );                    // Parameters for reading user-defined field functions
+        ParameterList tParameterList = create_level_set_geometry_parameter_list();    // Level set geometry parameters
+        insert_user_defined_field_parameters( tParameterList );                       // Parameters for reading user-defined field functions
 
         return tParameterList;
     }
@@ -269,10 +271,10 @@ namespace moris::prm
         ParameterList tParameterList = create_level_set_geometry_parameter_list();
 
         tParameterList.set( "field_type", "nodal_field_from_file" );    // field defined on mesh file
-        tParameterList.insert( "file_name", "" );                 // file name
-        tParameterList.insert( "field_name", "" );                // field name
-        tParameterList.insert( "file_format", "exodus" );         // file format
-        tParameterList.insert( "offset", 0.0 );                   // offset of field value
+        tParameterList.insert( "file_name", "" );                       // file name
+        tParameterList.insert( "field_name", "" );                      // field name
+        tParameterList.insert( "file_format", "exodus" );               // file format
+        tParameterList.insert( "offset", 0.0 );                         // offset of field value
 
         return tParameterList;
     }
@@ -287,7 +289,7 @@ namespace moris::prm
     inline ParameterList
     create_field_array_parameter_list()
     {
-        ParameterList tParameterList = create_level_set_geometry_parameter_list(); // TODO not tied to geometry
+        ParameterList tParameterList = create_level_set_geometry_parameter_list();    // TODO not tied to geometry
 
         // Lower and upper bounds on the array with respect to the reference coordinates of the field
         tParameterList.insert( "lower_bound_x", 0.0 );
@@ -331,13 +333,13 @@ namespace moris::prm
     inline ParameterList
     create_gen_property_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tParameterList;                                    // For right now, all properties are fields
-        tParameterList.insert( "design_type", "property" );              // Set the design type to a property
-        insert_design_field_parameters( tParameterList, aIncludeField ); // Inserts all design field parameters
-        tParameterList.insert( "pdv_type", "" );                         // The type of PDV that this property will be assigned to
-        tParameterList.insert( "pdv_mesh_type", "interpolation" );       // Mesh type for assigning PDVs
-        tParameterList.insert( "pdv_mesh_set_names", "" );               // Mesh set names for assigning PDVs
-        tParameterList.insert( "pdv_mesh_set_indices", "" );             // Mesh set indices for assigning PDVs
+        ParameterList tParameterList;                                       // For right now, all properties are fields
+        tParameterList.insert( "design_type", "property" );                 // Set the design type to a property
+        insert_design_field_parameters( tParameterList, aIncludeField );    // Inserts all design field parameters
+        tParameterList.insert( "pdv_type", "" );                            // The type of PDV that this property will be assigned to
+        tParameterList.insert( "pdv_mesh_type", "interpolation" );          // Mesh type for assigning PDVs
+        tParameterList.insert( "pdv_mesh_set_names", "" );                  // Mesh set names for assigning PDVs
+        tParameterList.insert( "pdv_mesh_set_indices", "" );                // Mesh set indices for assigning PDVs
 
         return tParameterList;
     }
@@ -353,12 +355,12 @@ namespace moris::prm
     inline ParameterList
     create_user_defined_property_parameter_list()
     {
-        ParameterList tParameterList = create_gen_property_parameter_list(); // Create property parameter list
-        insert_user_defined_field_parameters( tParameterList );              // Parameters for reading user-defined field functions
+        ParameterList tParameterList = create_gen_property_parameter_list();    // Create property parameter list
+        insert_user_defined_field_parameters( tParameterList );                 // Parameters for reading user-defined field functions
 
         return tParameterList;
     }
 
     //------------------------------------------------------------------------------
 
-}
+}    // namespace moris::prm

@@ -197,7 +197,7 @@ namespace moris
                 if ( tBuffer( k ).substr( 0, 2 ) == "f " )
                 {
                     // temporary container for vertices
-                    Cell< Facet_Vertex* > tNodes( 3, nullptr );
+                    Cell< Facet_Vertex* > tNodes( mDimension, nullptr );
                     Matrix< DDUMat >      tNodeIndices( 3, 1 );
                     // read facet topology
                     if ( mDimension == 3 )
@@ -428,9 +428,9 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::rotate_object( Matrix< DDRMat >& aRotationMatrix )
+        Object::rotate_object( const Matrix< DDRMat >& aRotationMatrix )
         {
-            // rotate all vertices of triangle mesh
+            // rotate all vertices of facet mesh
             for ( Facet_Vertex* tVertex : mVertices )
             {
                 tVertex->rotate_node_coords( aRotationMatrix );
@@ -446,9 +446,50 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::undo_rotation()
+        Object::scale_object( const Matrix< DDRMat >& aScaling )
         {
-            // rotate all vertices of triangle mesh
+            MORIS_ASSERT( aScaling.numel() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
+
+            // scale all facet vertices
+            for ( Facet_Vertex* tVertex : mVertices )
+            {
+                tVertex->scale_node_coords( aScaling );
+            }
+
+            // update all facets
+            for ( Facet* tFacet : mFacets )
+            {
+                tFacet->update_data();
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Object::shift_object( const Matrix< DDRMat >& aShift )
+        {
+            MORIS_ASSERT( aShift.numel() == mDimension, "SDF_Object: shift_object() - Shift must be equal to object dimension." );
+
+            // scale all facet vertices
+            for ( Facet_Vertex* tVertex : mVertices )
+            {
+                tVertex->shift_node_coords( aShift );
+            }
+
+            // update all facets
+            for ( Facet* tFacet : mFacets )
+            {
+                tFacet->update_data();
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+
+        void
+        Object::reset_object_coordinates()
+        {
+            // rotate all vertices of facet mesh
             for ( Facet_Vertex* tVertex : mVertices )
             {
                 tVertex->reset_node_coords();

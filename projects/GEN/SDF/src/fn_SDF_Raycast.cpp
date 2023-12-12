@@ -95,7 +95,7 @@ namespace moris::sdf
         // reset the coordinates back to the orginal frame if they were rotated
         if ( tRotation )
         {
-            aObject.undo_rotation();
+            aObject.reset_object_coordinates();
         }
 
         return tPointIsInside;
@@ -152,9 +152,9 @@ namespace moris::sdf
                 moris::Cell< real > tIntersectionCoordinates = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
 
                 // remove intersection locations that are behind the point
-                for( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
+                for ( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
                 {
-                    if( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
+                    if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
                     {
                         tIntersectionCoordinates.erase( iIntersection );
                     }
@@ -429,6 +429,12 @@ namespace moris::sdf
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis )
     {
+        // return nothing if there are no intersected facets
+        if( aIntersectedFacets.size() == 0 )
+        {
+            return {};
+        }
+
         // get number of triangles
         uint tNumberOfFacets = aIntersectedFacets.size();
 
