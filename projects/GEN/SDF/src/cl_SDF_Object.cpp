@@ -468,7 +468,7 @@ namespace moris
         void
         Object::shift( const Matrix< DDRMat >& aShift )
         {
-            MORIS_ASSERT( aShift.numel() == mDimension, "SDF_Object: shift_object() - Shift must be equal to object dimension." );
+            MORIS_ASSERT( aShift.numel() == mDimension, "SDF_Object::shift_object() - Shift must be equal to object dimension." );
 
             // scale all facet vertices
             for ( Facet_Vertex* tVertex : mVertices )

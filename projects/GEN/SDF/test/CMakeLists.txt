@@ -15,6 +15,7 @@ set(TEST_SOURCES
     ut_SDF_Triangle.cpp 
     ut_SDF_Raycast.cpp
     ut_SDF_Core.cpp
+    ut_SDF_Object.cpp
     )
 
 # List test dependencies

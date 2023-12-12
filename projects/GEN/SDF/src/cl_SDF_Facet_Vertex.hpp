@@ -70,7 +70,10 @@ namespace moris
             void
             shift_node_coords( const Matrix< DDRMat >& aShift )
             {
-                mNodeCoords += aShift;
+                for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
+                {
+                    mNodeCoords( iAxis ) += aShift( iAxis );
+                }
             }
 
             //-------------------------------------------------------------------------------
