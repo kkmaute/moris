@@ -39,14 +39,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Intersection_Node::initialize()
-    {
-        mParentVector  = trans( this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates() );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Basis_Node& Intersection_Node::get_first_parent_node()
     {
         return mParentNodes( 0 );

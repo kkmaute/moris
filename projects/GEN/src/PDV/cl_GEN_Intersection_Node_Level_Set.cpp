@@ -47,6 +47,9 @@ namespace moris::ge
         // Locked interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
+        // Compute parent vector
+        Matrix< DDRMat > tParentVector = trans( this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates() );
+
         // Get sensitivity values from other ancestors
         Matrix< DDRMat > tSensitivitiesToAdd;
         const Cell< Basis_Node >& tLocatorNodes = this->get_field_basis_nodes();
@@ -59,7 +62,7 @@ namespace moris::ge
 
             // Ancestor sensitivities
             tSensitivitiesToAdd =
-                    0.5 * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( iLocatorNode ) * mParentVector * tFieldSensitivities;
+                    0.5 * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( iLocatorNode ) * tParentVector * tFieldSensitivities;
 
             // Resize sensitivities
             uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
@@ -78,13 +81,13 @@ namespace moris::ge
         }
 
         // Add first parent coordinate sensitivities
-        Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) * eye( mParentVector.n_rows(), mParentVector.n_rows() );
-        Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() );
+        Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+        Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
         this->get_first_parent_node().append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
 
         // Add second parent coordinate sensitivities
-        tLocCoord = ( 1.0 + this->get_local_coordinate() ) * eye( mParentVector.n_rows(), mParentVector.n_rows() );
-        tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() );
+        tLocCoord = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+        tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
         this->get_second_parent_node().append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
     }
 

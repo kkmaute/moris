@@ -22,7 +22,6 @@ namespace moris::ge
     class Intersection_Node : public Derived_Node
     {
       protected:
-        Matrix< DDRMat > mParentVector;
         Matrix< DDSMat > mCoordinateDeterminingADVIDs;
 
       private:
@@ -168,11 +167,6 @@ namespace moris::ge
         moris_index get_owner();
 
       protected:
-        /**
-         * Computes basic member data for all intersection node derived classes.
-         * Must be called by lowest level child class constructors.
-         */
-        void initialize();
 
         /**
          * Gets the first parent node of this intersection node.

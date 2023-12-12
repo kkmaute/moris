@@ -40,8 +40,6 @@ namespace moris::ge
                     aBaseGeometryType,
                     aInterfaceGeometry )
     {
-        // call required setup function
-        this->initialize();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -55,16 +53,19 @@ namespace moris::ge
         real tDeltaPhi = aField->get_field_value( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() )
                        - aField->get_field_value( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() );
 
+        // Compute parent vector
+        Matrix< DDRMat > tParentVector = this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates();
+
         // get number of spatial dimensions;
-        uint tNumDim = mParentVector.length();
+        uint tNumDim = tParentVector.length();
 
         // Compute square of length of parent vector
-        real tParentLengthSquared = dot( mParentVector, mParentVector );
+        real tParentLengthSquared = dot( tParentVector, tParentVector );
 
         // Sensitivities: dPhi/dx_i  = delta(Phi) / L_i where L_i = PaerentVectorLenth^2 / (ParentVector * e_i)
         for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumDim; tCoordinateIndex++ )
         {
-            aSensitivities( tCoordinateIndex ) = tDeltaPhi * mParentVector( tCoordinateIndex ) / ( tParentLengthSquared + MORIS_REAL_EPS );
+            aSensitivities( tCoordinateIndex ) = tDeltaPhi * tParentVector( tCoordinateIndex ) / ( tParentLengthSquared + MORIS_REAL_EPS );
         }
     }
 

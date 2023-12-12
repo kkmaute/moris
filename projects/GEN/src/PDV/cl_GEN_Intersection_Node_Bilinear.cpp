@@ -40,8 +40,6 @@ namespace moris::ge
                     aBaseGeometryType,
                     aInterfaceGeometry )
     {
-        // call required setup function
-        this->initialize();
     }
 
     //--------------------------------------------------------------------------------------------------------------
