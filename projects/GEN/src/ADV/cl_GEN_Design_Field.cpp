@@ -27,6 +27,7 @@ namespace moris::ge
             , mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
             , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
             , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
+            , mUseMultilinearInterpolation( aParameterList.get< bool >( "use_multilinear_interpolation" ) )
     {
     }
 
@@ -34,8 +35,10 @@ namespace moris::ge
 
     Design_Field::Design_Field(
             std::shared_ptr< Field > aField,
-            Field_Parameters aParameters )
+            Field_Parameters         aParameters,
+            Node_Manager&            aNodeManager )
             : mField( std::move( aField ) )
+            , mNodeManager( &aNodeManager )
             , mParameters( std::move( aParameters ) )
     {
         MORIS_ERROR( mField, "A design must be provided a field for computing values." );
@@ -111,7 +114,24 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mField->get_field_value( aNodeIndex, aCoordinates );
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        {
+            // Get base node field value
+            return mField->get_field_value( aNodeIndex, aCoordinates );
+        }
+        else
+        {
+            if ( mParameters.mUseMultilinearInterpolation )
+            {
+                // If we use multilinear interpolation, it is needed for all derived nodes
+                return mField->get_interpolated_field_value( mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes() );
+            }
+            else
+            {
+                // Let field decide the value
+                return mField->get_field_value( mNodeManager->get_derived_node( aNodeIndex ) );
+            }
+        }
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -120,7 +140,24 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mField->get_dfield_dadvs( aNodeIndex, aCoordinates );
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        {
+            // Get base node sensitivities
+            return mField->get_dfield_dadvs( aNodeIndex, aCoordinates );
+        }
+        else
+        {
+            if ( mParameters.mUseMultilinearInterpolation )
+            {
+                // If we use multilinear interpolation, it is needed for all derived nodes
+                return mField->get_interpolated_dfield_dadvs( mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes() );
+            }
+            else
+            {
+                // Let field decide the sensitivities
+                return mField->get_dfield_dadvs( mNodeManager->get_derived_node( aNodeIndex ) );
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -129,7 +166,24 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return mField->get_determining_adv_ids( aNodeIndex, aCoordinates );
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        {
+            // Get base node determining ADV IDs
+            return mField->get_determining_adv_ids( aNodeIndex, aCoordinates );
+        }
+        else
+        {
+            if ( mParameters.mUseMultilinearInterpolation )
+            {
+                // If we use multilinear interpolation, it is needed for all derived nodes
+                return mField->get_interpolated_determining_adv_ids( mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes() );
+            }
+            else
+            {
+                // Let field provide the IDs
+                return mField->get_determining_adv_ids( mNodeManager->get_derived_node( aNodeIndex ) );
+            }
+        }
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -229,6 +283,13 @@ namespace moris::ge
     Design_Field::get_discretization_upper_bound()
     {
         return mParameters.mDiscretizationUpperBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Design_Field::use_multilinear_interpolation()
+    {
+        return mParameters.mUseMultilinearInterpolation;
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -24,12 +24,13 @@ namespace moris::ge
      */
     struct Field_Parameters
     {
-        Cell< uint > mNumberOfRefinements;       //! The number of refinement steps to use for this field
-        Cell< uint > mRefinementMeshIndices;     //! Indices of meshes to perform refinement on
-        sint         mRefinementFunctionIndex;   //! Index of a user-defined refinement function (-1 = default)
-        sint         mDiscretizationIndex;       //! Index of a mesh for discretization (-2 = none, -1 = store nodal values)
-        real         mDiscretizationLowerBound;  //! Lower bound for the B-spline coefficients in this field
-        real         mDiscretizationUpperBound ; //! Upper bound for the B-spline coefficients in this field
+        Cell< uint > mNumberOfRefinements;         // The number of refinement steps to use for this field
+        Cell< uint > mRefinementMeshIndices;       // Indices of meshes to perform refinement on
+        sint         mRefinementFunctionIndex;     // Index of a user-defined refinement function (-1 = default)
+        sint         mDiscretizationIndex;         // Index of a mesh for discretization (-2 = none, -1 = store nodal values)
+        real         mDiscretizationLowerBound;    // Lower bound for the B-spline coefficients in this field
+        real         mDiscretizationUpperBound;    // Upper bound for the B-spline coefficients in this field
+        bool         mUseMultilinearInterpolation; // Whether to use multilinear interpolation for all derived node field values
 
         /**
          * Constructor with a given parameter list
@@ -43,6 +44,7 @@ namespace moris::ge
     {
       protected:
         std::shared_ptr< Field > mField;
+        Node_Manager* mNodeManager;
 
       private:
         Field_Parameters         mParameters;
@@ -53,10 +55,12 @@ namespace moris::ge
          *
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
+         * @param aNodeManager Node manager from the geometry engine, if available
          */
         Design_Field(
                 std::shared_ptr< Field > aField,
-                Field_Parameters         aParameters );
+                Field_Parameters         aParameters,
+                Node_Manager&            aNodeManager );
 
         /**
          * Gets if this field is to be used for seeding a B-spline field.
@@ -215,13 +219,6 @@ namespace moris::ge
         moris_index get_discretization_mesh_index() const;
 
         /**
-         * Gets the order of the discretization mesh.
-         *
-         * @return discretization order
-         */
-        uint get_discretization_order() const;
-
-        /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
@@ -234,6 +231,13 @@ namespace moris::ge
          * @return Upper bound
          */
         real get_discretization_upper_bound();
+
+        /**
+         * Gets whether this field will be using multilinear interpolation to get derived node field values.
+         *
+         * @return Multilinear interpolation flag
+         */
+        bool use_multilinear_interpolation();
 
         // TODO where should I really put this stuff?
         void set_num_original_nodes( uint aNumOriginalNodes );

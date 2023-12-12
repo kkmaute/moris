@@ -18,8 +18,7 @@
 #include "cl_GEN_Base_Node.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Child_Node.hpp"
-#include "cl_GEN_Parent_Base_Node.hpp"
-#include "cl_GEN_Parent_Derived_Node.hpp"
+#include "cl_GEN_Parent_Node.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Factory.hpp"
@@ -51,9 +50,6 @@ namespace moris
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
-
-            // Level set options
-            mEvaluateNewChildNodeAsLinear = aParameterLists( 0 )( 0 ).get< bool >( "evaluate_new_pts_as_linear" );
 
             // Requested IQIs
             mRequestedIQIs = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "IQI_types" ) );
@@ -97,16 +93,6 @@ namespace moris
             // Get geometries and properties from the factory
             mGeometries = tDesignFactory.get_geometries();
             mProperties = tDesignFactory.get_properties();
-
-            // iterate through geometries if any are multilinear, we turn the linear flag on
-            for ( moris::uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
-            {
-                if ( mGeometries( iGeom )->get_intersection_interpolation() == Int_Interpolation::MULTILINEAR )
-                {
-                    MORIS_LOG_INFO( "New Child Vertices will be evaluated as using linear background cells" );
-                    mEvaluateNewChildNodeAsLinear = true;
-                }
-            }
 
             MORIS_ERROR( mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_Data_Types.hpp" );
@@ -298,6 +284,8 @@ namespace moris
             return &mPDVHostManager;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         bool
         Geometry_Engine::geometric_query( Geometric_Query_Interface* aGeometricQuery )
         {
@@ -314,17 +302,12 @@ namespace moris
 
                 Matrix< IndexMat > const & tEdgeToVertex = aGeometricQuery->get_query_entity_to_vertex_connectivity();
 
-                moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
-
                 Matrix< IndexMat > tParentEntityIndices = aGeometricQuery->get_query_parent_entity_connectivity();
 
                 // annoying copy until I rewrite the queue intersection
-                Cell< Matrix< DDRMat > > tParentEntityCoords( tParentEntityIndices.numel() );
                 Matrix< DDUMat >         tParentEntityIndiceUINT( tParentEntityIndices.numel() );
-                tParentEntityCoords.reserve( tParentEntityIndices.numel() * 3 );
                 for ( moris::uint i = 0; i < tParentEntityIndices.numel(); i++ )
                 {
-                    tParentEntityCoords( i )     = *( *tQueryIndexedCoords )( tParentEntityIndices( i ) );
                     tParentEntityIndiceUINT( i ) = (uint)tParentEntityIndices( i );
                 }
 
@@ -332,10 +315,7 @@ namespace moris
                         tEdgeToVertex( 1 ),
                         aGeometricQuery->get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
                         aGeometricQuery->get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
-                        *( *tQueryIndexedCoords )( tEdgeToVertex( 0 ) ),
-                        *( *tQueryIndexedCoords )( tEdgeToVertex( 1 ) ),
-                        tParentEntityIndiceUINT,
-                        tParentEntityCoords );
+                        tParentEntityIndiceUINT );
             }
             else
             {
@@ -403,10 +383,7 @@ namespace moris
                 uint                            aEdgeSecondNodeIndex,
                 const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
                 const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
-                const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
-                const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
-                const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
-                const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
+                const Matrix< DDUMat >&         aBackgroundElementNodeIndices )
         {
             // If previous intersection node was not admitted, this will delete it
             delete mQueuedIntersectionNode;
@@ -417,7 +394,7 @@ namespace moris
             {
                 tGeometryType = mtk::Geometry_Type::QUAD;
             }
-            else
+            else if ( aBackgroundElementNodeIndices.length() == 8 )
             {
                 tGeometryType = mtk::Geometry_Type::HEX;
             }
@@ -429,39 +406,17 @@ namespace moris
                 tBaseNodes( iNode ) = mNodeManager.get_base_node( aBackgroundElementNodeIndices( iNode ) );
             }
 
-            // Create first parent node
-            Parent_Node* tFirstParentNode;
-            if ( aEdgeFirstNodeIndex < mNodeManager.get_number_of_base_nodes() )
-            {
-                tFirstParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
-            }
-            else
-            {
-                tFirstParentNode = new Parent_Derived_Node( mNodeManager.get_derived_node( aEdgeFirstNodeIndex ) );
-            }
-
-            // Create second parent node
-            Parent_Node* tSecondParentNode;
-            if ( aEdgeSecondNodeIndex < mNodeManager.get_number_of_base_nodes() )
-            {
-                tSecondParentNode = new Parent_Base_Node( mNodeManager.get_base_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
-            }
-            else
-            {
-                tSecondParentNode = new Parent_Derived_Node( mNodeManager.get_derived_node( aEdgeSecondNodeIndex ) );
-            }
+            // Create parent nodes
+            Parent_Node tFirstParentNode( mNodeManager.get_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
+            Parent_Node tSecondParentNode( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
 
             // Have the active geometry create a new intersection node
             mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node(
                     mNodeManager.get_total_number_of_nodes(),
                     tBaseNodes,
-                    *tFirstParentNode,
-                    *tSecondParentNode,
+                    tFirstParentNode,
+                    tSecondParentNode,
                     tGeometryType );
-
-            // Clean up
-            delete tFirstParentNode;
-            delete tSecondParentNode;
 
             // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();
@@ -501,18 +456,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        // FIXME node index is unnecessary, as an intersection node stores its own index now.
-        void
-        Geometry_Engine::admit_queued_intersection( uint aNodeIndex )
+        void Geometry_Engine::admit_queued_intersection()
         {
             // Assign as PDV host if constructed on adv dependent geometry or parent nodes are adv dependent
             if ( mQueuedIntersectionNode->depends_on_advs() )
             {
-                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode->get_index(), mQueuedIntersectionNode );
+                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode );
             }
             else
             {
-                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode->get_index(), nullptr );
+                mPDVHostManager.set_intersection_node( nullptr );
             }
 
             // Add new derived node to the node manager
@@ -743,18 +696,6 @@ namespace moris
 
             // Return final list
             return tMTKFields;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        real
-        Geometry_Engine::get_field_value(
-                uint                    aFieldIndex,
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates )
-        {
-            // TODO can return property field too
-            return mGeometries( aFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1465,7 +1406,6 @@ namespace moris
 
             // Reset mesh information
             clock_t tStart_Reset_Mesh_Info = clock();
-
             this->reset_mesh_information( tMesh );
 
             MORIS_LOG_INFO( "Time to reset mesh information: %f sec", ( moris::real )( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );

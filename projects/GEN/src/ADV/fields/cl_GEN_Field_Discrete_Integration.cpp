@@ -44,14 +44,14 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
-        {
-            return this->get_field_value( aNodeIndex );
-        }
-        else
-        {
-            return this->get_interpolated_field_value( aNodeIndex, aCoordinates );
-        }
+        return this->get_field_value( aNodeIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Field_Discrete_Integration::get_field_value( Derived_Node* aDerivedNode )
+    {
+        return this->get_interpolated_field_value( aDerivedNode->get_background_nodes() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -60,14 +60,14 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
-        {
-            return this->get_dfield_dadvs( aNodeIndex );
-        }
-        else
-        {
-            return this->get_interpolated_dfield_dadvs( aNodeIndex, aCoordinates );
-        }
+        return this->get_dfield_dadvs( aNodeIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >& Field_Discrete_Integration::get_dfield_dadvs( Derived_Node* aDerivedNode )
+    {
+        return this->get_interpolated_dfield_dadvs( aDerivedNode->get_background_nodes() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -76,14 +76,14 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
-        {
-            return this->get_determining_adv_ids( aNodeIndex );
-        }
-        else
-        {
-            return this->get_interpolated_determining_adv_ids( aNodeIndex, aCoordinates );
-        }
+        return this->get_determining_adv_ids( aNodeIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat > Field_Discrete_Integration::get_determining_adv_ids( Derived_Node* aDerivedNode )
+    {
+        return this->get_interpolated_determining_adv_ids( aDerivedNode->get_background_nodes() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -94,24 +94,24 @@ namespace moris::ge
             const Matrix<DDRMat>& aCoordinates,
             Matrix<DDRMat>&       aSensitivities)
     {
-        if ( aNodeIndex < mNodeManager->get_number_of_base_nodes() )
-        {
-            // Base node, there are no sensitivities
-            return;
-        }
-        else
-        {
-            // Get sensitivities from linear intersection node
-            auto tIntersectionNode = dynamic_cast< Intersection_Node_Linear* >( mNodeManager->get_derived_node( aNodeIndex ) );
-            tIntersectionNode->get_dfield_dcoordinates( this, aSensitivities );
-        }
+//        if ( mNodeManager->is_base_node( aNodeIndex ) )
+//        {
+//            // Base node, there are no sensitivities
+//            return;
+//        }
+//        else
+//        {
+//            // Get sensitivities from linear intersection node
+//            auto tIntersectionNode = dynamic_cast< Intersection_Node_Linear* >( mNodeManager->get_derived_node( aNodeIndex ) );
+//            tIntersectionNode->get_dfield_dcoordinates( this, aSensitivities );
+//        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDSMat> Field_Discrete_Integration::get_determining_adv_ids(uint aNodeIndex)
+    Matrix< DDSMat > Field_Discrete_Integration::get_determining_adv_ids( uint aNodeIndex )
     {
-        return Field::get_determining_adv_ids(aNodeIndex, {{}});
+        return Field::get_determining_adv_ids( aNodeIndex, {{}} );
     }
 
     //--------------------------------------------------------------------------------------------------------------

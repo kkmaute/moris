@@ -48,22 +48,16 @@ namespace moris
 
         class Geometry_Engine
         {
-            //-------------------------------------------------------------------------------
             
           protected:
 
             Cell< std::shared_ptr< Level_Set_Geometry > > mGeometries;
             Cell< std::shared_ptr< Property > > mProperties;
-
-            //-------------------------------------------------------------------------------
             
           private:
           
             // Phase Table
             Phase_Table mPhaseTable;
-
-            //
-            bool mEvaluateNewChildNodeAsLinear = false;
 
             // Spatial dimensions
             uint mNumSpatialDimensions;
@@ -99,12 +93,8 @@ namespace moris
             bool        mDiagnostics    = false;
             std::string mDiagnosticPath = "";
             std::string mDiagnosticId   = "";
-
-            //-------------------------------------------------------------------------------
             
           public:
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Constructor using cell of cell of parameter lists
@@ -117,8 +107,6 @@ namespace moris
                     Cell< Cell< ParameterList > > aParameterLists,
                     std::shared_ptr< Library_IO > aLibrary = nullptr,
                     mtk::Mesh*                    aMesh    = nullptr );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Constructor
@@ -129,23 +117,17 @@ namespace moris
             Geometry_Engine(
                     mtk::Interpolation_Mesh*   aMesh,
                     Geometry_Engine_Parameters aParameters = {} );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Destructor
              */
             ~Geometry_Engine();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Returns pdv host manager.
              *
              */
             moris::ge::Pdv_Host_Manager* get_pdv_host_manager();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Sets new ADVs for the geometry engine.
@@ -153,8 +135,6 @@ namespace moris
              * @param aNewADVs vector of new advs to use
              */
             void set_advs( const Matrix< DDRMat >& aNewADVs );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the advs from the geometry engine
@@ -162,8 +142,6 @@ namespace moris
              * @return vector of advs
              */
             Matrix< DDRMat >& get_advs();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Get vector with ijkl IDs. All Ids are on proc 0, all others return empty vec
@@ -171,8 +149,6 @@ namespace moris
              * @return vector of aijkl Ids
              */
             Matrix< IdMat >& get_IjklIDs();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the lower bounds from the geometry engine
@@ -180,8 +156,6 @@ namespace moris
              * @return vector of lower bounds
              */
             Matrix< DDRMat >& get_lower_bounds();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the upper bounds from the geometry engine
@@ -189,8 +163,6 @@ namespace moris
              * @return vector of upper bounds
              */
             Matrix< DDRMat >& get_upper_bounds();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Lets MDL know about the stored requested IQIs through the PDV host manager
@@ -209,8 +181,6 @@ namespace moris
                     PHASE_FUNCTION      aPhaseFunction,
                     uint                aNumPhases,
                     Cell< std::string > aPhaseNames = {} );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Import dcriteria/dx from file
@@ -220,8 +190,6 @@ namespace moris
             set_dQIdp(
                     Cell< Matrix< DDRMat >* > adQIdp,
                     Matrix< DDSMat >*         aMap );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the sensitivities of the criteria with respect to the advs
@@ -229,8 +197,6 @@ namespace moris
              * @return Vector of sensitivities
              */
             Matrix< DDRMat > get_dcriteria_dadv();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the design variable interface from the geometry engine
@@ -238,8 +204,6 @@ namespace moris
              * @return member pdv host manager pointer
              */
             MSI::Design_Variable_Interface* get_design_variable_interface();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Determines if the element consisting of the given node coordinates is intersected.
@@ -261,8 +225,6 @@ namespace moris
             //-------------------------------------------------------------------------------
             
             bool geometric_query( Geometric_Query_Interface* aGeometricQuery );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
@@ -272,10 +234,7 @@ namespace moris
              * @param aEdgeSecondNodeIndex Second node index on the intersection edge
              * @param aEdgeFirstNodeParametricCoordinates Local coordinates of the first node inside the background element
              * @param aEdgeSecondNodeParametricCoordinates Local coordinates of the second node inside the background element
-             * @param aEdgeFirstNodeGlobalCoordinates Global coordinates of the first node
-             * @param aEdgeSecondNodeGlobalCoordinates Global coordinates of the second node
              * @param aBackgroundElementNodeIndices Node indices of the background element
-             * @param aBackgroundElementNodeCoordinates Node coordinates of the background element
              * @return If the edge is intersected and a node has been queued
              */
             bool queue_intersection(
@@ -283,12 +242,7 @@ namespace moris
                     uint                            aEdgeSecondNodeIndex,
                     const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
                     const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
-                    const Matrix< DDRMat >&         aEdgeFirstNodeGlobalCoordinates,
-                    const Matrix< DDRMat >&         aEdgeSecondNodeGlobalCoordinates,
-                    const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
-                    const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates );
-
-            //-------------------------------------------------------------------------------
+                    const Matrix< DDUMat >&         aBackgroundElementNodeIndices );
             
             /**
              * Returns if the queued intersection has the first parent node on the active geometry interface.
@@ -296,8 +250,6 @@ namespace moris
              * @return If the first parent node is on the interface
              */
             bool queued_intersection_first_parent_on_interface();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Returns if the queued intersection has the second parent node on the active geometry interface.
@@ -305,8 +257,6 @@ namespace moris
              * @return If the second parent node is on the interface
              */
             bool queued_intersection_second_parent_on_interface();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the local coordinate of the queued intersection node.
@@ -314,8 +264,6 @@ namespace moris
              * @return Intersection node local coordinate (between -1 and 1)
              */
             real get_queued_intersection_local_coordinate();
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the global coordinates of the queued intersection node.
@@ -323,15 +271,11 @@ namespace moris
              * @return Intersection node global coordinates
              */
             Matrix< DDRMat > get_queued_intersection_global_coordinates();
-
-            //-------------------------------------------------------------------------------
             
             /**
-             * Admit the queued intersection as a unique, permanent node(s) for sensitivity calculations.
+             * Admit the queued intersection as a unique, permanent node for sensitivity calculations.
              */
-            void admit_queued_intersection( uint aNodeIndex );
-
-            //-------------------------------------------------------------------------------
+            void admit_queued_intersection();
             
             /**
              * Update the queued intersection node with its node ID and node owner.
@@ -386,12 +330,12 @@ namespace moris
                     const Matrix< DDRMat >& aNodeCoordinates );
 
             /**
-             * Returns if a node is on the given interface or not
+             * Gets the geometric region of a node with respect to a given geometry.
              *
              * @param aGeometryIndex Geometry index
              * @param aNodeIndex Node index
-             * @param aNodeCoordinates Node coordinates
-             * @return If the node is on this interface
+             * @param aCoordinates Node coordinates
+             * @return Geometric region
              */
             Geometric_Region get_geometric_region(
                     uint                    aGeometryIndex,
@@ -456,8 +400,6 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             const Cell< uint >& get_refinement_mesh_indices( uint aFieldIndex );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets all of the MTK fields that the geometry engine is using.
@@ -465,22 +407,6 @@ namespace moris
              * @return MTK fields
              */
             Cell< std::shared_ptr< mtk::Field > > get_mtk_fields();
-
-            //-------------------------------------------------------------------------------
-            
-            /**
-             * Returns fields so that HMR can perform refinement based on the data from this performer
-             *
-             * @param aFieldIndex Index of the field
-             * @param aNodeIndex Index of the node
-             * @param aCoordinates Coordinates of the node
-             */
-            real get_field_value(
-                    uint                    aFieldIndex,
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Gets the index of an HMR user-defined refinement function for the given field index
@@ -492,8 +418,6 @@ namespace moris
             sint get_refinement_function_index(
                     uint aFieldIndex,
                     uint aRefinementIndex );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Discretize GEN fields on the given mesh and distribute parallel ADVs based on these fields.
@@ -504,8 +428,6 @@ namespace moris
                     mtk::Mesh_Pair                        aMeshPair,
                     Cell< std::shared_ptr< mtk::Field > > aFields = {},
                     mtk::EntityRank                       aADVEntityRank = mtk::EntityRank::BSPLINE );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Resets the information that the geometry engine stores about a mesh.
@@ -513,8 +435,6 @@ namespace moris
              * @param aMesh Mesh for computing level set data
              */
             void reset_mesh_information( mtk::Interpolation_Mesh* aMesh );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Outputs geometry and property fields on the given mesh, and writes level set fields to a text file.
@@ -523,8 +443,6 @@ namespace moris
              * @param aMesh Mesh to evaluate fields on
              */
             void output_fields( mtk::Mesh* aMesh );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Creates geometry and property fields on the given mesh, and writes the mesh to an exodus file.
@@ -535,8 +453,6 @@ namespace moris
             void output_fields_on_mesh(
                     mtk::Mesh*  aMesh,
                     std::string aExodusFileName );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Writes all geometry fields to separate text files with the given base file name (suffix appended on to
@@ -548,8 +464,6 @@ namespace moris
             void write_geometry_fields(
                     mtk::Mesh*  aMesh,
                     std::string aBaseFileName );
-
-            //-------------------------------------------------------------------------------
             
             /**
              * Assign PDV hosts based on properties constructed through parameter lists
@@ -575,14 +489,6 @@ namespace moris
 
             std::string
             get_diagnostic_file_name( std::string const & aLabel ) const;
-
-            //-------------------------------------------------------------------------------
-            
-            /**
-             *
-             */
-            void
-            induce_as_interface_vertex_on_active_geometry( moris_index aVertexIndex );
 
             //-------------------------------------------------------------------------------
             

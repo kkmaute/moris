@@ -21,11 +21,12 @@ namespace moris::ge
 {
     // Forward declare basis node
     class Basis_Node;
+    class Geometry;
 
     class Derived_Node : public Node
     {
       private:
-        Cell< Basis_Node > mBasisNodes;
+        Cell< Basis_Node > mBackgroundNodes;
         Matrix< DDRMat > mGlobalCoordinates;
         Matrix< DDRMat > mParametricCoordinates;
 
@@ -57,10 +58,27 @@ namespace moris::ge
         const Matrix< DDRMat >& get_parametric_coordinates();
 
         /**
-         * Gets the locators of this derived node
+         * Gets the basis nodes of this derived node
          *
-         * @return Locators
+         * @return Basis nodes
          */
-        const Cell< Basis_Node >& get_basis_nodes();
+        const Cell< Basis_Node >& get_background_nodes();
+
+        /**
+         * Gets the locator nodes of this derived node.
+         * Locator nodes are the most derived basis nodes that can determine the location of this node.
+         * For derived nodes, these are the background nodes, and for intersection nodes these are its parents.
+         *
+         * @return Locator nodes
+         */
+        virtual const Cell< Basis_Node >& get_locator_nodes();
+
+        /**
+         * Gets if this derived node can be determined that it is on a specific interface without any field evaluation.
+         *
+         * @param aGeometry Potential interface geometry
+         * @return If this node is on the requested interface
+         */
+        virtual bool is_on_interface( Geometry* aGeometry );
     };
 }

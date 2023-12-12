@@ -11,24 +11,21 @@
 #pragma once
 
 #include "cl_GEN_Derived_Node.hpp"
-#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::ge
 {
-    // Forward declare parent node base class
+    // Forward declare necessary classes
     class Geometry;
+    class Basis_Node;
     class Parent_Node;
 
     class Intersection_Node : public Derived_Node
     {
       protected:
-        Matrix< DDRMat > mParentVector;
         Matrix< DDSMat > mCoordinateDeterminingADVIDs;
-        Basis_Node mFirstParentNode;
-        Basis_Node mSecondParentNode;
 
       private:
-        bool mIsIntersected;
+        Cell< Basis_Node > mParentNodes;
         std::shared_ptr< Geometry > mInterfaceGeometry;
         moris_id mPDVStartingID;
         bool     mPDVStartingIDSet = false;
@@ -68,14 +65,20 @@ namespace moris::ge
         bool depends_on_advs() override;
 
         /**
-         * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
-         * ancestor nodes.
+         * Gets the locator nodes of this derived node.
+         * For intersection nodes, these are its parents.
          *
-         * @param aCoordinateSensitivities Coordinate sensitivities matrix that gets appended to
-         * @param aSensitivityFactor Matrix factor to scale this node's sensitivities based on a calling child's position and orientation.
-         * This should be set to identity matrix of number of dimensions for any calls to this function outside of another intersection node.
+         * @return Locator nodes
          */
-        virtual void append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) = 0;
+        const Cell< Basis_Node >& get_locator_nodes() override;
+
+        /**
+         * Gets if this intersection node can be determined that it is on a specific interface without any field evaluation.
+         *
+         * @param aGeometry Potential interface geometry
+         * @return If this node is on the requested interface
+         */
+        bool is_on_interface( Geometry* aGeometry ) override;
 
         /**
          * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
@@ -163,26 +166,21 @@ namespace moris::ge
          */
         moris_index get_owner();
 
-        // FIXME where this is called in the geometry engine, it just uses it to grab an intersection node. We can just provide this information directly instead.
-        moris_index
-        get_first_parent_node_index()
-        {
-            return mFirstParentNode.get_index();
-        }
-
-        moris_index
-        get_second_parent_node_index()
-        {
-            return mSecondParentNode.get_index();
-        }
-
       protected:
+
         /**
-         * Computes basic member data for all intersection node derived classes.
-         * Must be called by lowest level child class constructors.
+         * Gets the first parent node of this intersection node.
          *
+         * @return First parent node
          */
-        void initialize();
+        Basis_Node& get_first_parent_node();
+
+        /**
+         * Gets the second parent node of this intersection node.
+         *
+         * @return Second parent node
+         */
+        Basis_Node& get_second_parent_node();
 
         /**
          * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
@@ -190,41 +188,5 @@ namespace moris::ge
          * @param aIDsToAdd IDs to add
          */
         void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
-
-        /**
-         * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
-         * values on each of its ancestors.
-         *
-         * @param aAncestorIndex Ancestor index
-         * @return Local coordinate sensitivity
-         */
-        virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) = 0;
-
-        /**
-         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-         * coordinate values of its first parent.
-         *
-         * @return Local coordinate sensitivity
-         */
-        virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() = 0;
-
-        /**
-         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-         * coordinate values of its second parent.
-         *
-         * @return Local coordinate sensitivity
-         */
-        virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() = 0;
-
-      private:
-
-        /**
-         * Determines if the parent nodes are intersected.
-         * Used by initialize() to set mIsIntersected. Implementation provided by child class.
-         *
-         * @return if the parent nodes are intersected
-         * @return false if there is no intersection detected
-         */
-        virtual bool determine_is_intersected() = 0;
     };
 }

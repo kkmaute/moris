@@ -42,7 +42,15 @@ namespace moris::ge
          */
         real get_field_value(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) override;
+
+        /**
+         * Gets a field value of a derived node.
+         *
+         * @param aDerivedNode Derived node
+         * @return Field value
+         */
+        real get_field_value( Derived_Node* aDerivedNode ) override;
 
         /**
          * Given a node index or coordinate, returns a vector of the field derivatives with respect to its ADVs.
@@ -53,7 +61,15 @@ namespace moris::ge
          */
         const Matrix< DDRMat >& get_dfield_dadvs(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) override;
+
+        /**
+         * Gets a vector of the field derivatives with respect to ADVs of a derived node.
+         *
+         * @param aDerivedNode Derived node
+         * @return d(field value)/d(ADV_j)
+         */
+        const Matrix< DDRMat >& get_dfield_dadvs( Derived_Node* aDerivedNode ) override;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -66,7 +82,26 @@ namespace moris::ge
         virtual void get_dfield_dcoordinates(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities );
+                Matrix< DDRMat >&       aSensitivities ) override;
+
+        /**
+         * Gets the IDs of ADVs which this field depends on for evaluations.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Node coordinates
+         * @return Determining ADV IDs at this node
+         */
+        Matrix< DDSMat > get_determining_adv_ids(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates ) override;
+
+        /**
+         * Gets the IDs of ADVs that this field depends on for evaluations at a derived node.
+         *
+         * @param aDerivedNode Derived node
+         * @return Determining ADV IDs at this node
+         */
+        Matrix< DDSMat > get_determining_adv_ids( Derived_Node* aDerivedNode ) override;
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh

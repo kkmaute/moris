@@ -146,7 +146,7 @@ namespace moris::ge
                         // Level-set field
                         if ( tGeometryType == "level_set" )
                         {
-                            tGeometry = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ) );
+                            tGeometry = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ), aNodeManager );
                         }
                         else if( tGeometryType == "surface_mesh" )
                         {
@@ -166,7 +166,7 @@ namespace moris::ge
                     else if ( tDesignType == "property" )
                     {
                         // Create new property
-                        auto tProperty = std::make_shared< Property >( mFields( tFieldIndex - 1 ), Property_Parameters( iParameterList ) );
+                        auto tProperty = std::make_shared< Property >( mFields( tFieldIndex - 1 ), Property_Parameters( iParameterList ), aNodeManager );
 
                         // Assign new property
                         mProperties( tPropertyIndex++ ) = tProperty;

@@ -902,18 +902,6 @@ namespace xtk
             MORIS_LOG_SPEC( "Cell Index", tIndex );
             MORIS_LOG_SPEC( "Cell Owner", tCell.get_owner() );
             MORIS_LOG_SPEC( "Vertex Ids", ios::stringify_log( tVertexIds ) );
-
-            // collect geometric info
-            uint                     tNumGeom = mGeometryEngine->get_num_geometries();
-            Cell< Matrix< DDRMat > > tVertexGeomVals( tNumGeom, Matrix< DDRMat >( 1, tVertexPtrs.size() ) );
-            for ( moris::uint iG = 0; iG < tNumGeom; iG++ )
-            {
-                for ( moris::uint iV = 0; iV < tVertexPtrs.size(); iV++ )
-                {
-                    tVertexGeomVals( iG )( iV ) = mGeometryEngine->get_field_value( iG, (uint)tVertexPtrs( iV )->get_index(), tVertexPtrs( iV )->get_coords() );
-                }
-                MORIS_LOG_SPEC( "Geom Field " + std::to_string( iG ) + " Vals", ios::stringify_log( tVertexGeomVals( iG ) ) );
-            }
         }
     }
 

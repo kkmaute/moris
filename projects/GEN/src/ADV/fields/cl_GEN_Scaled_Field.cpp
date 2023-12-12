@@ -14,31 +14,63 @@ namespace moris::ge
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    real Scaled_Field::get_base_field_value(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates)
+    real Scaled_Field::get_field_value(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
     {
-        return mADVManager.get_variable( 0 ) * mField->get_field_value(aNodeIndex, aCoordinates);
+        return mADVManager.get_variable( 0 ) * mField->get_field_value( aNodeIndex, aCoordinates );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>& Scaled_Field::get_base_dfield_dadvs(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates)
+    real Scaled_Field::get_field_value( Derived_Node* aDerivedNode )
     {
-        mSensitivities = mADVManager.get_variable( 0 ) *
-                mField->get_dfield_dadvs(aNodeIndex, aCoordinates);
+        return mADVManager.get_variable( 0 ) * mField->get_field_value( aDerivedNode );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix<DDRMat>& Scaled_Field::get_dfield_dadvs(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
+    {
+        mSensitivities = mADVManager.get_variable( 0 ) * mField->get_dfield_dadvs( aNodeIndex, aCoordinates );
+        return mSensitivities;
+    }
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix<DDRMat>& Scaled_Field::get_dfield_dadvs( Derived_Node* aDerivedNode )
+    {
+        mSensitivities = mADVManager.get_variable( 0 ) * mField->get_dfield_dadvs( aDerivedNode );
         return mSensitivities;
     }
 
+
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDSMat> Scaled_Field::get_base_determining_adv_ids(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates)
+    Matrix<DDSMat> Scaled_Field::get_determining_adv_ids(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
     {
-        return mField->get_determining_adv_ids(aNodeIndex, aCoordinates);
+        return mField->get_determining_adv_ids( aNodeIndex, aCoordinates );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix<DDSMat> Scaled_Field::get_determining_adv_ids( Derived_Node* aDerivedNode )
+    {
+        return mField->get_determining_adv_ids( aDerivedNode );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Scaled_Field::get_dfield_dcoordinates(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates,
+            Matrix< DDRMat >&       aSensitivities )
+    {
+        mField->get_dfield_dcoordinates( aNodeIndex, aCoordinates, aSensitivities );
+        aSensitivities = aSensitivities * mADVManager.get_variable( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -47,6 +79,13 @@ namespace moris::ge
     {
         MORIS_ERROR( aDependencyFields.size() == 1, "A scaled field only depends on one field." );
         mField = aDependencyFields( 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::shared_ptr< mtk::Field > Scaled_Field::get_mtk_field()
+    {
+        return mField->get_mtk_field();
     }
 
     //--------------------------------------------------------------------------------------------------------------

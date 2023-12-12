@@ -643,7 +643,9 @@ namespace moris
                             for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                             {
                                 Matrix< DDRMat > tNodeCoordinates = aMesh->get_node_coordinate( tNodeIndex );
-                                tFieldValues( tNodeIndex )        = aPerformer->get_field_value( iField, tNodeIndex, tNodeCoordinates );
+
+                                // FIXME right now the geometric region is converted into a real value, but this should be handled by the refinement interface
+                                tFieldValues( tNodeIndex )        = (real) aPerformer->get_geometric_region( iField, tNodeIndex, tNodeCoordinates );
                             }
 
                             // Put elements on queue and set flag for refinement
@@ -685,11 +687,12 @@ namespace moris
                         for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
                         {
                             Matrix< DDRMat > tNodeCoordinates = aMesh->get_node_coordinate( tNodeIndex );
-                            tFieldValues( tNodeIndex ) =
-                                    aPerformer->get_field_value(
-                                            iField,
-                                            tNodeIndex,
-                                            tNodeCoordinates );
+
+                            // FIXME right now the geometric region is converted into a real value, but this should be handled by the refinement interface
+                            tFieldValues( tNodeIndex ) = (real) aPerformer->get_geometric_region(
+                                    iField,
+                                    tNodeIndex,
+                                    tNodeCoordinates );
                         }
 
                         // Put elements on queue and set flag for refinement // FIXME: this is untested for a refinement function,

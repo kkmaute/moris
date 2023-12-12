@@ -42,6 +42,14 @@ namespace moris::ge
       private:
 
         /**
+         * Gets the basis nodes that provided the field values for this level set intersection node to be created;
+         * For multilinear intersection nodes, these are the background nodes.
+         *
+         * @return Basis nodes for interpolating sensitivities
+         */
+        const Cell< Basis_Node >& get_field_basis_nodes() override;
+
+        /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
          * values on each of its ancestors.
          *
@@ -82,7 +90,5 @@ namespace moris::ge
                 const Parent_Node&                    aFirstParentNode,
                 const Parent_Node&                    aSecondParentNode,
                 std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
-
-        real compute_intersection_derivative( uint aAncestorIndex );
     };
 }

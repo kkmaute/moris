@@ -552,7 +552,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", false );
+        tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", false );
 
         if ( tUseAnalyticGeometry )
         {

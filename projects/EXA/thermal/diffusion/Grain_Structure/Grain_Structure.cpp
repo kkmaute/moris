@@ -195,7 +195,7 @@ namespace moris
         tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1);
         tParameterlist( 1 )( 0 ).set( "isocontour_tolerance", 1E-12);
         tParameterlist( 1 )( 0 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 0 ).set( "multilinear_intersections", false);
+        tParameterlist( 1 )( 0 ).set( "use_multilinear_interpolation", false);
 
                 // Geometry parameter lists
         tParameterlist( 1 )( 1 ) = prm::create_user_defined_geometry_parameter_list();
@@ -205,7 +205,7 @@ namespace moris
         tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", -1);
         tParameterlist( 1 )( 1 ).set( "isocontour_tolerance", 1E-12);
         tParameterlist( 1 )( 1 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 1 ).set( "multilinear_intersections", false);
+        tParameterlist( 1 )( 1 ).set( "use_multilinear_interpolation", false);
 
                 // Geometry parameter lists
         tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
@@ -215,7 +215,7 @@ namespace moris
         tParameterlist( 1 )( 2 ).set( "discretization_mesh_index", -1);
         tParameterlist( 1 )( 2 ).set( "isocontour_tolerance", 1E-12);
         tParameterlist( 1 )( 2 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 2 ).set( "multilinear_intersections", false);
+        tParameterlist( 1 )( 2 ).set( "use_multilinear_interpolation", false);
 
                 // Geometry parameter lists
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
@@ -225,7 +225,7 @@ namespace moris
         tParameterlist( 1 )( 3 ).set( "discretization_mesh_index", -1);
         tParameterlist( 1 )( 3 ).set( "isocontour_tolerance", 1E-12);
         tParameterlist( 1 )( 3 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 3 ).set( "multilinear_intersections", false);
+        tParameterlist( 1 )( 3 ).set( "use_multilinear_interpolation", false);
 
     }
 

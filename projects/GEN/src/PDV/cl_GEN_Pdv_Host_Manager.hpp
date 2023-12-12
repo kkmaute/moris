@@ -334,12 +334,9 @@ namespace moris::ge
         /**
          * Set an intersection at a node index and assign its starting PDV index for later.
          *
-         * @param aNodeIndex Node index
          * @param aIntersectionNode Intersection node admitted by the geometry engine
          */
-        void set_intersection_node(
-                uint               aNodeIndex,
-                Intersection_Node* aIntersectionNode );
+        void set_intersection_node( Intersection_Node* aIntersectionNode );
 
         /**
          * Gets an intersection node from the PDV host manager, used so the geometry engine can create new

@@ -4,52 +4,45 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Parent_Base_Node.cpp
+ * cl_GEN_Parent_Node.cpp
  *
  */
 
-#include "cl_GEN_Parent_Base_Node.hpp"
-#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Parent_Node.hpp"
+#include "cl_GEN_Node.hpp"
 
 namespace moris::ge
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Parent_Base_Node::Parent_Base_Node(
-            Base_Node*              aBaseNode,
+    Parent_Node::Parent_Node(
+            Node*                   aNode,
             const Matrix< DDRMat >& aParametricCoordinates )
-            : mBaseNode( aBaseNode )
+            : mNode( aNode )
             , mParametricCoordinates( aParametricCoordinates )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Parent_Base_Node::get_index() const
+    uint Parent_Node::get_index() const
     {
-        return mBaseNode->get_index();
+        return mNode->get_index();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Parent_Base_Node::get_global_coordinates() const
+    const Matrix< DDRMat >& Parent_Node::get_global_coordinates() const
     {
-        return mBaseNode->get_global_coordinates();
+        return mNode->get_global_coordinates();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Parent_Base_Node::get_parametric_coordinates() const
+    const Matrix< DDRMat >& Parent_Node::get_parametric_coordinates() const
     {
         return mParametricCoordinates;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Node* Parent_Base_Node::get_node() const
-    {
-        return mBaseNode;
     }
 
     //--------------------------------------------------------------------------------------------------------------

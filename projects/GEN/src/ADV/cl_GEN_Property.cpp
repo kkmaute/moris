@@ -30,8 +30,9 @@ namespace moris::ge
 
     Property::Property(
             std::shared_ptr< Field > aField,
-            Property_Parameters      aParameters )
-            : Design_Field( aField, aParameters )
+            Property_Parameters      aParameters,
+            Node_Manager&            aNodeManager )
+            : Design_Field( aField, aParameters, aNodeManager )
             , mParameters( aParameters )
     {
     }
@@ -40,7 +41,7 @@ namespace moris::ge
 
     void Property::set_node_manager( Node_Manager& aNodeManager )
     {
-        mField->set_node_manager( aNodeManager );
+        mNodeManager = &aNodeManager;
     }
 
     //--------------------------------------------------------------------------------------------------------------

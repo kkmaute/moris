@@ -27,10 +27,9 @@ namespace moris::ge
      */
     struct Level_Set_Parameters : public Field_Parameters
     {
-        Int_Interpolation mIntersectionInterpolation; // The type of interpolation used to determine intersection location
-        real              mIsocontourThreshold;       // Level set isocontour level
-        real              mIsocontourTolerance;       // Interface tolerance based on geometry value
-        real              mIntersectionTolerance;     // Interface tolerance based on intersecction distance
+        real mIsocontourThreshold;       // Level set isocontour level
+        real mIsocontourTolerance;       // Interface tolerance based on geometry value
+        real mIntersectionTolerance;     // Interface tolerance based on intersecction distance
 
         /**
          * Constructor with a given parameter list
@@ -52,10 +51,12 @@ namespace moris::ge
          *
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
+         * @param aNodeManager Node manager from the geometry engine, if available
          */
         explicit Level_Set_Geometry(
               std::shared_ptr< Field > aField,
-              Level_Set_Parameters     aParameters = Level_Set_Parameters() );
+              Level_Set_Parameters     aParameters = Level_Set_Parameters(),
+              Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this geometry)
@@ -63,13 +64,6 @@ namespace moris::ge
          * @param aNodeManager Geometry engine node manager
          */
         void set_node_manager( Node_Manager& aNodeManager ) override;
-
-        /**
-         * Gets the intersection interpolation type for this geometry.
-         *
-         * @return Intersection interpolation
-         */
-        Int_Interpolation get_intersection_interpolation();
 
         /**
          * Gets the mode of intersection used for this geometry

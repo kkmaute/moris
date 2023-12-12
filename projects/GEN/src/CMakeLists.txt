@@ -85,8 +85,6 @@ set(HEADERS
 	PDV/cl_GEN_Derived_Node.hpp
 	PDV/cl_GEN_Basis_Node.hpp
 	PDV/cl_GEN_Parent_Node.hpp
-	PDV/cl_GEN_Parent_Base_Node.hpp
-	PDV/cl_GEN_Parent_Derived_Node.hpp
 	PDV/cl_GEN_Intersection_Node.hpp
 	PDV/cl_GEN_Intersection_Node_Level_Set.hpp
 	PDV/cl_GEN_Intersection_Node_Linear.hpp
@@ -147,8 +145,7 @@ set(LIB_SOURCES
 	PDV/cl_GEN_Derived_Node.cpp
 	PDV/cl_GEN_Child_Node.cpp
 	PDV/cl_GEN_Basis_Node.cpp
-	PDV/cl_GEN_Parent_Base_Node.cpp
-	PDV/cl_GEN_Parent_Derived_Node.cpp
+	PDV/cl_GEN_Parent_Node.cpp
 	PDV/cl_GEN_Intersection_Node.cpp
 	PDV/cl_GEN_Intersection_Node_Level_Set.cpp
 	PDV/cl_GEN_Intersection_Node_Linear.cpp

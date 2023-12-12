@@ -997,7 +997,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 1.2 );
-        tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", false );
+        tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", false );
 
         if ( tIsOpt )
         {

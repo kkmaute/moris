@@ -652,7 +652,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
-        tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", false );
+        tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", false );
 
         if ( tIsOpt )
         {

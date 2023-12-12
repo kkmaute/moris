@@ -11,8 +11,8 @@
 #pragma once
 
 #include "cl_Cell.hpp"
-#include "cl_GEN_Node.hpp"
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Derived_Node.hpp"
 
 // Forward declare mtk mesh
 namespace moris::mtk
@@ -22,11 +22,6 @@ namespace moris::mtk
 
 namespace moris::ge
 {
-    // Forward declare derived node
-    class Base_Node;
-    class Derived_Node;
-    class Intersection_Node;
-
     class Node_Manager
     {
       private:
@@ -54,13 +49,6 @@ namespace moris::ge
         void reset_base_nodes( mtk::Mesh* aMesh );
 
         /**
-         * Gets the number of base nodes currently stored by this node manager.
-         *
-         * @return Number of base nodes
-         */
-        uint get_number_of_base_nodes();
-
-        /**
          * Gets the total number of nodes stored by the node manager.
          *
          * @return Total number of nodes
@@ -70,10 +58,25 @@ namespace moris::ge
         /**
          * Gets a node stored in this manager.
          *
-         * @param aIndex Node index
+         * @param aNodeIndex Node index
          * @return Node pointer
          */
-        Base_Node* get_base_node( uint aIndex );
+        Node* get_node( uint aNodeIndex );
+
+        /**
+         * Gets if the given node index refers to a base node.
+         *
+         * @return If node is a base node.
+         */
+        virtual bool is_base_node( uint aNodeIndex );
+
+        /**
+         * Gets a base node stored in this manager.
+         *
+         * @param aBaseNodeIndex Base node index
+         * @return Node pointer
+         */
+        virtual Base_Node* get_base_node( uint aBaseNodeIndex );
 
         /**
          * Adds a derived node to this manager.
@@ -85,10 +88,10 @@ namespace moris::ge
         /**
          * Gets a derived node from this manager
          *
-         * @param aIndex Node index (this must be the index of a derived node, or an error will be thrown)
+         * @param aDerivedNodeIndex Node index (this must be the index of a derived node, or an error will be thrown)
          * @return Derived node
          */
-        Derived_Node* get_derived_node( uint aIndex );
+        Derived_Node* get_derived_node( uint aDerivedNodeIndex );
 
         /**
          * Gets a trivial node manager. This is useful for allowing geometry construction before

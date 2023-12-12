@@ -597,7 +597,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", true );
+        tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", true );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 0 );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", -2.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_upper_bound", 2.0 );

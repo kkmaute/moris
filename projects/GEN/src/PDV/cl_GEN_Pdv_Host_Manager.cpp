@@ -72,6 +72,7 @@ namespace moris::ge
     {
         mIpPdvHosts.clear();
         mIntersectionNodes.clear();
+        mNumBackgroundNodesSet = false;
         mOwnedPdvLocalToGlobalMap.resize( 0, 0 );
         mOwnedAndSharedPdvLocalToGlobalMap.resize( 0, 0 );
         mNumOwnedPdvs          = 0;
@@ -580,18 +581,12 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Pdv_Host_Manager::set_intersection_node(
-            uint               aNodeIndex,
-            Intersection_Node* aIntersectionNode )
+    Pdv_Host_Manager::set_intersection_node( Intersection_Node* aIntersectionNode )
     {
         // Check node index
         MORIS_ASSERT( mNumBackgroundNodesSet,
                 "Pdv_Host_Manager::set_intersection_node - %s",
                 "Number of background nodes must be set before intersection nodes can be created." );
-
-        MORIS_ASSERT( aNodeIndex == mIntersectionNodes.size(),
-                "Pdv_Host_Manager::set_intersection_node - %s",
-                "Intersection nodes must be added to the PDV Host Manager in order by node index." );
 
         // Add intersection node
         mIntersectionNodes.push_back( aIntersectionNode );

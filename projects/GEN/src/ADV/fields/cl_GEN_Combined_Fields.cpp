@@ -29,13 +29,12 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Combined_Fields::get_field_value(
+    real Combined_Fields::get_field_value(
             uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates)
+            const Matrix<DDRMat>& aCoordinates )
     {
         real tResult = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
-        for ( auto iField : mFields )
+        for ( const auto& iField : mFields )
         {
             tResult = std::min( tResult, mScale * iField->get_field_value( aNodeIndex, aCoordinates ) );
         }
@@ -44,10 +43,21 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>&
-    Combined_Fields::get_dfield_dadvs(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates)
+    real Combined_Fields::get_field_value( Derived_Node* aDerivedNode )
+    {
+        real tResult = mScale * mFields( 0 )->get_field_value( aDerivedNode );
+        for ( const auto& iField : mFields )
+        {
+            tResult = std::min( tResult, mScale * iField->get_field_value( aDerivedNode ) );
+        }
+        return mScale * tResult;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >& Combined_Fields::get_dfield_dadvs(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates)
     {
         // Find which field is the minimum
         real tMin = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
@@ -64,6 +74,71 @@ namespace moris::ge
 
         // Return relevant sensitivity
         return mFields( tMinFieldIndex )->get_dfield_dadvs( aNodeIndex, aCoordinates );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >& Combined_Fields::get_dfield_dadvs( Derived_Node* aDerivedNode )
+    {
+        // Find which field is the minimum
+        real tMin = mScale * mFields( 0 )->get_field_value( aDerivedNode );
+        uint tMinFieldIndex = 0;
+        for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
+        {
+            real tResult = mScale * mFields( iFieldIndex )->get_field_value( aDerivedNode );
+            if ( tResult < tMin )
+            {
+                tMin = tResult;
+                tMinFieldIndex = iFieldIndex;
+            }
+        }
+
+        // Return relevant sensitivity
+        return mFields( tMinFieldIndex )->get_dfield_dadvs( aDerivedNode );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat > Combined_Fields::get_determining_adv_ids(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
+    {
+        // Find which field is the minimum
+        real tMin = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
+        uint tMinFieldIndex = 0;
+        for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
+        {
+            real tResult = mScale * mFields( iFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
+            if ( tResult < tMin )
+            {
+                tMin = tResult;
+                tMinFieldIndex = iFieldIndex;
+            }
+        }
+
+        // Return relevant sensitivity
+        return mFields( tMinFieldIndex )->get_determining_adv_ids( aNodeIndex, aCoordinates );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat > Combined_Fields::get_determining_adv_ids( Derived_Node* aDerivedNode )
+    {
+        // Find which field is the minimum
+        real tMin = mScale * mFields( 0 )->get_field_value( aDerivedNode );
+        uint tMinFieldIndex = 0;
+        for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
+        {
+            real tResult = mScale * mFields( iFieldIndex )->get_field_value( aDerivedNode );
+            if ( tResult < tMin )
+            {
+                tMin = tResult;
+                tMinFieldIndex = iFieldIndex;
+            }
+        }
+
+        // Return relevant sensitivity
+        return mFields( tMinFieldIndex )->get_determining_adv_ids( aDerivedNode );
     }
 
     //--------------------------------------------------------------------------------------------------------------

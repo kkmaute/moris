@@ -12,6 +12,7 @@
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::ge
 {
@@ -20,8 +21,6 @@ namespace moris::ge
 
     Level_Set_Parameters::Level_Set_Parameters( const ParameterList& aParameterList )
             : Field_Parameters( aParameterList )
-            , mIntersectionInterpolation( aParameterList.get< bool >( "multilinear_intersections" )
-                    ? Int_Interpolation::MULTILINEAR : Int_Interpolation::LINEAR )
             , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )
             , mIsocontourTolerance( aParameterList.get< real >( "isocontour_tolerance" ) )
             , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
@@ -32,8 +31,9 @@ namespace moris::ge
 
     Level_Set_Geometry::Level_Set_Geometry(
             std::shared_ptr< Field > aField,
-            Level_Set_Parameters     aParameters )
-            : Design_Field( aField, aParameters )
+            Level_Set_Parameters     aParameters,
+            Node_Manager&            aNodeManager )
+            : Design_Field( aField, aParameters, aNodeManager )
             , mParameters( aParameters )
     {
     }
@@ -42,15 +42,7 @@ namespace moris::ge
 
     void Level_Set_Geometry::set_node_manager( Node_Manager& aNodeManager )
     {
-        mField->set_node_manager( aNodeManager );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Int_Interpolation
-    Level_Set_Geometry::get_intersection_interpolation()
-    {
-        return mParameters.mIntersectionInterpolation;
+        mNodeManager = &aNodeManager;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -98,7 +90,52 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
+        // If it's a base node, can get geometric region from field value
+        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        {
+            return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
+        }
+        else
+        {
+            // Get derived node
+            Derived_Node* tDerivedNode = mNodeManager->get_derived_node( aNodeIndex );
+
+            // If derived node knows it is on this interface, can return interface
+            if ( tDerivedNode->is_on_interface( this ) )
+            {
+                return Geometric_Region::INTERFACE;
+            }
+
+            // Initialize possible region
+            Geometric_Region tPossibleRegion = Geometric_Region::INTERFACE;
+
+            // Test for locators
+            for ( auto iLocator : tDerivedNode->get_locator_nodes() )
+            {
+                // Get locator region
+                Geometric_Region tLocatorRegion = this->get_geometric_region( iLocator.get_index(), iLocator.get_global_coordinates() );
+
+                // Update possible region
+                if ( tPossibleRegion == Geometric_Region::INTERFACE )
+                {
+                    // Can be any possible region, so set as locator region
+                    tPossibleRegion = tLocatorRegion;
+                }
+                else if ( tLocatorRegion == Geometric_Region::INTERFACE )
+                {
+                    // No change needed to possible region
+                    continue;
+                }
+                else if ( tLocatorRegion != tPossibleRegion )
+                {
+                    // Resort to field value
+                    return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
+                }
+            }
+
+            // If nothing returned yet, possible region is definite region
+            return tPossibleRegion;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -110,10 +147,10 @@ namespace moris::ge
             const Parent_Node&   aSecondParentNode,
             mtk::Geometry_Type   aBaseGeometryType )
     {
-        if ( mParameters.mIntersectionInterpolation == Int_Interpolation::LINEAR )
+        if ( this->use_multilinear_interpolation() )
         {
-            // Create linear intersection node
-            return new Intersection_Node_Linear(
+            // Create multilinear intersection node
+            return new Intersection_Node_Bilinear(
                     aNodeIndex,
                     aBaseNodes,
                     aFirstParentNode,
@@ -123,8 +160,8 @@ namespace moris::ge
         }
         else
         {
-            // Create multilinear intersection node
-            return new Intersection_Node_Bilinear(
+            // Create linear intersection node
+            return new Intersection_Node_Linear(
                     aNodeIndex,
                     aBaseNodes,
                     aFirstParentNode,

@@ -461,7 +461,7 @@ namespace moris
             tParameterlist( 1 )( tGeoCounter ).set( "name", "ADVfield" );
             tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string( tInterfaceX ) + ",0.0," + std::to_string( -1.0 * std::sin( tPlaneTilde / 180.0 * pi ) ) + "," + std::to_string( -1.0 * std::cos( tPlaneTilde / 180.0 * pi ) ) );
-            tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", tUseMultiLinear );
+            tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tUseMultiLinear );
 
             if ( tIsOpt )
             {
