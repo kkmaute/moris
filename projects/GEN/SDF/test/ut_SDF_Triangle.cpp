@@ -16,7 +16,6 @@
 #include "op_minus.hpp"
 #include "fn_norm.hpp"
 
-#include "cl_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "cl_SDF_Triangle.hpp"
 
