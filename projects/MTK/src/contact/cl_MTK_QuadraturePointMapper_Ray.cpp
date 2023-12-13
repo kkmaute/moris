@@ -100,7 +100,8 @@ namespace moris::mtk
             Space_Interpolator     &aNormalInterpolator,
             Surface_Mesh const     &aSurfaceMesh,
             MappingResult          &aMappingResult )
-    {    // initialize the coordinate-interpolator with the vertex coordinates
+    {
+        // initialize the coordinate-interpolator with the vertex coordinates
         uint const tNumRays    = aParametricCoordinates.n_cols();
         uint const tStartIndex = aCellIndex * tNumRays;
 
@@ -202,17 +203,10 @@ namespace moris::mtk
                             aResultOffset );
                 }
                 // if all rays have been processed, stop the loop
-                if ( aUnprocessedRays.empty() )
-                {
-                    break;
-                }
+                if ( aUnprocessedRays.empty() ) { break; }
             }    // end loop over neighboring cells
             // if all rays have been processed, stop the loop
-            if ( aUnprocessedRays.empty() )
-            {
-                break;
-            }
-
+            if ( aUnprocessedRays.empty() ) { break; }
         }    // end loop over source vertices
     }
 
@@ -227,10 +221,7 @@ namespace moris::mtk
         std::set< moris_index > tPotentialTargetCells;
         if ( aBruteForce )
         {
-            for ( moris_index iCell = 0; iCell < static_cast< moris_index >( tTargetMesh.get_number_of_cells() ); iCell++ )
-            {
-                tPotentialTargetCells.insert( iCell );
-            }
+            for ( moris_index iCell = 0; iCell < static_cast< moris_index >( tTargetMesh.get_number_of_cells() ); iCell++ ) { tPotentialTargetCells.insert( iCell ); }
         }
         else
         {
@@ -261,10 +252,7 @@ namespace moris::mtk
         {
             for ( auto const &[ tSourceCandidate, tTargetCandidate ] : mCandidatePairs )
             {
-                if ( tSourceCandidate == aSourceMeshIndex )
-                {
-                    tPotentialTargetMeshesIndices.insert( tTargetCandidate );
-                }
+                if ( tSourceCandidate == aSourceMeshIndex ) { tPotentialTargetMeshesIndices.insert( tTargetCandidate ); }
             }
         }
         else
@@ -272,10 +260,7 @@ namespace moris::mtk
             // check the meshes that contain the closest vertices of all vertices of the current cell
             // e.g. a triangle with three vertices could have a different closest mesh for each of the three vertices
             auto tSegmentVertices = mSurfaceMeshes( aSourceMeshIndex ).get_vertices_of_cell( aSourceCellIndex );
-            for ( auto const tVertex : tSegmentVertices )
-            {
-                tPotentialTargetMeshesIndices.insert( aSpatialIndexingResult[ tVertex ].mesh_index );
-            }
+            for ( auto const tVertex : tSegmentVertices ) { tPotentialTargetMeshesIndices.insert( aSpatialIndexingResult[ tVertex ].mesh_index ); }
         }
         return tPotentialTargetMeshesIndices;
     }
@@ -294,9 +279,27 @@ namespace moris::mtk
 
         // get the basic information from the cell like the vertex coordinates and calculate the origin and direction of the cell facet
         // i.e. the line segment between the first and second vertex which will be called "segment" in the following
-        Matrix< DDRMat >       tTargetCellCoordinates = tTargetMesh.get_vertex_coordinates_of_cell( aTargetCellIndex );
-        Matrix< DDRMat > const tSegmentOrigin         = tTargetCellCoordinates.get_column( 0 );
-        Matrix< DDRMat > const tSegmentDirection      = tTargetCellCoordinates.get_column( 1 ) - tSegmentOrigin;
+        Matrix< DDRMat > tTargetCellCoordinates = tTargetMesh.get_vertex_coordinates_of_cell( aTargetCellIndex );
+
+        /* Because the segments will always be oriented in opposing directions (e.g. the vertices of each triangle will be ordered counter-clockwise),
+         * the parametric coordinate will also be measured in opposing directions.
+         *              2\
+         *              │  \  Source
+         *              │    \
+         *  Source      │      \
+         *  Param.      0────────1
+         *  Direction-- ──────────► xi
+         *
+         *
+         *  Target ---- ◄────────── xi
+         *  Param.      1────────0 --Segment Origin
+         *  Direction   │      /
+         *              │    /
+         *              │  /  Target
+         *              2/
+         */
+        Matrix< DDRMat > const tSegmentOrigin    = tTargetCellCoordinates.get_column( 0 );
+        Matrix< DDRMat > const tSegmentDirection = tTargetCellCoordinates.get_column( 1 ) - tSegmentOrigin;
 
         // Keep the initial size of the deque because it might get smaller over time (because rays are removed from the deque if they got mapped)
         // If they are not mapped, they are pushed back into the deque. To prevent an infinite loop, the initial size is stored (i.e. each ray is processed once).
@@ -328,10 +331,13 @@ namespace moris::mtk
                 aMappingResult.mTargetPhysicalCoordinate.set_column( tInsertIndex, tPhysCoord );
 
                 aMappingResult.mDistances( tInsertIndex )            = tDistance;
-                aMappingResult.mTargetCellIndices( tInsertIndex )    = aTargetCellIndex;
                 aMappingResult.mTargetSideSetIndices( tInsertIndex ) = aTargetMeshIndex;
-                aMappingResult.mSourceClusterIndex( tInsertIndex )   = tSourceMesh.get_cluster_of_cell( aSourceCellIndex );
-                aMappingResult.mTargetClusterIndex( tInsertIndex )   = tTargetMesh.get_cluster_of_cell( aTargetCellIndex );
+
+                aMappingResult.mSourceCellIndex( tInsertIndex )   = tSourceMesh.get_global_cell_index( aSourceCellIndex );
+                aMappingResult.mTargetCellIndices( tInsertIndex ) = tTargetMesh.get_global_cell_index( aTargetCellIndex );
+
+                aMappingResult.mSourceClusterIndex( tInsertIndex ) = tSourceMesh.get_cluster_of_cell( aSourceCellIndex );
+                aMappingResult.mTargetClusterIndex( tInsertIndex ) = tTargetMesh.get_cluster_of_cell( aTargetCellIndex );
             }
             else
             {
@@ -403,4 +409,4 @@ namespace moris::mtk
         }
         return { tHasIntersection, tGap, tParametricCoordinate, tPhsyicalCoordinate };
     }
-}    // namespace moris::mtk
+} // namespace moris::mtk

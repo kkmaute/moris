@@ -7,23 +7,88 @@
 
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
-#include "cl_MTK_Integration_Rule.hpp"
+#include <map>
+#include <set>
 
 namespace moris::mtk
 {
-    class Nonconformal_Side_Cluster : public Double_Side_Cluster
+    /**
+     * \brief This struct stores information about one or multiple integration points that got mapped from the follower side to the leader side.
+     * To uniquely identify the mapping, the information about the follower and leader cell index is stored.
+     * Additional information about
+     */
+    struct IntegrationPointPair
     {
-      private:
-        std::shared_ptr< Integration_Rule > mIntegrationRule;
+        IntegrationPointPair(
+                moris_index const         &aFollowerCellIndex,
+                Matrix< DDRMat > const    &aFollowerCoordinates,
+                moris_index const         &aLeaderCellIndex,
+                Matrix< DDRMat > const    &aLeaderCoordinates,
+                moris::Cell< real > const &aIntegrationWeights,
+                Matrix< DDRMat > const    &aNormals )
+                : mFollowerCellIndex( aFollowerCellIndex )
+                , mFollowerCoordinates( aFollowerCoordinates )
+                , mLeaderCellIndex( aLeaderCellIndex )
+                , mLeaderCoordinates( aLeaderCoordinates )
+                , mNormals( aNormals )
+                , mIntegrationWeights( aIntegrationWeights ){};
 
       public:
+        [[nodiscard]] moris_index                get_follower_cell_index() const { return mFollowerCellIndex; }
+        [[nodiscard]] const Matrix< DDRMat >    &get_follower_coordinates() const { return mFollowerCoordinates; }
+        [[nodiscard]] moris_index                get_leader_cell_index() const { return mLeaderCellIndex; }
+        [[nodiscard]] const Matrix< DDRMat >    &get_leader_coordinates() const { return mLeaderCoordinates; }
+        [[nodiscard]] const Matrix< DDRMat >    &get_normals() const { return mNormals; }
+        [[nodiscard]] const moris::Cell< real > &get_integration_weights() const { return mIntegrationWeights; }
+
+      private:
+        /**
+         * \brief The cell index of the cell on the follower cell from which the mapping was performed.
+         */
+        moris_index mFollowerCellIndex;
+
+        /**
+         * \brief The parametric coordinates of the integration points on the follower side.
+         * \details A (p x n) matrix, where p is the parametric dimension and n is the number of integration points.
+         */
+        Matrix< DDRMat > mFollowerCoordinates;
+
+        /**
+         * \brief The cell index of the cell on the leader cluster to which the mapping was performed.
+         */
+        moris_index mLeaderCellIndex;
+
+        /**
+         * \brief The parametric coordinates of the integration points on the leader side.
+         * \details A (p x n) matrix, where p is the parametric dimension and n is the number of integration points.
+         */
+        Matrix< DDRMat > mLeaderCoordinates;
+
+        /**
+         * \brief The normal that was used to perform the mapping from the follower side to the leader side.
+         * \details A (d x n) matrix, where d is the physical dimension and n is the number of integration points.
+         */
+        Matrix< DDRMat > mNormals;
+
+        /**
+         * \brief A list of integration points for each of the points in the follower/leader coordinate matrices.
+         */
+        moris::Cell< real > mIntegrationWeights;
+    };
+
+
+    class Nonconformal_Side_Cluster : public Double_Side_Cluster
+    {
+      public:
         Nonconformal_Side_Cluster(
-                moris::mtk::Cluster const                       *aLeaderSideCluster,
-                moris::mtk::Cluster const                       *aFollowerSideCluster,
-                moris::Cell< moris::mtk::Vertex const * > const &aLeaderToFollowerVertexPair,
-                std::shared_ptr< Integration_Rule >              aIntegrationRule )
-                : Double_Side_Cluster( aLeaderSideCluster, aFollowerSideCluster, aLeaderToFollowerVertexPair )
-                , mIntegrationRule( aIntegrationRule ){};
+                Cluster const                             *aFollowerSideCluster,
+                Cluster const                             *aLeaderSideCluster,
+                moris::Cell< IntegrationPointPair > const &aIntegrationPointPairs )
+                : Double_Side_Cluster( aLeaderSideCluster, aFollowerSideCluster, {} )
+                , mIntegrationPointPairs( aIntegrationPointPairs ){};
+
+      private:
+        moris::Cell< IntegrationPointPair > mIntegrationPointPairs;
     };
 
 
