@@ -33,7 +33,7 @@ namespace moris::mtk
     }
 
     moris::Cell< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes(
-            Integration_Mesh                      *aIGMesh,
+            Integration_Mesh const                *aIGMesh,
             moris::Cell< Side_Set const * > const &aSideSets )
     {
         moris::Cell< Surface_Mesh > tSurfaceMeshes;

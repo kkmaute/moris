@@ -30,11 +30,11 @@ namespace moris::mtk
     {
 
       public:    // constructors
-        Surface_Mesh( Integration_Mesh *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
+        Surface_Mesh( Integration_Mesh const *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
 
-        Surface_Mesh( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set const * > &aSideSets );
+        Surface_Mesh( Integration_Mesh const *aIGMesh, moris::Cell< mtk::Side_Set const * > &aSideSets );
 
-        Surface_Mesh( Integration_Mesh_DataBase_IG *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
+        Surface_Mesh( Integration_Mesh_DataBase_IG const *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
 
         // methods
         /**
@@ -207,7 +207,7 @@ namespace moris::mtk
         void initialize_vertex_normals();
 
         // data
-        std::shared_ptr< Integration_Mesh_DataBase_IG > mIGMesh;
+        Integration_Mesh_DataBase_IG const *mIGMesh;
 
         /**
          * @brief Map from the global vertex index to the index of the vertex in the surface mesh

@@ -18,18 +18,18 @@
 
 namespace moris::mtk
 {
-    Surface_Mesh::Surface_Mesh( Integration_Mesh *aIGMesh, const moris::Cell< std::string > &aSideSetNames )
-            : Surface_Mesh( dynamic_cast< Integration_Mesh_DataBase_IG * >( aIGMesh ), aSideSetNames )
+    Surface_Mesh::Surface_Mesh( Integration_Mesh const *aIGMesh, const moris::Cell< std::string > &aSideSetNames )
+            : Surface_Mesh( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ), aSideSetNames )
     {
     }
 
-    Surface_Mesh::Surface_Mesh( Integration_Mesh *aIGMesh, moris::Cell< Side_Set const * > &aSideSets )
-            : mIGMesh( dynamic_cast< Integration_Mesh_DataBase_IG * >( aIGMesh ) )
+    Surface_Mesh::Surface_Mesh( Integration_Mesh const *aIGMesh, moris::Cell< Side_Set const * > &aSideSets )
+            : mIGMesh( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ) )
     {
         this->initialize_from_side_sets( aSideSets );
     }
 
-    Surface_Mesh::Surface_Mesh( Integration_Mesh_DataBase_IG *aIGMesh, const moris::Cell< std::string > &aSideSetNames )
+    Surface_Mesh::Surface_Mesh( Integration_Mesh_DataBase_IG const *aIGMesh, const moris::Cell< std::string > &aSideSetNames )
     {
         moris::Cell< Side_Set const * > tSideSets;
 
@@ -191,7 +191,7 @@ namespace moris::mtk
         for ( moris::size_t i = 0; i < tNumCells; i++ )
         {
             auto const tGlobalCellIndex = mLocalToGlobalCellIndex( i );
-            auto       tCell            = dynamic_cast< mtk::Cell_DataBase                  &>( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
+            auto       tCell            = dynamic_cast< mtk::Cell_DataBase const                  &>( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
             auto const tSideOrdinal     = mCellSideOrdinals( i );
             auto       tNormal          = tCell.compute_outward_side_normal( tSideOrdinal );
 
