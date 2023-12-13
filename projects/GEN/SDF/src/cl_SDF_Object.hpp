@@ -26,12 +26,9 @@ namespace moris
         class Object
         {
             const real                   mMeshHighPass = 1e-9;
-            moris::Cell< Facet_Vertex* > mVertices;
+            moris::Cell< Facet_Vertex* > mVertices; // FIXME: this duplicate member data can be removed through use of shared pointers given to facets
             moris::Cell< Facet* >        mFacets;
-            Matrix< DDRMat >             mFacetMinCoords;
-            Matrix< DDRMat >             mFacetMaxCoords;
 
-            const Matrix< DDRMat >& mOffsets;
             uint                    mDimension;
             uint                    mNumberOfFacets;
 
@@ -109,14 +106,6 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            moris::Cell< Facet_Vertex* >&
-            get_vertices()
-            {
-                return mVertices;
-            }
-
-            //-------------------------------------------------------------------------------
-
             uint
             get_dimension()
             {
@@ -156,7 +145,7 @@ namespace moris
              * Facets are either lines in 2D or triangles in 3D
              */
             void
-            load_from_object_file( const std::string& aFilePath );
+            load_from_object_file( const std::string& aFilePath, const Matrix< DDRMat >& aOffsets );
 
             //-------------------------------------------------------------------------------
 
