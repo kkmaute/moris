@@ -31,7 +31,7 @@ namespace moris
         void
         Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > &aRotationMatrix )
         {
-            mNodeCoords = aRotationMatrix * mOriginalNodeCoords;
+            mNodeCoords = aRotationMatrix * mNodeCoords;
         }
 
         //-------------------------------------------------------------------------------
