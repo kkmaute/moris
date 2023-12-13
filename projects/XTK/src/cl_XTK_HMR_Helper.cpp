@@ -344,7 +344,7 @@ namespace xtk
             for ( uint k = 0; k < mNumberOfBasis; ++k )
             {
                 // get position from element
-                tElement->get_ijk_of_basis( k, tIJ );
+                tElement->get_ijk_of_basis_function( k, tIJ );
 
                 // calculate index in matrix
                 uint tIndex = tIJ[ 0 ] + tIJ[ 1 ] * mNumberOfNodesPerDimension;
@@ -359,7 +359,7 @@ namespace xtk
             for ( uint k = 0; k < mNumberOfBasis; ++k )
             {
                 // get position from element
-                tElement->get_ijk_of_basis( k, tIJK );
+                tElement->get_ijk_of_basis_function( k, tIJK );
 
                 // calculate index in matrix
                 uint tIndex =

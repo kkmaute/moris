@@ -491,11 +491,11 @@ namespace moris
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform GEN refinement" );
 
             // get the maximum number of refinements that need to be performed and therefore refinement iterations
-            moris::sint tMaxNumRefinements = this->get_max_refinement_level( aPerformers );
+            sint tMaxNumRefinements = this->get_max_refinement_level( aPerformers );
 
             // TODO: get number of what kind of meshes? (Lagrange meshes?, B-spline meshes?, output meshes?, other?)
-            moris::Matrix< DDSMat > tMeshIndices;
-            uint                    tNumMeshes = 0;
+            Matrix< DDSMat > tMeshIndices;
+            uint             tNumMeshes = 0;
             this->get_all_refinement_mesh_indices(
                     aPerformers,
                     tMeshIndices,
@@ -508,10 +508,10 @@ namespace moris
             std::shared_ptr< hmr::Database > tDataBase       = aHMR->get_database();
             hmr::Background_Mesh_Base*       tBackgroundMesh = tDataBase->get_background_mesh();
 
-            // TODO: loop over what kind of meshes?
+            // TODO: loop over what kind of meshes, output meshes?
             for ( uint iMesh = 0; iMesh < tNumMeshes; iMesh++ )
             {
-                // TODO: what kind of mesh index?
+                // TODO: what kind of mesh index, output mesh index?
                 moris_index tMeshIndex = tMeshIndices( iMesh );
 
                 // iteratively refine meshes
@@ -536,11 +536,7 @@ namespace moris
                     //  perform refinement on the geometric meshes (replacing elements with their children, where necessary)
                     aHMR->perform_refinement( tLagrangeMeshPattern );
                     aHMR->update_refinement_pattern( tLagrangeMeshPattern );
-
-                    // TODO: can the below be removed?
                     tBackgroundMesh->update_database();
-                    // tDataBase->update_bspline_meshes(); // TODO: aren't this and the following operation redundant as they are already performed in update_refinement_pattern()?
-                    // tDataBase->update_lagrange_meshes();
 
                 }    // end for: each refinement step
 

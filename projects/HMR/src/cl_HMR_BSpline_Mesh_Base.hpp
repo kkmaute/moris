@@ -24,19 +24,18 @@ namespace moris::hmr
     class BSpline_Mesh_Base : public Mesh_Base
     {
       protected:
-        //! Cell containing all basis this proc knows about
-        Cell< Basis_Function* > mAllCoarsestBasisOnProc;
+        //! Cell containing all basis functions this proc knows about
+        Cell< Basis_Function* > mAllCoarsestBFsOnProc;
 
-        //! Cell of basis that are assigned an HMR index ( moris ID );
-        Cell< Basis_Function* > mIndexedBasis;
+        //! Cell of basis functions that are assigned an HMR index ( moris ID );
+        Cell< Basis_Function* > mIndexedBasisFunctions;
 
-        //! number of all basis (including unused on padding)
-        luint mNumberOfAllBasis = 0;
-
-        luint          mNumberOfActiveBasisOnProc  = 0;
-        luint          mNumberOfRefinedBasisOnProc = 0;
-        Cell< Basis_Function* > mActiveBasisOnProc;
-        Cell< Basis_Function* > mRefinedBasisOnProc;
+        luint                   mNumActiveBFsOnProc    = 0;
+        luint                   mNumCandidateBFsOnProc = 0;
+        luint                   mNumBFsOnProc          = 0;
+        Cell< Basis_Function* > mActiveBFsOnProc;
+        Cell< Basis_Function* > mRefinedBFsOnProc;
+        Cell< Basis_Function* > mCandidateBFsOnProc;
 
         Matrix< DDRMat > mChildStencil;
 
@@ -124,7 +123,7 @@ namespace moris::hmr
         Basis_Function*
         get_active_basis( luint aIndex )
         {
-            return mActiveBasisOnProc( aIndex );
+            return mActiveBFsOnProc( aIndex );
         }
 
         // ----------------------------------------------------------------------------
@@ -135,7 +134,7 @@ namespace moris::hmr
         const Basis_Function*
         get_active_basis( luint aIndex ) const
         {
-            return mActiveBasisOnProc( aIndex );
+            return mActiveBFsOnProc( aIndex );
         }
 
         // ----------------------------------------------------------------------------
@@ -143,14 +142,14 @@ namespace moris::hmr
         Basis_Function*
         get_basis_by_index( luint aIndex )
         {
-            return mIndexedBasis( aIndex );
+            return mIndexedBasisFunctions( aIndex );
         }
 
         // ----------------------------------------------------------------------------
         uint
         get_number_of_indexed_basis() const
         {
-            return mIndexedBasis.size();
+            return mIndexedBasisFunctions.size();
         }
 
         // ----------------------------------------------------------------------------
@@ -161,9 +160,9 @@ namespace moris::hmr
          */
         auto
         get_number_of_active_basis_on_proc() const
-                -> decltype( mNumberOfActiveBasisOnProc )
+                -> decltype( mNumActiveBFsOnProc )
         {
-            return mNumberOfActiveBasisOnProc;
+            return mNumActiveBFsOnProc;
         }
 
         // ----------------------------------------------------------------------------
@@ -192,11 +191,11 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        Matrix< DDSMat > get_children_ind_for_basis( const moris::sint aParentBasind );
+        Matrix< DDSMat > get_children_ind_for_basis( const moris::sint aParentBfIndex );
 
         // ----------------------------------------------------------------------------
 
-        Matrix< DDRMat > get_children_weights_for_parent( const moris::sint aParentBasind );
+        Matrix< DDRMat > get_children_weights_for_parent( const moris::sint aParentBfIndex );
 
         // ----------------------------------------------------------------------------
 
@@ -255,12 +254,13 @@ namespace moris::hmr
                 uint              aLevel,
                 Cell< Element* >& aElements );
 
+        // ----------------------------------------------------------------------------
+
         /**
-         *
-         * This test returns true if the activation pattern of the basis
+         * @brief test returns true if the activation pattern of the basis
          * seems correct. The rule is as follows
          *
-         *  A basis is:
+         *  A basis function is:
          *
          *      - active, if all connected elements are either active,
          *                refined or padding, and at least one element is active
@@ -270,15 +270,18 @@ namespace moris::hmr
          *      - deactivated, if at least one element is deactivated ( or does not exist)
          *
          *
-         *  Form these rules, some statements ( see comments in source ) have been developed.
+         *  From these rules, some statements ( see comments in source ) have been developed.
          *  Note that fulfilling the checked statements are NECESSARY, BUT NOT SUFFICIENT conditions.
          *
          *  This test is not meant to be run during runtime.
          */
         bool test_sanity();
 
+        // ----------------------------------------------------------------------------
+
       private:
         // ----------------------------------------------------------------------------
+
         /**
          * creates B-Splines for this mesh
          *
@@ -298,30 +301,31 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * tells elements on coarsest level which basis they have
+         * tells elements on coarsest level which basis functions they have
          *
          * @return void
          */
-        virtual void link_basis_to_elements_on_level_zero() = 0;
+        virtual void link_basis_functions_to_elements_on_level_zero() = 0;
 
         // ----------------------------------------------------------------------------
 
         /**
-         * Loops over all elements and stores basis in
-         * mAllBasisOnProc
+         * Loops over all elements and stores basis functions in
+         * mAllBFsOnProc
          */
-        void collect_basis();
+        void collect_basis_functions();
 
         // ----------------------------------------------------------------------------
 
         /**
-         * Provides a Cell of basis that live on a specified level
+         * Provides a Cell of basis functions that live on a specified level
          *
          * @param[ in    ]  aLevel   level to be investigated
          * @param[ inout ]  aBasis   cell containing found basis
          */
-        virtual void collect_bases_from_level( uint aLevel,
-                Cell< Basis_Function* >&                     aBasis ) = 0;
+        virtual void collect_basis_functions_from_level(
+                uint                     aLevel,
+                Cell< Basis_Function* >& aBasis ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -330,7 +334,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * Provides a cell of all bases on the current level. Also:
+         * Provides a cell of all basis functions on the current level. Also:
          *      - resets general purpose flags
          *      - determines if bases are used by this proc
          *      - creates basis to element connectivity
@@ -340,9 +344,9 @@ namespace moris::hmr
          * @param aElements Elements on this mesh
          * @param aBases Bases to fill for the current level
          */
-        virtual void preprocess_bases_from_level(
-                Cell< Element* >& aElements,
-                Cell< Basis_Function* >&   aBases ) = 0;
+        virtual void preprocess_basis_on_level(
+                Cell< Element* >&        aElements,
+                Cell< Basis_Function* >& aBases ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -351,14 +355,14 @@ namespace moris::hmr
          *
          * @param aBases Bases on the current level
          */
-        virtual void determine_basis_state( Cell< Basis_Function* >& aBases ) = 0;
+        virtual void determine_basis_function_state( Cell< Basis_Function* >& aBases ) = 0;
 
         // ----------------------------------------------------------------------------
 
         /**
          * Links B-Splines to parents. Needed for testing.
          */
-        virtual void link_bases_to_parents() = 0;
+        virtual void link_basis_functions_to_parents() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -367,7 +371,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void calculate_basis_ids();
+        void compute_basis_function_ids();
 
         // ----------------------------------------------------------------------------
         // void
@@ -378,15 +382,21 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void collect_active_and_refined_basis();
+        void collect_active_refined_and_candidate_basis_functions();
 
         // ----------------------------------------------------------------------------
 
-        virtual void delete_unused_bases( uint    aLevel,
+        virtual void delete_unused_basis_functions(
+                uint                              aLevel,
                 Cell< Background_Element_Base* >& aBackgroundElements,
-                Cell< Basis_Function* >&                   aBasis ) = 0;
-    };
+                Cell< Basis_Function* >&          aBasis ) = 0;
+
+        // ----------------------------------------------------------------------------
+
+    };    // class hmr::BSpline_Mesh_Base
+
     //------------------------------------------------------------------------------
+
 }    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_BSPLINE_MESH_BASE_HPP_ */

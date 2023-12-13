@@ -55,7 +55,7 @@ namespace moris::hmr
         luint mNodeLevelOffset[ gMaxNumberOfLevels ];
 
         //! Lookup table containing number of elements per dimension for each level
-        luint mNumberOfElementsPerDimensionIncludingAura[ gMaxNumberOfLevels ][ N ];
+        luint mNumElementsPerDimensionInclAura[ gMaxNumberOfLevels ][ N ];
 
         //! Lookup table for node IDs
         luint mMySubdomainOffset[ gMaxNumberOfLevels ][ N ];
@@ -280,7 +280,7 @@ namespace moris::hmr
             {
                 return aI + mMySubdomainOffset[ aLevel ][ 0 ]
                      + ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] )
-                               * ( P * mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 0 ] + 1 )
+                               * ( P * mNumElementsPerDimensionInclAura[ aLevel ][ 0 ] + 1 )
                      + mNodeLevelOffset[ aLevel ];
             }
             else
@@ -311,10 +311,10 @@ namespace moris::hmr
             if ( aLevel < gMaxNumberOfLevels && N == 3 )
             {
                 return aI + mMySubdomainOffset[ aLevel ][ 0 ]
-                     + ( P * mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 0 ] + 1 )
+                     + ( P * mNumElementsPerDimensionInclAura[ aLevel ][ 0 ] + 1 )
                                * ( ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] )
                                        + ( aK + mMySubdomainOffset[ aLevel ][ 2 ] )
-                                                 * ( P * mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 1 ] + 1 ) )
+                                                 * ( P * mNumElementsPerDimensionInclAura[ aLevel ][ 1 ] + 1 ) )
                      + mNodeLevelOffset[ aLevel ];
             }
             else
@@ -344,7 +344,7 @@ namespace moris::hmr
             {
                 for ( uint k = 0; k < N; ++k )
                 {
-                    mNumberOfElementsPerDimensionIncludingAura[ l ][ k ] = tMat( k, l );
+                    mNumElementsPerDimensionInclAura[ l ][ k ] = tMat( k, l );
                 }
             }
         }
@@ -368,7 +368,7 @@ namespace moris::hmr
                 luint tNumberOfNodes = 1;
                 for ( uint k = 0; k < N; ++k )
                 {
-                    tNumberOfNodes *= P * mNumberOfElementsPerDimensionIncludingAura[ l - 1 ][ k ] + 1;
+                    tNumberOfNodes *= P * mNumElementsPerDimensionInclAura[ l - 1 ][ k ] + 1;
                 }
 
                 // add number of nodes to offset table
@@ -447,7 +447,7 @@ namespace moris::hmr
             }
 
             // loop over all nodes
-            for ( auto tNode : mAllBasisOnProc )
+            for ( auto tNode : mAllBFsOnProc )
             {
                 // get ijk position of node
                 const luint* tIJK = tNode->get_ijk();

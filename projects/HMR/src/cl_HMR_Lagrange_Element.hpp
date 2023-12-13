@@ -269,7 +269,7 @@ namespace moris::hmr
          *
          */
         void
-        insert_basis(
+        insert_basis_function(
                 uint aIndex,
                 Basis_Function*      aBasis )
         {
@@ -355,7 +355,7 @@ namespace moris::hmr
          * @return void
          *
          */
-        void get_ijk_of_basis(
+        void get_ijk_of_basis_function(
                 uint aBasisNumber,
                 luint*      aIJK );
 
@@ -452,7 +452,7 @@ namespace moris::hmr
             luint tIJK[ N ];
 
             // ask element for position
-            this->get_ijk_of_basis( aBasisNumber, tIJK );
+            this->get_ijk_of_basis_function( aBasisNumber, tIJK );
 
             // create new Lagrange node
             mNodes[ aBasisNumber ] = new Lagrange_Node< N >(
@@ -530,7 +530,7 @@ namespace moris::hmr
 
     template< uint N, uint D >
     inline void
-    Lagrange_Element< N, D >::get_ijk_of_basis(
+    Lagrange_Element< N, D >::get_ijk_of_basis_function(
             uint aBasisNumber,
             luint*      aIJK )
     {

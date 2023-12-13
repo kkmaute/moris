@@ -81,7 +81,7 @@ namespace moris::hmr
     template<>
     inline
     void
-    Lagrange_Element< 2, 4 >::get_ijk_of_basis(
+    Lagrange_Element< 2, 4 >::get_ijk_of_basis_function(
         uint aBasisNumber,
         luint      * aIJK )
     {
@@ -376,10 +376,10 @@ namespace moris::hmr
          tChild->init_basis_container();
 
          // link child 0 to nodes
-         tChild->insert_basis(   0, tNodes[   0 ] );
-         tChild->insert_basis(   1, tNodes[   1 ] );
-         tChild->insert_basis(   2, tNodes[   4 ] );
-         tChild->insert_basis(   3, tNodes[   3 ] );
+         tChild->insert_basis_function(   0, tNodes[   0 ] );
+         tChild->insert_basis_function(   1, tNodes[   1 ] );
+         tChild->insert_basis_function(   2, tNodes[   4 ] );
+         tChild->insert_basis_function(   3, tNodes[   3 ] );
 
          // get pointer to child 1
          tChild = aAllElementsOnProc(
@@ -389,10 +389,10 @@ namespace moris::hmr
          tChild->init_basis_container();
 
          // link child 1 to nodes
-         tChild->insert_basis(   0, tNodes[   1 ] );
-         tChild->insert_basis(   1, tNodes[   2 ] );
-         tChild->insert_basis(   2, tNodes[   5 ] );
-         tChild->insert_basis(   3, tNodes[   4 ] );
+         tChild->insert_basis_function(   0, tNodes[   1 ] );
+         tChild->insert_basis_function(   1, tNodes[   2 ] );
+         tChild->insert_basis_function(   2, tNodes[   5 ] );
+         tChild->insert_basis_function(   3, tNodes[   4 ] );
 
          // get pointer to child 2
          tChild = aAllElementsOnProc(
@@ -402,10 +402,10 @@ namespace moris::hmr
          tChild->init_basis_container();
 
          // link child 2 to nodes
-         tChild->insert_basis(   0, tNodes[   3 ] );
-         tChild->insert_basis(   1, tNodes[   4 ] );
-         tChild->insert_basis(   2, tNodes[   7 ] );
-         tChild->insert_basis(   3, tNodes[   6 ] );
+         tChild->insert_basis_function(   0, tNodes[   3 ] );
+         tChild->insert_basis_function(   1, tNodes[   4 ] );
+         tChild->insert_basis_function(   2, tNodes[   7 ] );
+         tChild->insert_basis_function(   3, tNodes[   6 ] );
 
          // get pointer to child 3
          tChild = aAllElementsOnProc(
@@ -415,10 +415,10 @@ namespace moris::hmr
          tChild->init_basis_container();
 
          // link child 3 to nodes
-         tChild->insert_basis(   0, tNodes[   4 ] );
-         tChild->insert_basis(   1, tNodes[   5 ] );
-         tChild->insert_basis(   2, tNodes[   8 ] );
-         tChild->insert_basis(   3, tNodes[   7 ] );
+         tChild->insert_basis_function(   0, tNodes[   4 ] );
+         tChild->insert_basis_function(   1, tNodes[   5 ] );
+         tChild->insert_basis_function(   2, tNodes[   8 ] );
+         tChild->insert_basis_function(   3, tNodes[   7 ] );
 
         // set flag that this element has been processed
         this->set_children_basis_flag();

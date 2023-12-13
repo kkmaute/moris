@@ -285,7 +285,7 @@ namespace moris::hmr
             for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < tNumberOfBases; iBasisIndexInElement++ )
             {
                 // Get IJK position from element
-                tElement->get_ijk_of_basis( iBasisIndexInElement, tIJK );
+                tElement->get_ijk_of_basis_function( iBasisIndexInElement, tIJK );
 
                 // Loop over dimensions
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
@@ -298,7 +298,7 @@ namespace moris::hmr
                 }
 
                 // Get basis index for storage in T-matrix
-                luint tBasisIndex = calculate_basis_identifier< N >( tIJK, tOffset );
+                luint tBasisIndex = compute_basis_function_identifier< N >( tIJK, tOffset );
 
                 // Assign basis index
                 mBasisIndices( tBasisIndex ) = iBasisIndexInElement;
@@ -358,7 +358,7 @@ namespace moris::hmr
             for ( uint iNodeIndex = 0; iNodeIndex < mNumberOfNodes; iNodeIndex++ )
             {
                 // get position from element
-                tElement->get_ijk_of_basis( iNodeIndex, tIJK );
+                tElement->get_ijk_of_basis_function( iNodeIndex, tIJK );
 
                 // save coordinate into memory
                 for ( uint iDimensionIndex = 0; iDimensionIndex < N; iDimensionIndex++ )
@@ -410,7 +410,7 @@ namespace moris::hmr
             for ( uint iNodeIndex = 0; iNodeIndex < mNumberOfNodes; iNodeIndex++ )
             {
                 // get position from element
-                tReferenceElement->get_ijk_of_basis( iNodeIndex, tIJK );
+                tReferenceElement->get_ijk_of_basis_function( iNodeIndex, tIJK );
 
                 // save coordinate into memory
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )

@@ -292,8 +292,8 @@ namespace moris::hmr
          */
         Basis_Function * get_node_by_index_including_aura( uint aIndex )
         {
-            MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
-            return mAllBasisOnProc( aIndex );
+            MORIS_ASSERT( aIndex < mAllBFsOnProc.size(), "Requested node %-5i does not exist", aIndex );
+            return mAllBFsOnProc( aIndex );
         }
 
         // ----------------------------------------------------------------------------
@@ -303,8 +303,8 @@ namespace moris::hmr
          */
         const Basis_Function * get_node_by_index_including_aura( uint aIndex ) const
         {
-            MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
-            return mAllBasisOnProc( aIndex );
+            MORIS_ASSERT( aIndex < mAllBFsOnProc.size(), "Requested node %-5i does not exist", aIndex );
+            return mAllBFsOnProc( aIndex );
         }
 
         // ----------------------------------------------------------------------------
@@ -1027,7 +1027,7 @@ namespace moris::hmr
 
         /**
          * loops over all elements and stores nodes in
-         * mAllBasisOnProc
+         * mAllBFsOnProc
          */
         void collect_nodes();
 

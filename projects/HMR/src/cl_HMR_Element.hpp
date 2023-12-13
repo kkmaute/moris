@@ -340,7 +340,7 @@ namespace moris::hmr
          * @return void
          *
          */
-        virtual void insert_basis(
+        virtual void insert_basis_function(
                 uint   aIndex,
                 Basis_Function* aBasis ) = 0;
 
@@ -455,7 +455,7 @@ namespace moris::hmr
          * @return void
          *
          */
-        virtual void get_ijk_of_basis(
+        virtual void get_ijk_of_basis_function(
                 uint   aBasisNumber,
                 luint* aIJK ) = 0;
 
@@ -469,7 +469,7 @@ namespace moris::hmr
          * @return void
          */
         virtual void
-        link_basis_with_neighbors( moris::Cell< Element* >& aAllElementsOnProc )
+        link_basis_functions_with_neighbors( moris::Cell< Element* >& aAllElementsOnProc )
         {
             MORIS_ERROR( false, "Link basis with neighbors not available for this element." );
         }

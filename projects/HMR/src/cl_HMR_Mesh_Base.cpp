@@ -35,16 +35,16 @@ namespace moris::hmr
 
     void Mesh_Base::delete_pointers()
     {
-        if ( mAllBasisOnProc.size() > 0 )
+        if ( mAllBFsOnProc.size() > 0 )
         {
             // delete all nodes
-            for ( auto tBasis: mAllBasisOnProc )
+            for ( auto tBasis: mAllBFsOnProc )
             {
                 delete tBasis;
             }
 
             // clear cell
-            mAllBasisOnProc.clear();
+            mAllBFsOnProc.clear();
         }
 
         if ( mAllElementsOnProc.size() > 0 )
@@ -60,7 +60,7 @@ namespace moris::hmr
         }
 
         // reset node counter
-        mNumberOfAllBasis = 0;
+        mTotalNumBFs = 0;
 
         // reset element counter
         mNumberOfElements = 0;
@@ -128,7 +128,7 @@ namespace moris::hmr
 
     void Mesh_Base::unflag_all_basis()
     {
-        for ( auto tBasis : mAllBasisOnProc )
+        for ( auto tBasis : mAllBFsOnProc )
         {
             tBasis->unflag();
         }
@@ -138,7 +138,7 @@ namespace moris::hmr
 
     void Mesh_Base::unuse_all_basis()
     {
-        for ( auto tBasis : mAllBasisOnProc )
+        for ( auto tBasis : mAllBFsOnProc )
         {
             tBasis->unuse();
         }
@@ -151,7 +151,7 @@ namespace moris::hmr
      */
     void Mesh_Base::flag_all_basis()
     {
-        for ( auto tBasis : mAllBasisOnProc )
+        for ( auto tBasis : mAllBFsOnProc )
         {
             tBasis->flag();
         }
@@ -190,7 +190,7 @@ namespace moris::hmr
         }
 
         // loop over all nodes
-        for ( auto tBasis : mAllBasisOnProc )
+        for ( auto tBasis : mAllBFsOnProc )
         {
             // reserve memory for node container and reset element counter
             tBasis->init_element_container() ;
@@ -225,7 +225,7 @@ namespace moris::hmr
         if( par_size() > 1 )
         {
             // loop over all basis
-            for ( auto tBasis : mAllBasisOnProc )
+            for ( auto tBasis : mAllBFsOnProc )
             {
                 // get number of connected elements
                 uint tNumberOfElements = tBasis->get_element_counter();
@@ -251,7 +251,7 @@ namespace moris::hmr
         {
             // in serial, claim ownership of all basis
             moris_id tMyRank = par_rank();
-            for ( auto tBasis : mAllBasisOnProc )
+            for ( auto tBasis : mAllBFsOnProc )
             {
                 tBasis->set_owner( tMyRank );
             }
@@ -787,7 +787,7 @@ namespace moris::hmr
     moris::luint Mesh_Base::get_max_basis_hmr_id()
     {
         luint tHMRID = 0;
-        for( auto tBasis : mAllBasisOnProc )
+        for( auto tBasis : mAllBFsOnProc )
         {
             tHMRID = std::max(  tHMRID, (luint)tBasis->get_hmr_id() );
         }
@@ -806,7 +806,7 @@ namespace moris::hmr
         // create Map
         std::map< luint, luint> tIdMap;
         std::map< luint, moris_id > tOwnerMap;
-        for( auto tBasis : mAllBasisOnProc )
+        for( auto tBasis : mAllBFsOnProc )
         {
             tIdMap[ tBasis->get_hmr_id() ] = tBasis->get_hmr_index();
             tOwnerMap[ tBasis->get_hmr_id() ] = tBasis->get_owner();

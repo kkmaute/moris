@@ -69,7 +69,7 @@ namespace moris::hmr
     template<>
     inline
     void
-    Lagrange_Element< 2, 16 >::get_ijk_of_basis(
+    Lagrange_Element< 2, 16 >::get_ijk_of_basis_function(
             uint aBasisNumber,
             luint      * aIJK )
     {
@@ -801,22 +801,22 @@ namespace moris::hmr
         tChild->init_basis_container();
 
         // link child 0 to nodes
-        tChild->insert_basis(   0, tNodes[   0 ] );
-        tChild->insert_basis(   1, tNodes[   3 ] );
-        tChild->insert_basis(   2, tNodes[  24 ] );
-        tChild->insert_basis(   3, tNodes[  21 ] );
-        tChild->insert_basis(   4, tNodes[   1 ] );
-        tChild->insert_basis(   5, tNodes[   2 ] );
-        tChild->insert_basis(   6, tNodes[  10 ] );
-        tChild->insert_basis(   7, tNodes[  17 ] );
-        tChild->insert_basis(   8, tNodes[  23 ] );
-        tChild->insert_basis(   9, tNodes[  22 ] );
-        tChild->insert_basis(  10, tNodes[  14 ] );
-        tChild->insert_basis(  11, tNodes[   7 ] );
-        tChild->insert_basis(  12, tNodes[   8 ] );
-        tChild->insert_basis(  13, tNodes[   9 ] );
-        tChild->insert_basis(  14, tNodes[  16 ] );
-        tChild->insert_basis(  15, tNodes[  15 ] );
+        tChild->insert_basis_function(   0, tNodes[   0 ] );
+        tChild->insert_basis_function(   1, tNodes[   3 ] );
+        tChild->insert_basis_function(   2, tNodes[  24 ] );
+        tChild->insert_basis_function(   3, tNodes[  21 ] );
+        tChild->insert_basis_function(   4, tNodes[   1 ] );
+        tChild->insert_basis_function(   5, tNodes[   2 ] );
+        tChild->insert_basis_function(   6, tNodes[  10 ] );
+        tChild->insert_basis_function(   7, tNodes[  17 ] );
+        tChild->insert_basis_function(   8, tNodes[  23 ] );
+        tChild->insert_basis_function(   9, tNodes[  22 ] );
+        tChild->insert_basis_function(  10, tNodes[  14 ] );
+        tChild->insert_basis_function(  11, tNodes[   7 ] );
+        tChild->insert_basis_function(  12, tNodes[   8 ] );
+        tChild->insert_basis_function(  13, tNodes[   9 ] );
+        tChild->insert_basis_function(  14, tNodes[  16 ] );
+        tChild->insert_basis_function(  15, tNodes[  15 ] );
 
         // get pointer to child 1
         tChild = aAllElementsOnProc(
@@ -826,22 +826,22 @@ namespace moris::hmr
         tChild->init_basis_container();
 
         // link child 1 to nodes
-        tChild->insert_basis(   0, tNodes[   3 ] );
-        tChild->insert_basis(   1, tNodes[   6 ] );
-        tChild->insert_basis(   2, tNodes[  27 ] );
-        tChild->insert_basis(   3, tNodes[  24 ] );
-        tChild->insert_basis(   4, tNodes[   4 ] );
-        tChild->insert_basis(   5, tNodes[   5 ] );
-        tChild->insert_basis(   6, tNodes[  13 ] );
-        tChild->insert_basis(   7, tNodes[  20 ] );
-        tChild->insert_basis(   8, tNodes[  26 ] );
-        tChild->insert_basis(   9, tNodes[  25 ] );
-        tChild->insert_basis(  10, tNodes[  17 ] );
-        tChild->insert_basis(  11, tNodes[  10 ] );
-        tChild->insert_basis(  12, tNodes[  11 ] );
-        tChild->insert_basis(  13, tNodes[  12 ] );
-        tChild->insert_basis(  14, tNodes[  19 ] );
-        tChild->insert_basis(  15, tNodes[  18 ] );
+        tChild->insert_basis_function(   0, tNodes[   3 ] );
+        tChild->insert_basis_function(   1, tNodes[   6 ] );
+        tChild->insert_basis_function(   2, tNodes[  27 ] );
+        tChild->insert_basis_function(   3, tNodes[  24 ] );
+        tChild->insert_basis_function(   4, tNodes[   4 ] );
+        tChild->insert_basis_function(   5, tNodes[   5 ] );
+        tChild->insert_basis_function(   6, tNodes[  13 ] );
+        tChild->insert_basis_function(   7, tNodes[  20 ] );
+        tChild->insert_basis_function(   8, tNodes[  26 ] );
+        tChild->insert_basis_function(   9, tNodes[  25 ] );
+        tChild->insert_basis_function(  10, tNodes[  17 ] );
+        tChild->insert_basis_function(  11, tNodes[  10 ] );
+        tChild->insert_basis_function(  12, tNodes[  11 ] );
+        tChild->insert_basis_function(  13, tNodes[  12 ] );
+        tChild->insert_basis_function(  14, tNodes[  19 ] );
+        tChild->insert_basis_function(  15, tNodes[  18 ] );
 
         // get pointer to child 2
         tChild = aAllElementsOnProc(
@@ -851,22 +851,22 @@ namespace moris::hmr
         tChild->init_basis_container();
 
         // link child 2 to nodes
-        tChild->insert_basis(   0, tNodes[  21 ] );
-        tChild->insert_basis(   1, tNodes[  24 ] );
-        tChild->insert_basis(   2, tNodes[  45 ] );
-        tChild->insert_basis(   3, tNodes[  42 ] );
-        tChild->insert_basis(   4, tNodes[  22 ] );
-        tChild->insert_basis(   5, tNodes[  23 ] );
-        tChild->insert_basis(   6, tNodes[  31 ] );
-        tChild->insert_basis(   7, tNodes[  38 ] );
-        tChild->insert_basis(   8, tNodes[  44 ] );
-        tChild->insert_basis(   9, tNodes[  43 ] );
-        tChild->insert_basis(  10, tNodes[  35 ] );
-        tChild->insert_basis(  11, tNodes[  28 ] );
-        tChild->insert_basis(  12, tNodes[  29 ] );
-        tChild->insert_basis(  13, tNodes[  30 ] );
-        tChild->insert_basis(  14, tNodes[  37 ] );
-        tChild->insert_basis(  15, tNodes[  36 ] );
+        tChild->insert_basis_function(   0, tNodes[  21 ] );
+        tChild->insert_basis_function(   1, tNodes[  24 ] );
+        tChild->insert_basis_function(   2, tNodes[  45 ] );
+        tChild->insert_basis_function(   3, tNodes[  42 ] );
+        tChild->insert_basis_function(   4, tNodes[  22 ] );
+        tChild->insert_basis_function(   5, tNodes[  23 ] );
+        tChild->insert_basis_function(   6, tNodes[  31 ] );
+        tChild->insert_basis_function(   7, tNodes[  38 ] );
+        tChild->insert_basis_function(   8, tNodes[  44 ] );
+        tChild->insert_basis_function(   9, tNodes[  43 ] );
+        tChild->insert_basis_function(  10, tNodes[  35 ] );
+        tChild->insert_basis_function(  11, tNodes[  28 ] );
+        tChild->insert_basis_function(  12, tNodes[  29 ] );
+        tChild->insert_basis_function(  13, tNodes[  30 ] );
+        tChild->insert_basis_function(  14, tNodes[  37 ] );
+        tChild->insert_basis_function(  15, tNodes[  36 ] );
 
         // get pointer to child 3
         tChild = aAllElementsOnProc(
@@ -876,22 +876,22 @@ namespace moris::hmr
         tChild->init_basis_container();
 
         // link child 3 to nodes
-        tChild->insert_basis(   0, tNodes[  24 ] );
-        tChild->insert_basis(   1, tNodes[  27 ] );
-        tChild->insert_basis(   2, tNodes[  48 ] );
-        tChild->insert_basis(   3, tNodes[  45 ] );
-        tChild->insert_basis(   4, tNodes[  25 ] );
-        tChild->insert_basis(   5, tNodes[  26 ] );
-        tChild->insert_basis(   6, tNodes[  34 ] );
-        tChild->insert_basis(   7, tNodes[  41 ] );
-        tChild->insert_basis(   8, tNodes[  47 ] );
-        tChild->insert_basis(   9, tNodes[  46 ] );
-        tChild->insert_basis(  10, tNodes[  38 ] );
-        tChild->insert_basis(  11, tNodes[  31 ] );
-        tChild->insert_basis(  12, tNodes[  32 ] );
-        tChild->insert_basis(  13, tNodes[  33 ] );
-        tChild->insert_basis(  14, tNodes[  40 ] );
-        tChild->insert_basis(  15, tNodes[  39 ] );
+        tChild->insert_basis_function(   0, tNodes[  24 ] );
+        tChild->insert_basis_function(   1, tNodes[  27 ] );
+        tChild->insert_basis_function(   2, tNodes[  48 ] );
+        tChild->insert_basis_function(   3, tNodes[  45 ] );
+        tChild->insert_basis_function(   4, tNodes[  25 ] );
+        tChild->insert_basis_function(   5, tNodes[  26 ] );
+        tChild->insert_basis_function(   6, tNodes[  34 ] );
+        tChild->insert_basis_function(   7, tNodes[  41 ] );
+        tChild->insert_basis_function(   8, tNodes[  47 ] );
+        tChild->insert_basis_function(   9, tNodes[  46 ] );
+        tChild->insert_basis_function(  10, tNodes[  38 ] );
+        tChild->insert_basis_function(  11, tNodes[  31 ] );
+        tChild->insert_basis_function(  12, tNodes[  32 ] );
+        tChild->insert_basis_function(  13, tNodes[  33 ] );
+        tChild->insert_basis_function(  14, tNodes[  40 ] );
+        tChild->insert_basis_function(  15, tNodes[  39 ] );
 
         // set flag that this element has been processed
         this->set_children_basis_flag();

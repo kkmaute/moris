@@ -167,7 +167,7 @@ namespace moris::hmr
                 if ( tElement->has_children() and !tElement->is_padding() && tElement->is_refined( mActivationPattern ) )
                 {
                     // calculate nodes of children
-                    mNumberOfAllBasis += mAllElementsOnProc( tElement->get_memory_index() )->create_basis_for_children( mAllElementsOnProc );
+                    mTotalNumBFs += mAllElementsOnProc( tElement->get_memory_index() )->create_basis_for_children( mAllElementsOnProc );
                 }
             }
         }
@@ -268,7 +268,7 @@ namespace moris::hmr
         Matrix< DDLUMat > tNumberOfElementsPerDirection = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
 
         // assign Cell for nodes to be deleted
-        Cell< Basis_Function* > tNodes( mNumberOfAllBasis - tCount, nullptr );
+        Cell< Basis_Function* > tNodes( mTotalNumBFs - tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -311,7 +311,7 @@ namespace moris::hmr
             delete tNodes( k );
 
             // decrement number of nodes
-            --mNumberOfAllBasis;
+            --mTotalNumBFs;
         }
 
         // tidy up: unflag all remaining nodes
@@ -343,10 +343,10 @@ namespace moris::hmr
     Lagrange_Mesh_Base::collect_nodes()
     {
         // clear node list
-        mAllBasisOnProc.clear();
+        mAllBFsOnProc.clear();
 
         // reserve size
-        mAllBasisOnProc.resize( mNumberOfAllBasis, nullptr );
+        mAllBFsOnProc.resize( mTotalNumBFs, nullptr );
 
         // initialize counter
         luint tCount = 0;
@@ -406,7 +406,7 @@ namespace moris::hmr
                         tNode->set_memory_index( tCount );
 
                         // add node to list
-                        mAllBasisOnProc( tCount++ ) = tNode;
+                        mAllBFsOnProc( tCount++ ) = tNode;
 
                         // flag node
                         tNode->flag();
@@ -416,7 +416,7 @@ namespace moris::hmr
         }
 
         // make sure that number of nodes is correct
-        MORIS_ERROR( tCount == mNumberOfAllBasis, "Number of Nodes does not match." );
+        MORIS_ERROR( tCount == mTotalNumBFs, "Number of Nodes does not match." );
     }
 
     //------------------------------------------------------------------------------
@@ -428,7 +428,7 @@ namespace moris::hmr
         {
             case ( 1 ):
             {
-                for ( auto tNode : mAllBasisOnProc )
+                for ( auto tNode : mAllBFsOnProc )
                 {
                     // get ij position of node
                     const luint* tI = tNode->get_ijk();
@@ -442,7 +442,7 @@ namespace moris::hmr
             }
             case ( 2 ):
             {
-                for ( auto tNode : mAllBasisOnProc )
+                for ( auto tNode : mAllBFsOnProc )
                 {
                     // get ij position of node
                     const luint* tIJ = tNode->get_ijk();
@@ -458,7 +458,7 @@ namespace moris::hmr
             case ( 3 ):
             {
                 // 3D case
-                for ( auto tNode : mAllBasisOnProc )
+                for ( auto tNode : mAllBFsOnProc )
                 {
                     // get ij position of node
                     const luint* tIJK = tNode->get_ijk();
@@ -499,7 +499,7 @@ namespace moris::hmr
         if ( tNumberOfProcs == 1 )    // serial mode
         {
             moris_id tCount = 0;
-            for ( auto tNode : mAllBasisOnProc )
+            for ( auto tNode : mAllBFsOnProc )
             {
                 // test if node is used by current setup
                 if ( tNode->is_used() )
@@ -521,7 +521,7 @@ namespace moris::hmr
 
             if ( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
             {
-                for ( auto tNode : mAllBasisOnProc )
+                for ( auto tNode : mAllBFsOnProc )
                 {
                     // test if node is used by current setup
                     if ( tNode->is_used() )
@@ -544,7 +544,7 @@ namespace moris::hmr
             }
             else
             {
-                for ( auto tNode : mAllBasisOnProc )
+                for ( auto tNode : mAllBFsOnProc )
                 {
                     // test if node is used by current setup
                     if ( tNode->is_used() )
@@ -587,7 +587,7 @@ namespace moris::hmr
             luint tMyOffset = tNodeOffset( tMyRank );
 
             // loop over all nodes on proc
-            for ( auto tNode : mAllBasisOnProc )
+            for ( auto tNode : mAllBFsOnProc )
             {
                 // test if the is used and node belongs to me
                 if ( tNode->is_used() )
@@ -797,7 +797,7 @@ namespace moris::hmr
 
             uint tCounter = 0;
 
-            for ( auto tBasis : mAllBasisOnProc )
+            for ( auto tBasis : mAllBFsOnProc )
             {
                 if ( tBasis->get_hmr_index() == gNoEntityID )
                 {
@@ -811,7 +811,7 @@ namespace moris::hmr
             Cell< Basis_Function* > tBasisWithoutId( tCounter );
             tCounter = 0;
 
-            for ( auto tBasis : mAllBasisOnProc )
+            for ( auto tBasis : mAllBFsOnProc )
             {
                 if ( tBasis->get_hmr_index() == gNoEntityID )
                 {
@@ -1172,7 +1172,7 @@ namespace moris::hmr
         this->determine_elements_connected_to_basis();
 
         // get number of nodes
-        luint tNumberOfNodes = mAllBasisOnProc.size();
+        luint tNumberOfNodes = mAllBFsOnProc.size();
 
         // matrix which will contain node IDs
         Matrix< DDLUMat > tNodeIDs( tNumberOfNodes, 1 );
@@ -1181,7 +1181,7 @@ namespace moris::hmr
         for ( luint k = 0; k < tNumberOfNodes; ++k )
         {
             // get node
-            Basis_Function* tNode = mAllBasisOnProc( k );
+            Basis_Function* tNode = mAllBFsOnProc( k );
 
             // get level of node
             luint tLevel = tNode->get_level();
@@ -1279,7 +1279,7 @@ namespace moris::hmr
                         // print elements of node 1
                         std::fprintf( stdout, "Elements connected to Node %lu : \n", ( long unsigned int ) k );
 
-                        Matrix< DDLUMat > tElements = mElementsPerNode( mAllBasisOnProc( k )->get_hmr_index() );
+                        Matrix< DDLUMat > tElements = mElementsPerNode( mAllBFsOnProc( k )->get_hmr_index() );
                          for( luint i=0; i<tElements.length(); ++i )
                         {
                             // get element
@@ -1295,7 +1295,7 @@ namespace moris::hmr
                         // print elements of node2
                         std::fprintf( stdout, "Elements connected to Node %lu : \n", ( long unsigned int ) j );
 
-                        tElements = mElementsPerNode( mAllBasisOnProc( j )->get_hmr_index() );
+                        tElements = mElementsPerNode( mAllBFsOnProc( j )->get_hmr_index() );
 
                         for( luint i=0; i<tElements.length(); ++i )
                         {
@@ -1360,7 +1360,7 @@ namespace moris::hmr
             case ( 2 ):
             {
                 // loop over all nodes
-                for ( auto tNode : mAllBasisOnProc )
+                for ( auto tNode : mAllBFsOnProc )
                 {
                     // test if this node is relevant
                     if ( tNode->is_used() )
@@ -1381,7 +1381,7 @@ namespace moris::hmr
             case ( 3 ):
             {
                 // loop over all nodes
-                for ( auto tNode : mAllBasisOnProc )
+                for ( auto tNode : mAllBFsOnProc )
                 {
                     // test if this node is relevant
                     if ( tNode->is_used() )
@@ -1498,7 +1498,7 @@ namespace moris::hmr
         tFile << "GO BUFFS!" << std::endl;
         tFile << "BINARY" << std::endl;
         // tFile << "ASCII" << std::endl;
-        luint tNumberOfNodes = mAllBasisOnProc.size();
+        luint tNumberOfNodes = mAllBFsOnProc.size();
 
         // write node data
         tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
@@ -1514,7 +1514,7 @@ namespace moris::hmr
             for ( luint k = 0; k < tNumberOfNodes; ++k )
             {
                 // get coordinate from node
-                const real* tXY = mAllBasisOnProc( k )->get_xyz();
+                const real* tXY = mAllBFsOnProc( k )->get_xyz();
 
                 // write coordinates to mesh
                 tFChar = swap_byte_endian( (float)tXY[ 0 ] );
@@ -1531,7 +1531,7 @@ namespace moris::hmr
             for ( luint k = 0; k < tNumberOfNodes; ++k )
             {
                 // get coordinate from node
-                const real* tXYZ = mAllBasisOnProc( k )->get_xyz();
+                const real* tXYZ = mAllBFsOnProc( k )->get_xyz();
 
                 // write coordinates to mesh
                 tFChar = swap_byte_endian( (float)tXYZ[ 0 ] );
@@ -1697,7 +1697,7 @@ namespace moris::hmr
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
-            tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_id() );
+            tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_id() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
         tFile << std::endl;
@@ -1707,7 +1707,7 @@ namespace moris::hmr
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
-            tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_index() );
+            tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_index() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
         tFile << std::endl;
@@ -1717,7 +1717,7 @@ namespace moris::hmr
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
-            tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_owner() );
+            tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_owner() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
         tFile << std::endl;
@@ -1727,7 +1727,7 @@ namespace moris::hmr
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
-            tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_hmr_id() );
+            tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_hmr_id() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
         tFile << std::endl;
@@ -1737,7 +1737,7 @@ namespace moris::hmr
         for ( moris::uint k = 0; k < tNumberOfNodes; ++k )
         {
 
-            tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_hmr_index() );
+            tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_hmr_index() );
             tFile.write( (char*)&tIChar, sizeof( float ) );
         }
         tFile << std::endl;
@@ -1771,7 +1771,7 @@ namespace moris::hmr
             {
                 for ( luint i = 0; i < tImax; ++i )
                 {
-                    mNumberOfAllBasis += mAllCoarsestElementsOnProc( tCount++ )->create_basis_on_level_zero( mAllElementsOnProc );
+                    mTotalNumBFs += mAllCoarsestElementsOnProc( tCount++ )->create_basis_on_level_zero( mAllElementsOnProc );
                 }
             }
         }
@@ -1796,7 +1796,7 @@ namespace moris::hmr
                 {
                     for ( luint i = 0; i < tImax; ++i )
                     {
-                        mNumberOfAllBasis += mAllCoarsestElementsOnProc( tCount++ )->create_basis_on_level_zero( mAllElementsOnProc );
+                        mTotalNumBFs += mAllCoarsestElementsOnProc( tCount++ )->create_basis_on_level_zero( mAllElementsOnProc );
                     }
                 }
             }
@@ -1822,7 +1822,7 @@ namespace moris::hmr
 
         if ( mParameters->use_number_aura() and mParameters->is_output_mesh( mMeshIndex ) )
         {
-            for ( auto tNode : mAllBasisOnProc )
+            for ( auto tNode : mAllBFsOnProc )
             {
                 if ( tNode->is_use_owned_and_shared() )
                 {
@@ -1834,7 +1834,7 @@ namespace moris::hmr
         }
         else
         {
-            for ( auto tNode : mAllBasisOnProc )
+            for ( auto tNode : mAllBFsOnProc )
             {
                 if ( tNode->is_used() )
                 {
@@ -1995,7 +1995,7 @@ namespace moris::hmr
         // step 7 : link facets to basis
 
         // reset facet containers
-        for ( Basis_Function* tBasis : mAllBasisOnProc )
+        for ( Basis_Function* tBasis : mAllBFsOnProc )
         {
             tBasis->delete_facet_container();
         }
@@ -2021,7 +2021,7 @@ namespace moris::hmr
         }
 
         // insert facet containers
-        for ( Basis_Function* tBasis : mAllBasisOnProc )
+        for ( Basis_Function* tBasis : mAllBFsOnProc )
         {
             tBasis->init_facet_container();
         }
@@ -2200,7 +2200,7 @@ namespace moris::hmr
 
         // step 7 : link edges to basis
         // reset edge containers
-        for ( Basis_Function* tBasis : mAllBasisOnProc )
+        for ( Basis_Function* tBasis : mAllBFsOnProc )
         {
             tBasis->delete_edge_container();
         }
@@ -2225,7 +2225,7 @@ namespace moris::hmr
         }
 
         // insert edge containers
-        for ( Basis_Function* tBasis : mAllBasisOnProc )
+        for ( Basis_Function* tBasis : mAllBFsOnProc )
         {
             tBasis->init_edge_container();
         }
@@ -3059,7 +3059,7 @@ namespace moris::hmr
             tFile << "# vtk DataFile Version 3.0" << std::endl;
             tFile << "GO BUFFS!" << std::endl;
             tFile << "BINARY" << std::endl;
-            int tNumberOfNodes = mAllBasisOnProc.size();
+            int tNumberOfNodes = mAllBFsOnProc.size();
 
             // write node data
             tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
@@ -3075,7 +3075,7 @@ namespace moris::hmr
                 for ( int k = 0; k < tNumberOfNodes; ++k )
                 {
                     // get coordinate from node
-                    const real* tXY = mAllBasisOnProc( k )->get_xyz();
+                    const real* tXY = mAllBFsOnProc( k )->get_xyz();
 
                     // write coordinates to mesh
                     tFChar = swap_byte_endian( (float)tXY[ 0 ] );
@@ -3092,7 +3092,7 @@ namespace moris::hmr
                 for ( int k = 0; k < tNumberOfNodes; ++k )
                 {
                     // get coordinate from node
-                    const real* tXYZ = mAllBasisOnProc( k )->get_xyz();
+                    const real* tXYZ = mAllBFsOnProc( k )->get_xyz();
 
                     // write coordinates to mesh
                     tFChar = swap_byte_endian( (float)tXYZ[ 0 ] );
@@ -3265,7 +3265,7 @@ namespace moris::hmr
             for ( int k = 0; k < tNumberOfNodes; ++k )
             {
 
-                tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_id() );
+                tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_id() );
                 tFile.write( (char*)&tIChar, sizeof( float ) );
             }
             tFile << std::endl;
@@ -3275,7 +3275,7 @@ namespace moris::hmr
             for ( int k = 0; k < tNumberOfNodes; ++k )
             {
 
-                tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_index() );
+                tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_index() );
                 tFile.write( (char*)&tIChar, sizeof( float ) );
             }
             tFile << std::endl;
@@ -3304,7 +3304,7 @@ namespace moris::hmr
             tFile << "# vtk DataFile Version 3.0" << std::endl;
             tFile << "GO BUFFS!" << std::endl;
             tFile << "BINARY" << std::endl;
-            int tNumberOfNodes = mAllBasisOnProc.size();
+            int tNumberOfNodes = mAllBFsOnProc.size();
 
             // write node data
             tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
@@ -3320,7 +3320,7 @@ namespace moris::hmr
                 for ( int k = 0; k < tNumberOfNodes; ++k )
                 {
                     // get coordinate from node
-                    const real* tXY = mAllBasisOnProc( k )->get_xyz();
+                    const real* tXY = mAllBFsOnProc( k )->get_xyz();
 
                     // write coordinates to mesh
                     tFChar = swap_byte_endian( (float)tXY[ 0 ] );
@@ -3337,7 +3337,7 @@ namespace moris::hmr
                 for ( int k = 0; k < tNumberOfNodes; ++k )
                 {
                     // get coordinate from node
-                    const real* tXYZ = mAllBasisOnProc( k )->get_xyz();
+                    const real* tXYZ = mAllBFsOnProc( k )->get_xyz();
 
                     // write coordinates to mesh
                     tFChar = swap_byte_endian( (float)tXYZ[ 0 ] );
@@ -3505,7 +3505,7 @@ namespace moris::hmr
             for ( int k = 0; k < tNumberOfNodes; ++k )
             {
 
-                tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_id() );
+                tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_id() );
                 tFile.write( (char*)&tIChar, sizeof( float ) );
             }
             tFile << std::endl;
@@ -3515,7 +3515,7 @@ namespace moris::hmr
             for ( int k = 0; k < tNumberOfNodes; ++k )
             {
 
-                tIChar = swap_byte_endian( (int)mAllBasisOnProc( k )->get_index() );
+                tIChar = swap_byte_endian( (int)mAllBFsOnProc( k )->get_index() );
                 tFile.write( (char*)&tIChar, sizeof( float ) );
             }
             tFile << std::endl;
@@ -4107,7 +4107,7 @@ namespace moris::hmr
         Matrix< DDSMat > tReverseIndexMap( tMaxID + 1, 1, -1 );
         Matrix< DDSMat > tReverseIDMap( tMaxID + 1, 1, -1 );
 
-        moris::Cell< Basis_Function* > tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
+        moris::Cell< Basis_Function* > tNonBSplineBasis( mAllBFsOnProc.size(), nullptr );
 
         this->calculate_t_matrices( false );
 

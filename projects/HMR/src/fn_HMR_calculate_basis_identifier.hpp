@@ -25,7 +25,7 @@ namespace moris::hmr
      * @return Unique basis identifier
      */
     template< uint N >
-    luint calculate_basis_identifier(
+    luint compute_basis_function_identifier(
             const luint* aIJK,
             const luint* aDimensionOffset )
     {

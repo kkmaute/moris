@@ -35,8 +35,11 @@ namespace moris::hmr
         //! Number of neighbors
         static constexpr uint B = ( N == 1 ? 2 : ( N == 2 ? 8 : 26 ) );
 
-        //! memory position in active cell
+        //! memory position in list of active basis functions
         luint mActiveIndex = gNoEntityID;
+
+        //! memory position in list of candidate basis functions
+        luint mCandidateIndex = gNoEntityID;
 
         //! local ijk position on proc
         luint mIJK[ N ];
@@ -46,10 +49,13 @@ namespace moris::hmr
         real mXYZ[ N ] = { 0 };
 #endif
 
-        //! flag telling if the basis is active
+        //! flag telling if the basis function is active
         bool mActiveFlag = false;
 
-        //! flag telling if the basis is refined
+        //! flag telling if the basis function candidate for enriched truncated hierarchical basis
+        bool mCandidateFlag = false;
+
+        //! flag telling if the basis function is refined
         bool mRefinedFlag = false;
 
         //! flag that tells if the Neighbor array is allocated
@@ -76,11 +82,11 @@ namespace moris::hmr
         //! counter for connected Basis functions
         uint mNumberOfConnectedBasis = 0;
 
-        //! flag telling if the basis container is allocated
+        //! flag telling if the basis function container is allocated
         bool mConnectedFlag = false;
 
-        //! container for connected basis
-        Basis_Function** mConnectedBasis;
+        //! container for connected basis functions
+        Basis_Function** mConnectedBFs;
 
         //------------------------------------------------------------------------------
 
@@ -91,8 +97,8 @@ namespace moris::hmr
          * default constructor
          *
          * @param[in]   aIJK        ijk position of node
-         * @param[in]   aLevel      level on which basis exists
-         * @param[in]   aOwner      owner of basis
+         * @param[in]   aLevel      level on which basis function exists
+         * @param[in]   aOwner      owner of basis function
          */
         BSpline(
                 const luint* aIJK,
@@ -117,19 +123,19 @@ namespace moris::hmr
          */
         ~BSpline()
         {
-            // test if basis has elements
+            // test if basis function has elements
             if ( mNumberOfConnectedElements != 0 )
             {
                 mElements.clear();
             }
 
-            // test if this basis has neighbors
+            // test if this basis function has neighbors
             if ( mNeighborsFlag )
             {
                 delete[] mNeighbors;
             }
 
-            // test if this basis has children
+            // test if this basis function has children
             if ( mChildrenFlag )
             {
                 delete[] mChildren;
@@ -143,7 +149,7 @@ namespace moris::hmr
 
             if ( mConnectedFlag )
             {
-                delete[] mConnectedBasis;
+                delete[] mConnectedBFs;
             }
         };
 
@@ -167,6 +173,20 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
+         * Sets the candidacy status of this basis function .
+         *
+         * @return void
+         */
+        void
+        set_candidate_flag()
+        {
+            // set basis function to be a candidate
+            mCandidateFlag = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
          *Sets the state of this basis to "refined".
          *
          * @return void
@@ -184,7 +204,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         *Sets the state of this basis to "deactivated".
+         * Sets the state of this basis to "deactivated".
          *
          * @return void
          */
@@ -201,12 +221,39 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
+         * Sets the state of this basis function to be considered a candidate.
+         *
+         * @return void
+         */
+        void
+        unset_candidate_flag()
+        {
+            // set basis function to not be a candidate
+            mCandidateFlag = false;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
          * tells if a Basis Function is active
          *
          * @return bool   true if active
          */
         bool
         is_active() const
+        {
+            return mActiveFlag;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * tells if a Basis Function is may be part of an enriched truncated hierarchical basis
+         *
+         * @return bool true if candidate
+         */
+        bool
+        is_candidate() const
         {
             return mActiveFlag;
         }
@@ -343,12 +390,12 @@ namespace moris::hmr
         {
             if ( !mConnectedFlag )
             {
-                mConnectedBasis = new Basis_Function*[ mNumberOfConnectedBasis ];
+                mConnectedBFs = new Basis_Function*[ mNumberOfConnectedBasis ];
 
                 // reset array
                 for ( uint k = 0; k < mNumberOfConnectedBasis; ++k )
                 {
-                    mConnectedBasis[ k ] = nullptr;
+                    mConnectedBFs[ k ] = nullptr;
                 }
 
                 // reset the counter
@@ -366,7 +413,7 @@ namespace moris::hmr
         {
             if ( mConnectedFlag )
             {
-                delete[] mConnectedBasis;
+                delete[] mConnectedBFs;
                 mConnectedFlag = false;
             }
         }
@@ -383,7 +430,7 @@ namespace moris::hmr
         void
         insert_connected_basis( Basis_Function* aBasis )
         {
-            mConnectedBasis[ mNumberOfConnectedBasis++ ] = aBasis;
+            mConnectedBFs[ mNumberOfConnectedBasis++ ] = aBasis;
         }
 
         // -----------------------------------------------------------------------------
@@ -391,7 +438,7 @@ namespace moris::hmr
         Basis_Function*
         get_connected_basis( uint aBasisNumber )
         {
-            return mConnectedBasis[ aBasisNumber ];
+            return mConnectedBFs[ aBasisNumber ];
         }
 
         // -----------------------------------------------------------------------------
@@ -399,7 +446,7 @@ namespace moris::hmr
         const Basis_Function*
         get_connected_basis( uint aBasisNumber ) const
         {
-            return mConnectedBasis[ aBasisNumber ];
+            return mConnectedBFs[ aBasisNumber ];
         }
 
         // -----------------------------------------------------------------------------
@@ -462,8 +509,8 @@ namespace moris::hmr
          * @return void
          */
         void
-        insert_child( uint aChildNumber,
-                Basis_Function*     aChild )
+        insert_child( uint      aChildNumber,
+                Basis_Function* aChild )
         {
             mChildren[ aChildNumber ] = aChild;
         }
@@ -517,8 +564,8 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         void
-        insert_neighbor( uint aNeighborNumber,
-                Basis_Function*        aNeighbor )
+        insert_neighbor( uint   aNeighborNumber,
+                Basis_Function* aNeighbor )
         {
             MORIS_ASSERT( mNeighborsFlag, "Can't insert neighbor if container is not set" );
             mNeighbors[ aNeighborNumber ] = aNeighbor;
@@ -579,7 +626,7 @@ namespace moris::hmr
 
         // -----------------------------------------------------------------------------
 
-        // counts fagged basis
+        // counts flagged basis functions
         luint
         count_descendants() override
         {
@@ -615,16 +662,17 @@ namespace moris::hmr
 
         // -----------------------------------------------------------------------------
 
-        // counts inflagged basis
+        // counts non-flagged basis functions
         void
-        collect_descendants( Cell< Basis_Function* >& aBasisList,
-                luint&                       aBasisCount ) override
+        collect_descendants(
+                Cell< Basis_Function* >& aBasisFunctionList,
+                luint&                   aBasisFunctionCount ) override
         {
             // test if self has been flagged
             if ( !mFlag )
             {
                 // add self to list
-                aBasisList( aBasisCount++ ) = this;
+                aBasisFunctionList( aBasisFunctionCount++ ) = this;
 
                 // test if children exist
                 if ( mChildrenFlag )
@@ -635,7 +683,7 @@ namespace moris::hmr
                         // test if child exists
                         if ( mChildren[ k ] != nullptr )
                         {
-                            mChildren[ k ]->collect_descendants( aBasisList, aBasisCount );
+                            mChildren[ k ]->collect_descendants( aBasisFunctionList, aBasisFunctionCount );
                         }
                     }
                 }
@@ -698,6 +746,14 @@ namespace moris::hmr
             mActiveIndex = aIndex;
         }
 
+        // -----------------------------------------------------------------------------
+
+        void
+        set_candidate_index( luint aIndex )
+        {
+            mCandidateIndex = aIndex;
+        }
+
         //------------------------------------------------------------------------------
 
         luint
@@ -705,6 +761,15 @@ namespace moris::hmr
         {
             return mActiveIndex;
         }
+
+        //------------------------------------------------------------------------------
+
+        luint
+        get_candidate_index()
+        {
+            return mCandidateIndex;
+        }
+
 
         //------------------------------------------------------------------------------
 

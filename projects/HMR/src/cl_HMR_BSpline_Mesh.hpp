@@ -33,32 +33,32 @@ namespace moris::hmr
     template< uint P, uint Q, uint R >
     class BSpline_Mesh : public BSpline_Mesh_Base
     {
-        //! Number of dimensions
+        /// Number of dimensions
         static constexpr uint N = ( P > 0 ) + ( Q > 0 ) + ( R > 0 );
 
-        //! Number of bases per element
+        /// Number of basis functions per element
         static constexpr uint B = ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
 
-        //! Number of children per basis
+        /// Number of children per basis function
         static constexpr uint C = ( P + 2 - ( P == 0 ) ) * ( Q + 2 - ( Q == 0 ) ) * ( R + 2 - ( R == 0 ) );
 
-        //! Container of degrees, used to avoid repeated conditionals
+        /// Container of degrees, used to avoid repeated conditionals
         static constexpr uint PQR[ 3 ] = { P, Q, R };
 
-        //! Lookup table containing offset for node IDs
-        luint mBasisLevelOffset[ gMaxNumberOfLevels ];
+        /// Lookup table containing offset for node IDs
+        luint mBasisFunctionLevelOffset[ gMaxNumberOfLevels ];
 
-        //! Lookup table containing number of elements per dimension for each level
-        luint mNumberOfElementsPerDimensionIncludingAura[ gMaxNumberOfLevels ][ N ];
+        /// Lookup table containing number of elements per dimension for each level
+        luint mNumElementsPerDimensionInclAura[ gMaxNumberOfLevels ][ N ];
 
-        //! Lookup table for node IDs
+        /// Lookup table for node IDs
         luint mMySubdomainOffset[ gMaxNumberOfLevels ][ N ];
 
-        //! Lookup table containing number of basis per dimension for each level
-        luint mNumberOfBasisPerDimensionIncludingPadding[ gMaxNumberOfLevels ][ N ];
+        /// Lookup table containing number of basis functions per dimension for each level
+        luint mNumBFsPerDimensionInclPadding[ gMaxNumberOfLevels ][ N ];
 
-        //! number of basis on coarsest level
-        luint mNumberOfCoarsestBasisOnProc[ N ] = { 0 };
+        /// number of basis functions on coarsest level
+        luint mNumCoarsestBFsOnProc[ N ] = { 0 };
 
       public:
         // ----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ namespace moris::hmr
             // ask background mesh for number of elements per ijk-direction for each refinement level
             this->get_number_of_elements_per_dimension();
 
-            // calculate lookup table mBasisLevelOffset (which indicates which index ranges may be occupied for BFs on different refinement levels)
+            // calculate lookup table mBasisFunctionLevelOffset (which indicates which index ranges may be occupied for BFs on different refinement levels)
             this->calculate_lookup_tables();
 
             // calculate subdomain offset
@@ -116,7 +116,7 @@ namespace moris::hmr
          */
         ~BSpline_Mesh() override
         {
-            mActiveBasisOnProc.clear();
+            mActiveBFsOnProc.clear();
             this->delete_pointers();
         }
 
@@ -167,9 +167,9 @@ namespace moris::hmr
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
                     tIJK[ iDimension ]             = aIJK[ iDimension ] + mMySubdomainOffset[ aLevel ][ iDimension ];
-                    tDimensionOffset[ iDimension ] = mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ iDimension ];
+                    tDimensionOffset[ iDimension ] = mNumBFsPerDimensionInclPadding[ aLevel ][ iDimension ];
                 }
-                return calculate_basis_identifier< N >( tIJK, tDimensionOffset ) + mBasisLevelOffset[ aLevel ];
+                return compute_basis_function_identifier< N >( tIJK, tDimensionOffset ) + mBasisFunctionLevelOffset[ aLevel ];
             }
             else
             {
@@ -310,11 +310,11 @@ namespace moris::hmr
             // Number of basis on level 0
             for ( uint iDimension = 0; iDimension < N; iDimension++ )
             {
-                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ iDimension ] = mNumberOfElementsPerDimensionIncludingAura[ 0 ][ iDimension ] + PQR[ iDimension ];
+                mNumBFsPerDimensionInclPadding[ 0 ][ iDimension ] = mNumElementsPerDimensionInclAura[ 0 ][ iDimension ] + PQR[ iDimension ];
             }
 
             // Basis level offset on level 0
-            mBasisLevelOffset[ 0 ] = 0;
+            mBasisFunctionLevelOffset[ 0 ] = 0;
 
             for ( uint iLevel = 1; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
@@ -324,15 +324,15 @@ namespace moris::hmr
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
                     // Calculate number of basis on higher levels
-                    mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ iDimension ] =
-                            2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ iDimension ] + PQR[ iDimension ];
+                    mNumBFsPerDimensionInclPadding[ iLevel ][ iDimension ] =
+                            2 * mNumBFsPerDimensionInclPadding[ iLevel - 1 ][ iDimension ] + PQR[ iDimension ];
 
                     // Calculate number of nodes on this level
-                    tNumberOfBasis *= mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ iDimension ];
+                    tNumberOfBasis *= mNumBFsPerDimensionInclPadding[ iLevel - 1 ][ iDimension ];
                 }
 
                 // Add number of nodes to offset table
-                mBasisLevelOffset[ iLevel ] = mBasisLevelOffset[ iLevel - 1 ] + tNumberOfBasis;
+                mBasisFunctionLevelOffset[ iLevel ] = mBasisFunctionLevelOffset[ iLevel - 1 ] + tNumberOfBasis;
             }
         }
 
@@ -376,7 +376,7 @@ namespace moris::hmr
             {
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    mNumberOfElementsPerDimensionIncludingAura[ iLevel ][ iDimension ] = tMat( iDimension, iLevel );
+                    mNumElementsPerDimensionInclAura[ iLevel ][ iDimension ] = tMat( iDimension, iLevel );
                 }
             }
         }
@@ -445,7 +445,7 @@ namespace moris::hmr
             }
 
             // loop over all nodes
-            for ( auto tBasis : mAllBasisOnProc )
+            for ( auto tBasis : mAllBFsOnProc )
             {
                 // get ijk position of node
                 const luint* tIJK = tBasis->get_ijk();
@@ -478,20 +478,20 @@ namespace moris::hmr
             Matrix< DDLUMat > tNumElementsPerDirection = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
 
             // Unroll min and max i and j
-            luint tTotalNumberOfCoarsestBases = 1;
+            luint tTotalNumCoarsestBFs = 1;
             for ( uint iDimension = 0; iDimension < N; iDimension++ )
             {
-                mNumberOfCoarsestBasisOnProc[ iDimension ] = tNumElementsPerDirection( iDimension, 0 ) + PQR[ iDimension ];
-                tTotalNumberOfCoarsestBases *= mNumberOfCoarsestBasisOnProc[ iDimension ];
+                mNumCoarsestBFsOnProc[ iDimension ] = tNumElementsPerDirection( iDimension, 0 ) + PQR[ iDimension ];
+                tTotalNumCoarsestBFs *= mNumCoarsestBFsOnProc[ iDimension ];
             }
 
             // Size array
-            mAllCoarsestBasisOnProc.resize( tTotalNumberOfCoarsestBases, nullptr );
+            mAllCoarsestBFsOnProc.resize( tTotalNumCoarsestBFs, nullptr );
 
             // Populate array
             luint tIJK[ N ];
-            luint tBasisIndex = 0;
-            populate_bases< N >( tIJK, tBasisIndex );
+            luint tBasisFunctionIndex = 0;
+            populate_basis_functions< N >( tIJK, tBasisFunctionIndex );
         }
 
         // ----------------------------------------------------------------------------
@@ -505,16 +505,16 @@ namespace moris::hmr
          */
         template< uint D, std::enable_if_t< ( D > 0 ) >* = nullptr >
         void
-        populate_bases( luint* aIJK, luint& aBasisIndex )
+        populate_basis_functions( luint* aIJK, luint& aBasisIndex )
         {
             // Loop over IJK
-            for ( uint iBF = 0; iBF < mNumberOfCoarsestBasisOnProc[ D - 1 ]; iBF++ )
+            for ( uint iBF = 0; iBF < mNumCoarsestBFsOnProc[ D - 1 ]; iBF++ )
             {
                 // Assign this IJK value
                 aIJK[ D - 1 ] = iBF;
 
                 // Go to next dimension
-                populate_bases< D - 1 >( aIJK, aBasisIndex );
+                populate_basis_functions< D - 1 >( aIJK, aBasisIndex );
             }
         }
 
@@ -529,16 +529,16 @@ namespace moris::hmr
          */
         template< uint D, std::enable_if_t< ( D == 0 ) >* = nullptr >
         void
-        populate_bases( luint* aIJK, luint& aBasisIndex )
+        populate_basis_functions( luint* aIJK, luint& aBasisIndex )
         {
             // Create new basis
-            mAllCoarsestBasisOnProc( aBasisIndex++ ) = new BSpline< P, Q, R >( aIJK, 0, gNoProcOwner );
+            mAllCoarsestBFsOnProc( aBasisIndex++ ) = new BSpline< P, Q, R >( aIJK, 0, gNoProcOwner );
         }
 
         //------------------------------------------------------------------------------
 
         void
-        link_basis_to_elements_on_level_zero() override
+        link_basis_functions_to_elements_on_level_zero() override
         {
             // loop over all elements
             for ( auto tElement : mAllCoarsestElementsOnProc )
@@ -547,17 +547,17 @@ namespace moris::hmr
                 tElement->init_basis_container();
 
                 // loop over all basis of this element
-                for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
+                for ( uint iLocalBfIndex = 0; iLocalBfIndex < B; iLocalBfIndex++ )
                 {
                     // Get IJK position of this basis
                     luint tIJK[ N ];
-                    tElement->get_ijk_of_basis( iBasisIndex, tIJK );
+                    tElement->get_ijk_of_basis_function( iLocalBfIndex, tIJK );
 
                     // Get basis index
-                    luint tCoarseBasisIndex = calculate_basis_identifier< N >( tIJK, mNumberOfCoarsestBasisOnProc );
+                    luint tCoarseBasisFunctionIndex = compute_basis_function_identifier< N >( tIJK, mNumCoarsestBFsOnProc );
 
                     // Insert point to basis into element
-                    tElement->insert_basis( iBasisIndex, mAllCoarsestBasisOnProc( tCoarseBasisIndex ) );
+                    tElement->insert_basis_function( iLocalBfIndex, mAllCoarsestBFsOnProc( tCoarseBasisFunctionIndex ) );
                 }
             }
         }
@@ -565,35 +565,35 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        preprocess_bases_from_level(
-                Cell< Element* >& aElements,
-                Cell< Basis_Function* >&   aBasisFunctions ) override
+        preprocess_basis_on_level(
+                Cell< Element* >&        aElements,
+                Cell< Basis_Function* >& aBasisFunctions ) override
         {
             // reset flags for basis
             for ( Element* tElement : aElements )
             {
                 // loop over all basis from this element
-                for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
+                for ( uint iBFIndexInElement = 0; iBFIndexInElement < B; iBFIndexInElement++ )
                 {
                     // get pointer to basis
-                    Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
+                    Basis_Function* tBasisFunction = tElement->get_basis_function( iBFIndexInElement );
 
-                    if ( tBasis != nullptr )
+                    if ( tBasisFunction != nullptr )
                     {
-                        // un-flag this basis
-                        tBasis->unflag();
+                        // un-flag this basis function
+                        tBasisFunction->unflag();
 
-                        // deactivate this basis
-                        tBasis->unuse();
+                        // deactivate this basis function
+                        tBasisFunction->unuse();
 
                         // counts this element
-                        tBasis->increment_element_counter();
+                        tBasisFunction->increment_element_counter();
                     }
                 }
             }
 
             // initialize basis counter
-            luint tBasisCount = 0;
+            luint tBasisFunctionCount = 0;
 
             // get my rank
             moris_id tMyRank = par_rank();
@@ -602,22 +602,22 @@ namespace moris::hmr
             // go over all elements on the current level and mark the basis functions interpolating into them for usage and count them
             for ( Element* iElement : aElements )
             {
-                // loop over all basis from this element
-                for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
+                // loop over all basis functions interpolating into this element
+                for ( uint iBFIndexInElement = 0; iBFIndexInElement < B; iBFIndexInElement++ )
                 {
-                    // get pointer to basis
-                    Basis_Function* tBasis = iElement->get_basis_function( iBasisIndexInElement );
+                    // get pointer to this basis function
+                    Basis_Function* tBasisFunction = iElement->get_basis_function( iBFIndexInElement );
 
-                    if ( tBasis != nullptr )
+                    if ( tBasisFunction != nullptr )
                     {
-                        // test if basis has been counted - make sure to not count basis functions twice
-                        if ( !tBasis->is_flagged() )
+                        // test if basis function has been counted - make sure to not count basis functions twice
+                        if ( !tBasisFunction->is_flagged() )
                         {
-                            // count this basis
-                            ++tBasisCount;
+                            // count this basis function
+                            ++tBasisFunctionCount;
 
-                            // flag this basis
-                            tBasis->flag();
+                            // flag this basis function
+                            tBasisFunction->flag();
                         }
                     }
                 }
@@ -626,61 +626,61 @@ namespace moris::hmr
                 if ( iElement->get_owner() == tMyRank )
                 {
                     // loop over all basis from this element
-                    for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
+                    for ( uint iBFIndexInElement = 0; iBFIndexInElement < B; iBFIndexInElement++ )
                     {
                         // get pointer to basis
-                        Basis_Function* tBasis = iElement->get_basis_function( iBasisIndexInElement );
-                        if ( tBasis != nullptr )
+                        Basis_Function* tBasisFunction = iElement->get_basis_function( iBFIndexInElement );
+                        if ( tBasisFunction != nullptr )
                         {
-                            tBasis->use();
+                            tBasisFunction->use();
                         }
                     }
                 }
             }    // end for: each element on current level
 
             // assign memory for basis container
-            aBasisFunctions.resize( tBasisCount, nullptr );
+            aBasisFunctions.resize( tBasisFunctionCount, nullptr );
 
             // reset counter
-            tBasisCount = 0;
+            tBasisFunctionCount = 0;
 
             // ======================
             // go over all elements on the current level and initialize the neighbor containers of the BFs interpolating into the refined elements
             for ( Element* iElement : aElements )
             {
                 // loop over all basis from this element and un-flag them again
-                for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
+                for ( uint iBFIndexInElement = 0; iBFIndexInElement < B; iBFIndexInElement++ )
                 {
                     // get pointer to basis
-                    Basis_Function* tBasis = iElement->get_basis_function( iBasisIndexInElement );
+                    Basis_Function* tBasisFunction = iElement->get_basis_function( iBFIndexInElement );
 
-                    if ( tBasis != nullptr )
+                    if ( tBasisFunction != nullptr )
                     {
                         // if this basis has been processed already, reset the flag
-                        if ( tBasis->is_flagged() )
+                        if ( tBasisFunction->is_flagged() )
                         {
-                            // copy pointer to basis
-                            aBasisFunctions( tBasisCount++ ) = tBasis;
+                            // copy pointer to basis function
+                            aBasisFunctions( tBasisFunctionCount++ ) = tBasisFunction;
 
-                            // unflag this basis
-                            tBasis->unflag();
+                            // unflag this basis function
+                            tBasisFunction->unflag();
                         }
                     }
                 }
 
-                // initialize basis neighbor container on basis functions interpolating into refined elements
+                // initialize basis function neighbor container on basis functions interpolating into refined elements
                 if ( iElement->is_refined() )
                 {
-                    // loop over all basis
-                    for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
+                    // loop over all basis functions in element
+                    for ( uint iBFIndexInElement = 0; iBFIndexInElement < B; iBFIndexInElement++ )
                     {
-                        // get pointer to basis
-                        Basis_Function* tBasis = iElement->get_basis_function( iBasisIndexInElement );
+                        // get pointer to the current basis function
+                        Basis_Function* tBasisFunction = iElement->get_basis_function( iBFIndexInElement );
 
-                        if ( tBasis != nullptr )
+                        if ( tBasisFunction != nullptr )
                         {
                             // assign memory of neighbor container for this basis
-                            tBasis->init_neighbor_container();
+                            tBasisFunction->init_neighbor_container();
                         }
                     }
                 }
@@ -698,30 +698,30 @@ namespace moris::hmr
             for ( Element* tElement : aElements )
             {
                 // loop over all basis from this element
-                for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
+                for ( uint iBFIndexInElement = 0; iBFIndexInElement < B; iBFIndexInElement++ )
                 {
-                    Basis_Function* tBasis = tElement->get_basis_function( iBasisIndexInElement );
+                    Basis_Function* tBasisFunction = tElement->get_basis_function( iBFIndexInElement );
 
-                    if ( tBasis != nullptr )
+                    if ( tBasisFunction != nullptr )
                     {
                         // insert this element into basis
-                        tBasis->insert_element( tElement );
+                        tBasisFunction->insert_element( tElement );
                     }
                 }
             }
 
-            // delete_unused_bases (nice feature, not sure if worth the effort)
-            // this->delete_unused_bases( aLevel, aBackgroundElements, aBasisFunctions );              // FIXME Saves Memory
+            // delete_unused_basis_functions (nice feature, not sure if worth the effort)
+            // this->delete_unused_basis_functions( aLevel, aBackgroundElements, aBasisFunctions ); // FIXME Saves Memory
 
             // ======================
             // link basis functions with neighboring BFs
-            for ( Element* tElement : aElements )
+            for ( Element* iElement : aElements )
             {
                 // calculate basis neighbors
-                if ( tElement->is_refined() )
+                if ( iElement->is_refined() )
                 {
                     // determine the BF's neighboring BFs
-                    tElement->link_basis_with_neighbors( mAllElementsOnProc );
+                    iElement->link_basis_functions_with_neighbors( mAllElementsOnProc );
                 }
             }
 
@@ -731,41 +731,71 @@ namespace moris::hmr
                 // initialize element container
                 iBasisFunction->unflag();
             }
-        }
+        } // end function: hmr::BSpline_Mesh::preprocess_basis_on_level()
 
         //------------------------------------------------------------------------------
 
         void
-        determine_basis_state( Cell< Basis_Function* >& aBases ) override
+        determine_basis_function_state( Cell< Basis_Function* >& aBasisFunctions ) override
         {
             // loop over all basis functions parsed into this function and flag them as (de-)activated and as (non-)refined
-            for ( Basis_Function* iBasisFunction : aBases )
+            for ( Basis_Function* iBasisFunction : aBasisFunctions )
             {
                 // only process basis that are used by this proc
                 if ( iBasisFunction->is_used() )
                 {
                     // test number of elements in basis function's support
-                    uint tNumberOfElements = iBasisFunction->get_element_counter();
+                    uint tNumElemsInSupport = iBasisFunction->get_element_counter();
 
-                    // if the basis function's support extends beyond the padding (i.e. it is not fully supported on any level) it is irrelevant
-                    if ( tNumberOfElements < B )
+                    // if the basis function's support extends beyond the padding (i.e. it is not fully supported on its respective level), it is irrelevant
+                    if ( tNumElemsInSupport < B )
                     {
-                        // mark this basis as de-activated
+                        // mark this basis function as de-activated and not candidate
                         iBasisFunction->unset_active_flag();
+                        iBasisFunction->unset_candidate_flag();
                     }
-                    else    // Basis function is fully supported within domain + padding
+                    else    // Basis function is fully supported on its level within domain + padding
                     {
-                        // check if any element in the BF's support are neither active nor refined which also indicates irrelevance
-                        // TODO: for the truncation refactor the condition is that any element within the BF's support is considered a candidate
+                        /* check if the elements in the BF's support are neither active nor refined 
+                         * Note: for a pure THB-basis we do not need to consider BFs that interpolate into deactivated elements
+                         * (i.e. elements more refined elements than what is used in that location) 
+                         * Note: for an enriched THB-basis we need to consider BFs that interpolate into at least one active element
+                         */
                         bool tHasDeactivatedElement = false;
+                        bool tAtLeastOneActiveElementInSupport = false;
                         for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
                         {
+                            // get the pointer to the current element in the BF's support
                             Element* tElement = iBasisFunction->get_element( iElementIndex );
+                            
+                            // if the element is neither active nor refined, mark the first condition as fulfilled
                             if ( tElement->is_neither_active_nor_refined() )
                             {
                                 tHasDeactivatedElement = true;
+                            }
+
+                            // if the element is active, mark the second condition as fulfilled
+                            if ( tElement->is_active() )
+                            {
+                                tAtLeastOneActiveElementInSupport = true;
+                            }
+
+                            // if the above two conditions are already met, the loop can be stopped
+                            if ( tHasDeactivatedElement && tAtLeastOneActiveElementInSupport )
+                            {
                                 break;
                             }
+                        }
+
+                        // mark the basis function as candidate if it is supported by at least one active element
+                        if ( tAtLeastOneActiveElementInSupport )
+                        {
+                            iBasisFunction->set_candidate_flag();
+                        }
+                        // otherwise, mark it as not candidate
+                        else
+                        {
+                            iBasisFunction->unset_candidate_flag();
                         }
 
                         // if the basis function is not fully supported by active or refined elements, deactivate it
@@ -795,22 +825,35 @@ namespace moris::hmr
                             {
                                 // flag this basis as active
                                 iBasisFunction->set_active_flag();
+
+                                // sanity check: check that any active BF is also a candidate
+                                MORIS_ASSERT( 
+                                        iBasisFunction->is_candidate(), 
+                                        "hmr::BSpline_Mesh::determine_basis_function_state() - "
+                                        "Found active basis function which has not been marked as candidate. Something went wrong." );
                             }
-                            else    // the BF interpolates only into de-activated elements, hence it must be refined and fully replaced by finer BFs
+                            else    // the BF interpolates only into refined elements, hence it must be refined and fully replaced by finer BFs later
                             {
                                 // flag this basis as refined
                                 iBasisFunction->set_refined_flag();
+
+                                // sanity check: check that any BF supported by only refined elements is not marked as a candidate
+                                MORIS_ASSERT( 
+                                        !iBasisFunction->is_candidate(), 
+                                        "hmr::BSpline_Mesh::determine_basis_function_state() - "
+                                        "Found refined basis function which has been marked as candidate. Something went wrong." );
                             }
+
                         }    // end if: BF interpolates into de-activated element
                     }        // end if: BF is relevant and not outside the domain
                 }            // end if: BF is used on processor
             }                // end for: all basis functions parsed into function
-        }                    // end function: BSpline_Mesh::determine_basis_state()
+        }                    // end function: BSpline_Mesh::determine_basis_function_state()
 
         //------------------------------------------------------------------------------
 
         void
-        link_bases_to_parents() override
+        link_basis_functions_to_parents() override
         {
             // ask background mesh for max number of levels
             uint tMaxLevel = mBackgroundMesh->get_max_level();
@@ -823,7 +866,7 @@ namespace moris::hmr
             {
                 // make children from last step to parents
                 Cell< Basis_Function* > tBasis;
-                this->collect_bases_from_level( iLevel, tBasis );
+                this->collect_basis_functions_from_level( iLevel, tBasis );
 
                 // loop over all basis on this level
                 for ( auto tParent : tBasis )
@@ -872,10 +915,10 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        delete_unused_bases(
+        delete_unused_basis_functions(
                 uint                              aLevel,
                 Cell< Background_Element_Base* >& aBackgroundElements,
-                Cell< Basis_Function* >&                   aBasis ) override
+                Cell< Basis_Function* >&          aBasis ) override
         {
             // start timer
             tic tTimer;
@@ -890,7 +933,7 @@ namespace moris::hmr
                 // collect basis from upper level
                 Cell< Basis_Function* > tParents;
 
-                this->collect_bases_from_level( aLevel - 1, tParents );
+                this->collect_basis_functions_from_level( aLevel - 1, tParents );
 
                 // loop over all parents
                 for ( auto tParent : tParents )
@@ -959,7 +1002,7 @@ namespace moris::hmr
                             if ( !tBasis->is_used() )
                             {
                                 // write null into element
-                                tElement->insert_basis( iBasisIndexInElement, nullptr );
+                                tElement->insert_basis_function( iBasisIndexInElement, nullptr );
                             }
                         }
                     }
@@ -1025,8 +1068,8 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        collect_bases_from_level(
-                uint            aLevel,
+        collect_basis_functions_from_level(
+                uint                     aLevel,
                 Cell< Basis_Function* >& aBasis ) override
         {
             Cell< Element* > tElements;

@@ -43,7 +43,7 @@ namespace moris::hmr
      */
     template<>
     void
-    BSpline_Element< 2, 2, 0 >::get_ijk_of_basis(
+    BSpline_Element< 2, 2, 0 >::get_ijk_of_basis_function(
         uint aBasisNumber,
         luint      * aIJK )
     {
@@ -125,7 +125,7 @@ namespace moris::hmr
     */
     template<>
     void
-    BSpline_Element< 2, 2, 0 >::link_basis_with_neighbors(
+    BSpline_Element< 2, 2, 0 >::link_basis_functions_with_neighbors(
           moris::Cell< Element* > & aAllElementsOnProc )
     {
          // initialize frame of basis around basis from this element
@@ -994,48 +994,48 @@ namespace moris::hmr
         }
 
         // assign basis to child 1
-        tChildren[ 0 ]->insert_basis(  0, tBasis[   0 ] );
-        tChildren[ 0 ]->insert_basis(  1, tBasis[   2 ] );
-        tChildren[ 0 ]->insert_basis(  2, tBasis[  10 ] );
-        tChildren[ 0 ]->insert_basis(  3, tBasis[   8 ] );
-        tChildren[ 0 ]->insert_basis(  4, tBasis[   1 ] );
-        tChildren[ 0 ]->insert_basis(  5, tBasis[   6 ] );
-        tChildren[ 0 ]->insert_basis(  6, tBasis[   9 ] );
-        tChildren[ 0 ]->insert_basis(  7, tBasis[   4 ] );
-        tChildren[ 0 ]->insert_basis(  8, tBasis[   5 ] );
+        tChildren[ 0 ]->insert_basis_function(  0, tBasis[   0 ] );
+        tChildren[ 0 ]->insert_basis_function(  1, tBasis[   2 ] );
+        tChildren[ 0 ]->insert_basis_function(  2, tBasis[  10 ] );
+        tChildren[ 0 ]->insert_basis_function(  3, tBasis[   8 ] );
+        tChildren[ 0 ]->insert_basis_function(  4, tBasis[   1 ] );
+        tChildren[ 0 ]->insert_basis_function(  5, tBasis[   6 ] );
+        tChildren[ 0 ]->insert_basis_function(  6, tBasis[   9 ] );
+        tChildren[ 0 ]->insert_basis_function(  7, tBasis[   4 ] );
+        tChildren[ 0 ]->insert_basis_function(  8, tBasis[   5 ] );
 
         // assign basis to child 2
-        tChildren[ 1 ]->insert_basis(  0, tBasis[   1 ] );
-        tChildren[ 1 ]->insert_basis(  1, tBasis[   3 ] );
-        tChildren[ 1 ]->insert_basis(  2, tBasis[  11 ] );
-        tChildren[ 1 ]->insert_basis(  3, tBasis[   9 ] );
-        tChildren[ 1 ]->insert_basis(  4, tBasis[   2 ] );
-        tChildren[ 1 ]->insert_basis(  5, tBasis[   7 ] );
-        tChildren[ 1 ]->insert_basis(  6, tBasis[  10 ] );
-        tChildren[ 1 ]->insert_basis(  7, tBasis[   5 ] );
-        tChildren[ 1 ]->insert_basis(  8, tBasis[   6 ] );
+        tChildren[ 1 ]->insert_basis_function(  0, tBasis[   1 ] );
+        tChildren[ 1 ]->insert_basis_function(  1, tBasis[   3 ] );
+        tChildren[ 1 ]->insert_basis_function(  2, tBasis[  11 ] );
+        tChildren[ 1 ]->insert_basis_function(  3, tBasis[   9 ] );
+        tChildren[ 1 ]->insert_basis_function(  4, tBasis[   2 ] );
+        tChildren[ 1 ]->insert_basis_function(  5, tBasis[   7 ] );
+        tChildren[ 1 ]->insert_basis_function(  6, tBasis[  10 ] );
+        tChildren[ 1 ]->insert_basis_function(  7, tBasis[   5 ] );
+        tChildren[ 1 ]->insert_basis_function(  8, tBasis[   6 ] );
 
         // assign basis to child 3
-        tChildren[ 2 ]->insert_basis(  0, tBasis[   4 ] );
-        tChildren[ 2 ]->insert_basis(  1, tBasis[   6 ] );
-        tChildren[ 2 ]->insert_basis(  2, tBasis[  14 ] );
-        tChildren[ 2 ]->insert_basis(  3, tBasis[  12 ] );
-        tChildren[ 2 ]->insert_basis(  4, tBasis[   5 ] );
-        tChildren[ 2 ]->insert_basis(  5, tBasis[  10 ] );
-        tChildren[ 2 ]->insert_basis(  6, tBasis[  13 ] );
-        tChildren[ 2 ]->insert_basis(  7, tBasis[   8 ] );
-        tChildren[ 2 ]->insert_basis(  8, tBasis[   9 ] );
+        tChildren[ 2 ]->insert_basis_function(  0, tBasis[   4 ] );
+        tChildren[ 2 ]->insert_basis_function(  1, tBasis[   6 ] );
+        tChildren[ 2 ]->insert_basis_function(  2, tBasis[  14 ] );
+        tChildren[ 2 ]->insert_basis_function(  3, tBasis[  12 ] );
+        tChildren[ 2 ]->insert_basis_function(  4, tBasis[   5 ] );
+        tChildren[ 2 ]->insert_basis_function(  5, tBasis[  10 ] );
+        tChildren[ 2 ]->insert_basis_function(  6, tBasis[  13 ] );
+        tChildren[ 2 ]->insert_basis_function(  7, tBasis[   8 ] );
+        tChildren[ 2 ]->insert_basis_function(  8, tBasis[   9 ] );
 
         // assign basis to child 4
-        tChildren[ 3 ]->insert_basis(  0, tBasis[   5 ] );
-        tChildren[ 3 ]->insert_basis(  1, tBasis[   7 ] );
-        tChildren[ 3 ]->insert_basis(  2, tBasis[  15 ] );
-        tChildren[ 3 ]->insert_basis(  3, tBasis[  13 ] );
-        tChildren[ 3 ]->insert_basis(  4, tBasis[   6 ] );
-        tChildren[ 3 ]->insert_basis(  5, tBasis[  11 ] );
-        tChildren[ 3 ]->insert_basis(  6, tBasis[  14 ] );
-        tChildren[ 3 ]->insert_basis(  7, tBasis[   9 ] );
-        tChildren[ 3 ]->insert_basis(  8, tBasis[  10 ] );
+        tChildren[ 3 ]->insert_basis_function(  0, tBasis[   5 ] );
+        tChildren[ 3 ]->insert_basis_function(  1, tBasis[   7 ] );
+        tChildren[ 3 ]->insert_basis_function(  2, tBasis[  15 ] );
+        tChildren[ 3 ]->insert_basis_function(  3, tBasis[  13 ] );
+        tChildren[ 3 ]->insert_basis_function(  4, tBasis[   6 ] );
+        tChildren[ 3 ]->insert_basis_function(  5, tBasis[  11 ] );
+        tChildren[ 3 ]->insert_basis_function(  6, tBasis[  14 ] );
+        tChildren[ 3 ]->insert_basis_function(  7, tBasis[   9 ] );
+        tChildren[ 3 ]->insert_basis_function(  8, tBasis[  10 ] );
 
         // set basis flag of element
         mChildrenBasisFlag = true;

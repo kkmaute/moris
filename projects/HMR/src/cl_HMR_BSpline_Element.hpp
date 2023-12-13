@@ -72,9 +72,9 @@ namespace moris::hmr
 
             mHaveBasis = true;
             mBasis     = new Basis_Function*[ B ];
-            for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
+            for ( uint iLocalBfIndex = 0; iLocalBfIndex < B; iLocalBfIndex++ )
             {
-                mBasis[ iBasisIndex ] = nullptr;
+                mBasis[ iLocalBfIndex ] = nullptr;
             }
         }
 
@@ -125,7 +125,7 @@ namespace moris::hmr
          *
          */
         void
-        insert_basis(
+        insert_basis_function(
                 uint   aIndex,
                 Basis_Function* aBasis ) override
         {
@@ -221,7 +221,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        get_ijk_of_basis(
+        get_ijk_of_basis_function(
                 uint   aBasisNumber,
                 luint* aIJK ) override
         {
@@ -250,7 +250,7 @@ namespace moris::hmr
          *                                    elements including the aura
          * @return void
          */
-        void link_basis_with_neighbors( moris::Cell< Element* >& aAllElementsOnProc ) override;
+        void link_basis_functions_with_neighbors( moris::Cell< Element* >& aAllElementsOnProc ) override;
 
         //------------------------------------------------------------------------------
 
@@ -334,7 +334,7 @@ namespace moris::hmr
         Matrix< DDRMat >
         get_vertex_coords() const override
         {
-            MORIS_ERROR( false, "get_vertex_coords(): to make this Bspline_Element function work, turn on calculate_basis_coordinates() in collect_basis()" );
+            MORIS_ERROR( false, "get_vertex_coords(): to make this Bspline_Element function work, turn on calculate_basis_coordinates() in collect_basis_functions()" );
 
             Matrix< DDRMat > aCoords( B, N );
             for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
@@ -424,7 +424,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     inline void
-    BSpline_Element< P, Q, R >::link_basis_with_neighbors(
+    BSpline_Element< P, Q, R >::link_basis_functions_with_neighbors(
             moris::Cell< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false,

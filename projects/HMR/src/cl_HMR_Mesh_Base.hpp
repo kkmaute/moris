@@ -58,14 +58,14 @@ namespace moris::hmr
         //! cell of coarsest Lagrange elements including aura
         Cell< Element* > mAllCoarsestElementsOnProc;
 
-        //! Cell containing all nodes this proc has
-        Cell< Basis_Function* > mAllBasisOnProc;
+        //! Cell containing all basis functions on this proc
+        Cell< Basis_Function* > mAllBFsOnProc;
 
         //! all elements on proc, including aura, active and refined
         luint mNumberOfAllElementsOnProc = 0;
 
-        //! node counter ( nodes including aura )
-        luint mNumberOfAllBasis = 0;
+        //! number of all basis functions on proc, including aura
+        luint mTotalNumBFs = 0;
 
         //! number of active elements used by this proc
         luint mNumberOfElements = 0;
@@ -147,18 +147,18 @@ namespace moris::hmr
         Basis_Function*
         get_basis_by_memory_index( luint aBasisIndex )
         {
-            return mAllBasisOnProc( aBasisIndex );
+            return mAllBFsOnProc( aBasisIndex );
         }
 
         // ----------------------------------------------------------------------------
 
         /**
-         * returns the size of mAllBasisOnProc
+         * returns the size of mAllBFsOnProc
          */
         luint
         get_number_of_all_basis_on_proc() const
         {
-            return mAllBasisOnProc.size();
+            return mAllBFsOnProc.size();
         }
 
         // ----------------------------------------------------------------------------
