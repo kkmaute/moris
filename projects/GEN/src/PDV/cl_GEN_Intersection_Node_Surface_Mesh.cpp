@@ -48,9 +48,6 @@ namespace moris::ge
         // step 1: shift the object so the first parent is at the origin
         aInterfaceGeometry->shift( -1.0 * trans( aFirstParentNode.get_global_coordinates() ) );
 
-        // BRENDAN
-        std::cout << "shift done" << std::endl;
-
         // step 2: rotate the object
         // get unit axis to rotate to
         Matrix< DDRMat > tTransformationMatrix( 3, 3 );
@@ -64,7 +61,9 @@ namespace moris::ge
             tParentVector( 2, 0 ) = 0.0;
         }
 
-        tParentVector = tParentVector / norm( tParentVector );
+        real tParentVectorNorm = norm( tParentVector );
+
+        tParentVector = tParentVector / tParentVectorNorm;
 
         // create vector orthogonal to parent vector and coordinate axis
         // in 2D, this vector is the z axis
@@ -101,11 +100,9 @@ namespace moris::ge
 
         // step 3: scale the object
         Matrix< DDRMat > tScaling( aInterfaceGeometry->get_dimension(), 1 );
-        tScaling.fill( 0.5 );
+        tScaling.fill( 2.0 / tParentVectorNorm );
         aInterfaceGeometry->scale( tScaling );
 
-        // BRENDAN
-        std::cout << "scaling happened already" << std::endl;
     }
 
     real Intersection_Node_Surface_Mesh::compute_local_coordinate(
