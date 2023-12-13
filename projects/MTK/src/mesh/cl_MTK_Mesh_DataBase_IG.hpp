@@ -34,12 +34,14 @@ namespace moris
         class Interpolation_Mesh_Analysis;
         class Interpolation_Mesh_DataBase_IP;
         class Integration_Mesh_Info;
+        class Contact_Mesh_Editor;
 
         class Integration_Mesh_DataBase_IG : public mtk::Integration_Mesh
         {
             friend class Periodic2D_Analysis;
             friend class Integration_Mesh_Editor;
-            friend class moris::mig::Periodic_Mesh_Editor;
+            friend class mig::Periodic_Mesh_Editor;
+            friend class mtk::Contact_Mesh_Editor;
 
           private:
             Integration_Mesh_Info* mIGMeshInfo = nullptr;
@@ -86,9 +88,9 @@ namespace moris
             // side cluster to IP cell
             moris::Cell< moris_index > mSideClusterToIPCell;
 
-            moris::Cell< mtk::Side_Cluster_DataBase > mSideClusters;
-
-            moris::Cell< mtk::Double_Side_Cluster > mDblSideClusters;
+            moris::Cell< mtk::Side_Cluster_DataBase >     mSideClusters;
+            moris::Cell< mtk::Double_Side_Cluster >       mDblSideClusters;
+            moris::Cell< mtk::Nonconformal_Side_Cluster > mNonconformalSideClusters;
 
             moris::Cell< mtk::Side_Cluster_DataBase > mGhostLeader;
             moris::Cell< mtk::Side_Cluster_DataBase > mGhostFollower;

@@ -19,18 +19,13 @@ namespace moris::mtk
 {
     class Nonconformal_Side_Set : public Double_Side_Set
     {
-      private:
-        std::shared_ptr< Integration_Rule > mIntegrationRule;
-
       public:
         Nonconformal_Side_Set(
-                std::string const                  &aName,
-                moris::Cell< Cluster const * >      aClusters,
-                Matrix< IndexMat > const           &aColors,
-                uint const                         &aSpatialDim,
-                std::shared_ptr< Integration_Rule > aIntegrationRule )
+                std::string const                                      &aName,
+                moris::Cell< Cluster const * > const &aClusters,
+                Matrix< IndexMat > const                               &aColors,
+                uint const                                             &aSpatialDim )
                 : Double_Side_Set( aName, aClusters, aColors, aSpatialDim )
-                , mIntegrationRule( aIntegrationRule )
         {
             mSetType = mtk::SetType::NONCONFORMAL_SIDESET;
         };
