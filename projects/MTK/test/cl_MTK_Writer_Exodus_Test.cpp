@@ -8,9 +8,9 @@
  *
  */
 
-#include <MTK/src/cl_MTK_Writer_Exodus.hpp>
-#include <MTK/src/cl_MTK_Reader_Exodus.hpp>
-#include <MTK/src/cl_MTK_Integration_Mesh.hpp>
+#include <cl_MTK_Writer_Exodus.hpp>
+#include <cl_MTK_Reader_Exodus.hpp>
+#include <cl_MTK_Integration_Mesh.hpp>
 #include "catch.hpp"
 
 #include "cl_MTK_Mesh_Core.hpp"
