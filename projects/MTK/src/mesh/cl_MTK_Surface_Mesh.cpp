@@ -23,7 +23,7 @@ namespace moris::mtk
     {
     }
 
-    Surface_Mesh::Surface_Mesh( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > &aSideSets )
+    Surface_Mesh::Surface_Mesh( Integration_Mesh *aIGMesh, moris::Cell< Side_Set const * > &aSideSets )
             : mIGMesh( dynamic_cast< Integration_Mesh_DataBase_IG * >( aIGMesh ) )
     {
         this->initialize_from_side_sets( aSideSets );
@@ -31,7 +31,7 @@ namespace moris::mtk
 
     Surface_Mesh::Surface_Mesh( Integration_Mesh_DataBase_IG *aIGMesh, const moris::Cell< std::string > &aSideSetNames )
     {
-        moris::Cell< mtk::Side_Set * > tSideSets;
+        moris::Cell< Side_Set const * > tSideSets;
 
         auto tSideSetFromName = [ &aIGMesh ]( std::string const &aSideSetName ) {
             return dynamic_cast< Side_Set * >( aIGMesh->get_set_by_name( aSideSetName ) );
@@ -41,7 +41,7 @@ namespace moris::mtk
         initialize_from_side_sets( tSideSets );
     }
 
-    void Surface_Mesh::initialize_from_side_sets( moris::Cell< mtk::Side_Set * > const &aSideSets )
+    void Surface_Mesh::initialize_from_side_sets( moris::Cell< Side_Set const * > const &aSideSets )
     {
         mSideSets = aSideSets;
 

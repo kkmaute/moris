@@ -45,6 +45,27 @@ namespace moris::mtk
         return mVertexCoordinates.n_rows();
     }
 
+    void Integration_Mesh_DataBase_IG::add_nonconformal_side_clusters( moris::Cell< Nonconformal_Side_Cluster > const & aNonconformalSideClusters )
+    {
+        mNonconformalSideClusters.append( aNonconformalSideClusters );
+    }
+
+    void Integration_Mesh_DataBase_IG::add_nonconformal_side_set( Nonconformal_Side_Set* aNonconformalSideSet )
+    {
+        mListOfNonconformalSideSets.push_back( aNonconformalSideSet );
+        this->collect_all_sets();
+    }
+
+    void Integration_Mesh_DataBase_IG::reset_nonconformal_side_set()
+    {
+
+        for ( auto const & tNonconformalSideSet : mListOfNonconformalSideSets )
+        {
+            delete tNonconformalSideSet;
+        }
+        mNonconformalSideClusters.clear();
+    }
+
     //-----------------------------------------------------------------------------
 
     uint

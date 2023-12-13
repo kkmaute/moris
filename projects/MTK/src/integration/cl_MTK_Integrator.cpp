@@ -11,7 +11,7 @@
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Integrator.hpp"
 
-//LINALG/src
+// LINALG/src
 #include "op_times.hpp"
 #include "fn_trans.hpp"
 #include "fn_vectorize.hpp"
@@ -22,19 +22,19 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Integrator::Integrator( const Integration_Rule & aIntegrationRule )
+        Integrator::Integrator( const Integration_Rule &aIntegrationRule )
         {
             // create space rule
             mSpaceCoeffs = aIntegrationRule.create_space_coeffs();
 
             // create time rule
-            mTimeCoeffs  = aIntegrationRule.create_time_coeffs();
+            mTimeCoeffs = aIntegrationRule.create_time_coeffs();
 
             // get number of points in space
             mNumOfSpacePoints = mSpaceCoeffs->get_number_of_points();
 
             // get number of points in time
-            mNumOfTimePoints  = mTimeCoeffs->get_number_of_points();
+            mNumOfTimePoints = mTimeCoeffs->get_number_of_points();
 
             // matrix with space points
             mSpaceCoeffs->get_points( mSpacePoints );
@@ -60,7 +60,7 @@ namespace moris
             }
 
             // delete time coeffs if they exist
-            if( mTimeCoeffs != NULL )
+            if ( mTimeCoeffs != NULL )
             {
                 delete mTimeCoeffs;
             }
@@ -75,7 +75,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Integrator::get_points( Matrix< DDRMat > & aIntegrationPoints )
+        void Integrator::get_points( Matrix< DDRMat > &aIntegrationPoints ) const
         {
             // get number of dimensions in space
             uint tNumOfSpaceDim = mSpaceCoeffs->get_number_of_dimensions();
@@ -88,7 +88,7 @@ namespace moris
 
             // loop over time
             uint startCol, stopCol;
-            for( uint k = 0; k < mNumOfTimePoints; ++k )
+            for ( uint k = 0; k < mNumOfTimePoints; ++k )
             {
                 // indices for columns
                 startCol = k * mNumOfSpacePoints;
@@ -104,16 +104,30 @@ namespace moris
             }
         }
 
+        Matrix< DDRMat > Integrator::get_points() const
+        {
+            Matrix< DDRMat > tPoints;
+            get_points( tPoints );
+            return tPoints;
+        }
+
         //------------------------------------------------------------------------------
 
-        void Integrator::get_weights( Matrix< DDRMat > & aIntegrationWeights )
+        void Integrator::get_weights( Matrix< DDRMat > &aIntegrationWeights ) const
         {
             // get weights
             aIntegrationWeights = trans(
-                vectorize ( trans( mSpaceWeights ) * mTimeWeights ) );
+                    vectorize( trans( mSpaceWeights ) * mTimeWeights ) );
         }
+
+        Matrix< DDRMat > Integrator::get_weights() const
+        {
+            Matrix< DDRMat > tWeights;
+            get_weights( tWeights );
+            return tWeights;
+        }
+
 
         //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
-

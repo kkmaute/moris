@@ -41,7 +41,7 @@ namespace moris::mtk
     }
 
     moris::Cell< Nonconformal_Side_Cluster >
-    Contact_Mesh_Editor::convert_mapping_result_to_nonconformal_side_clusters( moris_index aSourceSideSetIndex, MappingResult aResult )
+    Contact_Mesh_Editor::convert_mapping_result_to_nonconformal_side_clusters( MappingResult aMappingResult )
     {
         Matrix< DDRMat > tQWeights;
         Matrix< DDRMat > tQPoints;
@@ -52,7 +52,7 @@ namespace moris::mtk
         size_t const tNumIntegrationPoints = mIntegrator.get_number_of_points();
 
         // extract the cluster pairs and the corresponding cell pairs from the mapping result this will act as a basis to create the nonconformal side clusters
-        auto tClusterPairs = extract_cluster_and_cell_pairing( aResult );
+        auto tClusterPairs = extract_cluster_and_cell_pairing( aMappingResult );
 
         // Since we know the number of unique cluster-pairs, we can reserve the correct amount of memory for the nonconformal side clusters
         moris::Cell< Nonconformal_Side_Cluster > tNonconformalSideClusters;
@@ -69,7 +69,7 @@ namespace moris::mtk
             for ( auto const &[ tCellMap, tResultColumns ] : tCellMap )
             {
                 moris::Cell< real > tWeights( tResultColumns.size() );
-                Matrix< DDRMat >    tNormals( aResult.mNormal.n_rows(), tResultColumns.size() );
+                Matrix< DDRMat >    tNormals( aMappingResult.mNormal.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat >    tFollowerParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat >    tLeaderParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
 
@@ -88,8 +88,8 @@ namespace moris::mtk
                      * E.g. for this cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
                      * mapping results of the first integration point is stored in column 3, the second in column 6 and so on. */
                     size_t const tMappingResultColumn = tResultColumns( iIndex );
-                    tLeaderParametricCoords.set_column( iIndex, aResult.mTargetParametricCoordinate.get_column( tMappingResultColumn ) );
-                    tNormals.set_column( iIndex, aResult.mNormal.get_column( tMappingResultColumn ) );
+                    tLeaderParametricCoords.set_column( iIndex, aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn ) );
+                    tNormals.set_column( iIndex, aMappingResult.mNormal.get_column( tMappingResultColumn ) );
                 }
 
                 auto const &[ iSourceCell, iTargetCell ] = tCellMap;
@@ -102,10 +102,11 @@ namespace moris::mtk
                         tNormals );
             }
 
-            auto const &[ tSourceCluster, tTargetCluster, tTargetMesh ] = tClusterPair;
+            auto const &[ tSourceClusterIndex, tTargetClusterIndex, tTargetMeshIndex ] = tClusterPair;
+            moris_index const tSourceMeshIndex                                         = aMappingResult.mSourceMeshIndex;
 
-            Cluster const *tFollowerCluster = mSideSets( aSourceSideSetIndex )->get_clusters_by_index( tSourceCluster );
-            Cluster const *tLeaderCluster   = mSideSets( tTargetMesh )->get_clusters_by_index( tTargetCluster );
+            Cluster const *tFollowerCluster = mSideSets( tSourceMeshIndex )->get_clusters_by_index( tSourceClusterIndex );
+            Cluster const *tLeaderCluster   = mSideSets( tTargetMeshIndex )->get_clusters_by_index( tTargetClusterIndex );
             //
             tNonconformalSideClusters.emplace_back( tFollowerCluster, tLeaderCluster, tIntegrationPointPairs );
         }
@@ -114,15 +115,35 @@ namespace moris::mtk
     }
 
 
-    void Contact_Mesh_Editor::update_nonconformal_side_sets()
+    void Contact_Mesh_Editor::update_ig_mesh_database(
+            const moris::Cell< Nonconformal_Side_Cluster > &aNonconformalSideClusters,
+            std::string const                              &aSetName,
+            Matrix< IndexMat >                              aSetColor ) const
     {
-        Matrix< DDRMat > tQPoints;
-        mIntegrator.get_points( tQPoints );
-        tQPoints = tQPoints.get_row( 0 ).eval();
+        mIGMesh->reset_nonconformal_side_set();
+        mIGMesh->add_nonconformal_side_clusters( aNonconformalSideClusters );
 
-        Matrix< DDRMat > tQWeights;
-        mIntegrator.get_weights( tQWeights );
+        // cast the clusters to the correct type... this is necessary because sets are not generic w.r.t. the type of clusters they contain
+        moris::Cell< Cluster const * > tClusters;
+        std::transform(
+                aNonconformalSideClusters.begin(),
+                aNonconformalSideClusters.end(),
+                std::back_inserter( tClusters ),
+                []( auto const &aCluster ) { return dynamic_cast< Cluster const * >( &aCluster ); } );
 
+
+        auto *tNonconformalSideSet = new Nonconformal_Side_Set(
+                aSetName,
+                tClusters,
+                aSetColor,    // TODO: Is this correct? Just using the color of the first set...
+                mIGMesh->get_spatial_dim() );
+
+        mIGMesh->add_nonconformal_side_set( tNonconformalSideSet );
+    }
+
+
+    moris::Cell< MappingResult > Contact_Mesh_Editor::perform_mapping()
+    {
         // get all possible source side sets that have been specified in the candidate pairings
         std::set< moris_index > tSourceSideSets;
         std::transform(
@@ -131,18 +152,32 @@ namespace moris::mtk
                 std::inserter( tSourceSideSets, tSourceSideSets.end() ),
                 []( auto const &aPair ) { return aPair.first; } );
 
-        // clear the nonconformal side clusters in the IG mesh database
-        mIGMesh->mNonconformalSideClusters.clear();
-        Json tMappingResults;
+        Json                         tMappingResultsJson;
+        moris::Cell< MappingResult > tMappingResults;
+        tMappingResults.reserve( tSourceSideSets.size() );
+
         for ( auto const &tSourceSideSet : tSourceSideSets )
         {
-            MappingResult tResult = mPointMapper.map( tSourceSideSet, tQPoints );
-            tMappingResults.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() );
-
-            auto tNonconformalSideClusters = convert_mapping_result_to_nonconformal_side_clusters( tSourceSideSet, tResult );
-            mIGMesh->mNonconformalSideClusters.append( tNonconformalSideClusters );
+            Matrix< DDRMat > const tQuadPoints = mIntegrator.get_points().get_row( 0 );    // TODO: for some reason, the parametric coordinates are 2d instead of 1d
+            MappingResult          tResult     = mPointMapper.map( tSourceSideSet, tQuadPoints );
+            tMappingResults.push_back( tResult );
+            tMappingResultsJson.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() );
         }
-        write_json( "mapping_result.json", tMappingResults );
+
+        write_json( "mapping_result.json", tMappingResultsJson );
+
+        return tMappingResults;
+    }
+
+    void Contact_Mesh_Editor::update_nonconformal_side_sets()
+    {
+        moris::Cell< MappingResult >             tMappingResults = perform_mapping();
+        moris::Cell< Nonconformal_Side_Cluster > tNonconformalSideClusters;
+        for ( auto const &tMappingResult : tMappingResults )
+        {
+            tNonconformalSideClusters.append( convert_mapping_result_to_nonconformal_side_clusters( tMappingResult ) );
+        }
+        update_ig_mesh_database( tNonconformalSideClusters, "foobar", mSideSets( 0 )->get_set_colors() );
     }
 
     void Contact_Mesh_Editor::update_displacements( Matrix< DDRMat > &aDisplacements ) {}

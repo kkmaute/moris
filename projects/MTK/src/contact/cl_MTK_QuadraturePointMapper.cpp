@@ -12,7 +12,7 @@ namespace moris::mtk
 {
     QuadraturePointMapper::QuadraturePointMapper(
             Integration_Mesh                                           *aIGMesh,
-            moris::Cell< Side_Set * >                                  &aSideSets,
+            moris::Cell< Side_Set const * >                            &aSideSets,
             moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs )
             : mIGMesh( aIGMesh )
             , mSideSets( aSideSets )

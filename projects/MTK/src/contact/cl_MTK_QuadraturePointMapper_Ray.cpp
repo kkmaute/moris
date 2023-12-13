@@ -16,8 +16,8 @@
 namespace moris::mtk
 {
     QuadraturePointMapper_Ray::QuadraturePointMapper_Ray(
-            mtk::Integration_Mesh                                      *aIGMesh,
-            moris::Cell< mtk::Side_Set * >                             &aSideSets,
+            Integration_Mesh                                           *aIGMesh,
+            moris::Cell< Side_Set const * >                            &aSideSets,
             moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs )
             : QuadraturePointMapper( aIGMesh, aSideSets, aCandidatePairs )
             , mSurfaceMeshes( initialize_surface_meshes( aIGMesh, aSideSets ) )
@@ -32,14 +32,16 @@ namespace moris::mtk
         write_json( "surface_meshes.json", tSurfaceMeshes );
     }
 
-    moris::Cell< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > const &aSideSets )
+    moris::Cell< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes(
+            Integration_Mesh                      *aIGMesh,
+            moris::Cell< Side_Set const * > const &aSideSets )
     {
         moris::Cell< Surface_Mesh > tSurfaceMeshes;
         for ( auto const &tSideSet : aSideSets )
         {
             // initialize one surface mesh per side set
-            moris::Cell< mtk::Side_Set * > tSideSetCast{ tSideSet };
-            Surface_Mesh                   tSurfaceMesh( aIGMesh, tSideSetCast );
+            moris::Cell< mtk::Side_Set const * > tSideSetCast{ tSideSet };
+            Surface_Mesh                         tSurfaceMesh( aIGMesh, tSideSetCast );
             tSurfaceMeshes.push_back( tSurfaceMesh );
         }
         return tSurfaceMeshes;
@@ -67,7 +69,7 @@ namespace moris::mtk
         uint const tNumCells                 = tSurfaceMesh.get_number_of_cells();
         uint const tTotalNumPoints           = tNumCells * tNumParametricCoordinates;
 
-        MappingResult tMappingResult( tDim, tTotalNumPoints );
+        MappingResult tMappingResult( aSourceSideSetIndex, tDim, tTotalNumPoints );
 
         // for each cell in the surface mesh (source mesh), interpolate the parametric coordinates and normals of the rays
         // and populate the results of the ray-casting in the MappingResult instance
@@ -83,7 +85,6 @@ namespace moris::mtk
 
 
             this->raycast_cell(
-                    aSourceSideSetIndex,
                     iCell,
                     tNumParametricCoordinates,
                     tMappingResult,
@@ -124,7 +125,6 @@ namespace moris::mtk
     }
 
     void QuadraturePointMapper_Ray::raycast_cell(
-            moris_index const              aSourceMeshIndex,
             moris_index const              aSourceCellIndex,
             moris_index const              aNumberOfRays,
             MappingResult                 &aMappingResult,
@@ -141,7 +141,6 @@ namespace moris::mtk
         // In this case, the information about the closest vertices to each vertex of the current cell is used to find potential target cells.
         bool tBruteForce = false;
         process_rays(
-                aSourceMeshIndex,
                 aSourceCellIndex,
                 aSpatialIndexingResult,
                 tResultOffset,
@@ -155,7 +154,6 @@ namespace moris::mtk
             // i.e. check all cells of all meshes. This is slow and inefficient and should be replaced by a better algorithm.
             tBruteForce = true;
             process_rays(
-                    aSourceMeshIndex,
                     aSourceCellIndex,
                     aSpatialIndexingResult,
                     tResultOffset,
@@ -171,7 +169,6 @@ namespace moris::mtk
     }
 
     void QuadraturePointMapper_Ray::process_rays(
-            moris_index                    aSourceMeshIndex,
             moris_index                    aSourceCellIndex,
             Spatial_Indexing_Result const &aSpatialIndexingResult,
             uint                           aResultOffset,
@@ -180,11 +177,13 @@ namespace moris::mtk
             bool                           aBruteForce ) const
     {
 
-        std::set< moris_index > const tPotentialTargetMeshesIndices = get_potential_target_meshes( aBruteForce, aSourceMeshIndex, aSourceCellIndex, aSpatialIndexingResult );
+        moris_index const &tSourceMeshIndex = aMappingResult.mSourceMeshIndex;
+
+        std::set< moris_index > const tPotentialTargetMeshesIndices = get_potential_target_meshes( aBruteForce, tSourceMeshIndex, aSourceCellIndex, aSpatialIndexingResult );
 
         for ( auto const iTargetMeshIndex : tPotentialTargetMeshesIndices )
         {
-            std::set< moris_index > tPotentialTargetCells = get_potential_target_cells( aBruteForce, aSourceMeshIndex, iTargetMeshIndex, aSourceCellIndex, aSpatialIndexingResult );
+            std::set< moris_index > tPotentialTargetCells = get_potential_target_cells( aBruteForce, tSourceMeshIndex, iTargetMeshIndex, aSourceCellIndex, aSpatialIndexingResult );
             std::set< moris_index > tCheckedCells;
 
             for ( moris_index iTargetCell : tPotentialTargetCells )
@@ -196,7 +195,7 @@ namespace moris::mtk
                     check_ray_cell_intersection(
                             aMappingResult,
                             aUnprocessedRays,
-                            aSourceMeshIndex,
+                            tSourceMeshIndex,
                             iTargetMeshIndex,
                             aSourceCellIndex,
                             iTargetCell,

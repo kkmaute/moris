@@ -17,7 +17,12 @@ namespace moris::mtk
     struct MappingResult
     {
 
-        MappingResult( uint aPhysicalDimension, uint aNumberOfPoints );
+        MappingResult( moris_index aSourceMeshIndex, uint aPhysicalDimension, uint aNumberOfPoints );
+
+        /**
+         * @brief The index of the source mesh.
+         */
+        moris_index mSourceMeshIndex;
 
         /**
          * @brief The physical coordinates of the point from which the mapping was performed.

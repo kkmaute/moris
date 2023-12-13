@@ -18,7 +18,7 @@ namespace moris::mtk
       public:
         QuadraturePointMapper(
                 Integration_Mesh                                           *aIGMesh,
-                moris::Cell< Side_Set * >                                  &aSideSets,
+                moris::Cell< Side_Set const * >                            &aSideSets,
                 moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs );
 
         virtual ~QuadraturePointMapper() = default;
@@ -27,7 +27,7 @@ namespace moris::mtk
 
       protected:
         Integration_Mesh                                    *mIGMesh;
-        moris::Cell< mtk::Side_Set * >                       mSideSets;
+        moris::Cell< Side_Set const * >                      mSideSets;
         moris::Cell< std::pair< moris_index, moris_index > > mCandidatePairs;
     };
 }    // namespace moris::mtk

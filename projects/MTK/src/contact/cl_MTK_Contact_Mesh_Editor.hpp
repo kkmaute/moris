@@ -26,7 +26,7 @@ namespace moris::mtk
                 Integration_Mesh_DataBase_IG                               *aIGMesh,
                 Interpolation_Mesh_DataBase_IP                             *aIPMesh,
                 const Integrator                                           &aIntegrator,
-                moris::Cell< Side_Set * >                                  &aCandidateSideSet,
+                moris::Cell< Side_Set const * >                            &aCandidateSideSet,
                 moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs )
                 : mIGMesh( aIGMesh )
                 , mIPMesh( aIPMesh )
@@ -74,13 +74,17 @@ namespace moris::mtk
          */
         static std::map< ClusterPair, std::map< CellPair, ResultIndices > > extract_cluster_and_cell_pairing( MappingResult const &aResult );
 
-        moris::Cell< Nonconformal_Side_Cluster > convert_mapping_result_to_nonconformal_side_clusters( moris_index aSourceSideSetIndex, MappingResult aResult );
+        moris::Cell< MappingResult > perform_mapping();
+
+        moris::Cell< Nonconformal_Side_Cluster > convert_mapping_result_to_nonconformal_side_clusters( MappingResult aMappingResult );
+
+        void update_ig_mesh_database( const moris::Cell< Nonconformal_Side_Cluster > &aNonconformalSideClusters, std::string const &aSetName, Matrix< IndexMat > aSetColor ) const;
 
         // data
         Integration_Mesh_DataBase_IG                        *mIGMesh;
         Interpolation_Mesh_DataBase_IP                      *mIPMesh;
         Integrator                                           mIntegrator;
-        moris::Cell< Side_Set * >                            mSideSets;
+        moris::Cell< Side_Set const * >                      mSideSets;
         moris::Cell< std::pair< moris_index, moris_index > > mCandidatePairs;
         QuadraturePointMapper_Ray                            mPointMapper;
     };

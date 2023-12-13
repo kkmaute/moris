@@ -79,14 +79,16 @@ namespace moris
              * get the integration points as a (d x n) matrix, where d is the dimension of the space
              * and n is the number of integration points (each column contains one point)
              **/
-            void get_points( Matrix< DDRMat > &aIntegrationPoints );
+            void             get_points( Matrix< DDRMat > &aIntegrationPoints ) const;
+            Matrix< DDRMat > get_points() const;
 
             //------------------------------------------------------------------------------
 
             /**
              * get the integration point weights
              **/
-            void get_weights( Matrix< DDRMat > &aIntegrationWeights );
+            void             get_weights( Matrix< DDRMat > &aIntegrationWeights ) const;
+            Matrix< DDRMat > get_weights() const;
 
             //------------------------------------------------------------------------------
 

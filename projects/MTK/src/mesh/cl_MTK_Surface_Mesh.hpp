@@ -32,11 +32,11 @@ namespace moris::mtk
       public:    // constructors
         Surface_Mesh( Integration_Mesh *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
 
-        Surface_Mesh( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set * > &aSideSets );
+        Surface_Mesh( Integration_Mesh *aIGMesh, moris::Cell< mtk::Side_Set const * > &aSideSets );
 
         Surface_Mesh( Integration_Mesh_DataBase_IG *aIGMesh, const moris::Cell< std::string > &aSideSetNames );
 
-      public:    // methods
+        // methods
         /**
          * @brief Returns the coordinates of all vertices in the surface mesh.
          * @return A (d x n) matrix where d is the dimension of the mesh and n is the number of vertices in the surface mesh.
@@ -154,7 +154,7 @@ namespace moris::mtk
          * @details The surface mesh is initialized only once. During the initialization, the mapping between the global
          * to the local indices is created. The local indices are the indices of the vertices/facets in the surface mesh (starting at 0).
          */
-        void initialize_from_side_sets( const moris::Cell< mtk::Side_Set * > &aSideSets );
+        void initialize_from_side_sets( const moris::Cell< mtk::Side_Set const * > &aSideSets );
 
 
         /**
@@ -206,7 +206,7 @@ namespace moris::mtk
 
         void initialize_vertex_normals();
 
-      private:    // data
+        // data
         std::shared_ptr< Integration_Mesh_DataBase_IG > mIGMesh;
 
         /**
@@ -267,7 +267,7 @@ namespace moris::mtk
          */
         moris::Cell< moris::Cell< moris_index > > mVertexToCellIndices;
 
-        moris::Cell< mtk::Side_Set * > mSideSets;
+        moris::Cell< mtk::Side_Set const * > mSideSets;
 
         moris::Cell< moris::Cell< moris_index > > mSideSetToClusterIndices;
 

@@ -7,9 +7,10 @@
 
 namespace moris::mtk
 {
-    MappingResult::MappingResult( uint aPhysicalDimension, uint aNumberOfPoints )
-            : mSourcePhysicalCoordinate( aPhysicalDimension, aNumberOfPoints )
-            , mSourceCellIndex ( aNumberOfPoints, -1 )
+    MappingResult::MappingResult( moris_index aSourceMeshIndex, uint aPhysicalDimension, uint aNumberOfPoints )
+            : mSourceMeshIndex( aSourceMeshIndex )
+            , mSourcePhysicalCoordinate( aPhysicalDimension, aNumberOfPoints )
+            , mSourceCellIndex( aNumberOfPoints, -1 )
             , mSourceClusterIndex( aNumberOfPoints, -1 )
             , mTargetClusterIndex( aNumberOfPoints, -1 )
             , mTargetCellIndices( aNumberOfPoints, -1 )
