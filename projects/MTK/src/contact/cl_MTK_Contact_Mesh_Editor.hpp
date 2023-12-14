@@ -25,17 +25,17 @@ namespace moris::mtk
         Contact_Mesh_Editor(
                 Integration_Mesh_DataBase_IG                               *aIGMesh,
                 Interpolation_Mesh_DataBase_IP                             *aIPMesh,
-                const Integrator                                           &aIntegrator,
+                Integrator                                                 &aIntegrator,
                 moris::Cell< Side_Set const * >                            &aCandidateSideSet,
                 moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs )
                 : mIGMesh( aIGMesh )
                 , mIPMesh( aIPMesh )
-                , mIntegrator( aIntegrator )
+                , mIntegrator( std::move( aIntegrator ) )
                 , mSideSets( aCandidateSideSet )
                 , mCandidatePairs( aCandidatePairs )
                 , mPointMapper( QuadraturePointMapper_Ray( aIGMesh, aCandidateSideSet, aCandidatePairs ) ){};
 
-        void update_nonconformal_side_sets();
+        void update_nonconformal_side_sets() const;
 
         void update_displacements( Matrix< DDRMat > &aDisplacements );
 
@@ -60,7 +60,10 @@ namespace moris::mtk
          */
         using ResultIndices = moris::Cell< moris_index >;
 
-        // methods
+        /**
+         * \brief Holds information about a set of source- and target cells that are mapped to each other.
+         */
+        using SetPair = std::pair< moris_index, moris_index >;
 
         /**
          * \brief This method extracts the cluster and cell pairing from the mapping result and returns it in a structured way.
@@ -74,19 +77,25 @@ namespace moris::mtk
          */
         static std::map< ClusterPair, std::map< CellPair, ResultIndices > > extract_cluster_and_cell_pairing( MappingResult const &aResult );
 
-        moris::Cell< MappingResult > perform_mapping();
+        /**
+         * \brief Performs the mapping (i.e. ray tracing) from the follower side to the leader side. The follower side will also be called the source side, while the leader side (where the ray hits) will be called the target side. The mapping will be performed for all source sides of the candidate pairs.
+         * \return Returns a mapping result for each source side of the candidate pairs.
+         */
+        moris::Cell< MappingResult > perform_mapping() const;
 
-        moris::Cell< Nonconformal_Side_Cluster > convert_mapping_result_to_nonconformal_side_clusters( MappingResult aMappingResult );
+        std::map< SetPair, moris::Cell< Nonconformal_Side_Cluster > >
+        convert_mapping_result_to_nonconformal_side_clusters( MappingResult aMappingResult ) const;
 
-        void update_ig_mesh_database( const moris::Cell< Nonconformal_Side_Cluster > &aNonconformalSideClusters, std::string const &aSetName, Matrix< IndexMat > aSetColor ) const;
+        void update_ig_mesh_database( const moris::Cell< Nonconformal_Side_Cluster > &aNonconformalSideClusters, std::string const &aSetName, const Matrix< IndexMat > &aSetColor ) const;
 
-        // data
         Integration_Mesh_DataBase_IG                        *mIGMesh;
         Interpolation_Mesh_DataBase_IP                      *mIPMesh;
         Integrator                                           mIntegrator;
         moris::Cell< Side_Set const * >                      mSideSets;
         moris::Cell< std::pair< moris_index, moris_index > > mCandidatePairs;
         QuadraturePointMapper_Ray                            mPointMapper;
+        std::string                                          get_nonconformal_side_set_name( SetPair const &tSetPair ) const;
+        static std::pair< std::string, std::string >         get_leaderphase_from_set_name( std::string const &aSideSetName ) ;
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP

@@ -40,33 +40,28 @@ namespace moris::mtk
         return tClusterPairs;
     }
 
-    moris::Cell< Nonconformal_Side_Cluster >
-    Contact_Mesh_Editor::convert_mapping_result_to_nonconformal_side_clusters( MappingResult aMappingResult )
+    std::map< Contact_Mesh_Editor::SetPair, moris::Cell< Nonconformal_Side_Cluster > >
+    Contact_Mesh_Editor::convert_mapping_result_to_nonconformal_side_clusters( MappingResult aMappingResult ) const
     {
-        Matrix< DDRMat > tQWeights;
-        Matrix< DDRMat > tQPoints;
-        mIntegrator.get_weights( tQWeights );
-        mIntegrator.get_points( tQPoints );
-        tQPoints = tQPoints.get_row( 0 ).eval();    // for some reason, the dimension of the matrix is one too high
-
-        size_t const tNumIntegrationPoints = mIntegrator.get_number_of_points();
+        Matrix< DDRMat > tQWeights             = mIntegrator.get_weights();
+        Matrix< DDRMat > tQPoints              = mIntegrator.get_points().get_row( 0 );    // for some reason, the dimension of the matrix is one too high
+        size_t const     tNumIntegrationPoints = mIntegrator.get_number_of_points();
 
         // extract the cluster pairs and the corresponding cell pairs from the mapping result this will act as a basis to create the nonconformal side clusters
         auto tClusterPairs = extract_cluster_and_cell_pairing( aMappingResult );
 
         // Since we know the number of unique cluster-pairs, we can reserve the correct amount of memory for the nonconformal side clusters
-        moris::Cell< Nonconformal_Side_Cluster > tNonconformalSideClusters;
-        tNonconformalSideClusters.reserve( tClusterPairs.size() );
+        std::map< SetPair, moris::Cell< Nonconformal_Side_Cluster > > tNonconformalSideClusters;
 
         // loop over each unique cluster pair which itself has multiple cell-cell pairs
-        for ( const auto &[ tClusterPair, tCellMap ] : tClusterPairs )
+        for ( const auto &[ tClusterPair, tCellMaps ] : tClusterPairs )
         {
             // the integration point pairs will store the bundles of integration points that were mapped from the follower side to the leader side cells
             moris::Cell< IntegrationPointPairs > tIntegrationPointPairs;
 
             // the cell map contains all pairs of source and target cells that were mapped onto each other
             // the values of this map are the list of indices to get access to the correct entries of the mapping result
-            for ( auto const &[ tCellMap, tResultColumns ] : tCellMap )
+            for ( auto const &[ tCellMap, tResultColumns ] : tCellMaps )
             {
                 moris::Cell< real > tWeights( tResultColumns.size() );
                 Matrix< DDRMat >    tNormals( aMappingResult.mNormal.n_rows(), tResultColumns.size() );
@@ -80,8 +75,8 @@ namespace moris::mtk
                      * Since the integration points are repeated for each cell, the index is the remainder of the division by the number of integration points.
                      * E.g we have 4 integration points per cell and 3 cells. The results in the mapping will refer to the integration points in columns
                      * [ 0, 1, 2, 3, 0, 1, 2, 3, 0, 1 ,2 ,3 ] and so on. */
-                    size_t tIntegrationPointColumn = iIndex % tNumIntegrationPoints;
-                    tWeights( iIndex )             = tQWeights( tIntegrationPointColumn );
+                    size_t const tIntegrationPointColumn = iIndex % tNumIntegrationPoints;
+                    tWeights( iIndex )                   = tQWeights( tIntegrationPointColumn );
                     tFollowerParametricCoords.set_column( iIndex, tQPoints.get_column( tIntegrationPointColumn ) );
 
                     /*To get the correct column in the mapping result, we have to index into the list of result columns.
@@ -103,12 +98,15 @@ namespace moris::mtk
             }
 
             auto const &[ tSourceClusterIndex, tTargetClusterIndex, tTargetMeshIndex ] = tClusterPair;
-            moris_index const tSourceMeshIndex                                         = aMappingResult.mSourceMeshIndex;
+
+            moris_index const tSourceMeshIndex = aMappingResult.mSourceMeshIndex;
+
+            SetPair const tSetPair = std::make_pair( tSourceMeshIndex, tTargetMeshIndex );
 
             Cluster const *tFollowerCluster = mSideSets( tSourceMeshIndex )->get_clusters_by_index( tSourceClusterIndex );
             Cluster const *tLeaderCluster   = mSideSets( tTargetMeshIndex )->get_clusters_by_index( tTargetClusterIndex );
-            //
-            tNonconformalSideClusters.emplace_back( tFollowerCluster, tLeaderCluster, tIntegrationPointPairs );
+
+            tNonconformalSideClusters[ tSetPair ].emplace_back( tFollowerCluster, tLeaderCluster, tIntegrationPointPairs );
         }
 
         return tNonconformalSideClusters;
@@ -118,12 +116,11 @@ namespace moris::mtk
     void Contact_Mesh_Editor::update_ig_mesh_database(
             const moris::Cell< Nonconformal_Side_Cluster > &aNonconformalSideClusters,
             std::string const                              &aSetName,
-            Matrix< IndexMat >                              aSetColor ) const
+            const Matrix< IndexMat >                       &aSetColor ) const
     {
-        mIGMesh->reset_nonconformal_side_set();
-        mIGMesh->add_nonconformal_side_clusters( aNonconformalSideClusters );
 
-        // cast the clusters to the correct type... this is necessary because sets are not generic w.r.t. the type of clusters they contain
+        // cast the clusters to the correct type...
+        // this is only necessary because sets are not generic w.r.t. the type of clusters they contain
         moris::Cell< Cluster const * > tClusters;
         std::transform(
                 aNonconformalSideClusters.begin(),
@@ -132,17 +129,13 @@ namespace moris::mtk
                 []( auto const &aCluster ) { return dynamic_cast< Cluster const * >( &aCluster ); } );
 
 
-        auto *tNonconformalSideSet = new Nonconformal_Side_Set(
-                aSetName,
-                tClusters,
-                aSetColor,    // TODO: Is this correct? Just using the color of the first set...
-                mIGMesh->get_spatial_dim() );
+        auto *tNonconformalSideSet = new Nonconformal_Side_Set( aSetName, tClusters, aSetColor, mIGMesh->get_spatial_dim() );
 
+        mIGMesh->add_nonconformal_side_clusters( aNonconformalSideClusters );
         mIGMesh->add_nonconformal_side_set( tNonconformalSideSet );
     }
 
-
-    moris::Cell< MappingResult > Contact_Mesh_Editor::perform_mapping()
+    moris::Cell< MappingResult > Contact_Mesh_Editor::perform_mapping() const
     {
         // get all possible source side sets that have been specified in the candidate pairings
         std::set< moris_index > tSourceSideSets;
@@ -169,15 +162,51 @@ namespace moris::mtk
         return tMappingResults;
     }
 
-    void Contact_Mesh_Editor::update_nonconformal_side_sets()
+    void Contact_Mesh_Editor::update_nonconformal_side_sets() const
     {
-        moris::Cell< MappingResult >             tMappingResults = perform_mapping();
-        moris::Cell< Nonconformal_Side_Cluster > tNonconformalSideClusters;
+        // removes all nonconformal sidesets and clusters from the IGMesh
+        mIGMesh->reset_nonconformal_side_set();
+
+        moris::Cell< MappingResult > const tMappingResults = perform_mapping();
+
+        // each mapping result will contain the mapping results for one source side set to many target side sets
         for ( auto const &tMappingResult : tMappingResults )
         {
-            tNonconformalSideClusters.append( convert_mapping_result_to_nonconformal_side_clusters( tMappingResult ) );
+            // we convert the mapping result to a list of nonconformal side clusters, grouped by the source- and target side sets
+            auto tConverted = convert_mapping_result_to_nonconformal_side_clusters( tMappingResult );
+            for ( auto const &[ tSetPair, tNonconformalSideClusters ] : tConverted )
+            {
+                // each group of unique source- and target side set-pairs will be stored in a nonconformal side set
+                update_ig_mesh_database(
+                        tNonconformalSideClusters,
+                        this->get_nonconformal_side_set_name( tSetPair ),
+                        mSideSets( tSetPair.first )->get_set_colors()    // TODO: Is this correct? Just using the color of the first set...
+                );
+            }
         }
-        update_ig_mesh_database( tNonconformalSideClusters, "foobar", mSideSets( 0 )->get_set_colors() );
+    }
+
+    std::string Contact_Mesh_Editor::get_nonconformal_side_set_name( Contact_Mesh_Editor::SetPair const &tSetPair ) const
+    {
+        // as the bulk phase information is not available at this point of the code,
+        // we have to use the side set names instead to extract the correct bulk phase information.
+        std::string const &tSourceMeshName = mSideSets( tSetPair.first )->get_set_name();
+        std::string const &tTargetMeshName = mSideSets( tSetPair.second )->get_set_name();
+
+        auto const &[ tSourceB0, tSourceB1 ] = get_leaderphase_from_set_name( tSourceMeshName );
+        auto const &[ tTargetB0, tTargetB1 ] = get_leaderphase_from_set_name( tTargetMeshName );
+
+        return "ncss_" + tSourceB0 + "_" + tSourceB1 + "_to_" + tTargetB0 + "_" + tTargetB1;
+    }
+
+    std::pair< std::string, std::string > Contact_Mesh_Editor::get_leaderphase_from_set_name( std::string const &aSideSetName )
+    {
+        // the format of the side set names is "iside_b0_<leader_phase>_b1_<follower_phase>"
+        size_t const       tB0Pos    = aSideSetName.find( "_b0_" );
+        size_t const       tB1Pos    = aSideSetName.find( "_b1_" );
+        std::string const &tB0Phase  = aSideSetName.substr( tB0Pos + 4, tB1Pos - tB0Pos - 4 );
+        std::string const &tB1Phase  = aSideSetName.substr( tB1Pos + 4 );
+        return { tB0Phase, tB1Phase };
     }
 
     void Contact_Mesh_Editor::update_displacements( Matrix< DDRMat > &aDisplacements ) {}
