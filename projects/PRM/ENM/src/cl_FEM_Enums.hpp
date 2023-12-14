@@ -148,6 +148,8 @@ namespace moris
             STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_PENALTY,
             GHOST_NORMAL_FIELD,
+
+            DEBUG,
             END_IWG_TYPE
         };
 
