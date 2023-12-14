@@ -70,7 +70,13 @@ namespace moris::ge
             Parent_Node tSecondParentNode( &tBaseSecondParent, tSecondParentParametricCoordinates );
 
             // create the intersection node
-            Intersection_Node* tIntersectionNode = tSurfaceMeshPointer->create_intersection_node( tNodeIndex++, tBaseNodes, tFirstParentNode, tSecondParentNode, mtk::Geometry_Type::QUAD );
+            Intersection_Node* tIntersectionNode = tSurfaceMeshPointer->create_intersection_node(
+                    tNodeIndex++,
+                    tBaseNodes,
+                    tFirstParentNode,
+                    tSecondParentNode,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
 
             // check the local coordinate
             real tLocalCoordinateExpected = 0.0;
