@@ -29,17 +29,16 @@ namespace moris
 
         Object::Object( const std::string& aFilePath,
                 const Matrix< DDRMat >&    aOffsets )
-                : mOffsets( aOffsets )
-                , mNumberOfFacets( 0 )
+                : mNumberOfFacets( 0 )
         {
-            MORIS_ERROR( mOffsets.numel() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
+            MORIS_ERROR( aOffsets.numel() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
 
             // check the file extension
             auto tFileExt = aFilePath.substr( aFilePath.find_last_of( "." ) + 1, aFilePath.length() );
 
             if ( tFileExt == "obj" )
             {
-                this->load_from_object_file( aFilePath );
+                this->load_from_object_file( aFilePath, aOffsets );
             }
             else if ( tFileExt == "stl" )
             {
@@ -50,25 +49,12 @@ namespace moris
                 MORIS_ERROR( false, "Object(), file type is not supported" );
             }
             MORIS_ASSERT( mNumberOfFacets == mFacets.size(), "SDF - Object(): number of facets not consistent" );
-
-            // Determine and store the minimum and maximum coordinates of each facet
-            mFacetMinCoords.resize( mNumberOfFacets, mDimension );
-            mFacetMaxCoords.resize( mNumberOfFacets, mDimension );
-            for ( uint iFacetIndex = 0; iFacetIndex < mNumberOfFacets; iFacetIndex++ )
-            {
-                for ( uint iDimensionIndex = 0; iDimensionIndex < mDimension; iDimensionIndex++ )
-                {
-                    mFacetMinCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_min_coord( iDimensionIndex );
-
-                    mFacetMaxCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_max_coord( iDimensionIndex );
-                }
-            }
         }
 
         //-------------------------------------------------------------------------------
 
         void
-        Object::load_from_object_file( const std::string& aFilePath )
+        Object::load_from_object_file( const std::string& aFilePath, const Matrix< DDRMat >& aOffsets )
         {
             // copy file into buffer
             moris::Cell< std::string > tBuffer;
@@ -115,7 +101,7 @@ namespace moris
             }
 
             // step 2: create vertices
-            mVertices.resize( tNumberOfVertices, nullptr );
+            mVertices.resize( tNumberOfVertices );
 
             // reset counter
 
@@ -163,12 +149,12 @@ namespace moris
                     {
                         if ( std::abs( tX[ i ] ) > mMeshHighPass )
                         {
-                            tNodeCoords( i ) = tX[ i ] + mOffsets( i );
+                            tNodeCoords( i ) = tX[ i ] + aOffsets( i );
                         }
                         else
                         {
                             // use zero value
-                            tNodeCoords( i ) = 0.0 + mOffsets( i );
+                            tNodeCoords( i ) = 0.0 + aOffsets( i );
                         }
                     }
 
@@ -512,7 +498,7 @@ namespace moris
             MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_min_coord() - aFacetIndex must be >= 0. Current index: %u", aFacetIndex );
             MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_min_coord() - aAxis must be >= 0. Current index: %u", aAxis );
 
-            return mFacetMinCoords( aFacetIndex, aAxis );
+            return mFacets( aFacetIndex )->get_min_coord( aAxis );
         }
 
         //-------------------------------------------------------------------------------
@@ -526,7 +512,7 @@ namespace moris
             MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_max_coord() - aFacetIndex must be >= 0. Current index: %u", aFacetIndex );
             MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_max_coord() - aAxis must be >= 0. Current index: %u", aAxis );
 
-            return mFacetMaxCoords( aFacetIndex, aAxis );
+            return mFacets( aFacetIndex )->get_max_coord( aAxis);
         }
     } /* namespace sdf */
 } /* namespace moris */

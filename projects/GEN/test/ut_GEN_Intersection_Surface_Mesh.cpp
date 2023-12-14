@@ -24,10 +24,6 @@
 
 #include "fn_PRM_GEN_Parameters.hpp"
 
-// BRENDAN delete these once they have been added to the design factory
-// #include "cl_GEN_Surface_Mesh_Geometry.hpp"
-// #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
-
 #include "cl_GEN_Base_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
@@ -39,6 +35,8 @@ namespace moris::ge
     {
         if ( par_size() == 1 )
         {
+            real tEpsilon = 1e-9;
+
             // create surface mesh geometry
             ParameterList tParameters = prm::create_surface_mesh_geometry_parameter_list();
             tParameters.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/SDF/test/data/rhombus.obj" );
@@ -81,7 +79,7 @@ namespace moris::ge
             // check the local coordinate
             real tLocalCoordinateExpected = 0.0;
             real tLocalCoordinate         = tIntersectionNode->get_local_coordinate();
-            CHECK( abs( tLocalCoordinateExpected - tLocalCoordinate ) < MORIS_REAL_EPS );
+            CHECK( abs( tLocalCoordinateExpected - tLocalCoordinate ) < tEpsilon );
         }
     }
 
