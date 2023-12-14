@@ -214,6 +214,8 @@ set(HEADERS
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
 
+	IWG/cl_FEM_IWG_Debug.hpp
+
     IQI/cl_FEM_IQI.hpp
     IQI/cl_FEM_IQI_Factory.hpp
 
@@ -449,7 +451,9 @@ set(LIB_SOURCES
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
 
-    IQI/cl_FEM_IQI.cpp
+	IWG/cl_FEM_IWG_Debug.cpp
+
+	IQI/cl_FEM_IQI.cpp
     IQI/cl_FEM_IQI_Factory.cpp
     IQI/cl_FEM_IQI_Volume.cpp
     IQI/cl_FEM_IQI_Strain_Energy.cpp
