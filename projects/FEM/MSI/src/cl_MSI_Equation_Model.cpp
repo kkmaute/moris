@@ -24,7 +24,6 @@
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
-#include "cl_Communication_Tools.hpp"
 
 namespace moris
 {
@@ -289,14 +288,6 @@ namespace moris
             return mdQIdp;
         }
 
-        //-------------------------------------------------------------------------------------------------
-
-        void
-        Equation_Model::normalize_IQIs()
-        {
-        }
-
-        //-------------------------------------------------------------------------------------------------
 
     }    // namespace MSI
 }    // namespace moris

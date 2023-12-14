@@ -27,12 +27,10 @@ namespace moris
         class Dist_Vector;
         class Dist_Map;
     }    // namespace sol
-    //------------------------------------------------------------------------------
     namespace mtk
     {
         class Field;
     }
-    //------------------------------------------------------------------------------
 
     namespace MSI
     {
@@ -42,7 +40,6 @@ namespace moris
         class Equation_Object;
         class Design_Variable_Interface;
         enum class Dof_Type;
-        //------------------------------------------------------------------------------
 
         class Equation_Model
         {
@@ -82,38 +79,21 @@ namespace moris
 
             moris::sint mNumSensitivityAnalysisRHS = -1;
 
-            //------------------------------------------------------------------------------
-            // Dummy Variables
-            moris::Cell< std::string > mDummy;
-
-            //------------------------------------------------------------------------------
 
           public:
-            //------------------------------------------------------------------------------
-            /**
-             * constructor
-             */
-            Equation_Model(){};
+            Equation_Model() = default;
 
-            //------------------------------------------------------------------------------
-            /**
-             * destructor
-             */
             virtual ~Equation_Model();
-
-            //------------------------------------------------------------------------------
 
             virtual void free_memory() = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * get equation sets for test
+             * @brief get equation sets for test
              */
             moris::sint get_num_rhs();
 
-            //------------------------------------------------------------------------------
             /**
-             * get equation sets for test
+             * @brief get equation sets for test
              */
             moris::Cell< MSI::Equation_Set* >&
             get_equation_sets()
@@ -121,9 +101,8 @@ namespace moris
                 return mFemSets;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * get equation objects
+             * @brief get equation objects
              */
             moris::Cell< MSI::Equation_Object* >&
             get_equation_objects()
@@ -131,9 +110,8 @@ namespace moris
                 return mFemClusters;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * MTK set to fem set index map
+             * @brief MTK set to fem set index map
              */
             map< std::tuple< moris_index, bool, bool >, moris_index >&
             get_mesh_set_to_fem_set_index_map()
@@ -141,30 +119,19 @@ namespace moris
                 return mMeshSetToFemSetMap;
             }
 
-            //------------------------------------------------------------------------------
 
-            virtual
-            Matrix< DDSMat >
-            get_XYZ_local_pdv_assembly_map() const
-            {
-                MORIS_ERROR( false, "MSI::Equation_Model::get_XYZ_local_pdv_assembly_map - Not implemented for the base class." );
-                return Matrix< DDSMat >( 0, 0 );
-            }
+            virtual Matrix< DDSMat >
+            get_XYZ_local_pdv_assembly_map() const = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * finalize the equation sets
+             * @brief finalize the equation sets
              * @param[ in ] aModelSolverInterface pointer to a model solver interface
              */
             virtual void
-            finalize_equation_sets( MSI::Model_Solver_Interface* aModelSolverInterface )
-            {
-                MORIS_ERROR( false, "Equation_Model::finalize_equation_sets - not implemented for base class." );
-            }
+            finalize_equation_sets( MSI::Model_Solver_Interface* aModelSolverInterface ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * set solution vector
+             * @brief set solution vector
              * @param[ in ] aSolutionVector distributed solution vector
              */
             void
@@ -173,10 +140,9 @@ namespace moris
                 mSolutionVector = aSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * get solution vector
-             * @param[ out ] aSolutionVector distributed solution vector
+             * @brief get solution vector
+             * @returns aSolutionVector distributed solution vector
              */
             sol::Dist_Vector*
             get_solution_vector()
@@ -184,9 +150,8 @@ namespace moris
                 return mSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * set previous solution vector
+             * @brief set previous solution vector
              * @param[ in ] aSolutionVector previous distributed solution vector
              */
             void
@@ -195,10 +160,9 @@ namespace moris
                 mPrevSolutionVector = aSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * get previous solution vector
-             * @param[ out ] aSolutionVector previous distributed solution vector
+             * @brief get previous solution vector
+             * @returns aSolutionVector previous distributed solution vector
              */
             sol::Dist_Vector*
             get_previous_solution_vector()
@@ -206,9 +170,8 @@ namespace moris
                 return mPrevSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * set eigen vectors
+             * @brief set eigen vectors
              * @param[ in ] aEigenVector distributed solution vector
              */
             void
@@ -217,10 +180,9 @@ namespace moris
                 mEigenSolutionVector = aEigenSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * get previous solution vector
-             * @param[ out ] aSolutionVector previous distributed solution vector
+             * @brief get previous solution vector
+             * @returns aSolutionVector previous distributed solution vector
              */
             sol::Dist_Vector*
             get_eigen_solution_vector()
@@ -228,9 +190,8 @@ namespace moris
                 return mEigenSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * set sensitivity solution vector
+             * @brief set sensitivity solution vector
              * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
              */
             void
@@ -239,9 +200,8 @@ namespace moris
                 mAdjointSolutionVector = aSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * set previous adjoint solution vector
+             * @brief set previous adjoint solution vector
              * @param[ in ] aSensitivitySolutionVector distributed solution vector for sensitivity
              */
             void
@@ -250,10 +210,9 @@ namespace moris
                 mPreviousAdjointSolutionVector = aSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * get adjoint solution vector
-             * @param[ out ] aSolutionVector adjoint distributed solution vector
+             * @brief get adjoint solution vector
+             * @returns aSolutionVector adjoint distributed solution vector
              */
             sol::Dist_Vector*
             get_adjoint_solution_vector()
@@ -261,10 +220,9 @@ namespace moris
                 return mAdjointSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * get previous adjoint solution vector
-             * @param[ out ] aSolutionVector previous adjoint distributed solution vector
+             * @brief get previous adjoint solution vector
+             * @returns aSolutionVector previous adjoint distributed solution vector
              */
             sol::Dist_Vector*
             get_previous_adjoint_solution_vector()
@@ -272,10 +230,9 @@ namespace moris
                 return mPreviousAdjointSolutionVector;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * returns the implicit dQidu
-             * @param[ out ] mImplicitdQidu returns a pointer to dQidu
+             * @brief returns the implicit dQidu
+             * @returns  a pointer to dQidu
              */
             sol::Dist_Vector*
             get_implicit_dQidp()
@@ -283,10 +240,9 @@ namespace moris
                 return mImplicitdQidp;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * returns the explicit dQidu
-             * @param[ out ] mExplicitdQidu returns a pointer to dQidu
+             * @brief returns the explicit dQidu
+             * @returns a pointer to dQidu
              */
             sol::Dist_Vector*
             get_explicit_dQidp()
@@ -294,16 +250,14 @@ namespace moris
                 return mExplicitdQidp;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * returns the dQIdp
-             * @param[ out ] mdQidp returns a pointer to dQIdp
+             * @brief returns the dQIdp
+             * @returns a pointer to dQIdp
              */
             sol::Dist_Vector* get_dQIdp();
 
-            //------------------------------------------------------------------------------
             /**
-             * set time for current time slab
+             * @brief set time for current time slab
              * @param[ in ] aTime matrix for time in current time slab
              */
             void
@@ -312,10 +266,9 @@ namespace moris
                 mTime = aTime;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * get time for current time slab
-             * @param[ out ] mTime matrix for time in current time slab
+             * @brief get time for current time slab
+             * @returns mTime matrix for time in current time slab
              */
             Matrix< DDRMat >&
             get_time()
@@ -323,9 +276,8 @@ namespace moris
                 return mTime;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * set time for previous time slab
+             * @brief set time for previous time slab
              * @param[ in ] aPrevTime matrix for time in previous time slab
              */
             void
@@ -334,11 +286,9 @@ namespace moris
                 mPrevTime = aPrevTime;
             }
 
-            //------------------------------------------------------------------------------
-
             /**
-             * get time for previous time slab
-             * @param[ out ] mPrevTime matrix for time in previous time slab
+             * @brief get time for previous time slab
+             * @returns mPrevTime matrix for time in previous time slab
              */
             Matrix< DDRMat >&
             get_previous_time()
@@ -346,9 +296,8 @@ namespace moris
                 return mPrevTime;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * set pointer to design variable interface
+             * @brief set pointer to design variable interface
              * @param[ in ] aDesignVariableInterface pointer to design variable interface
              */
             void
@@ -357,10 +306,9 @@ namespace moris
                 mDesignVariableInterface = aDesignVariableInterface;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * get pointer to design variable interface
-             * @param[ out ] mDesignVariableInterface pointer to design variable interface
+             * @brief get pointer to design variable interface
+             * @returns pointer to design variable interface
              */
             MSI::Design_Variable_Interface*
             get_design_variable_interface()
@@ -368,89 +316,67 @@ namespace moris
                 return mDesignVariableInterface;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * set requested IQI names
+             * @brief set requested IQI names
              * @param[ in ] aRequestedIQINames List of requested IQI names
              */
-            virtual void
-            set_requested_IQI_names( const moris::Cell< std::string >& aRequestedIQINames )
-            {
-                MORIS_ERROR( false, "Equation_Model::set_requested_IQI_names - not implemented for base class." );
-            }
+            virtual void set_requested_IQI_names( const moris::Cell< std::string >& aRequestedIQINames ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * get requested IQI names
+             * @brief get requested IQI names
              */
             virtual const moris::Cell< std::string >&
-            get_requested_IQI_names()
-            {
-                MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
-                return mDummy;
-            }
+            get_requested_IQI_names() = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * set requested IQI names
+             * @brief set requested IQI names
              * @param[ in ] aRequestedIQINames List of requested IQI names
              */
             virtual void
-            create_IQI_map()
-            {
-                MORIS_ERROR( false, "Equation_Model::create_requested_IQI_map - not implemented for base class." );
-            }
+            create_IQI_map() = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * indicated that this equation model is used for the sensitivity analysis
+             * @brief indicated that this equation model is used for the sensitivity analysis
              */
             void
             set_is_sensitivity_analysis()
             {
                 this->reset();
-
                 mIsForwardAnalysis = false;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * indicated that this equation model is used for the forward analysis
+             * @brief indicated that this equation model is used for the forward analysis
              */
             void
             set_is_forward_analysis()
             {
                 this->reset();
-
                 mIsForwardAnalysis = true;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * resets member variables of the equation object
+             * @brief resets member variables of the equation object
              */
-            virtual void reset(){};
+            virtual void reset() = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * report on assembly information
+             * @brief report on assembly information
              */
-            virtual void report_on_assembly(){};
+            virtual void report_on_assembly() = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * returns if this is a forward analysis
-             * @param[ out ] mIsForwardAnalysis bool true if forward analysis
+             * @brief returns if this is a forward analysis
+             * @returns mIsForwardAnalysis bool true if forward analysis
              */
             bool
-            get_is_forward_analysis()
+            get_is_forward_analysis() const
             {
                 return mIsForwardAnalysis;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * indicated that
+             * @brief indicated that
              */
             void
             set_is_adjoint_off_diagonal_time_contribution(
@@ -459,20 +385,18 @@ namespace moris
                 mIsOffDiagonalTimeContribution = aIsOffDiagonalTimeContribution;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * returns if this
-             * @param[ out ] mIsForwardAnalysis
+             * @brief returns if this
+             * @returns mIsForwardAnalysis
              */
             bool
-            get_is_adjoint_off_diagonal_time_contribution()
+            get_is_adjoint_off_diagonal_time_contribution() const
             {
                 return mIsOffDiagonalTimeContribution;
             }
 
-            //------------------------------------------------------------------------------
             /**
-             * initialize explicit and implicit dQidp
+             * @brief initialize explicit and implicit dQidp
              */
             void initialize_explicit_and_implicit_dQIdp();
 
@@ -490,33 +414,23 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * compute explicit and implicit dQidp
+             * @brief compute explicit and implicit dQidp
              */
             void compute_explicit_and_implicit_dQIdp();
 
-            //------------------------------------------------------------------------------
             /**
-             * initialize QI
+             * @brief initialize QI
              */
-            virtual void
-            initialize_IQIs()
-            {
-                MORIS_ERROR( 0, "Equation_Model::initialize_IQIs, not implemenetd in the base class" );
-            }
-
-            //------------------------------------------------------------------------------
+            virtual void initialize_IQIs() = 0;
 
             /**
              * @brief computes the "requested" IQIs which are set in GEN parameter list
-             *
-             *
              */
             void compute_IQIs();
 
-            //------------------------------------------------------------------------------
             /**
-             * get QI global values
-             * @param[ out ] mGlobalIQIVal cell filled with global QI values
+             * @brief get QI global values
+             * @returns mGlobalIQIVal cell filled with global QI values
              */
             moris::Cell< moris::Matrix< DDRMat > >&
             get_IQI_values()
@@ -525,49 +439,36 @@ namespace moris
             }
 
             /**
-             * Scale the IQIs according to user input. Default does nothing, scaling is done in child class.
+             * @brief Scale the IQIs according to user input. Default does nothing, scaling is done in child class.
              */
-            virtual void normalize_IQIs();
+            virtual void normalize_IQIs(){};
 
-            //------------------------------------------------------------------------------
             /**
-             * get integration xyz active flags
+             * @brief get integration xyz active flags
              * @param[ in ] aNodeIndices list of node indices
              * @param[ in ] aPdvTypes    list of pdv types
              * @param[ in ] aIsActiveDv  matrix to fill with 0/1 when pdv is active
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
-            virtual void
-            get_integration_xyz_active_flags(
+            virtual void get_integration_xyz_active_flags(
                     const Matrix< IndexMat >&      aNodeIndices,
                     const moris::Cell< PDV_Type >& aPdvTypes,
-                    Matrix< DDSMat >&              aIsActiveDv )
-            {
-                MORIS_ERROR( false,
-                        "Equation_Model::get_integration_xyz_active_flags - not implemented for base class." );
-            }
+                    Matrix< DDSMat >&              aIsActiveDv ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * get integration xyz pdv ids
+             * @brief get integration xyz pdv ids
              * @param[ in ] aNodeIndices list of node indices
              * @param[ in ] aPdvTypes    list of pdv types
              * @param[ in ] aXYZPdvIds  matrix to fill with pdv ids
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
-            virtual void
-            get_integration_xyz_pdv_ids(
+            virtual void get_integration_xyz_pdv_ids(
                     const Matrix< IndexMat >&      aNodeIndices,
                     const moris::Cell< PDV_Type >& aPdvTypes,
-                    Matrix< DDSMat >&              aXYZPdvIds )
-            {
-                MORIS_ERROR( false,
-                        "Equation_Model::get_integration_xyz_pdv_ids - not implemented for base class." );
-            }
+                    Matrix< DDSMat >&              aXYZPdvIds ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * get integration xyz pdv ids
+             * @brief get integration xyz pdv ids
              * @param[ in ] aNodeIndices list of node indices
              * @param[ in ] aPdvTypes    list of pdv types
              * @param[ in ] aIsActiveDv  matrix to fill with 0/1 when pdv is active
@@ -575,33 +476,21 @@ namespace moris
              * @param[ in ] aXYZPdvIds   matrix to fill with pdv ids
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
-            virtual void
-            get_integration_xyz_pdv_active_flags_and_ids(
+            virtual void get_integration_xyz_pdv_active_flags_and_ids(
                     const Matrix< IndexMat >&      aNodeIndices,
                     const moris::Cell< PDV_Type >& aRequestedPdvTypes,
                     Matrix< DDSMat >&              aIsActiveDv,
-                    Matrix< DDSMat >&              aXYZPdvIds )
-            {
-                MORIS_ERROR( false,
-                        "Equation_Model::get_integration_xyz_pdv_active_flags_and_ids - not implemented for base class." );
-            }
+                    Matrix< DDSMat >&              aXYZPdvIds ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * reset integration xyz pdv local cluster assembly indices
+             * @brief reset integration xyz pdv local cluster assembly indices
              * @param[ in ] aNodeIndices list of node indices to reset
              */
-            virtual void
-            reset_integration_xyz_pdv_assembly_indices(
-                    const Matrix< IndexMat >& aNodeIndices )
-            {
-                MORIS_ERROR( false,
-                        "Equation_Model::reset_integration_xyz_pdv_assembly_indices - not implemented for base class." );
-            }
+            virtual void reset_integration_xyz_pdv_assembly_indices(
+                    const Matrix< IndexMat >& aNodeIndices ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * set integration xyz pdv local cluster assembly indices
+             * @brief set integration xyz pdv local cluster assembly indices
              * @param[ in ] aNodeIndices           list of node indices
              * @param[ in ] aPdvTypes              list of pdv types
              * @param[ in ] aXYZPdvAssemblyIndices matrix to fill with assembly indices for pdv
@@ -611,15 +500,10 @@ namespace moris
             set_integration_xyz_pdv_assembly_index(
                     moris_index   aNodeIndex,
                     enum PDV_Type aPdvType,
-                    moris_index   aXYZPdvAssemblyIndex )
-            {
-                MORIS_ERROR( false,
-                        "Equation_Model::set_integration_xyz_pdv_assembly_index - not implemented for base class." );
-            }
+                    moris_index   aXYZPdvAssemblyIndex ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * get integration xyz pdv local cluster assembly indices
+             * @brief get integration xyz pdv local cluster assembly indices
              * @param[ in ] aNodeIndices           list of node indices
              * @param[ in ] aPdvTypes              list of pdv types
              * @param[ in ] aXYZPdvAssemblyIndices matrix to fill with assembly indices for pdv
@@ -629,59 +513,40 @@ namespace moris
             get_integration_xyz_pdv_assembly_indices(
                     const Matrix< IndexMat >&      aNodeIndices,
                     const moris::Cell< PDV_Type >& aRequestedPdvTypes,
-                    Matrix< DDSMat >&              aXYZPdvAssemblyIndices )
-            {
-                MORIS_ERROR( false,
-                        "Equation_Model::get_integration_xyz_pdv_assembly_indices - not implemented for base class." );
-            }
+                    Matrix< DDSMat >&              aXYZPdvAssemblyIndices ) = 0;
 
-            //------------------------------------------------------------------------------
 
             virtual void
-            populate_fields()
-            {
-                MORIS_ERROR( false,
-                        "Equation_Model::populate_fields - not implemented for base class." );
-            }
+            populate_fields() = 0;
 
-            //------------------------------------------------------------------------------
             /**
-             * return fields
+             * @brief return all fields
              */
-            virtual moris::Cell< std::shared_ptr< mtk::Field > > get_fields() = 0;
-
-            //------------------------------------------------------------------------------
+            virtual moris::Cell< std::shared_ptr< mtk::Field > >
+            get_fields() = 0;
 
             /**
-             * initialize the FEM model from parameter lists + create the interpolation nodes & FEM sets
+             * @brief initialize the FEM model from parameter lists + create the interpolation nodes & FEM sets
              * @param[ in ] aLibrary       a file path for property functions
              */
             virtual void
             initialize_from_inputfile( std::shared_ptr< Library_IO > aLibrary ) = 0;
 
-            //------------------------------------------------------------------------------
-
             /**
              * @brief Set the dof type to Bspline mesh index map
-             *
              * @param aDofTypeToBsplineMeshIndex
              */
             virtual void
             set_dof_type_to_Bspline_mesh_index( std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex ) = 0;
-            //------------------------------------------------------------------------------
 
             /**
              * @brief set flag whether to use new ghost sets
-             *
              * @param aUseNewGhostSets
              */
             virtual void
             set_use_new_ghost_sets( bool aUseNewGhostSets ) = 0;
-
-            //------------------------------------------------------------------------------
         };
-        //------------------------------------------------------------------------------
     } /* namespace MSI */
 } /* namespace moris */
 
-#endif /* PROJECTS_FEM_MDL_SRC_CL_MSI_EQUATION_MODEL_HPP_ */
+#endif /* PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_ */
