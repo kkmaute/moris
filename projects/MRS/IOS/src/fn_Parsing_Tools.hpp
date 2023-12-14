@@ -545,14 +545,23 @@ namespace moris
         }
     }
 
+    template< typename T >
+    [[nodiscard]] inline Cell< Matrix< T > >
+    string_to_cell_mat_2( const std::string &aString )
+    {
+        Cell< Matrix< T > > tCellMat;
+        string_to_cell_mat_2( aString, tCellMat );
+        return tCellMat;
+    }
+
     // -----------------------------------------------------------------------------
 
     template< typename T >
     void
     string_to_cell_of_cell(
-            const std::string               &aString,
-            moris::Cell< moris::Cell< T > > &aCellCell,
-            moris::map< std::string, T >    &aMap )
+            const std::string                  &aString,
+            moris::Cell< moris::Cell< T > >    &aCellCell,
+            moris::map< std::string, T > const &aMap )
     {
         if ( aString.size() > 0 )
         {
@@ -568,7 +577,6 @@ namespace moris
             size_t tPos = 0;
 
             bool tBool = true;
-
             while ( tBool )
             {
                 // find string
@@ -644,6 +652,18 @@ namespace moris
         {
             aCellCell.resize( 0 );
         }
+    }
+
+
+    template< typename T >
+    [[nodiscard]] moris::Cell< moris::Cell< T > >
+    string_to_cell_of_cell(
+            const std::string                  &aString,
+            moris::map< std::string, T > const &aMap )
+    {
+        moris::Cell< moris::Cell< T > > tCellCell;
+        string_to_cell_of_cell( aString, tCellCell, aMap );
+        return tCellCell;
     }
 
     // -----------------------------------------------------------------------------
@@ -742,14 +762,23 @@ namespace moris
         }
     }
 
+    template< typename T >
+    [[nodiscard]] moris::Cell< moris::Cell< T > >
+    string_to_cell_of_cell( const std::string &aString )
+    {
+        moris::Cell< moris::Cell< T > > tCellCell;
+        string_to_cell_of_cell( aString, tCellCell );
+        return tCellCell;
+    }
+
     // -----------------------------------------------------------------------------
 
     template< typename T >
     void
     string_to_cell(
-            const std::string            &aString,
-            moris::Cell< T >             &aCell,
-            moris::map< std::string, T > &aMap )
+            const std::string                  &aString,
+            moris::Cell< T >                   &aCell,
+            moris::map< std::string, T > const &aMap )
     {
         if ( aString.size() > 0 )
         {
@@ -812,6 +841,17 @@ namespace moris
         }
     }
 
+    template< typename T >
+    [[nodiscard]] moris::Cell< T >
+    string_to_cell(
+            const std::string                  &aString,
+            moris::map< std::string, T > const &aMap )
+    {
+        moris::Cell< T > tCell;
+        string_to_cell( aString, tCell, aMap );
+        return tCell;
+    }
+
     // -----------------------------------------------------------------------------
 
     template< typename T >
@@ -838,7 +878,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    moris::Cell< T >
+    [[nodiscard]] moris::Cell< T >
     string_to_cell( const std::string &aString )
     {
         moris::Cell< T > tCell;
