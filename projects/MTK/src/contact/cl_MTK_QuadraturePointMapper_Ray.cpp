@@ -47,7 +47,7 @@ namespace moris::mtk
         return tSurfaceMeshes;
     }
 
-    MappingResult QuadraturePointMapper_Ray::map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates )
+    MappingResult QuadraturePointMapper_Ray::map( moris_index const aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates ) const
     {
         Interpolation_Rule const tInterpolationRule(
                 mSideSets( aSourceSideSetIndex )->get_integration_cell_geometry_type(),
@@ -95,7 +95,7 @@ namespace moris::mtk
     }
 
     void QuadraturePointMapper_Ray::interpolate_source_point(
-            moris_index             aCellIndex,
+            moris_index const       aCellIndex,
             Matrix< DDRMat > const &aParametricCoordinates,
             Space_Interpolator     &aCoordinateInterpolator,
             Space_Interpolator     &aNormalInterpolator,

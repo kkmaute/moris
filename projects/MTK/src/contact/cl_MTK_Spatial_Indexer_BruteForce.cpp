@@ -6,7 +6,7 @@
 
 namespace moris::mtk
 {
-    Spatial_Indexing_Result Spatial_Indexer_BruteForce::perform( moris_index aSourceMeshIndex, real epsilon )
+    Spatial_Indexing_Result Spatial_Indexer_BruteForce::perform( moris_index const aSourceMeshIndex, real epsilon ) const
     {
         Spatial_Indexing_Result tResult;
         for ( auto& tPair : mCandidatePairs )
@@ -20,7 +20,7 @@ namespace moris::mtk
         return tResult;
     }
 
-    Spatial_Indexing_Result Spatial_Indexer_BruteForce::perform_on_mesh_pair( moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, real aEpsilon )
+    Spatial_Indexing_Result Spatial_Indexer_BruteForce::perform_on_mesh_pair( moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, real aEpsilon ) const
     {
         Spatial_Indexing_Result tResult;
         mtk::Surface_Mesh       tSourceMesh               = mSurfaceMeshes( aSourceMeshIndex );

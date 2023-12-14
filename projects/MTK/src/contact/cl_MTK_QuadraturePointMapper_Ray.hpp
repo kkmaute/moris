@@ -27,7 +27,7 @@ namespace moris::mtk
                 moris::Cell< Side_Set const * >                            &aSideSets,
                 const moris::Cell< std::pair< moris_index, moris_index > > &aCandidatePairs );
 
-        MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates ) override;
+        MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates ) const override;
 
       private:
         // methods

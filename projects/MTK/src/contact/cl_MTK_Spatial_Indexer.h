@@ -31,12 +31,12 @@ namespace moris::mtk
          */
         moris::map< moris_index, Target_Info > mTargetMap;
 
-        Target_Info& operator[]( moris_index aIndex )
+        Target_Info &operator[]( moris_index aIndex )
         {
             return mTargetMap[ aIndex ];
         }
 
-        Target_Info const & operator[]( moris_index aIndex ) const
+        Target_Info const &operator[]( moris_index aIndex ) const
         {
             return mTargetMap.at( aIndex );
         }
@@ -46,15 +46,14 @@ namespace moris::mtk
          * @param aOther
          * @return
          */
-        Spatial_Indexing_Result merge( Spatial_Indexing_Result& aOther )
+        Spatial_Indexing_Result merge( Spatial_Indexing_Result &aOther )
         {
-            for ( auto& tPair : mTargetMap )
+            for ( auto const &tPair : mTargetMap )
             {
-                auto tVertex = tPair.first;
-                auto tTarget = tPair.second;
+                auto const &[ tVertex, tTarget ] = tPair;
                 if ( aOther.mTargetMap.key_exists( tVertex ) )
                 {
-                    auto tOtherTarget = aOther.mTargetMap[ tVertex ];
+                    auto const tOtherTarget = aOther.mTargetMap[ tVertex ];
                     if ( tTarget.distance > tOtherTarget.distance )
                     {
                         mTargetMap[ tVertex ] = tOtherTarget;
@@ -63,10 +62,9 @@ namespace moris::mtk
             }
 
             // add the vertices that are not in the current map
-            for ( auto& tPair : aOther.mTargetMap )
+            for ( auto const &tPair : aOther.mTargetMap )
             {
-                auto tVertex = tPair.first;
-                auto tTarget = tPair.second;
+                auto const &[ tVertex, tTarget ] = tPair;
                 if ( !mTargetMap.key_exists( tVertex ) )
                 {
                     mTargetMap[ tVertex ] = tTarget;
@@ -80,8 +78,8 @@ namespace moris::mtk
     {
       public:    // constructors
         Spatial_Indexer(
-                moris::Cell< mtk::Surface_Mesh > const &                     aSurfaceMeshes,
-                moris::Cell< std::pair< moris_index, moris_index > > const & aCandidatePairs )
+                moris::Cell< mtk::Surface_Mesh > const                     &aSurfaceMeshes,
+                moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs )
                 : mSurfaceMeshes( aSurfaceMeshes )
                 , mCandidatePairs( aCandidatePairs )
         {
@@ -89,10 +87,11 @@ namespace moris::mtk
 
         virtual ~Spatial_Indexer() = default;
 
-      public:    // methods
+        Spatial_Indexer( const Spatial_Indexer &aOther )     = default;
+        Spatial_Indexer( Spatial_Indexer &&aOther ) noexcept = default;
 
-
-        virtual Spatial_Indexing_Result perform( moris_index aSourceMeshIndex, real epsilon ) = 0;
+        // methods
+        virtual Spatial_Indexing_Result perform( moris_index const aSourceMeshIndex, real epsilon ) const = 0;
 
       protected:    // methods
         /**

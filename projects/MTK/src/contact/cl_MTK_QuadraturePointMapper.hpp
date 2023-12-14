@@ -23,7 +23,7 @@ namespace moris::mtk
 
         virtual ~QuadraturePointMapper() = default;
 
-        virtual auto map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate ) -> MappingResult = 0;
+        virtual auto map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate ) const -> MappingResult = 0;
 
       protected:
         Integration_Mesh                                    *mIGMesh;
