@@ -185,7 +185,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
                     const moris_index                          &aMeshPairIndex,
-                    moris::Cell< moris::Cell< ParameterList > > aParameterList,
+                    const moris::Cell< moris::Cell< ParameterList > >& aParameterList,
                     std::shared_ptr< Library_IO >               aLibrary );
 
             //------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void free_memory();
+            void free_memory() final;
 
             //------------------------------------------------------------------------------
 
@@ -233,7 +233,7 @@ namespace moris
              * initialize the FEM model from parameter lists
              * @param[ in ] aLibrary       a file path for property functions
              */
-            void initialize( std::shared_ptr< Library_IO > aLibrary );
+            void initialize( const std::shared_ptr< Library_IO >& aLibrary );
 
             //------------------------------------------------------------------------------
 
@@ -595,10 +595,10 @@ namespace moris
              */
             void get_mesh_set_names(
                     fem::Element_Type           aBulkType,
-                    std::string                 aLeaderPhaseName,
-                    std::string                 aFollowerPhaseName,
-                    std::string                 aNeighborPhasesString,
-                    std::string                 aSideOrdinalsString,
+                    const std::string&                 aLeaderPhaseName,
+                    const std::string&                 aFollowerPhaseName,
+                    const std::string&                 aNeighborPhasesString,
+                    const std::string&                 aSideOrdinalsString,
                     bool                        aIsGhost,
                     moris::Cell< std::string > &aMeshSetNames );
 
