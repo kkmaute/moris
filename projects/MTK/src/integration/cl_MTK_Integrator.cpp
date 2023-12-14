@@ -23,19 +23,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Integrator::Integrator( const Integration_Rule &aIntegrationRule )
+                : mSpaceCoeffs( aIntegrationRule.create_space_coeffs() )
+                , mTimeCoeffs( aIntegrationRule.create_time_coeffs() )
+                , mNumOfSpacePoints( mSpaceCoeffs->get_number_of_points() )
+                , mNumOfTimePoints( mTimeCoeffs->get_number_of_points() )
         {
-            // create space rule
-            mSpaceCoeffs = aIntegrationRule.create_space_coeffs();
-
-            // create time rule
-            mTimeCoeffs = aIntegrationRule.create_time_coeffs();
-
-            // get number of points in space
-            mNumOfSpacePoints = mSpaceCoeffs->get_number_of_points();
-
-            // get number of points in time
-            mNumOfTimePoints = mTimeCoeffs->get_number_of_points();
-
             // matrix with space points
             mSpaceCoeffs->get_points( mSpacePoints );
 
@@ -51,24 +43,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Integrator::~Integrator()
-        {
-            // delete space coeffs if they exist
-            if ( mSpaceCoeffs != NULL )
-            {
-                delete mSpaceCoeffs;
-            }
-
-            // delete time coeffs if they exist
-            if ( mTimeCoeffs != NULL )
-            {
-                delete mTimeCoeffs;
-            }
-        }
+        // Integrator::~Integrator()
+        // {
+        //     // delete space coeffs if they exist
+        //     if ( mSpaceCoeffs != NULL )
+        //     {
+        //         delete mSpaceCoeffs;
+        //     }
+        //
+        //     // delete time coeffs if they exist
+        //     if ( mTimeCoeffs != NULL )
+        //     {
+        //         delete mTimeCoeffs;
+        //     }
+        // }
 
         //------------------------------------------------------------------------------
 
-        uint Integrator::get_number_of_points()
+        uint Integrator::get_number_of_points() const
         {
             return mNumOfSpacePoints * mNumOfTimePoints;
         }
@@ -110,6 +102,7 @@ namespace moris
             get_points( tPoints );
             return tPoints;
         }
+
 
         //------------------------------------------------------------------------------
 

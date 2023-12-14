@@ -26,10 +26,10 @@ namespace moris
         class Integrator
         {
             // pointer to space rule, if specified
-            Integration_Coeffs_Base *mSpaceCoeffs = nullptr;
+            std::unique_ptr<Integration_Coeffs_Base> mSpaceCoeffs;
 
             // pointer to time rule, if specified
-            Integration_Coeffs_Base *mTimeCoeffs = nullptr;
+            std::unique_ptr<Integration_Coeffs_Base> mTimeCoeffs;
 
             // number of points in space
             uint mNumOfSpacePoints;
@@ -64,14 +64,14 @@ namespace moris
             /**
              * destructor
              **/
-            ~Integrator();
+            // ~Integrator();
 
             //------------------------------------------------------------------------------
 
             /**
              * get the number of integration points
              **/
-            uint get_number_of_points();
+            uint get_number_of_points() const;
 
             //------------------------------------------------------------------------------
 

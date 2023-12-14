@@ -208,7 +208,7 @@ namespace moris
                     Integration_Order::BAR_1 );
 
             // create space rule
-            Integration_Coeffs_Base *tSpaceCoeffs = tIntegrationRule.create_space_coeffs();
+            std::unique_ptr< Integration_Coeffs_Base > tSpaceCoeffs = tIntegrationRule.create_space_coeffs();
 
             // get number of integration points, integration points and weights
             Matrix< DDRMat > tIntegPoints;
@@ -299,7 +299,7 @@ namespace moris
                     Integration_Order::BAR_1 );
 
             // create space rule
-            Integration_Coeffs_Base *tSpaceCoeffs = tIntegrationRule.create_space_coeffs();
+            std::unique_ptr< Integration_Coeffs_Base > tSpaceCoeffs = tIntegrationRule.create_space_coeffs();
 
             // get number of integration points, integration points and weights
             Matrix< DDRMat > tIntegPoints;
@@ -343,4 +343,3 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
-
