@@ -227,5 +227,20 @@ namespace moris::mtk
         return tFieldEntityTypeMap;
     }
 
+    std::string get_leader_follower_string( Leader_Follower aLeaderFollower )
+    {
+        switch ( aLeaderFollower )
+        {
+            case Leader_Follower::LEADER:
+                return "leader";
+            case Leader_Follower::FOLLOWER:
+                return "follower";
+            case Leader_Follower::UNDEFINED:
+                return "undefined";
+            default:
+                return "invalid leader follower enum provided";
+        }
+    }
+
     //------------------------------------------------------------------------------
 }

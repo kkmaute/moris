@@ -229,6 +229,13 @@ namespace moris::mtk
     };
 
     /**
+     * @brief Gets a string representing the given Leader_Follower enum
+     * @param aLeaderFollower
+     * @return 'leader' or 'follower'
+     */
+    std::string get_leader_follower_string( Leader_Follower aLeaderFollower );
+
+    /**
      * Gets the map that can be used to go from a parameter list value to the internal enum Leader_Follower
      *
      * @return map from std::string to mtk::Leader_Follower
