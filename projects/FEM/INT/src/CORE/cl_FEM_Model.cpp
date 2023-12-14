@@ -147,7 +147,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
                 const moris_index                          &aMeshPairIndex,
-                moris::Cell< moris::Cell< ParameterList > > aParameterList,
+                const moris::Cell< moris::Cell< ParameterList > >& aParameterList,
                 std::shared_ptr< Library_IO >               aLibrary )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -695,7 +695,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::initialize( std::shared_ptr< Library_IO > aLibrary )
+        FEM_Model::initialize( const std::shared_ptr< Library_IO >& aLibrary )
         {
             Tracer tTracer( "FEM", "Model", "Load and Initialize Parameters" );
 
@@ -794,27 +794,27 @@ namespace moris
                     if ( tPrintPhysics && par_rank() == 0 )
                     {
                         // phase info
-                        std::cout << "Phase info " << std::endl;
+                        std::cout << "Phase info \n";
 
                         // loop over phase info
                         for ( uint iPhase = 0; iPhase < mPhaseInfo.size(); iPhase++ )
                         {
-                            std::cout << "%-------------------------------------------------" << std::endl;
+                            std::cout << "%-------------------------------------------------\n";
                             mPhaseInfo( iPhase ).print_names();
-                            std::cout << "%-------------------------------------------------" << std::endl;
+                            std::cout << "%-------------------------------------------------\n";
                         }
 
-                        std::cout << " " << std::endl;
+                        std::cout << " \n";
 
                         // set info
-                        std::cout << "Set info " << std::endl;
+                        std::cout << "Set info \n";
 
                         // loop over set info
                         for ( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
                         {
-                            std::cout << "%-------------------------------------------------" << std::endl;
+                            std::cout << "%-------------------------------------------------\n";
                             mSetInfo( iSet ).print_names();
-                            std::cout << "%-------------------------------------------------" << std::endl;
+                            std::cout << "%-------------------------------------------------\n";
                         }
                     }
                     break;
@@ -968,9 +968,7 @@ namespace moris
                 {
                     if ( tDofDerFuncNames( iFunc ).size() > 1 )
                     {
-                        FEM_Function tValFunction =
-                                aLibrary->load_function< FEM_Function >( tDofDerFuncNames( iFunc ) );
-                        tDofDerFunctions( iFunc ) = tValFunction;
+                        tDofDerFunctions( iFunc ) = aLibrary->load_function< FEM_Function >( tDofDerFuncNames( iFunc ) );
                     }
                 }
                 mProperties( iProp )->set_dof_derivative_functions( tDofDerFunctions );
@@ -986,9 +984,7 @@ namespace moris
                 {
                     if ( tDvDerFuncNames( iFunc ).size() > 1 )
                     {
-                        FEM_Function tValFunction =
-                                aLibrary->load_function< FEM_Function >( tDvDerFuncNames( iFunc ) );
-                        tDvDerFunctions( iFunc ) = tValFunction;
+                        tDvDerFunctions( iFunc ) = aLibrary->load_function< FEM_Function >( tDvDerFuncNames( iFunc ) );
                     }
                 }
                 mProperties( iProp )->set_dv_derivative_functions( tDvDerFunctions );
@@ -1005,9 +1001,7 @@ namespace moris
                 {
                     if ( tSpaceDerFuncNames( iFunc ).size() > 1 )
                     {
-                        FEM_Function tValFunction =
-                                aLibrary->load_function< FEM_Function >( tSpaceDerFuncNames( iFunc ) );
-                        tSpaceDerFunctions( iFunc ) = tValFunction;
+                        tSpaceDerFunctions( iFunc ) = aLibrary->load_function< FEM_Function >( tSpaceDerFuncNames( iFunc ) );
                     }
                 }
                 mProperties( iProp )->set_space_der_functions( tSpaceDerFunctions );
@@ -1409,7 +1403,7 @@ namespace moris
                 for ( uint iLeader = 0; iLeader <= mSPs( iSP )->get_has_follower(); iLeader++ )
                 {
                     // if follower
-                    if ( iLeader )
+                    if ( iLeader != 0u )
                     {
                         // reset string for follower
                         tIsLeaderString = "follower";
@@ -1666,7 +1660,7 @@ namespace moris
                     uint tPhaseIndex = mPhaseMap[ tPhaseName ];
 
                     // get dof type list from phase - ignore double-sided side sets
-                    if ( tLeaderFollower == false )
+                    if ( !tLeaderFollower )
                     {
                         mPhaseInfo( tPhaseIndex ).add_dof_type_to_list( tResDofTypes );
                     }
@@ -2363,10 +2357,10 @@ namespace moris
         void
         FEM_Model::get_mesh_set_names(
                 fem::Element_Type           aIWGBulkType,
-                std::string                 aLeaderPhaseName,
-                std::string                 aFollowerPhaseName,
-                std::string                 aFollowerPhaseString,
-                std::string                 aOrdinalString,
+                const std::string          &aLeaderPhaseName,
+                const std::string          &aFollowerPhaseName,
+                const std::string          &aFollowerPhaseString,
+                const std::string          &aOrdinalString,
                 bool                        aIsGhost,
                 moris::Cell< std::string > &aMeshSetNames )
         {
@@ -2933,7 +2927,7 @@ namespace moris
                 std::map< std::string, uint >              &aMMMap,
                 std::map< std::string, uint >              &aCMMap,
                 std::map< std::string, uint >              &aSPMap,
-                std::map< std::string, uint >              &aFieldMap,
+                std::map< std::string, uint >              & /*aFieldMap*/,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
@@ -2945,7 +2939,7 @@ namespace moris
             moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
 
             // get number of IWGs
-            uint tNumIWGs = tIWGParameterList.size();
+            uint const tNumIWGs = tIWGParameterList.size();
 
             // create a list of IWG pointers
             mIWGs.resize( tNumIWGs, nullptr );
@@ -2954,17 +2948,17 @@ namespace moris
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
             {
                 // get the treated IWG parameter list
-                ParameterList tIWGParameter = tIWGParameterList( iIWG );
+                ParameterList const tIWGParameter = tIWGParameterList( iIWG );
 
                 // get the IWG type from parameter list
-                fem::IWG_Type tIWGType =
+                fem::IWG_Type const tIWGType =
                         static_cast< fem::IWG_Type >( tIWGParameter.get< uint >( "IWG_type" ) );
 
                 // create an IWG pointer
                 mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
 
                 // get the IWG name
-                std::string tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
+                std::string const tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
 
                 // set name
                 mIWGs( iIWG )->set_name( tIWGName );
@@ -2980,7 +2974,7 @@ namespace moris
                 mIWGs( iIWG )->set_parameters( tFuncParameters );
 
                 // get the ghost order from parameter list
-                uint tGhostOrder = tIWGParameter.get< uint >( "ghost_order" );
+                uint const tGhostOrder = tIWGParameter.get< uint >( "ghost_order" );
                 mIWGs( iIWG )->set_interpolation_order( tGhostOrder );
 
                 // set residual dof type
@@ -2992,20 +2986,13 @@ namespace moris
                 mIWGs( iIWG )->set_residual_dof_type( tResDofTypes );
 
                 // init string for leader or follower
-                std::string          tIsLeaderString = "leader";
-                mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
-
+                moris::Cell< std::pair< std::string, mtk::Leader_Follower > > const tLeaderFollower{
+                    { "leader", mtk::Leader_Follower::LEADER },
+                    { "follower", mtk::Leader_Follower::FOLLOWER }
+                };
                 // loop on leader and follower
-                for ( uint iLeader = 0; iLeader <= 1; iLeader++ )
+                for ( auto const & [tIsLeaderString, tIsLeader]: tLeaderFollower )
                 {
-                    // if follower
-                    if ( iLeader )
-                    {
-                        // reset string for follower
-                        tIsLeaderString = "follower";
-                        tIsLeader       = mtk::Leader_Follower::FOLLOWER;
-                    }
-
                     // set dof dependencies
                     moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
@@ -3042,7 +3029,7 @@ namespace moris
                         if ( aPropertyMap.find( tPropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
                         {
                             // get property index
-                            uint tPropertyIndex = aPropertyMap[ tPropertyNamesPair( iProp )( 0 ) ];
+                            uint const tPropertyIndex = aPropertyMap[ tPropertyNamesPair( iProp )( 0 ) ];
 
                             // set property for IWG
                             mIWGs( iIWG )->set_property(
@@ -3072,7 +3059,7 @@ namespace moris
                         if ( aMMMap.find( tMMNamesPair( iMM )( 0 ) ) != aMMMap.end() )
                         {
                             // get MM index
-                            uint tMMIndex = aMMMap[ tMMNamesPair( iMM )( 0 ) ];
+                            uint const tMMIndex = aMMMap[ tMMNamesPair( iMM )( 0 ) ];
 
                             // set MM for IWG
                             mIWGs( iIWG )->set_material_model(
@@ -3102,7 +3089,7 @@ namespace moris
                         if ( aCMMap.find( tCMNamesPair( iCM )( 0 ) ) != aCMMap.end() )
                         {
                             // get CM index
-                            uint tCMIndex = aCMMap[ tCMNamesPair( iCM )( 0 ) ];
+                            uint const tCMIndex = aCMMap[ tCMNamesPair( iCM )( 0 ) ];
 
                             // set CM for IWG
                             mIWGs( iIWG )->set_constitutive_model(
@@ -3133,7 +3120,7 @@ namespace moris
                     if ( aSPMap.find( tSPNamesPair( iSP )( 0 ) ) != aSPMap.end() )
                     {
                         // get SP index
-                        uint tSPIndex = aSPMap[ tSPNamesPair( iSP )( 0 ) ];
+                        uint const tSPIndex = aSPMap[ tSPNamesPair( iSP )( 0 ) ];
 
                         // set SP for IWG
                         mIWGs( iIWG )->set_stabilization_parameter(
@@ -3372,7 +3359,7 @@ namespace moris
             moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
 
             // get fem computation type parameter list
-            ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
+            ParameterList const tComputationParameterList = mParameterList( 5 )( 0 );
 
             // get bool for printing physics model
             bool tPrintPhysics =
@@ -3383,11 +3370,11 @@ namespace moris
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
             // get enum for FD scheme
-            fem::FDScheme_Type tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
+            fem::FDScheme_Type const tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
                     tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
 
             // get perturbation size for FD
-            real tFDPerturbation = tComputationParameterList.get< real >(
+            real const tFDPerturbation = tComputationParameterList.get< real >(
                     "finite_difference_perturbation_size" );
 
             // create a map of the set
@@ -3505,9 +3492,9 @@ namespace moris
             {
                 for ( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
                 {
-                    std::cout << "%-------------------------------------------------" << std::endl;
+                    std::cout << "%-------------------------------------------------\n";
                     mSetInfo( iSet ).print_names();
-                    std::cout << "%-------------------------------------------------" << std::endl;
+                    std::cout << "%-------------------------------------------------\n";
                 }
             }
         }
@@ -3789,7 +3776,7 @@ namespace moris
                 if ( aMeshSetName.find( "ghost_p" ) != std::string::npos )
                 {
                     // find the phase index
-                    size_t tPos = aMeshSetName.find( "p" );
+                    size_t tPos = aMeshSetName.find( 'p' );
                     MORIS_ERROR( tPos != std::string::npos, "FEM_Model::check_and_set_ghost_set_names() - Phase index not found in ghost set name." );
                     aMeshSetName.erase( 0, tPos + 1 );
 
