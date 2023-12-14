@@ -110,7 +110,7 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ERROR( false, "IWG::set_function_pointers - unknown element type." );
+                    MORIS_ERROR( false, "IQI::set_function_pointers - unknown element type." );
             }
 
             // switch on perturbation strategy
@@ -201,7 +201,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG::set_phase_name - aIsLeader can only be leader or follower." );
+                    MORIS_ERROR( false, "IQI::set_phase_name - aIsLeader can only be leader or follower." );
                 }
             }
         }
@@ -223,7 +223,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG::get_phase_name - aIsLeader can only be leader or follower." );
+                    MORIS_ERROR( false, "IQI::get_phase_name - aIsLeader can only be leader or follower." );
                     return mLeaderPhaseName;
                 }
             }
@@ -262,7 +262,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be leader or follower" );
+                    MORIS_ERROR( false, "IQI::set_field_interpolator_manager - can only be leader or follower" );
                 }
             }
 
@@ -558,7 +558,7 @@ namespace moris
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "IWG::get_global_field_type_list - can only be leader or follower." );
+                    MORIS_ASSERT( false, "IQI::get_global_field_type_list - can only be leader or follower." );
                     return mLeaderGlobalFieldTypes;
                 }
             }
@@ -1898,7 +1898,7 @@ namespace moris
             MORIS_ERROR(
                     ( adQIdu.n_rows() == adQIduFD.n_rows() ) &&    //
                             ( adQIdu.n_cols() == adQIduFD.n_cols() ),
-                    "IWG::check_dQIdu - matrices to check do not share same dimensions." );
+                    "IQI::check_dQIdu - matrices to check do not share same dimensions." );
 
             // define a real for absolute difference
             real tAbsolute = 0.0;
