@@ -208,8 +208,25 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
         // update parent cell to BG cell of treated edge
         tGeometricQuery.set_parent_cell( ( *aBackgroundCellForEdge )( iEdge ) );
 
+        // Get query info
+        const Matrix< IndexMat >& tEdgeToVertex = tGeometricQuery.get_query_entity_to_vertex_connectivity();
+        Matrix< IndexMat > tParentEntityIndices = tGeometricQuery.get_query_parent_entity_connectivity();
+
+        // annoying copy until this is converted to using a vector
+        Matrix< DDUMat >         tParentEntityIndiceUINT( tParentEntityIndices.numel() );
+        for ( moris::uint i = 0; i < tParentEntityIndices.numel(); i++ )
+        {
+            tParentEntityIndiceUINT( i ) = (uint)tParentEntityIndices( i );
+        }
+
         // see if the edge is intersected using the geometry engine
-        bool tIsIntersected = mGeometryEngine->geometric_query( &tGeometricQuery );
+        bool tIsIntersected = mGeometryEngine->queue_intersection( tEdgeToVertex( 0 ),
+                tEdgeToVertex( 1 ),
+                tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
+                tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
+                tParentEntityIndiceUINT,
+                tGeometricQuery.get_geometry_type(),
+                tGeometricQuery.get_interpolation_order() );
 
         // for intersected edges, invoke intersection procedure
         if ( tIsIntersected )

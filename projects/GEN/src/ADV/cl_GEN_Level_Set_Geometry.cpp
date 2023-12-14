@@ -141,11 +141,12 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
-            uint                 aNodeIndex,
-            const Cell< Node* >& aBaseNodes,
-            const Parent_Node&   aFirstParentNode,
-            const Parent_Node&   aSecondParentNode,
-            mtk::Geometry_Type   aBaseGeometryType )
+            uint                     aNodeIndex,
+            const Cell< Node* >&     aBaseNodes,
+            const Parent_Node&       aFirstParentNode,
+            const Parent_Node&       aSecondParentNode,
+            mtk::Geometry_Type       aBackgroundGeometryType,
+            mtk::Interpolation_Order aBackgroundInterpolationOrder )
     {
         if ( this->use_multilinear_interpolation() )
         {
@@ -155,7 +156,8 @@ namespace moris::ge
                     aBaseNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aBaseGeometryType,
+                    aBackgroundGeometryType,
+                    aBackgroundInterpolationOrder,
                     shared_from_this() );
         }
         else
@@ -166,7 +168,8 @@ namespace moris::ge
                     aBaseNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aBaseGeometryType,
+                    aBackgroundGeometryType,
+                    aBackgroundInterpolationOrder,
                     shared_from_this() );
         }
     }

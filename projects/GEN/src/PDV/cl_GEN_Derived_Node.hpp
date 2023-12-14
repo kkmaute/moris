@@ -15,6 +15,7 @@
 namespace moris::mtk
 {
     enum class Geometry_Type;
+    enum class Interpolation_Order;
 }
 
 namespace moris::ge
@@ -32,16 +33,20 @@ namespace moris::ge
 
       public:
         /**
-         * Derived node constructor, using other nodal information with locators.
+         * Derived node constructor, using other nodal information with background nodes.
          *
          * @param aIndex Node index
          * @param aBaseNodes Base nodes
+         * @param aParametricCoordinates Parametric coordinates inside the background element
+         * @param aGeometryType Geometry type of the background element
+         * @param aInterpolationOrder Interpolation order of the background element
          */
         Derived_Node(
-                uint                    aIndex,
-                const Cell< Node* >&    aBaseNodes,
-                const Matrix< DDRMat >& aParametricCoordinates,
-                mtk::Geometry_Type      aGeometryType );
+                uint                     aIndex,
+                const Cell< Node* >&     aBaseNodes,
+                const Matrix< DDRMat >&  aParametricCoordinates,
+                mtk::Geometry_Type       aGeometryType,
+                mtk::Interpolation_Order aInterpolationOrder );
 
         /**
          * Gets the global coordinates of this node

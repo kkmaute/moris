@@ -29,7 +29,8 @@ namespace moris::ge
             const Cell< Node* >&                  aBaseNodes,
             const Parent_Node&                    aFirstParentNode,
             const Parent_Node&                    aSecondParentNode,
-            mtk::Geometry_Type                    aBaseGeometryType,
+            mtk::Geometry_Type                    aBackgroundGeometryType,
+            mtk::Interpolation_Order              aBackgroundInterpolationOrder,
             std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
             : Intersection_Node_Level_Set(
                     aNodeIndex,
@@ -37,7 +38,8 @@ namespace moris::ge
                     aFirstParentNode,
                     aSecondParentNode,
                     Intersection_Node_Bilinear::compute_local_coordinate( aBaseNodes, aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),
-                    aBaseGeometryType,
+                    aBackgroundGeometryType,
+                    aBackgroundInterpolationOrder,
                     aInterfaceGeometry )
     {
     }

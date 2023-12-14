@@ -493,7 +493,7 @@ namespace xtk
                 // tell the query which geometric index we are working on
                 tGeometricQuery.set_geometric_index( tGeometryIndex );
 
-                if ( mXTKModel->get_geom_engine()->geometric_query( &tGeometricQuery ) )
+                if ( mXTKModel->get_geom_engine()->is_intersected( tGeometricQuery.get_query_entity_to_vertex_connectivity(), tGeometricQuery.get_query_indexed_coordinates() ) )
                 {
                     // add background cell to the list for iGEOM
                     aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
@@ -566,7 +566,9 @@ namespace xtk
                 tGeometricQuery.set_geometric_index( tGeometryIndex );
 
                 // set to true if cell is cut by current or any previous geometry
-                tCellIsCut = tCellIsCut || mXTKModel->get_geom_engine()->geometric_query( &tGeometricQuery );
+                tCellIsCut = tCellIsCut || mXTKModel->get_geom_engine()->is_intersected(
+                                     tGeometricQuery.get_query_entity_to_vertex_connectivity(),
+                                     tGeometricQuery.get_query_indexed_coordinates() );
             }
 
             // if the cell is not cut by any geometry, store the cell's index
