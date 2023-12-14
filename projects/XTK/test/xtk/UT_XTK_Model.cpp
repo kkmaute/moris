@@ -34,7 +34,7 @@
 namespace xtk
 {
 
-TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFORMAL_COIN]" )
+TEST_CASE( "Geometry with a coincident boundary to background cell", "[XTK_CONFORMAL_COIN]" )
 {
     // Geometry Engine Setup ---------------------------------------------------------
     // Using a Levelset Sphere as the Geometry
