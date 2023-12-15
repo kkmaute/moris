@@ -145,10 +145,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
-                std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-                const moris_index                          &aMeshPairIndex,
-                const moris::Cell< moris::Cell< ParameterList > >& aParameterList,
-                std::shared_ptr< Library_IO >               aLibrary )
+                std::shared_ptr< mtk::Mesh_Manager >               aMeshManager,
+                const moris_index                                 &aMeshPairIndex,
+                const moris::Cell< moris::Cell< ParameterList > > &aParameterList,
+                std::shared_ptr< Library_IO >                      aLibrary )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
                 , mParameterList( aParameterList )
@@ -455,7 +455,7 @@ namespace moris
                 mFemSets( iSet )->set_equation_model( this );
 
                 // collect equation objects associated with the set
-                Cell< MSI::Equation_Object * > &tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
+                Cell< MSI::Equation_Object * >  const&tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
 
                 // add equation objects collected to the current set
                 mFemClusters.append( tEquationObjectList );
@@ -695,7 +695,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::initialize( const std::shared_ptr< Library_IO >& aLibrary )
+        FEM_Model::initialize( const std::shared_ptr< Library_IO > &aLibrary )
         {
             Tracer tTracer( "FEM", "Model", "Load and Initialize Parameters" );
 
@@ -2222,7 +2222,7 @@ namespace moris
                         aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
 
                         // set the IWG
-                        aSetUserInfo.set_IWG( mIWGs( iIWG ) );
+                        aSetUserInfo.add_IWG( mIWGs( iIWG ) );
 
                         // add it to the list of fem set info
                         mSetInfo.push_back( aSetUserInfo );
@@ -2234,7 +2234,7 @@ namespace moris
                                           tMeshSetName,
                                           tTimeContinuity,
                                           tTimeBoundary ) ] )
-                                .set_IWG( mIWGs( iIWG ) );
+                                .add_IWG( mIWGs( iIWG ) );
                     }
                 }
             }
@@ -2334,7 +2334,7 @@ namespace moris
                         aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
 
                         // set the IQI
-                        aSetUserInfo.set_IQI( mIQIs( iIQI ) );
+                        aSetUserInfo.add_IQI( mIQIs( iIQI ) );
 
                         // add it to the list of fem set info
                         mSetInfo.push_back( aSetUserInfo );
@@ -2346,7 +2346,7 @@ namespace moris
                                           tMeshSetName,
                                           tTimeContinuity,
                                           tTimeBoundary ) ] )
-                                .set_IQI( mIQIs( iIQI ) );
+                                .add_IQI( mIQIs( iIQI ) );
                     }
                 }
             }
@@ -2922,224 +2922,255 @@ namespace moris
 
         void
         FEM_Model::create_IWGs(
-                std::map< std::string, uint >              &aIWGMap,
-                std::map< std::string, uint >              &aPropertyMap,
-                std::map< std::string, uint >              &aMMMap,
-                std::map< std::string, uint >              &aCMMap,
-                std::map< std::string, uint >              &aSPMap,
-                std::map< std::string, uint >              & /*aFieldMap*/,
+                std::map< std::string, uint > &aIWGMap,
+                std::map< std::string, uint > &aPropertyMap,
+                std::map< std::string, uint > &aMMMap,
+                std::map< std::string, uint > &aCMMap,
+                std::map< std::string, uint > &aSPMap,
+                std::map< std::string, uint > & /*aFieldMap*/,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
-            // create an IWG factory
-            IWG_Factory tIWGFactory;
-
-            // get the IWG parameter list
+            IWG_Factory                  tIWGFactory;
             moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
+            uint const                   tNumIWGs          = tIWGParameterList.size();
+            mIWGs.resize( tNumIWGs, nullptr );    // list of IWG pointers
 
-            // get number of IWGs
-            uint const tNumIWGs = tIWGParameterList.size();
-
-            // create a list of IWG pointers
-            mIWGs.resize( tNumIWGs, nullptr );
-
-            // loop over the parameter lists
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
             {
                 // get the treated IWG parameter list
                 ParameterList const tIWGParameter = tIWGParameterList( iIWG );
 
-                // get the IWG type from parameter list
                 fem::IWG_Type const tIWGType =
                         static_cast< fem::IWG_Type >( tIWGParameter.get< uint >( "IWG_type" ) );
 
-                // create an IWG pointer
-                mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
+                auto tIWG = tIWGFactory.create_IWG( tIWGType );
 
-                // get the IWG name
                 std::string const tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
-
-                // set name
-                mIWGs( iIWG )->set_name( tIWGName );
+                tIWG->set_name( tIWGName );
 
                 // fill IWG map
                 aIWGMap[ tIWGName ] = iIWG;
 
                 // get function parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
-                string_to_cell_mat_2(
-                        tIWGParameter.get< std::string >( "function_parameters" ),
-                        tFuncParameters );
-                mIWGs( iIWG )->set_parameters( tFuncParameters );
+                auto tFuncParameters = string_to_cell_mat_2< DDRMat >( tIWGParameter.get< std::string >( "function_parameters" ) );
+                tIWG->set_parameters( tFuncParameters );
 
                 // get the ghost order from parameter list
                 uint const tGhostOrder = tIWGParameter.get< uint >( "ghost_order" );
-                mIWGs( iIWG )->set_interpolation_order( tGhostOrder );
+                tIWG->set_interpolation_order( tGhostOrder );
 
                 // set residual dof type
-                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tResDofTypes;
-                string_to_cell_of_cell(
-                        tIWGParameter.get< std::string >( "dof_residual" ),
-                        tResDofTypes,
-                        aMSIDofTypeMap );
-                mIWGs( iIWG )->set_residual_dof_type( tResDofTypes );
+                set_IWG_residual_dof_type( aMSIDofTypeMap, tIWGParameter, tIWG );
 
-                // init string for leader or follower
-                moris::Cell< std::pair< std::string, mtk::Leader_Follower > > const tLeaderFollower{
-                    { "leader", mtk::Leader_Follower::LEADER },
-                    { "follower", mtk::Leader_Follower::FOLLOWER }
-                };
-                // loop on leader and follower
-                for ( auto const & [tIsLeaderString, tIsLeader]: tLeaderFollower )
+                // loop over leader and follower and set the appropriate properties
+                moris::Cell< mtk::Leader_Follower > const tLeaderFollower{ mtk::Leader_Follower::LEADER, mtk::Leader_Follower::FOLLOWER };
+                for ( auto const &tLeaderFollowerType : tLeaderFollower )
                 {
-                    // set dof dependencies
-                    moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
-                    string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsLeaderString + "_dof_dependencies" ),
-                            tDofTypes,
-                            aMSIDofTypeMap );
-                    mIWGs( iIWG )->set_dof_type_list( tDofTypes, tIsLeader );
-
-                    // set dv dependencies
-                    moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
-                    string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
-                            tDvTypes,
-                            aDvTypeMap );
-                    mIWGs( iIWG )->set_dv_type_list( tDvTypes, tIsLeader );
-
-                    // set field types
-                    moris::Cell< moris::Cell< moris::mtk::Field_Type > > tFieldTypes;
-                    string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsLeaderString + "_field_types" ),
-                            tFieldTypes,
-                            aFieldTypeMap );
-                    mIWGs( iIWG )->set_field_type_list( tFieldTypes, tIsLeader );
-
-                    // set properties
-                    moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
-                    string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsLeaderString + "_properties" ),
-                            tPropertyNamesPair );
-
-                    for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
-                    {
-                        // if property name is in the property map
-                        if ( aPropertyMap.find( tPropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
-                        {
-                            // get property index
-                            uint const tPropertyIndex = aPropertyMap[ tPropertyNamesPair( iProp )( 0 ) ];
-
-                            // set property for IWG
-                            mIWGs( iIWG )->set_property(
-                                    mProperties( tPropertyIndex ),
-                                    tPropertyNamesPair( iProp )( 1 ),
-                                    tIsLeader );
-                        }
-                        else
-                        {
-                            // create error message unknown property
-                            MORIS_ERROR( false,
-                                    "FEM_Model::create_IWGs - Unknown %s aPropertyString: %s \n",
-                                    tIsLeaderString.c_str(),
-                                    tPropertyNamesPair( iProp )( 0 ).c_str() );
-                        }
-                    }
-
-                    // set material model
-                    moris::Cell< moris::Cell< std::string > > tMMNamesPair;
-                    string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsLeaderString + "_material_model" ),
-                            tMMNamesPair );
-
-                    for ( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
-                    {
-                        // if MM name is in the CM map
-                        if ( aMMMap.find( tMMNamesPair( iMM )( 0 ) ) != aMMMap.end() )
-                        {
-                            // get MM index
-                            uint const tMMIndex = aMMMap[ tMMNamesPair( iMM )( 0 ) ];
-
-                            // set MM for IWG
-                            mIWGs( iIWG )->set_material_model(
-                                    mMMs( tMMIndex ),
-                                    tMMNamesPair( iMM )( 1 ),
-                                    tIsLeader );
-                        }
-                        else
-                        {
-                            // error message unknown MM
-                            MORIS_ERROR( false,
-                                    "FEM_Model::create_IWGs - Unknown %s aMMString: %s \n",
-                                    tIsLeaderString.c_str(),
-                                    tMMNamesPair( iMM )( 0 ).c_str() );
-                        }
-                    }
-
-                    // set constitutive models
-                    moris::Cell< moris::Cell< std::string > > tCMNamesPair;
-                    string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
-                            tCMNamesPair );
-
-                    for ( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
-                    {
-                        // if CM name is in the CM map
-                        if ( aCMMap.find( tCMNamesPair( iCM )( 0 ) ) != aCMMap.end() )
-                        {
-                            // get CM index
-                            uint const tCMIndex = aCMMap[ tCMNamesPair( iCM )( 0 ) ];
-
-                            // set CM for IWG
-                            mIWGs( iIWG )->set_constitutive_model(
-                                    mCMs( tCMIndex ),
-                                    tCMNamesPair( iCM )( 1 ),
-                                    tIsLeader );
-                        }
-                        else
-                        {
-                            // error message unknown CM
-                            MORIS_ERROR( false,
-                                    "FEM_Model::create_IWGs - Unknown %s aCMString: %s \n",
-                                    tIsLeaderString.c_str(),
-                                    tCMNamesPair( iCM )( 0 ).c_str() );
-                        }
-                    }
+                    set_IWG_dof_dependencies( aMSIDofTypeMap, tIWGParameter, tIWG, tLeaderFollowerType );
+                    set_IWG_dv_dependencies( aDvTypeMap, tIWGParameter, tIWG, tLeaderFollowerType );
+                    set_IWG_field_types( aFieldTypeMap, tIWGParameter, tIWG, tLeaderFollowerType );
+                    set_IWG_properties( aPropertyMap, tIWGParameter, tIWG, tLeaderFollowerType );
+                    set_IWG_material_models( aMMMap, tIWGParameter, tIWG, tLeaderFollowerType );
+                    set_IWG_constitutive_models( aCMMap, tIWGParameter, tIWG, tLeaderFollowerType );
                 }
 
-                // set stabilization parameters
-                moris::Cell< moris::Cell< std::string > > tSPNamesPair;
-                string_to_cell_of_cell(
-                        tIWGParameter.get< std::string >( "stabilization_parameters" ),
-                        tSPNamesPair );
-
-                for ( uint iSP = 0; iSP < tSPNamesPair.size(); iSP++ )
-                {
-                    // if CM name is in the CM map
-                    if ( aSPMap.find( tSPNamesPair( iSP )( 0 ) ) != aSPMap.end() )
-                    {
-                        // get SP index
-                        uint const tSPIndex = aSPMap[ tSPNamesPair( iSP )( 0 ) ];
-
-                        // set SP for IWG
-                        mIWGs( iIWG )->set_stabilization_parameter(
-                                mSPs( tSPIndex ),
-                                tSPNamesPair( iSP )( 1 ) );
-                    }
-                    else
-                    {
-                        // error message unknown SP
-                        MORIS_ERROR( false,
-                                "FEM_Model::create_IWGs - Unknown aSPString: %s \n",
-                                tSPNamesPair( iSP )( 0 ).c_str() );
-                    }
-                }
-
+                set_IWG_stabilization_parameters( aSPMap, tIWGParameter, tIWG );
+                mIWGs( iIWG ) = tIWG;
                 // debug
                 // mIWGs( iIWG )->print_names();
             }
         }
+
+        void FEM_Model::set_IWG_residual_dof_type(
+                map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+                ParameterList const               &aIWGParameter,
+                std::shared_ptr< IWG >            &aIWG ) const
+        {
+            std::string const tDofResidualString = aIWGParameter.get< std::string >( "dof_residual" );
+            auto              tResDofTypes       = string_to_cell_of_cell< MSI::Dof_Type >( tDofResidualString, aMSIDofTypeMap );
+            aIWG->set_residual_dof_type( tResDofTypes );
+        }
+
+        void FEM_Model::set_IWG_stabilization_parameters(
+                std::map< std::string, uint > &aSPMap,
+                ParameterList const           &aIWGParameter,
+                std::shared_ptr< IWG >        &aIWG )
+        {
+            auto tSPNamesPair = string_to_cell_of_cell< std::string >( aIWGParameter.get< std::string >( "stabilization_parameters" ) );
+
+            for ( uint iSP = 0; iSP < tSPNamesPair.size(); iSP++ )
+            {
+                // if CM name is in the CM map
+                if ( aSPMap.find( tSPNamesPair( iSP )( 0 ) ) != aSPMap.end() )
+                {
+                    // get SP index
+                    uint const tSPIndex = aSPMap[ tSPNamesPair( iSP )( 0 ) ];
+
+                    // set SP for IWG
+                    aIWG->set_stabilization_parameter(
+                            mSPs( tSPIndex ),
+                            tSPNamesPair( iSP )( 1 ) );
+                }
+                else
+                {
+                    // error message unknown SP
+                    MORIS_ERROR( false,
+                            "FEM_Model::create_IWGs - Unknown aSPString: %s \n",
+                            tSPNamesPair( iSP )( 0 ).c_str() );
+                }
+            }
+        }
+
+        void FEM_Model::set_IWG_constitutive_models(
+                std::map< std::string, uint > &aCMMap,
+                ParameterList const           &aIWGParameter,
+                std::shared_ptr< IWG >        &aIWG,
+                mtk::Leader_Follower const    &aLeaderFollowerType )
+        {
+            // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
+            std::string const tPrefix      = mtk::get_leader_follower_string( aLeaderFollowerType );
+            auto              tCMNamesPair = string_to_cell_of_cell< std::string >( aIWGParameter.get< std::string >( tPrefix + "_constitutive_models" ) );
+
+            for ( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
+            {
+                // if CM name is in the CM map
+                if ( aCMMap.find( tCMNamesPair( iCM )( 0 ) ) != aCMMap.end() )
+                {
+                    // get CM index
+                    uint const tCMIndex = aCMMap[ tCMNamesPair( iCM )( 0 ) ];
+
+                    // set CM for IWG
+                    aIWG->set_constitutive_model(
+                            mCMs( tCMIndex ),
+                            tCMNamesPair( iCM )( 1 ),
+                            aLeaderFollowerType );
+                }
+                else
+                {
+                    // error message unknown CM
+                    MORIS_ERROR( false,
+                            "FEM_Model::create_IWGs - Unknown %s aCMString: %s \n",
+                            tPrefix.c_str(),
+                            tCMNamesPair( iCM )( 0 ).c_str() );
+                }
+            }
+        }
+
+        void FEM_Model::set_IWG_material_models(
+                std::map< std::string, uint > &aMMMap,
+                ParameterList const           &aIWGParameter,
+                std::shared_ptr< IWG >        &aIWG,
+                mtk::Leader_Follower const    &aLeaderFollowerType )
+        {
+            // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
+            std::string const tPrefix      = mtk::get_leader_follower_string( aLeaderFollowerType );
+            auto              tMMNamesPair = string_to_cell_of_cell< std::string >( aIWGParameter.get< std::string >( tPrefix + "_material_model" ) );
+
+            for ( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
+            {
+                // if MM name is in the CM map
+                if ( aMMMap.find( tMMNamesPair( iMM )( 0 ) ) != aMMMap.end() )
+                {
+                    // get MM index
+                    uint const tMMIndex = aMMMap[ tMMNamesPair( iMM )( 0 ) ];
+
+                    // set MM for IWG
+                    aIWG->set_material_model(
+                            mMMs( tMMIndex ),
+                            tMMNamesPair( iMM )( 1 ),
+                            aLeaderFollowerType );
+                }
+                else
+                {
+                    // error message unknown MM
+                    MORIS_ERROR( false,
+                            "FEM_Model::create_IWGs - Unknown %s aMMString: %s \n",
+                            tPrefix.c_str(),
+                            tMMNamesPair( iMM )( 0 ).c_str() );
+                }
+            }
+        }
+
+        void FEM_Model::set_IWG_properties(
+                std::map< std::string, uint > &aPropertyMap,
+                ParameterList const           &aIWGParameter,
+                std::shared_ptr< IWG >        &aIWG,
+                mtk::Leader_Follower const    &aLeaderFollowerType )
+        {
+            // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
+            std::string const tPrefix = mtk::get_leader_follower_string( aLeaderFollowerType );
+
+            auto tPropertyNamesPair = string_to_cell_of_cell< std::string >(
+                    aIWGParameter.get< std::string >( tPrefix + "_properties" ) );
+
+            for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
+            {
+                // if property name is in the property map
+                if ( aPropertyMap.find( tPropertyNamesPair( iProp )( 0 ) ) != aPropertyMap.end() )
+                {
+                    // get property index
+                    uint const tPropertyIndex = aPropertyMap[ tPropertyNamesPair( iProp )( 0 ) ];
+
+                    // set property for IWG
+                    aIWG->set_property(
+                            mProperties( tPropertyIndex ),
+                            tPropertyNamesPair( iProp )( 1 ),
+                            aLeaderFollowerType );
+                }
+                else
+                {
+                    // create error message unknown property
+                    MORIS_ERROR( false,
+                            "FEM_Model::create_IWGs - Unknown %s aPropertyString: %s \n",
+                            tPrefix.c_str(),
+                            tPropertyNamesPair( iProp )( 0 ).c_str() );
+                }
+            }
+        }
+
+        void FEM_Model::set_IWG_field_types(
+                map< std::string, mtk::Field_Type > &aFieldTypeMap,
+                ParameterList const                 &aIWGParameter,
+                std::shared_ptr< IWG >              &aIWG,
+                mtk::Leader_Follower const          &aLeaderFollowerType ) const
+        {
+            // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
+            std::string const tPrefix = mtk::get_leader_follower_string( aLeaderFollowerType );
+
+            auto tFieldTypes = property_to_cell_of_cell( aIWGParameter, tPrefix + "_field_types", aFieldTypeMap );
+
+            aIWG->set_field_type_list( tFieldTypes, aLeaderFollowerType );
+        }
+
+        void FEM_Model::set_IWG_dof_dependencies(
+                map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+                ParameterList const               &aIWGParameter,
+                std::shared_ptr< IWG >            &aIWG,
+                mtk::Leader_Follower               aLeaderFollowerType ) const
+        {
+            // get the prefix of the property based on the leader or follower type
+            std::string const tPrefix = mtk::get_leader_follower_string( aLeaderFollowerType );
+
+            auto tDofTypes = property_to_cell_of_cell( aIWGParameter, tPrefix + "_dof_dependencies", aMSIDofTypeMap );
+
+            aIWG->set_dof_type_list( tDofTypes, aLeaderFollowerType );
+        }
+
+        void FEM_Model::set_IWG_dv_dependencies(
+                map< std::string, PDV_Type > &aDvTypeMap,
+                ParameterList const          &aIWGParameter,
+                std::shared_ptr< IWG >       &aIWG,
+                mtk::Leader_Follower const   &aLeaderFollowerType ) const
+        {
+
+            // get the prefix of the property based on the leader or follower type
+            std::string const tPrefix  = mtk::get_leader_follower_string( aLeaderFollowerType );
+            auto              tDvTypes = property_to_cell_of_cell( aIWGParameter, tPrefix + "_dv_dependencies", aDvTypeMap );
+            aIWG->set_dv_type_list( tDvTypes, aLeaderFollowerType );
+        }
+
 
         //------------------------------------------------------------------------------
 
@@ -3351,182 +3382,19 @@ namespace moris
         void
         FEM_Model::create_fem_set_info()
         {
-            // init number of fem sets to be created
-            uint tNumFEMSets = 0;
-
-            // get the IWG and IQI parameter lists
-            moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
-            moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
-
             // get fem computation type parameter list
             ParameterList const tComputationParameterList = mParameterList( 5 )( 0 );
 
-            // get bool for printing physics model
-            bool tPrintPhysics =
-                    tComputationParameterList.get< bool >( "print_physics_model" );
-
-            // get bool for analytical/finite difference for SA
-            bool tIsAnalyticalSA =
-                    tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
-
-            // get enum for FD scheme
-            fem::FDScheme_Type const tFDSchemeForSA = static_cast< fem::FDScheme_Type >(
-                    tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
-
-            // get perturbation size for FD
-            real const tFDPerturbation = tComputationParameterList.get< real >(
-                    "finite_difference_perturbation_size" );
+            bool const tPrintPhysics   = tComputationParameterList.get< bool >( "print_physics_model" );
+            bool const tIsAnalyticalSA = tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
+            auto const tFDSchemeForSA  = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+            real const tFDPerturbation = tComputationParameterList.get< real >( "finite_difference_perturbation_size" );
 
             // create a map of the set
-            std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
+            std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSetIndex;
 
-            // loop over the IWGs
-            for ( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
-            {
-                // get the mesh set names from the IWG parameter list
-                moris::Cell< std::string > tMeshSetNames;
-                string_to_cell( tIWGParameterList( iIWG ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
-
-                // get the time continuity flag from the IWG parameter list
-                bool tTimeContinuity = tIWGParameterList( iIWG ).get< bool >( "time_continuity" );
-
-                // get the time boundary flag from the IQI parameter list
-                bool tTimeBoundary = tIWGParameterList( iIWG ).get< bool >( "time_boundary" );
-
-                // get a representative DoF type
-                MSI::Dof_Type tFirstResidualDofType = mIWGs( iIWG )->get_residual_dof_type()( 0 )( 0 );
-
-                // loop over the mesh set names
-                for ( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
-                {
-                    // get the name of the set currently treated
-                    std::string tMeshSetName = tMeshSetNames( iSetName );
-
-                    // check for ghost set names and select correct B-spline mesh automatically when new ghost sets need to be used
-                    this->check_and_set_ghost_set_names( tMeshSetName, tFirstResidualDofType );
-
-                    // check if the mesh set name already in map
-                    if ( tMeshToFemSet.find( std::make_tuple(
-                                 tMeshSetName,
-                                 tTimeContinuity,
-                                 tTimeBoundary ) )
-                            == tMeshToFemSet.end() )
-                    {
-                        // add the mesh set name map
-                        tMeshToFemSet[ std::make_tuple(
-                                tMeshSetName,
-                                tTimeContinuity,
-                                tTimeBoundary ) ] = tNumFEMSets++;
-
-                        // create a fem set info for the mesh set
-                        Set_User_Info aSetUserInfo;
-
-                        // set its mesh set name
-                        aSetUserInfo.set_mesh_set_name( tMeshSetName );
-
-                        // set its time continuity flag
-                        aSetUserInfo.set_time_continuity( tTimeContinuity );
-
-                        // set its time boundary flag
-                        aSetUserInfo.set_time_boundary( tTimeBoundary );
-
-                        // set its sensitivity analysis type flag
-                        aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
-
-                        // set its FD scheme for sensitivity analysis
-                        aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
-
-                        // set its FD perturbation size for sensitivity analysis
-                        aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
-
-                        // set the IWG
-                        aSetUserInfo.set_IWG( mIWGs( iIWG ) );
-
-                        // add it to the list of fem set info
-                        mSetInfo.push_back( aSetUserInfo );
-                    }
-                    else
-                    {
-                        // set the IWG
-                        mSetInfo( tMeshToFemSet[ std::make_tuple(
-                                          tMeshSetName,
-                                          tTimeContinuity,
-                                          tTimeBoundary ) ] )
-                                .set_IWG( mIWGs( iIWG ) );
-                    }
-                }
-            }
-
-            // loop over the IQIs
-            for ( uint iIQI = 0; iIQI < tIQIParameterList.size(); iIQI++ )
-            {
-                // get the mesh set names from the IQI parameter list
-                moris::Cell< std::string > tMeshSetNames;
-                string_to_cell( tIQIParameterList( iIQI ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
-
-                // get the time continuity flag from the IQI parameter list
-                bool tTimeContinuity = tIQIParameterList( iIQI ).get< bool >( "time_continuity" );
-
-                // get the time boundary flag from the IQI parameter list
-                bool tTimeBoundary = tIQIParameterList( iIQI ).get< bool >( "time_boundary" );
-
-                // loop over the mesh set names
-                for ( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
-                {
-                    // get the mesh set name to be treated
-                    std::string tMeshSetName = tMeshSetNames( iSetName );
-
-                    // if the mesh set name not in map
-                    if ( tMeshToFemSet.find( std::make_tuple(
-                                 tMeshSetName,
-                                 tTimeContinuity,
-                                 tTimeBoundary ) )
-                            == tMeshToFemSet.end() )
-                    {
-                        // add the mesh set name map
-                        tMeshToFemSet[ std::make_tuple(
-                                tMeshSetName,
-                                tTimeContinuity,
-                                tTimeBoundary ) ] = tNumFEMSets++;
-
-                        // create a fem set info for the mesh set
-                        Set_User_Info aSetUserInfo;
-
-                        // set its mesh set name
-                        aSetUserInfo.set_mesh_set_name( tMeshSetName );
-
-                        // set its time continuity flag
-                        aSetUserInfo.set_time_continuity( tTimeContinuity );
-
-                        // set its time boundary flag
-                        aSetUserInfo.set_time_boundary( tTimeBoundary );
-
-                        // set its sensitivity analysis type flag
-                        aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
-
-                        // set its FD scheme for sensitivity analysis
-                        aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
-
-                        // set its FD perturbation size for sensitivity analysis
-                        aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
-
-                        // set the IQI
-                        aSetUserInfo.set_IQI( mIQIs( iIQI ) );
-
-                        // add it to the list of fem set info
-                        mSetInfo.push_back( aSetUserInfo );
-                    }
-                    else
-                    {
-                        // set the IQI
-                        mSetInfo( tMeshToFemSet[ std::make_tuple(
-                                          tMeshSetName,
-                                          tTimeContinuity,
-                                          tTimeBoundary ) ] )
-                                .set_IQI( mIQIs( iIQI ) );
-                    }
-                }
-            }
+            this->create_fem_set_info_from_IWGs( tIsAnalyticalSA, tFDSchemeForSA, tFDPerturbation, tMeshToFemSetIndex );
+            this->create_fem_set_info_from_IQIs( tIsAnalyticalSA, tFDSchemeForSA, tFDPerturbation, tMeshToFemSetIndex );
 
             // debug print
             if ( tPrintPhysics )
@@ -3536,6 +3404,112 @@ namespace moris
                     std::cout << "%-------------------------------------------------\n";
                     mSetInfo( iSet ).print_names();
                     std::cout << "%-------------------------------------------------\n";
+                }
+            }
+        }
+
+        void FEM_Model::create_fem_set_info_from_IQIs(
+                bool const                                               aIsAnalyticalSA,
+                FDScheme_Type const                                     &aFDSchemeForSA,
+                real const                                               aFDPerturbation,
+                std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex )
+
+        {
+            moris::Cell< ParameterList > tIQIParameterLists = this->mParameterList( 4 );
+            for ( uint iIQI = 0; iIQI < tIQIParameterLists.size(); iIQI++ )
+            {
+                ParameterList const          &tIQIParameterList = tIQIParameterLists( iIQI );
+                std::shared_ptr< IQI > const &tIQI              = this->mIQIs( iIQI );
+
+                bool tTimeContinuity = tIQIParameterList.get< bool >( "time_continuity" );
+                bool tTimeBoundary   = tIQIParameterList.get< bool >( "time_boundary" );
+
+                // loop over the mesh set names
+                auto tMeshSetNames = string_to_cell< std::string >( tIQIParameterList.get< std::string >( "mesh_set_names" ) );
+                for ( auto &tMeshSetName : tMeshSetNames )
+                {
+                    auto tMeshTuple = std::make_tuple( tMeshSetName, tTimeContinuity, tTimeBoundary );
+
+                    // if the mesh set name not in map
+                    if ( aMeshToFemSetIndex.find( tMeshTuple ) == aMeshToFemSetIndex.end() )
+                    {
+                        // add the mesh set name map
+                        aMeshToFemSetIndex[ tMeshTuple ] = this->mSetInfo.size();
+
+                        // create a fem set info for the mesh set
+                        Set_User_Info aSetUserInfo;
+                        aSetUserInfo.set_mesh_set_name( tMeshSetName );
+                        aSetUserInfo.set_time_continuity( tTimeContinuity );
+                        aSetUserInfo.set_time_boundary( tTimeBoundary );
+                        aSetUserInfo.set_is_analytical_sensitivity_analysis( aIsAnalyticalSA );
+                        aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( aFDSchemeForSA );
+                        aSetUserInfo.set_finite_difference_perturbation_size( aFDPerturbation );
+                        aSetUserInfo.add_IQI( tIQI );
+
+                        // add it to the list of fem set info
+                        this->mSetInfo.push_back( aSetUserInfo );
+                    }
+                    else
+                    {
+                        // set the IQI
+                        this->mSetInfo( aMeshToFemSetIndex[ tMeshTuple ] ).add_IQI( tIQI );
+                    }
+                }
+            }
+        }
+
+        void FEM_Model::create_fem_set_info_from_IWGs(
+                bool const                                               aIsAnalyticalSA,
+                FDScheme_Type const                                     &aFDSchemeForSA,
+                real const                                               aFDPerturbation,
+                std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex )
+        {
+            moris::Cell< ParameterList > tIWGParameterLists = this->mParameterList( 3 );
+            for ( uint iIWG = 0; iIWG < tIWGParameterLists.size(); iIWG++ )
+            {
+                ParameterList const          &tIWGParameterList = tIWGParameterLists( iIWG );
+                std::shared_ptr< IWG > const &tIWG              = this->mIWGs( iIWG );
+
+                // get the time continuity and time boundary flags from the IWG parameter list to uniquely identify the fem sets
+                bool const tTimeContinuity = tIWGParameterList.get< bool >( "time_continuity" );
+                bool const tTimeBoundary   = tIWGParameterList.get< bool >( "time_boundary" );
+
+                // get a representative DoF type
+                MSI::Dof_Type const tFirstResidualDofType = tIWG->get_residual_dof_type()( 0 )( 0 );
+
+                // loop over the mesh set names
+                auto tMeshSetNames = string_to_cell< std::string >( tIWGParameterList.get< std::string >( "mesh_set_names" ) );
+                for ( auto &tMeshSetName : tMeshSetNames )
+                {
+                    // check for ghost set names and select correct B-spline mesh automatically when new ghost sets need to be used
+                    this->check_and_set_ghost_set_names( tMeshSetName, tFirstResidualDofType );
+
+                    // create a tuple with the mesh set name, time continuity and time boundary flags that will be used to
+                    // uniquely identify the fem set
+                    auto tMeshTuple = std::make_tuple( tMeshSetName, tTimeContinuity, tTimeBoundary );
+
+                    // check if the mesh set name already in map
+                    if ( aMeshToFemSetIndex.find( tMeshTuple ) == aMeshToFemSetIndex.end() )
+                    {
+                        // if the set did not yet exist, create a new one and add keep track of the index
+                        aMeshToFemSetIndex[ tMeshTuple ] = this->mSetInfo.size();
+
+                        // create a fem set info for the mesh set
+                        Set_User_Info aSetUserInfo;
+                        aSetUserInfo.set_mesh_set_name( tMeshSetName );
+                        aSetUserInfo.set_time_continuity( tTimeContinuity );
+                        aSetUserInfo.set_time_boundary( tTimeBoundary );
+                        aSetUserInfo.set_is_analytical_sensitivity_analysis( aIsAnalyticalSA );
+                        aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( aFDSchemeForSA );
+                        aSetUserInfo.set_finite_difference_perturbation_size( aFDPerturbation );
+                        aSetUserInfo.add_IWG( tIWG );
+                        this->mSetInfo.push_back( aSetUserInfo );
+                    }
+                    else
+                    {
+                        // if the fem set already exister, only add the IWG
+                        this->mSetInfo( aMeshToFemSetIndex[ tMeshTuple ] ).add_IWG( tIWG );
+                    }
                 }
             }
         }
