@@ -8,6 +8,7 @@
  *
  */
 
+#include <map>
 #ifdef WITHGPERFTOOLS
 #include <gperftools/profiler.h>
 #endif
@@ -455,7 +456,7 @@ namespace moris
                 mFemSets( iSet )->set_equation_model( this );
 
                 // collect equation objects associated with the set
-                Cell< MSI::Equation_Object * >  const&tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
+                Cell< MSI::Equation_Object * > const &tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
 
                 // add equation objects collected to the current set
                 mFemClusters.append( tEquationObjectList );
@@ -711,117 +712,84 @@ namespace moris
             moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
                     mtk::get_field_type_map();
 
+            using StringToIntMap = std::map< std::string, uint >;
+
+            /**
+             * @brief The old way to input the IWGs uses the explicit mesh names without any phase definitions (e.g. iside_b0_1_b1_0, ...),
+             * while the new method uses phases and phase-pairs to define the applicable sets. Old input files can be detected by the number of
+             * elements in the ParameterList. If it is 8, then the legacy method was used, if it is 9, the new method was used.
+             */
+            bool tLegacyParameterInput = false;
             switch ( mParameterList.size() )
             {
-                // without phase
                 case 8:
                 {
-                    // create properties
-                    std::map< std::string, uint > tPropertyMap;
-                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
-
-                    // create fields
-                    std::map< std::string, uint > tFieldMap;
-                    this->create_fields( tFieldMap );
-
-                    // create material models
-                    std::map< std::string, uint > tMMMap;
-                    this->create_material_models( tMMMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
-
-                    // create constitutive models
-                    std::map< std::string, uint > tCMMap;
-                    this->create_constitutive_models( tCMMap, tPropertyMap, tMMMap, tMSIDofTypeMap, tMSIDvTypeMap );
-
-                    // create stabilization parameters
-                    std::map< std::string, uint > tSPMap;
-                    this->create_stabilization_parameters( tSPMap, tPropertyMap, tCMMap, tMSIDofTypeMap, tMSIDvTypeMap );
-
-                    // create IWGs
-                    std::map< std::string, uint > tIWGMap;
-                    this->create_IWGs( tIWGMap, tPropertyMap, tMMMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
-
-                    // create IQIs
-                    std::map< std::string, uint > tIQIMap;
-                    this->create_IQIs( tIQIMap, tPropertyMap, tCMMap, tSPMap, tFieldMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
-
-                    // create FEM set info
-                    this->create_fem_set_info();
-
+                    tLegacyParameterInput = true;    // without phase
                     break;
                 }
-
-                // with phase
                 case 9:
                 {
-                    // create phases
-                    this->create_phases();
-
-                    // create properties
-                    std::map< std::string, uint > tPropertyMap;
-                    this->create_properties( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
-
-                    // create fields
-                    std::map< std::string, uint > tFieldMap;
-                    this->create_fields( tFieldMap );
-
-                    // create material models
-                    this->create_material_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
-
-                    // create constitutive models
-                    this->create_constitutive_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
-
-                    // create stabilization parameters
-                    std::map< std::string, uint > tSPMap;
-                    this->create_stabilization_parameters( tSPMap, tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
-
-                    // create IWGs
-                    this->create_IWGs( tPropertyMap, tSPMap, tMSIDofTypeMap );
-
-                    // create IQIs
-                    this->create_IQIs( tPropertyMap, tSPMap, tMSIDofTypeMap );
-
-                    // create FEM set info
-                    this->create_fem_set_info( true );
-
-                    // get fem computation type parameter list
-                    ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
-
-                    // get bool for printing physics model
-                    bool tPrintPhysics =
-                            tComputationParameterList.get< bool >( "print_physics_model" );
-
-                    // if print FEM model
-                    if ( tPrintPhysics && par_rank() == 0 )
-                    {
-                        // phase info
-                        std::cout << "Phase info \n";
-
-                        // loop over phase info
-                        for ( uint iPhase = 0; iPhase < mPhaseInfo.size(); iPhase++ )
-                        {
-                            std::cout << "%-------------------------------------------------\n";
-                            mPhaseInfo( iPhase ).print_names();
-                            std::cout << "%-------------------------------------------------\n";
-                        }
-
-                        std::cout << " \n";
-
-                        // set info
-                        std::cout << "Set info \n";
-
-                        // loop over set info
-                        for ( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
-                        {
-                            std::cout << "%-------------------------------------------------\n";
-                            mSetInfo( iSet ).print_names();
-                            std::cout << "%-------------------------------------------------\n";
-                        }
-                    }
+                    tLegacyParameterInput = false;    // with phase
                     break;
                 }
-
                 default:
+                {
                     MORIS_ERROR( false, "FEM_Model::initialize - wrong size for parameter list" );
+                }
+            }
+
+            StringToIntMap tPropertyMap = this->create_properties( tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap, aLibrary );
+            this->create_fields();
+            if ( tLegacyParameterInput )
+            {
+                StringToIntMap tMMMap = this->create_material_models_without_phase( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                StringToIntMap tCMMap = this->create_constitutive_models_without_phase( tPropertyMap, tMMMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                StringToIntMap tSPMap = this->create_stabilization_parameters_without_phase( tPropertyMap, tCMMap, tMSIDofTypeMap, tMSIDvTypeMap );
+
+                this->create_IWGs_without_phase( tPropertyMap, tMMMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
+                this->create_IQIs_without_phase( tPropertyMap, tCMMap, tSPMap, tMSIDofTypeMap, tMSIDvTypeMap, tFieldTypeMap );
+                this->create_fem_set_info_without_phase();
+            }
+            else
+            {
+                // create phases
+                StringToIntMap tSPMap = this->create_stabilization_parameters( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+
+                this->create_phases();
+                this->create_material_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                this->create_constitutive_models( tPropertyMap, tMSIDofTypeMap, tMSIDvTypeMap );
+                this->create_IWGs( tPropertyMap, tSPMap, tMSIDofTypeMap );
+                this->create_IQIs( tPropertyMap, tSPMap, tMSIDofTypeMap );
+                this->create_fem_set_info();
+            }
+            this->print_physics_model( !tLegacyParameterInput );
+        }
+
+        void FEM_Model::print_physics_model( bool aWithPhase )
+        {
+            ParameterList tComputationParameterList = this->mParameterList( 5 )( 0 );
+            bool          tPrintPhysics             = tComputationParameterList.get< bool >( "print_physics_model" );
+            if ( tPrintPhysics && par_rank() == 0 )
+            {
+                if ( aWithPhase )
+                {
+                    std::cout << "Phase info \n";
+                    for ( auto &tPhaseInfo : mPhaseInfo )
+                    {
+                        std::cout << "%-------------------------------------------------\n";
+                        tPhaseInfo.print_names();
+                        std::cout << "%-------------------------------------------------\n";
+                    }
+                    std::cout << " \n";
+                }
+
+                std::cout << "Set info \n";
+                for ( auto &tSetInfo : mSetInfo )
+                {
+                    std::cout << "%-------------------------------------------------\n";
+                    tSetInfo.print_names();
+                    std::cout << "%-------------------------------------------------\n";
+                }
             }
         }
 
@@ -882,14 +850,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void
+        std::map< std::string, uint >
         FEM_Model::create_properties(
-                std::map< std::string, uint >              &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap,
                 std::shared_ptr< Library_IO >               aLibrary )
         {
+            std::map< std::string, uint > tPropertyMap;
+
             // get the property parameter list
             moris::Cell< ParameterList > tPropParameterList = mParameterList( 0 );
 
@@ -915,7 +884,7 @@ namespace moris
                 mProperties( iProp )->set_name( tPropertyName );
 
                 // fill property map
-                aPropertyMap[ tPropertyName ] = iProp;
+                tPropertyMap[ tPropertyName ] = iProp;
 
                 // set dof dependencies
                 moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
@@ -1006,14 +975,17 @@ namespace moris
                 }
                 mProperties( iProp )->set_space_der_functions( tSpaceDerFunctions );
             }
+
+            return tPropertyMap;
         }
 
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::create_fields(
-                std::map< std::string, uint > &aFieldMap )
+        FEM_Model::create_fields()
         {
+            std::map< std::string, uint > tFieldMap;
+
             // get the property parameter list
             moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
 
@@ -1047,7 +1019,7 @@ namespace moris
                 tField->set_label( tFieldName );
 
                 // fill property map
-                aFieldMap[ tFieldName ] = iFields;
+                tFieldMap[ tFieldName ] = iFields;
 
                 // set field type
                 moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
@@ -1095,8 +1067,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void
-        FEM_Model::create_material_models(
+        void FEM_Model::create_material_models(
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >      &aDvTypeMap )
@@ -1179,7 +1150,7 @@ namespace moris
 
                 // check the phase exist
                 MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                        "FEM_Model::create_material_models - Unknown tPhaseName : %s \n",
+                        "FEM_Model::create_material_models_without_phase - Unknown tPhaseName : %s \n",
                         tPhaseName.c_str() );
 
                 // set MM to corresponding phase
@@ -1334,7 +1305,7 @@ namespace moris
 
                 // check the phase exist
                 MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                        "FEM_Model::create_constitutive_models - Unknown tPhaseName : %s \n",
+                        "FEM_Model::create_constitutive_models_without_phase - Unknown tPhaseName : %s \n",
                         tPhaseName.c_str() );
 
                 // set CM to corresponding phase
@@ -1344,13 +1315,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void
-        FEM_Model::create_stabilization_parameters(
-                std::map< std::string, uint >            &aSPMap,
-                std::map< std::string, uint >            &aPropertyMap,
-                moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+        std::map< std::string, uint >
+        FEM_Model::create_stabilization_parameters( std::map< std::string, uint > &aPropertyMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap )
         {
+            std::map< std::string, uint > tSPMap;
+
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
 
@@ -1386,7 +1355,7 @@ namespace moris
                 mSPs( iSP )->set_space_dim( mSpaceDim );
 
                 // fill stabilization map
-                aSPMap[ tSPName ] = iSP;
+                tSPMap[ tSPName ] = iSP;
 
                 // set parameters
                 moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
@@ -1416,7 +1385,7 @@ namespace moris
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                            "FEM_Model::create_stabilization_parameters - Unknown phase name: %s \n",
+                            "FEM_Model::create_stabilization_parameters_without_phase - Unknown phase name: %s \n",
                             tPhaseName.c_str() );
 
                     // set dof dependencies
@@ -1456,7 +1425,7 @@ namespace moris
 
                         // check for unknown property
                         MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
-                                "FEM_Model::create_stabilization_parameters - Unknown %s aPropertyString : %s \n",
+                                "FEM_Model::create_stabilization_parameters_without_phase - Unknown %s aPropertyString : %s \n",
                                 tIsLeaderString.c_str(),
                                 tPropertyName.c_str() );
 
@@ -1521,7 +1490,7 @@ namespace moris
                     {
                         // check that measure type is member of map
                         MORIS_ERROR( tFemMeasureMap.key_exists( tClusterMeasureTypes( iCMEA )( 0 ) ),
-                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                "FEM_Model::create_stabilization_parameters_without_phase - key does not exist: %s",
                                 tClusterMeasureTypes( iCMEA )( 0 ).c_str() );
 
                         // get fem measure type from map
@@ -1529,7 +1498,7 @@ namespace moris
 
                         // check that primary type is member of map
                         MORIS_ERROR( tMtkPrimaryMap.key_exists( tClusterMeasureTypes( iCMEA )( 1 ) ),
-                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                "FEM_Model::create_stabilization_parameters_without_phase - key does not exist: %s",
                                 tClusterMeasureTypes( iCMEA )( 1 ).c_str() );
 
                         // get mtk primary type from map
@@ -1537,7 +1506,7 @@ namespace moris
 
                         // check that leader type is member of map
                         MORIS_ERROR( tMtkLeaderMap.key_exists( tClusterMeasureTypes( iCMEA )( 2 ) ),
-                                "FEM_Model::create_stabilization_parameters - key does not exist: %s",
+                                "FEM_Model::create_stabilization_parameters_without_phase - key does not exist: %s",
                                 tClusterMeasureTypes( iCMEA )( 2 ).c_str() );
 
                         // get mtk leader type from map
@@ -1553,6 +1522,7 @@ namespace moris
                             tClusterMeasureNames );
                 }
             }
+            return tSPMap;
         }
 
         //------------------------------------------------------------------------------
@@ -1650,7 +1620,7 @@ namespace moris
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                            "FEM_Model::create_IWGs - Unknown phase name: %s \n",
+                            "FEM_Model::create_IWGs_without_phase - Unknown phase name: %s \n",
                             tPhaseName.c_str() );
 
                     // set phase name
@@ -1678,7 +1648,7 @@ namespace moris
 
                         // check for unknown property
                         MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
-                                "FEM_Model::create_IWGs - Unknown %s aPropertyString: %s \n",
+                                "FEM_Model::create_IWGs_without_phase - Unknown %s aPropertyString: %s \n",
                                 tIsLeaderString.c_str(),
                                 tPropertyName.c_str() );
 
@@ -1697,7 +1667,7 @@ namespace moris
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_material_model" ),
                             tMMNamesPair );
-                    MORIS_ERROR( tMMNamesPair.size() <= 1, "FEM_Model::create_IWGs() - Only one material model per CM allowed." );
+                    MORIS_ERROR( tMMNamesPair.size() <= 1, "FEM_Model::create_IWGs_without_phase() - Only one material model per CM allowed." );
 
                     // loop over material model
                     for ( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
@@ -1754,7 +1724,7 @@ namespace moris
 
                     // check for unknown SP
                     MORIS_ERROR( aSPMap.find( tSPName ) != aSPMap.end(),
-                            "FEM_Model::create_IWGs - Unknown aSPString: %s \n",
+                            "FEM_Model::create_IWGs_without_phase - Unknown aSPString: %s \n",
                             tSPName.c_str() );
 
                     // get SP index
@@ -1782,7 +1752,7 @@ namespace moris
 
                 // check for unknown phase
                 MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                        "FEM_Model::create_IWGs - Unknown phase name: %s \n",
+                        "FEM_Model::create_IWGs_without_phase - Unknown phase name: %s \n",
                         tPhaseName.c_str() );
 
                 // get the phase index
@@ -1810,7 +1780,7 @@ namespace moris
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tFollowerPhaseName ) != mPhaseMap.end(),
-                            "FEM_Model::create_IWGs - Unknown phase name: %s \n",
+                            "FEM_Model::create_IWGs_without_phase - Unknown phase name: %s \n",
                             tFollowerPhaseName.c_str() );
 
                     // get CM index
@@ -1929,7 +1899,7 @@ namespace moris
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                            "FEM_Model::create_IQIs - %s: Unknown %s phase name: %s.",
+                            "FEM_Model::create_IQIs_without_phase - %s: Unknown %s phase name: %s.",
                             tIQIName.c_str(),
                             tIsLeaderString.c_str(),
                             tPhaseName.c_str() );
@@ -1967,7 +1937,7 @@ namespace moris
 
                         // check for unknown property
                         MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
-                                "FEM_Model::create_IQIs - Unknown %s aPropertyString: %s \n",
+                                "FEM_Model::create_IQIs_without_phase - Unknown %s aPropertyString: %s \n",
                                 tIsLeaderString.c_str(),
                                 tPropertyName.c_str() );
 
@@ -2017,7 +1987,7 @@ namespace moris
 
                     // check for unknown SP
                     MORIS_ERROR( aSPMap.find( tSPName ) != aSPMap.end(),
-                            "FEM_Model::create_IQIs - Unknown aSPString: %s \n",
+                            "FEM_Model::create_IQIs_without_phase - Unknown aSPString: %s \n",
                             tSPName.c_str() );
 
                     // get SP index
@@ -2073,7 +2043,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::create_fem_set_info( bool aWithPhase )
+        FEM_Model::create_fem_set_info()
         {
             // init number of fem sets to be created
             uint tNumFEMSets = 0;
@@ -2560,13 +2530,11 @@ namespace moris
         // FEM INPUT - old version
         //-------------------------------------------------------------------------------------------------
 
-        void
-        FEM_Model::create_material_models(
-                std::map< std::string, uint >            &aMMMap,
-                std::map< std::string, uint >            &aPropertyMap,
-                moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+        std::map< std::string, uint >
+        FEM_Model::create_material_models_without_phase( std::map< std::string, uint > &aPropertyMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap )
         {
+            std::map< std::string, uint > tMMMap;
+
             // create a material model factory
             MM_Factory tMMFactory;
 
@@ -2593,7 +2561,7 @@ namespace moris
                 mMMs( iMM )->set_name( tMMParameterList( iMM ).get< std::string >( "material_name" ) );
 
                 // fill MM map
-                aMMMap[ tMMParameterList( iMM ).get< std::string >( "material_name" ) ] = iMM;
+                tMMMap[ tMMParameterList( iMM ).get< std::string >( "material_name" ) ] = iMM;
 
                 // set MM space dimension
                 mMMs( iMM )->set_space_dim( mSpaceDim );
@@ -2639,18 +2607,16 @@ namespace moris
                 // set local properties
                 mMMs( iMM )->set_local_properties();
             }
+            return tMMMap;
         }
 
         //-------------------------------------------------------------------------------------------------
 
-        void
-        FEM_Model::create_constitutive_models(
-                std::map< std::string, uint >            &aCMMap,
-                std::map< std::string, uint >            &aPropertyMap,
-                std::map< std::string, uint >            &aMMMap,
-                moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+        std::map< std::string, uint >
+        FEM_Model::create_constitutive_models_without_phase( std::map< std::string, uint > &aPropertyMap, std::map< std::string, uint > &aMMMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap )
         {
+            std::map< std::string, uint > tCMMap;
+
             // create a constitutive model factory
             CM_Factory tCMFactory;
 
@@ -2677,7 +2643,7 @@ namespace moris
                 mCMs( iCM )->set_name( tCMParameterList( iCM ).get< std::string >( "constitutive_name" ) );
 
                 // fill CM map
-                aCMMap[ tCMParameterList( iCM ).get< std::string >( "constitutive_name" ) ] = iCM;
+                tCMMap[ tCMParameterList( iCM ).get< std::string >( "constitutive_name" ) ] = iCM;
 
                 // set CM model type
                 fem::Model_Type tCMModelType =
@@ -2771,18 +2737,16 @@ namespace moris
                     }
                 }
             }
+            return tCMMap;
         }
 
         //------------------------------------------------------------------------------
 
-        void
-        FEM_Model::create_stabilization_parameters(
-                std::map< std::string, uint >            &aSPMap,
-                std::map< std::string, uint >            &aPropertyMap,
-                std::map< std::string, uint >            &aCMMap,
-                moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+        std::map< std::string, uint >
+        FEM_Model::create_stabilization_parameters_without_phase( std::map< std::string, uint > &aPropertyMap, std::map< std::string, uint > &aCMMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap )
         {
+            std::map< std::string, uint > tSPMap;
+
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
 
@@ -2815,7 +2779,7 @@ namespace moris
                 mSPs( iSP )->set_space_dim( mSpaceDim );
 
                 // fill stabilization map
-                aSPMap[ tSPParameter.get< std::string >( "stabilization_name" ) ] = iSP;
+                tSPMap[ tSPParameter.get< std::string >( "stabilization_name" ) ] = iSP;
 
                 // set parameters
                 moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
@@ -2876,7 +2840,7 @@ namespace moris
 
                         // check for unknown property
                         MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
-                                "FEM_Model::create_stabilization_parameters - Unknown leader aPropertyString : %s \n",
+                                "FEM_Model::create_stabilization_parameters_without_phase - Unknown leader aPropertyString : %s \n",
                                 tPropertyName.c_str() );
 
                         // get property index
@@ -2903,7 +2867,7 @@ namespace moris
 
                         // check for unknown CM
                         MORIS_ERROR( aCMMap.find( tCMName ) != aCMMap.end(),
-                                "FEM_Model::create_stabilization_parameters - Unknown leader aCMString: %s \n",
+                                "FEM_Model::create_stabilization_parameters_without_phase - Unknown leader aCMString: %s \n",
                                 tCMName.c_str() );
 
                         // get CM index
@@ -2916,25 +2880,25 @@ namespace moris
                     }
                 }
             }
+            return tSPMap;
         }
 
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::create_IWGs(
-                std::map< std::string, uint > &aIWGMap,
-                std::map< std::string, uint > &aPropertyMap,
-                std::map< std::string, uint > &aMMMap,
-                std::map< std::string, uint > &aCMMap,
-                std::map< std::string, uint > &aSPMap,
-                std::map< std::string, uint > & /*aFieldMap*/,
+        FEM_Model::create_IWGs_without_phase(
+                std::map< std::string, uint >              &aPropertyMap,
+                std::map< std::string, uint >              &aMMMap,
+                std::map< std::string, uint >              &aCMMap,
+                std::map< std::string, uint >              &aSPMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
                 moris::map< std::string, PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
-            IWG_Factory                  tIWGFactory;
-            moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
-            uint const                   tNumIWGs          = tIWGParameterList.size();
+            std::map< std::string, uint > tIWGMap;
+            IWG_Factory                   tIWGFactory;
+            moris::Cell< ParameterList >  tIWGParameterList = mParameterList( 3 );
+            uint const                    tNumIWGs          = tIWGParameterList.size();
             mIWGs.resize( tNumIWGs, nullptr );    // list of IWG pointers
 
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -2951,7 +2915,7 @@ namespace moris
                 tIWG->set_name( tIWGName );
 
                 // fill IWG map
-                aIWGMap[ tIWGName ] = iIWG;
+                tIWGMap[ tIWGName ] = iIWG;
 
                 // get function parameters
                 auto tFuncParameters = string_to_cell_mat_2< DDRMat >( tIWGParameter.get< std::string >( "function_parameters" ) );
@@ -3017,7 +2981,7 @@ namespace moris
                 {
                     // error message unknown SP
                     MORIS_ERROR( false,
-                            "FEM_Model::create_IWGs - Unknown aSPString: %s \n",
+                            "FEM_Model::create_IWGs_without_phase - Unknown aSPString: %s \n",
                             tSPNamesPair( iSP )( 0 ).c_str() );
                 }
             }
@@ -3051,7 +3015,7 @@ namespace moris
                 {
                     // error message unknown CM
                     MORIS_ERROR( false,
-                            "FEM_Model::create_IWGs - Unknown %s aCMString: %s \n",
+                            "FEM_Model::create_IWGs_without_phase - Unknown %s aCMString: %s \n",
                             tPrefix.c_str(),
                             tCMNamesPair( iCM )( 0 ).c_str() );
                 }
@@ -3086,7 +3050,7 @@ namespace moris
                 {
                     // error message unknown MM
                     MORIS_ERROR( false,
-                            "FEM_Model::create_IWGs - Unknown %s aMMString: %s \n",
+                            "FEM_Model::create_IWGs_without_phase - Unknown %s aMMString: %s \n",
                             tPrefix.c_str(),
                             tMMNamesPair( iMM )( 0 ).c_str() );
                 }
@@ -3123,7 +3087,7 @@ namespace moris
                 {
                     // create error message unknown property
                     MORIS_ERROR( false,
-                            "FEM_Model::create_IWGs - Unknown %s aPropertyString: %s \n",
+                            "FEM_Model::create_IWGs_without_phase - Unknown %s aPropertyString: %s \n",
                             tPrefix.c_str(),
                             tPropertyNamesPair( iProp )( 0 ).c_str() );
                 }
@@ -3175,16 +3139,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::create_IQIs(
-                std::map< std::string, uint >              &aIQIMap,
-                std::map< std::string, uint >              &aPropertyMap,
-                std::map< std::string, uint >              &aCMMap,
-                std::map< std::string, uint >              &aSPMap,
-                std::map< std::string, uint >              &aFieldMap,
-                moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >        &aDvTypeMap,
-                moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
+        FEM_Model::create_IQIs_without_phase( std::map< std::string, uint > &aPropertyMap, std::map< std::string, uint > &aCMMap, std::map< std::string, uint > &aSPMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap, moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
+            std::map< std::string, uint > tIQIMap;
+
             // create an IQI factory
             IQI_Factory tIQIFactory;
 
@@ -3223,7 +3181,7 @@ namespace moris
                 mIQIs( iIQI )->set_bulk_type( tIQIBulkType );
 
                 // fill IQI map
-                aIQIMap[ tIQIName ] = iIQI;
+                tIQIMap[ tIQIName ] = iIQI;
 
                 // get the treated IQI quantity dof type
                 moris::Cell< moris::MSI::Dof_Type > tQuantityDofTypes;
@@ -3307,7 +3265,7 @@ namespace moris
                         {
                             // error message unknown property
                             MORIS_ERROR( false,
-                                    "FEM_Model::create_IQIs - Unknown %s aPropertyString: %s \n",
+                                    "FEM_Model::create_IQIs_without_phase - Unknown %s aPropertyString: %s \n",
                                     tIsLeaderString.c_str(),
                                     tPropertyNamesPair( iProp )( 0 ).c_str() );
                         }
@@ -3337,7 +3295,7 @@ namespace moris
                         {
                             // error message unknown CM
                             MORIS_ERROR( false,
-                                    "FEM_Model::create_IQIs - Unknown %s aCMString: %s \n",
+                                    "FEM_Model::create_IQIs_without_phase - Unknown %s aCMString: %s \n",
                                     tIsLeaderString.c_str(),
                                     tCMNamesPair( iCM )( 0 ).c_str() );
                         }
@@ -3367,7 +3325,7 @@ namespace moris
                     {
                         // error message unknown SP
                         MORIS_ERROR( false,
-                                "FEM_Model::create_IQIs - Unknown aSPString: %s \n",
+                                "FEM_Model::create_IQIs_without_phase - Unknown aSPString: %s \n",
                                 tSPNamesPair( iSP )( 0 ).c_str() );
                     }
                 }
@@ -3380,12 +3338,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::create_fem_set_info()
+        FEM_Model::create_fem_set_info_without_phase()
         {
             // get fem computation type parameter list
             ParameterList const tComputationParameterList = mParameterList( 5 )( 0 );
 
-            bool const tPrintPhysics   = tComputationParameterList.get< bool >( "print_physics_model" );
             bool const tIsAnalyticalSA = tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
             auto const tFDSchemeForSA  = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
             real const tFDPerturbation = tComputationParameterList.get< real >( "finite_difference_perturbation_size" );
@@ -3395,17 +3352,6 @@ namespace moris
 
             this->create_fem_set_info_from_IWGs( tIsAnalyticalSA, tFDSchemeForSA, tFDPerturbation, tMeshToFemSetIndex );
             this->create_fem_set_info_from_IQIs( tIsAnalyticalSA, tFDSchemeForSA, tFDPerturbation, tMeshToFemSetIndex );
-
-            // debug print
-            if ( tPrintPhysics )
-            {
-                for ( uint iSet = 0; iSet < mSetInfo.size(); iSet++ )
-                {
-                    std::cout << "%-------------------------------------------------\n";
-                    mSetInfo( iSet ).print_names();
-                    std::cout << "%-------------------------------------------------\n";
-                }
-            }
         }
 
         void FEM_Model::create_fem_set_info_from_IQIs(
