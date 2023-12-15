@@ -411,24 +411,19 @@ namespace moris
 
             /**
              * @brief create a list of property pointers
-             * @param[ in ] aProperties    a list of property pointers to fill
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              * @param[ in ] aLibrary       a file path for property functions
              */
-            void create_properties(
-                    std::map< std::string, uint >              &aPropertyMap,
-                    moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
+            std::map< std::string, uint > create_properties(moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
                     moris::map< std::string, PDV_Type >        &aDvTypeMap,
                     moris::map< std::string, mtk::Field_Type > &aFieldTypeMap,
                     std::shared_ptr< Library_IO >               aLibrary );
 
             /**
              * @brief create a list of field pointers
-             * * @param[ in ] aFieldNameToIndexMap  Map which maps the field name to an index
              */
-            void create_fields(
-                    std::map< std::string, uint > &aFieldMap );
+            void create_fields( );
 
             /**
              * @brief create a list of material model pointers
@@ -459,11 +454,7 @@ namespace moris
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
-            void create_stabilization_parameters(
-                    std::map< std::string, uint >            &aSPMap,
-                    std::map< std::string, uint >            &aPropertyMap,
-                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+            std::map< std::string, uint > create_stabilization_parameters( std::map< std::string, uint > &aPropertyMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap );
 
             /**
              * @brief create a list of IWG pointers
@@ -489,9 +480,8 @@ namespace moris
 
             /**
              * @brief create fem set info
-             * @param[ in ] aWithPhase FIXME remove just there to overload
              */
-            void create_fem_set_info( bool aWithPhase );
+            void create_fem_set_info();
 
             /**
              * @brief create phase info
@@ -531,11 +521,7 @@ namespace moris
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
-            void create_material_models(
-                    std::map< std::string, uint >            &aMMMap,
-                    std::map< std::string, uint >            &aPropertyMap,
-                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+            std::map< std::string, uint > create_material_models_without_phase( std::map< std::string, uint > &aPropertyMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap );
 
             /**
              * @brief create a list of constitutive model pointers
@@ -544,12 +530,7 @@ namespace moris
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
-            void create_constitutive_models(
-                    std::map< std::string, uint >            &aCMMap,
-                    std::map< std::string, uint >            &aPropertyMap,
-                    std::map< std::string, uint >            &aMMMap,
-                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+            std::map< std::string, uint > create_constitutive_models_without_phase( std::map< std::string, uint > &aPropertyMap, std::map< std::string, uint > &aMMMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap );
 
             /**
              * @brief create a list of stabilization parameter pointers
@@ -558,12 +539,7 @@ namespace moris
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
-            void create_stabilization_parameters(
-                    std::map< std::string, uint >            &aSPMap,
-                    std::map< std::string, uint >            &aPropertyMap,
-                    std::map< std::string, uint >            &aCMMap,
-                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+            std::map< std::string, uint > create_stabilization_parameters_without_phase( std::map< std::string, uint > &aPropertyMap, std::map< std::string, uint > &aCMMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap );
 
             /**
              * @brief create a list of IWG pointers
@@ -571,46 +547,27 @@ namespace moris
              *                             index in aProperties
              * @param[ in ] aCMMap         a map from CM name to CM index in aCMs
              * @param[ in ] aSPMap         a map from SP name to SP index in aSPs
-             * @param[ in ] aFieldMap      a map from SP name to index in aFields
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
              */
-            void create_IWGs(
-                    std::map< std::string, uint >              &aIWGMap,
-                    std::map< std::string, uint >              &aPropertyMap,
-                    std::map< std::string, uint >              &aMMMap,
-                    std::map< std::string, uint >              &aCMMap,
-                    std::map< std::string, uint >              &aSPMap,
-                    std::map< std::string, uint >              &aFieldMap,
-                    moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >        &aDvTypeMap,
-                    moris::map< std::string, mtk::Field_Type > &aFieldTypeMap );
+            void create_IWGs_without_phase( std::map< std::string, uint > &aPropertyMap, std::map< std::string, uint > &aMMMap, std::map< std::string, uint > &aCMMap, std::map< std::string, uint > &aSPMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap, moris::map< std::string, mtk::Field_Type > &aFieldTypeMap );
 
             /**
              * @brief create an IQI
              * @param[ in ] aPropertyMap   a map from property name to index in mProperties
              * @param[ in ] aCMMap         a map from CM name to index in aCMs
              * @param[ in ] aSPMap         a map from SP name to index in aSPs
-             * @param[ in ] aFieldMap      a map from SP name to index in aFields
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
              */
-            void create_IQIs(
-                    std::map< std::string, uint >              &aIQIMap,
-                    std::map< std::string, uint >              &aPropertyMap,
-                    std::map< std::string, uint >              &aCMMap,
-                    std::map< std::string, uint >              &aSPMap,
-                    std::map< std::string, uint >              &aFieldMap,
-                    moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >        &aDvTypeMap,
-                    moris::map< std::string, mtk::Field_Type > &aFieldTypeMap );
+            void create_IQIs_without_phase( std::map< std::string, uint > &aPropertyMap, std::map< std::string, uint > &aCMMap, std::map< std::string, uint > &aSPMap, moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap, moris::map< std::string, PDV_Type > &aDvTypeMap, moris::map< std::string, mtk::Field_Type > &aFieldTypeMap );
 
             /**
              * @brief create fem set info
              */
-            void create_fem_set_info();
+            void create_fem_set_info_without_phase();
 
             /**
              * @brief return field by type
@@ -718,6 +675,7 @@ namespace moris
             {
                 return string_to_cell_of_cell< T >( aIWGParameter.get< std::string >( aPropertyName ), aTypeMap );
             }
+            void print_physics_model( bool aWithPhase );
         };
     }    // namespace fem
 } /* namespace moris */
