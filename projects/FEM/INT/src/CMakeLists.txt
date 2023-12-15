@@ -48,6 +48,9 @@ set(HEADERS
     CORE/fn_FEM_Side_Coordinate_Map.hpp
     CORE/cl_FEM_Property.hpp
     CORE/cl_FEM_Set_User_Info.hpp
+	CORE/cl_FEM_Model_Initializer.hpp
+	CORE/cl_FEM_Model_Initializer_Legacy.hpp
+	CORE/cl_FEM_Model_Initializer_Phasebased.hpp
     CORE/cl_FEM_Phase_User_Info.hpp
     CORE/cl_FEM_Model.hpp
     CORE/fn_FEM_Check.hpp
@@ -273,7 +276,10 @@ set(LIB_SOURCES
 
     CORE/cl_FEM_Set.cpp
     CORE/cl_FEM_Property.cpp
-    CORE/cl_FEM_Model.cpp
+	CORE/cl_FEM_Model_Initializer.cpp
+	CORE/cl_FEM_Model_Initializer_Legacy.cpp
+	CORE/cl_FEM_Model_Initializer_Phasebased.cpp
+	CORE/cl_FEM_Model.cpp
     CORE/cl_FEM_Field.cpp
 
     ELEM/cl_FEM_Cluster.cpp
