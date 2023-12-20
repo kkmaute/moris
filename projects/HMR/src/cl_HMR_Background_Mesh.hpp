@@ -30,7 +30,7 @@
 
 #include "fn_equal_to.hpp"     //COM/src
 
-#include "typedefs.hpp"        //COR/src
+#include "moris_typedefs.hpp"        //COR/src
 #include "cl_Cell.hpp"         //CNT/src
 
 #include "cl_Stopwatch.hpp"    //CHR/src

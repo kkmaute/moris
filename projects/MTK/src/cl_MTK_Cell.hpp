@@ -11,7 +11,7 @@
 #ifndef SRC_MESH_CL_MTK_CELL_HPP_
 #define SRC_MESH_CL_MTK_CELL_HPP_
 
-#include "typedefs.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Cell.hpp"     //MRS/CNT/src
 #include "cl_Matrix.hpp"
 #include "fn_isrow.hpp"

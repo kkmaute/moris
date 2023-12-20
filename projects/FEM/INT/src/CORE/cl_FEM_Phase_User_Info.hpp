@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_PHASE_USER_INFO_HPP_
 
 //MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 //FEM/INT/src
 #include "cl_FEM_Enums.hpp"

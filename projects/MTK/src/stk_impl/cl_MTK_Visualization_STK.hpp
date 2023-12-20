@@ -14,7 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {

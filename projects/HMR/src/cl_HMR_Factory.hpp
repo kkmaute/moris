@@ -16,7 +16,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"      //HMR/src
 #include "cl_HMR_T_Matrix_Advanced.hpp"
 #include "cl_HMR_Parameters.hpp"              //HMR/src
-#include "typedefs.hpp"                       //COR/src
+#include "moris_typedefs.hpp"                       //COR/src
 #include "cl_Matrix.hpp"                      //LINALG/src
 
 namespace moris::hmr

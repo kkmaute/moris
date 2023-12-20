@@ -23,7 +23,7 @@
 #include "cl_Cell.hpp"
 
 // Define uint, real, etc.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 // Define enums used
 #include "cl_Tracer_Enums.hpp"

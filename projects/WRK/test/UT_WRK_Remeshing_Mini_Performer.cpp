@@ -20,7 +20,7 @@
 #include "cl_Library_IO.hpp"
 #include "cl_Communication_Tools.hpp"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"

@@ -16,7 +16,7 @@
 
 #include "dlfcn.h"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

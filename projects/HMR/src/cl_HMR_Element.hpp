@@ -14,7 +14,7 @@
 #include <string>
 
 #include "cl_HMR_Background_Element.hpp"    //HMR/src
-#include "typedefs.hpp"                     //COR/src
+#include "moris_typedefs.hpp"                     //COR/src
 
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"    //MTK/src

@@ -13,7 +13,7 @@
 
 #include "paths.hpp"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "GEN_typedefs.hpp"
 #include "linalg_typedefs.hpp"

@@ -16,7 +16,7 @@
 #include <string>
 
 // MORIS header files.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 
 namespace moris

@@ -11,7 +11,7 @@
 #define SRC_cl_Library_Enums
 
 #include <string>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {

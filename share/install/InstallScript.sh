@@ -120,7 +120,7 @@ if [ $BLASLAPACK = "intel-mkl" ];then
     export mklpro=intel-mkl
 fi
 
-if [ $BLASLAPACK = "intel-mkl" ];then
+if [ $BLASLAPACK = "intel-oneapi-mkl" ];then
     export blaspro=intel-oneapi-mkl
     export lapackpro=intel-oneapi-mkl
     export sclpackpro=intel-oneapi-mkl

@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_NODE_HPP_
 #define PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_NODE_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"

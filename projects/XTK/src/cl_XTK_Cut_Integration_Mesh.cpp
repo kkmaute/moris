@@ -9,7 +9,7 @@
  */
 
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include <set>
 

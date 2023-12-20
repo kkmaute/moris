@@ -11,7 +11,7 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
 
-#include "typedefs.hpp"                       //MRS/COR/src
+#include "moris_typedefs.hpp"                       //MRS/COR/src
 #include "cl_Cell.hpp"                        //MRS/CNT/src
 
 #include "cl_Matrix.hpp"

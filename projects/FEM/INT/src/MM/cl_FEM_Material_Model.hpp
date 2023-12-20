@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_MATERIAL_MODEL_HPP_
 
 //MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 //#include "linalg_typedefs.hpp"
 //MRS/CNT/src
 #include "cl_Cell.hpp"

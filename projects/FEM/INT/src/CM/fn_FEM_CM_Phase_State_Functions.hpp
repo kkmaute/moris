@@ -11,7 +11,7 @@
 #ifndef PROJECTS_FEM_INT_SRC_FN_FEM_CM_PHASE_STATE_FUNCTIONS_HPP_
 #define PROJECTS_FEM_INT_SRC_FN_FEM_CM_PHASE_STATE_FUNCTIONS_HPP_
 
-#include "typedefs.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Cell.hpp"     //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src

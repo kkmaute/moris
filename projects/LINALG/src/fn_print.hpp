@@ -11,7 +11,7 @@
 #ifndef PROJECTS_LINALG_SRC_FN_PRINT_HPP_
 #define PROJECTS_LINALG_SRC_FN_PRINT_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"

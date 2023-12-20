@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_VIS_CELL_VISULIZATION_HPP_
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_VIS_CELL_VISULIZATION_HPP_
 
-#include "typedefs.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Logger.hpp"
 #include "cl_Cell.hpp"        //MRS/CNT/src
 #include "cl_MTK_Cell.hpp"    //MRS/CNT/src

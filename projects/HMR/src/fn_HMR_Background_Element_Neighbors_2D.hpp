@@ -13,7 +13,7 @@
 
 #include "cl_HMR_Background_Element.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 
 namespace moris::hmr

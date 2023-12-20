@@ -13,7 +13,7 @@
 #include "cl_Matrix.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 using namespace moris;
 

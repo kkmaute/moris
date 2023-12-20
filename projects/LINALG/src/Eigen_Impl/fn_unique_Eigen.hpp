@@ -13,7 +13,7 @@
 #include <Eigen/Dense>
 
 #include "assert.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 
 namespace moris

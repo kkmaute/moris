@@ -38,7 +38,7 @@
 
 // Linalg Includes
 #include "cl_Matrix.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "fn_print.hpp"
 
 #include "cl_Communication_Tools.hpp"

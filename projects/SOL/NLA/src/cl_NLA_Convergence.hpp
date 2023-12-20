@@ -10,7 +10,7 @@
 #ifndef SRC_FEM_CL_NLA_CONVERGENCE_HPP_
 #define SRC_FEM_CL_NLA_CONVERGENCE_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
 

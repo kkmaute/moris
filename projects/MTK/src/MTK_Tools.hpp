@@ -12,7 +12,7 @@
 #define PROJECTS_MTK_SRC_MTK_TOOLS_HPP_
 
 #include "assert.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 namespace moris

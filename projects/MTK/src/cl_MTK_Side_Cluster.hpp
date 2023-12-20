@@ -10,7 +10,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "fn_assert.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"

@@ -13,7 +13,7 @@
 
 #include <memory>
 #include "cl_Matrix.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_SOL_Enums.hpp"
 
 namespace moris

@@ -14,7 +14,7 @@
 #include "cl_HMR_Background_Element_Base.hpp"    //HMR/src
 #include "cl_HMR_BSpline.hpp"                    //HMR/src
 #include "cl_HMR_Element.hpp"                    //HMR/src
-#include "typedefs.hpp"                          //COR/src
+#include "moris_typedefs.hpp"                          //COR/src
 
 namespace moris::hmr
 {

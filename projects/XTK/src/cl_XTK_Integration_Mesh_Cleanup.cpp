@@ -11,7 +11,7 @@
 #include "cl_XTK_Integration_Mesh_Cleanup.hpp"
 
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_XTK_Cell_No_CM.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "fn_dot.hpp"

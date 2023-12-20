@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <mpi.h>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"
