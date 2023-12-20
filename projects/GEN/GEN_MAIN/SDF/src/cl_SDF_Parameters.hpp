@@ -11,7 +11,7 @@
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_PARAMETERS_HPP_
 #define PROJECTS_GEN_SDF_SRC_CL_SDF_PARAMETERS_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Param_List.hpp"
 #include "cl_XML_Parser.hpp"

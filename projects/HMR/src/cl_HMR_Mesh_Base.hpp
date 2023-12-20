@@ -17,7 +17,7 @@
 #include "cl_HMR_Parameters.hpp"              //HMR/src
 #include "HMR_Globals.hpp"                    //HMR/src
 #include "HMR_Tools.hpp"
-#include "typedefs.hpp"                       //COR/src
+#include "moris_typedefs.hpp"                       //COR/src
 
 namespace moris::hmr
 {

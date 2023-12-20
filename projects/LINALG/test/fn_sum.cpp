@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 #include "linalg_typedefs.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "fn_sum.hpp"
 
 TEST_CASE(

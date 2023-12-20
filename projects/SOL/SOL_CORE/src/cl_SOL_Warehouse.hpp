@@ -12,7 +12,7 @@
 
 // MORIS header files.
 // MORIS header files.
-#include "typedefs.hpp"    // CON/src
+#include "moris_typedefs.hpp"    // CON/src
 #include "cl_Cell.hpp"
 #include <memory>
 

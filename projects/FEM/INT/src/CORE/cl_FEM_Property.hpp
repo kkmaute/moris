@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_FEM_PROPERTY_HPP_
 #define SRC_FEM_CL_FEM_PROPERTY_HPP_
 
-#include "typedefs.hpp"                     //MRS/COR/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Matrix.hpp"                    //LNA/src
 #include "cl_Cell.hpp"                      //MRS/CNT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src

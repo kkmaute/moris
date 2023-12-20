@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "cl_TOL_Memory_Map.hpp"

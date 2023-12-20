@@ -12,7 +12,7 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_EDGE4_HPP_
 
 #include "cl_HMR_Lagrange_Edge.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris::hmr
 {

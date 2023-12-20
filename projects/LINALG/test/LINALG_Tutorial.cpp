@@ -13,7 +13,7 @@
 /*
  * The core moris typedefs
  */
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 /*
  * The matrix include allows for use or moris::Matrix class
  */

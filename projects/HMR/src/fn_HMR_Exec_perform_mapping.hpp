@@ -21,7 +21,7 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"

@@ -13,7 +13,7 @@
 
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Mesh_Base.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Edge.hpp"

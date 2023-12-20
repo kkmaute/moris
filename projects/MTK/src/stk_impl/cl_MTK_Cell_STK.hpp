@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Logger.hpp"
 #include "cl_Cell.hpp"
 #include "cl_MTK_Vertex_STK.hpp"

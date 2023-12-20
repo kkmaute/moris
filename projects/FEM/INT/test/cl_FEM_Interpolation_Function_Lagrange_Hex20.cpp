@@ -12,7 +12,7 @@
 
 #include <fstream>
 #include "paths.hpp"
-#include "typedefs.hpp" //MRS/COR/src
+#include "moris_typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_save_matrix_to_binary_file.hpp" //LNA/src

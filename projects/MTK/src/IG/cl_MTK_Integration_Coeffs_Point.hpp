@@ -12,7 +12,7 @@
 #define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_POINT_HPP_
 
 #include "cl_MTK_Integration_Coeffs.hpp"
-#include "typedefs.hpp" //MRS/COR/src
+#include "moris_typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

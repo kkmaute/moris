@@ -12,7 +12,7 @@
 #include "fn_equal_to.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "fn_sylvester.hpp"
 #include "fn_norm.hpp"
 

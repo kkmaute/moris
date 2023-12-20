@@ -9,7 +9,7 @@
  */
 
 #include "cl_MTK_Side_Cluster.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "fn_assert.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"

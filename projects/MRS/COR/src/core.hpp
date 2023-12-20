@@ -13,7 +13,7 @@
 
 // core header files.
 #include "common.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #endif /* MORIS_CORE_HPP_ */
 

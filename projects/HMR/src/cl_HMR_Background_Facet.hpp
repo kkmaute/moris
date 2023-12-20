@@ -12,7 +12,7 @@
 #define PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_FACET_HPP_
 
 #include "HMR_Globals.hpp" //HMR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Bitset.hpp" //CNT/src
 
 namespace moris::hmr

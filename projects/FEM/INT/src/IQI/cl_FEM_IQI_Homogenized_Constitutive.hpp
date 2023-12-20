@@ -17,7 +17,7 @@
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 #include "cl_Cell.hpp"                      //MRS/CNT/src
-#include "typedefs.hpp"                     //MRS/COR/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 
 namespace moris
 {

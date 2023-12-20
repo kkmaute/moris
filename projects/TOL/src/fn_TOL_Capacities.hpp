@@ -11,7 +11,7 @@
 #ifndef SRC_TOOLS_FN_TOL_CAPACITIES_HPP_
 #define SRC_TOOLS_FN_TOL_CAPACITIES_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 namespace moris
 {

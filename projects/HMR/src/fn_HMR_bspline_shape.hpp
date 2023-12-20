@@ -11,7 +11,7 @@
 #ifndef MORIS_FN_HMR_BSPLINE_SHAPE_HPP
 #define MORIS_FN_HMR_BSPLINE_SHAPE_HPP
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris::hmr
 {

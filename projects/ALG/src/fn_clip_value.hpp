@@ -14,7 +14,7 @@
 #include <iostream>
 
 // MORIS header files.
-#include "typedefs.hpp"    // COR/src
+#include "moris_typedefs.hpp"    // COR/src
 #include "linalg_typedefs.hpp"
 
 namespace moris

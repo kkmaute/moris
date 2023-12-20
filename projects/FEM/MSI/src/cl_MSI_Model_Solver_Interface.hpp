@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_EQUATION_MANAGER_HPP_
 #define SRC_FEM_CL_EQUATION_MANAGER_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

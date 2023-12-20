@@ -19,7 +19,7 @@
 #include "HMR_Tools.hpp"
 
 #include "cl_Communication_Tools.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_Cell.hpp"
 

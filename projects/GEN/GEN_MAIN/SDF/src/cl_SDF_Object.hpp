@@ -13,7 +13,7 @@
 #include <cl_SDF_Facet_Vertex.hpp>
 #include <string>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_SDF_Triangle.hpp"
 

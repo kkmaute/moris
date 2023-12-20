@@ -29,7 +29,7 @@
 
 #include <armadillo>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {

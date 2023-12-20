@@ -15,7 +15,7 @@
 #include "cl_HMR_Element.hpp"               //HMR/src
 #include "cl_HMR_Facet.hpp"                 //HMR/src
 #include "cl_HMR_Lagrange_Node.hpp"         //HMR/src
-#include "typedefs.hpp"                     //COR/src
+#include "moris_typedefs.hpp"                     //COR/src
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"        //LINALG/src
 #include "cl_MTK_Vertex.hpp"    //MTK/src

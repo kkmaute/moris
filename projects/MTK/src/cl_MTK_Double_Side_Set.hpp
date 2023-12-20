@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include "typedefs.hpp"     //MRS/COR/src
+#include "moris_typedefs.hpp"     //MRS/COR/src
 #include "fn_unique.hpp"    //MRS/COR/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src

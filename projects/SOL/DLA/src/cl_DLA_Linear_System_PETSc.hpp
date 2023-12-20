@@ -13,7 +13,7 @@
 
 #include <map>
 #include <vector>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "AztecOO.h"
 

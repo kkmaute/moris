@@ -10,7 +10,7 @@
 
 #include "cl_Cell.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 
 #ifndef SRC_cl_XTK_Integration_Mesh_Cleanup_HPP_

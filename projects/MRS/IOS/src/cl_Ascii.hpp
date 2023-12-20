@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MRS_IOS_SRC_ASCII_HPP_
 #define PROJECTS_MRS_IOS_SRC_ASCII_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 
 namespace moris

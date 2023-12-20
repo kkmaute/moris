@@ -14,7 +14,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_Param_List.hpp"
 #include "cl_MTK_Vertex.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "cl_XTK_Field.hpp"

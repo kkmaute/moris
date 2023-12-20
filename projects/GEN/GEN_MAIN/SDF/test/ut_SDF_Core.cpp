@@ -12,7 +12,7 @@
 #include <catch.hpp>
 
 // core
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "paths.hpp"
 
 // comm

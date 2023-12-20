@@ -11,7 +11,7 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_NO_CM_HPP_
 
 #include "cl_MTK_Cell.hpp"
-#include "typedefs.hpp"         //MRS/COR/src
+#include "moris_typedefs.hpp"         //MRS/COR/src
 #include "cl_Cell.hpp"          //MRS/CNT/src
 #include "cl_MTK_Vertex.hpp"    //MTK/src
 #include "cl_MTK_Enums.hpp"     //MTK/src
