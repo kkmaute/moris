@@ -68,11 +68,17 @@ foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
 	if(${COMPONENT_DIR} STREQUAL "")
 		message(FATAL_ERROR "${COMPONENT} is not a @MORIS@ component. Check documentation to see which components are available.")
 	endif()
+	if(${COMPONENT_DIR} STREQUAL "mains")
+	 set(@MORIS@_${COMPONENT}_FOUND TRUE)
+	 continue()
+	endif()
+	message("ADDING COMPONENT = ${COMPONENT_DIR}")
 	
 	# returns fatal error if component config file not found
 	set_and_check(COMP_INCLUDE "@PACKAGE_CONFIG_INSTALL_DIR@/${COMPONENT_DIR}/${COMPONENT}Config.cmake")
 	
 	set(@MORIS@_${COMPONENT}_FOUND TRUE)
+
 	
 	include(${COMP_INCLUDE})
 	
