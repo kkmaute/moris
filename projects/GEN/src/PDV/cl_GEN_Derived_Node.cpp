@@ -19,10 +19,11 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Derived_Node::Derived_Node(
-            uint                    aIndex,
-            const Cell< Node* >&    aBaseNodes,
-            const Matrix< DDRMat >& aParametricCoordinates,
-            mtk::Geometry_Type      aGeometryType )
+            uint                     aIndex,
+            const Cell< Node* >&     aBaseNodes,
+            const Matrix< DDRMat >&  aParametricCoordinates,
+            mtk::Geometry_Type       aGeometryType,
+            mtk::Interpolation_Order aInterpolationOrder )
             : Node( aIndex )
             , mParametricCoordinates( aParametricCoordinates )
     {
@@ -34,7 +35,7 @@ namespace moris::ge
         mtk::Interpolation_Function_Base* tInterpolation = tInterpolationFactory.create_interpolation_function(
                 aGeometryType,
                 mtk::Interpolation_Type::LAGRANGE,
-                mtk::Interpolation_Order::LINEAR );
+                aInterpolationOrder );
 
         // Perform interpolation using parametric coordinates
         Matrix< DDRMat > tBasis;

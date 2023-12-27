@@ -90,15 +90,17 @@ namespace moris::ge
          * @param aBaseNodes Base nodes of the element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
-         * @param aBaseGeometryType Geometry type of the base node element
+         * @param aBackgroundGeometryType Geometry type of the background element
+         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          * @return New intersection node
          */
         virtual Intersection_Node* create_intersection_node(
-                uint                 aNodeIndex,
-                const Cell< Node* >& aBaseNodes,
-                const Parent_Node&   aFirstParentNode,
-                const Parent_Node&   aSecondParentNode,
-                mtk::Geometry_Type   aBaseGeometryType ) = 0;
+                uint                     aNodeIndex,
+                const Cell< Node* >&     aBaseNodes,
+                const Parent_Node&       aFirstParentNode,
+                const Parent_Node&       aSecondParentNode,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder ) = 0;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh

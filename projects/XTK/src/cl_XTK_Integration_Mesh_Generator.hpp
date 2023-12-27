@@ -249,6 +249,16 @@ namespace xtk
             return 1;
         }
 
+        mtk::Geometry_Type get_geometry_type()
+        {
+            return mParentCell->get_geometry_type();
+        }
+
+        mtk::Interpolation_Order get_interpolation_order()
+        {
+            return mParentCell->get_interpolation_order();
+        }
+
     };    // struct Geometric_Query_XTK
 
     // ----------------------------------------------------------------------------------

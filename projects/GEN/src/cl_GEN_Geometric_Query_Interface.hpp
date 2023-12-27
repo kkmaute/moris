@@ -42,23 +42,13 @@ namespace moris
 
             virtual moris_index get_geometric_index() const = 0;
 
-            virtual mtk::EntityRank get_query_entity_rank() const = 0;
-
             virtual Matrix< IndexMat > const & get_query_entity_to_vertex_connectivity() const = 0;
 
             virtual moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* get_query_indexed_coordinates() const = 0;
 
             virtual Matrix< DDRMat > get_vertex_local_coord_wrt_parent_entity( moris_index aVertexIndex ) const = 0;
 
-            virtual mtk::EntityRank get_query_parent_entity_rank() const = 0;
-
             virtual Matrix< IndexMat > get_query_parent_entity_connectivity() const = 0;
-
-            virtual Matrix< DDRMat > get_query_parent_coordinates() const = 0;
-
-            virtual moris_index get_query_parent_entity_id() const = 0;
-
-            virtual moris_index max_query_entity_intersection() const = 0;
         };
 
     }    // namespace ge

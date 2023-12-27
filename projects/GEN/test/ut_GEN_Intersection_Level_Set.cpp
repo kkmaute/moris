@@ -165,7 +165,9 @@ namespace moris::ge
                                 tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
                                 tQuadParametricCoordinates( tNodeNumber ),
                                 tQuadParametricCoordinates( ( tNodeNumber + 1 ) % 4 ),
-                                tNodeIndices );
+                                tNodeIndices,
+                                mtk::Geometry_Type::QUAD,
+                                mtk::Interpolation_Order::LINEAR );
                         REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tGeometryIndex )( tElementIndex )( tNodeNumber ) );
 
                         // Check queued intersection
@@ -224,7 +226,9 @@ namespace moris::ge
                             11,
                             {{ -1.0, -tFrac }},
                             {{ 0.0, 1.0 }},
-                            {{ 1, 4, 5, 2 }} );
+                            {{ 1, 4, 5, 2 }},
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Order::LINEAR );
 
                     // Check intersection on intersection 1
                     REQUIRE( tIntersectionQueued == true );
@@ -245,7 +249,9 @@ namespace moris::ge
                             14,
                             {{ 0.0, -1.0 }},
                             {{ -1.0, tFrac }},
-                            {{ 2, 5, 8, 6 }} );
+                            {{ 2, 5, 8, 6 }},
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Order::LINEAR );
 
                     // Check intersection on intersection 1
                     REQUIRE( tIntersectionQueued == true );
@@ -458,7 +464,9 @@ namespace moris::ge
                                 tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
                                 tFirstNodeCoordinates,
                                 tSecondNodeCoordinates,
-                                tNodeIndices );
+                                tNodeIndices,
+                                mtk::Geometry_Type::QUAD,
+                                mtk::Interpolation_Order::LINEAR );
                         REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tGeometryIndex )( tElementIndex )( tNodeNumber ) );
 
                         // Check queued intersection
@@ -618,7 +626,12 @@ namespace moris::ge
 
             Cell< moris_index > tNewNodeIndices = { 4 };
 
-            tGeometryEngine.create_new_derived_nodes( tNewNodeIndices, tVertexIndices, tLocalCoords );
+            tGeometryEngine.create_new_derived_nodes(
+                    tNewNodeIndices,
+                    tVertexIndices,
+                    tLocalCoords,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
 
             Matrix< DDRMat >   tVertexCoords  = tCell.get_vertex_coords();
             Matrix< IndexMat > tVertexInds    = tCell.get_vertex_inds();
@@ -647,7 +660,9 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU );
+                    tVertexIndsDDU,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
 
             CHECK( !tIntersectionQueued );
 
@@ -660,7 +675,9 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU );
+                    tVertexIndsDDU,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
 
             CHECK( tIntersectionQueued );
 
@@ -672,7 +689,9 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU );
+                    tVertexIndsDDU,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
             CHECK( tIntersectionQueued );
 
             tNodeIndex1 = 0;
@@ -683,7 +702,9 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU );
+                    tVertexIndsDDU,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
             CHECK( !tIntersectionQueued );
 
             // check that the cell is intersected
@@ -695,7 +716,9 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU );
+                    tVertexIndsDDU,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
 
             CHECK( !tIntersectionQueued );
 
@@ -708,7 +731,9 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU );
+                    tVertexIndsDDU,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
 
             CHECK( !tIntersectionQueued );
 
@@ -721,7 +746,9 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU );
+                    tVertexIndsDDU,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
 
             CHECK( tIntersectionQueued );
 
@@ -734,7 +761,9 @@ namespace moris::ge
                     tNodeIndex2,
                     tLocalCoordsMat.get_row( tNodeIndex1 ),
                     tLocalCoordsMat.get_row( tNodeIndex2 ),
-                    tVertexIndsDDU );
+                    tVertexIndsDDU,
+                    mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Order::LINEAR );
             CHECK( !tIntersectionQueued );
         }
     }
@@ -813,7 +842,9 @@ namespace moris::ge
                             tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
                             get_quad_local_coordinates( tNodeNumber ),
                             get_quad_local_coordinates( ( tNodeNumber + 1 ) % 4 ),
-                            tNodeIndices );
+                            tNodeIndices,
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Order::LINEAR );
                     REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tElementIndex )( tNodeNumber ) );
 
                     // Check queued intersection
@@ -864,17 +895,17 @@ namespace moris::ge
 
             // Queue custom intersection 1 and check for bilinear intersection
             bool tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    0, 2, { { -1.0, -1.0 } }, { { 1.0, 1.0 } }, tNodeIndices );
+                    0, 2, { { -1.0, -1.0 } }, { { 1.0, 1.0 } }, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
             REQUIRE( tIntersectionQueued );
 
             // Queue custom intersection 2 and check for no bilinear intersection
             tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    1, 3, { { 1.0, -1.0 } }, { { -1.0, 1.0 } }, tNodeIndices );
+                    1, 3, { { 1.0, -1.0 } }, { { -1.0, 1.0 } }, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
             REQUIRE( not tIntersectionQueued );
 
             // Queue custom intersection 3 and check for bilinear intersection
             tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    9, 10, {{ 1.0, tFrac }}, {{ -1.0, 1.0 }}, tNodeIndices );
+                    9, 10, {{ 1.0, tFrac }}, {{ -1.0, 1.0 }}, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
             REQUIRE( tIntersectionQueued );
 
             // Clean up

@@ -221,10 +221,6 @@ namespace moris
             bool is_intersected(
                     const Matrix< IndexMat >&                    aNodeIndices,
                     Cell< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
-
-            //-------------------------------------------------------------------------------
-            
-            bool geometric_query( Geometric_Query_Interface* aGeometricQuery );
             
             /**
              * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
@@ -235,14 +231,19 @@ namespace moris
              * @param aEdgeFirstNodeParametricCoordinates Local coordinates of the first node inside the background element
              * @param aEdgeSecondNodeParametricCoordinates Local coordinates of the second node inside the background element
              * @param aBackgroundElementNodeIndices Node indices of the background element
+             * @param aBackgroundGeometryType Geometry type of the background element
+             * @param aBackgroundInterpolationOrder Interpolation order of the background element
+             *
              * @return If the edge is intersected and a node has been queued
              */
             bool queue_intersection(
-                    uint                            aEdgeFirstNodeIndex,
-                    uint                            aEdgeSecondNodeIndex,
-                    const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
-                    const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
-                    const Matrix< DDUMat >&         aBackgroundElementNodeIndices );
+                    uint                     aEdgeFirstNodeIndex,
+                    uint                     aEdgeSecondNodeIndex,
+                    const Matrix< DDRMat >&  aEdgeFirstNodeParametricCoordinates,
+                    const Matrix< DDRMat >&  aEdgeSecondNodeParametricCoordinates,
+                    const Matrix< DDUMat >&  aBackgroundElementNodeIndices,
+                    mtk::Geometry_Type       aBackgroundGeometryType,
+                    mtk::Interpolation_Order aBackgroundInterpolationOrder );
             
             /**
              * Returns if the queued intersection has the first parent node on the active geometry interface.
@@ -294,12 +295,16 @@ namespace moris
              *
              * @param aNewNodeIndices New node indices
              * @param tVertexIndices Indices of the parent cell
-             * @param aParametricCoordinates
+             * @param aParametricCoordinates Parametric coordinates of each new derived node to create
+             * @param aBackgroundGeometryType Geometry type of the background element
+             * @param aBackgroundInterpolationOrder Interpolation order of the background element
              */
             void create_new_derived_nodes(
                     const Cell< moris_index >&        aNewNodeIndices,
                     const Cell< Matrix< IndexMat > >& tVertexIndices,
-                    const Cell< Matrix< DDRMat > >&   aParametricCoordinates );
+                    const Cell< Matrix< DDRMat > >&   aParametricCoordinates,
+                    mtk::Geometry_Type                aBackgroundGeometryType,
+                    mtk::Interpolation_Order          aBackgroundInterpolationOrder );
 
             /**
              * Overloaded version of creating derived nodes. Calls other version internally.

@@ -17,44 +17,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    class Trivial_Node_Manager : public Node_Manager
-    {
-      public:
-        /**
-         * Trivial node manager constructor
-         */
-        Trivial_Node_Manager()
-                : Node_Manager( nullptr )
-        {
-        };
-
-        /**
-         * When the geometry engine node manager is not yet created, derived nodes are not known yet.
-         * Thus, the trivial version must reflect that all nodes are base nodes
-         *
-         * @param aNodeIndex Node index
-         * @return True
-         */
-        bool is_base_node( uint aNodeIndex ) override
-        {
-            return true;
-        }
-
-        /**
-         * Throws an error if a base node is requested from the trivial node manager, since this indicates that something is wrong.
-         *
-         * @param aIndex Node index
-         * @return Error
-         */
-        Base_Node* get_base_node( uint aIndex ) override
-        {
-            MORIS_ERROR( false, "A base node was requested from a trivial node manager. An object is using the incorrect node manager." );
-            return nullptr;
-        }
-    };
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Node_Manager::Node_Manager( mtk::Mesh* aMesh )
             : mBaseNodes( 0 )
     {
@@ -78,6 +40,7 @@ namespace moris::ge
         // Create new base GEN nodes if a mesh is given
         if ( aMesh )
         {
+            mMeshGiven = true;
             mBaseNodes.resize( aMesh->get_num_nodes() );
             for ( uint iNodeIndex = 0; iNodeIndex < mBaseNodes.size(); iNodeIndex++ )
             {
@@ -111,7 +74,7 @@ namespace moris::ge
 
     bool Node_Manager::is_base_node( uint aNodeIndex )
     {
-        return aNodeIndex < mBaseNodes.size();
+        return aNodeIndex < mBaseNodes.size() or not mMeshGiven;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -143,7 +106,7 @@ namespace moris::ge
 
     Node_Manager& Node_Manager::get_trivial_instance()
     {
-        static Trivial_Node_Manager tManager;
+        static Node_Manager tManager( nullptr );
         return tManager;
     }
 

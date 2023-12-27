@@ -287,46 +287,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         bool
-        Geometry_Engine::geometric_query( Geometric_Query_Interface* aGeometricQuery )
-        {
-            if ( aGeometricQuery->get_query_type() == Query_Type::INTERSECTION_NO_LOCATION )
-            {
-                mActiveGeometryIndex = aGeometricQuery->get_geometric_index();
-                return is_intersected( aGeometricQuery->get_query_entity_to_vertex_connectivity(),
-                        aGeometricQuery->get_query_indexed_coordinates() );
-            }
-            else if ( aGeometricQuery->get_query_type() == Query_Type::INTERSECTION_LOCATION )
-            {
-                // this preprocessing can be streamlined a lot
-                mActiveGeometryIndex = aGeometricQuery->get_geometric_index();
-
-                Matrix< IndexMat > const & tEdgeToVertex = aGeometricQuery->get_query_entity_to_vertex_connectivity();
-
-                Matrix< IndexMat > tParentEntityIndices = aGeometricQuery->get_query_parent_entity_connectivity();
-
-                // annoying copy until I rewrite the queue intersection
-                Matrix< DDUMat >         tParentEntityIndiceUINT( tParentEntityIndices.numel() );
-                for ( moris::uint i = 0; i < tParentEntityIndices.numel(); i++ )
-                {
-                    tParentEntityIndiceUINT( i ) = (uint)tParentEntityIndices( i );
-                }
-
-                return queue_intersection( tEdgeToVertex( 0 ),
-                        tEdgeToVertex( 1 ),
-                        aGeometricQuery->get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
-                        aGeometricQuery->get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
-                        tParentEntityIndiceUINT );
-            }
-            else
-            {
-                MORIS_ERROR( 0, "In progress" );
-                return false;
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool
         Geometry_Engine::is_intersected(
                 const Matrix< IndexMat >& aNodeIndices,
                 const Matrix< DDRMat >&   aNodeCoordinates )
@@ -379,25 +339,16 @@ namespace moris
 
         bool
         Geometry_Engine::queue_intersection(
-                uint                            aEdgeFirstNodeIndex,
-                uint                            aEdgeSecondNodeIndex,
-                const Matrix< DDRMat >&         aEdgeFirstNodeParametricCoordinates,
-                const Matrix< DDRMat >&         aEdgeSecondNodeParametricCoordinates,
-                const Matrix< DDUMat >&         aBackgroundElementNodeIndices )
+                uint                     aEdgeFirstNodeIndex,
+                uint                     aEdgeSecondNodeIndex,
+                const Matrix< DDRMat >&  aEdgeFirstNodeParametricCoordinates,
+                const Matrix< DDRMat >&  aEdgeSecondNodeParametricCoordinates,
+                const Matrix< DDUMat >&  aBackgroundElementNodeIndices,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder )
         {
             // If previous intersection node was not admitted, this will delete it
             delete mQueuedIntersectionNode;
-
-            // Get base cell geometry type
-            mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
-            if ( aBackgroundElementNodeIndices.length() == 4 )
-            {
-                tGeometryType = mtk::Geometry_Type::QUAD;
-            }
-            else if ( aBackgroundElementNodeIndices.length() == 8 )
-            {
-                tGeometryType = mtk::Geometry_Type::HEX;
-            }
 
             // Get base nodes
             Cell< Node* > tBaseNodes( aBackgroundElementNodeIndices.length() );
@@ -416,7 +367,8 @@ namespace moris
                     tBaseNodes,
                     tFirstParentNode,
                     tSecondParentNode,
-                    tGeometryType );
+                    aBackgroundGeometryType,
+                    aBackgroundInterpolationOrder );
 
             // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();
@@ -507,16 +459,27 @@ namespace moris
             }
 
             // Call overloaded function
-            this->create_new_derived_nodes( aNewNodeIndices, tVertexIndices, tParametricCoordinates );
+            if ( tNumberOfNewDerivedNodes > 0 )
+            {
+                this->create_new_derived_nodes(
+                        aNewNodeIndices,
+                        tVertexIndices,
+                        tParametricCoordinates,
+                        aNewNodeParentCell( 0 )->get_geometry_type(),
+                        aNewNodeParentCell( 0 )->get_interpolation_order() );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
+        // FIXME don't need new node indices
         void
         Geometry_Engine::create_new_derived_nodes(
                 const Cell< moris_index >&        aNewNodeIndices,
                 const Cell< Matrix< IndexMat > >& tVertexIndices,
-                const Cell< Matrix< DDRMat > >&   aParametricCoordinates )
+                const Cell< Matrix< DDRMat > >&   aParametricCoordinates,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create new child nodes" );
@@ -524,17 +487,6 @@ namespace moris
             // Loop over nodes
             for ( uint iNode = 0; iNode < aNewNodeIndices.size(); iNode++ )
             {
-                // Get base cell geometry type
-                mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
-                if ( tVertexIndices( iNode ).length() == 4 )
-                {
-                    tGeometryType = mtk::Geometry_Type::QUAD;
-                }
-                else
-                {
-                    tGeometryType = mtk::Geometry_Type::HEX;
-                }
-
                 // Create basis nodes
                 Cell< Node* > tBaseNodes( tVertexIndices( iNode ).length() );
                 for ( uint iBaseNode = 0; iBaseNode < tVertexIndices( iNode ).length(); iBaseNode++ )
@@ -547,7 +499,8 @@ namespace moris
                         aNewNodeIndices( iNode ),
                         tBaseNodes,
                         aParametricCoordinates( iNode ),
-                        tGeometryType ) );
+                        aBackgroundGeometryType,
+                        aBackgroundInterpolationOrder ) );
             }
 
             // Set max node index

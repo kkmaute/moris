@@ -105,47 +105,48 @@ namespace moris::ge
             {
                 return Geometric_Region::INTERFACE;
             }
-
-            // Initialize possible region
-            Geometric_Region tPossibleRegion = Geometric_Region::INTERFACE;
-
-            // Test for locators
-            for ( auto iLocator : tDerivedNode->get_locator_nodes() )
+            else
             {
-                // Get locator region
-                Geometric_Region tLocatorRegion = this->get_geometric_region( iLocator.get_index(), iLocator.get_global_coordinates() );
+                // Get locators
+                const Cell< Basis_Node >& tLocators = tDerivedNode->get_locator_nodes();
 
-                // Update possible region
-                if ( tPossibleRegion == Geometric_Region::INTERFACE )
+                // If we only have 2 locators, can use special logic if at least one node is on the interface
+                if ( tLocators.size() == 2 )
                 {
-                    // Can be any possible region, so set as locator region
-                    tPossibleRegion = tLocatorRegion;
+                    if ( this->get_geometric_region( tLocators( 0 ).get_index(), tLocators( 0 ).get_global_coordinates() ) == Geometric_Region::INTERFACE )
+                    {
+                        // Take geometric region of second node
+                        return this->get_geometric_region( tLocators( 1 ).get_index(), tLocators( 1 ).get_global_coordinates() );
+                    }
+                    else if ( this->get_geometric_region( tLocators( 1 ).get_index(), tLocators( 1 ).get_global_coordinates() ) == Geometric_Region::INTERFACE )
+                    {
+                        // Take geometric region of first node
+                        return this->get_geometric_region( tLocators( 0 ).get_index(), tLocators( 0 ).get_global_coordinates() );
+                    }
+                    else
+                    {
+                        // Resort to field value
+                        return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
+                    }
                 }
-                else if ( tLocatorRegion == Geometric_Region::INTERFACE )
+                else
                 {
-                    // No change needed to possible region
-                    continue;
-                }
-                else if ( tLocatorRegion != tPossibleRegion )
-                {
-                    // Resort to field value
+                    // Must use field value for more than 2 locators
                     return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
                 }
             }
-
-            // If nothing returned yet, possible region is definite region
-            return tPossibleRegion;
         }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
-            uint                 aNodeIndex,
-            const Cell< Node* >& aBaseNodes,
-            const Parent_Node&   aFirstParentNode,
-            const Parent_Node&   aSecondParentNode,
-            mtk::Geometry_Type   aBaseGeometryType )
+            uint                     aNodeIndex,
+            const Cell< Node* >&     aBaseNodes,
+            const Parent_Node&       aFirstParentNode,
+            const Parent_Node&       aSecondParentNode,
+            mtk::Geometry_Type       aBackgroundGeometryType,
+            mtk::Interpolation_Order aBackgroundInterpolationOrder )
     {
         if ( this->use_multilinear_interpolation() )
         {
@@ -155,7 +156,8 @@ namespace moris::ge
                     aBaseNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aBaseGeometryType,
+                    aBackgroundGeometryType,
+                    aBackgroundInterpolationOrder,
                     shared_from_this() );
         }
         else
@@ -166,7 +168,8 @@ namespace moris::ge
                     aBaseNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aBaseGeometryType,
+                    aBackgroundGeometryType,
+                    aBackgroundInterpolationOrder,
                     shared_from_this() );
         }
     }

@@ -390,6 +390,7 @@ namespace moris
                             tFirstParentNode,
                             tSecondParentNode,
                             mtk::Geometry_Type::LINE,
+                            mtk::Interpolation_Order::LINEAR,
                             tCircleGeometry );
 
                     // Add to node manager

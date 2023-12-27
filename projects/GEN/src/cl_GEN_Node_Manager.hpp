@@ -27,6 +27,7 @@ namespace moris::ge
       private:
         Cell< Base_Node* > mBaseNodes;
         Cell< Derived_Node* > mDerivedNodes;
+        bool mMeshGiven = false;
 
       public:
         /**
@@ -68,7 +69,7 @@ namespace moris::ge
          *
          * @return If node is a base node.
          */
-        virtual bool is_base_node( uint aNodeIndex );
+        bool is_base_node( uint aNodeIndex );
 
         /**
          * Gets a base node stored in this manager.
@@ -76,7 +77,7 @@ namespace moris::ge
          * @param aBaseNodeIndex Base node index
          * @return Node pointer
          */
-        virtual Base_Node* get_base_node( uint aBaseNodeIndex );
+        Base_Node* get_base_node( uint aBaseNodeIndex );
 
         /**
          * Adds a derived node to this manager.

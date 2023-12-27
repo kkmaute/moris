@@ -39,7 +39,8 @@ namespace moris::ge
                 const Parent_Node&                    aFirstParentNode,
                 const Parent_Node&                    aSecondParentNode,
                 real                                  aLocalCoordinate,
-                mtk::Geometry_Type                    aBaseGeometryType,
+                mtk::Geometry_Type                    aBackgroundGeometryType,
+                mtk::Interpolation_Order              aBackgroundInterpolationOrder,
                 std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
 
         /**

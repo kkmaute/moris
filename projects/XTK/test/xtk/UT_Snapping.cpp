@@ -77,7 +77,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     tGENParams( 1 )( tGeoCounter ).set("intersection_tolerance", 1e-12);
     tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane");
     tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "0.0, " + std::to_string(tOffset) + ", " + std::to_string(tXNormal) + ", "+ std::to_string(tYNormal));
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_interpolation", tBilinear);
+    tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear);
     tGeoCounter++;
 
     // Geometry parameter lists
@@ -87,7 +87,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     tGENParams( 1 )( tGeoCounter ).set("intersection_tolerance", 1e-12);
     tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane");
     tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "-0.5, 0.0, 1.0, 0.0");
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_interpolation", tBilinear);
+    tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear);
     tGeoCounter++;
 
     // Geometry parameter lists
@@ -97,7 +97,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     tGENParams( 1 )( tGeoCounter ).set("intersection_tolerance", 1e-12);
     tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane");
     tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "1.0, 0.0, 1.0, 0.0");
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_interpolation", tBilinear);
+    tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear);
     tGeoCounter++;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

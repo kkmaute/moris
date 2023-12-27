@@ -25,13 +25,15 @@ namespace moris::ge
             const Parent_Node&          aFirstParentNode,
             const Parent_Node&          aSecondParentNode,
             real                        aLocalCoordinate,
-            mtk::Geometry_Type          aBaseGeometryType,
+            mtk::Geometry_Type          aBackgroundGeometryType,
+            mtk::Interpolation_Order    aBackgroundInterpolationOrder,
             std::shared_ptr< Geometry > aInterfaceGeometry )
             : Derived_Node(
                     aNodeIndex,
                     aBaseNodes,
                     0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates(),
-                    aBaseGeometryType )
+                    aBackgroundGeometryType,
+                    aBackgroundInterpolationOrder )
             , mParentNodes( { Basis_Node( aFirstParentNode, 0.5 * ( 1.0 - aLocalCoordinate ) ), Basis_Node( aSecondParentNode, 0.5 * ( 1.0 + aLocalCoordinate ) ) } )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
