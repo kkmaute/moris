@@ -86,8 +86,8 @@ namespace moris::sdf
                 CHECK( tCandidatesExpected( 2 ) == tCandidateTriangles( 2 ) );
 
                 // check for intersection with facets and ensure they are correct
-                Cell< Facet* > tIntersectedTriangles = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 2 );
-                Cell< Facet* > tIntersectedFacetsExpected( 2 );
+                Cell< Facet& > tIntersectedTriangles = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 2 );
+                Cell< Facet& > tIntersectedFacetsExpected( 2 );
                 tIntersectedFacetsExpected( 0 ) = tObject.get_facet( 0 );
                 tIntersectedFacetsExpected( 1 ) = tObject.get_facet( 3 );
 
@@ -169,10 +169,10 @@ namespace moris::sdf
 
                 // preselect in y direction and ensure the candidates and intersected facets are marked
                 Cell< uint >   tIntersectedLines;
-                Cell< Facet* > tCandidateLines;
+                Cell< Facet& > tCandidateLines;
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
                 uint   tIntersectedLinesExpected = 1;
-                Facet* tCandidateLinesExpected   = tObject.get_facet( 2 );
+                Facet& tCandidateLinesExpected   = tObject.get_facet( 2 );
 
                 REQUIRE( tIntersectedLines.size() == 1 );
                 REQUIRE( tCandidateLines.size() == 1 );

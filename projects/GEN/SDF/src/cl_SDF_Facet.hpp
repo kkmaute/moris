@@ -29,14 +29,14 @@ namespace moris
         /**
          * the facet class for the sdf generator
          */
-        class Facet : public mtk::Cell
+        class Facet : public mtk::Cell, std::enable_shared_from_this< Facet >
         {
           protected:
             // index of this triangle
-            const moris_index mIndex;
+            moris_index mIndex;
 
             // cells with vertex pointers
-            moris::Cell< Facet_Vertex* > mVertices;
+            moris::Cell< std::shared_ptr< Facet_Vertex > > mVertices;
 
             // container for center
             Matrix< DDRMat > mCenter;
@@ -57,9 +57,9 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             Facet(
-                    moris_index                   aIndex,
-                    moris::Cell< Facet_Vertex* >& aVertices,
-                    uint                          aDimension );
+                    moris_index                                     aIndex,
+                    moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
+                    uint                                            aDimension );
 
             //-------------------------------------------------------------------------------
 
@@ -81,6 +81,49 @@ namespace moris
             virtual real
             get_distance_to_point(
                     const Matrix< DDRMat >& aPoint ) = 0;
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Performs a coordinate rotation of the object's facets and vertices
+             * NOTE: This action itself cannot be undone without using reset_object_coordinates, which will also remove any applied scaling or translation.
+             *
+             * @param aRotationMatrix the direction cosine matrix defining the rotation
+             */
+            void
+            rotate( const Matrix< DDRMat >& aRotationMatrix );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Scales all the coordinates of the object.
+             * NOTE: This action can be undone by calling scale_object( aScaling^-1 )
+             *
+             * @param aScaling factor to scale in each coordinate direction
+             */
+            void
+            scale( const Matrix< DDRMat >& aScaling );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Moves the object's spatial position.
+             * NOTE: This action can be undone by calling translate_object( -aShift )
+             *
+             * @param aShift shift in each coordinate direction that is added to the objects coordinates.
+             */
+            void
+            shift( const Matrix< DDRMat >& aShift );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Resets the object back to its attitude when it was constructed,
+             * removing any rotation, scaling, or translation that was applied
+             *
+             */
+            void
+            reset_coordinates();
 
             //-------------------------------------------------------------------------------
             // SDF functions
@@ -258,6 +301,10 @@ namespace moris
             // SDF Functions
             //-------------------------------------------------------------------------------
 
+            /**
+             * Sets flag marking this facet for further raycast consideration
+             *
+             */
             void
             flag()
             {
@@ -266,6 +313,10 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            /**
+             * sets flag to false when intersection computation is completed or this facet is no longer used for raycast
+             *
+             */
             void
             unflag()
             {
@@ -291,7 +342,7 @@ namespace moris
             compute_center();
 
             /**
-             * computes the minimum and maximum coordinates for each coordinate direction 
+             * computes the minimum and maximum coordinates for each coordinate direction
              * and stores them in mMinCoord and mMaxCoord respectively.
              *
              */

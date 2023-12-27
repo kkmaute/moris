@@ -25,12 +25,11 @@ namespace moris
         //-------------------------------------------------------------------------------
         class Object
         {
-            const real                   mMeshHighPass = 1e-9;
-            moris::Cell< Facet_Vertex* > mVertices; // FIXME: this duplicate member data can be removed through use of shared pointers given to facets
-            moris::Cell< Facet* >        mFacets;
+            const real mMeshHighPass = 1e-9;
+            moris::Cell< std::shared_ptr< Facet > > mFacets;
 
-            uint                    mDimension;
-            uint                    mNumberOfFacets;
+            uint mDimension;
+            uint mNumberOfFacets;
 
             //-------------------------------------------------------------------------------
 
@@ -40,9 +39,6 @@ namespace moris
             Object( const std::string&      aFilePath,
                     const Matrix< DDRMat >& aOffsets = { { 0, 0, 0 } } );
 
-            //-------------------------------------------------------------------------------
-
-            ~Object();
 
             //-------------------------------------------------------------------------------
 
@@ -89,11 +85,11 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            Facet*
+            Facet&
             get_facet( uint aFacetIndex )
             {
                 MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object: get_facet - aFacetIndex needs to be >= 0. Provided index: %u", aFacetIndex );
-                return mFacets( aFacetIndex );
+                return *mFacets( aFacetIndex );
             }
 
             //-------------------------------------------------------------------------------

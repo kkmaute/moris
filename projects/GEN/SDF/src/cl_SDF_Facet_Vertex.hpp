@@ -24,7 +24,7 @@ namespace moris
         class Triangle;
 
         //-------------------------------------------------------------------------------
-        class Facet_Vertex : public mtk::Vertex
+        class Facet_Vertex : public mtk::Vertex, std::enable_shared_from_this< Facet_Vertex >
         {
 
             const moris_index mIndex;
