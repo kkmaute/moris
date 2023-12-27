@@ -43,7 +43,10 @@ namespace moris
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
-                mVertices( iVertex )->rotate_node_coords( aRotationMatrix );
+                if ( not mVertices( iVertex )->is_transformed() )
+                {
+                    mVertices( iVertex )->rotate_node_coords( aRotationMatrix );
+                }
             }
         }
 
@@ -54,7 +57,10 @@ namespace moris
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
-                mVertices( iVertex )->scale_node_coords( aScaling );
+                if ( not mVertices( iVertex )->is_transformed() )
+                {
+                    mVertices( iVertex )->scale_node_coords( aScaling );
+                }
             }
         }
 
@@ -65,7 +71,21 @@ namespace moris
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
-                mVertices( iVertex )->shift_node_coords( aShift );
+                if ( not mVertices( iVertex )->is_transformed() )
+                {
+                    mVertices( iVertex )->shift_node_coords( aShift );
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Facet::reset_vertex_transformed_flags()
+        {
+            for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
+            {
+                mVertices( iVertex )->reset_transformed_flag();
             }
         }
 

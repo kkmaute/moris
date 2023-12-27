@@ -29,6 +29,8 @@ namespace moris
 
             const moris_index mIndex;
 
+            bool mIsTransformed = false;
+
             //-------------------------------------------------------------------------------
 
             Matrix< DDRMat > mNodeCoords;
@@ -63,6 +65,7 @@ namespace moris
                 {
                     mNodeCoords( iAxis ) *= aScaling( iAxis );
                 }
+                mIsTransformed = true;
             }
 
             //-------------------------------------------------------------------------------
@@ -74,12 +77,29 @@ namespace moris
                 {
                     mNodeCoords( iAxis ) += aShift( iAxis );
                 }
+                mIsTransformed = true;
             }
 
             //-------------------------------------------------------------------------------
 
             void
             reset_node_coords();
+
+            //-------------------------------------------------------------------------------
+
+            void
+            reset_transformed_flag()
+            {
+                mIsTransformed = false;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            bool
+            is_transformed()
+            {
+                return mIsTransformed;
+            }
 
             //-------------------------------------------------------------------------------
             // MTK API functions

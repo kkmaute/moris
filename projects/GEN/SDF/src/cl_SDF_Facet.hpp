@@ -118,6 +118,14 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
+             * Resets all the transformed flags for each vertex of the facet
+            */
+            void
+            reset_vertex_transformed_flags();
+
+            //-------------------------------------------------------------------------------
+
+            /**
              * Resets the object back to its attitude when it was constructed,
              * removing any rotation, scaling, or translation that was applied
              *

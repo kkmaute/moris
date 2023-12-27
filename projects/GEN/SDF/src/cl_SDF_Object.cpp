@@ -173,7 +173,7 @@ namespace moris
             tCount = 0;
 
             // reserve memory
-            mFacets.reserve( tNumberOfFacets );
+            mFacets.resize( tNumberOfFacets );
 
             // temporary one-based Ids for facet nodes 1, 2 and 3
 
@@ -366,7 +366,7 @@ namespace moris
             // - - - - - - - - - - - - -
 
             // allocate memory
-            mFacets.reserve( tNumberOfTriangles );
+            mFacets.resize( tNumberOfTriangles );
 
             // reset triangle counter
             tTriangleCount = 0;
@@ -409,6 +409,12 @@ namespace moris
                 // recompute information about the facet (normal, center, etc.)
                 mFacets( iFacet )->update_data();
             }
+
+            // reset the transformed flags for all the vertices
+            for( uint iFacet = 0; iFacet< mFacets.size(); iFacet++ )
+            {
+                mFacets( iFacet )->reset_vertex_transformed_flags();
+            }
         }
 
         //-------------------------------------------------------------------------------
@@ -426,6 +432,12 @@ namespace moris
                 // recompute information about the facet (normal, center, etc.)
                 mFacets( iFacet )->update_data();
             }
+
+            // reset the transformed flags for all the vertices
+            for( uint iFacet = 0; iFacet< mFacets.size(); iFacet++ )
+            {
+                mFacets( iFacet )->reset_vertex_transformed_flags();
+            }
         }
 
         //-------------------------------------------------------------------------------
@@ -442,6 +454,12 @@ namespace moris
 
                 // recompute information about the facet (normal, center, etc.)
                 mFacets( iFacet )->update_data();
+            }
+            
+            // reset the transformed flags for all the vertices
+            for( uint iFacet = 0; iFacet< mFacets.size(); iFacet++ )
+            {
+                mFacets( iFacet )->reset_vertex_transformed_flags();
             }
         }
 
