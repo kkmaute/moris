@@ -22,7 +22,6 @@
 #include "cl_MTK_Block_Set.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
-#include "cl_MTK_Nonconformal_Side_Set.hpp"
 
 namespace moris::mtk
 {
@@ -31,23 +30,21 @@ namespace moris::mtk
         // class Cluster_Group;
 
       protected:
-        moris::Cell< moris::mtk::Block_Set * >             mListOfBlocks;
-        moris::Cell< moris::mtk::Side_Set * >              mListOfSideSets;
-        moris::Cell< moris::mtk::Double_Side_Set * >       mListOfDoubleSideSets;
-        moris::Cell< moris::mtk::Nonconformal_Side_Set * > mListOfNonconformalSideSets;
-        moris::Cell< moris::mtk::Set * >                   mListOfAllSets;
+        moris::Cell< moris::mtk::Block_Set * >       mListOfBlocks;
+        moris::Cell< moris::mtk::Side_Set * >        mListOfSideSets;
+        moris::Cell< moris::mtk::Double_Side_Set * > mListOfDoubleSideSets;
+        moris::Cell< moris::mtk::Set * >             mListOfAllSets;
 
         moris::Cell< mtk::Double_Side_Cluster * > mDoubleSideClusters;
 
         map< std::string, moris_index > mSetNameToIndexMap;
 
         // set by color
-        moris_index                                                       mMaxColor{};
-        moris::Cell< moris::Cell< moris::mtk::Block_Set * > >             mColorToBlockSet;               // outer cell: color | inner cell: block set index
-        moris::Cell< moris::Cell< moris::mtk::Side_Set * > >              mColorToSideSet;                // outer cell: color | inner cell: side set index
-        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > >       mColorToDoubleSideSet;          // outer cell: color | inner cell: double side set index
-        moris::Cell< moris::Cell< moris::mtk::Nonconformal_Side_Set * > > mColorToNonconformalSideSet;    // outer cell: color | inner cell: nonconformal side set index
-        moris::Cell< moris::Cell< moris::mtk::Set * > >                   mColorToAllSets;                // outer cell: color | inner cell: set index
+        moris_index                                                 mMaxColor{};
+        moris::Cell< moris::Cell< moris::mtk::Block_Set * > >       mColorToBlockSet;         // outer cell: color | inner cell: block set index
+        moris::Cell< moris::Cell< moris::mtk::Side_Set * > >        mColorToSideSet;          // outer cell: color | inner cell: side set index
+        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > mColorToDoubleSideSet;    // outer cell: color | inner cell: double side set index
+        moris::Cell< moris::Cell< moris::mtk::Set * > >             mColorToAllSets;          // outer cell: color | inner cell: set index
 
         // ----------------------------------------------------------------------------
 
@@ -437,56 +434,37 @@ namespace moris::mtk
          * by default it return all sets
          *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset,or all
          */
+        [[deprecated(
+                "Use the more expressive getter methods get_sets (without arguments), get_block_sets, "
+                "get_side_sets or get_double_side_sets" )]] moris::Cell< moris::mtk::Set * > const &
+        get_list_of_sets( SetType aSetType = SetType::UNDEFINED ) const;
 
-        /**
-         * @brief Get the list of all sets in the mesh.
-         * @return The list of all sets in the mesh.
-         */
         moris::Cell< moris::mtk::Set * > const &get_sets() const;
 
-        /**
-         * @brief Get the list of all block sets in the mesh.
-         * @return The list of all block sets in the mesh.
-         */
         moris::Cell< moris::mtk::Block_Set * > const &get_block_sets() const;
 
-        /**
-         * @brief Get the list of all side sets in the mesh.
-         * @return The list of all side sets in the mesh.
-         */
         moris::Cell< moris::mtk::Side_Set * > const &get_side_sets() const;
 
-        /**
-         * @brief Get the list of all double side sets in the mesh.
-         * @return The list of all double side sets in the mesh.
-         */
         moris::Cell< moris::mtk::Double_Side_Set * > const &get_double_side_sets() const;
 
         // ----------------------------------------------------------------------------
 
         /**
-         * @brief Get the list of all sets with a specific color.
-         * @return The outer cell is the color index, the inner cell contains the sets.
+         * @brief Returns the list of sets to colors based on the a set type specified
+         * by default it return all set to color list
          */
-        moris::Cell< moris::Cell< moris::mtk::Set * > > const &get_color_to_sets() const;
 
-        /**
-         * @brief Get the list of all block sets with a specific color.
-         * @return The outer cell is the color index, the inner cell contains the block sets.
-         */
-        moris::Cell< moris::Cell< moris::mtk::Block_Set * > > const &get_color_to_block_sets() const;
+        moris::Cell< moris::Cell< moris::mtk::Set * > > const &
+        get_color_to_sets() const;
 
-        /**
-         * @brief Get the list of all side sets with a specific color.
-         * @return The outer cell is the color index, the inner cell contains the side sets.
-         */
-        moris::Cell< moris::Cell< moris::mtk::Side_Set * > > const &get_color_to_side_sets() const;
+        moris::Cell< moris::Cell< moris::mtk::Block_Set * > > const &
+        get_color_to_block_sets() const;
 
-        /**
-         * @brief Get the list of all double side sets with a specific color.
-         * @return The outer cell is the color index, the inner cell contains the double side sets.
-         */
-        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > const &get_color_to_double_side_sets() const;
+        moris::Cell< moris::Cell< moris::mtk::Side_Set * > > const &
+        get_color_to_side_sets() const;
+
+        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > const &
+        get_color_to_double_side_sets() const;
 
 
         // ----------------------------------------------------------------------------
@@ -516,36 +494,8 @@ namespace moris::mtk
       protected:
         void collect_all_sets( bool aSetShape = true );
 
-        void collect_color_to_set_info();
+        void setup_set_to_color();
 
-        /**
-         * @brief Populates the "color to set list". The maximum number of colors should be known before calling this function (see determine_max_color()).
-         * @tparam T The Set-type (Block_Set, Side_Set, Double_Side_Set)
-         * @param aListOfSets The list of sets to populate the color to set list from
-         * @param aColorToSet The color to set list to populate
-         */
-        template< class T >
-        void populate_color_to_set_list( moris::Cell< T > aListOfSets, moris::Cell< moris::Cell< T > > &aColorToSet )
-        {
-            // clear old data
-            aColorToSet.clear();
-            aColorToSet.resize( mMaxColor + 1 );
-
-            for ( moris::uint i = 0; i < aListOfSets.size(); i++ )
-            {
-                Matrix< IndexMat > const &tSetColors = aListOfSets( i )->get_set_colors();
-                // iterate through the colors and add to related color grouping
-                for ( moris::uint j = 0; j < tSetColors.numel(); j++ )
-                {
-                    aColorToSet( tSetColors( j ) ).push_back( aListOfSets( i ) );
-                }
-            }
-        }
-
-        /**
-         * @brief Determines the maximum color number over all mesh sets
-         */
-        void determine_max_color();
     };    // class mtk::Integration_Mesh
 
     // ----------------------------------------------------------------------------
