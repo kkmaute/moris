@@ -85,7 +85,7 @@ namespace moris::fem
         moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
         sint                         tNumFields          = tFieldParameterList.size();
 
-        mFields.reserve( tNumFields );
+        mFields.resize( tNumFields, nullptr );
 
         // loop over the parameter lists
         for ( sint iField = 0; iField < tNumFields; iField++ )
@@ -163,13 +163,12 @@ namespace moris::fem
     {
         auto tFuncNames    = string_to_cell< std::string >( aParameterList.get< std::string >( aPropertyName ) );
         uint tNumFunctions = tFuncNames.size();
-
-        moris::Cell< fem::PropertyFunc > tPropertyFunctions( tNumFunctions );
-        for ( auto const &tFuncName : tFuncNames )
+        moris::Cell< fem::PropertyFunc > tPropertyFunctions( tNumFunctions, nullptr );
+        for ( uint iFunc = 0; iFunc < tNumFunctions; iFunc++ )
         {
-            if ( tFuncName.size() > 1 )
+            if ( tFuncNames( iFunc ).size() > 1 )
             {
-                tPropertyFunctions.push_back( mLibrary->load_function< FEM_Function >( tFuncName ) );
+                tPropertyFunctions( iFunc ) =  mLibrary->load_function< FEM_Function >( tFuncNames( iFunc ) );
             }
         }
         return tPropertyFunctions;
