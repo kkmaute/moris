@@ -17,17 +17,17 @@ namespace moris::fem
         Model_Initializer_Phasebased(
                 moris::Cell< moris::Cell< ParameterList > >      aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
-                mtk::Mesh_Pair const                            &aMeshPair,
+                mtk::Mesh_Pair const                            *aMeshPair,
                 uint                                             aSpatialDimension,
                 bool                                             aUseNewGhostSets,
                 std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
                 : Model_Initializer(
-                          aParameterList,
-                          aMeshPair,
-                          aLibrary,
-                          aSpatialDimension,
-                          aUseNewGhostSets,
-                          aDofTypeToBsplineMeshIndex ){};
+                        aParameterList,
+                        aMeshPair,
+                        aLibrary,
+                        aSpatialDimension,
+                        aUseNewGhostSets,
+                        aDofTypeToBsplineMeshIndex ){};
 
       protected:
 

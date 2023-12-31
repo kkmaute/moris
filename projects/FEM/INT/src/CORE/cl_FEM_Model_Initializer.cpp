@@ -95,7 +95,7 @@ namespace moris::fem
 
             moris::map< std::string, mtk::Field_Entity_Type > tFieldEntityTypeMap = mtk::get_field_entity_type_map();
             mtk::Field_Entity_Type                            tFieldEntityType    = tFieldEntityTypeMap.find( tFieldParameter.get< std::string >( "field_entity_type" ) );
-            std::shared_ptr< fem::Field >                     tField              = std::make_shared< fem::Field >( mMeshPair, tFieldEntityType );
+            std::shared_ptr< fem::Field >                     tField              = std::make_shared< fem::Field >( *mMeshPair, tFieldEntityType );
 
             std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
             tField->set_label( tFieldName );

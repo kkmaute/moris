@@ -26,7 +26,7 @@ namespace moris::fem
       public:
         Model_Initializer(
                 moris::Cell< moris::Cell< ParameterList > >      aParameterList,
-                mtk::Mesh_Pair const                            &aMeshPair,
+                mtk::Mesh_Pair const                            *aMeshPair,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 uint                                             aSpatialDimension,
                 bool                                             aUseNewGhostSets,
@@ -93,7 +93,7 @@ namespace moris::fem
 
         // data
         moris::Cell< moris::Cell< ParameterList > >      mParameterList;
-        mtk::Mesh_Pair const                            &mMeshPair;
+        mtk::Mesh_Pair const                            *mMeshPair;
         std::shared_ptr< Library_IO >                    mLibrary;
         uint                                             mSpatialDimension;
         bool                                             mUseNewGhostSets;
