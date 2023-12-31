@@ -17,7 +17,7 @@ namespace moris::fem
         Model_Initializer_Legacy(
                 moris::Cell< moris::Cell< ParameterList > >      aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
-                mtk::Mesh_Pair const                            &aMeshPair,
+                mtk::Mesh_Pair const*                            aMeshPair,
                 uint                                             aSpatialDimension,
                 bool                                             aUseNewGhostSets,
                 std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )

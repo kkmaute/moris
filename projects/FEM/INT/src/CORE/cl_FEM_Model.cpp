@@ -53,6 +53,8 @@
 #include "cl_FEM_Model_Initializer.hpp"
 #include "cl_FEM_Model_Initializer_Legacy.hpp"
 #include "cl_FEM_Model_Initializer_Phasebased.hpp"
+#include "cl_MTK_Mesh_DataBase_IP.hpp"
+#include "cl_MTK_Mesh_DataBase_IG.hpp"
 
 namespace moris
 {
@@ -155,9 +157,9 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // get pointers to interpolation and integration meshes
-            mtk::Interpolation_Mesh *tIPMesh = nullptr;
-            mtk::Integration_Mesh   *tIGMesh = nullptr;
-            mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
+            mtk::Interpolation_Mesh *tIPMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
+            mtk::Integration_Mesh   *tIGMesh = mMeshManager->get_integration_mesh( mMeshPairIndex );
+
 
             // set the space dimension
             mSpaceDim = tIPMesh->get_spatial_dim();
@@ -679,6 +681,13 @@ namespace moris
         {
             Tracer tTracer( "FEM", "Model", "Load and Initialize Parameters" );
 
+            // in the INT test of the IQI strain energy, the FEM Model is initialized without a MeshManager.
+            mtk::Mesh_Pair const *tMeshPair = nullptr;
+            if ( mMeshManager != nullptr )
+            {
+                tMeshPair = &mMeshManager->get_mesh_pair( mMeshPairIndex );
+            }
+
             /**
              * @brief The old way to input the IWGs uses the explicit mesh names without any phase definitions (e.g. iside_b0_1_b1_0, ...),
              * while the new method uses phases and phase-pairs to define the applicable sets. Old input files can be detected by the number of
@@ -692,7 +701,7 @@ namespace moris
                     tModelInitializer = std::make_unique< Model_Initializer_Legacy >(
                             mParameterList,
                             aLibrary,
-                            mMeshManager->get_mesh_pair( mMeshPairIndex ),
+                            tMeshPair,
                             mSpaceDim,
                             mUseNewGhostSets,
                             mDofTypeToBsplineMeshIndex );
@@ -703,7 +712,7 @@ namespace moris
                     tModelInitializer = std::make_unique< Model_Initializer_Phasebased >(
                             mParameterList,
                             aLibrary,
-                            mMeshManager->get_mesh_pair( mMeshPairIndex ),
+                            tMeshPair,
                             mSpaceDim,
                             mUseNewGhostSets,
                             mDofTypeToBsplineMeshIndex );
