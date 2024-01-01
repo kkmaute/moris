@@ -13,6 +13,7 @@
 
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_TOL_Memory_Map.hpp"
+#include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 
 namespace moris::mig
 {
