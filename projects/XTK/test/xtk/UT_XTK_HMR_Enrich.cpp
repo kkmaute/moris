@@ -11,7 +11,7 @@
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK
@@ -82,7 +82,7 @@ MultiCircle(const moris::Matrix< moris::DDRMat > & aPoint )
 
 }
 
-moris::real MultiCircleGeometry(const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell<moris::real*>& aParameters)
+moris::real MultiCircleGeometry(const moris::Matrix< moris::DDRMat > & aPoint, const moris::Vector<moris::real*>& aParameters)
 {
     return MultiCircle(aPoint);
 }
@@ -118,7 +118,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -145,7 +145,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+        moris::Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiCircleGeometry));
 
         size_t tModelDimension = 2;
@@ -156,7 +156,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -164,7 +164,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
         // Declare the fields related to enrichment strategy in output options
-        Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
+        Vector<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
 
         xtk::Output_Options tOutputOptions;
         tOutputOptions.mAddNodeSets = false;
@@ -232,7 +232,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2 );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -271,7 +271,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
+        moris::Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
@@ -283,7 +283,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
         tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         bool tSuccess = tXTKModel.decompose(tDecompositionMethods);
 
         // expect a failure in the decomposition
@@ -357,7 +357,7 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
+        moris::Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
@@ -369,7 +369,7 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
         tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         bool tSuccess = tXTKModel.decompose(tDecompositionMethods);
 
         CHECK_FALSE(tSuccess);

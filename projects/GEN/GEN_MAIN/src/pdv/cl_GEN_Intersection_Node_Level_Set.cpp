@@ -26,7 +26,7 @@ namespace moris
                 const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                 Matrix< DDUMat >                     aAncestorNodeIndices,
-                Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
+                Vector< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                 const Element_Intersection_Type      aAncestorBasisFunction,
                 std::shared_ptr< Geometry >          aInterfaceGeometry )
                 : Intersection_Node(

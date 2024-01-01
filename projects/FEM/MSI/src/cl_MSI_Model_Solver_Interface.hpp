@@ -11,8 +11,8 @@
 #ifndef SRC_FEM_CL_EQUATION_MANAGER_HPP_
 #define SRC_FEM_CL_EQUATION_MANAGER_HPP_
 
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Map.hpp"
@@ -40,10 +40,10 @@ namespace moris
             ParameterList mMSIParameterList;
 
             //! List of equation blocks
-            Cell< MSI::Equation_Set* > mEquationBlocks;
+            Vector< MSI::Equation_Set* > mEquationBlocks;
 
             //! List of equation objects
-            moris::Cell< Equation_Object* > mEquationObjectList;
+            Vector< Equation_Object* > mEquationObjectList;
 
             //! Dof manager object
             Dof_Manager mDofMgn;
@@ -78,7 +78,7 @@ namespace moris
 
             Model_Solver_Interface(
                     ParameterList                    aMSIParameterList,
-                    moris::Cell< Equation_Object* >& aListEqnObj )
+                    Vector< Equation_Object* >& aListEqnObj )
                     : mMSIParameterList( aMSIParameterList )
                     , mEquationObjectList( aListEqnObj ){};
 
@@ -93,7 +93,7 @@ namespace moris
              */
             Model_Solver_Interface(
                     ParameterList                                            aMSIParameterList,
-                    Cell< MSI::Equation_Set* >&                              aElementBlocks,
+                    Vector< MSI::Equation_Set* >&                              aElementBlocks,
                     const Matrix< IdMat >&                                   aCommTable,
                     const moris::map< moris::moris_id, moris::moris_index >& aAdofLocaltoGlobalMap,
                     const moris::uint                                        aNumMaxAdofs )
@@ -114,7 +114,7 @@ namespace moris
 
             Model_Solver_Interface(
                     ParameterList                                            aMSIParameterList,
-                    Cell< MSI::Equation_Set* >&                              aElementBlocks,
+                    Vector< MSI::Equation_Set* >&                              aElementBlocks,
                     const Matrix< IdMat >&                                   aCommTable,
                     const moris::map< moris::moris_id, moris::moris_index >& aAdofLocaltoGlobalMap,
                     const moris::uint                                        aNumMaxAdofs,

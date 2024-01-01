@@ -23,7 +23,7 @@
 #include "cl_Logger.hpp"
 
 // XTKL: Container includes
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // XTKL: Linear Algebra Includes
 
@@ -105,7 +105,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::mtk::EntityRank::NODE, tLevelsetVal);
 
-        Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
+        Vector<std::shared_ptr<ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -119,7 +119,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         tXTKModel.setup_diagnostics( true, "./xtk_diag", "enr_2d" );
 
         //Specify your decomposition methods and start cutting
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
         // Perform the enrichment
@@ -128,7 +128,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
         // Declare the fields related to enrichment strategy in output options
-        Cell<std::string> tEnrichmentFieldNames;
+        Vector<std::string> tEnrichmentFieldNames;
         if(tOutputEnrichmentFields)
         {
             tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
@@ -145,7 +145,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
 
         // Check the basis to enriched basis table
-        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldCoeffToEnrCoeff(6);
+        moris::Vector<moris::Matrix<moris::IndexMat>> tGoldCoeffToEnrCoeff(6);
         tGoldCoeffToEnrCoeff(0) = {{0,1,2}};
         tGoldCoeffToEnrCoeff(1) = {{3,4,5,6}};
         tGoldCoeffToEnrCoeff(2) = {{7,8,9,10}};
@@ -161,11 +161,11 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         // verify there is one interpolation cell per subphase
         moris::uint tExpectedNumSubphase = 6;
-        Cell<Interpolation_Cell_Unzipped*> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
+        Vector<Interpolation_Cell_Unzipped*> const & tCells = tEnrInterpMesh.get_enriched_interpolation_cells();
         CHECK(tCells.size() == tExpectedNumSubphase);
 
         // Expected primary cells in each cluster
-        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldPrimaryCellsInClusters(6);
+        moris::Vector<moris::Matrix<moris::IndexMat>> tGoldPrimaryCellsInClusters(6);
         tGoldPrimaryCellsInClusters(0) = {{3, 13}};
         tGoldPrimaryCellsInClusters(1) = {{15, 17, 20, 21, 22, 24, 25, 26}};
         tGoldPrimaryCellsInClusters(2) = {{10,14}};
@@ -174,7 +174,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         tGoldPrimaryCellsInClusters(5) = {{18, 23}};
 
         // Expected void cells in each cluster
-        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldVoidCellsInClusters(6);
+        moris::Vector<moris::Matrix<moris::IndexMat>> tGoldVoidCellsInClusters(6);
         tGoldVoidCellsInClusters(0) = {{4, 5, 6, 7, 8, 9, 10, 11, 12, 14}};
         tGoldVoidCellsInClusters(1) = {{16, 18, 19, 23}};
         tGoldVoidCellsInClusters(2) = {{3, 5, 9, 13}};
@@ -183,7 +183,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         tGoldVoidCellsInClusters(5) = {{15, 16, 17, 19, 20, 21, 22, 24, 25, 26}};
 
 //        // Expected interpolation vertices
-//        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
+//        Vector<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
 //        tGoldInterpCoeff(0) = {{0,6,9,15}};
 //        tGoldInterpCoeff(1) = {{1,7,10,16}};
 //        tGoldInterpCoeff(2) = {{2,8,11,17}};
@@ -193,7 +193,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 //
 
         // Expected interpolation vertices
-        moris::Cell<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
+        moris::Vector<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
         tGoldInterpCoeff(0) = {{0,6,7,11}};
         tGoldInterpCoeff(1) = {{3, 14, 17, 8}};
         tGoldInterpCoeff(2) = {{1, 3, 8, 12}};
@@ -230,7 +230,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
             // CHECK(all_true(tSortedVoidCellIds == tGoldVoidCellsInClusters(i)));
 
             // check the vertices of the interpolation cell
-            Cell<moris::mtk::Vertex *> tVertices = tXTKInterpCell->get_vertex_pointers();
+            Vector<moris::mtk::Vertex *> tVertices = tXTKInterpCell->get_vertex_pointers();
 
             Matrix<IndexMat> tVertexInterpInds(1,4);
             for(moris::uint j = 0; j < tVertices.size(); j++)

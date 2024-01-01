@@ -617,7 +617,7 @@ namespace moris::hmr
 
         // counts inflagged basis
         void
-        collect_descendants( Cell< Basis* >& aBasisList,
+        collect_descendants( Vector< Basis* >& aBasisList,
                 luint&                       aBasisCount ) override
         {
             // test if self has been flagged

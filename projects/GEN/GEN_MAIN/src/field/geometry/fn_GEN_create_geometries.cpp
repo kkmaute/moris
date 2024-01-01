@@ -52,16 +52,16 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         template< typename Vector_Type >
-        inline Cell< std::shared_ptr< Geometry > >
+        inline Vector< std::shared_ptr< Geometry > >
         create_geometries(
-                Cell< ParameterList >         aGeometryParameterLists,
+                Vector< ParameterList >         aGeometryParameterLists,
                 Vector_Type&                  aADVs,
                 std::shared_ptr< Library_IO > aLibrary,
                 mtk::Mesh*                    aMTKMesh )
         {
             // Create geometry cell
-            Cell< std::shared_ptr< Geometry > >      tGeometries( 0 );
-            Cell< std::shared_ptr< Multigeometry > > tMultigeometries( 0 );
+            Vector< std::shared_ptr< Geometry > >      tGeometries( 0 );
+            Vector< std::shared_ptr< Multigeometry > > tMultigeometries( 0 );
 
             // Create individual geometries
             for ( uint tGeometryIndex = 0; tGeometryIndex < aGeometryParameterLists.size(); tGeometryIndex++ )
@@ -104,7 +104,7 @@ namespace moris
                             {
                                 tMultigeometryFound = true;
                                 tMultigeometries.push_back( std::make_shared< Multigeometry >(
-                                        Cell< std::shared_ptr< Geometry > >( { tGeometries( tCreatedGeometryIndex ), tGeometry } ) ) );
+                                        Vector< std::shared_ptr< Geometry > >( { tGeometries( tCreatedGeometryIndex ), tGeometry } ) ) );
                                 tGeometries.erase( tCreatedGeometryIndex );
                                 break;
                             }
@@ -458,14 +458,14 @@ namespace moris
         // Explicit template instantiation
         //--------------------------------------------------------------------------------------------------------------
 
-        template Cell< std::shared_ptr< Geometry > > create_geometries(
-                Cell< ParameterList >         aGeometryParameterLists,
+        template Vector< std::shared_ptr< Geometry > > create_geometries(
+                Vector< ParameterList >         aGeometryParameterLists,
                 Matrix< DDRMat >&             aADVs,
                 std::shared_ptr< Library_IO > aLibrary,
                 mtk::Mesh*                    aMTKMesh );
 
-        template Cell< std::shared_ptr< Geometry > > create_geometries(
-                Cell< ParameterList >         aGeometryParameterLists,
+        template Vector< std::shared_ptr< Geometry > > create_geometries(
+                Vector< ParameterList >         aGeometryParameterLists,
                 sol::Dist_Vector*&            aADVs,
                 std::shared_ptr< Library_IO > aLibrary,
                 mtk::Mesh*                    aMTKMesh );

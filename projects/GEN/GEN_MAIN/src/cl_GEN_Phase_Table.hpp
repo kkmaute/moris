@@ -30,7 +30,7 @@ namespace moris
             uint mNumPhases     = 0;    // Number of bulk phases
 
             Matrix< DDUMat >    mBulkPhases;    // Geometric sign to bulk phase
-            Cell< std::string > mPhaseNames;    // Phase names
+            Vector< std::string > mPhaseNames;    // Phase names
 
             PHASE_FUNCTION mPhaseFunction = nullptr;
 
@@ -45,7 +45,7 @@ namespace moris
             Phase_Table(
                     uint                aNumGeometries,
                     Matrix< DDUMat >    aBulkPhases,
-                    Cell< std::string > aPhaseNames = {} );
+                    Vector< std::string > aPhaseNames = {} );
 
             /**
              * Create a phase table with 2^n structure using a number of bulk phases. Delegating constructor.
@@ -55,7 +55,7 @@ namespace moris
              */
             Phase_Table(
                     uint                aNumGeometries,
-                    Cell< std::string > aPhaseNames = {} );
+                    Vector< std::string > aPhaseNames = {} );
 
             /**
              * Create a phase table where the phase indices are decided by a user-defined function.
@@ -67,7 +67,7 @@ namespace moris
             Phase_Table(
                     PHASE_FUNCTION      aPhaseFunction,
                     uint                aNumPhases,
-                    Cell< std::string > aPhaseNames = {} );
+                    Vector< std::string > aPhaseNames = {} );
 
             /**
              * Get the number of phases
@@ -98,7 +98,7 @@ namespace moris
             void
             set_phase_function( PHASE_FUNCTION aPhaseFunction,
                     uint                       aNumPhases,
-                    Cell< std::string >        aPhaseNames = {} );
+                    Vector< std::string >        aPhaseNames = {} );
 
             /*!
              * Print information for setting up phase table

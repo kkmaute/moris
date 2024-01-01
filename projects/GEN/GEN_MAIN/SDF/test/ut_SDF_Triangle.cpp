@@ -9,14 +9,14 @@
  */
 
 #include <catch.hpp>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
 #include "fn_norm.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "cl_SDF_Triangle.hpp"
 
@@ -29,7 +29,7 @@ TEST_CASE(
 {
     // example coordinartes for the triangle
     // create list of vertices
-    moris::Cell< Facet_Vertex * > tVertices;
+    moris::Vector< Facet_Vertex * > tVertices;
     tVertices.resize( 3, nullptr );
     tVertices( 0 ) = new Facet_Vertex( 0, { { 1.050229216800883 }, { 1.417028287272334 }, { 1.334891429874816 } } );
     tVertices( 1 ) = new Facet_Vertex( 1, { { 0.649117827347835 }, { 1.192051358390624 }, { 0.076610713185436 } } );

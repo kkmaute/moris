@@ -14,7 +14,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
@@ -77,7 +77,7 @@ namespace moris
 // Functions for Parameters in FEM
 void ConstFunctionVal
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -85,7 +85,7 @@ void ConstFunctionVal
 
 void tMValFunctionContact
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
@@ -263,7 +263,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
-        moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(4);
+        moris::Vector<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(4);
         tGeometryVector(0) = tLeftPlane;
         tGeometryVector(1) = tRightPlane;
         tGeometryVector(2) = tTopPlane;
@@ -277,7 +277,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -504,7 +504,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetInterface3.set_IWGs( { tIWGInterface } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 20 );
+        moris::Vector< fem::Set_User_Info > tSetInfo( 20 );
         tSetInfo( 0 )  = tSetBulk1;
         tSetInfo( 1 )  = tSetBulk2;
         tSetInfo( 2 )  = tSetBulk3;
@@ -536,7 +536,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+        moris::Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
         tDofTypesU( 0 ) = MSI::Dof_Type::UX;
         tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 

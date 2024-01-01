@@ -243,7 +243,7 @@ namespace moris
         Cell_Info_Tri3::compute_cell_size_special( moris::mtk::Cell const *aCell ) const
         {
             // cell coordinates
-            moris::Cell< Vertex * > tVertices = aCell->get_vertex_pointers();
+            moris::Vector< Vertex * > tVertices = aCell->get_vertex_pointers();
 
             const Matrix< DDRMat > tNodeCoords0 = tVertices( 0 )->get_coords();
 
@@ -270,7 +270,7 @@ namespace moris
         moris::real
         Cell_Info_Tri3::compute_cell_size_deriv( moris::mtk::Cell const *aCell, uint aLocalVertexID, uint aDirection ) const
         {
-            moris::Cell< Vertex * > tVertices = aCell->get_vertex_pointers();
+            moris::Vector< Vertex * > tVertices = aCell->get_vertex_pointers();
 
             // permutation vector used to index correct vertices
             moris::Matrix< DDUMat > tVertIndexMap = { { 1, 2, 0, 1 } };
@@ -299,7 +299,7 @@ namespace moris
                 moris::mtk::Cell const *aCell,
                 moris_index const      &aSideOrd ) const
         {
-            moris::Cell< mtk::Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
+            moris::Vector< mtk::Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
 
             Matrix< DDRMat > tLVec = tVertices( 1 )->get_coords() - tVertices( 0 )->get_coords();
 
@@ -315,7 +315,7 @@ namespace moris
                 uint                    aLocalVertexID,
                 uint                    aDirection ) const
         {
-            moris::Cell< mtk::Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
+            moris::Vector< mtk::Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
 
             // Getting adjacent vertices to vertex of interest
             const Matrix< DDRMat > tNodeCoordsA = tVertices( 0 )->get_coords();

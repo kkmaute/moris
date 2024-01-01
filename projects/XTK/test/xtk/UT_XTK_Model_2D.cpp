@@ -33,7 +33,7 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
@@ -76,7 +76,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         //Specify your decomposition methods and start cutting
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
 //         tXTKModel.decompose(tDecompositionMethods);
 
 //         // Access the decomposed XTK Mesh
@@ -119,7 +119,7 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
@@ -161,7 +161,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         //Specify decomposition Method and Cut Mesh ---------------------------------------
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //         tXTKModel.decompose(tDecompositionMethods);
 
 //         // output to exodus file ----------------------------------------------------------
@@ -187,7 +187,7 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
@@ -245,7 +245,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         //Specify your decomposition methods and start cutting
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4};
 //         tXTKModel.decompose(tDecompositionMethods);
 
 //         // Access the decomposed XTK Mesh
@@ -281,7 +281,7 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
@@ -339,7 +339,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         //Specify your decomposition methods and start cutting
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //         tXTKModel.decompose(tDecompositionMethods);
 
 //         // Access the decomposed XTK Mesh

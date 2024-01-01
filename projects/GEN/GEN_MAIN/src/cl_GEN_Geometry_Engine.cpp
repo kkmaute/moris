@@ -49,7 +49,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Geometry_Engine::Geometry_Engine(
-                Cell< Cell< ParameterList > > aParameterLists,
+                Vector< Vector< ParameterList > > aParameterLists,
                 std::shared_ptr< Library_IO > aLibrary,
                 mtk::Mesh*                    aMesh )
                 : mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
@@ -123,8 +123,8 @@ namespace moris
                     mLibrary );
 
             // Set requested PDVs
-            Cell< std::string > tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
-            Cell< PDV_Type >    tRequestedPdvTypes( tRequestedPdvNames.size() );
+            Vector< std::string > tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
+            Vector< PDV_Type >    tRequestedPdvTypes( tRequestedPdvNames.size() );
 
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
 
@@ -233,7 +233,7 @@ namespace moris
         Geometry_Engine::set_phase_function(
                 PHASE_FUNCTION      aPhaseFunction,
                 uint                aNumPhases,
-                Cell< std::string > aPhaseNames )
+                Vector< std::string > aPhaseNames )
         {
             mPhaseTable.set_phase_function( aPhaseFunction, aNumPhases, aPhaseNames );
         }
@@ -242,7 +242,7 @@ namespace moris
 
         void
         Geometry_Engine::set_dQIdp(
-                moris::Cell< Matrix< DDRMat >* > adQIdp,
+                moris::Vector< Matrix< DDRMat >* > adQIdp,
                 Matrix< DDSMat >*                aMap )
         {
             mPDVHostManager.set_dQIdp( adQIdp, aMap );
@@ -283,7 +283,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Geometry_Engine::communicate_requested_IQIs( Cell< std::string > aIQINames )
+        Geometry_Engine::communicate_requested_IQIs( Vector< std::string > aIQINames )
         {
             mPDVHostManager.set_requested_IQIs( aIQINames );
         }
@@ -324,14 +324,14 @@ namespace moris
                 Matrix< IndexMat > const & tEdgeToVertex = aGeometricQuery->get_query_entity_to_vertex_connectivity();
 
                 // get the physical vertex coordinates in the parent BG cell
-                moris::Cell< std::shared_ptr< Matrix< DDRMat > > >* tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
+                moris::Vector< std::shared_ptr< Matrix< DDRMat > > >* tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
 
                 // get the vertex indices in the parent BG cell
                 Matrix< IndexMat > tParentEntityIndices = aGeometricQuery->get_query_parent_entity_connectivity();
 
                 // Copy the information retrieved above into arrays compatible with the "queue_intersection" function below
                 // TODO: the function below should be re-written to accept a different input format instead of this copying
-                Cell< Matrix< DDRMat > > tParentEntityCoords( tParentEntityIndices.numel() );
+                Vector< Matrix< DDRMat > > tParentEntityCoords( tParentEntityIndices.numel() );
                 Matrix< DDUMat >         tParentEntityIndicesUINT( tParentEntityIndices.numel() );
                 tParentEntityCoords.reserve( tParentEntityIndices.numel() * 3 );
                 for ( uint i = 0; i < tParentEntityIndices.numel(); i++ )
@@ -444,7 +444,7 @@ namespace moris
         bool
         Geometry_Engine::is_intersected(
                 const Matrix< IndexMat >&                           aNodeIndices,
-                moris::Cell< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates )
+                moris::Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates )
         {
             // Check input
             // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
@@ -526,7 +526,7 @@ namespace moris
                 const Matrix< DDRMat >&         aFirstNodeGlobalCoordinates,
                 const Matrix< DDRMat >&         aSecondNodeGlobalCoordinates,
                 const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
-                const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
+                const Vector< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
         {
             // get access to the geometry
             std::shared_ptr< ge::Geometry > mGeometry = mGeometries( mActiveGeometryIndex );
@@ -601,7 +601,7 @@ namespace moris
                         aFirstNodeLocalCoordinates,
                         aSecondNodeLocalCoordinates,
                         aBackgroundElementNodeIndices,
-                        aBackgroundElementNodeCoordinates 
+                        aBackgroundElementNodeCoordinates
                     );
                 }
 
@@ -725,10 +725,10 @@ namespace moris
 
         void
         Geometry_Engine::create_new_child_nodes(
-                const Cell< moris_index >*                   aNewNodeIndices,
-                Cell< moris::mtk::Cell* >*                   aNewNodeParentCell,
-                Cell< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
-                Cell< Matrix< DDRMat > >*                    aNodeCoordinates )
+                const Vector< moris_index >*                   aNewNodeIndices,
+                Vector< moris::mtk::Cell* >*                   aNewNodeParentCell,
+                Vector< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
+                Vector< Matrix< DDRMat > >*                    aNodeCoordinates )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create new child nodes" );
@@ -777,10 +777,10 @@ namespace moris
 
         void
         Geometry_Engine::create_new_child_nodes(
-                const Cell< moris_index >&               aNewNodeIndices,
-                const Cell< Element_Intersection_Type >& aParentIntersectionType,
-                const Cell< Matrix< IndexMat > >&        tVertexIndices,
-                const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
+                const Vector< moris_index >&               aNewNodeIndices,
+                const Vector< Element_Intersection_Type >& aParentIntersectionType,
+                const Vector< Matrix< IndexMat > >&        tVertexIndices,
+                const Vector< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
                 const Matrix< DDRMat >&                  aGlobalNodeCoord )
         {
             // Tracer
@@ -799,7 +799,7 @@ namespace moris
             for ( uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++ )
             {
                 Matrix< DDUMat >         tParentNodeIndices( tVertexIndices( tNode ).numel(), 1 );
-                Cell< Matrix< DDRMat > > tParentNodeCoordinates( tParentNodeIndices.length() );
+                Vector< Matrix< DDRMat > > tParentNodeCoordinates( tParentNodeIndices.length() );
 
                 for ( uint tParentNode = 0; tParentNode < tParentNodeIndices.length(); tParentNode++ )
                 {
@@ -995,10 +995,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Cell< std::shared_ptr< mtk::Field > >
+        Vector< std::shared_ptr< mtk::Field > >
         Geometry_Engine::get_mtk_fields()
         {
-            Cell< std::shared_ptr< mtk::Field > > tFields( mGeometries.size() + mProperties.size() );
+            Vector< std::shared_ptr< mtk::Field > > tFields( mGeometries.size() + mProperties.size() );
             std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
             std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
             return tFields;
@@ -1039,8 +1039,8 @@ namespace moris
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
 
             // Initialize PDV type groups and mesh set info from integration mesh
-            Cell< Cell< Cell< PDV_Type > > > tPdvTypes( tIntegrationMesh->get_num_sets() );
-            Cell< PDV_Type >                 tPDVTypeGroup( 1 );
+            Vector< Vector< Vector< PDV_Type > > > tPdvTypes( tIntegrationMesh->get_num_sets() );
+            Vector< PDV_Type >                 tPDVTypeGroup( 1 );
 
             // Loop over properties to create PDVs
             for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
@@ -1050,7 +1050,7 @@ namespace moris
 
                 // Get mesh set indices and names
                 Matrix< DDUMat >    tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
-                Cell< std::string > tMeshSetNames   = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
+                Vector< std::string > tMeshSetNames   = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
 
                 // Convert mesh set names to indices
                 uint tNumSetIndices = tMeshSetIndices.length();
@@ -1244,7 +1244,7 @@ namespace moris
         Geometry_Engine::initialize_pdv_type_list()
         {
             // Reserve of temporary pdv type list
-            Cell< enum PDV_Type > tTemporaryPdvTypeList;
+            Vector< enum PDV_Type > tTemporaryPdvTypeList;
 
             tTemporaryPdvTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
 
@@ -1283,14 +1283,14 @@ namespace moris
         void
         Geometry_Engine::distribute_advs(
                 mtk::Mesh_Pair                               aMeshPair,
-                moris::Cell< std::shared_ptr< mtk::Field > > aFields,
+                moris::Vector< std::shared_ptr< mtk::Field > > aFields,
                 mtk::EntityRank                              aADVEntityRank )
         {
             // Tracer
             Tracer tTracer( "GEN", "Distribute ADVs" );
 
             // Gather all fields
-            Cell< std::shared_ptr< Field > > tFields( mGeometries.size() + mProperties.size() );
+            Vector< std::shared_ptr< Field > > tFields( mGeometries.size() + mProperties.size() );
             std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
             std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
 
@@ -1320,8 +1320,8 @@ namespace moris
             mOwnedijklIds.set_size( tPrimitiveADVIds.numel(), 1, gNoID );
 
             // Owned and shared ADVs per field
-            Cell< Matrix< DDUMat > > tSharedCoefficientIndices( tFields.size() );
-            Cell< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
+            Vector< Matrix< DDUMat > > tSharedCoefficientIndices( tFields.size() );
+            Vector< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
             Matrix< DDUMat >         tAllOffsetIDs( tFields.size(), 1 );
 
             // Get all node indices from the mesh (for now)
@@ -1332,7 +1332,7 @@ namespace moris
                 tNodeIndices( tNodeIndex ) = tNodeIndex;
             }
 
-            moris::Cell< uint > tNumCoeff( tFields.size() );
+            moris::Vector< uint > tNumCoeff( tFields.size() );
             // Loop over all geometries to get number of new ADVs
             sint tOffsetID = tPrimitiveADVIds.length();
             for ( uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++ )
@@ -1702,16 +1702,16 @@ namespace moris
             clock_t tStart_Communicate_ADV_IDs = clock();
 
             // Sending mats
-            Cell< Matrix< DDSMat > > tSendingIDs( 0 );
-            Cell< Matrix< DDRMat > > tSendingLowerBounds( 0 );
-            Cell< Matrix< DDRMat > > tSendingUpperBounds( 0 );
-            Cell< Matrix< DDSMat > > tSendingijklIDs( 0 );
+            Vector< Matrix< DDSMat > > tSendingIDs( 0 );
+            Vector< Matrix< DDRMat > > tSendingLowerBounds( 0 );
+            Vector< Matrix< DDRMat > > tSendingUpperBounds( 0 );
+            Vector< Matrix< DDSMat > > tSendingijklIDs( 0 );
 
             // Receiving mats
-            Cell< Matrix< DDSMat > > tReceivingIDs( 0 );
-            Cell< Matrix< DDRMat > > tReceivingLowerBounds( 0 );
-            Cell< Matrix< DDRMat > > tReceivingUpperBounds( 0 );
-            Cell< Matrix< DDSMat > > tReceivingjklIDs( 0 );
+            Vector< Matrix< DDSMat > > tReceivingIDs( 0 );
+            Vector< Matrix< DDRMat > > tReceivingLowerBounds( 0 );
+            Vector< Matrix< DDRMat > > tReceivingUpperBounds( 0 );
+            Vector< Matrix< DDSMat > > tReceivingjklIDs( 0 );
 
             // Set up communication list for communicating ADV IDs
             Matrix< IdMat > tCommunicationList( 1, 1, 0 );
@@ -1852,7 +1852,7 @@ namespace moris
                 Matrix< IdMat >& aAllCoefIds,
                 Matrix< IdMat >& aAllCoefOwners,
                 Matrix< IdMat >& aAllCoefijklIds,
-                Cell< uint >&    aNumCoeff,
+                Vector< uint >&    aNumCoeff,
                 uint             aFieldIndex,
                 uint             aDiscretizationMeshIndex,
                 mtk::MeshType    aMeshType )
@@ -1871,8 +1871,8 @@ namespace moris
                 tCommTableMap( tCommTable( Ik ) ) = Ik;
             }
 
-            moris::Cell< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
-            moris::Cell< Matrix< IdMat > > tSharedCoeffsijklIdGlobal( tNumCommProcs );
+            moris::Vector< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
+            moris::Vector< Matrix< IdMat > > tSharedCoeffsijklIdGlobal( tNumCommProcs );
 
             // Set Mat to store number of shared coeffs per processor
             Matrix< DDUMat > tNumSharedCoeffsPerProc( tNumCommProcs, 1, 0 );
@@ -1936,8 +1936,8 @@ namespace moris
             }
 
             // receiving list
-            moris::Cell< Matrix< IdMat > > tMatsToReceive;
-            moris::Cell< Matrix< IdMat > > tMatsToReceiveijklID;
+            moris::Vector< Matrix< IdMat > > tMatsToReceive;
+            moris::Vector< Matrix< IdMat > > tMatsToReceiveijklID;
 
             barrier();
 
@@ -2042,7 +2042,7 @@ namespace moris
                 // Setup field names
                 uint                tNumGeometries = mGeometries.size();
                 uint                tNumProperties = mProperties.size();
-                Cell< std::string > tFieldNames( tNumGeometries + tNumProperties );
+                Vector< std::string > tFieldNames( tNumGeometries + tNumProperties );
 
                 // Geometry field names
                 for ( uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++ )
@@ -2071,7 +2071,7 @@ namespace moris
                 tWriter.set_nodal_fields( tFieldNames );
 
                 // Get all node coordinates
-                Cell< Matrix< DDRMat > > tNodeCoordinates( aMesh->get_num_nodes() );
+                Vector< Matrix< DDRMat > > tNodeCoordinates( aMesh->get_num_nodes() );
                 for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                 {
                     tNodeCoordinates( tNodeIndex ) = aMesh->get_node_coordinate( tNodeIndex );
@@ -2124,7 +2124,7 @@ namespace moris
             if ( aBaseFileName != "" )
             {
                 // Get all node coordinates
-                Cell< Matrix< DDRMat > > tNodeCoordinates( aMesh->get_num_nodes() );
+                Vector< Matrix< DDRMat > > tNodeCoordinates( aMesh->get_num_nodes() );
                 for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                 {
                     tNodeCoordinates( tNodeIndex ) = aMesh->get_node_coordinate( tNodeIndex );
@@ -2168,7 +2168,7 @@ namespace moris
         Geometry_Engine::create_interpolation_pdvs(
                 mtk::Interpolation_Mesh*         aInterpolationMesh,
                 mtk::Integration_Mesh*           aIntegrationMesh,
-                Cell< Cell< Cell< PDV_Type > > > aPdvTypes )
+                Vector< Vector< Vector< PDV_Type > > > aPdvTypes )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create interpolation PDV hosts" );
@@ -2177,17 +2177,17 @@ namespace moris
             uint tNumSets = aPdvTypes.size();
 
             // Size node information cells
-            Cell< Cell< uint > >     tNodeIndicesPerSet( tNumSets );
-            Cell< Cell< sint > >     tNodeIdsPerSet( tNumSets );
-            Cell< Cell< uint > >     tNodeOwnersPerSet( tNumSets );
-            Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
+            Vector< Vector< uint > >     tNodeIndicesPerSet( tNumSets );
+            Vector< Vector< sint > >     tNodeIdsPerSet( tNumSets );
+            Vector< Vector< uint > >     tNodeOwnersPerSet( tNumSets );
+            Vector< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
 
             // Get communication table and map
             Matrix< IdMat >  tCommTable             = aInterpolationMesh->get_communication_table();
-            Cell< moris_id > tCommunicationTableMap = build_communication_table_map( tCommTable );
+            Vector< moris_id > tCommunicationTableMap = build_communication_table_map( tCommTable );
 
             // TODO change over to just use a cell to begin with
-            Cell< moris_index > tCommunicationTable( tCommTable.length() );
+            Vector< moris_index > tCommunicationTable( tCommTable.length() );
             for ( uint iCommTableIndex = 0; iCommTableIndex < tCommunicationTable.size(); iCommTableIndex++ )
             {
                 tCommunicationTable( iCommTableIndex ) = tCommTable( iCommTableIndex );
@@ -2203,7 +2203,7 @@ namespace moris
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index( iMeshSetIndex );
 
                     // Select sides of interpolation cells to get info from
-                    Cell< mtk::Leader_Follower > tSetSides = mtk::get_leader_follower( tSet->get_set_type() );
+                    Vector< mtk::Leader_Follower > tSetSides = mtk::get_leader_follower( tSet->get_set_type() );
 
                     // Get number of clusters on set
                     uint tNumberOfClusters = tSet->get_num_clusters_on_set();
@@ -2212,7 +2212,7 @@ namespace moris
                     uint tNumberOfNodesInSet = 0;
 
                     // Number of shared nodes on this set per proc
-                    Cell< uint > tNumSharedNodesPerProc( tCommunicationTable.size() );
+                    Vector< uint > tNumSharedNodesPerProc( tCommunicationTable.size() );
 
                     // Loop over clusters on this set to count nodes
                     for ( uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++ )
@@ -2249,7 +2249,7 @@ namespace moris
                     }
 
                     // Communicate to owning proc about shared nodes
-                    Cell< uint > tNumOwnedNodesPerProc( tCommunicationTable.size() );
+                    Vector< uint > tNumOwnedNodesPerProc( tCommunicationTable.size() );
                     communicate_scalars( tCommunicationTable, tNumSharedNodesPerProc, tNumOwnedNodesPerProc );
 
                     // Add number of nodes this proc owns that it may not know is on the set
@@ -2307,7 +2307,7 @@ namespace moris
                     if ( par_size() > 1 )
                     {
                         // Create lists of shared nodes to communicate
-                        Cell< Cell< sint > > tSharedNodeIdsOnSet( tCommunicationTable.size() );
+                        Vector< Vector< sint > > tSharedNodeIdsOnSet( tCommunicationTable.size() );
                         for ( uint iProcIndex = 0; iProcIndex < tCommunicationTable.size(); iProcIndex++ )
                         {
                             tSharedNodeIdsOnSet( iProcIndex ).resize( tNumSharedNodesPerProc( iProcIndex ) );
@@ -2330,7 +2330,7 @@ namespace moris
                         }
 
                         // Create owned ID cell
-                        Cell< Cell< sint > > tOwnedNodeIdsOnSet( tCommunicationTable.size() );
+                        Vector< Vector< sint > > tOwnedNodeIdsOnSet( tCommunicationTable.size() );
 
                         // Communicate IDs of shared nodes to the owning processor
                         communicate_cells(
@@ -2412,7 +2412,7 @@ namespace moris
             uint tNumSets = aIntegrationMesh->get_num_sets();
 
             // Cell of IG PDV_Type types
-            Cell< PDV_Type > tCoordinatePdvs( mNumSpatialDimensions );
+            Vector< PDV_Type > tCoordinatePdvs( mNumSpatialDimensions );
 
             switch ( mNumSpatialDimensions )
             {
@@ -2436,7 +2436,7 @@ namespace moris
             }
 
             // Loop through sets
-            Cell< Cell< Cell< PDV_Type > > > tPdvTypes( tNumSets );
+            Vector< Vector< Vector< PDV_Type > > > tPdvTypes( tNumSets );
             for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
             {
                 // PDV_Type types per set
@@ -2458,7 +2458,7 @@ namespace moris
             Tracer tTracer( "GEN", "Setup initial geometric proximities" );
 
             mVertexGeometricProximity =
-                    Cell< Geometric_Proximity >( aMesh->get_num_nodes(), Geometric_Proximity( mGeometries.size() ) );
+                    Vector< Geometric_Proximity >( aMesh->get_num_nodes(), Geometric_Proximity( mGeometries.size() ) );
 
             // iterate through vertices then geometries
             for ( uint iVertex = 0; iVertex < aMesh->get_num_nodes(); iVertex++ )
@@ -2663,7 +2663,7 @@ namespace moris
 
         Phase_Table
         Geometry_Engine::create_phase_table(
-                Cell< Cell< ParameterList > > aParameterLists,
+                Vector< Vector< ParameterList > > aParameterLists,
                 std::shared_ptr< Library_IO > aLibrary )
         {
             // Get number of geometries

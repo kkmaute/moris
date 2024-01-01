@@ -25,7 +25,7 @@ namespace xtk
     template< class T >
     inline void
     convert_cell_to_map(
-            moris::Cell< T > const &    aCellToConvert,
+            Vector< T > const &    aCellToConvert,
             Mini_Map< T, moris_index >& aIndexMapToFill )
     {
         for ( uint i = 0; i < aCellToConvert.size(); i++ )
@@ -43,7 +43,7 @@ namespace xtk
 //     template< class T >
 //     inline void
 //     convert_cell_to_map(
-//             moris::Cell< T > const &              aCellToConvert,
+//             Vector< T > const &              aCellToConvert,
 //             std::unordered_map< T, moris_index >& aIndexMapToFill )
 //     {
 //         for ( uint i = 0; i < aCellToConvert.size(); i++ )

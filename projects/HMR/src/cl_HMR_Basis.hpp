@@ -16,15 +16,15 @@
 #include "cl_HMR_Facet.hpp"         //HMR/src
 #include "cl_HMR_Parameters.hpp"    //HMR/src
 #include "HMR_Globals.hpp"          //HMR/src
-#include "typedefs.hpp"             //COR/src
-#include "cl_Cell.hpp"              //CNT/src
+#include "moris_typedefs.hpp"             //COR/src
+#include "cl_Vector.hpp"              //CNT/src
 #include "cl_Matrix.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK/src
 
 namespace moris::hmr
 {
-    // Cell< mtk::Vertex* > gEmptyVertexCell;
+    // Vector< mtk::Vertex* > gEmptyVertexCell;
     //------------------------------------------------------------------------------
     /**
      * \brief base class for templated Lagrange Nodes and B-Splines
@@ -70,7 +70,7 @@ namespace moris::hmr
         bool mUsedOwnedAndSharedFlag = false;
 
         //  array containing connected elements
-        moris::Cell< Element* > mElements;
+        Vector< Element* > mElements;
 
         //! counts how many facets are connected to this basis
         uint mNumberOfConnectedFacets = 0;
@@ -1015,7 +1015,7 @@ namespace moris::hmr
 
         virtual void
         collect_descendants(
-                Cell< Basis* >& aBasisList,
+                Vector< Basis* >& aBasisList,
                 luint&          aBasisCount )
         {
             MORIS_ERROR( false, "collect_descendants() not available for selected basis type." );
@@ -1081,7 +1081,7 @@ namespace moris::hmr
          */
         virtual void
         set_coefficients( const uint  aBSplineMeshIndex,
-                Cell< mtk::Vertex* >& aDOFs )
+                Vector< mtk::Vertex* >& aDOFs )
         {
             MORIS_ERROR( false, "set_coefficients() not available for for selected basis type." );
         }
@@ -1126,7 +1126,7 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        // virtual Cell< mtk::Vertex* > &
+        // virtual Vector< mtk::Vertex* > &
         // get_adof_pointers()
         //  {
         //      MORIS_ERROR( false, "get_adof_pointers() not available for for selected basis type.");
@@ -1135,7 +1135,7 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        // virtual const Cell< mtk::Vertex* > &
+        // virtual const Vector< mtk::Vertex* > &
         // get_adof_pointers() const
         //{
         //     MORIS_ERROR( false, "get_adof_pointers() const not available for for selected basis type.");

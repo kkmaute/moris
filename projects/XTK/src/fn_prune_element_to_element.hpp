@@ -16,7 +16,7 @@
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_Matrix.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // Unordered Map Include
 #include <unordered_map>
@@ -36,7 +36,7 @@ namespace xtk
      *             Cell(1) Pruned shared faces
      *
      */
-    inline Cell< moris::Matrix< moris::IndexMat > >
+    inline Vector< moris::Matrix< moris::IndexMat > >
     prune_element_to_element(
             moris::Matrix< moris::IndexMat > const & aElementToElement,
             moris::Matrix< moris::IndexMat > const & aElementsInPrunedGraph,

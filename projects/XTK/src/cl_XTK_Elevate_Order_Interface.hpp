@@ -79,9 +79,9 @@ class Elevate_Order_Template
      * @brief Get parametric coords for new vertices wrt entity they are created on
      *
      * @param aEntityRank Entity Rank for which new vertices should be created
-     * @return Cell< Matrix< DDRMat > > list of parametric coords for vertices to be created per entity
+     * @return Vector< Matrix< DDRMat > > list of parametric coords for vertices to be created per entity
      */
-    virtual Cell< Matrix< DDRMat > >
+    virtual Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const = 0;
 
     /**
@@ -212,7 +212,7 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
         }
     }
 
-    Cell< Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
@@ -220,7 +220,7 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
             case mtk::EntityRank::NODE:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
-                return Cell< Matrix< DDRMat > >( 0 );
+                return Vector< Matrix< DDRMat > >( 0 );
                 break;
             }
             case mtk::EntityRank::EDGE:
@@ -231,19 +231,19 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
             case mtk::EntityRank::FACE:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on faces. This shouldn't be requested." );
-                return Cell< Matrix< DDRMat > >( 0 );
+                return Vector< Matrix< DDRMat > >( 0 );
                 break;
             }
             case mtk::EntityRank::ELEMENT:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices inside cell. This shouldn't be requested." );
-                return Cell< Matrix< DDRMat > >( 0 );
+                return Vector< Matrix< DDRMat > >( 0 );
                 break;
             }
             default:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - Unknown Entity Rank." );
-                return Cell< Matrix< DDRMat > >( 0 );
+                return Vector< Matrix< DDRMat > >( 0 );
                 break;
             }
         }
@@ -421,7 +421,7 @@ class TET4_to_TET10 : public Elevate_Order_Template
         }
     }
 
-    Cell< Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
@@ -429,7 +429,7 @@ class TET4_to_TET10 : public Elevate_Order_Template
         case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TET4_to_TET10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
-            return Cell< Matrix< DDRMat > >( 0 );
+            return Vector< Matrix< DDRMat > >( 0 );
             break;
         }
         case mtk::EntityRank::EDGE:
@@ -440,19 +440,19 @@ class TET4_to_TET10 : public Elevate_Order_Template
         case mtk::EntityRank::FACE:
         {
             MORIS_ERROR( false, "TET4_to_TET10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on faces. This shouldn't be requested." );
-            return Cell< Matrix< DDRMat > >( 0 );
+            return Vector< Matrix< DDRMat > >( 0 );
             break;
         }
         case mtk::EntityRank::ELEMENT:
         {
             MORIS_ERROR( false, "TET4_to_TET10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices inside cell. This shouldn't be requested." );
-            return Cell< Matrix< DDRMat > >( 0 );
+            return Vector< Matrix< DDRMat > >( 0 );
             break;
         }
         default:
         {
             MORIS_ERROR( false, "TET4_to_TET10::get_new_vertex_parametric_coords_wrt_entity() - Unknown Entity Rank." );
-            return Cell< Matrix< DDRMat > >( 0 );
+            return Vector< Matrix< DDRMat > >( 0 );
             break;
         }
         }
@@ -635,7 +635,7 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
         }
     }
 
-    Cell< Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
@@ -643,7 +643,7 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
         case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TRI3_to_TRI10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
-            return Cell< Matrix< DDRMat > >( 0 );
+            return Vector< Matrix< DDRMat > >( 0 );
             break;
         }
         case mtk::EntityRank::EDGE:
@@ -657,7 +657,7 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
         case mtk::EntityRank::FACE:
         {
             MORIS_ERROR( false, "TRI3_to_TRI10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on faces. This shouldn't be requested." );
-            return Cell< Matrix< DDRMat > >( 0 );
+            return Vector< Matrix< DDRMat > >( 0 );
             break;
         }
         case mtk::EntityRank::ELEMENT:
@@ -669,7 +669,7 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
         default:
         {
             MORIS_ERROR( false, "TRI3_to_TRI10::get_new_vertex_parametric_coords_wrt_entity() - Unknown Entity Rank." );
-            return Cell< Matrix< DDRMat > >( 0 );
+            return Vector< Matrix< DDRMat > >( 0 );
             break;
         }
         }
@@ -756,22 +756,22 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
     make_vertex_requests(
         std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
         std::shared_ptr< Edge_Based_Ancestry >             aIgEdgeAncestry,
-        moris::Cell< moris::mtk::Cell* >*                  aIgCells,
-        moris::Cell< moris::Cell< moris_index > >*         aCellToNewLocalVertexIndices  );
+        Vector< moris::mtk::Cell* >*                  aIgCells,
+        Vector< Vector< moris_index > >*         aCellToNewLocalVertexIndices  );
 
     bool
     associate_new_vertices_with_cell_groups(
         std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
         std::shared_ptr< Edge_Based_Ancestry >             aIgEdgeAncestry,
-        moris::Cell< moris::mtk::Cell* >*                  aBackgroundCellForEdge,
-        moris::Cell< moris::mtk::Cell* >*                  aIgCells );
+        Vector< moris::mtk::Cell* >*                  aBackgroundCellForEdge,
+        Vector< moris::mtk::Cell* >*                  aIgCells );
 
     void
     create_higher_order_integration_cells(
         std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
         std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-        moris::Cell< moris::mtk::Cell* >*          aIgCells,
-        moris::Cell< moris::Cell< moris_index > >* aCellToNewLocalVertexIndices  );
+        Vector< moris::mtk::Cell* >*          aIgCells,
+        Vector< Vector< moris_index > >* aCellToNewLocalVertexIndices  );
 
     // -------------------------------------------------------------------------
 
@@ -783,7 +783,7 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
      * @return moris_index unique id for edge
      */
     moris_index
-    hash_edge( moris::Cell< moris::mtk::Vertex* > const& aEdgeVertices );
+    hash_edge( Vector< moris::mtk::Vertex* > const& aEdgeVertices );
 
     /**
      * @brief Creates unique id for a face based on the IDs of its three end corner vertices
@@ -793,7 +793,7 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
      * @return moris_index unique id for face
      */
     moris_index
-    hash_face( moris::Cell< moris::mtk::Vertex* > const& aFaceVertices );
+    hash_face( Vector< moris::mtk::Vertex* > const& aFaceVertices );
 
     /**
      * @brief swaps the values of two inidices
@@ -807,13 +807,13 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
     // -------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    compute_edge_vertex_global_coordinates( moris::Cell< moris::mtk::Vertex* > const& aEdgeVertices, Matrix< DDRMat > aEdgeCoord );
+    compute_edge_vertex_global_coordinates( Vector< moris::mtk::Vertex* > const& aEdgeVertices, Matrix< DDRMat > aEdgeCoord );
 
     Matrix< DDRMat >
-    compute_tri_vertex_global_coordinates( moris::Cell< moris::mtk::Vertex* > const& aTriVertices, Matrix< DDRMat > aTriCoords );
+    compute_tri_vertex_global_coordinates( Vector< moris::mtk::Vertex* > const& aTriVertices, Matrix< DDRMat > aTriCoords );
 
     Matrix< DDRMat >
-    compute_tet_vertex_global_coordinates( moris::Cell< moris::mtk::Vertex* > const& aTetVertices, Matrix< DDRMat > aTetCoords );
+    compute_tet_vertex_global_coordinates( Vector< moris::mtk::Vertex* > const& aTetVertices, Matrix< DDRMat > aTetCoords );
 };
 
 }// namespace xtk

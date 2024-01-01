@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -85,7 +85,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        moris::Vector< moris::Vector< fem::Node_Base * > > tNodeIds_1( 1 );
         tNodeIds_1( 0 ).resize( tNumNodes );
         tNodeIds_1( 0 )( 0 ) = Node1;
         tNodeIds_1( 0 )( 1 ) = Node2;
@@ -159,7 +159,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointer corresponding to generic equation object
-        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        moris::Vector< moris::Vector< fem::Node_Base * > > tNodeIds_1( 1 );
         tNodeIds_1( 0 ).resize( tNumNodes );
         tNodeIds_1( 0 )( 0 ) = Node1;
         tNodeIds_1( 0 )( 1 ) = Node2;
@@ -168,7 +168,7 @@ namespace moris
         Equation_Object EquObj( tNodeIds_1 );
 
         // Create the pdof hosts of this equation object
-        moris::Cell < Pdof_Host * > tPdofHostList;
+        moris::Vector < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 1;
 
@@ -257,7 +257,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        moris::Vector< moris::Vector< fem::Node_Base * > > tNodeIds_1( 1 );
         tNodeIds_1( 0 ).resize( tNumNodes );
         tNodeIds_1( 0 )( 0 ) = Node1;
         tNodeIds_1( 0 )( 1 ) = Node2;
@@ -266,7 +266,7 @@ namespace moris
         Equation_Object EquObj( tNodeIds_1 );
 
         // Create pdof hosts of this equation object
-        moris::Cell < Pdof_Host * > tPdofHostList;
+        moris::Vector < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 2;
 
@@ -358,7 +358,7 @@ namespace moris
         moris::uint tNumNodes = 2;
 
         // Create List with node pointern correponding to generic equation object
-        moris::Cell< moris::Cell< fem::Node_Base * > > tNodeIds_1( 1 );
+        moris::Vector< moris::Vector< fem::Node_Base * > > tNodeIds_1( 1 );
         tNodeIds_1( 0 ).resize( tNumNodes );
         tNodeIds_1( 0 )( 0 ) = Node1;
         tNodeIds_1( 0 )( 1 ) = Node2;
@@ -367,7 +367,7 @@ namespace moris
         Equation_Object EquObj( tNodeIds_1 );
 
         // Create pdof hosts of this equation object
-        moris::Cell < Pdof_Host * > tPdofHostList;
+        moris::Vector < Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 2;
 

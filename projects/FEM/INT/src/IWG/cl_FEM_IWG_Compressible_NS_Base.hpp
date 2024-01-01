@@ -12,8 +12,8 @@
 #define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_BASE_HPP_
 
 #include <map>
-#include "typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"     //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -47,22 +47,22 @@ namespace moris
             uint              mLastDofIndex   = 2;
 
             // List of accepted variable sets
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mConservativeVars = {
+            Vector< Vector< MSI::Dof_Type > > mConservativeVars = {
                 { MSI::Dof_Type::P },
                 { MSI::Dof_Type::MX },
                 { MSI::Dof_Type::E }
             };
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mDensityPrimitiveVars = {
+            Vector< Vector< MSI::Dof_Type > > mDensityPrimitiveVars = {
                 { MSI::Dof_Type::RHO },
                 { MSI::Dof_Type::VX },
                 { MSI::Dof_Type::TEMP }
             };
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mPressurePrimitiveVars = {
+            Vector< Vector< MSI::Dof_Type > > mPressurePrimitiveVars = {
                 { MSI::Dof_Type::P },
                 { MSI::Dof_Type::VX },
                 { MSI::Dof_Type::TEMP }
             };
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mEntropyVars = {
+            Vector< Vector< MSI::Dof_Type > > mEntropyVars = {
                 { MSI::Dof_Type::EVP },
                 { MSI::Dof_Type::EVX },
                 { MSI::Dof_Type::EVT }
@@ -96,28 +96,28 @@ namespace moris
             // vectors and matrices containing field variables and their spatial derivatives
             Matrix< DDRMat >                mY;
             Matrix< DDRMat >                mdYdt;
-            moris::Cell< Matrix< DDRMat > > mdYdx;
-            moris::Cell< Matrix< DDRMat > > md2Ydx2;
+            Vector< Matrix< DDRMat > > mdYdx;
+            Vector< Matrix< DDRMat > > md2Ydx2;
 
             // matrices containing test functions and their spatial derivatives
             Matrix< DDRMat >                mW;
             Matrix< DDRMat >                mdWdt;
-            moris::Cell< Matrix< DDRMat > > mdWdx;
-            moris::Cell< Matrix< DDRMat > > md2Wdx2;
+            Vector< Matrix< DDRMat > > mdWdx;
+            Vector< Matrix< DDRMat > > md2Wdx2;
 
             Matrix< DDRMat >                mWtrans;
             Matrix< DDRMat >                mdWtransdt;
-            moris::Cell< Matrix< DDRMat > > mdWtransdx;
+            Vector< Matrix< DDRMat > > mdWtransdx;
 
             // cells of matrices containing the flux matrices
-            moris::Cell< Matrix< DDRMat > >                mA;
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > mK;
-            moris::Cell< Matrix< DDRMat > >                mKiji;
+            Vector< Matrix< DDRMat > >                mA;
+            Vector< Vector< Matrix< DDRMat > > > mK;
+            Vector< Matrix< DDRMat > >                mKiji;
 
             // storage vars for the body load coefficient matrix
             Matrix< DDRMat >                mC;
             Matrix< DDRMat >                mdCdYVR;
-            moris::Cell< Matrix< DDRMat > > mdCdY;
+            Vector< Matrix< DDRMat > > mdCdY;
 
             // matrix temporarily storing assembly indices
             Matrix< DDSMat > mAssemblyIndices;

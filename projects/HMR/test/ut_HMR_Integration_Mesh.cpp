@@ -58,7 +58,7 @@ namespace moris::hmr
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -86,9 +86,9 @@ namespace moris::hmr
         // create pointer to output mesh
         Integration_Mesh_HMR* tOutputIntegMesh = tHMR.create_integration_mesh( 1, 0, tOutputInterpMesh );
 
-        Cell< std::string > tBlockNames = tOutputIntegMesh->get_block_set_names();
+        Vector< std::string > tBlockNames = tOutputIntegMesh->get_block_set_names();
 
-        Cell< mtk::Cluster const* > tCellClustersInBlock = tOutputIntegMesh->get_cell_clusters_in_set( 0 );
+        Vector< mtk::Cluster const* > tCellClustersInBlock = tOutputIntegMesh->get_cell_clusters_in_set( 0 );
 
         CHECK( tBlockNames.size() == 1 );
         CHECK( tBlockNames( 0 ) == "HMR_dummy" );
@@ -127,7 +127,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -210,7 +210,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -284,7 +284,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat >> tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat >> tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

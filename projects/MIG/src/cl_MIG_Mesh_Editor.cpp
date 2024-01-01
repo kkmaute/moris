@@ -46,7 +46,7 @@ void moris::mig::Periodic_Mesh_Editor::merge_meshes()
         mtk::Cluster const * tFollowerCluster = &mOutputMesh->mSideClusters( mIGMeshInfo->mDoubleSidedClusterToNewSideClusterIndex( iDblCluster ).second );
 
         // initialize the vertex pairs of the double sided clusters with the right size
-        Cell< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster + 1 ) - mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ) );
+        Vector< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster + 1 ) - mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ) );
 
         // transform the vertex pairs indices to the pointers
         std::transform( mIGMeshInfo->mDoubleSidedClusterToPairedVerticesIndex.begin() + mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ),
@@ -64,7 +64,7 @@ void moris::mig::Periodic_Mesh_Editor::merge_meshes()
     // // Double Sided Set Data
 
     // get the old double sided sets
-    Cell< mtk::Double_Side_Set* > tDoubleSideSets = mOutputMesh->get_double_side_sets();
+    Vector< mtk::Double_Side_Set* > tDoubleSideSets = mOutputMesh->get_double_side_sets();
 
     // counter for the DoubleSidedSets
     size_t iCounter = 0;
@@ -86,7 +86,7 @@ void moris::mig::Periodic_Mesh_Editor::merge_meshes()
         }
 
         // create the list of clusters inside the set
-        Cell< mtk::Cluster const * > aSideSetClusters;
+        Vector< mtk::Cluster const * > aSideSetClusters;
 
         // starting index of the side clusters
         uint tStartIndex = mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter );
@@ -95,7 +95,7 @@ void moris::mig::Periodic_Mesh_Editor::merge_meshes()
         aSideSetClusters.resize( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
 
         // create a cell with the indices of the side clusters within the set
-        Cell< moris_index > tIndexOfSideClusters( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
+        Vector< moris_index > tIndexOfSideClusters( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
 
         // populate the indices of the side clusters,  they are consecutive by construction in the IG data base
         std::iota( tIndexOfSideClusters.begin(), tIndexOfSideClusters.end(), tStartIndex );
@@ -234,7 +234,7 @@ moris::mig::Periodic_Mesh_Editor::reconstruct_connectivity()
         mOutputMesh->mGhostFollower( iCluster ).set_outward_data();
 
         // initialize the vertexpair list for the double sided cluster
-        Cell< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mGhostToVertexOffset( iCluster + 1 ) - mIGMeshInfo->mGhostToVertexOffset( iCluster ) );
+        Vector< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mGhostToVertexOffset( iCluster + 1 ) - mIGMeshInfo->mGhostToVertexOffset( iCluster ) );
 
         // transform indices to pointers
         std::transform( mIGMeshInfo->mGhostToVertexPairIndices.begin() + mIGMeshInfo->mGhostToVertexOffset( iCluster ),
@@ -359,13 +359,13 @@ moris::mig::Periodic_Mesh_Editor::reconstruct_connectivity()
 
     void
     Periodic_Mesh_Editor::construct_periodic_data_base(
-            moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
+            Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
             Matrix< DDRMat >                           aVerticesCoords,
-            moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-            moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
-            moris::Cell< moris_index >&                aSideClusterToIPCell,
+            Vector< Vector< moris_index > >& aSideClusterToCells,
+            Vector< Vector< moris_index > >& aCellToVertexIndices,
+            Vector< moris_index >&                aSideClusterToIPCell,
             Matrix< DDRMat >&                          aVertexParametricCoords,
-            moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
+            Vector< moris_index >&                aDoubleSidedClustersIndex,
             uint                                       mNumDblSideCluster,
             uint                                       aNumGeometry )
     {

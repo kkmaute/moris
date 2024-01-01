@@ -120,7 +120,7 @@ namespace xtk
             tXTKParameters.set( "periodic_side_set_pair", tPeriodicSidePairs );
 
             //define the sphere such that it is non interacting
-            moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+            Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(3,3,3,0.1);
 
             //define ge engine
@@ -134,7 +134,7 @@ namespace xtk
             tXTKModel.mVerbose  =  false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+            Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
@@ -162,11 +162,11 @@ namespace xtk
             moris::mtk::Set* tPeriodicSet = tIntegrationMesh2->get_set_by_index( tPeriodicSetIndex );
 
             // Get clusters on the set
-            moris::Cell<moris::mtk::Cluster const *> tClusters = tPeriodicSet->get_clusters_on_set();
+            Vector<moris::mtk::Cluster const *> tClusters = tPeriodicSet->get_clusters_on_set();
 
             // Cells to populate and check later
-            moris::Cell<moris_id > tMorisIdCellDiff;
-            moris::Cell<moris_index > tMorisIndexCellDiff;
+            Vector<moris_id > tMorisIdCellDiff;
+            Vector<moris_index > tMorisIndexCellDiff;
 
             //loop over all double sided clusters
             for(uint i = 0 ; i < 12 ; i++)
@@ -187,8 +187,8 @@ namespace xtk
                 for( uint k = 0; k < 4 ; k++ )
                 {
                     // Get Vertices on the leader and follower
-                    moris::Cell< moris::mtk::Vertex const * > tVertex1 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER )( k )->get_vertices_on_side_ordinal( 3 );
-                    moris::Cell< moris::mtk::Vertex const * > tVertex2 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER )( k )->get_vertices_on_side_ordinal( 3 );
+                    Vector< moris::mtk::Vertex const * > tVertex1 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER )( k )->get_vertices_on_side_ordinal( 3 );
+                    Vector< moris::mtk::Vertex const * > tVertex2 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER )( k )->get_vertices_on_side_ordinal( 3 );
 
                     // Side ordinal  of the leader and follower cell
                     Matrix< IndexMat > tSideOrdinal2 = tPeriodicSet->get_clusters_by_index( i )->get_cell_side_ordinals(mtk::Leader_Follower::FOLLOWER);

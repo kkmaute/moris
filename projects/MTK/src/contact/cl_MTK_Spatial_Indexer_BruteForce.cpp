@@ -32,7 +32,7 @@ namespace moris::mtk
         Matrix< DDRMat >        tTargetNormals            = tTargetMesh.get_vertex_normals();
 
         // if the meshes are the same, we can use the neighbor information to exclude neighboring vertices from the search
-        moris::Cell< moris::Cell< moris_index > > mNeighbors;
+        Vector< Vector< moris_index > > mNeighbors;
         if ( tIsSelfIntersectionSearch ) mNeighbors = tSourceMesh.get_vertex_neighbors();
 
         moris_index tNumSourceVertices = tSourceCoordinates.n_cols();

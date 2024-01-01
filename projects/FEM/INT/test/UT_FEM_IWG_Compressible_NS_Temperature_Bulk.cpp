@@ -54,14 +54,14 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -70,11 +70,11 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
+    moris::Vector< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
+    moris::Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof  = { { MSI::Dof_Type::TEMP } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tTempDof  = { { MSI::Dof_Type::TEMP } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -291,7 +291,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator density
             tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
@@ -340,8 +340,8 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
+            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -443,14 +443,14 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -459,11 +459,11 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
+    moris::Vector< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
+    moris::Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof  = { { MSI::Dof_Type::TEMP } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tTempDof  = { { MSI::Dof_Type::TEMP } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -698,7 +698,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator density
             tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
@@ -747,8 +747,8 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
+            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

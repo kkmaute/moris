@@ -13,7 +13,7 @@
 // #include "cl_XTK_Model.hpp"
 // #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
-// #include "typedefs.hpp"
+// #include "moris_typedefs.hpp"
 
 // #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -111,7 +111,7 @@
 //             tParameters.set_staircase_buffer( 2);
 //             tParameters.set_number_aura(true);
 
-//             Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+//             Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
 //             tLagrangeToBSplineMesh( 0 ) = { {0} };
 
 //             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -137,7 +137,7 @@
 
 //             hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-//             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+//             Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 //             tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 1.1);
 
 //             size_t tModelDimension = 2;
@@ -148,7 +148,7 @@
 //             tXTKModel.mVerbose  =  false;
 
 //             //Specify decomposition Method and Cut Mesh ---------------------------------------
-//             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+//             Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //             tXTKModel.decompose(tDecompositionMethods);
 
 //             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
@@ -191,7 +191,7 @@
 //         tParameters.set_refinement_buffer( 2 );
 //         tParameters.set_staircase_buffer( 2 );
 
-//         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+//         Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
 //         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
 //         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -222,7 +222,7 @@
 //         // create a plane which intentionally intersects from fine to coarse
 //         moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
 //         moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1));
 
 //         size_t tModelDimension = 2;
@@ -233,7 +233,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         //Specify decomposition Method and Cut Mesh ---------------------------------------
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //         bool tSuccess = tXTKModel.decompose(tDecompositionMethods);
 
 //         CHECK(!tSuccess);
@@ -273,7 +273,7 @@
 //         tParameters.set_refinement_buffer( 2 );
 //         tParameters.set_staircase_buffer( 2 );
 
-//         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+//         Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
 //         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
 //         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -296,7 +296,7 @@
 //         // create a plane which intentionally intersects from fine to coarse
 //         moris::Matrix<moris::DDRMat> tCenters = {{ 0.0,0.0 }};
 //         moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
+//         Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
 //         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1)); // center vertical
 //         tGeometry(1) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(1), tNormals(0)); // center horizontal
 
@@ -309,7 +309,7 @@
 //         tXTKModel.mVerbose  =  true;
 
 //         //Specify decomposition Method and Cut Mesh ---------------------------------------
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
 //         tXTKModel.decompose(tDecompositionMethods);
 
 //         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);

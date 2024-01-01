@@ -4,7 +4,7 @@
 
 #include "cl_Json_Object.hpp"
 #include "cl_Matrix.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {

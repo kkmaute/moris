@@ -101,7 +101,7 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_Helmholtz]" )
     {
         // IWG
         //------------------------------------------------------------------------------
-        Cell< Field_Interpolator * > tFieldInterpolators( 1 , nullptr);
+        Vector< Field_Interpolator * > tFieldInterpolators( 1 , nullptr);
         tFieldInterpolators( 0 ) = tvN;
 
         // create an IWG Helmholtz Bulk
@@ -119,7 +119,7 @@ TEST_CASE( "IWG_Helmholtz", "[moris],[fem],[IWG_Helmholtz]" )
         // check evaluation of the jacobian for IWG Helmholtz Bulk by FD
         //------------------------------------------------------------------------------
         // evaluate the jacobian from IWG_Helmholtz_Bulk
-        Cell< Matrix< DDRMat > > tJacobiansHelmBulk( 1 );
+        Vector< Matrix< DDRMat > > tJacobiansHelmBulk( 1 );
         tIWGHelmBulk.compute_jacobian( tJacobiansHelmBulk );
 
         //define a boolean for check

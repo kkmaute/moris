@@ -43,7 +43,7 @@ namespace moris
         {
           protected:
 
-            moris::Cell<moris_index> mMesh_GEN_map;
+            Vector<moris_index> mMesh_GEN_map;
 
             // FIXME these members are here only to allow for throwing, should be removed later
             mtk::Vertex* mDummyVertex = nullptr;
@@ -82,7 +82,7 @@ namespace moris
             // 1.) General mesh information access
             //##############################################
 
-            virtual void get_Mesh_GEN_map(moris::Cell<moris_index> &aMesh_GEN_map);
+            virtual void get_Mesh_GEN_map(Vector<moris_index> &aMesh_GEN_map);
 
             // ----------------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ namespace moris
             virtual void get_elements_in_bspline_element(
                     moris_index const          aBspElementIndex,
                     moris_index const          aDiscretizationMeshIndex,
-                    moris::Cell< mtk::Cell* >& aCells );
+                    Vector< mtk::Cell* >& aCells );
 
             // -----------------------------------------------------------------------------
 
@@ -157,11 +157,11 @@ namespace moris
             virtual void
             get_lagrange_elements_in_bspline_elements(
                     moris_index const                          aDiscretizationMeshIndex,
-                    moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
-                    moris::Cell< moris::Cell< moris_index > >& aCellIndices,
-                    moris::Cell< moris_index >&                aLagToBspCellIndices,
-                    moris::Cell< uint >&                       aBspCellRefineLevels,
-                    moris::Cell< mtk::Cell* >&                 aBspCells );
+                    Vector< Vector< mtk::Cell* > >&  aCells,
+                    Vector< Vector< moris_index > >& aCellIndices,
+                    Vector< moris_index >&                aLagToBspCellIndices,
+                    Vector< uint >&                       aBspCellRefineLevels,
+                    Vector< mtk::Cell* >&                 aBspCells );
 
             // -----------------------------------------------------------------------------
 
@@ -196,8 +196,8 @@ namespace moris
                     moris_index                                 aDiscretizationMeshIndex,
                     moris_index                                 aBSplineCellIndex,
                     moris::mtk::Cell&                           aLagrangeCell,
-                    moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
-                    moris::Cell< Matrix< DDRMat > >&            tWeights );
+                    Vector< Vector< mtk::Vertex* > >& tBsplineBasis,
+                    Vector< Matrix< DDRMat > >&            tWeights );
 
             // -----------------------------------------------------------------------------
 
@@ -217,9 +217,9 @@ namespace moris
                     moris_index                                 aDiscretizationMeshIndex,
                     const mtk::Cell*                            aRootBSplineCell,
                     const mtk::Cell*                            aExtendedBSplineCell,
-                    moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
-                    moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
-                    moris::Cell< Matrix< DDRMat > >&            tWeights );
+                    Vector< Vector< const mtk::Vertex* > >& tRootBsplineBasis,
+                    Vector< const mtk::Vertex* >&                tExtendedBsplineBasis,
+                    Vector< Matrix< DDRMat > >&            tWeights );
 
             // ----------------------------------------------------------------------------
 
@@ -234,7 +234,7 @@ namespace moris
             virtual void get_elements_in_interpolation_cluster(
                     moris_index                aElementIndex,
                     moris_index                aDiscretizationMeshIndex,
-                    moris::Cell< mtk::Cell* >& tCells );
+                    Vector< mtk::Cell* >& tCells );
 
             // ----------------------------------------------------------------------------
 
@@ -252,7 +252,7 @@ namespace moris
                     moris_index const          aBsplineElementIndex,
                     moris_index const          aDiscretizationMeshIndex,
                     moris_index const          aSideOrdinal,
-                    moris::Cell< mtk::Cell* >& aCells );
+                    Vector< mtk::Cell* >& aCells );
 
             // ----------------------------------------------------------------------------
 
@@ -269,7 +269,7 @@ namespace moris
                     moris_index const          aElementIndex,
                     moris_index const          aDiscretizationMeshIndex,
                     moris_index const          aSideOrdinal,
-                    moris::Cell< mtk::Cell* >& aCells );
+                    Vector< mtk::Cell* >& aCells );
 
             //------------------------------------------------------------------------------
 
@@ -290,10 +290,10 @@ namespace moris
                     moris_index                 aBaseElementIndex,
                     moris_index                 aMySideOrdinal,
                     moris_index&                aMyRefineLevel,
-                    moris::Cell< moris_index >& aNeighborElements,
-                    moris::Cell< moris_index >& aNeighborElementSideOrdinals,
-                    moris::Cell< moris_index >& aTransitionLocations,
-                    moris::Cell< moris_index >& aNeighborRefinementLevels ) const
+                    Vector< moris_index >& aNeighborElements,
+                    Vector< moris_index >& aNeighborElementSideOrdinals,
+                    Vector< moris_index >& aTransitionLocations,
+                    Vector< moris_index >& aNeighborRefinementLevels ) const
             {
                 MORIS_ERROR( false,
                         "mtk::Mesh::get_elements_connected_to_element_through_face_ord() - "
@@ -443,7 +443,7 @@ namespace moris
             /**
              * Deprecated
              */
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_all_vertices() const;
 
             // end of pure virtual functions in section 2.1
@@ -999,7 +999,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            virtual moris::Cell< Matrix< IdMat > >
+            virtual Vector< Matrix< IdMat > >
             get_communication_vertex_pairing() const;
 
             //##############################################
@@ -1314,7 +1314,7 @@ namespace moris
              * @param aSetEntityRank Entity rank of the set
              * @return All set names
              */
-            virtual moris::Cell< std::string >
+            virtual Vector< std::string >
             get_set_names( enum EntityRank aSetEntityRank ) const;
 
             // ----------------------------------------------------------------------------
@@ -1405,7 +1405,7 @@ namespace moris
             /**
              * Deprecated
              */
-            virtual moris::Cell< mtk::Cell const * > get_set_cells( std::string aSetLabel ) const;
+            virtual Vector< mtk::Cell const * > get_set_cells( std::string aSetLabel ) const;
 
             // ----------------------------------------------------------------------------
 
@@ -1413,7 +1413,7 @@ namespace moris
             /**
              * Deprecated
              */
-            virtual moris::Cell< mtk::Cell const * >
+            virtual Vector< mtk::Cell const * >
             get_block_set_cells( std::string aSetName ) const;
 
             // ----------------------------------------------------------------------------
@@ -1439,7 +1439,7 @@ namespace moris
              */
             virtual void get_sideset_cells_and_ords(
                     const std::string&                aSetName,
-                    moris::Cell< mtk::Cell const * >& aCells,
+                    Vector< mtk::Cell const * >& aCells,
                     Matrix< IndexMat >&               aSidesetOrdinals ) const;
 
             // ----------------------------------------------------------------------------
@@ -1450,12 +1450,12 @@ namespace moris
              * @param aSideSetIndex Sideset indices
              * @return Number of faces
              */
-            virtual uint get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const;
+            virtual uint get_sidesets_num_faces( Vector< moris_index > aSideSetIndex ) const;
 
             // ----------------------------------------------------------------------------
 
             // FIXME remove access to vertex
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_vertices_in_vertex_set_no_aura( std::string aSetName ) const;
 
             // ----------------------------------------------------------------------------
@@ -1474,7 +1474,7 @@ namespace moris
             void
             get_mtk_cells(
                     Matrix< IndexMat >                       aCellInds,
-                    moris::Cell< moris::mtk::Cell const * >& aCells );
+                    Vector< moris::mtk::Cell const * >& aCells );
 
             //##############################################
             // Multigrid acessor functions FIXME default implementation for non-multigrid + documentation

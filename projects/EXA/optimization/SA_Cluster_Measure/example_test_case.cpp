@@ -50,7 +50,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 5, 20 };
+    Vector< uint > tReferenceNodeId = { 5, 20 };
 
     // perturbation of denominator when building relative error
     real tDeltaEps = 1.0e-14;
@@ -79,9 +79,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2, 3 };
-    Cell< uint > tReferenceNumNodes = { 16, 58 };
-    Cell< uint > tReferenceNumElems = { 8, 68 };
+    Vector< uint > tReferenceNumDims  = { 2, 3 };
+    Vector< uint > tReferenceNumNodes = { 16, 58 };
+    Vector< uint > tReferenceNumElems = { 8, 68 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -106,7 +106,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { +1.000000000000000e+00 }, { +3.499989999999999e-01 } } );
     tReferenceCoordinate.push_back( { { +1.000000000000000e+00 }, { +3.499989999999999e-01 }, { +1.000000000000000e+00 } } );
@@ -136,7 +136,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-8 );
 
     // check time value for time step index 0
-    Cell< real > tReferenceTime;
+    Vector< real > tReferenceTime;
     tReferenceTime.push_back( 1.000000000000000e+00 );
     tReferenceTime.push_back( 1.000000000000000e+00 );
 
@@ -152,7 +152,7 @@ check_results(
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
     // check temperature at node aNodeId in first time step (Temperature is 3rd nodal field, first time step has index 0)
-    Cell< real > tReferenceTemperature;
+    Vector< real > tReferenceTemperature;
     tReferenceTemperature.push_back( 2.641125244043063e+00 );
     tReferenceTemperature.push_back( 2.655482875127814e+00 );
 
@@ -185,7 +185,7 @@ check_results(
     load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus );
 
     // Read FD sensitivities and compare
-    Cell< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
+    Vector< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
     for ( uint tFDIndex = 0; tFDIndex < tFDTypes.size(); tFDIndex++ )
     {
         load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 epsilon_1-1 " + tFDTypes( tFDIndex ), tObjectiveFD, tStatus );

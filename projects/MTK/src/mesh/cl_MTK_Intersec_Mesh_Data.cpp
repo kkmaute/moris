@@ -20,7 +20,7 @@ namespace moris
                                                    mFirstExtEntityInds((moris::moris_index) EntityRank::UNDEFINED, std::numeric_limits<moris::moris_index>::max()),
                                                    mLocalToGlobalExtNodes(1,1),
                                                    mFirstAvailableInds((moris::moris_index) EntityRank::UNDEFINED, std::numeric_limits<moris::moris_index>::max()),
-                                                   mExternalEntities((moris::moris_index) EntityRank::UNDEFINED, moris::Cell<mesh::Entity>(0))
+                                                   mExternalEntities((moris::moris_index) EntityRank::UNDEFINED, moris::Vector<mesh::Entity>(0))
                                                    {
                                                    }
 
@@ -79,10 +79,10 @@ namespace moris
 
         void
         Mesh_Intersection_Data::batch_create_new_nodes_external_data(
-                moris::Cell<moris_index>                    const & aNewNodeIds,
-                moris::Cell<moris_index>                    const & aNewNodeIndices,
-                moris::Cell<moris_index>                    const & aNewNodeOwners,
-                moris::Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
+                moris::Vector<moris_index>                    const & aNewNodeIds,
+                moris::Vector<moris_index>                    const & aNewNodeIndices,
+                moris::Vector<moris_index>                    const & aNewNodeOwners,
+                moris::Vector<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
         {
             moris::moris_index tEntRankInd  = (moris::moris_index)EntityRank::NODE;
             moris::size_t      tAddSize     = aNewNodeIds.size();
@@ -165,15 +165,15 @@ namespace moris
 
             // size_t is defined as uint here because of aNumRequested
             //Initialize gathered information outputs (information which will be scattered across processors)
-            moris::Cell<moris::moris_id> aGatheredInfo;
-            moris::Cell<moris::moris_id> tFirstId(1);
-            moris::Cell<moris::moris_id> tNumIdsRequested(1);
+            moris::Vector<moris::moris_id> aGatheredInfo;
+            moris::Vector<moris::moris_id> tFirstId(1);
+            moris::Vector<moris::moris_id> tNumIdsRequested(1);
 
             tNumIdsRequested(0) = (moris::moris_id)aNumIdstoAllocate;
 
             moris::gather(tNumIdsRequested,aGatheredInfo);
 
-            moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
+            moris::Vector<moris::moris_id> tProcFirstID(tProcSize);
 
             moris::moris_id tEntityRankIndex = (moris::moris_id)aEntityRank;
 

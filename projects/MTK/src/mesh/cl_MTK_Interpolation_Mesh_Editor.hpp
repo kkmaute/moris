@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 
 namespace moris::mtk
@@ -23,13 +23,13 @@ namespace moris::mtk
     struct Interpolation_Mesh_Info
     {
         // mMTK mesh vertices which is being copied here for convience
-        moris::Cell< mtk::Vertex const* > mVertices;
+        Vector< mtk::Vertex const* > mVertices;
 
         // they are stored consecutively for each vertex
-        moris::Cell< mtk::Vertex_Interpolation const* > mVertexInterpolations;
+        Vector< mtk::Vertex_Interpolation const* > mVertexInterpolations;
 
         // cell to vertex connectivity for lagrange cells
-        moris::Cell< moris_index > mCellToVertexIndicies;
+        Vector< moris_index > mCellToVertexIndicies;
 
         uint mSpatialDim;
 

@@ -46,7 +46,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, false );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 729 };
+    Vector< uint > tReferenceNodeId = { 729 };
 
     if ( gPrintReferenceValues )
     {
@@ -81,9 +81,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2 };
-    Cell< uint > tReferenceNumNodes = { 7059 };
-    Cell< uint > tReferenceNumElems = { 13228 };
+    Vector< uint > tReferenceNumDims  = { 2 };
+    Vector< uint > tReferenceNumNodes = { 7059 };
+    Vector< uint > tReferenceNumElems = { 13228 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -108,7 +108,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { 1.882561482489109e-02 }, { 2.055238932371140e-03 } } );
 
@@ -129,7 +129,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-5 );
 
     // check time value for time step index 0
-    Cell< real > tReferenceTime;
+    Vector< real > tReferenceTime;
     tReferenceTime.push_back( 1 );
 
     real tActualTime = tExoIO.get_time_value();
@@ -144,7 +144,7 @@ check_results(
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
     // check displacement at node aNodeId in first time step (displacements are 3rd and 4th nodal fields, first time step has index 0)
-    Cell< Matrix< DDRMat > > tReferenceDisplacement;
+    Vector< Matrix< DDRMat > > tReferenceDisplacement;
 
     tReferenceDisplacement.push_back( { { -1.128321042350804e-04 }, { 9.853289535187406e-06 } } );
 
@@ -163,7 +163,7 @@ check_results(
     REQUIRE( tRelDispDifference < 1.0e-5 );
 
     // check temperature at node aNodeId in first time step (temperature is 7th nodal field, first time step has index 0)
-    Cell< real > tReferenceTemperature;
+    Vector< real > tReferenceTemperature;
     tReferenceTemperature.push_back( 1.038658447265625e+03 );
 
     real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 6, 0 );
@@ -178,7 +178,7 @@ check_results(
     REQUIRE( tRelTempDifference < 1.0e-5 );
 
     // check stresses at node aNodeId in first time step (stress is 5th & 6th nodal field)
-    Cell< real > tReferenceStress;
+    Vector< real > tReferenceStress;
     tReferenceStress.push_back( 2.397992760916115e+08 );
 
     real tActualStress = tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 4, 0 );

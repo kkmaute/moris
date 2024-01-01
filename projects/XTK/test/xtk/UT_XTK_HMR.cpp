@@ -36,19 +36,19 @@ LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
     MORIS_ASSERT(aCenter.numel() == 3,"Centers need to have length 3");
     MORIS_ASSERT(aAxis.numel() == 3, "axis need to have length 3");
 
-    Cell<moris::real> relativePosition = {(aPoint(0) - aCenter(0)),(aPoint(1) - aCenter(1)),(aPoint(2) - aCenter(2))};
+    Vector<moris::real> relativePosition = {(aPoint(0) - aCenter(0)),(aPoint(1) - aCenter(1)),(aPoint(2) - aCenter(2))};
     moris::real lsFromLeft = (relativePosition(0)*(-aAxis(0)) + relativePosition(1)*(-aAxis(1))+ relativePosition(2)*(-aAxis(2))) - aLength/2.0;
     moris::real lsFromRight = (relativePosition(0)*(aAxis(0)) + relativePosition(1)*(aAxis(1))+ relativePosition(2)*(aAxis(2))) - aLength/2.0;
 
     moris::real axialCrd = (relativePosition(0)*(aAxis(0)) + relativePosition(1)*(aAxis(1))+ relativePosition(2)*(aAxis(2)));
-    Cell<moris::real> radDir = {(relativePosition(0) - aAxis(0)*axialCrd), (relativePosition(1) - aAxis(1)*axialCrd),(relativePosition(2) - aAxis(2)*axialCrd)};
+    Vector<moris::real> radDir = {(relativePosition(0) - aAxis(0)*axialCrd), (relativePosition(1) - aAxis(1)*axialCrd),(relativePosition(2) - aAxis(2)*axialCrd)};
     moris::real radDist = std::pow(radDir(0)*radDir(0)+radDir(1)*radDir(1)+radDir(2)*radDir(2), 0.5);
     moris::real lsFromRad = radDist - aRad;
 
     return -std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
 }
 
-real LevelSetSphereCylinderGeometry(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aParameters)
+real LevelSetSphereCylinderGeometry(const Matrix<DDRMat>& aCoordinates, const Vector<real*>& aParameters)
 {
     return LevelSetSphereCylinder(aCoordinates);
 }
@@ -73,7 +73,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         for( moris::uint iOrder = 1; iOrder < 2; iOrder ++)
         {
 
-            moris::Cell< moris::Cell< ParameterList > > tParameterlist;
+            moris::Vector< moris::Vector< ParameterList > > tParameterlist;
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
             tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
@@ -108,7 +108,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             tHMR->perform_initial_refinement();
             tHMR->perform();
 
-            Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
+            Vector< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
             size_t tModelDimension = 3;
@@ -118,7 +118,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             xtk::Model tXTKModel(tModelDimension,tMeshManager->get_interpolation_mesh(0),&tGeometryEngine);
             tXTKModel.mVerbose  =  true;
 
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+            Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
 
             // Do the cutting
             tXTKModel.decompose(tDecompositionMethods);

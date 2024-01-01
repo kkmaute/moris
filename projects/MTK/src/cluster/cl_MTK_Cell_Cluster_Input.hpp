@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_INPUT_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_INPUT_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include <unordered_map>
@@ -153,11 +153,11 @@ struct Cell_Cluster_Input
     }
 
 private:
-    moris::Cell<mtk::Cell*>               mInterpolationCells;
-    moris::Cell<moris::Matrix<IndexMat> const *> mPrimaryCellIds;
-    moris::Cell<moris::Matrix<IndexMat> const *> mVoidCellsIds;
-    moris::Cell<moris::Matrix<IndexMat> const *> mVerticesIdsInCluster;
-    moris::Cell<moris::Matrix<DDRMat> const *>   mLocalCoordsRelativeToInterpCell;
+    Vector<mtk::Cell*>               mInterpolationCells;
+    Vector<moris::Matrix<IndexMat> const *> mPrimaryCellIds;
+    Vector<moris::Matrix<IndexMat> const *> mVoidCellsIds;
+    Vector<moris::Matrix<IndexMat> const *> mVerticesIdsInCluster;
+    Vector<moris::Matrix<DDRMat> const *>   mLocalCoordsRelativeToInterpCell;
 
     std::unordered_map<moris_index, moris_index> mInterpCellIndexToIndex;
 

@@ -45,8 +45,8 @@ convert_epetra_operator_to_matrix(
     Epetra_CrsMatrix tReturnMatrix( Copy, aMap, 0 );
 
     // Now transfer the data from the multivector to the matrix with max size
-    moris::Cell< int >    tColumnIndices( tIdentity.NumVectors() );
-    moris::Cell< double > tNonZeroVals( tIdentity.NumVectors() );
+    moris::Vector< int >    tColumnIndices( tIdentity.NumVectors() );
+    moris::Vector< double > tNonZeroVals( tIdentity.NumVectors() );
 
     // insert the values into the matrix
     for ( int iRow = 0; iRow < tIdentity.MyLength(); iRow++ )

@@ -20,10 +20,10 @@
 #include <sstream>
 
 // Define Cells
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // Define uint, real, etc.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 // Define enums used
 #include "cl_Tracer_Enums.hpp"
@@ -50,15 +50,15 @@ class Query
     uint mNumLines;
 
     // cell arrays containing info from log file in memory
-    Cell<uint> mIndentLevels;
-    Cell<uint> mFunctionIDs;
-    Cell<enum EntityBase> mEntityBases;
-    Cell<enum EntityType> mEntityTypes;
-    Cell<enum EntityAction> mEntityActions;
-    Cell<enum OutputSpecifier> mOutputSpecifiers;
-    Cell<std::string> mOutputValues;
+    Vector<uint> mIndentLevels;
+    Vector<uint> mFunctionIDs;
+    Vector<enum EntityBase> mEntityBases;
+    Vector<enum EntityType> mEntityTypes;
+    Vector<enum EntityAction> mEntityActions;
+    Vector<enum OutputSpecifier> mOutputSpecifiers;
+    Vector<std::string> mOutputValues;
 
-    Cell<Cell<uint>> mInstanceStartEnd;
+    Vector<Vector<uint>> mInstanceStartEnd;
 
     //-----------------------------------------------------------------------------------------------------------//
     // PRIVATE METHODS
@@ -76,42 +76,42 @@ class Query
 
     void skip_header();
 
-    uint find_instances(Cell<uint> * aInstanceIDs,
-                        Cell<uint> * aInstanceIndents,
+    uint find_instances(Vector<uint> * aInstanceIDs,
+                        Vector<uint> * aInstanceIndents,
                         enum EntityBase aEntityBase,
                         enum EntityType aEntityType,
                         enum EntityAction aEntityAction);
 
-    Cell<Cell<uint>> split_instances_into_iterations(uint aCurrentInstanceID);
+    Vector<Vector<uint>> split_instances_into_iterations(uint aCurrentInstanceID);
 
-    void extract_iteration(      Cell<enum EntityBase> * aListOfEntityBases,
-                                 Cell<enum EntityType> * aListOfEntityTypes,
-                                 Cell<enum EntityAction> * aListOfEntityActions,
-                                 Cell<enum OutputSpecifier> * aListOfOutputSpecs,
-                                 Cell<std::string> * aListOfOutputValues,
-                           const Cell<Cell<uint>> aIterationStartEnd,
+    void extract_iteration(      Vector<enum EntityBase> * aListOfEntityBases,
+                                 Vector<enum EntityType> * aListOfEntityTypes,
+                                 Vector<enum EntityAction> * aListOfEntityActions,
+                                 Vector<enum OutputSpecifier> * aListOfOutputSpecs,
+                                 Vector<std::string> * aListOfOutputValues,
+                           const Vector<Vector<uint>> aIterationStartEnd,
                            const uint aIteration,
                            const uint aCurrentInstanceID);
 
-    void merge_iteration_outputs( Cell<enum EntityBase>      * aRefListOfEntityBases,
-                                  Cell<enum EntityType>      * aRefListOfEntityTypes,
-                                  Cell<enum EntityAction>    * aRefListOfEntityActions,
-                                  Cell<enum OutputSpecifier> * aRefListOfOutputSpecs,
-                                  Cell<Cell<std::string>>    * aFullListOfOutputValues,
+    void merge_iteration_outputs( Vector<enum EntityBase>      * aRefListOfEntityBases,
+                                  Vector<enum EntityType>      * aRefListOfEntityTypes,
+                                  Vector<enum EntityAction>    * aRefListOfEntityActions,
+                                  Vector<enum OutputSpecifier> * aRefListOfOutputSpecs,
+                                  Vector<Vector<std::string>>    * aFullListOfOutputValues,
 
-                                  Cell<enum EntityBase>      aNewListOfEntityBases,
-                                  Cell<enum EntityType>      aNewListOfEntityTypes,
-                                  Cell<enum EntityAction>    aNewListOfEntityActions,
-                                  Cell<enum OutputSpecifier> aNewListOfOutputSpecs,
-                                  Cell<std::string>          aNewListOfOutputValues);
+                                  Vector<enum EntityBase>      aNewListOfEntityBases,
+                                  Vector<enum EntityType>      aNewListOfEntityTypes,
+                                  Vector<enum EntityAction>    aNewListOfEntityActions,
+                                  Vector<enum OutputSpecifier> aNewListOfOutputSpecs,
+                                  Vector<std::string>          aNewListOfOutputValues);
 
-    void insert_empty_column( Cell<Cell<std::string>> * aCellMatrix, uint aColumnIndex);
+    void insert_empty_column( Vector<Vector<std::string>> * aCellMatrix, uint aColumnIndex);
 
     void write_instance_table_header(std::ofstream * aLogFileWrite,
-                                     Cell<enum EntityBase> aRefListOfEntityBases,
-                                     Cell<enum EntityType> aRefListOfEntityTypes,
-                                     Cell<enum EntityAction> aRefListOfEntityActions,
-                                     Cell<enum OutputSpecifier> aRefListOfOutputSpecs);
+                                     Vector<enum EntityBase> aRefListOfEntityBases,
+                                     Vector<enum EntityType> aRefListOfEntityTypes,
+                                     Vector<enum EntityAction> aRefListOfEntityActions,
+                                     Vector<enum OutputSpecifier> aRefListOfOutputSpecs);
 
     //-----------------------------------------------------------------------------------------------------------//
     // PUBLIC CONSTRUCTOR / DESTRUCTOR

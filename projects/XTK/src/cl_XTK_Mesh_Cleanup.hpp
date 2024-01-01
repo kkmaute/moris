@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_Param_List.hpp"
 
@@ -55,7 +55,7 @@ namespace xtk
         void
         get_vector_of_child_meshes_for_removal(
             std::unordered_map<moris_index,moris_index> const & aChildMeshesToDeleteMap,
-            moris::Cell<moris_index> & aChildMeshesToDelete);
+            Vector<moris_index> & aChildMeshesToDelete);
 
         void
         finalize_cleanup();

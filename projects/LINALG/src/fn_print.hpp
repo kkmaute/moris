@@ -11,15 +11,15 @@
 #ifndef PROJECTS_LINALG_SRC_FN_PRINT_HPP_
 #define PROJECTS_LINALG_SRC_FN_PRINT_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include <iomanip>      // std::setw
 
 /**
  * \def PRINT( container )
- * Prints a moris::Matrix or moris::Cell with the argument name as a title
+ * Prints a moris::Matrix or Vector with the argument name as a title
  * \param container Matrix or cell to print
  */
 #define PRINT( container ) moris::print( container, #container );
@@ -238,7 +238,7 @@ namespace moris
     }
 
     /**
-     * Prints a moris::Cell of moris::Matrix data types
+     * Prints a Vector of moris::Matrix data types
      * 
      * @tparam T Matrix type
      * @param aCell Cell to print
@@ -246,7 +246,7 @@ namespace moris
      */
     template< typename T >
     void
-    print( moris::Cell< moris::Matrix<T> > const & aCell,
+    print( Vector< moris::Matrix<T> > const & aCell,
           std::string aTitle = "Cell" )
     {
         std::cout<<"Cell Name: "<<aTitle<<"\n";
@@ -260,14 +260,14 @@ namespace moris
     }
 
     /**
-     * Prints a moris::Cell of moris::Matrix pointers
+     * Prints a Vector of moris::Matrix pointers
      *
      * @tparam T Matrix type
      * @param aCell Cell to print
      * @param aTitle Title of cell
      */
     template< typename T >
-    void print( moris::Cell< moris::Matrix<T> * > const & aCell,
+    void print( Vector< moris::Matrix<T> * > const & aCell,
           std::string aTitle = "Cell" )
     {
         std::cout<<"Cell Name: "<<aTitle<<"\n";

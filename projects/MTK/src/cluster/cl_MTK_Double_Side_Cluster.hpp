@@ -38,7 +38,7 @@ namespace moris
             /*!
              * A one way pairing from leader vertices to follower vertices
              */
-            moris::Cell< moris::mtk::Vertex const * > mLeaderToFollowerVertexPairs;
+            Vector< moris::mtk::Vertex const * > mLeaderToFollowerVertexPairs;
 
           public:
             // ----------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace moris
             Double_Side_Cluster(
                     moris::mtk::Cluster const                       *aLeaderSideCluster,
                     moris::mtk::Cluster const                       *aFollowerSideCluster,
-                    moris::Cell< moris::mtk::Vertex const * > const &aLeaderToFollowerVertexPair );
+                    Vector< moris::mtk::Vertex const * > const &aLeaderToFollowerVertexPair );
 
             //----------------------------------------------------------------
 
@@ -198,7 +198,7 @@ namespace moris
              * @param[in] aIsLeader Leader/Follower selector enum
              * @return Primary integration cells in the side cluster
              */
-            moris::Cell< mtk::Cell const * > const &
+            Vector< mtk::Cell const * > const &
             get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const;
 
             //----------------------------------------------------------------
@@ -206,7 +206,7 @@ namespace moris
             /*!
              * @return Primary integration cells in the leader side cluster
              */
-            moris::Cell< mtk::Cell const * > const &
+            Vector< mtk::Cell const * > const &
             get_leader_integration_cells() const;
 
             //----------------------------------------------------------------
@@ -214,7 +214,7 @@ namespace moris
             /*!
              * @return Primary integration cells in the leader side cluster
              */
-            moris::Cell< mtk::Cell const * > const &
+            Vector< mtk::Cell const * > const &
             get_follower_integration_cells() const;
 
             //----------------------------------------------------------------
@@ -272,11 +272,11 @@ namespace moris
             /*!
              * @return all the leader vertices in this cluster
              */
-            moris::Cell< moris::mtk::Vertex const * >
+            Vector< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const;
 
 
-            moris::Cell< moris::mtk::Vertex const * >
+            Vector< moris::mtk::Vertex const * >
             get_leader_vertices_in_cluster() const;
 
             //----------------------------------------------------------------
@@ -285,7 +285,7 @@ namespace moris
              * Returns all the follower vertices in this cluster
              */
 
-            moris::Cell< moris::mtk::Vertex const * >
+            Vector< moris::mtk::Vertex const * >
             get_follower_vertices_in_cluster() const;
 
             //----------------------------------------------------------------
@@ -506,9 +506,9 @@ namespace moris
             /**
              * @brief Get the leader vertex pairs cell
              *
-             * @return moris::Cell<moris::mtk::Vertex const *> const& a cell of the leader side vertices
+             * @return Vector<moris::mtk::Vertex const *> const& a cell of the leader side vertices
              */
-            moris::Cell< moris::mtk::Vertex const * > const &
+            Vector< moris::mtk::Vertex const * > const &
             get_leader_vertex_pairs() const;
 
             //----------------------------------------------------------------
@@ -535,9 +535,9 @@ namespace moris
             os << " | Follower Interpolation Cell: " << std::setw( 9 ) << dt.get_follower_side_cluster().get_interpolation_cell().get_id();
 
 
-            moris::Cell< mtk::Cell const * > const &tLeaderIGCells        = dt.get_leader_side_cluster().get_primary_cells_in_cluster();
+            Vector< mtk::Cell const * > const &tLeaderIGCells        = dt.get_leader_side_cluster().get_primary_cells_in_cluster();
             moris::Matrix< moris::IndexMat >        tLeaderIGCellSideOrds = dt.get_leader_side_cluster().get_cell_side_ordinals();
-            moris::Cell< mtk::Cell const * > const &tFollowerIGCells         = dt.get_follower_side_cluster().get_primary_cells_in_cluster();
+            Vector< mtk::Cell const * > const &tFollowerIGCells         = dt.get_follower_side_cluster().get_primary_cells_in_cluster();
             moris::Matrix< moris::IndexMat >        tFollowerIGCellSideOrds  = dt.get_follower_side_cluster().get_cell_side_ordinals();
 
             os << "       Cell Pairs: " << std::endl;

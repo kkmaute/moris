@@ -1,8 +1,4 @@
 sudo apt update
 sudo apt full-upgrade -y
-sudo apt install make
-sudo apt install gcc
-sudo apt install g++
-sudo apt install gfortran
-sudo apt install lbzip2
+sudo apt install make gcc g++ gfortran lbzip2
 sudo apt update

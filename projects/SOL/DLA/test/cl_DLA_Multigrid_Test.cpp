@@ -12,7 +12,7 @@
 
 #include "fn_equal_to.hpp"    // ALG/src
 
-#include "typedefs.hpp"    // COR/src
+#include "moris_typedefs.hpp"    // COR/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -115,7 +115,7 @@ namespace moris
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -157,12 +157,12 @@ namespace moris
             tIWGL2->set_dof_type_list( { { MSI::Dof_Type::L2 } }, mtk::Leader_Follower::LEADER );
 
             // define set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+            Vector< fem::Set_User_Info > tSetInfo( 1 );
             tSetInfo( 0 ).set_mesh_index( 0 );
             tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
-            Cell< fem::Node_Base* >       tNodes;
-            Cell< MSI::Equation_Object* > tElements;
+            Vector< fem::Node_Base* >       tNodes;
+            Vector< MSI::Equation_Object* > tElements;
 
             // ask mesh about number of nodes on proc
             luint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
@@ -181,7 +181,7 @@ namespace moris
             // create equation objects
             tElements.reserve( tNumberOfElements );
 
-            Cell< MSI::Equation_Set* > tElementBlocks( 1, nullptr );
+            Vector< MSI::Equation_Set* > tElementBlocks( 1, nullptr );
 
             std::shared_ptr< MSI::Equation_Model > tEquationModel = std::make_shared< fem::FEM_Model >();
 
@@ -212,7 +212,7 @@ namespace moris
                 tFemSetCounter++;
             }
 
-            Cell< MSI::Equation_Set* >& tEquationSet = tEquationModel->get_equation_sets();
+            Vector< MSI::Equation_Set* >& tEquationSet = tEquationModel->get_equation_sets();
             tEquationSet                             = tElementBlocks;
 
             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
@@ -237,7 +237,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
 
-            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -367,8 +367,8 @@ namespace moris
              fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
 
              map< moris_id, moris_index >   tCoefficientsMap;
-             Cell< fem::Node_Base* >        tNodes;
-             Cell< MSI::Equation_Object* >  tElements;
+             Vector< fem::Node_Base* >        tNodes;
+             Vector< MSI::Equation_Object* >  tElements;
 
              // get map from mesh
              tMesh->get_adof_map( tOrder, tCoefficientsMap );
@@ -533,7 +533,7 @@ namespace moris
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -572,8 +572,8 @@ namespace moris
             //         fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
             //
             //         map< moris_id, moris_index >   tCoefficientsMap;
-            //         Cell< fem::Node_Base* >        tNodes;
-            //         Cell< MSI::Equation_Object* >  tElements;
+            //         Vector< fem::Node_Base* >        tNodes;
+            //         Vector< MSI::Equation_Object* >  tElements;
             //
             //         // get map from mesh
             //         tMesh->get_adof_map( tOrder, tCoefficientsMap );
@@ -777,8 +777,8 @@ namespace moris
              fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
 
              map< moris_id, moris_index >   tCoefficientsMap;
-             Cell< fem::Node_Base* >        tNodes;
-             Cell< MSI::Equation_Object* >  tElements;
+             Vector< fem::Node_Base* >        tNodes;
+             Vector< MSI::Equation_Object* >  tElements;
 
              // get map from mesh
              tMesh->get_adof_map( tOrder, tCoefficientsMap );

@@ -172,7 +172,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    Cell< Leader_Follower > get_leader_follower( SetType aSetType )
+    Vector< Leader_Follower > get_leader_follower( SetType aSetType )
     {
         if ( aSetType == SetType::DOUBLE_SIDED_SIDESET )
         {

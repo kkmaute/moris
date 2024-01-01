@@ -121,7 +121,7 @@ namespace moris
         void
         User_Defined_Field::no_sensitivities(
                 const Matrix< DDRMat >& aCoordinates,
-                const Cell< real* >&    aParameters,
+                const Vector< real* >&    aParameters,
                 Matrix< DDRMat >&       aSensitivities )
         {
             MORIS_ERROR( false,

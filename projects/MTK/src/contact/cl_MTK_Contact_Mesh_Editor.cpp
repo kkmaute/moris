@@ -40,7 +40,7 @@ namespace moris::mtk
         return tClusterPairs;
     }
 
-    std::map< Contact_Mesh_Editor::SetPair, moris::Cell< Nonconformal_Side_Cluster > >
+    std::map< Contact_Mesh_Editor::SetPair, Vector< Nonconformal_Side_Cluster > >
     Contact_Mesh_Editor::convert_mapping_result_to_nonconformal_side_clusters( MappingResult aMappingResult ) const
     {
         Matrix< DDRMat > tQWeights             = mIntegrator.get_weights();
@@ -51,19 +51,19 @@ namespace moris::mtk
         auto tClusterPairs = extract_cluster_and_cell_pairing( aMappingResult );
 
         // Since we know the number of unique cluster-pairs, we can reserve the correct amount of memory for the nonconformal side clusters
-        std::map< SetPair, moris::Cell< Nonconformal_Side_Cluster > > tNonconformalSideClusters;
+        std::map< SetPair, Vector< Nonconformal_Side_Cluster > > tNonconformalSideClusters;
 
         // loop over each unique cluster pair which itself has multiple cell-cell pairs
         for ( const auto &[ tClusterPair, tCellMaps ] : tClusterPairs )
         {
             // the integration point pairs will store the bundles of integration points that were mapped from the follower side to the leader side cells
-            moris::Cell< IntegrationPointPairs > tIntegrationPointPairs;
+            Vector< IntegrationPointPairs > tIntegrationPointPairs;
 
             // the cell map contains all pairs of source and target cells that were mapped onto each other
             // the values of this map are the list of indices to get access to the correct entries of the mapping result
             for ( auto const &[ tCellMap, tResultColumns ] : tCellMaps )
             {
-                moris::Cell< real > tWeights( tResultColumns.size() );
+                Vector< real > tWeights( tResultColumns.size() );
                 Matrix< DDRMat >    tNormals( aMappingResult.mNormal.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat >    tFollowerParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat >    tLeaderParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
@@ -114,14 +114,14 @@ namespace moris::mtk
 
 
     void Contact_Mesh_Editor::update_ig_mesh_database(
-            const moris::Cell< Nonconformal_Side_Cluster > &aNonconformalSideClusters,
+            const Vector< Nonconformal_Side_Cluster > &aNonconformalSideClusters,
             std::string const                              &aSetName,
             const Matrix< IndexMat >                       &aSetColor ) const
     {
 
         // cast the clusters to the correct type...
         // this is only necessary because sets are not generic w.r.t. the type of clusters they contain
-        moris::Cell< Cluster const * > tClusters;
+        Vector< Cluster const * > tClusters;
         std::transform(
                 aNonconformalSideClusters.begin(),
                 aNonconformalSideClusters.end(),
@@ -135,7 +135,7 @@ namespace moris::mtk
         mIGMesh->add_nonconformal_side_set( tNonconformalSideSet );
     }
 
-    moris::Cell< MappingResult > Contact_Mesh_Editor::perform_mapping() const
+    Vector< MappingResult > Contact_Mesh_Editor::perform_mapping() const
     {
         // get all possible source side sets that have been specified in the candidate pairings
         std::set< moris_index > tSourceSideSets;
@@ -146,7 +146,7 @@ namespace moris::mtk
                 []( auto const &aPair ) { return aPair.first; } );
 
         Json                         tMappingResultsJson;
-        moris::Cell< MappingResult > tMappingResults;
+        Vector< MappingResult > tMappingResults;
         tMappingResults.reserve( tSourceSideSets.size() );
 
         for ( auto const &tSourceSideSet : tSourceSideSets )
@@ -167,7 +167,7 @@ namespace moris::mtk
         // removes all nonconformal sidesets and clusters from the IGMesh
         mIGMesh->reset_nonconformal_side_set();
 
-        moris::Cell< MappingResult > const tMappingResults = perform_mapping();
+        Vector< MappingResult > const tMappingResults = perform_mapping();
 
         // each mapping result will contain the mapping results for one source side set to many target side sets
         for ( auto const &tMappingResult : tMappingResults )

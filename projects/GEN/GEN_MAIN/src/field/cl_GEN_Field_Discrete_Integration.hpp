@@ -21,7 +21,7 @@ namespace moris
         {
 
           private:
-            Cell< std::shared_ptr< Child_Node > > mChildNodes;
+            Vector< std::shared_ptr< Child_Node > > mChildNodes;
 
           public:
             /**

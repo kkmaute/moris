@@ -12,7 +12,7 @@
 #define XTK_SRC_XTK_FN_SORT_POINTS_BY_COORDINATES_HPP_
 
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include <numeric>      // std::iota
 #include <algorithm>    // std::sort, std::stable_sort
@@ -54,8 +54,8 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    inline moris::Cell< moris_index >
-    sort_points_by_coordinates( const moris::Cell< Matrix< DDRMat > >& tPoints )
+    inline Vector< moris_index >
+    sort_points_by_coordinates( const Vector< Matrix< DDRMat > >& tPoints )
     {
         // create vector of SortPoints
         std::vector< SortPoint > tSortPointsVector;
@@ -70,7 +70,7 @@ namespace moris
         }
 
         // initialize original index locations
-        moris::Cell< moris_index > idx( tPoints.size() );
+        Vector< moris_index > idx( tPoints.size() );
         iota( idx.begin(), idx.end(), 0 );
 
         // Sort by points by coordinates

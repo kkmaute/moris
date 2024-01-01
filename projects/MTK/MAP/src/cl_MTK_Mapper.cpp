@@ -579,7 +579,7 @@ namespace moris
 
                 // define set info
                 // FIXME should be provided to the function
-                moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+                moris::Vector< fem::Set_User_Info > tSetInfo( 1 );
                 tSetInfo( 0 ).set_mesh_index( 0 );
                 tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
@@ -667,7 +667,7 @@ namespace moris
             // define time, nonlinear and linear solver
             sol::SOL_Warehouse tSolverWarehouse( mModel->get_solver_interface() );
 
-            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 8 );
+            moris::Vector< moris::Vector< moris::ParameterList > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -1040,7 +1040,7 @@ namespace moris
         //                    tNode->flag();
         //
         //                    // cell containing neighbors
-        //                    Cell< Node * > tNeighbors;
+        //                    Vector< Node * > tNeighbors;
         //
         //                    tNode->get_nodes_in_proximity( tNode->get_coords(), aFilterRadius, tNeighbors );
         //

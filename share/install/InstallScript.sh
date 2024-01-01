@@ -39,6 +39,10 @@ export OPTALG=0
 # set compiler and version (see out of gcc --version)
 export COMPILER='gcc@11.3.0'
 
+# set number of processors used for installation (0: automatically detected)
+# use lower number than available processors if build process runs out of memory
+export NUMPROC=0
+
 # set directory for temporary files during built
 export TMPDIR=/tmp
 
@@ -62,6 +66,7 @@ echo "PARDISO            $PARDISO"          >> moris_config.log
 echo "MUMPS              $MUMPS"            >> moris_config.log
 echo "OPTALG             $OPTALG"           >> moris_config.log
 echo "COMPILER           $COMPILER"         >> moris_config.log
+echo "NUMPROC            $NUMPROC"          >> moris_config.log
 echo "TMPDIR             $TMPDIR"           >> moris_config.log
 echo "VERBOSE            $VERBOSE"          >> moris_config.log
 echo ""
@@ -120,7 +125,7 @@ if [ $BLASLAPACK = "intel-mkl" ];then
     export mklpro=intel-mkl
 fi
 
-if [ $BLASLAPACK = "intel-mkl" ];then
+if [ $BLASLAPACK = "intel-oneapi-mkl" ];then
     export blaspro=intel-oneapi-mkl
     export lapackpro=intel-oneapi-mkl
     export sclpackpro=intel-oneapi-mkl
@@ -230,18 +235,22 @@ sed -i -e 's/unify: true/unify: when_possible/g' ./spack.yaml
 
 #------------------------------------------------------------
 
-spack concretize -f -U
+spack concretize -f -U     >> moris_config.log
 
 #------------------------------------------------------------
 
-VOPTION=""
+SOPTION=""
 if [ $VERBOSE = "1" ];then
-   VOPTION="-v"
+   SOPTION="-v"
+fi
+
+if [ ! $NUMPROC = "0" ];then
+  SOPTION="$SOPTION -j $NUMPROC"
 fi
 
 #------------------------------------------------------------
 
-spack install $VOPTION python %"$COMPILER"
+spack install $SOPTION python %"$COMPILER"
 
 isOpenSUSE=`grep NAME /etc/os-release | head -1 | awk -F '=' '{ if ( match($2,"openSUSE") > 1 ) {print 1}else{print 0}}'`
 
@@ -258,18 +267,18 @@ fi
 
 #------------------------------------------------------------
 
-spack install $VOPTION openmpi %"$COMPILER"
+spack install $SOPTION openmpi %"$COMPILER"
 
 #------------------------------------------------------------
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    spack install $VOPTION --only dependencies moris %"$COMPILER"
+    spack install $SOPTION --only dependencies moris %"$COMPILER"
     
-    spack install $VOPTION doxygen %"$COMPILER"
+    spack install $SOPTION doxygen %"$COMPILER"
 
-    spack install $VOPTION llvm %"$COMPILER"
+    spack install $SOPTION llvm %"$COMPILER"
 else
-    spack install $VOPTION moris %"$COMPILER"
+    spack install $SOPTION moris %"$COMPILER"
 fi
 
 #------------------------------------------------------------

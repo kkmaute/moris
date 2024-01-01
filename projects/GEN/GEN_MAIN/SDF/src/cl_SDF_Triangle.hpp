@@ -10,13 +10,13 @@
 
 #pragma once
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
 #include "op_times.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "cl_SDF_Facet.hpp"
@@ -66,7 +66,7 @@ namespace moris
 
             Triangle(
                     moris_index                   aIndex,
-                    moris::Cell< Facet_Vertex* >& aVertices );
+                    Vector< Facet_Vertex* >& aVertices );
 
             //-------------------------------------------------------------------------------
 

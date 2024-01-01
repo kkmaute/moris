@@ -28,7 +28,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Crosswind::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        SP_Crosswind::set_parameters( moris::Vector< Matrix< DDRMat > > aParameters )
         {
             // set mParameters
             mParameters = aParameters;
@@ -92,7 +92,7 @@ namespace moris
 
         void
         SP_Crosswind::eval_dSPdLeaderDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             const uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

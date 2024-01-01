@@ -10,7 +10,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CLUSTER_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_CLUSTER_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 
 namespace moris
@@ -57,7 +57,7 @@ namespace moris
                 return 0;
             }
 
-            virtual moris::Cell< moris::mtk::Cell const * > const &
+            virtual Vector< moris::mtk::Cell const * > const &
             get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             virtual void
@@ -67,13 +67,13 @@ namespace moris
             };
 
             virtual void
-            add_primary_integration_cell( moris::Cell< moris::mtk::Cell const * > const &aIntegrationCell )
+            add_primary_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
             {
                 MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
             };
 
             virtual void
-            add_void_integration_cell( moris::Cell< moris::mtk::Cell const * > const &aIntegrationCell )
+            add_void_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
             {
                 MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
             };
@@ -84,13 +84,13 @@ namespace moris
                 MORIS_ERROR( false, "mark_as_nontrivial(), not implemented for this class" );
             };
 
-            virtual moris::Cell< moris::mtk::Cell const * > const &
+            virtual Vector< moris::mtk::Cell const * > const &
             get_void_cells_in_cluster() const
             {
                 MORIS_ERROR( false, "get_void_cells_in_cluster(): not implemented for this cluster type" );
 
                 // Create a static dummy object and return a reference to it.
-                static moris::Cell< moris::mtk::Cell const * > tDummyCell;
+                static Vector< moris::mtk::Cell const * > tDummyCell;
                 return tDummyCell;
             }
 
@@ -113,7 +113,7 @@ namespace moris
                 return 0;
             };
 
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             virtual moris::mtk::Vertex const *
@@ -131,11 +131,11 @@ namespace moris
              * @return moris::Cell< moris::mtk::Vertex const *> const& cell of vertices on the leader side
              */
 
-            virtual moris::Cell< moris::mtk::Vertex const * > const &
+            virtual Vector< moris::mtk::Vertex const * > const &
             get_leader_vertex_pairs() const
             {
                 MORIS_ERROR( false, "get_leader_vertex_pair(): not implemented for this cluster type" );
-                moris::Cell< moris::mtk::Vertex const * > *tDummyCell = new moris::Cell< moris::mtk::Vertex const * >( 0 );
+                Vector< moris::mtk::Vertex const * > *tDummyCell = new Vector< moris::mtk::Vertex const * >( 0 );
                 return *tDummyCell;
             }
 
@@ -510,14 +510,14 @@ namespace moris
 
             //----------------------------------------------------------------
 
-            moris::Cell< moris::mtk::Vertex * >
+            Vector< moris::mtk::Vertex * >
             get_primary_vertices_in_cluster() const
             {
                 // initialize output array
-                moris::Cell< moris::mtk::Vertex * > tPrimaryVertices;
+                Vector< moris::mtk::Vertex * > tPrimaryVertices;
 
                 // get the primary cell
-                moris::Cell< moris::mtk::Cell const * > const &tPrimaryCells = this->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Cell const * > const &tPrimaryCells = this->get_primary_cells_in_cluster();
 
                 // initialize map marking which vertices found to prevent listing them multiple times
                 map< moris_index, moris_index > tPrimaryVertexIndices;
@@ -527,7 +527,7 @@ namespace moris
                 for ( uint iPrimaryCell = 0; iPrimaryCell < tPrimaryCells.size(); iPrimaryCell++ )
                 {
                     // get the vertices from the cells
-                    moris::Cell< mtk::Vertex * > tVerticesOnCell = tPrimaryCells( iPrimaryCell )->get_vertex_pointers();
+                    Vector< mtk::Vertex * > tVerticesOnCell = tPrimaryCells( iPrimaryCell )->get_vertex_pointers();
 
                     for ( uint iVertOnCell = 0; iVertOnCell < tVerticesOnCell.size(); iVertOnCell++ )
                     {
@@ -552,7 +552,7 @@ namespace moris
             moris::Matrix< moris::IndexMat >
             get_primary_vertices_inds_in_cluster() const
             {
-                moris::Cell< moris::mtk::Vertex * > tPrimaryVertices = this->get_primary_vertices_in_cluster();
+                Vector< moris::mtk::Vertex * > tPrimaryVertices = this->get_primary_vertices_in_cluster();
 
                 moris::Matrix< moris::IndexMat > tPrimaryVertexInd( tPrimaryVertices.size(), 1, -1 );
 

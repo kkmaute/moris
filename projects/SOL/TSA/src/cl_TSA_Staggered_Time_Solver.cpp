@@ -22,7 +22,7 @@ using namespace moris;
 using namespace tsa;
 //-------------------------------------------------------------------------------
 
-void Staggered_Time_Solver::solve_staggered_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
+void Staggered_Time_Solver::solve_staggered_time_system( moris::Vector< sol::Dist_Vector * > & aFullVector )
 {
     // trace this solve
     Tracer tTracer( "TimeSolverAlgorithm", "Staggered", "Solve" );
@@ -83,7 +83,7 @@ void Staggered_Time_Solver::solve_staggered_time_system( moris::Cell< sol::Dist_
 
 //-------------------------------------------------------------------------------
 
-void Staggered_Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
+void Staggered_Time_Solver::solve( moris::Vector< sol::Dist_Vector * > & aFullVector )
  {
      this->solve_staggered_time_system( aFullVector );
  }

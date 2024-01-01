@@ -90,7 +90,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Vertex_Interpolation_DataBase::set_coefficients( moris::Cell< Vertex* >& aCoefficients )
+        Vertex_Interpolation_DataBase::set_coefficients( moris::Vector< Vertex* >& aCoefficients )
         {
             MORIS_ERROR( 0, "set_coefficients not implemented in fem vertex interpolation" );
             return;
@@ -98,7 +98,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< Vertex* >&
+        moris::Vector< Vertex* >&
         Vertex_Interpolation_DataBase::get_coefficients()
         {
             MORIS_ERROR( 0, "get_coefficients not implemented in fem vertex interpolation" );
@@ -107,7 +107,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< Vertex* >&
+        const moris::Vector< Vertex* >&
         Vertex_Interpolation_DataBase::get_coefficients() const
         {
             MORIS_ERROR( 0, "get_coefficients not implemented in fem vertex interpolation" );

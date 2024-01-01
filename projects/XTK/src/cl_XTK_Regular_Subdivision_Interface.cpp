@@ -77,9 +77,9 @@ Regular_Subdivision_Interface::perform_impl_vertex_requests(
     moris_index tNumChildMeshes = mCutIntegrationMesh->get_num_ig_cell_groups();
 
     // allocate data in decomposition data
-    aDecompositionData->tCMNewNodeLoc        = Cell< Cell< moris_index > >( tNumChildMeshes );
-    aDecompositionData->tCMNewNodeParamCoord = Cell< Cell< Matrix< DDRMat > > >(
-        tNumChildMeshes, Cell< Matrix< DDRMat > >( this->get_num_new_nodes(), Matrix< DDRMat >( 1, this->get_parametric_dimension() ) ) );
+    aDecompositionData->tCMNewNodeLoc        = Vector< Vector< moris_index > >( tNumChildMeshes );
+    aDecompositionData->tCMNewNodeParamCoord = Vector< Vector< Matrix< DDRMat > > >(
+        tNumChildMeshes, Vector< Matrix< DDRMat > >( this->get_num_new_nodes(), Matrix< DDRMat >( 1, this->get_parametric_dimension() ) ) );
 
     // allocate a data struct to pass into functions - stores the matrix but doesnt require the method to store data
     Regular_Subdivision_Interface_Data tRegSubInterfaceData;
@@ -107,7 +107,7 @@ Regular_Subdivision_Interface::perform_impl_vertex_requests(
     }
 
     // handle the requests
-    aDecompositionData->tSecondaryIdentifiers = Cell< moris_index >( aDecompositionData->tNewNodeParentIndex.size(), MORIS_INDEX_MAX );
+    aDecompositionData->tSecondaryIdentifiers = Vector< moris_index >( aDecompositionData->tNewNodeParentIndex.size(), MORIS_INDEX_MAX );
 }
 
 void
@@ -128,13 +128,13 @@ Regular_Subdivision_Interface::perform_impl_generate_mesh(
     moris::uint tVerticesPerCell = tIgCellInfo->get_num_verts();
 
     // allocate data in the new ig cell data
-    mNewCellToVertexConnectivity = moris::Cell< moris::Cell< moris::moris_index > >( mNumTotalCells );
-    mNewCellChildMeshIndex       = moris::Cell< moris::moris_index >( mNumTotalCells );
-    mNewCellCellIndexToReplace   = moris::Cell< moris::moris_index >( mNumTotalCells, MORIS_INDEX_MAX );
-    mNewCellCellInfo             = moris::Cell< std::shared_ptr< moris::mtk::Cell_Info > >( mNumTotalCells, tIgCellInfo );
+    mNewCellToVertexConnectivity = moris::Vector< moris::Vector< moris::moris_index > >( mNumTotalCells );
+    mNewCellChildMeshIndex       = moris::Vector< moris::moris_index >( mNumTotalCells );
+    mNewCellCellIndexToReplace   = moris::Vector< moris::moris_index >( mNumTotalCells, MORIS_INDEX_MAX );
+    mNewCellCellInfo             = moris::Vector< std::shared_ptr< moris::mtk::Cell_Info > >( mNumTotalCells, tIgCellInfo );
 
     // get the cell to vertex template
-    moris::Cell< moris::Cell< moris::moris_index > > tIgCellToVertexTemplate = this->get_ig_cell_to_vertex_connectivity();
+    moris::Vector< moris::Vector< moris::moris_index > > tIgCellToVertexTemplate = this->get_ig_cell_to_vertex_connectivity();
 
     // populate new cell data
     moris::moris_index tCurrentCellIndex = 0;
@@ -434,7 +434,7 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
 
         std::shared_ptr< IG_Vertex_Group > tVertexGroup = aChildMesh->mIgVerts;
 
-        moris::Cell< moris::mtk::Cell* > tBGCellForFacet( tFaceConnectivity->mFacetVertices.size(), aChildMesh->get_parent_cell() );
+        moris::Vector< moris::mtk::Cell* > tBGCellForFacet( tFaceConnectivity->mFacetVertices.size(), aChildMesh->get_parent_cell() );
 
         std::shared_ptr< Facet_Based_Ancestry > tFacetAncestry = std::make_shared< Facet_Based_Ancestry >();
         mGenerator->deduce_facet_ancestry( mCutIntegrationMesh, mBackgroundMesh, tFaceConnectivity, tBGCellForFacet, tFacetAncestry );
@@ -451,7 +451,7 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
         mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityIndex.resize( mGeneratedTemplate( aNumIgCells )->mNumNewNodes, MORIS_INDEX_MAX );
         mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityRank.resize( mGeneratedTemplate( aNumIgCells )->mNumNewNodes );
         mGeneratedTemplate( aNumIgCells )->mVertexHash.resize( mGeneratedTemplate( aNumIgCells )->mNumNewNodes );
-        mGeneratedTemplate( aNumIgCells )->mIgCellToVertOrd.resize( mGeneratedTemplate( aNumIgCells )->mNumIgCells, moris::Cell< moris_index >( mRegularSubdivisionTemplate->get_num_verts_per_cell(), MORIS_INDEX_MAX ) );
+        mGeneratedTemplate( aNumIgCells )->mIgCellToVertOrd.resize( mGeneratedTemplate( aNumIgCells )->mNumIgCells, moris::Vector< moris_index >( mRegularSubdivisionTemplate->get_num_verts_per_cell(), MORIS_INDEX_MAX ) );
 
         moris_index tFirstNewFacetVertexOrdinal = tVertexGroup->size();
         moris_index tNewVertexOrdinal           = 0;
@@ -485,7 +485,7 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
             tNewVertexOrdinal++;
         }
 
-        moris::Cell< moris::Cell< moris::moris_index > > tIgCellToVertexTemplate    = this->get_ig_cell_to_vertex_connectivity();
+        moris::Vector< moris::Vector< moris::moris_index > > tIgCellToVertexTemplate    = this->get_ig_cell_to_vertex_connectivity();
         moris_index                                      tCellIndex                 = 0;
         moris_index                                      tFirstNewCellVertexOrdinal = tNewVertexOrdinal + tFirstNewFacetVertexOrdinal;
         for ( moris::uint iCell = 0; iCell < aNumIgCells; iCell++ )
@@ -494,7 +494,7 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
 
             moris::mtk::Cell* tCell = aChildMesh->mIgCells->mIgCellGroup( iCell );
 
-            moris::Cell< moris::mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
+            moris::Vector< moris::mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
 
             // iterate all vertices on the face and sum up local coords
             for ( moris::uint iV = 0; iV < tVertices.size(); iV++ )

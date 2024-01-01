@@ -76,11 +76,11 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         real
-        Intersection_Node_Linear::compute_diff_from_threshold( 
-            const Element_Intersection_Type aAncestorBasisFunction,
-            const Matrix< DDRMat >& aParentNodeLocalCoordinates,
-            moris_index aParentNodeIndex )
-        { 
+        Intersection_Node_Linear::compute_diff_from_threshold(
+                const Element_Intersection_Type aAncestorBasisFunction,
+                const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
+                moris_index                     aParentNodeIndex )
+        {
             // construct interpolator
             mtk::Interpolation_Function_Factory tFactory;
 
@@ -121,7 +121,7 @@ namespace moris
             std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // get the isocontour thresholds from the geometry
-            real tIsocontourThreshold   = tLockedInterfaceGeometry->get_isocontour_threshold();
+            real tIsocontourThreshold = tLockedInterfaceGeometry->get_isocontour_threshold();
 
             // Parent basis
             Matrix< DDRMat > tParentBasisValues;
@@ -137,6 +137,9 @@ namespace moris
 
             // First parent on interface
             real tParentPhi = tLockedInterfaceGeometry->get_field_value( aParentNodeIndex, tParentGlobalCoordinates );
+
+            // delete interpolator
+            delete tInterpolation;
 
             return tParentPhi - tIsocontourThreshold;
         }

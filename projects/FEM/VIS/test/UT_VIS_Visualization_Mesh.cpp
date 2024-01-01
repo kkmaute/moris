@@ -9,7 +9,7 @@
  */
 
 #include "catch.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -94,7 +94,7 @@ namespace moris
                 tParameters.set_refinement_buffer( 1 );
                 tParameters.set_staircase_buffer( 1 );
 
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -121,7 +121,7 @@ namespace moris
 
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-                moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+                moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
                 tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 0.11, 0.11, 1.0, 0.0 );
 
                 size_t                                tModelDimension = 2;
@@ -133,7 +133,7 @@ namespace moris
                 tXTKModel.mVerbose = false;
 
                 // Specify decomposition Method and Cut Mesh ---------------------------------------
-                Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+                Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
                 tXTKModel.decompose( tDecompositionMethods );
 
                 tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -158,11 +158,11 @@ namespace moris
                 //                std::string tMeshFilePath = tPrefix + "build";
                 //                writer.write_mesh(tMeshFilePath, "Vis_Mesh_2.exo", tMeshFilePath, "temp.exo");
                 //
-                //                moris::Cell<const moris::mtk::Cell*> tElementsInBlock = tVisMesh->get_set_cells("HMR_dummy_c_p0");
+                //                Vector<const moris::mtk::Cell*> tElementsInBlock = tVisMesh->get_set_cells("HMR_dummy_c_p0");
                 //
                 //                uint tNumElements = tElementsInBlock.size();
                 //                moris::Matrix<moris::DDRMat> tetField(tNumElements, 1, 4);
-                //                moris::Cell<std::string> tElementalFieldNames(1);
+                //                Vector<std::string> tElementalFieldNames(1);
                 //                tElementalFieldNames(0) = "pressure";
                 //
                 //                for(uint Ik = 0; Ik<tNumElements;Ik++)

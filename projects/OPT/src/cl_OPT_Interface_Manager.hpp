@@ -22,7 +22,7 @@ namespace moris
         {
             private:
 
-                Cell<std::shared_ptr<Criteria_Interface>> mInterfaces;
+                Vector<std::shared_ptr<Criteria_Interface>> mInterfaces;
 
                 Matrix<DDUMat> mNumADVsPerInterface;
                 Matrix<DDUMat> mNumCriteriaPerInterface;
@@ -40,7 +40,7 @@ namespace moris
                  */
                 Interface_Manager(
                         ParameterList                             aParameterList,
-                        Cell<std::shared_ptr<Criteria_Interface>> aInterfaces);
+                        Vector<std::shared_ptr<Criteria_Interface>> aInterfaces);
 
                 /**
                  * Destructor

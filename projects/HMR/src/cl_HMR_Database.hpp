@@ -19,7 +19,7 @@
 #include "cl_HMR_Parameters.hpp"       //HMR/src
 #include "cl_HMR_Side_Set.hpp"         //HMR/src
 #include "cl_HMR_T_Matrix.hpp"         //HMR/src
-#include "cl_Cell.hpp"                 //CNT/src
+#include "cl_Vector.hpp"                 //CNT/src
 #include "cl_Map.hpp"
 
 #include "cl_MTK_Side_Sets_Info.hpp"
@@ -42,14 +42,14 @@ namespace moris::hmr
         Background_Mesh_Base* mBackgroundMesh = nullptr;
 
         //! cell of pointers to B-Spline meshes
-        Cell< BSpline_Mesh_Base* > mBSplineMeshes;
+        Vector< BSpline_Mesh_Base* > mBSplineMeshes;
 
         //! cell of pointers to Lagrange meshes
-        Cell< Lagrange_Mesh_Base* > mLagrangeMeshes;
+        Vector< Lagrange_Mesh_Base* > mLagrangeMeshes;
 
         //! cell of pointers to Lagrange meshes.
         // These Lagrange meshes are created on the flight and not in the input file
-        Cell< Cell< Lagrange_Mesh_Base* > > mAdditionalLagrangeMeshes;
+        Vector< Vector< Lagrange_Mesh_Base* > > mAdditionalLagrangeMeshes;
 
         //! communication table for this mesh. Created during finalize.
         Matrix< IdMat > mCommunicationTable;
@@ -58,10 +58,10 @@ namespace moris::hmr
         bool mDeleteParametersOnDestruction = false;
 
         //! Side sets for input pattern
-        // Cell< Matrix< IdMat > >   mInputSideSets;
+        // Vector< Matrix< IdMat > >   mInputSideSets;
 
         //! Side sets for output pattern
-        Cell< Side_Set > mOutputSideSets;
+        Vector< Side_Set > mOutputSideSets;
 
         map< std::string, moris_index > mOutputSideSetMap;
 
@@ -114,7 +114,7 @@ namespace moris::hmr
 
         void load_refinement_pattern(
                 Matrix< DDLUMat >&                aElementCounterPerLevelAndPattern,
-                moris::Cell< Matrix< DDLUMat > >& aElementPerPattern,
+                Vector< Matrix< DDLUMat > >& aElementPerPattern,
                 Matrix< DDUMat >&                 aPatternListUniqueMat );
 
         // -----------------------------------------------------------------------------
@@ -465,7 +465,7 @@ namespace moris::hmr
         /**
          * returns list of all side sets
          */
-        const Cell< Side_Set >&
+        const Vector< Side_Set >&
         get_side_sets() const
         {
             return mOutputSideSets;

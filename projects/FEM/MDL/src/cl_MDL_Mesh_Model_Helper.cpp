@@ -273,7 +273,7 @@ namespace moris
     void Mesh_Model_Helper::create_node_set( const moris::uint               aColor,
                                              const Matrix< moris::IndexMat > aNodeSetIndex)
     {
-        Cell< fem::Node_Base* > tNodeSet( aNodeSetIndex.numel(), nullptr );
+        Vector< fem::Node_Base* > tNodeSet( aNodeSetIndex.numel(), nullptr );
 
         for( uint Ii = 0; Ii<aNodeSetIndex.numel(); ++Ii )
         {
@@ -297,7 +297,7 @@ namespace moris
 //        // a factory to create the elements
 //        fem::Element_Factory tElementFactory;
 //
-//        moris::Cell< moris_index > tSideSetIndex( mColorListSideSet( 0 ).numel() );
+//        Vector< moris_index > tSideSetIndex( mColorListSideSet( 0 ).numel() );
 //        for( luint Ii = 0; Ii<mColorListSideSet( 0 ).numel(); ++Ii)
 //        {
 //            tSideSetIndex( Ii ) = mColorListSideSet( 0 )( Ii );

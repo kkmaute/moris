@@ -15,7 +15,7 @@ namespace moris::fem
     {
       public:
         Model_Initializer_Phasebased(
-                moris::Cell< moris::Cell< ParameterList > >      aParameterList,
+                Vector< Vector< ParameterList > >      aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 mtk::Mesh_Pair const                            *aMeshPair,
                 uint                                             aSpatialDimension,
@@ -53,9 +53,9 @@ namespace moris::fem
                 const std::string          &aNeighborPhasesString,
                 const std::string          &aSideOrdinalsString,
                 bool                        aIsGhost,
-                moris::Cell< std::string > &aMeshSetNames );
+                Vector< std::string > &aMeshSetNames );
 
-        moris::Cell< fem::Phase_User_Info > mPhaseInfo;
+        Vector< fem::Phase_User_Info > mPhaseInfo;
         std::map< std::string, uint >       mPhaseMap;
     };
 }    // namespace moris::fem

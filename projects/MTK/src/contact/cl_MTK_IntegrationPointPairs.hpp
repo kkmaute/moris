@@ -5,9 +5,9 @@
 #ifndef CL_MTK_INTEGRATIONPOINTPAIRS_HPP
 #define CL_MTK_INTEGRATIONPOINTPAIRS_HPP
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris::mtk
 {
@@ -24,7 +24,7 @@ namespace moris::mtk
                 Matrix< DDRMat > const    &aFollowerCoordinates,
                 moris_index const         &aLeaderCellIndex,
                 Matrix< DDRMat > const    &aLeaderCoordinates,
-                moris::Cell< real > const &aIntegrationWeights,
+                Vector< real > const &aIntegrationWeights,
                 Matrix< DDRMat > const    &aNormals )
                 : mFollowerCellIndex( aFollowerCellIndex )
                 , mFollowerCoordinates( aFollowerCoordinates )
@@ -38,7 +38,7 @@ namespace moris::mtk
         [[nodiscard]] moris_index                get_leader_cell_index() const { return mLeaderCellIndex; }
         [[nodiscard]] const Matrix< DDRMat >    &get_leader_coordinates() const { return mLeaderCoordinates; }
         [[nodiscard]] const Matrix< DDRMat >    &get_normals() const { return mNormals; }
-        [[nodiscard]] const moris::Cell< real > &get_integration_weights() const { return mIntegrationWeights; }
+        [[nodiscard]] const Vector< real > &get_integration_weights() const { return mIntegrationWeights; }
 
       private:
         /**
@@ -72,7 +72,7 @@ namespace moris::mtk
         /**
          * \brief A list of integration points for each of the points in the follower/leader coordinate matrices.
          */
-        moris::Cell< real > mIntegrationWeights;
+        Vector< real > mIntegrationWeights;
     };
 }    // namespace moris::mtk
 

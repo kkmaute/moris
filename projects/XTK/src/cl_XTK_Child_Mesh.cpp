@@ -131,7 +131,7 @@ namespace xtk
             moris::uint        aSpatialDimension,
             moris::mtk::Cell*  aParentCell,
             moris::mtk::Mesh*  aBackgroundMesh,
-            Cell<moris_index> const & aGeometryIndices)
+            Vector<moris_index> const & aGeometryIndices)
     : mElementTopology(moris::mtk::CellTopology::TET4),
       mConnectivity(nullptr),
       mChildElementIds(0,0),
@@ -840,7 +840,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Vertex const *> const &
+    moris::Vector<moris::mtk::Vertex const *> const &
     Child_Mesh::get_vertices() const
     {
         return mVertices;
@@ -1124,7 +1124,7 @@ namespace xtk
         moris::uint tNumElements = this->get_num_entities(moris::mtk::EntityRank::ELEMENT);
 
         // Figure out which faces are interface faces
-        moris::Cell<moris::moris_index> tInterfaceFaceIndices;
+        moris::Vector<moris::moris_index> tInterfaceFaceIndices;
 
         moris::Matrix<moris::IndexMat> const & tElementToFacet = this->get_element_to_facet();
 
@@ -1370,7 +1370,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Child_Mesh::add_vertices(moris::Cell<moris::mtk::Vertex const *> const & aVertices)
+    Child_Mesh::add_vertices(moris::Vector<moris::mtk::Vertex const *> const & aVertices)
     {
         mVertices.append(aVertices);
     }
@@ -1999,7 +1999,7 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    Cell<moris::moris_index> const &
+    Vector<moris::moris_index> const &
     Child_Mesh::get_subphase_bin_bulk_phase() const
     {
         return mBinBulkPhase;
@@ -2007,7 +2007,7 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    Cell<moris::Matrix< moris::IndexMat >> const &
+    Vector<moris::Matrix< moris::IndexMat >> const &
     Child_Mesh::get_subphase_groups() const
     {
         return mSubPhaseBins;
@@ -2015,7 +2015,7 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    Cell<moris_index> const &
+    Vector<moris_index> const &
     Child_Mesh::get_subphase_indices( ) const
     {
         return mSubPhaseBinIndices;
@@ -2053,9 +2053,9 @@ namespace xtk
     void
     Child_Mesh::get_subphases_attached_to_facet(
             moris_index         aFacetIndex,
-            Cell<moris_index> & aSubPhaseCMIndex,
-            Cell<moris_index> & aRepresentativeChildCellInd,
-            Cell<moris_index> & aRepresentativeChildCellSideOrdinal) const
+            Vector<moris_index> & aSubPhaseCMIndex,
+            Vector<moris_index> & aRepresentativeChildCellInd,
+            Vector<moris_index> & aRepresentativeChildCellSideOrdinal) const
     {
 
         aRepresentativeChildCellInd.clear();
@@ -2108,8 +2108,8 @@ namespace xtk
         Matrix<IndexMat> const & tCellFacets  = this->get_element_to_facet();
 
         // information about subphases
-        moris::Cell<moris::Matrix< moris::IndexMat >> const &  tSubphaseClusters = this->get_subphase_groups();
-        Cell<moris::moris_index> const & tSubphaseBulkPhases  = this->get_subphase_bin_bulk_phase();
+        moris::Vector<moris::Matrix< moris::IndexMat >> const &  tSubphaseClusters = this->get_subphase_groups();
+        Vector<moris::moris_index> const & tSubphaseBulkPhases  = this->get_subphase_bin_bulk_phase();
 
         // facet rank
         moris::mtk::EntityRank tFacetRank = this->get_facet_rank();
@@ -2204,8 +2204,8 @@ namespace xtk
                                     {
                                         tDblSideIndex = mDoubleSideSetSubphaseInds.size();
                                         mDoubleSideSetSubphaseInds.push_back({(moris_index)iSP0,(moris_index)iSP1});
-                                        mDoubleSideSetCellPairs.push_back(Cell<Cell< moris_index >>(0));
-                                        mDoubleSideSetFacetPairs.push_back(Cell<Cell< moris_index >>(0));
+                                        mDoubleSideSetCellPairs.push_back(Vector<Vector< moris_index >>(0));
+                                        mDoubleSideSetFacetPairs.push_back(Vector<Vector< moris_index >>(0));
                                     }
 
                                     // add the pair information to the set
@@ -2245,7 +2245,7 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    Cell< moris_index > const &
+    Vector< moris_index > const &
     Child_Mesh::get_double_side_interface_subphase_indices(moris_index aDblSideCMIndex) const
     {
         return mDoubleSideSetSubphaseInds(aDblSideCMIndex);
@@ -2253,7 +2253,7 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    Cell<Cell< moris_index >> const &
+    Vector<Vector< moris_index >> const &
     Child_Mesh::get_double_side_interface_cell_pairs(moris_index aDblSideCMIndex) const
     {
         return mDoubleSideSetCellPairs(aDblSideCMIndex);
@@ -2261,7 +2261,7 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    Cell<Cell< moris_index >> const &
+    Vector<Vector< moris_index >> const &
     Child_Mesh::get_double_side_interface_cell_pairs_facet_ords(moris_index aDblSideCMIndex) const
     {
         return mDoubleSideSetFacetPairs(aDblSideCMIndex);
@@ -2309,7 +2309,7 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    Cell<moris_index> const &
+    Vector<moris_index> const &
     Child_Mesh::get_subphase_basis_enrichment_levels(moris_index aSubphaseBin) const
     {
         MORIS_ASSERT(aSubphaseBin < (moris_index)mSubphaseBasisEnrichmentLevel.size(), "Subphase group index out of bounds");
@@ -2320,7 +2320,7 @@ namespace xtk
     // ---------------------------------------------------------------------------------
 
     void
-    Child_Mesh::reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex)
+    Child_Mesh::reindex_cells(Vector<moris_index> & aOldIndexToNewCellIndex)
     {
         for(moris::uint iC = 0; iC < mChildElementInds.numel(); iC++)
         {
@@ -2373,7 +2373,7 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    Cell<moris_index> const &
+    Vector<moris_index> const &
     Child_Mesh::get_subphase_basis_indices(moris_index aSubphaseBin) const
     {
         MORIS_ASSERT(aSubphaseBin < (moris_index)mSubphaseBasisIndices.size(),"Subphase group index out of bounds");
@@ -2392,13 +2392,13 @@ namespace xtk
     void
     Child_Mesh::pack_child_mesh_by_phase(
             moris::size_t                 const & aNumPhases,
-            Cell<moris::Matrix< moris::IdMat >> & aElementIds,
-            Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const
+            Vector<moris::Matrix< moris::IdMat >> & aElementIds,
+            Vector<moris::Matrix< moris::IdMat >> & aElementCMInds) const
     {
         moris::size_t tNumElems = get_num_entities(moris::mtk::EntityRank::ELEMENT);
 
-        aElementIds = Cell<moris::Matrix< moris::IdMat >>(aNumPhases);
-        aElementCMInds = Cell<moris::Matrix< moris::IdMat >>(aNumPhases);
+        aElementIds = Vector<moris::Matrix< moris::IdMat >>(aNumPhases);
+        aElementCMInds = Vector<moris::Matrix< moris::IdMat >>(aNumPhases);
 
         for(moris::size_t i = 0; i<aNumPhases; i++)
         {
@@ -2406,7 +2406,7 @@ namespace xtk
             aElementCMInds(i) = moris::Matrix< moris::IdMat >(1,tNumElems);
         }
 
-        Cell<moris::size_t> tPhaseCounter(aNumPhases,0);
+        Vector<moris::size_t> tPhaseCounter(aNumPhases,0);
 
         moris::Matrix< moris::IndexMat > const & tElementPhaseIndices = get_element_phase_indices();
         moris::Matrix< moris::IdMat > const & tElementIds  = get_element_ids();
@@ -2958,7 +2958,7 @@ namespace xtk
             moris::size_t tNumExistElem = mNumElem;
 
             // Container for all the templates to add
-            Cell<Mesh_Modification_Template> tTemplatesToAdd(tNumExistElem);
+            Vector<Mesh_Modification_Template> tTemplatesToAdd(tNumExistElem);
 
             // Keep track of the number of intersected elements
             moris::size_t tNumIntersected = 0;
@@ -3242,7 +3242,7 @@ namespace xtk
             moris::size_t tNumExistElem = mNumElem;
 
             // Container for all the templates to add
-            Cell<Mesh_Modification_Template> tTemplatesToAdd(tNumExistElem);
+            Vector<Mesh_Modification_Template> tTemplatesToAdd(tNumExistElem);
 
             // Keep track of the number of intersected elements
             moris::size_t tNumIntersected = 0;
@@ -3893,12 +3893,12 @@ namespace xtk
         moris::Matrix< moris::DDSTMat > tParentElemRank({{3}});
 
         // Place ptrs in cell to avoid if statement checking rank in for loop
-        Cell<moris::Matrix< moris::IndexMat >*> tParentEntitiesInds({& aMeshModTemplate.mParentNodeInds,
+        Vector<moris::Matrix< moris::IndexMat >*> tParentEntitiesInds({& aMeshModTemplate.mParentNodeInds,
             & aMeshModTemplate.mParentEdgeInds,
             & aMeshModTemplate.mParentFaceInds,
             & tParentElem});
 
-        Cell<moris::Matrix< moris::DDSTMat >*> tParentEntitiesRanks({& aMeshModTemplate.mParentNodeRanks,
+        Vector<moris::Matrix< moris::DDSTMat >*> tParentEntitiesRanks({& aMeshModTemplate.mParentNodeRanks,
             & aMeshModTemplate.mParentEdgeRanks,
             & aMeshModTemplate.mParentFaceRanks,
             & tParentElemRank});
@@ -3980,15 +3980,15 @@ namespace xtk
 
         // Initialize member variables
         // Element Sub-phase bins
-        mBinBulkPhase = Cell<moris::moris_index>(tNumBins);
+        mBinBulkPhase = Vector<moris::moris_index>(tNumBins);
         mElementBinIndex = aElementSubPhase.copy();
 
         moris::Matrix< moris::DDSTMat > tBinSizeCounter(1,tNumBins,0);
         mSubPhaseBinId                = moris::Matrix<moris::IndexMat>(1,tNumBins);
-        mSubPhaseBinIndices           = Cell<moris::moris_index>(tNumBins);
-        mSubPhaseBins                 = Cell<moris::Matrix< moris::IndexMat >>(tNumBins);
-        mSubphaseBasisEnrichmentLevel = Cell<Cell< moris_index >>(tNumBins);
-        mSubphaseBasisIndices         = Cell<Cell< moris_index >>(tNumBins);
+        mSubPhaseBinIndices           = Vector<moris::moris_index>(tNumBins);
+        mSubPhaseBins                 = Vector<moris::Matrix< moris::IndexMat >>(tNumBins);
+        mSubphaseBasisEnrichmentLevel = Vector<Vector< moris_index >>(tNumBins);
+        mSubphaseBasisIndices         = Vector<Vector< moris_index >>(tNumBins);
 
         for(moris::size_t i = 0; i<tNumBins; i++)
         {
@@ -4027,9 +4027,9 @@ namespace xtk
     }
     // ---------------------------------------------------------------------------------
 
-    void Child_Mesh::identify_hanging_nodes( const moris::Cell< moris_index > & aTransitionFacetIndices )
+    void Child_Mesh::identify_hanging_nodes( const moris::Vector< moris_index > & aTransitionFacetIndices )
     {
-        moris::Cell< moris_index> tHangingNodeIndices;
+        moris::Vector< moris_index> tHangingNodeIndices;
 
         for( uint Ik = 0; Ik < aTransitionFacetIndices.size(); Ik ++ )
         {

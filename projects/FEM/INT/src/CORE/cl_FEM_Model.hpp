@@ -12,8 +12,8 @@
 #define PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_
 
 #include "cl_Param_List.hpp"
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -83,10 +83,10 @@ namespace moris
             bool mUseNewGhostSets = false;
 
             // list of IP node pointers
-            moris::Cell< fem::Node_Base * > mIPNodes;
+            Vector< fem::Node_Base * > mIPNodes;
 
             // list of IG node pointers
-            moris::Cell< fem::Node_Base * > mIGNodes;
+            Vector< fem::Node_Base * > mIGNodes;
 
             // storage for xyz pdv active flags
             // row number i : underlying mtk vertex index of the fem IG node
@@ -104,20 +104,20 @@ namespace moris
             Matrix< DDSMat > mXYZLocalAssemblyIndices;
 
             // parameter list to build the fem model
-            moris::Cell< moris::Cell< ParameterList > > mParameterList;
+            Vector< Vector< ParameterList > > mParameterList;
 
             // unpacked fem inputs
-            moris::Cell< fem::Set_User_Info > mSetInfo;
+            Vector< fem::Set_User_Info > mSetInfo;
 
             // space dimension
             uint mSpaceDim;
 
-            moris::Cell< std::shared_ptr< fem::Field > > mFields;
-            moris::Cell< moris::sint >                   mFieldTypes;
-            moris::Cell< std::shared_ptr< fem::IQI > >   mIQIs;
+            Vector< std::shared_ptr< fem::Field > > mFields;
+            Vector< moris::sint >                   mFieldTypes;
+            Vector< std::shared_ptr< fem::IQI > >   mIQIs;
 
             //! requested IQI Names
-            moris::Cell< std::string > mRequestedIQINames;
+            Vector< std::string > mRequestedIQINames;
 
             // A map for mIQIs
             moris::map< std::string, moris_index > mIQINameToIndexMap;
@@ -142,7 +142,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                     const moris_index                   &aMeshPairIndex,
-                    moris::Cell< fem::Set_User_Info >   &aSetInfo );
+                    Vector< fem::Set_User_Info >   &aSetInfo );
 
             /**
              * @brief constructor
@@ -154,7 +154,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                     const moris_index                   &aMeshPairIndex,
-                    moris::Cell< fem::Set_User_Info >   &aSetInfo,
+                    Vector< fem::Set_User_Info >   &aSetInfo,
                     MSI::Design_Variable_Interface      *aDesignVariableInterface );
 
             /**
@@ -167,7 +167,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >               aMeshManager,
                     const moris_index                                 &aMeshPairIndex,
-                    const moris::Cell< moris::Cell< ParameterList > > &aParameterList,
+                    const Vector< Vector< ParameterList > > &aParameterList,
                     std::shared_ptr< Library_IO >                      aLibrary );
 
             /**
@@ -181,7 +181,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
                     const moris_index                          &aMeshPairIndex,
-                    moris::Cell< moris::Cell< ParameterList > > aParameterList,
+                    Vector< Vector< ParameterList > > aParameterList,
                     MSI::Design_Variable_Interface             *aDesignVariableInterface );
 
             /**
@@ -262,7 +262,7 @@ namespace moris
              */
             void get_integration_xyz_active_flags(
                     const Matrix< IndexMat >      &aNodeIndices,
-                    const moris::Cell< PDV_Type > &aPdvTypes,
+                    const Vector< PDV_Type > &aPdvTypes,
                     Matrix< DDSMat >              &aIsActiveDv ) override;
 
             /**
@@ -274,7 +274,7 @@ namespace moris
              */
             void get_integration_xyz_pdv_ids(
                     const Matrix< IndexMat >      &aNodeIndices,
-                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    const Vector< PDV_Type > &aRequestedPdvTypes,
                     Matrix< DDSMat >              &aXYZPdvIds ) override;
 
             /**
@@ -288,7 +288,7 @@ namespace moris
              */
             void get_integration_xyz_pdv_active_flags_and_ids(
                     const Matrix< IndexMat >      &aNodeIndices,
-                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    const Vector< PDV_Type > &aRequestedPdvTypes,
                     Matrix< DDSMat >              &aIsActiveDv,
                     Matrix< DDSMat >              &aXYZPdvIds ) override;
 
@@ -301,7 +301,7 @@ namespace moris
              */
             void get_integration_xyz_pdv_assembly_indices(
                     const Matrix< IndexMat >      &aNodeIndices,
-                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    const Vector< PDV_Type > &aRequestedPdvTypes,
                     Matrix< DDSMat >              &aXYZPdvAssemblyIndices ) override;
 
 
@@ -343,14 +343,14 @@ namespace moris
             void create_fem_sets(
                     mtk::Interpolation_Mesh           *aIPMesh,
                     mtk::Integration_Mesh             *aIGMesh,
-                    moris::Cell< fem::Set_User_Info > &aSetInfo );
+                    Vector< fem::Set_User_Info > &aSetInfo );
 
             /**
              * @brief set parameter list
              * @param[ in ] aParameterList a list of parameter for the FEM model
              */
             void
-            set_parameter_list( const moris::Cell< moris::Cell< ParameterList > > &aParameterList )
+            set_parameter_list( const Vector< Vector< ParameterList > > &aParameterList )
             {
                 mParameterList = aParameterList;
             }
@@ -370,7 +370,7 @@ namespace moris
              * @param[ in ] aRequestedIQINames List of requested IQI names
              */
             void
-            set_requested_IQI_names( const moris::Cell< std::string > &aRequestedIQINames ) override
+            set_requested_IQI_names( const Vector< std::string > &aRequestedIQINames ) override
             {
                 mRequestedIQINames = aRequestedIQINames;
             }
@@ -378,7 +378,7 @@ namespace moris
             /**
              * @brief get requested IQI names
              */
-            const moris::Cell< std::string > &
+            const Vector< std::string > &
             get_requested_IQI_names() override
             {
                 return mRequestedIQINames;
@@ -412,7 +412,7 @@ namespace moris
             /**
              * @brief return fields
              */
-            moris::Cell< std::shared_ptr< mtk::Field > > get_fields() override;
+            Vector< std::shared_ptr< mtk::Field > > get_fields() override;
 
 
             void populate_fields() override;
@@ -425,7 +425,7 @@ namespace moris
              */
             void get_vertex_xyz_active_flags( moris_index aVeretxIndex,
                     Matrix< DDSMat >                     &aIsActiveDv,
-                    const moris::Cell< enum PDV_Type >   &aPdvTypes );
+                    const Vector< enum PDV_Type >   &aPdvTypes );
 
             /**
              * @brief set vertex active flags (if relevant)  based on the index of the vertex
@@ -433,7 +433,7 @@ namespace moris
              * @param[ out ] aIsActiveDv
              */
             void set_vertex_xyz_active_flags( moris_index aVeretxIndex,
-                    moris::Cell< Matrix< DDSMat > >      &aIsActiveDv );
+                    Vector< Matrix< DDSMat > >      &aIsActiveDv );
 
             /**
              * @brief set vertex active flags (if relevant)  based on the index of the vertex
@@ -441,7 +441,7 @@ namespace moris
              * @param[ in ] aXYZPvIds list of xyz pdv ids
              */
             void set_vertex_xyz_pdv_ids( moris_index aVeretxIndex,
-                    moris::Cell< Matrix< DDSMat > > &aXYZPvIds );
+                    Vector< Matrix< DDSMat > > &aXYZPvIds );
 
             /**
              * @brief get vertex xyz pdv ids (if relevant)  based on the index of the vertex
@@ -451,7 +451,7 @@ namespace moris
              */
             void get_vertex_xyz_pdv_ids( moris_index    aVeretxIndex,
                     Matrix< DDSMat >                   &aXYZPdvIds,
-                    const moris::Cell< enum PDV_Type > &aPdvTypes );
+                    const Vector< enum PDV_Type > &aPdvTypes );
 
             /**
              * @brief get x/y/z pdv local cluster assembly indices  based on the index of the vertex
@@ -461,7 +461,7 @@ namespace moris
              */
             void get_local_xyz_pdv_assembly_indices( moris_index aVeretxIndex,
                     Matrix< DDSMat >                            &aXYZLocalAssemblyIndices,
-                    const moris::Cell< enum PDV_Type >          &aPdvTypes );
+                    const Vector< enum PDV_Type >          &aPdvTypes );
 
             /**
              * @brief Set the dof type to Bspline mesh index map

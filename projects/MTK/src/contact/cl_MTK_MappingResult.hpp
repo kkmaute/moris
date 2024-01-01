@@ -6,9 +6,9 @@
 #define MORIS_CL_MTK_MAPPINGRESULT_HPP
 
 #include <ostream>
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Json_Object.hpp"
 
 
@@ -30,23 +30,23 @@ namespace moris::mtk
         Matrix< DDRMat > mSourcePhysicalCoordinate;
 
 
-        moris::Cell< moris_index > mSourceCellIndex;
+        Vector< moris_index > mSourceCellIndex;
 
         /**
          * @brief The cluster index (w.r.t the side set) of the point from which the mapping was performed.
          */
-        moris::Cell< moris_index > mSourceClusterIndex;
+        Vector< moris_index > mSourceClusterIndex;
 
         /**
          * @brief The cluster index of the mapped point w.r.t the side set given in mTargetSideSetIndices.
          */
-        moris::Cell< moris_index > mTargetClusterIndex;
+        Vector< moris_index > mTargetClusterIndex;
 
         /**
          * @brief The n-th entry is the cell index of the n-th matching point in the mParametricCoordinates matrix.
          * If the mapping was not successful, the cell index is -1.
          */
-        moris::Cell< moris_index > mTargetCellIndices;
+        Vector< moris_index > mTargetCellIndices;
 
         /**
          * @brief The physical coordinates of the point on which the mapping was performed.
@@ -63,7 +63,7 @@ namespace moris::mtk
          * @brief The n-th entry is the index of the Side_Set index of the n-th matching point in the mParametricCoordinates matrix.
          * If the mapping was not successful, the Side_Set index is -1.
          */
-        moris::Cell< moris_index > mTargetSideSetIndices;
+        Vector< moris_index > mTargetSideSetIndices;
 
         /**
          * @brief Contains the normals that were used for the mapping.
@@ -73,7 +73,7 @@ namespace moris::mtk
         /**
          * @brief The n-th entry is the distance of the n-th to the mapped point in physical coordinates.
          */
-        moris::Cell< real > mDistances;
+        Vector< real > mDistances;
 
 
         Json to_json();

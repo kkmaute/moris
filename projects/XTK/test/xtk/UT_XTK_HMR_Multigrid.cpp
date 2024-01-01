@@ -13,7 +13,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "HDF5_Tools.hpp"
 #include "paths.hpp"
 
@@ -103,7 +103,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
         tParameters.set_multigrid( true );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -135,7 +135,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+        Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(0.511, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 2;
@@ -146,7 +146,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         tXTKModel.mVerbose  =  false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
@@ -253,7 +253,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", mtk::CellTopology::QUAD4);
 
          // Declare the fields related to enrichment strategy in output options
-         Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
+         Vector<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
 
         // output solution and meshes
         xtk::Output_Options tOutputOptions;

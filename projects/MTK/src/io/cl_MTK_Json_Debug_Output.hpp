@@ -31,16 +31,16 @@ namespace moris
             std::unordered_set< Cell const * >   mAllIGCells;
             std::unordered_set< Cell const * >   mAllIPCells;
 
-            Json serialize_side_sets( moris::Cell< moris::mtk::Side_Set * > &aSideSets );
-            Json serialize_side_clusters( moris::Cell< Cluster const * > &aSideClusters );
+            Json serialize_side_sets( Vector< moris::mtk::Side_Set * > &aSideSets );
+            Json serialize_side_clusters( Vector< Cluster const * > &aSideClusters );
             Json serialize_side_cluster( Cluster const *tCluster );
-            Json serialize_double_side_sets( moris::Cell< moris::mtk::Double_Side_Set * > &aDoubleSideSets );
-            Json serialize_block_sets( moris::Cell< moris::mtk::Block_Set * > &tBlockSets );
+            Json serialize_double_side_sets( Vector< moris::mtk::Double_Side_Set * > &aDoubleSideSets );
+            Json serialize_block_sets( Vector< moris::mtk::Block_Set * > &tBlockSets );
             Json serialize_cell_cluster( Cluster const *aCluster );
-            Json serialize_cell_clusters( moris::Cell< Cluster const * > &tClusters );
+            Json serialize_cell_clusters( Vector< Cluster const * > &tClusters );
             Json serialize_all_vertices( const std::unordered_set< Vertex const * > &aVertices );
             Json serialize_all_cells( const std::unordered_set< Cell const * > &aCells );
-            Json serialize_ig_cells( moris::Cell< moris::mtk::Cell const * > &aCells );
+            Json serialize_ig_cells( Vector< moris::mtk::Cell const * > &aCells );
             Json serialize_ip_cell( moris::mtk::Cell const *&aCell );
         };
     }    // namespace mtk

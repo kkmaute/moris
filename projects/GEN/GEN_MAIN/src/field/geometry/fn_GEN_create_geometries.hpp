@@ -30,8 +30,8 @@ namespace moris
          * @return Pointers to created Geometry classes
          */
         template <typename Vector_Type>
-        Cell<std::shared_ptr<Geometry>> create_geometries(
-                Cell<ParameterList>         aGeometryParameterLists,
+        Vector<std::shared_ptr<Geometry>> create_geometries(
+                Vector<ParameterList>         aGeometryParameterLists,
                 Vector_Type&                aADVs,
                 std::shared_ptr<Library_IO> aLibrary = nullptr,
                 mtk::Mesh*                  aMTKMesh = nullptr);

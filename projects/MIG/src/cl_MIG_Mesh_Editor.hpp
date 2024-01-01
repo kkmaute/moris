@@ -13,9 +13,9 @@
 
 #include "cl_TOL_Memory_Map.hpp"
 #include <unordered_map>
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include <memory>
 #include "cl_MTK_Integration_Mesh_Editor.hpp"
 
@@ -101,13 +101,13 @@ namespace moris::mig
 
         void
         construct_periodic_data_base(
-                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
+                Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
                 Matrix< DDRMat >                           aVerticesCoords,
-                moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-                moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
-                moris::Cell< moris_index >&                aSideClusterToIPCell,
+                Vector< Vector< moris_index > >& aSideClusterToCells,
+                Vector< Vector< moris_index > >& aCellToVertexIndices,
+                Vector< moris_index >&                aSideClusterToIPCell,
                 Matrix< DDRMat >&                          aVertexParametricCoords,
-                moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
+                Vector< moris_index >&                aDoubleSidedClustersIndex,
                 uint                                       mNumDblSideCluster,
                 uint                                       aNumGeometry );
 

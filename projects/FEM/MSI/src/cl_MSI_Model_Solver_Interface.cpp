@@ -55,7 +55,7 @@ namespace moris
         Model_Solver_Interface::finalize()
         {
             // get map from mesh
-            Cell< moris::map< moris::moris_id, moris::moris_index > >& tCoefficientsIdtoIndexMap = mDofMgn.get_adof_map();
+            Vector< moris::map< moris::moris_id, moris::moris_index > >& tCoefficientsIdtoIndexMap = mDofMgn.get_adof_map();
 
             if ( mMesh != nullptr )    // FIXME fix all constructors to be able to get rid of this if statement
             {
@@ -168,7 +168,7 @@ namespace moris
         {
             for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
             {
-                Cell< MSI::Equation_Object* >& tEquationObj = mEquationBlocks( Ik )->get_equation_object_list();
+                Vector< MSI::Equation_Object* >& tEquationObj = mEquationBlocks( Ik )->get_equation_object_list();
 
                 // variables used for number of system check.
                 uint tNumEquationSys    = 0;
@@ -181,7 +181,7 @@ namespace moris
 
                 for ( luint Ij = 0; Ij < tEquationObj.size(); ++Ij )
                 {
-                    const moris::Cell< moris::Cell< Pdof_Host* > >& tPdofHosts = tEquationObj( Ij )->get_pdof_hosts();
+                    const moris::Vector< moris::Vector< Pdof_Host* > >& tPdofHosts = tEquationObj( Ij )->get_pdof_hosts();
 
                     if ( !tNumEquationSysSet )
                     {
@@ -196,7 +196,7 @@ namespace moris
                     {
                         for ( luint Ia = 0; Ia < tPdofHosts( Ii ).size(); ++Ia )
                         {
-                            moris::Cell< moris::Cell< Pdof* > >& tPdofHostPdofList = tPdofHosts( Ii )( Ia )->get_pdof_hosts_pdof_list();
+                            moris::Vector< moris::Vector< Pdof* > >& tPdofHostPdofList = tPdofHosts( Ii )( Ia )->get_pdof_hosts_pdof_list();
 
                             if ( !tNumPdofsOnPdofHostsSet )
                             {

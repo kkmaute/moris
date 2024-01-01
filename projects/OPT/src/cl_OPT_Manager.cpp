@@ -24,8 +24,8 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         Manager::Manager(
-                const Cell<Cell<ParameterList>>           & aParameterLists,
-                Cell<std::shared_ptr<Criteria_Interface>>   aInterfaces)
+                const Vector<Vector<ParameterList>>           & aParameterLists,
+                Vector<std::shared_ptr<Criteria_Interface>>   aInterfaces)
                 : Manager(
                         aParameterLists(2),
                         create_problem(
@@ -39,7 +39,7 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         Manager::Manager(
-                const Cell<ParameterList>& aAlgorithmParameterLists,
+                const Vector<ParameterList>& aAlgorithmParameterLists,
                 std::shared_ptr<Problem>   aProblem)
                 : mProblem(aProblem)
         {

@@ -24,7 +24,7 @@
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 
 #include "HDF5_Tools.hpp"
@@ -43,7 +43,7 @@ namespace moris::hmr
             //-------------------------------------------------------------------------------
 
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             SECTION( "Lagrange Mesh 2D: test node uniqueness" )
             {
@@ -217,7 +217,7 @@ namespace moris::hmr
             tParameters.set_initial_refinement( { { 1 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -325,7 +325,7 @@ namespace moris::hmr
 
             //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -435,7 +435,7 @@ namespace moris::hmr
 
             //tParameters.set_side_sets({ {1}, {2}, {3}, {4} });
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -514,7 +514,7 @@ namespace moris::hmr
         if ( par_size() == 1 )
         {
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             auto tParameters = new Parameters;
@@ -559,7 +559,7 @@ namespace moris::hmr
 
             //----------------------------------------------------------------------------------------------------------
             // unite pattern 0 and 1 on pattern 3
-            Cell< uint > tSourcePattern( 2, 0 );
+            Vector< uint > tSourcePattern( 2, 0 );
             tSourcePattern( 1 ) = 1;
             tBackgroundMesh->unite_patterns( tSourcePattern, 3 );
 
@@ -655,7 +655,7 @@ namespace moris::hmr
         if ( par_size() == 1 )
         {
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             auto tParameters = new Parameters;
@@ -762,7 +762,7 @@ namespace moris::hmr
             uint tLagrangeMeshIndex = 0;
 
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             Parameters tParameters;
@@ -790,7 +790,7 @@ namespace moris::hmr
 
             tParameters.set_number_aura( true );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -806,7 +806,7 @@ namespace moris::hmr
 
             tField->evaluate_scalar_function( tPlane_Bench );
 
-            Cell< std::shared_ptr< Field > > tFields( 1, tField );
+            Vector< std::shared_ptr< Field > > tFields( 1, tField );
 
             for ( uint k = 0; k < 2; ++k )
             {
@@ -829,7 +829,7 @@ namespace moris::hmr
         if ( par_size() == 1 )
         {
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             auto tParameters = new Parameters;
@@ -924,7 +924,7 @@ namespace moris::hmr
             uint tLagrangeMeshIndex = 0;
 
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             Parameters tParameters;
@@ -952,7 +952,7 @@ namespace moris::hmr
 
             tParameters.set_number_aura( true );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { { 0, -1 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -968,7 +968,7 @@ namespace moris::hmr
 
             tField->evaluate_scalar_function( tPlane_Bench );
 
-            Cell< std::shared_ptr< Field > > tFields( 1, tField );
+            Vector< std::shared_ptr< Field > > tFields( 1, tField );
 
             for ( uint k = 0; k < 2; ++k )
             {
@@ -1035,7 +1035,7 @@ namespace moris::hmr
             std::cout << "I am proc: " << par_rank() << std::endl;
 
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             Parameters tParameters;
@@ -1062,7 +1062,7 @@ namespace moris::hmr
 
             tParameters.set_number_aura( true );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0, 1 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1113,7 +1113,7 @@ namespace moris::hmr
             tParameters.set_initial_refinement( { { 2 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1192,7 +1192,7 @@ namespace moris::hmr
             std::cout << "I am proc: " << par_rank() << std::endl;
 
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             Parameters tParameters;
@@ -1222,7 +1222,7 @@ namespace moris::hmr
 
             tParameters.set_number_aura( true );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1293,7 +1293,7 @@ namespace moris::hmr
             std::cout << "I am proc: " << par_rank() << std::endl;
 
             // empty container for B-Spline meshes
-            Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             Parameters tParameters;
@@ -1323,7 +1323,7 @@ namespace moris::hmr
 
             tParameters.set_number_aura( true );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
             tLagrangeToBSplineMesh( 1 ) = { { 0 } };
 
@@ -1461,8 +1461,8 @@ namespace moris::hmr
 
             tHMR.save_mesh_to_vtk( "Lagrange_Mesh_Support.vtk", 0 );
 
-            Cell< mtk::Cell* > tCells_1;
-            Cell< mtk::Cell* > tCells_2;
+            Vector< mtk::Cell* > tCells_1;
+            Vector< mtk::Cell* > tCells_2;
 
             tMesh->get_elements_in_interpolation_cluster( 6, 0, tCells_1 );
 
@@ -1471,8 +1471,8 @@ namespace moris::hmr
             REQUIRE( tCells_1.size() == 1 );
             REQUIRE( tCells_2.size() == 7 );
 
-            Cell< moris_index > tRef_1 = { 6 };
-            Cell< moris_index > tRef_2 = { 0, 1, 2, 3, 4, 5, 6 };
+            Vector< moris_index > tRef_1 = { 6 };
+            Vector< moris_index > tRef_2 = { 0, 1, 2, 3, 4, 5, 6 };
 
             for ( uint Ik = 0; Ik < tCells_1.size(); Ik++ )
             {
@@ -1551,9 +1551,9 @@ namespace moris::hmr
 
             tHMR.save_mesh_to_vtk( "Lagrange_Mesh_Support.vtk", 0 );
 
-            Cell< mtk::Cell* > tCells_1;
-            Cell< mtk::Cell* > tCells_2;
-            Cell< mtk::Cell* > tCells_3;
+            Vector< mtk::Cell* > tCells_1;
+            Vector< mtk::Cell* > tCells_2;
+            Vector< mtk::Cell* > tCells_3;
 
             tMesh->get_elements_in_interpolation_cluster_and_side_ordinal( 6, 0, 1, tCells_1 );
 
@@ -1564,9 +1564,9 @@ namespace moris::hmr
             REQUIRE( tCells_2.size() == 3 );
             REQUIRE( tCells_3.size() == 2 );
 
-            Cell< moris_index > tRef_1 = { 6 };
-            Cell< moris_index > tRef_2 = { 0, 1, 4 };
-            Cell< moris_index > tRef_3 = { 6, 5 };
+            Vector< moris_index > tRef_1 = { 6 };
+            Vector< moris_index > tRef_2 = { 0, 1, 4 };
+            Vector< moris_index > tRef_3 = { 6, 5 };
 
             for ( uint Ik = 0; Ik < tCells_1.size(); Ik++ )
             {

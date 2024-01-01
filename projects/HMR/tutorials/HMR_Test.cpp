@@ -13,7 +13,7 @@
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Logger.hpp"
 #include "cl_GlobalClock.hpp" // MRS/IOS/src
 #include "cl_Tracer.hpp" // MRS/IOS/src
@@ -94,7 +94,7 @@ main(
 //                            tParameters->get_bspline_input_pattern(),
 //                            tOrder );
 //
-//                   moris::Cell< moris::hmr::BSpline_Mesh_Base*  > tBSplineMeshes( 1, tBSplineMesh );
+//                   Vector< moris::hmr::BSpline_Mesh_Base*  > tBSplineMeshes( 1, tBSplineMesh );
 //
 //                    // create B-Spline Mesh
 //                    moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh

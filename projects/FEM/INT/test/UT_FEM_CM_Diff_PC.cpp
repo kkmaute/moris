@@ -29,7 +29,7 @@
 inline void
 tValFunctionCM_Diff_Lin_Iso(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) +    //
@@ -39,7 +39,7 @@ tValFunctionCM_Diff_Lin_Iso(
 inline void
 tConstValFunction_UT_CM_Diff_PC(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -48,7 +48,7 @@ tConstValFunction_UT_CM_Diff_PC(
 inline void
 tDerFunctionCM_Diff_Lin_Iso(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
@@ -57,7 +57,7 @@ tDerFunctionCM_Diff_Lin_Iso(
 inline void
 tDer0FunctionCM_Diff_Lin_Iso(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = 0.0 * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
@@ -66,7 +66,7 @@ tDer0FunctionCM_Diff_Lin_Iso(
 using namespace moris;
 using namespace fem;
 
-inline moris::Cell< bool >
+inline moris::Vector< bool >
 test_phase_change_constitutive_model(
         Matrix< DDRMat >        aXHat,
         Matrix< DDRMat >        aTHat,
@@ -77,7 +77,7 @@ test_phase_change_constitutive_model(
         uint                    aSpatialDim = 2 )
 {
     // initialize cell of checks
-    moris::Cell< bool > tChecks( 5, false );
+    moris::Vector< bool > tChecks( 5, false );
 
     // size of finite difference perturbation
     real tPertubationSize = 7.0e-6;
@@ -166,7 +166,7 @@ test_phase_change_constitutive_model(
     tGI.set_space_time( aParametricPoint );
 
     // create a TEMP field interpolator
-    Cell< Field_Interpolator* > tFIs( 1, nullptr );
+    Vector< Field_Interpolator* > tFIs( 1, nullptr );
     tFIs( 0 ) = new Field_Interpolator( 1, aIPRule, &tGI, { MSI::Dof_Type::TEMP } );
 
     // set coefficients for field interpolators
@@ -189,7 +189,7 @@ test_phase_change_constitutive_model(
     tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // create a field interpolator manager
-    Cell< Cell< MSI::Dof_Type > > tDofTypes = { { MSI::Dof_Type::TEMP } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes = { { MSI::Dof_Type::TEMP } };
     Field_Interpolator_Manager    tFIManager( tDofTypes, &tSet );
     tFIManager.mFI                     = tFIs;
     tFIManager.mIPGeometryInterpolator = &tGI;
@@ -345,7 +345,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD4", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD4]
     Matrix< DDRMat > tParametricPoint = { { -0.4 }, { 0.1 }, { -0.6 } };
 
     // run test
-    moris::Cell< bool > tChecks = test_phase_change_constitutive_model(
+    moris::Vector< bool > tChecks = test_phase_change_constitutive_model(
             tXHat,
             tTHat,
             tGeomInterpRule,
@@ -428,7 +428,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_HEX8", "[moris],[fem],[CM_Diff_Lin_Iso_PC_HEX8]" 
     Matrix< DDRMat > tParametricPoint = { { -0.4 }, { 0.1 }, { -0.6 }, { 0.3 } };
 
     // run test
-    moris::Cell< bool > tChecks = test_phase_change_constitutive_model(
+    moris::Vector< bool > tChecks = test_phase_change_constitutive_model(
             tXHat,
             tTHat,
             tGeomInterpRule,
@@ -600,7 +600,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_PC_HEX27]
     Matrix< DDRMat > tParametricPoint = { { 0.35 }, { -0.25 }, { 0.75 }, { 0.4 } };
 
     // run test
-    moris::Cell< bool > tChecks = test_phase_change_constitutive_model(
+    moris::Vector< bool > tChecks = test_phase_change_constitutive_model(
             tXHat,
             tTHat,
             tGeomInterpRule,
@@ -741,7 +741,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD1
     Matrix< DDRMat > tParametricPoint = { { 0.8 }, { -0.9 }, { 0.2 } };
 
     // run test
-    moris::Cell< bool > tChecks = test_phase_change_constitutive_model(
+    moris::Vector< bool > tChecks = test_phase_change_constitutive_model(
             tXHat,
             tTHat,
             tGeomInterpRule,

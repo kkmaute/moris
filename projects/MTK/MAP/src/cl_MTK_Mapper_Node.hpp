@@ -11,13 +11,13 @@
 #ifndef PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_NODE_HPP_
 #define PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_NODE_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
 #include "fn_norm.hpp"
 #include "cl_MTK_Vertex.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris
 {
@@ -34,7 +34,7 @@ namespace moris
             bool mFlag;
 
             uint mNeighborCounter = 0;
-            moris::Cell< Node * > mNeighbors;
+            Vector< Node * > mNeighbors;
 
             real mDistance;
             Matrix< DDRMat >   mCoords;
@@ -196,7 +196,7 @@ namespace moris
             get_nodes_in_proximity(
                     const Matrix< DDRMat > & aCoords,
                     const             real & aDistance,
-                            Cell< Node * > & aNodes )
+                            Vector< Node * > & aNodes )
             {
                 for( Node * tNeighbor : mNeighbors )
                 {

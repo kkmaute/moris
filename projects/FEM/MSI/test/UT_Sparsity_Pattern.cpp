@@ -9,7 +9,7 @@
  */
 
 #include "catch.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -73,13 +73,13 @@ namespace moris::MSI
             moris::Solver_Interface* tDLASolInterface = static_cast< moris::Solver_Interface* >( tSolverInterface );
 
             // print the data
-            void ( *tPrintFunc )( moris::Cell< moris_id > const &, std::string ) = print_as_row_vector;
+            void ( *tPrintFunc )( moris::Vector< moris_id > const &, std::string ) = print_as_row_vector;
             print_cell< moris_id >( tDLASolInterface->mNonZeroDigonal, "mNonZeroDigonal", tPrintFunc );
             print_cell< moris_id >( tDLASolInterface->mNonZeroOffDigonal, "mNonZeroOffDigonal", tPrintFunc );
 
             // set what data should be for each processor
-            moris::Cell< moris_id > tNonZeroDigonal;
-            moris::Cell< moris_id > tNonZeroOffDigonal;
+            moris::Vector< moris_id > tNonZeroDigonal;
+            moris::Vector< moris_id > tNonZeroOffDigonal;
             switch ( par_rank() )
             {
                 case 0:

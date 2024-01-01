@@ -71,7 +71,7 @@ namespace moris
             tCircleParameterList.set("name", "My_Circle");
             tCircleParameterList.set("field_variable_indices", "0, 1, 2");
             tCircleParameterList.set("adv_indices", "0, 1, 2");
-            Cell<std::shared_ptr<Geometry>> tGeometries = create_geometries({tCircleParameterList}, tADVs);
+            Vector<std::shared_ptr<Geometry>> tGeometries = create_geometries({tCircleParameterList}, tADVs);
             std::shared_ptr<Geometry> tCircle = tGeometries(0);
 
             // Set up property
@@ -88,7 +88,7 @@ namespace moris
                 // Create scaled field
                 real tScale = tUniform(tEngine);
                 tScaledFieldParameterList.set("constant_parameters", std::to_string(tScale));
-                Cell<std::shared_ptr<Property>> tProperties = create_properties({tScaledFieldParameterList}, tADVs, tGeometries);
+                Vector<std::shared_ptr<Property>> tProperties = create_properties({tScaledFieldParameterList}, tADVs, tGeometries);
 
                 // Check that one property was created, and assign it as scaled field
                 REQUIRE(tProperties.size() == 1);

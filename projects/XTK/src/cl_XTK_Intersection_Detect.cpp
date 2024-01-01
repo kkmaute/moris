@@ -50,9 +50,9 @@ namespace xtk
         moris::mtk::Set* tSet1 = tIntegrationMesh->get_set_by_name( "SideSet_2_c_p1" );
 
         // get clusters in the the first set
-        moris::Cell< moris::mtk::Cluster const* > tSetClusters = tSet1->get_clusters_on_set();
+        Vector< moris::mtk::Cluster const* > tSetClusters = tSet1->get_clusters_on_set();
 
-        moris::Cell<moris::mtk::Cell const *> const & tCells = tSetClusters(0)->get_primary_cells_in_cluster();
+        Vector<moris::mtk::Cell const *> const & tCells = tSetClusters(0)->get_primary_cells_in_cluster();
 
         for( uint i = 0 ; i < tCells.size() ; i ++)
           {
@@ -67,7 +67,7 @@ namespace xtk
 
         for( uint i = 0 ; i < tCells.size() ; i++ )
         {
-            moris::Cell<moris::mtk::Vertex const *> tVerticess = tCells(i)->get_vertices_on_side_ordinal( tCellOrds(i) );
+            Vector<moris::mtk::Vertex const *> tVerticess = tCells(i)->get_vertices_on_side_ordinal( tCellOrds(i) );
 
             for ( uint j = 0 ; j < tVerticess.size() ; j++ )
             {
@@ -186,7 +186,7 @@ namespace xtk
 
         Child_Mesh const & CM0 = mCutMesh.get_child_mesh(aChildMeshIndex);
 
-        moris::Cell<moris::mtk::Vertex const *> const & tvertices = CM0.get_vertices();
+        Vector<moris::mtk::Vertex const *> const & tvertices = CM0.get_vertices();
 
         std::cout<<tvertices.size()<<"tvertices.size()" << std::endl;
 

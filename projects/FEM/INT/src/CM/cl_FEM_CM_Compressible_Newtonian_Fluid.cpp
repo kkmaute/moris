@@ -219,8 +219,8 @@ namespace moris
 
         void
         CM_Compressible_Newtonian_Fluid::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                moris::Vector< moris::Vector< MSI::Dof_Type > > aDofTypes,
+                moris::Vector< std::string >                  aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -311,7 +311,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::dFluxdDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
             switch ( aCMFunctionType )
@@ -370,7 +370,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_thermal_dFluxdDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_thermal_dFluxdDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the material model
             const std::shared_ptr< Material_Model > tMM = get_material_model( "ThermodynamicMaterialModel" );
@@ -402,7 +402,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::thermal_dFluxdDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -455,7 +455,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_work_dFluxdDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_work_dFluxdDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -487,7 +487,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::work_dFluxdDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -543,7 +543,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_energy_dFluxdDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_energy_dFluxdDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -570,7 +570,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::energy_dFluxdDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -624,7 +624,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::ddivfluxdu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
             switch ( aCMFunctionType )
@@ -683,7 +683,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_mechanical_ddivfluxdu( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_mechanical_ddivfluxdu( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -714,7 +714,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::mechanical_ddivfluxdu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -772,7 +772,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_thermal_ddivfluxdu( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_thermal_ddivfluxdu( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -805,7 +805,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::thermal_ddivfluxdu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -862,7 +862,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_work_ddivfluxdu( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_work_ddivfluxdu( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -889,7 +889,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::work_ddivfluxdu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -932,7 +932,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_dEnergydDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_dEnergydDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -991,7 +991,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_dEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_dEnergyDotdDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1051,7 +1051,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_dStressdDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_dStressdDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1116,7 +1116,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal,
                 enum CM_Function_Type               aCMFunctionType )
         {
@@ -1171,7 +1171,7 @@ namespace moris
 
         void
         CM_Compressible_Newtonian_Fluid::eval_thermal_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal )
         {
             // get the dof index
@@ -1187,7 +1187,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::thermal_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal )
         {
             // if aDofType is not an active dof type for the CM
@@ -1241,7 +1241,7 @@ namespace moris
 
         void
         CM_Compressible_Newtonian_Fluid::eval_energy_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal )
         {
             // get the dof index
@@ -1253,7 +1253,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::energy_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal )
         {
             // if aDofType is not an active dof type for the CM
@@ -1307,7 +1307,7 @@ namespace moris
 
         void
         CM_Compressible_Newtonian_Fluid::eval_work_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal )
         {
             // get the dof index
@@ -1319,7 +1319,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::work_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal )
         {
             // if aDofType is not an active dof type for the CM
@@ -1377,7 +1377,7 @@ namespace moris
 
         void
         CM_Compressible_Newtonian_Fluid::eval_mechanical_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal )
         {
             // get the dof index
@@ -1393,7 +1393,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::mechanical_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >             &aNormal )
         {
             // if aDofType is not an active dof type for the CM
@@ -1497,7 +1497,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_dStraindDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1546,7 +1546,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::ddivstraindu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes,
+                const moris::Vector< MSI::Dof_Type > &aDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
             switch ( aCMFunctionType )
@@ -1603,7 +1603,7 @@ namespace moris
 
         void
         CM_Compressible_Newtonian_Fluid::eval_thermal_ddivstraindu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -1632,7 +1632,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::thermal_ddivstraindu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
@@ -1715,7 +1715,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_ddivstrainratedu_2d( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_ddivstrainratedu_2d( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -1744,7 +1744,7 @@ namespace moris
         }
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_ddivstrainratedu_3d( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_ddivstrainratedu_3d( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -1780,7 +1780,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::ddivstrainratedu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR( this->check_dof_dependency( aDofTypes ),
@@ -1855,7 +1855,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_dDivDivVeldu_2d( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_dDivDivVeldu_2d( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -1883,7 +1883,7 @@ namespace moris
         }
 
         void
-        CM_Compressible_Newtonian_Fluid::eval_dDivDivVeldu_3d( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Compressible_Newtonian_Fluid::eval_dDivDivVeldu_3d( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -1918,7 +1918,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         CM_Compressible_Newtonian_Fluid::dDivDivVeldu(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR( this->check_dof_dependency( aDofTypes ),

@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "assert.hpp"
@@ -228,14 +228,14 @@ namespace moris
 
             // if I draw a straight line from a vertex to another entity on the cell,
             // what is the ordinal and rank of the minimum entity that can describe this path
-            virtual moris::Cell< moris_index >
+            virtual Vector< moris_index >
             get_vertex_path_to_entity_rank_and_ordinal(
                     moris_index aVertexOrdinal,
                     moris_index aOtherEntityOrdinal,
                     moris_index aOtherEntityRank ) const;
 
             // edge to entity other entity ordinal should be higher rank (i.e. don't go edge to node (use get_vertex_path_to_entity_rank_and_ordinal for thats))
-            virtual moris::Cell< moris_index >
+            virtual Vector< moris_index >
             get_edge_path_to_entity_rank_and_ordinal(
                     moris_index aEdgeOrdinal,
                     moris_index aOtherEntityOrdinal,

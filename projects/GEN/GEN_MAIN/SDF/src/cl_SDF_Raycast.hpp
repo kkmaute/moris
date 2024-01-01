@@ -14,7 +14,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "SDF_Tools.hpp"
 
 #include "cl_SDF_Object.hpp"
@@ -30,9 +30,9 @@ namespace moris::sdf
         Matrix< DDRMat >      mOriginalPoint;        // global point coordinates, needed to revert rotations that occur
         Matrix< DDRMat >      mFacetMinCoords;       // row = facet, column = min mDimension coordinate of the vertices of the facet
         Matrix< DDRMat >      mFacetMaxCoords;       // row = facet, column = max mDimension coordinate of the vertices of the facet
-        moris::Cell< uint >   mCandidateFacets;      // index of facets that lie within the bounding box, but might not actually be intersected
-        moris::Cell< Facet* > mIntersectedFacets;    // intersection has been found, coordinate of intersection still to be computed
-        moris::Cell< real >   mCoordsK;              // intersection coordinates for all facets in mIntersectedFacets
+        Vector< uint >   mCandidateFacets;      // index of facets that lie within the bounding box, but might not actually be intersected
+        Vector< Facet* > mIntersectedFacets;    // intersection has been found, coordinate of intersection still to be computed
+        Vector< real >   mCoordsK;              // intersection coordinates for all facets in mIntersectedFacets
         uint                  mPointIsInside;        // tribool for if the point is inside the object. 0 = outside, 1 = inside, 2 = unsure
 
       public:
@@ -196,19 +196,19 @@ namespace moris::sdf
             mPoint = aPoint;
         }
         
-        moris::Cell< uint >
+        Vector< uint >
         get_candidate_facets()
         {
             return mCandidateFacets;
         }
 
-        moris::Cell< Facet* >
+        Vector< Facet* >
         get_intersected_facets()
         {
             return mIntersectedFacets;
         }
 
-        moris::Cell< real >
+        Vector< real >
         get_intersection_coordinates()
         {
             return mCoordsK;

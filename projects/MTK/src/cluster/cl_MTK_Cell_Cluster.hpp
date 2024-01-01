@@ -10,7 +10,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 
 #include "cl_MTK_Cluster.hpp"
@@ -46,11 +46,11 @@ namespace moris
             // ##############################################
 
 
-            virtual moris::Cell< moris::mtk::Cell const * > const &
+            virtual Vector< moris::mtk::Cell const * > const &
             get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
 
-            virtual moris::Cell< moris::mtk::Cell const * > const &
+            virtual Vector< moris::mtk::Cell const * > const &
             get_void_cells_in_cluster() const = 0;
 
 
@@ -58,7 +58,7 @@ namespace moris
             get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
 
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
 
@@ -70,14 +70,14 @@ namespace moris
 
 
             virtual void
-            add_primary_integration_cell( moris::Cell< moris::mtk::Cell const * > const &aIntegrationCell )
+            add_primary_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
             {
                 MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
             };
 
 
             virtual void
-            add_void_integration_cell( moris::Cell< moris::mtk::Cell const * > const &aIntegrationCell )
+            add_void_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
             {
                 MORIS_ERROR( false, "add_primary_integration_cell(), not implemented for this class" );
             };
@@ -138,7 +138,7 @@ namespace moris
                 moris::uint tNumCells = this->get_num_primary_cells();
 
                 // cell access
-                moris::Cell< moris::mtk::Cell const * > const &tCells = this->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Cell const * > const &tCells = this->get_primary_cells_in_cluster();
 
                 // initialize output
                 moris::Matrix< moris::IndexMat > tCellIndices( 1, tNumCells );
@@ -162,7 +162,7 @@ namespace moris
                 moris::uint tNumCells = this->get_num_void_cells();
 
                 // cell access
-                moris::Cell< moris::mtk::Cell const * > const &tCells = this->get_void_cells_in_cluster();
+                Vector< moris::mtk::Cell const * > const &tCells = this->get_void_cells_in_cluster();
 
                 // initialize output
                 moris::Matrix< moris::IndexMat > tCellIndices( 1, tNumCells );
@@ -212,7 +212,7 @@ namespace moris
             {
                 moris::real tVolume = 0.0;
 
-                moris::Cell< moris::mtk::Cell const * > const *tCells = nullptr;
+                Vector< moris::mtk::Cell const * > const *tCells = nullptr;
 
                 if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY )
                 {
@@ -248,7 +248,7 @@ namespace moris
                     const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
-                moris::Cell< moris::mtk::Cell const * > const *tCells = nullptr;
+                Vector< moris::mtk::Cell const * > const *tCells = nullptr;
 
                 if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY )
                 {
@@ -279,7 +279,7 @@ namespace moris
             {
                 moris::real tDerivative = 0.0;
 
-                moris::Cell< moris::mtk::Cell const * > const *tCells = nullptr;
+                Vector< moris::mtk::Cell const * > const *tCells = nullptr;
 
                 if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY )
                 {
@@ -418,7 +418,7 @@ namespace moris
                 moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
                 // cell access
-                moris::Cell< moris::mtk::Vertex const * > tVertices = this->get_vertices_in_cluster();
+                Vector< moris::mtk::Vertex const * > tVertices = this->get_vertices_in_cluster();
 
                 // initialize output
                 moris::Matrix< moris::IndexMat > tVertexIndices( 1, tNumVertices );
@@ -445,7 +445,7 @@ namespace moris
                 moris::uint tNumCells = this->get_num_primary_cells();
 
                 // cell access
-                moris::Cell< moris::mtk::Cell const * > const &tCells = this->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Cell const * > const &tCells = this->get_primary_cells_in_cluster();
 
                 // initialize output
                 moris::Matrix< moris::IdMat > tCellIds( 1, tNumCells );
@@ -469,7 +469,7 @@ namespace moris
                 moris::uint tNumCells = this->get_num_void_cells();
 
                 // cell access
-                moris::Cell< moris::mtk::Cell const * > const &tCells = this->get_void_cells_in_cluster();
+                Vector< moris::mtk::Cell const * > const &tCells = this->get_void_cells_in_cluster();
 
                 // initialize output
                 moris::Matrix< moris::IdMat > tCellIds( 1, tNumCells );
@@ -498,7 +498,7 @@ namespace moris
                 moris::uint tNumVertices = this->get_num_vertices_in_cluster();
 
                 // cell access
-                moris::Cell< moris::mtk::Vertex const * > tVertices = this->get_vertices_in_cluster();
+                Vector< moris::mtk::Vertex const * > tVertices = this->get_vertices_in_cluster();
 
                 // initialize output
                 moris::Matrix< moris::IdMat > tVertexIds( 1, tNumVertices );
@@ -532,7 +532,7 @@ namespace moris
                 moris::mtk::Cell const *tIntegrationCell = this->get_primary_cells_in_cluster()( aPrimaryCellClusterIndex );
 
                 // get the vertex pointers on the side
-                moris::Cell< moris::mtk::Vertex * > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
+                Vector< moris::mtk::Vertex * > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
 
                 // allocate output (nnode x dim_xsi)
                 moris::Matrix< moris::DDRMat > tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord() );
@@ -564,7 +564,7 @@ namespace moris
                 moris::mtk::Cell const *tIntegrationCell = this->get_void_cells_in_cluster()( aVoidCellClusterIndex );
 
                 // get the vertex pointers on the side
-                moris::Cell< moris::mtk::Vertex * > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
+                Vector< moris::mtk::Vertex * > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
 
                 // allocate output (nnode x dim_xsi)
                 moris::Matrix< moris::DDRMat > tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord() );

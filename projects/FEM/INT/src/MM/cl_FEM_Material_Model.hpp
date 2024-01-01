@@ -12,10 +12,10 @@
 #define SRC_FEM_CL_FEM_MATERIAL_MODEL_HPP_
 
 //MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 //#include "linalg_typedefs.hpp"
 //MRS/CNT/src
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 //LNA/src
 #include "cl_Matrix.hpp"
 //FEM/INT/src
@@ -57,19 +57,19 @@ namespace moris
                 Set * mSet = nullptr;
 
                 // dof type list
-                moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
+                Vector< Vector< MSI::Dof_Type > > mDofTypes;
 
                 // dof type map
                 Matrix< DDSMat > mDofTypeMap;
 
                 // global dof type list
-                moris::Cell< moris::Cell< MSI::Dof_Type > > mGlobalDofTypes;
+                Vector< Vector< MSI::Dof_Type > > mGlobalDofTypes;
 
                 // global dof type map
                 Matrix< DDSMat > mGlobalDofTypeMap;
 
                 // properties
-                moris::Cell< std::shared_ptr< Property > > mProperties;
+                Vector< std::shared_ptr< Property > > mProperties;
 
                 // local string to property enum map
                 std::map< std::string, uint > mPropertyMap;
@@ -83,30 +83,30 @@ namespace moris
                 Matrix< DDRMat > mdDensitydx;
                 Matrix< DDRMat > md2Densitydx2;
 
-                moris::Cell< Matrix< DDRMat > > mDensityDof;
-                moris::Cell< Matrix< DDRMat > > mDensityDotDof;
-                moris::Cell< Matrix< DDRMat > > mdDensitydxDof;
-                moris::Cell< Matrix< DDRMat > > md2Densitydx2Dof;
+                Vector< Matrix< DDRMat > > mDensityDof;
+                Vector< Matrix< DDRMat > > mDensityDotDof;
+                Vector< Matrix< DDRMat > > mdDensitydxDof;
+                Vector< Matrix< DDRMat > > md2Densitydx2Dof;
 
                 Matrix< DDRMat > mPressure;
                 Matrix< DDRMat > mPressureDot;
                 Matrix< DDRMat > mdPressuredx;
                 Matrix< DDRMat > md2Pressuredx2;
 
-                moris::Cell< Matrix< DDRMat > > mPressureDof;
-                moris::Cell< Matrix< DDRMat > > mPressureDotDof;
-                moris::Cell< Matrix< DDRMat > > mdPressuredxDof;
-                moris::Cell< Matrix< DDRMat > > md2Pressuredx2Dof;
+                Vector< Matrix< DDRMat > > mPressureDof;
+                Vector< Matrix< DDRMat > > mPressureDotDof;
+                Vector< Matrix< DDRMat > > mdPressuredxDof;
+                Vector< Matrix< DDRMat > > md2Pressuredx2Dof;
 
                 Matrix< DDRMat > mTemperature;
                 Matrix< DDRMat > mTemperatureDot;
                 Matrix< DDRMat > mdTemperaturedx;
                 Matrix< DDRMat > md2Temperaturedx2;
 
-                moris::Cell< Matrix< DDRMat > > mTemperatureDof;
-                moris::Cell< Matrix< DDRMat > > mTemperatureDotDof;
-                moris::Cell< Matrix< DDRMat > > mdTemperaturedxDof;
-                moris::Cell< Matrix< DDRMat > > md2Temperaturedx2Dof;
+                Vector< Matrix< DDRMat > > mTemperatureDof;
+                Vector< Matrix< DDRMat > > mTemperatureDotDof;
+                Vector< Matrix< DDRMat > > mdTemperaturedxDof;
+                Vector< Matrix< DDRMat > > md2Temperaturedx2Dof;
 
                 // storage for specific internal energy (computed using 1st EOS)
                 Matrix< DDRMat > mEint;
@@ -114,10 +114,10 @@ namespace moris
                 Matrix< DDRMat > mdEintdx;
                 Matrix< DDRMat > md2Eintdx2;
 
-                moris::Cell< Matrix< DDRMat > > mEintDof;
-                moris::Cell< Matrix< DDRMat > > mEintDotDof;
-                moris::Cell< Matrix< DDRMat > > mdEintdxDof;
-                moris::Cell< Matrix< DDRMat > > md2Eintdx2Dof;
+                Vector< Matrix< DDRMat > > mEintDof;
+                Vector< Matrix< DDRMat > > mEintDotDof;
+                Vector< Matrix< DDRMat > > mdEintdxDof;
+                Vector< Matrix< DDRMat > > md2Eintdx2Dof;
 
                 // storage for other material properties
                 Matrix< DDRMat > mAlphaP;
@@ -126,13 +126,13 @@ namespace moris
                 Matrix< DDRMat > mCp;
                 Matrix< DDRMat > mGamma;
 
-                moris::Cell< Matrix< DDRMat > > mAlphaPDof;
-                moris::Cell< Matrix< DDRMat > > mBetaTDof;
+                Vector< Matrix< DDRMat > > mAlphaPDof;
+                Vector< Matrix< DDRMat > > mBetaTDof;
 
                 // FIXME: for now assume these dof derivs are 0
-                moris::Cell< Matrix< DDRMat > > mCvDof;
-                moris::Cell< Matrix< DDRMat > > mCpDof;
-                moris::Cell< Matrix< DDRMat > > mGammaDof;
+                Vector< Matrix< DDRMat > > mCvDof;
+                Vector< Matrix< DDRMat > > mCpDof;
+                Vector< Matrix< DDRMat > > mGammaDof;
 
                 // constitutive model name for input and debug
                 std::string mName = "Undefined";
@@ -224,11 +224,11 @@ namespace moris
                     &Material_Model::DensityDot_dep;
                 const Matrix< DDRMat > & ( Material_Model:: * m_get_dnDensitydxn )( uint aOrder ) =
                     &Material_Model::dnDensitydxn_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_DensityDof )( const moris::Cell< MSI::Dof_Type > & aDofType ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_DensityDof )( const Vector< MSI::Dof_Type > & aDofType ) =
                     &Material_Model::DensityDOF_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_DensityDotDof )( const moris::Cell< MSI::Dof_Type > & aDofType ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_DensityDotDof )( const Vector< MSI::Dof_Type > & aDofType ) =
                     &Material_Model::DensityDotDOF_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_dnDensitydxnDof )( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_dnDensitydxnDof )( const Vector< MSI::Dof_Type > & aDofType, uint aOrder ) =
                     &Material_Model::dnDensitydxnDOF_dep;
 
                 // function pointers for pressure
@@ -238,11 +238,11 @@ namespace moris
                     &Material_Model::PressureDot_dep;
                 const Matrix< DDRMat > & ( Material_Model:: * m_get_dnPressuredxn )( uint aOrder ) =
                     &Material_Model::dnPressuredxn_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_PressureDof )( const moris::Cell< MSI::Dof_Type > & aDofType ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_PressureDof )( const Vector< MSI::Dof_Type > & aDofType ) =
                     &Material_Model::PressureDOF_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_PressureDotDof )( const moris::Cell< MSI::Dof_Type > & aDofType ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_PressureDotDof )( const Vector< MSI::Dof_Type > & aDofType ) =
                     &Material_Model::PressureDotDOF_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_dnPressuredxnDof )( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_dnPressuredxnDof )( const Vector< MSI::Dof_Type > & aDofType, uint aOrder ) =
                     &Material_Model::dnPressuredxnDOF_dep;
 
                 // function pointers for temperature
@@ -252,11 +252,11 @@ namespace moris
                     &Material_Model::TemperatureDot_dep;
                 const Matrix< DDRMat > & ( Material_Model:: * m_get_dnTemperaturedxn )( uint aOrder ) =
                     &Material_Model::dnTemperaturedxn_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_TemperatureDof )( const moris::Cell< MSI::Dof_Type > & aDofType ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_TemperatureDof )( const Vector< MSI::Dof_Type > & aDofType ) =
                     &Material_Model::TemperatureDOF_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_TemperatureDotDof )( const moris::Cell< MSI::Dof_Type > & aDofType ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_TemperatureDotDof )( const Vector< MSI::Dof_Type > & aDofType ) =
                     &Material_Model::TemperatureDotDOF_dep;
-                const Matrix< DDRMat > & ( Material_Model:: * m_get_dnTemperaturedxnDof )( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder ) =
+                const Matrix< DDRMat > & ( Material_Model:: * m_get_dnTemperaturedxnDof )( const Vector< MSI::Dof_Type > & aDofType, uint aOrder ) =
                     &Material_Model::dnTemperaturedxnDOF_dep;
 
                 // function pointers for cv and cp (FIXME: for now, cv is given, cp and gamma are dependent)
@@ -268,11 +268,11 @@ namespace moris
                     &Material_Model::Gamma_dep;
 
                 // function pointers for cv and cp (FIXME: for now, cv is given, cp and gamma are dependent)
-                const Matrix< DDRMat > &  ( Material_Model:: * m_get_CvDof )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) =
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_CvDof )( const Vector< MSI::Dof_Type > & aDofTypes ) =
                     &Material_Model::CvDOF_triv;
-                const Matrix< DDRMat > &  ( Material_Model:: * m_get_CpDof )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) =
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_CpDof )( const Vector< MSI::Dof_Type > & aDofTypes ) =
                     &Material_Model::CpDOF_dep;
-                const Matrix< DDRMat > &  ( Material_Model:: * m_get_GammaDof )( const moris::Cell< MSI::Dof_Type > & aDofTypes ) =
+                const Matrix< DDRMat > &  ( Material_Model:: * m_get_GammaDof )( const Vector< MSI::Dof_Type > & aDofTypes ) =
                     &Material_Model::GammaDOF_dep;
 
                 //------------------------------------------------------------------------------
@@ -383,7 +383,7 @@ namespace moris
                  * set material model dof types
                  * @param[ in ] aDofTypes a list of group of dof types
                  */
-                void set_dof_type_list( moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes );
+                void set_dof_type_list( Vector< Vector< MSI::Dof_Type > > aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -392,8 +392,8 @@ namespace moris
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 virtual void set_dof_type_list(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                        moris::Cell< std::string >                  aDofStrings )
+                        Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                        Vector< std::string >                  aDofStrings )
                 {
                     MORIS_ERROR( false, "Material_Model::set_dof_type_list - Not implemented for base class." );
                 }
@@ -403,7 +403,7 @@ namespace moris
                  * return a cell of dof types
                  * @param[ in ] mDofTypes a cell of cell of dof types
                  */
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list() const
+                const Vector< Vector< MSI::Dof_Type > > & get_dof_type_list() const
                 {
                     return mDofTypes;
                 }
@@ -436,7 +436,7 @@ namespace moris
                  * get properties
                  * @param[ out ] mProperties cell of property pointers
                  */
-                moris::Cell< std::shared_ptr< Property > > & get_properties()
+                Vector< std::shared_ptr< Property > > & get_properties()
                 {
                     return mProperties;
                 };
@@ -459,14 +459,14 @@ namespace moris
                  * get global dof type list
                  * @param[ out ] mGlobalDofTypes global list of dof type
                  */
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list();
+                const Vector< Vector< MSI::Dof_Type > > & get_global_dof_type_list();
 
                 //------------------------------------------------------------------------------
                 /**
                  * get non unique list of dof type for the material model
                  * @param[ in ] aDofTypes a cell of dof type to fill
                  */
-                void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void get_non_unique_dof_types( Vector< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -488,7 +488,7 @@ namespace moris
                  * @param[ out ] tDofDependency a bool true if dependency on dof type
                  *
                  */
-                bool check_dof_dependency( const moris::Cell< MSI::Dof_Type > & aDofType );
+                bool check_dof_dependency( const Vector< MSI::Dof_Type > & aDofType );
 
                 //------------------------------------------------------------------------------
                 // SPECIFIC INTERNAL ENERGY (FIRST EQUATION OF STATE)
@@ -521,22 +521,22 @@ namespace moris
                  * evaluate the specific internal energy derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_EintDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_EintDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_EintDOF - This function does nothing. " );
                 };
 
-                virtual void eval_EintDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_EintDotDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_EintDotDOF - This function does nothing. " );
                 };
 
-                virtual void eval_dEintdxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes)
+                virtual void eval_dEintdxDOF( const Vector< MSI::Dof_Type > & aDofTypes)
                 {
                     MORIS_ERROR( false, " Material_Model::eval_dEintdxDOF - This function does nothing. " );
                 };
 
-                virtual void eval_d2Eintdx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes)
+                virtual void eval_d2Eintdx2DOF( const Vector< MSI::Dof_Type > & aDofTypes)
                 {
                     MORIS_ERROR( false, " Material_Model::eval_d2Eintdx2DOF - This function does nothing. " );
                 };
@@ -559,9 +559,9 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] mdnEintdxnDOF specific internal energy and derivatives
                  */
-                const Matrix< DDRMat > & EintDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & EintDotDOF( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & dnEintdxnDOF( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder );
+                const Matrix< DDRMat > & EintDOF( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & EintDotDOF( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dnEintdxnDOF( const Vector< MSI::Dof_Type > & aDofType, uint aOrder );
 
                 //------------------------------------------------------------------------------
                 // DENSITY (SECOND EQUATION OF STATE)
@@ -594,22 +594,22 @@ namespace moris
                  * evaluate the thermodynamic density derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_DensityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_DensityDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_DensityDOF - This function does nothing. " );
                 };
 
-                virtual void eval_DensityDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_DensityDotDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_DensityDotDOF - This function does nothing. " );
                 };
 
-                virtual void eval_dDensitydxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dDensitydxDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_dDensitydxDOF - This function does nothing. " );
                 };
 
-                virtual void eval_d2Densitydx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_d2Densitydx2DOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_d2Densitydx2DOF - This function does nothing. " );
                 };
@@ -640,26 +640,26 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] mdnDensitydxnDOF thermodynamic density and derivatives
                  */
-                const Matrix< DDRMat > & DensityDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+                const Matrix< DDRMat > & DensityDOF( const Vector< MSI::Dof_Type > & aDofType )
                 {
                     return ( this->*m_get_DensityDof )( aDofType );
                 };
-                const Matrix< DDRMat > & DensityDotDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+                const Matrix< DDRMat > & DensityDotDOF( const Vector< MSI::Dof_Type > & aDofType )
                 {
                     return ( this->*m_get_DensityDotDof )( aDofType );
                 };
-                const Matrix< DDRMat > & dnDensitydxnDOF( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
+                const Matrix< DDRMat > & dnDensitydxnDOF( const Vector< MSI::Dof_Type > & aDofType, uint aOrder )
                 {
                     return ( this->*m_get_dnDensitydxnDof )( aDofType, aOrder );
                 };
 
-                const Matrix< DDRMat > & DensityDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & DensityDotDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & dnDensitydxnDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder );
+                const Matrix< DDRMat > & DensityDOF_dep( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & DensityDotDOF_dep( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dnDensitydxnDOF_dep( const Vector< MSI::Dof_Type > & aDofType, uint aOrder );
 
-                const Matrix< DDRMat > & DensityDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & DensityDotDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & dnDensitydxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder );
+                const Matrix< DDRMat > & DensityDOF_triv( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & DensityDotDOF_triv( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dnDensitydxnDOF_triv( const Vector< MSI::Dof_Type > & aDofType, uint aOrder );
 
                 //------------------------------------------------------------------------------
                 // PRESSURE (SECOND EQUATION OF STATE)
@@ -692,22 +692,22 @@ namespace moris
                  * evaluate the thermodynamic pressure derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_PressureDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_PressureDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_PressureDOF - This function does nothing. " );
                 };
 
-                virtual void eval_PressureDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_PressureDotDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_PressureDotDOF - This function does nothing. " );
                 };
 
-                virtual void eval_dPressuredxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dPressuredxDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_dPressuredxDOF - This function does nothing. " );
                 };
 
-                virtual void eval_d2Pressuredx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_d2Pressuredx2DOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_d2Pressuredx2DOF - This function does nothing. " );
                 };
@@ -738,26 +738,26 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] mdnPressuredxnDOF thermodynamic pressure and derivatives
                  */
-                const Matrix< DDRMat > & PressureDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+                const Matrix< DDRMat > & PressureDOF( const Vector< MSI::Dof_Type > & aDofType )
                 {
                     return ( this->*m_get_PressureDof )( aDofType );
                 };
-                const Matrix< DDRMat > & PressureDotDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+                const Matrix< DDRMat > & PressureDotDOF( const Vector< MSI::Dof_Type > & aDofType )
                 {
                     return ( this->*m_get_PressureDotDof )( aDofType );
                 };
-                const Matrix< DDRMat > & dnPressuredxnDOF( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
+                const Matrix< DDRMat > & dnPressuredxnDOF( const Vector< MSI::Dof_Type > & aDofType, uint aOrder )
                 {
                     return ( this->*m_get_dnPressuredxnDof )( aDofType, aOrder );
                 };
 
-                const Matrix< DDRMat > & PressureDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & PressureDotDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & dnPressuredxnDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder );
+                const Matrix< DDRMat > & PressureDOF_dep( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & PressureDotDOF_dep( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dnPressuredxnDOF_dep( const Vector< MSI::Dof_Type > & aDofType, uint aOrder );
 
-                const Matrix< DDRMat > & PressureDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & PressureDotDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & dnPressuredxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder );
+                const Matrix< DDRMat > & PressureDOF_triv( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & PressureDotDOF_triv( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dnPressuredxnDOF_triv( const Vector< MSI::Dof_Type > & aDofType, uint aOrder );
 
                 //------------------------------------------------------------------------------
                 // TEMPERATURE (SECOND EQUATION OF STATE)
@@ -790,22 +790,22 @@ namespace moris
                  * evaluate the thermodynamic temperature derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_TemperatureDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_TemperatureDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_TemperatureDOF - This function does nothing. " );
                 };
 
-                virtual void eval_TemperatureDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_TemperatureDotDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_TemperatureDotDOF - This function does nothing. " );
                 };
 
-                virtual void eval_dTemperaturedxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dTemperaturedxDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_dTemperaturedxDOF - This function does nothing. " );
                 };
 
-                virtual void eval_d2Temperaturedx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_d2Temperaturedx2DOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_d2Temperaturedx2DOF - This function does nothing. " );
                 };
@@ -836,26 +836,26 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] mdnTemperaturedxnDOF thermodynamic temperature and derivatives
                  */
-                const Matrix< DDRMat > & TemperatureDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+                const Matrix< DDRMat > & TemperatureDOF( const Vector< MSI::Dof_Type > & aDofType )
                 {
                     return ( this->*m_get_TemperatureDof )( aDofType );
                 };
-                const Matrix< DDRMat > & TemperatureDotDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+                const Matrix< DDRMat > & TemperatureDotDOF( const Vector< MSI::Dof_Type > & aDofType )
                 {
                     return ( this->*m_get_TemperatureDotDof )( aDofType );
                 };
-                const Matrix< DDRMat > & dnTemperaturedxnDOF( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
+                const Matrix< DDRMat > & dnTemperaturedxnDOF( const Vector< MSI::Dof_Type > & aDofType, uint aOrder )
                 {
                     return ( this->*m_get_dnTemperaturedxnDof )( aDofType, aOrder );
                 };
 
-                const Matrix< DDRMat > & TemperatureDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & TemperatureDotDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & dnTemperaturedxnDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder );
+                const Matrix< DDRMat > & TemperatureDOF_dep( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & TemperatureDotDOF_dep( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dnTemperaturedxnDOF_dep( const Vector< MSI::Dof_Type > & aDofType, uint aOrder );
 
-                const Matrix< DDRMat > & TemperatureDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & TemperatureDotDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType );
-                const Matrix< DDRMat > & dnTemperaturedxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder );
+                const Matrix< DDRMat > & TemperatureDOF_triv( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & TemperatureDotDOF_triv( const Vector< MSI::Dof_Type > & aDofType );
+                const Matrix< DDRMat > & dnTemperaturedxnDOF_triv( const Vector< MSI::Dof_Type > & aDofType, uint aOrder );
 
                 //------------------------------------------------------------------------------
                 // THERMODYNAMIC QUANTITIES
@@ -893,27 +893,27 @@ namespace moris
                  * evaluate the thermodynamic quantity derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_VolumeExpansivityDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_VolumeExpansivityDOF - This function does nothing. " );
                 };
 
-                virtual void eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_IsothermalCompressibilityDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_IsothermalCompressibilityDOF - This function does nothing. " );
                 };
 
-                virtual void eval_CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_CvDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_CvDOF - This function does nothing. " );
                 };
 
-                virtual void eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_CpDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_CpDOF - This function does nothing. " );
                 };
 
-                virtual void eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_GammaDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, " Material_Model::eval_GammaDOF - This function does nothing. " );
                 };
@@ -947,29 +947,29 @@ namespace moris
                  * @param[ in ] aOrder order of the derivative (only for x-derivs)
                  * @param[ out ] aQuantityDOF thermodynamic quantity and derivatives
                  */
-                const Matrix< DDRMat > & AlphaPDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                const Matrix< DDRMat > & BetaTDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & AlphaPDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & BetaTDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
-                const Matrix< DDRMat > & CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const Matrix< DDRMat > & CvDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     return ( this->*m_get_CvDof )( aDofTypes );
                 };
-                const Matrix< DDRMat > & CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const Matrix< DDRMat > & CpDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     return ( this->*m_get_CpDof )( aDofTypes );
                 };
-                const Matrix< DDRMat > & GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const Matrix< DDRMat > & GammaDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     return ( this->*m_get_GammaDof )( aDofTypes );
                 };
 
-                const Matrix< DDRMat > & CvDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                const Matrix< DDRMat > & CpDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                const Matrix< DDRMat > & GammaDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & CvDOF_dep( const Vector< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & CpDOF_dep( const Vector< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & GammaDOF_dep( const Vector< MSI::Dof_Type > & aDofTypes );
 
-                const Matrix< DDRMat > & CvDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                const Matrix< DDRMat > & CpDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                const Matrix< DDRMat > & GammaDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & CvDOF_triv( const Vector< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & CpDOF_triv( const Vector< MSI::Dof_Type > & aDofTypes );
+                const Matrix< DDRMat > & GammaDOF_triv( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 // FINITE DIFFERENCE FUNCTIONS FOR COMPUTING DOF DERIVATIVES
@@ -983,19 +983,19 @@ namespace moris
                  * @param[ in ] aFDSchemeType   enum for FD scheme
                  */
                 void eval_EintDOF_FD(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & aEintDOF_FD,
                         real                                 aPerturbation,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 void eval_EintDotDOF_FD(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & aEintDotDOF_FD,
                         real                                 aPerturbation,
                         fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5 );
 
                 void eval_dnEintdxnDOF_FD(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adnEintdxnDOF_FD,
                         real                                 aPerturbation,
                         uint                                 aOrder,
@@ -1011,21 +1011,21 @@ namespace moris
                  * @param[ in ] aFDSchemeType   enum for FD scheme
                  */
                 void eval_TDvarDOF_FD(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & aTDvarDOF_FD,
                         real                                 aPerturbation,
                         MSI::Dof_Type                        aTDvar,
                         fem::FDScheme_Type                   aFDSchemeType );
 
                 void eval_TDvarDotDOF_FD(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & aTDvarDotDOF_FD,
                         real                                 aPerturbation,
                         MSI::Dof_Type                        aTDvar,
                         fem::FDScheme_Type                   aFDSchemeType );
 
                 void eval_dnTDvardxnDOF_FD(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & adnTDvardxnDOF_FD,
                         real                                 aPerturbation,
                         MSI::Dof_Type                        aTDvar,
@@ -1042,7 +1042,7 @@ namespace moris
                  * @param[ in ] aFDSchemeType    enum for FD scheme
                  */
                 void eval_QuantityDOF_FD(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & aQuantityDOF_FD,
                         std::string                          aQuantityString,
                         real                                 aPerturbation,

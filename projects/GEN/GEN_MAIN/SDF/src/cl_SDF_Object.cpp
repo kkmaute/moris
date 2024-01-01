@@ -12,8 +12,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "cl_Cell.hpp"
-#include "typedefs.hpp"
+#include "cl_Vector.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -60,7 +60,7 @@ namespace moris
         Object::load_from_object_file( const std::string& aFilePath )
         {
             // copy file into buffer
-            moris::Cell< std::string > tBuffer;
+            moris::Vector< std::string > tBuffer;
             this->load_ascii_to_buffer( aFilePath, tBuffer );
 
             // step 1: count number of dimensions, vertices and facets in file
@@ -186,7 +186,7 @@ namespace moris
                 if ( tBuffer( k ).substr( 0, 2 ) == "f " )
                 {
                     // temporary container for vertices
-                    Cell< Facet_Vertex* > tNodes( 3, nullptr );
+                    Vector< Facet_Vertex* > tNodes( 3, nullptr );
                     Matrix< DDUMat >      tNodeIndices( 3, 1 );
                     // read facet topology
                     if ( mDimension == 3 )
@@ -266,7 +266,7 @@ namespace moris
         //-------------------------------------------------------------------------------
         void
         Object::load_ascii_to_buffer( const std::string& aFilePath,
-                moris::Cell< std::string >&              aBuffer )
+                moris::Vector< std::string >&              aBuffer )
         {
             // try to open ascii file
             std::ifstream tAsciiFile( aFilePath );
@@ -310,7 +310,7 @@ namespace moris
         Object::load_from_stl_file( const std::string& aFilePath )
         {
             // copy file into buffer
-            moris::Cell< std::string > tBuffer;
+            moris::Vector< std::string > tBuffer;
             this->load_ascii_to_buffer( aFilePath, tBuffer );
 
             // get length of buffer
@@ -356,7 +356,7 @@ namespace moris
             for ( uint k = 0; k < tBufferLength; ++k )
             {
                 // extract first word from string
-                Cell< std::string > tWords = string_to_words( tBuffer( k ) );
+                Vector< std::string > tWords = string_to_words( tBuffer( k ) );
 
                 if ( tWords.size() > 0 )
                 {
@@ -390,7 +390,7 @@ namespace moris
             tTriangleCount = 0;
 
             // temporary container for vertices
-            Cell< Facet_Vertex* > tNodes( 3, nullptr );
+            Vector< Facet_Vertex* > tNodes( 3, nullptr );
 
             // create triangles
             for ( uint k = 0; k < tNumberOfTriangles; ++k )

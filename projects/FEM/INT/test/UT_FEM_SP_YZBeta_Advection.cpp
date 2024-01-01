@@ -52,13 +52,13 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -66,10 +66,10 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tTempDofTypes = { MSI::Dof_Type::TEMP };
+    moris::Vector< MSI::Dof_Type > tTempDofTypes = { MSI::Dof_Type::TEMP };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tTempDofTypes };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tTempDofTypes };
 
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
     tPropHeatCapacity->set_parameters( { {{ 2.0 }} } );
@@ -268,7 +268,7 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
             fill_phat( tLeaderDOFHatTEMP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -285,8 +285,8 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
             tSPYZBeta->set_interpolation_order( iInterpOrder );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
+            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -315,14 +315,14 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
                 tSPYZBeta->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // populate the requested leader dof type for SP
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tSPYZBeta->get_global_dof_type_list();
 
                 // loop over requested dof type
                 for( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                    Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                     // evaluate dspdu
                     Matrix< DDRMat > tdspdu = tSPYZBeta->dSPdLeaderDOF( tDofDerivative );

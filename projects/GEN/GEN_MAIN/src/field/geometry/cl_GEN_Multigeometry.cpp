@@ -17,7 +17,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Multigeometry::Multigeometry(Cell<std::shared_ptr<Geometry>> aGeometries)
+        Multigeometry::Multigeometry(Vector<std::shared_ptr<Geometry>> aGeometries)
                 : Field(aGeometries(0))
                 , Geometry(aGeometries(0))
                 , mGeometries(aGeometries)

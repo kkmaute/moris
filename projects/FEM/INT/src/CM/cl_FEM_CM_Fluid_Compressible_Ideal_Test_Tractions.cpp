@@ -24,7 +24,7 @@ namespace moris
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::testTraction(
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes,
                 enum CM_Function_Type aCMFunctionType )
         {
             switch( aCMFunctionType )
@@ -48,7 +48,7 @@ namespace moris
 
         void CM_Fluid_Compressible_Ideal::eval_thermal_testTraction(
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -61,7 +61,7 @@ namespace moris
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::thermal_testTraction(
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -84,7 +84,7 @@ namespace moris
 
         void CM_Fluid_Compressible_Ideal::eval_mechanical_testTraction(
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -101,7 +101,7 @@ namespace moris
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::mechanical_testTraction(
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -124,10 +124,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes,
                 enum CM_Function_Type                aCMFunctionType )
         {
             switch( aCMFunctionType )
@@ -150,10 +150,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Ideal::eval_thermal_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -200,10 +200,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::thermal_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR( this->check_dof_dependency( aDofType ),
@@ -233,10 +233,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void CM_Fluid_Compressible_Ideal::eval_mechanical_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -410,10 +410,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & CM_Fluid_Compressible_Ideal::mechanical_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR( this->check_dof_dependency( aDofType ),

@@ -19,7 +19,7 @@
 #include "assert.hpp"
 
 #include "cl_Communication_Tools.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -112,7 +112,7 @@ namespace moris::hmr
         Matrix< DDUMat > mBSplinePatterns = { { 0 } };
 
         //! defines which B-Spline mesh is associated with which lagrange mesh
-        Cell< Matrix< DDSMat > > mLagrangeToBSplineMesh;
+        Vector< Matrix< DDSMat > > mLagrangeToBSplineMesh;
 
         //! maps input orders with B-Splines
         //           Matrix< DDUMat> mBSplineInputMap;
@@ -142,8 +142,8 @@ namespace moris::hmr
         Matrix< DDUMat > mUnionMeshes;
 
         //! Lagrange Meshes that are used for the output meshes
-        Cell< Matrix< DDUMat > > mOutputMeshes     = { { { 0 } } };
-        Cell< std::string >      mOutputMesheNames = { { { "" } } };
+        Vector< Matrix< DDUMat > > mOutputMeshes     = { { { 0 } } };
+        Vector< std::string >      mOutputMesheNames = { { { "" } } };
 
         moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
@@ -187,7 +187,7 @@ namespace moris::hmr
         bool mRenumberLagrangeNodes = false;
 
         // HMR user defined refinement function
-        Cell< Refinement_Function > mRefinementFunctions;
+        Vector< Refinement_Function > mRefinementFunctions;
 
         //--------------------------------------------------------------------------------
 
@@ -487,7 +487,7 @@ namespace moris::hmr
          * returns an entry of mBSplineOrders
          */
         void
-        set_lagrange_to_bspline_mesh( const Cell< Matrix< DDSMat > > aLagrangeToBSplineMesh )
+        set_lagrange_to_bspline_mesh( const Vector< Matrix< DDSMat > > aLagrangeToBSplineMesh )
         {
             mLagrangeToBSplineMesh = aLagrangeToBSplineMesh;
         }
@@ -535,7 +535,7 @@ namespace moris::hmr
         /**
          * returns the index of the defined Lagrange output mesh for a specified order
          */
-        const Cell< Matrix< DDUMat > >&
+        const Vector< Matrix< DDUMat > >&
         get_output_mesh() const
         {
             return mOutputMeshes;
@@ -547,7 +547,7 @@ namespace moris::hmr
          * set which lagrange meshes are used for an output
          */
         void
-        set_output_meshes( const Cell< Matrix< DDUMat > >& aOutputMeshes )
+        set_output_meshes( const Vector< Matrix< DDUMat > >& aOutputMeshes )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_output_meshes" );
@@ -561,7 +561,7 @@ namespace moris::hmr
          * set output mesh names
          */
         void
-        set_output_mesh_names( const Cell< std::string >& aOutputMesheNames )
+        set_output_mesh_names( const Vector< std::string >& aOutputMesheNames )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_output_meshes_names" );
@@ -574,7 +574,7 @@ namespace moris::hmr
         /**
          * returns the index of the defined Lagrange output mesh names for a specified order
          */
-        const Cell< std::string >&
+        const Vector< std::string >&
         get_output_mesh_names() const
         {
             return mOutputMesheNames;
@@ -1356,7 +1356,7 @@ namespace moris::hmr
          *
          * @param aRefinementFunctions
          */
-        void set_refinement_functions( Cell< Refinement_Function > aRefinementFunctions );
+        void set_refinement_functions( Vector< Refinement_Function > aRefinementFunctions );
 
         /**
          * Get a user-defined refinement function from the parameters

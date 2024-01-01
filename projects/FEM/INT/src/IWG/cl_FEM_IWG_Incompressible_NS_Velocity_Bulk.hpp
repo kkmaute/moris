@@ -12,8 +12,8 @@
 #define SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_BULK_HPP_
 
 #include <map>
-#include "typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"     //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -124,7 +124,7 @@ namespace moris
              * @param[ in ] aJM       a matrix to fill with dRMdDof
              */
             void compute_jacobian_strong_form_momentum(
-                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     Matrix< DDRMat >&                   aJM );
 
             /**
@@ -134,7 +134,7 @@ namespace moris
              * @param[ in ] aJC       a matrix to fill with dRCdDof
              */
             void compute_jacobian_strong_form_continuity(
-                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     Matrix< DDRMat >&                   aJC );
 
             //------------------------------------------------------------------------------

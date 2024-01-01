@@ -16,7 +16,7 @@ The Eigen Solver class.
 // C++ system files
 #include <cstddef>
 #include <assert.h>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 // Project header files
 #include "fn_PRM_SOL_Parameters.hpp"

@@ -12,8 +12,8 @@
 #define PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_NODE_INTERPOLATION_HPP_
 
 #include "cl_HMR_Basis.hpp"
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
 
@@ -51,21 +51,21 @@ public:
          * sets the coefficients of this basis
          */
         void
-        set_coefficients( Cell< mtk::Vertex* > & aCoefficients );
+        set_coefficients( Vector< mtk::Vertex* > & aCoefficients );
 
 // ----------------------------------------------------------------------------
 
         /**
          * returns the coefficients of this basis
          */
-        moris::Cell< mtk::Vertex* > & get_coefficients();
+        Vector< mtk::Vertex* > & get_coefficients();
 
 // ----------------------------------------------------------------------------
 
         /**
          * returns the coefficients of this basis ( const version )
          */
-        const moris::Cell< mtk::Vertex* > & get_coefficients() const;
+        const Vector< mtk::Vertex* > & get_coefficients() const;
 
 // ----------------------------------------------------------------------------
 

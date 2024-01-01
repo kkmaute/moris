@@ -12,8 +12,8 @@
 #define SRC_cl_XTK_Diagnostics
 
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
-#include "typedefs.hpp"
+#include "cl_Vector.hpp"
+#include "moris_typedefs.hpp"
 #include <unordered_map>
 namespace xtk
 {
@@ -52,7 +52,7 @@ verify_interface_vertices(
 bool
 check_vertices(
     xtk::Model*                                                         aModel,
-    moris::Cell< moris::moris_index > const&                            aGoldNumVerts,
+    moris::Vector< moris::moris_index > const&                            aGoldNumVerts,
     std::unordered_map< moris::moris_index, moris::moris_index > const& aGoldVertexMap,
     moris::Matrix< moris::DDRMat > const&                               aGoldVertexCoords,
     moris::real                                                         aTolerance = 1e-12 );
@@ -60,7 +60,7 @@ check_vertices(
 bool
 check_cells(
     xtk::Model*                                                         aModel,
-    moris::Cell< moris::moris_index > const&                            aGoldNumCells,
+    moris::Vector< moris::moris_index > const&                            aGoldNumCells,
     std::unordered_map< moris::moris_index, moris::moris_index > const& aGoldCellMap,
     moris::Matrix< moris::IndexMat > const&                             aGoldCellConn );
 }// namespace xtk

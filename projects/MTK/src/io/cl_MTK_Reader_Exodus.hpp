@@ -39,13 +39,13 @@ public:
     moris::Matrix<moris::IdMat>                 mNodeMap;
     moris::Matrix<moris::IdMat>                 mNodeOwner;
     moris::mtk::MtkSetsInfo                     mMtkMeshSets;
-    moris::Cell<moris::mtk::MtkBlockSetInfo>    mBlockSetInfo;
-    moris::Cell<std::string>                    mBlockDescription;
-    moris::Cell<moris::Matrix<moris::IndexMat>> mElemConn;
-    moris::Cell<moris::Matrix<moris::IdMat>>    mLocaltoGlobalElemMap;
-    moris::Cell<moris::mtk::MtkSideSetInfo>     mSideSetInfo;
-    moris::Cell<moris::Matrix<moris::IndexMat>> mSideSetElements;
-    moris::Cell<std::string>                    mSideSetNames;
+    moris::Vector<moris::mtk::MtkBlockSetInfo>    mBlockSetInfo;
+    moris::Vector<std::string>                    mBlockDescription;
+    moris::Vector<moris::Matrix<moris::IndexMat>> mElemConn;
+    moris::Vector<moris::Matrix<moris::IdMat>>    mLocaltoGlobalElemMap;
+    moris::Vector<moris::mtk::MtkSideSetInfo>     mSideSetInfo;
+    moris::Vector<moris::Matrix<moris::IndexMat>> mSideSetElements;
+    moris::Vector<std::string>                    mSideSetNames;
 
     /**
     * Constructor

@@ -19,7 +19,7 @@
 #include <limits>
 
 // XTKL: XTK Includes
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
@@ -47,11 +47,11 @@ namespace xtk
 
         moris_index mMeshIndex;
 
-        moris::Cell< moris_index > mEnrichedBasisToBackgroundBasis;
+        Vector< moris_index > mEnrichedBasisToBackgroundBasis;
 
-        moris::Cell< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;
-        moris::Cell< moris::Matrix< DDSMat > > mCoarseBasisToFineBasis;
-        moris::Cell< moris::Matrix< DDRMat > > mCoarseBasisToFineBasisWeights;
+        Vector< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;
+        Vector< moris::Matrix< DDSMat > > mCoarseBasisToFineBasis;
+        Vector< moris::Matrix< DDRMat > > mCoarseBasisToFineBasisWeights;
 
         moris::Matrix< DDRMat > mEnrichedBasisLevel;
 

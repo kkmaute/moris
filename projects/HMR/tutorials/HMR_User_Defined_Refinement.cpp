@@ -12,7 +12,7 @@
 #include <iostream>
 
 #include "cl_HMR_Element.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -46,7 +46,7 @@ extern "C"
             int
             user_defined_refinement(
                           Element                  * aElement,
-                    const Cell< Matrix< DDRMat > > & aElementLocalValues,
+                    const Vector< Matrix< DDRMat > > & aElementLocalValues,
                           ParameterList            & aParameters )
             {
                 /**

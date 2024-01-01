@@ -11,7 +11,7 @@
 #include <string>
 #include <catch.hpp>
 
-#include "typedefs.hpp" //MRS/COR/src
+#include "moris_typedefs.hpp" //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "assert.hpp"
@@ -111,7 +111,7 @@ TEST_CASE( "IWG_Olsson_CLS", "[moris],[fem],[IWG_OCLS]" )
     tNPhi->set_coeff( tNPhiHat );
 
     // create a cell of field interpolators
-    Cell< Field_Interpolator* > tFieldInterpolators( 2 );
+    Vector< Field_Interpolator* > tFieldInterpolators( 2 );
     tFieldInterpolators( 0 ) = tPhi;
     tFieldInterpolators( 1 ) = tNPhi;
 
@@ -150,7 +150,7 @@ TEST_CASE( "IWG_Olsson_CLS", "[moris],[fem],[IWG_OCLS]" )
         // check evaluation of the jacobian for IWG Olsson CLS Bulk by FD
         //------------------------------------------------------------------------------
         // evaluate the jacobian from IWG_Olsson_CLS_Bulk
-        Cell< Matrix< DDRMat > > tJacobiansOCLSBulk( 2 );
+        Vector< Matrix< DDRMat > > tJacobiansOCLSBulk( 2 );
         tIWGOCLSBulk.compute_jacobian( tJacobiansOCLSBulk );
 
         //define a boolean for check

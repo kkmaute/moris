@@ -40,7 +40,7 @@ namespace xtk
         Tracer tTracer( "XTK", "Mesh Cleanup", "Remove Inactive Child Mesh" );
 
         // Using a map here so that I can remove some from the removal process.
-        moris::Cell<moris_index> tChildMeshesToDelete;
+        moris::Vector<moris_index> tChildMeshesToDelete;
         std::unordered_map<moris_index,moris_index> tChildMeshesToDeleteMap;
 
         // select candidate cell groups for deletion
@@ -60,7 +60,7 @@ namespace xtk
         // for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
         // {
         //     Child_Mesh & tCM = mModel->get_cut_mesh().get_child_mesh(iCM);
-        //     Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
+        //     Vector<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
 
         //    if(tSubphasebinBulkPhase.size() > 1 or tCM.has_inter_child_mesh_interfaces())
         //    {
@@ -72,11 +72,11 @@ namespace xtk
         //    }
         // }
 
-        // moris::Cell<moris_index> tCellsToRemoveFromMesh;
+        // Vector<moris_index> tCellsToRemoveFromMesh;
         // mModel->get_cut_mesh().remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete, tCellsToRemoveFromMesh );
 
         // // moris::print(tCellsToRemoveFromMesh,"tCellsToRemoveFromMesh");
-        // moris::Cell<moris_index> tNewCellIndices;
+        // Vector<moris_index> tNewCellIndices;
         // mModel->get_background_mesh().remove_cells_from_mesh(tCellsToRemoveFromMesh,tNewCellIndices);
 
         // // reindex the child mesh
@@ -117,7 +117,7 @@ namespace xtk
     void
     Mesh_Cleanup::get_vector_of_child_meshes_for_removal(
         std::unordered_map< moris_index, moris_index > const& aChildMeshesToDeleteMap,
-        moris::Cell< moris_index >&                           aChildMeshesToDelete )
+        moris::Vector< moris_index >&                           aChildMeshesToDelete )
     {
         aChildMeshesToDelete.clear();
         aChildMeshesToDelete.reserve( aChildMeshesToDeleteMap.size() );

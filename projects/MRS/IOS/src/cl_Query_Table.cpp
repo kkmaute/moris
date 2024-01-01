@@ -22,10 +22,10 @@
 #include "fn_assert.hpp"
 
 // Define Cells
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // Define uint, real, etc.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 // Define enums used
 #include "cl_Tracer_Enums.hpp"
@@ -80,8 +80,8 @@ namespace moris
             /////////////////////////////////
 
             // initialize
-            Cell< uint > tInstanceIDs( 0 );
-            Cell< uint > tInstanceIndents( 0 );
+            Vector< uint > tInstanceIDs( 0 );
+            Vector< uint > tInstanceIndents( 0 );
 
             uint tNumInstances = this->find_instances( &tInstanceIDs,
                     &tInstanceIndents,
@@ -129,7 +129,7 @@ namespace moris
                 uint tCurrentInstanceID = tInstanceIDs( iInstance );
 
                 // initialize cell array storing start and end lines of each iteration
-                Cell< Cell< uint > > tIterationStartEnd = this->split_instances_into_iterations( tCurrentInstanceID );
+                Vector< Vector< uint > > tIterationStartEnd = this->split_instances_into_iterations( tCurrentInstanceID );
                 uint                 tNumIterations     = tIterationStartEnd.size();
 
                 ////////////////////////////////
@@ -137,14 +137,14 @@ namespace moris
                 ////////////////////////////////
 
                 // initialize reference lists of outputs
-                Cell< enum EntityBase >      tRefListOfEntityBases;
-                Cell< enum EntityType >      tRefListOfEntityTypes;
-                Cell< enum EntityAction >    tRefListOfEntityActions;
-                Cell< enum OutputSpecifier > tRefListOfOutputSpecs;
-                Cell< std::string >          tRefListOfOutputValues;
+                Vector< enum EntityBase >      tRefListOfEntityBases;
+                Vector< enum EntityType >      tRefListOfEntityTypes;
+                Vector< enum EntityAction >    tRefListOfEntityActions;
+                Vector< enum OutputSpecifier > tRefListOfOutputSpecs;
+                Vector< std::string >          tRefListOfOutputValues;
 
                 // initialize full list of Output Values
-                Cell< Cell< std::string > > tFullListOfOutputValues( 1 );
+                Vector< Vector< std::string > > tFullListOfOutputValues( 1 );
 
                 // go through first iteration and create reference set of outputs
                 this->extract_iteration( &tRefListOfEntityBases,
@@ -166,11 +166,11 @@ namespace moris
                 // go through each subsequent iteration and modify reference set if necessary
 
                 // initialize  lists of outputs
-                Cell< enum EntityBase >      tNewListOfEntityBases;
-                Cell< enum EntityType >      tNewListOfEntityTypes;
-                Cell< enum EntityAction >    tNewListOfEntityActions;
-                Cell< enum OutputSpecifier > tNewListOfOutputSpecs;
-                Cell< std::string >          tNewListOfOutputValues;
+                Vector< enum EntityBase >      tNewListOfEntityBases;
+                Vector< enum EntityType >      tNewListOfEntityTypes;
+                Vector< enum EntityAction >    tNewListOfEntityActions;
+                Vector< enum OutputSpecifier > tNewListOfOutputSpecs;
+                Vector< std::string >          tNewListOfOutputValues;
 
                 for ( uint iIter = 2; iIter <= tNumIterations; iIter++ )
                 {
@@ -245,10 +245,10 @@ namespace moris
         void
         Query::write_instance_table_header(
                 std::ofstream*               aLogFileWrite,
-                Cell< enum EntityBase >      aRefListOfEntityBases,
-                Cell< enum EntityType >      aRefListOfEntityTypes,
-                Cell< enum EntityAction >    aRefListOfEntityActions,
-                Cell< enum OutputSpecifier > aRefListOfOutputSpecs )
+                Vector< enum EntityBase >      aRefListOfEntityBases,
+                Vector< enum EntityType >      aRefListOfEntityTypes,
+                Vector< enum EntityAction >    aRefListOfEntityActions,
+                Vector< enum OutputSpecifier > aRefListOfOutputSpecs )
         {
             // initialize
             uint tNumCols = aRefListOfEntityBases.size();
@@ -295,21 +295,21 @@ namespace moris
 
         // merges an old iteration table with a new one
         void
-        Query::merge_iteration_outputs( Cell< enum EntityBase >* aRefListOfEntityBases,
-                Cell< enum EntityType >*                         aRefListOfEntityTypes,
-                Cell< enum EntityAction >*                       aRefListOfEntityActions,
-                Cell< enum OutputSpecifier >*                    aRefListOfOutputSpecs,
-                Cell< Cell< std::string > >*                     aFullListOfOutputValues,
+        Query::merge_iteration_outputs( Vector< enum EntityBase >* aRefListOfEntityBases,
+                Vector< enum EntityType >*                         aRefListOfEntityTypes,
+                Vector< enum EntityAction >*                       aRefListOfEntityActions,
+                Vector< enum OutputSpecifier >*                    aRefListOfOutputSpecs,
+                Vector< Vector< std::string > >*                     aFullListOfOutputValues,
 
-                Cell< enum EntityBase >      aNewListOfEntityBases,
-                Cell< enum EntityType >      aNewListOfEntityTypes,
-                Cell< enum EntityAction >    aNewListOfEntityActions,
-                Cell< enum OutputSpecifier > aNewListOfOutputSpecs,
-                Cell< std::string >          aNewListOfOutputValues )
+                Vector< enum EntityBase >      aNewListOfEntityBases,
+                Vector< enum EntityType >      aNewListOfEntityTypes,
+                Vector< enum EntityAction >    aNewListOfEntityActions,
+                Vector< enum OutputSpecifier > aNewListOfOutputSpecs,
+                Vector< std::string >          aNewListOfOutputValues )
         {
             // initialize sorting lists
-            Cell< uint > tRefSortingList( aRefListOfEntityBases->size() );
-            Cell< uint > tNewSortingList( aNewListOfEntityBases.size() );
+            Vector< uint > tRefSortingList( aRefListOfEntityBases->size() );
+            Vector< uint > tNewSortingList( aNewListOfEntityBases.size() );
 
             // initialize counters
             uint tResultListCursor = 0;
@@ -389,10 +389,10 @@ namespace moris
             uint tResultListSize = tResultListCursor;
 
             // initialize result entity lists
-            Cell< enum EntityBase >      tResultListOfEntityBases( tResultListSize );
-            Cell< enum EntityType >      tResultListOfEntityTypes( tResultListSize );
-            Cell< enum EntityAction >    tResultListOfEntityActions( tResultListSize );
-            Cell< enum OutputSpecifier > tResultListOfOutputSpecs( tResultListSize );
+            Vector< enum EntityBase >      tResultListOfEntityBases( tResultListSize );
+            Vector< enum EntityType >      tResultListOfEntityTypes( tResultListSize );
+            Vector< enum EntityAction >    tResultListOfEntityActions( tResultListSize );
+            Vector< enum OutputSpecifier > tResultListOfOutputSpecs( tResultListSize );
 
             // go reference list and copy to resulting list
             for ( uint iRefListIndex = 0; iRefListIndex < tRefSortingList.size(); iRefListIndex++ )
@@ -440,7 +440,7 @@ namespace moris
             }
 
             // go through new list and insert stuff where needed
-            Cell< std::string > tResultListOfOutputValues( tResultListSize );
+            Vector< std::string > tResultListOfOutputValues( tResultListSize );
             for ( uint iResultListIndex = 0; iResultListIndex < tResultListSize; iResultListIndex++ )
             {
                 tResultListOfOutputValues( iResultListIndex ) = "---";
@@ -466,7 +466,7 @@ namespace moris
         // merges an old iteration table with a new one
         void
         Query::insert_empty_column(
-                Cell< Cell< std::string > >* aCellMatrix,
+                Vector< Vector< std::string > >* aCellMatrix,
                 uint                         aColumnIndex )
         {
             uint tNumRows = aCellMatrix->size();
@@ -500,7 +500,7 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------//
 
         // goes through instance specified by ID, returns iteration start and end lines in cell matrix
-        Cell< Cell< uint > >
+        Vector< Vector< uint > >
         Query::split_instances_into_iterations( uint aCurrentInstanceID )
         {
             // get start end lines of function instance
@@ -512,7 +512,7 @@ namespace moris
 
             // initialize variables
             uint                 tNumIterations = 0;
-            Cell< Cell< uint > > tIterationStartEnd;
+            Vector< Vector< uint > > tIterationStartEnd;
             tIterationStartEnd.resize( 1 );
             tIterationStartEnd( 0 ).resize( 2 );
             tIterationStartEnd( 0 )( 0 ) = tCurrentInstanceStartLine + 1;
@@ -549,8 +549,8 @@ namespace moris
         // goes through logged info and finds instances of given type, returns number of instances
         uint
         Query::find_instances(
-                Cell< uint >*     aInstanceIDs,
-                Cell< uint >*     aInstanceIndents,
+                Vector< uint >*     aInstanceIDs,
+                Vector< uint >*     aInstanceIndents,
                 enum EntityBase   aEntityBase,
                 enum EntityType   aEntityType,
                 enum EntityAction aEntityAction )
@@ -601,12 +601,12 @@ namespace moris
 
         void
         Query::extract_iteration(
-                Cell< enum EntityBase >*      aListOfEntityBases,
-                Cell< enum EntityType >*      aListOfEntityTypes,
-                Cell< enum EntityAction >*    aListOfEntityActions,
-                Cell< enum OutputSpecifier >* aListOfOutputSpecs,
-                Cell< std::string >*          aListOfOutputValues,
-                const Cell< Cell< uint > >    aIterationStartEnd,
+                Vector< enum EntityBase >*      aListOfEntityBases,
+                Vector< enum EntityType >*      aListOfEntityTypes,
+                Vector< enum EntityAction >*    aListOfEntityActions,
+                Vector< enum OutputSpecifier >* aListOfOutputSpecs,
+                Vector< std::string >*          aListOfOutputValues,
+                const Vector< Vector< uint > >    aIterationStartEnd,
                 const uint                    aIteration,
                 const uint                    aCurrentInstanceID )
         {

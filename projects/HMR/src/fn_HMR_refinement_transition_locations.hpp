@@ -10,7 +10,7 @@
 #ifndef SRC_fn_HMR_refinement_transition_locations
 #define SRC_fn_HMR_refinement_transition_locations
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris::hmr
 {
@@ -471,13 +471,13 @@ namespace moris::hmr
         {
             case 2 :
             {
-                moris::Cell< moris_index > tConvert = { 2, 3, 0, 1 };
+                Vector< moris_index > tConvert = { 2, 3, 0, 1 };
                 tBigElementSideOrdinal = tConvert( aSmallElementSideOrdinal );
                 break;
             }
             case 3 :
             {
-                moris::Cell< moris_index > tConvert = { 2, 3, 0, 1, 5, 4 };
+                Vector< moris_index > tConvert = { 2, 3, 0, 1, 5, 4 };
                 tBigElementSideOrdinal = tConvert( aSmallElementSideOrdinal );
                 break;
             }

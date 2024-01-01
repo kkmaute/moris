@@ -17,7 +17,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_Geom_Field.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -98,21 +98,21 @@ namespace moris
 
 void tPropValConstFunc
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 void tPropValFunc
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 void tPropDerFunc
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
@@ -124,7 +124,7 @@ bool tSolverOutputCriteria_UTGyroid( moris::tsa::Time_Solver * )
 }
 
 int user_defined_refinement(       hmr::Element                  * aElement,
-                             const Cell< Matrix< DDRMat > > & aElementLocalValues,
+                             const Vector< Matrix< DDRMat > > & aElementLocalValues,
                                    ParameterList            & aParameters )
 {
     int aDoRefine = -1;
@@ -210,7 +210,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         uint tLagrangeMeshIndex = 0;
         // empty container for B-Spline meshes
-        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+        Vector< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
         // create settings object
         moris::hmr::Parameters tParameters;
@@ -241,7 +241,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -260,7 +260,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         tField->evaluate_scalar_function( moris::ge::getDistanceToGyroidsMassive );
 
-        moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
+        Vector< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
         for( uint k=0; k<1; ++k )
         {
@@ -280,7 +280,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
-        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+        Vector<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         size_t tModelDimension = 3;
         moris::ge::Geometry_Engine tGeometryEngine( tGeometryVector, tModelDimension );
@@ -291,7 +291,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
 
        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
@@ -446,7 +446,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tSetInterface1.set_IWGs( { tIWGInterface } );
 
        // create a cell of set info
-       moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+       Vector< fem::Set_User_Info > tSetInfo( 7 );
        tSetInfo( 0 ) = tSetBulk1;
        tSetInfo( 1 ) = tSetBulk2;
        tSetInfo( 2 ) = tSetBulk3;

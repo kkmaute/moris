@@ -27,8 +27,8 @@ namespace moris::hmr
     {
         // create temporary Parser object
         XML_Parser          tParser( aFilePath );
-        Cell< std::string > tFirst;
-        Cell< std::string > tSecond;
+        Vector< std::string > tFirst;
+        Vector< std::string > tSecond;
 
         tParser.get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );
 
@@ -271,7 +271,7 @@ namespace moris::hmr
         this->set_basis_fuction_vtk_file_name( aParameterList.get< std::string >( "basis_function_vtk_file" ) );
 
         // get user-defined refinement functions
-        Cell< std::string > tFunctionNames = string_to_cell< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );
+        Vector< std::string > tFunctionNames = string_to_cell< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );
 
         MORIS_ERROR( ( aLibrary != nullptr ) or ( tFunctionNames.size() == 0 ),
                 "User-defined refinement function names were provided without a library to load them from." );
@@ -882,7 +882,7 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Parameters::set_refinement_functions( Cell< Refinement_Function > aRefinementFunctions )
+    Parameters::set_refinement_functions( Vector< Refinement_Function > aRefinementFunctions )
     {
         mRefinementFunctions = aRefinementFunctions;
     }
@@ -908,7 +908,7 @@ namespace moris::hmr
     bool
     Parameters::is_output_mesh( const uint aMeshIndex ) const
     {
-        const Cell< Matrix< DDUMat > >& tOutputMeshes = this->get_output_mesh();
+        const Vector< Matrix< DDUMat > >& tOutputMeshes = this->get_output_mesh();
 
         bool tIsOutputMesh = false;
 

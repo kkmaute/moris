@@ -14,7 +14,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
@@ -85,7 +85,7 @@ namespace moris
     inline void
     ConstFunctionVal_MDLFEMBench2(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -94,7 +94,7 @@ namespace moris
     inline void
     AnalyticalTempFunc_MDLFEMBench2(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get parameters
@@ -119,7 +119,7 @@ namespace moris
     inline void
     AnalyticalTemp2MatFunc_MDLFEMBench2(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get parameters
@@ -217,7 +217,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
             tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
 
@@ -234,7 +234,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------
 
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
             tGeometry0( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
             tGeometry0( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
 
@@ -248,7 +248,7 @@ namespace moris
             tXTKModel.mVerbose = true;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -359,7 +359,7 @@ namespace moris
             tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet1;
@@ -391,7 +391,7 @@ namespace moris
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
             // define dof type for solve
-            moris::Cell< enum MSI::Dof_Type > tDofTypesU( 1 );
+            moris::Vector< enum MSI::Dof_Type > tDofTypesU( 1 );
             tDofTypesU( 0 ) = MSI::Dof_Type::TEMP;
 
             dla::Solver_Factory tSolFactory;
@@ -526,7 +526,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
             tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
 
@@ -543,7 +543,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------
 
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
             tGeometry0( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
             tGeometry0( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
 
@@ -557,7 +557,7 @@ namespace moris
             tXTKModel.mVerbose = true;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -694,7 +694,7 @@ namespace moris
             tSetDisplGhost.set_IWGs( { tIWGGhost } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 5 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 5 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet1;
@@ -727,7 +727,7 @@ namespace moris
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
             // define dof type for solve
-            moris::Cell< enum MSI::Dof_Type > tDofTypesU( 1 );
+            moris::Vector< enum MSI::Dof_Type > tDofTypesU( 1 );
             tDofTypesU( 0 ) = MSI::Dof_Type::TEMP;
 
             dla::Solver_Factory tSolFactory;
@@ -875,7 +875,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 3 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 3 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
             tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
             tGeometry( 2 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
@@ -896,7 +896,7 @@ namespace moris
             tXTKModel.mVerbose = true;
 
             // specify decomposition method and cut mesh
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -1051,7 +1051,7 @@ namespace moris
             tSetInterfaceBA1.set_IWGs( { tIWGInterface } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 7 );
             tSetInfo( 0 ) = tSetBulkB1;
             tSetInfo( 1 ) = tSetBulkB2;
             tSetInfo( 2 ) = tSetBulkA1;
@@ -1086,7 +1086,7 @@ namespace moris
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
             // define dof type for solve
-            moris::Cell< enum MSI::Dof_Type > tSolveDofTypes( 1 );
+            moris::Vector< enum MSI::Dof_Type > tSolveDofTypes( 1 );
             tSolveDofTypes( 0 ) = MSI::Dof_Type::TEMP;
 
             dla::Solver_Factory tSolFactory;
@@ -1226,7 +1226,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 3 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 3 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
             tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
             tGeometry( 2 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
@@ -1247,7 +1247,7 @@ namespace moris
             tXTKModel.mVerbose = true;
 
             // specify decomposition method and cut mesh
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -1403,7 +1403,7 @@ namespace moris
             tSetInterfaceBA1.set_IWGs( { tIWGInterface } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 7 );
             tSetInfo( 0 ) = tSetBulkB1;
             tSetInfo( 1 ) = tSetBulkB2;
             tSetInfo( 2 ) = tSetBulkA1;
@@ -1438,7 +1438,7 @@ namespace moris
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
             // define dof type for solve
-            moris::Cell< enum MSI::Dof_Type > tSolveDofTypes( 1 );
+            moris::Vector< enum MSI::Dof_Type > tSolveDofTypes( 1 );
             tSolveDofTypes( 0 ) = MSI::Dof_Type::TEMP;
 
             dla::Solver_Factory tSolFactory;

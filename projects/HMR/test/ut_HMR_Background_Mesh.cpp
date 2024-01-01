@@ -17,7 +17,7 @@
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 
 #include "cl_HMR.hpp" //HMR/src
@@ -819,7 +819,7 @@ namespace moris::hmr
 
             //----------------------------------------------------------------------------------------------------------
             // unite pattern 0 and 1 on pattern 3
-            Cell< uint > tSourcePattern( 2, 0 );
+            Vector< uint > tSourcePattern( 2, 0 );
             tSourcePattern( 1 ) = 1;
             tBackgroundMesh->unite_patterns( tSourcePattern, 3 );
 
@@ -879,7 +879,7 @@ namespace moris::hmr
             tParameters.set_bspline_orders( { { 1 } } );
             tParameters.set_bspline_patterns( { { 0 } } );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -935,7 +935,7 @@ namespace moris::hmr
 
             tParameters.set_number_aura( false );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1025,7 +1025,7 @@ namespace moris::hmr
 
             tParameters.set_number_aura( false );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

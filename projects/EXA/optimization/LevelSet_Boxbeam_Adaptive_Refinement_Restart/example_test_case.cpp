@@ -53,9 +53,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2 };
-    Cell< uint > tReferenceNumNodes = { 3957 };
-    Cell< uint > tReferenceNumElems = { 3642 };
+    Vector< uint > tReferenceNumDims  = { 2 };
+    Vector< uint > tReferenceNumNodes = { 3957 };
+    Vector< uint > tReferenceNumElems = { 3642 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();

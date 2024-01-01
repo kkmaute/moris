@@ -12,8 +12,8 @@
 #define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_BULK_HPP_
 
 #include <map>
-#include "typedefs.hpp"                         //MRS/COR/src
-#include "cl_Cell.hpp"                          //MRS/CNT/src
+#include "moris_typedefs.hpp"                         //MRS/COR/src
+#include "cl_Vector.hpp"                          //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                        //LINALG/src
 #include "linalg_typedefs.hpp"                  //LINALG/src
@@ -64,7 +64,7 @@ namespace moris
 
                 // storage for the variable mapping operator
                 Matrix< DDRMat > mA0inv;
-                moris::Cell< Matrix< DDRMat > > mdA0invdY;
+                Vector< Matrix< DDRMat > > mdA0invdY;
 
                 // storage for G-operator
                 Matrix< DDRMat > mG;
@@ -73,7 +73,7 @@ namespace moris
                 Matrix< DDRMat > mM;
                 Matrix< DDRMat > mMinv;
                 Matrix< DDRMat > mSqrtMinv;
-                moris::Cell< Matrix< DDRMat > > mdMdY;
+                Vector< Matrix< DDRMat > > mdMdY;
 
                 // storage for the GLS stabiliation operator
                 Matrix< DDRMat > mTau;

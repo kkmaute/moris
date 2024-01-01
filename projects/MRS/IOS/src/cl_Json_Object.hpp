@@ -8,7 +8,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "cl_Matrix.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {
@@ -31,7 +31,7 @@ namespace moris
     }
 
     template< typename T >
-    Json to_json( moris::Cell< T > const &aVector )
+    Json to_json( Vector< T > const &aVector )
     {
         Json tList;
         for ( auto const &tValue : aVector )

@@ -43,14 +43,14 @@ namespace xtk
         bool                                            mOnlyForVis = false;
         Interpolation_Cell_Unzipped const*              mInterpolationCell;
         Child_Mesh const*                               mChildMesh;  // FIXME: this doesn't seem to be used, should be removed
-        moris::Cell< moris::mtk::Cell const* >          mPrimaryIntegrationCells;
-        moris::Cell< moris::mtk::Cell const* >          mVoidIntegrationCells;
-        moris::Cell< moris::mtk::Vertex const* >        mVerticesInCluster;
+        Vector< moris::mtk::Cell const* >          mPrimaryIntegrationCells;
+        Vector< moris::mtk::Cell const* >          mVoidIntegrationCells;
+        Vector< moris::mtk::Vertex const* >        mVerticesInCluster;
         Matrix< DDRMat >                                mLocalCoords;
         std::shared_ptr< IG_Vertex_Group >              mVertexGroup;
-        moris::Cell< std::shared_ptr< IG_Cell_Group > > mPrimaryIgCellGroup;
-        moris::Cell< std::shared_ptr< IG_Cell_Group > > mVoidIgCellGroup;
-        moris::Cell< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
+        Vector< std::shared_ptr< IG_Cell_Group > > mPrimaryIgCellGroup;
+        Vector< std::shared_ptr< IG_Cell_Group > > mVoidIgCellGroup;
+        Vector< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //------------------------------------------------------------------------------
 
@@ -60,10 +60,10 @@ namespace xtk
         ~Cell_Cluster();
         bool                                          is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
         bool                                          is_full() const;
-        moris::Cell< moris::mtk::Cell const* > const& get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-        moris::Cell< moris::mtk::Cell const* > const& get_void_cells_in_cluster() const;
+        Vector< moris::mtk::Cell const* > const& get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+        Vector< moris::mtk::Cell const* > const& get_void_cells_in_cluster() const;
         moris::mtk::Cell const&                       get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-        moris::Cell< moris::mtk::Vertex const* >      get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+        Vector< moris::mtk::Vertex const* >      get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
         moris::Matrix< moris::DDRMat >                get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
         moris::Matrix< moris::DDRMat >                get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const *aVertex, const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
         moris_index                                   get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
@@ -98,12 +98,12 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        set_primary_integration_cell_groups( moris::Cell< std::shared_ptr< IG_Cell_Group > > aPrimaryIgCells );
+        set_primary_integration_cell_groups( Vector< std::shared_ptr< IG_Cell_Group > > aPrimaryIgCells );
 
         //------------------------------------------------------------------------------
 
         void
-        set_void_integration_cell_groups( moris::Cell< std::shared_ptr< IG_Cell_Group > > &aVoidIgCells );
+        set_void_integration_cell_groups( Vector< std::shared_ptr< IG_Cell_Group > > &aVoidIgCells );
 
         //------------------------------------------------------------------------------
 

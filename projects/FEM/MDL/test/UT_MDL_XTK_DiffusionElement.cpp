@@ -13,7 +13,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -84,7 +84,7 @@ namespace moris
 
     void tConstValFunction_MDL_XTK
     ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -97,7 +97,7 @@ namespace moris
         {
             moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
             moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
-            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+            Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
             tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 
             // Initialize field information container
@@ -120,7 +120,7 @@ namespace moris
             xtk::Model tXTKModel(tModelDimension,tInterpMesh1,&tGeometryEngine);
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+            Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE );
@@ -210,7 +210,7 @@ namespace moris
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -236,7 +236,7 @@ namespace moris
                     { "IQI_temp" } );
             tModel->set_output_manager( &tOutputData );
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+            moris::Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create linear solver and algorithm

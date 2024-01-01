@@ -41,10 +41,10 @@ namespace moris
                 const std::string&                    aMeshName,
                 const std::string&                    aTempPath,
                 const std::string&                    aTempName,
-                const moris::Cell< std::string >&     aBlockNames,
-                const moris::Cell< std::string >&     aFieldNames,
-                const moris::Cell< enum Field_Type >& aFieldType,
-                const moris::Cell< std::string >&     aQINames,
+                const moris::Vector< std::string >&     aBlockNames,
+                const moris::Vector< std::string >&     aFieldNames,
+                const moris::Vector< enum Field_Type >& aFieldType,
+                const moris::Vector< std::string >&     aQINames,
                 const uint                            aSaveFrequency,
                 const real                            aTimeOffset )
         {
@@ -104,7 +104,7 @@ namespace moris
             tOutputData.mTimeOffset    = aParameterlist.get< moris::real >( "Time_Offset" );
 
             // read and check mesh set names
-            moris::Cell< std::string > tSetNames;
+            moris::Vector< std::string > tSetNames;
             string_to_cell(
                     aParameterlist.get< std::string >( "Set_Names" ),
                     tSetNames );
@@ -121,7 +121,7 @@ namespace moris
             tOutputData.mSetNames = tSetNames;
 
             // read and check field names
-            moris::Cell< std::string > tFieldNames;
+            moris::Vector< std::string > tFieldNames;
             string_to_cell(
                     aParameterlist.get< std::string >( "Field_Names" ),
                     tFieldNames );
@@ -138,7 +138,7 @@ namespace moris
             tOutputData.mFieldNames = tFieldNames;
 
             // read and check field types
-            moris::Cell< enum vis::Field_Type >             tFieldTypes;
+            moris::Vector< enum vis::Field_Type >             tFieldTypes;
             moris::map< std::string, enum vis::Field_Type > tFieldTypeMap = get_vis_field_type_map();
             string_to_cell(
                     aParameterlist.get< std::string >( "Field_Type" ),
@@ -161,7 +161,7 @@ namespace moris
                     "Output_Manager::set_outputs() - Number of Field Names and Field Types differ." );
 
             // read and check IQI names
-            moris::Cell< std::string > tQINames;
+            moris::Vector< std::string > tQINames;
             string_to_cell(
                     aParameterlist.get< std::string >( "IQI_Names" ),
                     tQINames );
@@ -261,14 +261,14 @@ namespace moris
             uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
             // get the names of the requested sets
-            Cell< std::string > const & tMeshSetNames = mOutputData( aVisMeshIndex ).mSetNames;
+            Vector< std::string > const & tMeshSetNames = mOutputData( aVisMeshIndex ).mSetNames;
 
             // get mtk set index to fem set index map
             map< std::tuple< moris_index, bool, bool >, moris_index >& tMeshSetToFemSetMap =
                     aEquationModel->get_mesh_set_to_fem_set_index_map();
 
             // get equation sets
-            moris::Cell< MSI::Equation_Set* > tEquationSets = aEquationModel->get_equation_sets();
+            moris::Vector< MSI::Equation_Set* > tEquationSets = aEquationModel->get_equation_sets();
 
             // get the interpolation and integration meshes
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
@@ -366,10 +366,10 @@ namespace moris
         Output_Manager::add_nodal_fields( const uint aVisMeshIndex )
         {
             // get the field names
-            moris::Cell< std::string > const & tFieldNames = mOutputData( aVisMeshIndex ).mFieldNames;
+            moris::Vector< std::string > const & tFieldNames = mOutputData( aVisMeshIndex ).mFieldNames;
 
             // set list of nodal field names to input + 2
-            moris::Cell< std::string > tNodalFieldNames( 2 + tFieldNames.size() );
+            moris::Vector< std::string > tNodalFieldNames( 2 + tFieldNames.size() );
 
             // set standard field names
             tNodalFieldNames( 0 ) = "Node_Id";
@@ -398,11 +398,11 @@ namespace moris
         Output_Manager::add_elemental_fields( const uint aVisMeshIndex )
         {
             // get the field names
-            const Cell< std::string > tFieldNames = mOutputData( aVisMeshIndex ).mFieldNames;
+            const Vector< std::string > tFieldNames = mOutputData( aVisMeshIndex ).mFieldNames;
             uint                      tNumFields  = tFieldNames.size();
 
             // allocate cell for storing elemental field names; 3 default fields are added
-            moris::Cell< std::string > tElementalFieldNames( 3 + tNumFields );
+            moris::Vector< std::string > tElementalFieldNames( 3 + tNumFields );
 
             tElementalFieldNames( 0 ) = "Mesh_Id";
             tElementalFieldNames( 1 ) = "Mesh_Index";
@@ -435,7 +435,7 @@ namespace moris
         Output_Manager::add_faceted_fields( const uint aVisMeshIndex )
         {
             // allocate cell for storing elemental field names; 3 default fields are added
-            moris::Cell< std::string > tFacetedFieldNames( mOutputData( aVisMeshIndex ).mFieldNames.size() );
+            moris::Vector< std::string > tFacetedFieldNames( mOutputData( aVisMeshIndex ).mFieldNames.size() );
 
             // initialize counter
             uint tCounter = 0;
@@ -463,7 +463,7 @@ namespace moris
         void
         Output_Manager::add_global_fields( const uint aVisMeshIndex )
         {
-            moris::Cell< std::string > tGlobalFieldNames( mOutputData( aVisMeshIndex ).mFieldNames.size() );
+            moris::Vector< std::string > tGlobalFieldNames( mOutputData( aVisMeshIndex ).mFieldNames.size() );
 
             uint tCounter = 0;
 
@@ -490,13 +490,13 @@ namespace moris
             // write nodal mesh info
 
             // getting the vertices on the vis mesh
-            moris::Cell< moris::mtk::Vertex const * > tVertices = mVisMesh( aVisMeshIndex )->get_all_vertices();
+            moris::Vector< moris::mtk::Vertex const * > tVertices = mVisMesh( aVisMeshIndex )->get_all_vertices();
 
             // get number of verts
             uint tNumVerts = tVertices.size();
 
             // create cell of index, id field, and proc indices
-            moris::Cell< Matrix< DDRMat > > tVertIdIndex( 2 );
+            moris::Vector< Matrix< DDRMat > > tVertIdIndex( 2 );
             tVertIdIndex( 0 ).set_size( tNumVerts, 1 );
             tVertIdIndex( 1 ).set_size( tNumVerts, 1 );
 
@@ -590,19 +590,19 @@ namespace moris
                 }
 
                 // create cell of index, id field, and proc indices
-                moris::Cell< Matrix< DDRMat > > tIdIndex( 3 );
+                moris::Vector< Matrix< DDRMat > > tIdIndex( 3 );
                 tIdIndex( 0 ).set_size( tCellIndex.numel(), 1 );
                 tIdIndex( 1 ).set_size( tCellIndex.numel(), 1 );
                 tIdIndex( 2 ).set_size( tCellIndex.numel(), 1 );
 
                 // get clusters from vis set
-                moris::Cell< mtk::Cluster const * > tMeshClusterList = tSet->get_clusters_on_set();
+                moris::Vector< mtk::Cluster const * > tMeshClusterList = tSet->get_clusters_on_set();
 
                 // loop over clusters and get ids and indices
                 for ( uint iCluster = 0; iCluster < tMeshClusterList.size(); iCluster++ )
                 {
                     // get primary cells
-                    const moris::Cell< moris::mtk::Cell const * >& tPrimaryCells =
+                    const moris::Vector< moris::mtk::Cell const * >& tPrimaryCells =
                             tMeshClusterList( iCluster )->get_primary_cells_in_cluster();
 
                     // loop over primary cells
@@ -622,7 +622,7 @@ namespace moris
                         tIdIndex( 2 )( tCellAssemblyMap( tIndex ) ) = par_rank();
                     }
 
-                    const moris::Cell< moris::mtk::Cell const * >& tVoidCells = tMeshClusterList( iCluster )->get_void_cells_in_cluster();
+                    const moris::Vector< moris::mtk::Cell const * >& tVoidCells = tMeshClusterList( iCluster )->get_void_cells_in_cluster();
 
                     for ( uint iVoidCell = 0; iVoidCell < tVoidCells.size(); iVoidCell++ )
                     {
@@ -664,9 +664,9 @@ namespace moris
             uint tNumSetNames = mOutputData( aVisMeshIndex ).mSetNames.size();
 
             // initialize lists of IQIs and their output field names
-            Cell< Cell< std::string > > tIQINames;
-            Cell< Cell< std::string > > tFieldNames;
-            Cell< uint >                tNumIQIsForFieldType;
+            Vector< Vector< std::string > > tIQINames;
+            Vector< Vector< std::string > > tFieldNames;
+            Vector< uint >                tNumIQIsForFieldType;
             this->get_IQI_and_field_names(
                     aVisMeshIndex,
                     tIQINames,
@@ -684,7 +684,7 @@ namespace moris
                     aEquationModel->get_mesh_set_to_fem_set_index_map();
 
             // get equation sets
-            moris::Cell< MSI::Equation_Set* >& tEquationSets = aEquationModel->get_equation_sets();
+            moris::Vector< MSI::Equation_Set* >& tEquationSets = aEquationModel->get_equation_sets();
 
             // access the integration mesh for output
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
@@ -792,9 +792,9 @@ namespace moris
         void
         Output_Manager::get_IQI_and_field_names(
                 const uint                   aVisMeshIndex,
-                Cell< Cell< std::string > >& aIQINames,
-                Cell< Cell< std::string > >& aFieldNames,
-                Cell< uint >&                aNumIQIsForFieldType )
+                Vector< Vector< std::string > >& aIQINames,
+                Vector< Vector< std::string > >& aFieldNames,
+                Vector< uint >&                aNumIQIsForFieldType )
         {
             // number of fields in vis mesh
             uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
@@ -840,8 +840,8 @@ namespace moris
         Output_Manager::compute_fields_for_set(
                 const uint                          aVisMeshIndex,
                 MSI::Equation_Set*                  aFemSet,
-                Cell< Cell< std::string > > const & aIQINames,
-                Cell< Cell< std::string > > const & aFieldNames,
+                Vector< Vector< std::string > > const & aIQINames,
+                Vector< Vector< std::string > > const & aFieldNames,
                 Matrix< DDRMat >*                   aGlobalFieldValues,
                 Matrix< DDRMat >*                   aNodalFieldValues )
         {
@@ -849,8 +849,8 @@ namespace moris
             for ( uint iFieldType = 0; iFieldType < (uint)Field_Type::END_ENUM; iFieldType++ )
             {
                 // get the requested IQIs for the current type
-                Cell< std::string > const & tIQINamesForType   = aIQINames( iFieldType );
-                Cell< std::string > const & tFieldNamesForType = aFieldNames( iFieldType );
+                Vector< std::string > const & tIQINamesForType   = aIQINames( iFieldType );
+                Vector< std::string > const & tFieldNamesForType = aFieldNames( iFieldType );
 
                 // get the number of fields for the current type
                 uint tNumFieldsForType = tIQINamesForType.size();
@@ -917,8 +917,8 @@ namespace moris
                 const uint                  aVisMeshIndex,
                 MSI::Equation_Set*          aFemSet,
                 const Field_Type            aFieldType,
-                Cell< std::string > const & aIQINamesForType,
-                Cell< std::string > const & aFieldNamesForType )
+                Vector< std::string > const & aIQINamesForType,
+                Vector< std::string > const & aFieldNamesForType )
         {
             // get the number of IQIs for the type
             uint tNumIQIsForType = aIQINamesForType.size();

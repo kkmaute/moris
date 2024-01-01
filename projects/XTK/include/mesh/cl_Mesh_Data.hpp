@@ -95,18 +95,18 @@ public:
 
     virtual void add_mesh_field_data_loc_indices(std::string const &     aFieldName,
                                                  mtk::EntityRank const & aFieldEntityRank,
-                                                 xtk::Cell<Real> const & aFieldData) = 0;
+                                                 xtk::Vector<Real> const & aFieldData) = 0;
 
     virtual void add_mesh_field_data_loc_indices_integer(std::string const &      aFieldName,
                                                          mtk::EntityRank const &    aFieldEntityRank,
-                                                         xtk::Cell<Integer> const & aFieldData) = 0;
+                                                         xtk::Vector<Integer> const & aFieldData) = 0;
 
     virtual void write_output_mesh(std::string            const & aMeshName,
-                                   xtk::Cell<std::string> const & aRealNodeFieldsToOutput    = {},
-                                   xtk::Cell<std::string> const & aIntNodeFieldsToOutput     = {},
-                                   xtk::Cell<std::string> const & aRealElementFieldsToOutput = {},
-                                   xtk::Cell<std::string> const & aIntElementFieldsToOutput  = {},
-                                   xtk::Cell<std::string> const & aRealVectorNodeFieldsToOutput  = {},
+                                   xtk::Vector<std::string> const & aRealNodeFieldsToOutput    = {},
+                                   xtk::Vector<std::string> const & aIntNodeFieldsToOutput     = {},
+                                   xtk::Vector<std::string> const & aRealElementFieldsToOutput = {},
+                                   xtk::Vector<std::string> const & aIntElementFieldsToOutput  = {},
+                                   xtk::Vector<std::string> const & aRealVectorNodeFieldsToOutput  = {},
                                    Integer aTime = 0) const  = 0;
 
     /*
@@ -114,7 +114,7 @@ public:
      */
 
     virtual void get_all_part_names(mtk::EntityRank const & aPrimaryRank,
-                                    xtk::Cell<std::string> & aPartNames) const = 0;
+                                    xtk::Vector<std::string> & aPartNames) const = 0;
 
     /*
      * Get buckets, where a requirement  of a bucket is have the same entity rank and the same parts.
@@ -128,12 +128,12 @@ public:
      * This should only return not internal part membership
      * For example using STK, there should not be universal, globally shared, locally owned, or aura parts included in the returned part ordinal
      */
-    virtual void get_entity_part_membership_ordinals(Integer const & aEntityIndex, mtk::EntityRank aEntityRank, xtk::Cell<Integer> & aPartOrdinal, bool const & aInduced = false) const  = 0;
+    virtual void get_entity_part_membership_ordinals(Integer const & aEntityIndex, mtk::EntityRank aEntityRank, xtk::Vector<Integer> & aPartOrdinal, bool const & aInduced = false) const  = 0;
 
     /*
      * This function returns the string associated with a part which are accessed using part ordinal
      */
-    virtual void get_part_name_from_part_ordinals(xtk::Cell<Integer> const & aPartOrdinals, xtk::Cell<std::string> & aPartNames) const = 0;
+    virtual void get_part_name_from_part_ordinals(xtk::Vector<Integer> const & aPartOrdinals, xtk::Vector<std::string> & aPartNames) const = 0;
 
     // Basis function accessing functions --------------------------------------------
     // For Lagrangian type meshes where nodes and basis functions coincide these are the same as the accessing node functions above

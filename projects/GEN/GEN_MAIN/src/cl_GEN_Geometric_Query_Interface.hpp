@@ -46,7 +46,7 @@ namespace moris
 
             virtual Matrix< IndexMat > const & get_query_entity_to_vertex_connectivity() const = 0;
 
-            virtual moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* get_query_indexed_coordinates() const = 0;
+            virtual Vector< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* get_query_indexed_coordinates() const = 0;
 
             virtual Matrix< DDRMat > get_vertex_local_coord_wrt_parent_entity( moris_index aVertexIndex ) const = 0;
 

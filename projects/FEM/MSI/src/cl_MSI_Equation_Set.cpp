@@ -26,7 +26,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        moris::Cell< moris::Cell< MSI::Dof_Type > > & Equation_Set::get_dof_type_list(
+        moris::Vector< moris::Vector< MSI::Dof_Type > > & Equation_Set::get_dof_type_list(
                 mtk::Leader_Follower aIsLeader )
         {
             switch ( aIsLeader )
@@ -181,7 +181,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris::Cell< PDV_Type > > & Equation_Set::get_dv_type_list(
+        const moris::Vector< moris::Vector< PDV_Type > > & Equation_Set::get_dv_type_list(
                 mtk::Leader_Follower aIsLeader )
         {
             switch ( aIsLeader )
@@ -227,7 +227,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris::Cell< mtk::Field_Type > > & Equation_Set::get_field_type_list(
+        const moris::Vector< moris::Vector< mtk::Field_Type > > & Equation_Set::get_field_type_list(
                 mtk::Leader_Follower aIsLeader )
         {
             switch ( aIsLeader )
@@ -468,7 +468,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< enum MSI::Dof_Type > & Equation_Set::get_requested_dof_types()
+        const moris::Vector< enum MSI::Dof_Type > & Equation_Set::get_requested_dof_types()
         {
             MORIS_ERROR( mModelSolverInterface != nullptr,
                     "Equation_Set::get_requested_dof_types - model solver interface not set yet." );
@@ -477,7 +477,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        const moris::Cell< enum MSI::Dof_Type > & Equation_Set::get_secondary_dof_types()
+        const moris::Vector< enum MSI::Dof_Type > & Equation_Set::get_secondary_dof_types()
         {
             MORIS_ERROR( mModelSolverInterface != nullptr,
                     "Equation_Set::get_requested_dof_types - model solver interface not set yet." );
@@ -490,7 +490,7 @@ namespace moris
         void Equation_Set::create_requested_IQI_type_map()
         {
             // get requested IQI names from the model
-            const moris::Cell< std::string > & tIQINames =
+            const moris::Vector< std::string > & tIQINames =
                     mEquationModel->get_requested_IQI_names();
 
             // clear the requested IQI assembly map
@@ -506,9 +506,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell < enum PDV_Type > Equation_Set::get_requested_dv_types()
+        moris::Vector < enum PDV_Type > Equation_Set::get_requested_dv_types()
         {
-            moris::Cell< enum PDV_Type > tDvTypes;
+            moris::Vector< enum PDV_Type > tDvTypes;
             mEquationModel->get_design_variable_interface()->get_ip_requested_dv_types( tDvTypes );
             return tDvTypes;
         }

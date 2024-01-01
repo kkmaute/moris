@@ -34,7 +34,7 @@ namespace moris
                 real             aOffset,
                 Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>(0, 0), aParameters)
-                , Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
+                , Multigeometry(Vector<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
                           aLeftBound,
                           aBottomBound,
                           aXSemidiameter,
@@ -80,7 +80,7 @@ namespace moris
                 bool             aAllowLessThanTargetSpacing,
                 Geometry_Field_Parameters aParameters)
                 : Field(Matrix<DDRMat>(0, 0), aParameters)
-                , Multigeometry(Cell<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
+                , Multigeometry(Vector<std::shared_ptr<Geometry>>(1, std::make_shared<Superellipse>(
                           aLeftBound,
                           aBottomBound,
                           aXSemidiameter,

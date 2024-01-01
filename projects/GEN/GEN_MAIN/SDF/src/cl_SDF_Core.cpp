@@ -186,7 +186,7 @@ namespace moris
         {
             this->raycast_mesh();
 
-            moris::Cell< Vertex* > tCandidateList;          //========================================
+            moris::Vector< Vertex* > tCandidateList;          //========================================
             tCandidateList = this->set_candidate_list();    //===================================
 
             this->calculate_udf( tCandidateList );
@@ -204,7 +204,7 @@ namespace moris
         {
             this->calculate_raycast( aElementsAtSurface, aElementsInVolume );
 
-            moris::Cell< Vertex* > tCandidateList;          //========================================
+            moris::Vector< Vertex* > tCandidateList;          //========================================
             tCandidateList = this->set_candidate_list();    //===================================
 
             this->calculate_udf( tCandidateList );
@@ -215,7 +215,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Core::calculate_udf( moris::Cell< Vertex* >& aCandidateList )
+        Core::calculate_udf( moris::Vector< Vertex* >& aCandidateList )
         {
             Tracer tTracer( "SDF", "Compute UDF" );
 
@@ -228,7 +228,7 @@ namespace moris
                 Facet* tFacet = mObject.get_facets()( k );
 
                 // get nodes within triangle
-                moris::Cell< Vertex* > tNodes;
+                moris::Vector< Vertex* > tNodes;
 
                 this->get_nodes_withing_bounding_box_of_triangle(
                         tFacet, tNodes, aCandidateList );
@@ -278,7 +278,7 @@ namespace moris
                 tElement->unset_volume_flag();
 
                 // get pointer to nodes
-                const moris::Cell< Vertex* > tNodes = tElement->get_vertices();
+                const moris::Vector< Vertex* > tNodes = tElement->get_vertices();
 
                 // get number of nodes
                 uint tNumberOfNodes = tNodes.size();
@@ -358,7 +358,7 @@ namespace moris
                     if ( !tElement->is_flagged() )
                     {
                         // get pointer to nodes
-                        const moris::Cell< Vertex* > tNodes = tElement->get_vertices();
+                        const moris::Vector< Vertex* > tNodes = tElement->get_vertices();
 
                         // get number of nodes
                         uint tNumberOfNodes = tNodes.size();
@@ -400,12 +400,12 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        moris::Cell< Vertex* >
+        moris::Vector< Vertex* >
         Core::set_candidate_list()
         {
             uint tNumberOfNodes = mMesh.get_num_nodes();
             //        	std::cout<<"number of nodes in mesh   : "<<tNumberOfNodes<<std::endl;
-            moris::Cell< Vertex* > tCandidateVertices;
+            moris::Vector< Vertex* > tCandidateVertices;
 
             for ( uint k = 0; k < tNumberOfNodes; k++ )
             {
@@ -429,8 +429,8 @@ namespace moris
         void
         Core::get_nodes_withing_bounding_box_of_triangle(
                 Facet*                  aFacet,
-                moris::Cell< Vertex* >& aNodes,
-                moris::Cell< Vertex* >& aCandList )    //===========================================
+                moris::Vector< Vertex* >& aNodes,
+                moris::Vector< Vertex* >& aCandList )    //===========================================
         {
             // calculate minimum and maximum coordinate
 

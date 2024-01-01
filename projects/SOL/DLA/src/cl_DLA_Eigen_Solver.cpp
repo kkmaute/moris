@@ -18,7 +18,7 @@
 
 // C++ system files
 #include <cstddef>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
 #include <fstream>
 #include <iostream>

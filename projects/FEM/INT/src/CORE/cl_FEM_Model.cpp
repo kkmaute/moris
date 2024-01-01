@@ -63,7 +63,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                moris::Cell< fem::Set_User_Info >   &aSetInfo )
+                moris::Vector< fem::Set_User_Info >   &aSetInfo )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
         {
@@ -96,7 +96,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                moris::Cell< fem::Set_User_Info >   &aSetInfo,
+                moris::Vector< fem::Set_User_Info >   &aSetInfo,
                 MSI::Design_Variable_Interface      *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -144,7 +144,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager >               aMeshManager,
                 const moris_index                                 &aMeshPairIndex,
-                const moris::Cell< moris::Cell< ParameterList > > &aParameterList,
+                const moris::Vector< Vector< ParameterList > > &aParameterList,
                 std::shared_ptr< Library_IO >                      aLibrary )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -182,7 +182,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
                 const moris_index                          &aMeshPairIndex,
-                moris::Cell< moris::Cell< ParameterList > > aParameterList,
+                Vector< Vector< ParameterList > > aParameterList,
                 MSI::Design_Variable_Interface             *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -229,7 +229,7 @@ namespace moris
             // set size for list IG nodes
             mIGNodes.resize( tNumIGNodes, nullptr );
 
-            moris::Cell< enum PDV_Type > tGeoPdvType;
+            Vector< enum PDV_Type > tGeoPdvType;
             switch ( mSpaceDim )
             {
                 case 1:
@@ -273,8 +273,8 @@ namespace moris
 
                     // get the pdv values from the MSI/GEN interface
                     Matrix< IndexMat >              tVertexIndices( 1, 1, tVertexIndex );
-                    moris::Cell< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
-                    moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+                    Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
+                    Vector< Matrix< DDSMat > > tIsActiveDv;
 
                     this->get_design_variable_interface()->get_ig_pdv_value(
                             tVertexIndices,
@@ -303,7 +303,7 @@ namespace moris
                     }
 
                     // get the id associated to the pdv
-                    moris::Cell< moris::Matrix< DDSMat > > tPdvIds;
+                    Vector< moris::Matrix< DDSMat > > tPdvIds;
                     this->get_design_variable_interface()->get_ig_dv_ids_for_type_and_ind(
                             tVertexIndices,
                             tGeoPdvType,
@@ -323,7 +323,7 @@ namespace moris
         FEM_Model::create_fem_sets(
                 mtk::Interpolation_Mesh           *aIPMesh,
                 mtk::Integration_Mesh             *aIGMesh,
-                moris::Cell< fem::Set_User_Info > &aSetInfo )
+                Vector< fem::Set_User_Info > &aSetInfo )
         {
             // get the number of sets
             uint tNumFemSets = aSetInfo.size();
@@ -447,7 +447,7 @@ namespace moris
                 mFemSets( iSet )->set_equation_model( this );
 
                 // collect equation objects associated with the set
-                Cell< MSI::Equation_Object * > const &tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
+                Vector< MSI::Equation_Object * > const &tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
 
                 // add equation objects collected to the current set
                 mFemClusters.append( tEquationObjectList );
@@ -467,7 +467,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_active_flags(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                const Vector< PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aIsActiveDv )
         {
             // Get the number of node indices requested
@@ -497,7 +497,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_ids(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                const Vector< PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aXYZPdvIds )
         {
             // Get the number of node indices requested
@@ -527,7 +527,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_active_flags_and_ids(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                const Vector< PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aIsActiveDv,
                 Matrix< DDSMat >              &aXYZPdvIds )
         {
@@ -586,7 +586,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_assembly_indices(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                const Vector< PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aXYZPdvAssemblyIndices )
         {
             // Get the number of node indices requested
@@ -836,10 +836,10 @@ namespace moris
         }
 
 
-        moris::Cell< std::shared_ptr< mtk::Field > >
+        Vector< std::shared_ptr< mtk::Field > >
         FEM_Model::get_fields()
         {
-            moris::Cell< std::shared_ptr< mtk::Field > > tFields( mFields.size(), nullptr );
+            Vector< std::shared_ptr< mtk::Field > > tFields( mFields.size(), nullptr );
 
             for ( uint Ik = 0; Ik < mFields.size(); Ik++ )
             {
@@ -860,8 +860,8 @@ namespace moris
                 return;
             }
 
-            Cell< std::shared_ptr< fem::Field > > tFieldToPopulate;
-            Cell< std::string >                   tFieldIQINames;
+            Vector< std::shared_ptr< fem::Field > > tFieldToPopulate;
+            Vector< std::string >                   tFieldIQINames;
 
             tFieldToPopulate.reserve( mFields.size() );
             tFieldIQINames.reserve( mFields.size() );
@@ -947,7 +947,7 @@ namespace moris
         FEM_Model::get_vertex_xyz_active_flags(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aIsActiveDv,
-                const moris::Cell< enum PDV_Type > &aPdvTypes )
+                const Vector< enum PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -970,7 +970,7 @@ namespace moris
         void
         FEM_Model::set_vertex_xyz_active_flags(
                 moris_index                      aVertexIndex,
-                moris::Cell< Matrix< DDSMat > > &aIsActiveDv )
+                Vector< Matrix< DDSMat > > &aIsActiveDv )
         {
             // get num of pdv
             uint tNumXYZPdv = aIsActiveDv.size();
@@ -986,7 +986,7 @@ namespace moris
         void
         FEM_Model::set_vertex_xyz_pdv_ids(
                 moris_index                      aVertexIndex,
-                moris::Cell< Matrix< DDSMat > > &aXYZPvIds )
+                Vector< Matrix< DDSMat > > &aXYZPvIds )
         {
             // get num of pdv
             uint tNumXYZPdv = aXYZPvIds.size();
@@ -1003,7 +1003,7 @@ namespace moris
         FEM_Model::get_vertex_xyz_pdv_ids(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aXYZPdvIds,
-                const moris::Cell< enum PDV_Type > &aPdvTypes )
+                const Vector< enum PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -1027,7 +1027,7 @@ namespace moris
         FEM_Model::get_local_xyz_pdv_assembly_indices(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aXYZLocalAssemblyIndices,
-                const moris::Cell< enum PDV_Type > &aPdvTypes )
+                const Vector< enum PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();

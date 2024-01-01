@@ -23,7 +23,7 @@ The Lagrange Node is a child class of Basis. It is defined by
 - its proc local ijk position
 - its global xyz position
 - its T-Matrix
-- a moris::Cell of pointers to its defining B-Splines.
+- a Vector of pointers to its defining B-Splines.
 
 */
 #---------------------------------------------------------------------------

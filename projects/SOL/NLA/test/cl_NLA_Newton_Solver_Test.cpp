@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -371,7 +371,7 @@ namespace moris
                  */
                 Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0 );
                 tGlobalIndExtract( 1, 0 ) = 1;
-                moris::Cell< Matrix< DDRMat > > tMyValues;
+                moris::Vector< Matrix< DDRMat > > tMyValues;
 
                 tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues );
 
@@ -424,7 +424,7 @@ namespace moris
 
                 Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0 );
                 tGlobalIndExtract( 1, 0 ) = 1;
-                moris::Cell< Matrix< DDRMat > > tMyValues;
+                moris::Vector< Matrix< DDRMat > > tMyValues;
 
                 tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues );
 
@@ -477,7 +477,7 @@ namespace moris
 
                 Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0 );
                 tGlobalIndExtract( 1, 0 ) = 1;
-                moris::Cell< Matrix< DDRMat > > tMyValues;
+                Vector< Matrix< DDRMat > > tMyValues;
 
                 tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues );
 
@@ -529,7 +529,7 @@ namespace moris
 
                 Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0 );
                 tGlobalIndExtract( 1, 0 ) = 1;
-                moris::Cell< Matrix< DDRMat > > tMyValues;
+                moris::Vector< Matrix< DDRMat > > tMyValues;
 
                 tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues );
 
@@ -583,7 +583,7 @@ namespace moris
 
                 Matrix< DDSMat > tGlobalIndExtract( 2, 1, 0 );
                 tGlobalIndExtract( 1, 0 ) = 1;
-                moris::Cell< Matrix< DDRMat > > tMyValues;
+                moris::Vector< Matrix< DDRMat > > tMyValues;
 
                 tNonlLinSolverAlgorithm->extract_my_values( 2, tGlobalIndExtract, 0, tMyValues );
 
@@ -758,7 +758,7 @@ namespace moris
                 tGlobalIndExtract( 3, 0 ) = 1032;
                 tGlobalIndExtract( 4, 0 ) = 777;
                 tGlobalIndExtract( 5, 0 ) = 9999;
-                moris::Cell< Matrix< DDRMat > > tMyValues;
+                moris::Vector< Matrix< DDRMat > > tMyValues;
 
                 tNonlinearProblem->extract_my_values( 6, tGlobalIndExtract, 0, tMyValues );
 

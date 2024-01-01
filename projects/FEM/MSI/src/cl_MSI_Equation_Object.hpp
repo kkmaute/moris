@@ -60,17 +60,17 @@ namespace moris
 
           protected:
             //-------------------------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< fem::Node_Base* > > mNodeObj;
-            moris::Cell< moris::Cell< Pdof_Host* > >      mMyPdofHosts;    // Pointer to the pdof hosts of this equation object
+            Vector< Vector< fem::Node_Base* > > mNodeObj;
+            Vector< Vector< Pdof_Host* > >      mMyPdofHosts;    // Pointer to the pdof hosts of this equation object
 
-            moris::Cell< Pdof* >                               mFreePdofs;       // List of the pdof pointers of this equation obj
-            moris::Cell< moris::Cell< moris::Cell< Pdof* > > > mFreePdofList;    // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
+            Vector< Pdof* >                               mFreePdofs;       // List of the pdof pointers of this equation obj
+            Vector< Vector< Vector< Pdof* > > > mFreePdofList;    // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
 
             Matrix< DDSMat >                               mUniqueAdofList;    // Unique adof list for this equation object
-            moris::Cell< moris::Cell< Matrix< DDSMat > > > mUniqueAdofTypeList;
+            Vector< Vector< Matrix< DDSMat > > > mUniqueAdofTypeList;
             moris::map< uint, uint >                       mUniqueAdofMap;    // Map to
 
-            moris::Cell< moris::Cell< moris::map< uint, uint > > > mUniqueAdofMapList;    // Map to
+            Vector< Vector< moris::map< uint, uint > > > mUniqueAdofMapList;    // Map to
 
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
@@ -110,7 +110,7 @@ namespace moris
              * constructor
              * @param[ in ] aNodeObjs leader/follower list of fem nodes
              */
-            Equation_Object( const moris::Cell< moris::Cell< fem::Node_Base* > >& aNodeObjs )
+            Equation_Object( const Vector< Vector< fem::Node_Base* > >& aNodeObjs )
                     : mNodeObj( aNodeObjs )
             {
             }
@@ -181,11 +181,11 @@ namespace moris
                     const uint                 aNumUsedDofTypes,
                     const Matrix< DDSMat >&    aPdofTypeMap,
                     const Matrix< DDUMat >&    aTimePerDofType,
-                    moris::Cell< Pdof_Host* >& aPdofHostList );
+                    Vector< Pdof_Host* >& aPdofHostList );
 
             //------------------------------------------------------------------------------
 
-            const moris::Cell< moris::Cell< Pdof_Host* > >&
+            const Vector< Vector< Pdof_Host* > >&
             get_pdof_hosts() const
             {
                 return mMyPdofHosts;
@@ -222,7 +222,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > >& aPADofMap );
+            void build_PADofMap_list( Vector< Vector< Matrix< DDRMat > > >& aPADofMap );
 
             void build_PADofMap_1( Matrix< DDRMat >& aPADofMap );
 
@@ -266,9 +266,9 @@ namespace moris
              * @param[ in ] aIsLeader             enum for leader or follower
              */
             void get_my_pdof_values(
-                    const moris::Cell< Matrix< DDRMat > >& aPdofValues,
-                    const moris::Cell< enum Dof_Type >&    aRequestedDofTypes,
-                    Cell< Cell< Matrix< DDRMat > > >&      aRequestedPdofValues,
+                    const Vector< Matrix< DDRMat > >& aPdofValues,
+                    const Vector< enum Dof_Type >&    aRequestedDofTypes,
+                    Vector< Vector< Matrix< DDRMat > > >&      aRequestedPdofValues,
                     const mtk::Leader_Follower                aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -280,7 +280,7 @@ namespace moris
              *                                    (one column per dof type)
              */
             void reshape_pdof_values(
-                    const Cell< Matrix< DDRMat > >& aPdofValues,
+                    const Vector< Matrix< DDRMat > >& aPdofValues,
                     Matrix< DDRMat >&               aReshapedPdofValues );
 
             //------------------------------------------------------------------------------
@@ -291,7 +291,7 @@ namespace moris
              * @param[ in ] aReshapedPdofValues   vector with pdof values
              */
             void reshape_pdof_values_vector(
-                    const Cell< Matrix< DDRMat > >& aPdofValues,
+                    const Vector< Matrix< DDRMat > >& aPdofValues,
                     Matrix< DDRMat >&               aReshapedPdofValues );
 
             //------------------------------------------------------------------------------
@@ -312,21 +312,21 @@ namespace moris
              * get residual on equation object
              * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
              */
-            void get_equation_obj_residual( Cell< Matrix< DDRMat > >& aEqnObjRHS );
+            void get_equation_obj_residual( Vector< Matrix< DDRMat > >& aEqnObjRHS );
 
             //------------------------------------------------------------------------------
             /**
              * get additional residual for staggered case on equation object
              * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
              */
-            void get_staggered_equation_obj_residual( Cell< Matrix< DDRMat > >& aEqnObjRHS );
+            void get_staggered_equation_obj_residual( Vector< Matrix< DDRMat > >& aEqnObjRHS );
 
             //------------------------------------------------------------------------------
             /**
              * get off-diagonal residual on equation object
              * @param[ in ] aEqnObjRHS list of matrices to fill with off-diagonal RHS on equation object
              */
-            void get_equation_obj_off_diagonal_residual( Cell< Matrix< DDRMat > >& aEqnObjRHS );
+            void get_equation_obj_off_diagonal_residual( Vector< Matrix< DDRMat > >& aEqnObjRHS );
 
             //-------------------------------------------------------------------------------------------------
             /**
@@ -336,14 +336,14 @@ namespace moris
              */
             void get_egn_obj_jacobian_and_residual(
                     Matrix< DDRMat >&         aEqnObjMatrix,
-                    Cell< Matrix< DDRMat > >& aEqnObjRHS );
+                    Vector< Matrix< DDRMat > >& aEqnObjRHS );
 
             //-------------------------------------------------------------------------------------------------
             /**
              * add staggered contribution to residual
              * @param[ in ] aElementResidual ???
              */
-            void add_staggered_contribution_to_residual( Cell< Matrix< DDRMat > >& aElementResidual );
+            void add_staggered_contribution_to_residual( Vector< Matrix< DDRMat > >& aElementResidual );
 
             //-------------------------------------------------------------------------------------------------
             void get_equation_obj_dof_ids( Matrix< DDSMat >& aEqnObjAdofId );
@@ -515,7 +515,7 @@ namespace moris
             virtual moris::real
             get_element_nodal_pdof_value(
                     moris_index                  aVertexIndex,
-                    moris::Cell< MSI::Dof_Type > aDofType )
+                    Vector< MSI::Dof_Type > aDofType )
             {
                 MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing" );
                 return 0.0;
@@ -550,8 +550,8 @@ namespace moris
 
             virtual void
             populate_fields(
-                    moris::Cell< std::shared_ptr< fem::Field > >& aFields,
-                    moris::Cell< std::string > const &            aFieldIQINames )
+                    Vector< std::shared_ptr< fem::Field > >& aFields,
+                    Vector< std::string > const &            aFieldIQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::create_fields - not implemented for base class." );
             }

@@ -67,10 +67,10 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
         Matrix< DDRMat > tNormal;
 
         // dof type list
-        Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+        Vector< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-        Cell<  Cell< MSI::Dof_Type > > tVelDofTypes;
-        Cell<  Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
+        Vector<  Vector< MSI::Dof_Type > > tVelDofTypes;
+        Vector<  Vector< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
 
         switch( iSpaceDim )
         {
@@ -258,7 +258,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tFollowerDOFHatP = 10.0 * tFollowerMatrixP;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( 2 );
+            Vector< Field_Interpolator* > tLeaderFIs( 2 );
 
             // create the field interpolator
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -273,7 +273,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tLeaderFIs( 1 )->set_space_time( tParamPoint );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( 2 );
+            Vector< Field_Interpolator* > tFollowerFIs( 2 );
 
             // create the field interpolator
             tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -350,7 +350,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tIWG->mRequestedFollowerGlobalDofTypes  = { tVelDofTypes, tPDofTypes };
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            Vector< Vector< enum MSI::Dof_Type > > tDummy;
             Field_Interpolator_Manager tLeaderFIManager( tDummy, tSet, mtk::Leader_Follower::LEADER );
             Field_Interpolator_Manager tFollowerFIManager( tDummy, tSet, mtk::Leader_Follower::FOLLOWER );
 

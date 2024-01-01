@@ -31,7 +31,7 @@
 
 void tValFunction_UTIWG
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     moris::Matrix< moris::DDRMat > tPropertyVal( 1, 1, 1.0);
@@ -84,25 +84,25 @@ namespace moris
 
         // create leader dof field interpolators
         uint tNumberOfFields = 1;
-        Cell< Field_Interpolator* > tLeaderDofFI( 4, nullptr );
+        Vector< Field_Interpolator* > tLeaderDofFI( 4, nullptr );
         tLeaderDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
         tLeaderDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
         tLeaderDofFI( 3 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::VX } );
 
 //        // create leader dv field interpolators
-//        Cell< Field_Interpolator* > tLeaderDvFI( 3, nullptr );
+//        Vector< Field_Interpolator* > tLeaderDvFI( 3, nullptr );
 //        tLeaderDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::DENSITY } );
 //        tLeaderDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
 //        tLeaderDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
 
 //        // create follower dof field interpolators
-//        Cell< Field_Interpolator* > tFollowerDofFI( 4, nullptr );
+//        Vector< Field_Interpolator* > tFollowerDofFI( 4, nullptr );
 //        tFollowerDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::UX } );
 //        tFollowerDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
 //        tFollowerDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
 
 //        // create follower dv field interpolators
-//        Cell< Field_Interpolator* > tFollowerDvFI( 2, nullptr );
+//        Vector< Field_Interpolator* > tFollowerDvFI( 2, nullptr );
 //        tFollowerDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
 //        tFollowerDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
 
@@ -150,7 +150,7 @@ namespace moris
 
         tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
-        moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+        moris::Vector< moris::Vector< enum MSI::Dof_Type > > tDummy;
         Field_Interpolator_Manager tFIManager( tDummy, tSet );
         tFIManager.mFI = tLeaderDofFI;
 //        tFIManager.mFollowerFI = tFollowerDofFI;

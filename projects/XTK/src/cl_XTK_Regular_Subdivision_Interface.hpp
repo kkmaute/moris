@@ -33,7 +33,7 @@ struct Regular_Subdivision_Interface_Data
     Matrix< IndexMat >       mNewNodesOnFacesOrd;
     Matrix< IndexMat >       mNewNodesOnCellsOrd;
     Vertex_Ancestry          mVertexAncestry;
-    Cell< Matrix< DDRMat > > mNewNodeXi;
+    Vector< Matrix< DDRMat > > mNewNodeXi;
     Matrix< DDRMat >         mNXi;
 };
 
@@ -99,11 +99,11 @@ class Regular_Subdivision_Template
     get_vertex_ancestry() const = 0;
 
     virtual
-    Cell< Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coordinates_wrt_parent() const = 0;
 
     virtual
-    Cell< Cell< moris_index > >
+    Vector< Vector< moris_index > >
     get_ig_cell_to_vertex_connectivity() const = 0;
 
     virtual
@@ -204,13 +204,13 @@ class Regular_Subdivision_4_TRIS : public Regular_Subdivision_Template
               mtk::EntityRank::ELEMENT } );
     }
 
-    Cell< Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coordinates_wrt_parent() const
     {
         return { { { 0.0, 0.0 } } };
     }
 
-    Cell< Cell< moris_index > >
+    Vector< Vector< moris_index > >
     get_ig_cell_to_vertex_connectivity() const
     {
         return {
@@ -328,7 +328,7 @@ class Regular_Subdivision_24_TETS : public Regular_Subdivision_Template
                 mtk::EntityRank::ELEMENT } );
     }
 
-    Cell< Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coordinates_wrt_parent() const
     {
         return { { { 0.0, -1.0, 0.0 } },
@@ -340,7 +340,7 @@ class Regular_Subdivision_24_TETS : public Regular_Subdivision_Template
             { { 0.0, 0.0, 0.0 } } };
     }
 
-    Cell< Cell< moris_index > >
+    Vector< Vector< moris_index > >
     get_ig_cell_to_vertex_connectivity() const
     {
         return { { { 0, 8, 1, 14 } },
@@ -397,10 +397,10 @@ class Generated_Regular_Subdivision_Template
     moris_index                 mNumNewNodes;
     moris_index                 mNumTotalIgVerts;
     moris_index                 mNumIgCells;
-    Cell< Matrix< DDRMat > >    mParamCoords;
-    Cell< Cell< moris_index > > mIgCellToVertOrd;
+    Vector< Matrix< DDRMat > >    mParamCoords;
+    Vector< Vector< moris_index > > mIgCellToVertOrd;
     Vertex_Ancestry             mNewVertexAncestry;
-    Cell< moris_index >         mVertexHash;
+    Vector< moris_index >         mVertexHash;
 
   public:
     Generated_Regular_Subdivision_Template() {}
@@ -431,13 +431,13 @@ class Generated_Regular_Subdivision_Template
         return &mNewVertexAncestry;
     }
 
-    Cell< Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coordinates_wrt_parent() const
     {
         return mParamCoords;
     }
 
-    Cell< Cell< moris_index > >
+    Vector< Vector< moris_index > >
     get_ig_cell_to_vertex_connectivity() const
     {
         return mIgCellToVertOrd;
@@ -451,7 +451,7 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
 {
   private:
     std::shared_ptr< Regular_Subdivision_Template >                          mRegularSubdivisionTemplate;
-    moris::Cell< std::shared_ptr< Generated_Regular_Subdivision_Template > > mGeneratedTemplate;
+    Vector< std::shared_ptr< Generated_Regular_Subdivision_Template > > mGeneratedTemplate;
 
     Integration_Mesh_Generation_Data* mMeshGenerationData;
     Decomposition_Data*               mDecompositionData;
@@ -538,12 +538,12 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
         return mRegularSubdivisionTemplate->get_new_node_on_parent_cell_cell_ordinal();
     };
 
-    Cell< Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     get_new_vertex_parametric_coordinates_wrt_parent() const
     {
         return mRegularSubdivisionTemplate->get_new_vertex_parametric_coordinates_wrt_parent();
     }
-    Cell< Cell< moris_index > >
+    Vector< Vector< moris_index > >
     get_ig_cell_to_vertex_connectivity() const
     {
         return mRegularSubdivisionTemplate->get_ig_cell_to_vertex_connectivity();

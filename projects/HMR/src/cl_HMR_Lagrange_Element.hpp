@@ -15,8 +15,8 @@
 #include "cl_HMR_Element.hpp"               //HMR/src
 #include "cl_HMR_Facet.hpp"                 //HMR/src
 #include "cl_HMR_Lagrange_Node.hpp"         //HMR/src
-#include "typedefs.hpp"                     //COR/src
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"                     //COR/src
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"        //LINALG/src
 #include "cl_MTK_Vertex.hpp"    //MTK/src
 
@@ -37,13 +37,13 @@ namespace moris::hmr
         Basis** mNodes;
 
         // pointers to twin on B-Spline mesh
-        moris::Cell< Element* > mTwins;
+        Vector< Element* > mTwins;
 
         // cell with facets
-        moris::Cell< Facet* > mFacets;
+        Vector< Facet* > mFacets;
 
         // cell with edges
-        moris::Cell< Edge* > mEdges;
+        Vector< Edge* > mEdges;
 
         // -----------------------------------------------------------------------------
 
@@ -132,10 +132,10 @@ namespace moris::hmr
          * MTK Interface: returns a cell with the vertex pointers of this
          * element
          */
-        moris::Cell< mtk::Vertex* >
+        Vector< mtk::Vertex* >
         get_vertex_pointers() const
         {
-            moris::Cell< mtk::Vertex* > aVertices( D );
+            Vector< mtk::Vertex* > aVertices( D );
             for ( uint k = 0; k < D; ++k )
             {
                 aVertices( k ) = mNodes[ k ];
@@ -331,7 +331,7 @@ namespace moris::hmr
          * @return Number of created bases
          */
         luint create_basis_on_level_zero(
-                moris::Cell< Element* >& aAllElementsOnProc );
+                Vector< Element* >& aAllElementsOnProc );
 
         //------------------------------------------------------------------------------
 
@@ -342,7 +342,7 @@ namespace moris::hmr
          * @return Number of created bases
          */
         luint create_basis_for_children(
-                moris::Cell< Element* >& aAllElementsOnProc );
+                Vector< Element* >& aAllElementsOnProc );
 
         //------------------------------------------------------------------------------
 
@@ -478,7 +478,7 @@ namespace moris::hmr
 
     template< uint N, uint D >
     luint Lagrange_Element< N, D >::create_basis_on_level_zero(
-            moris::Cell< Element* >& aAllElementsOnProc )
+            Vector< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "Don't know how to create Lagrange nodes on level zero." );
         return 0;
@@ -488,7 +488,7 @@ namespace moris::hmr
 
     template< uint N, uint D >
     luint Lagrange_Element< N, D >::create_basis_for_children(
-            moris::Cell< Element* >& aAllElementsOnProc )
+            Vector< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "Don't know how to create Lagrange nodes for children." );
         return 0;

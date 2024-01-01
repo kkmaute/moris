@@ -37,7 +37,7 @@ namespace moris
             bool tIsConverged = false;
 
             // compute norm of solution(s)
-            Cell< moris::real > solNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS()->vec_norm2();
+            Vector< moris::real > solNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS()->vec_norm2();
 
             // compute residual norm which is the norm of the RHS of the linearized problem
             real tResNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->vec_norm2()( 0 );

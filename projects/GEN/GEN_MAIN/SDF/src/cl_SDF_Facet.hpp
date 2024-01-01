@@ -10,13 +10,13 @@
 
 #pragma once
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
 #include "op_times.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 
@@ -36,7 +36,7 @@ namespace moris
             const moris_index mIndex;
 
             // cells with vertex pointers
-            moris::Cell< Facet_Vertex* > mVertices;
+            Vector< Facet_Vertex* > mVertices;
 
             // container for node coordinates
             Matrix< DDRMat > mNodeCoords;
@@ -50,8 +50,8 @@ namespace moris
             // container for normal
             Matrix< DDRMat > mNormal;
 
-            moris::Cell< real > mMinCoord;
-            moris::Cell< real > mMaxCoord;
+            Vector< real > mMinCoord;
+            Vector< real > mMaxCoord;
 
             real mHesse;
 
@@ -64,7 +64,7 @@ namespace moris
 
             Facet(
                     moris_index                   aIndex,
-                    moris::Cell< Facet_Vertex* >& aVertices,
+                    Vector< Facet_Vertex* >& aVertices,
                     uint                          aDimension );
 
             //-------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            moris::Cell< mtk::Vertex* >
+            Vector< mtk::Vertex* >
             get_vertex_pointers() const;
 
             //-------------------------------------------------------------------------------
@@ -298,7 +298,7 @@ namespace moris
              * @param aDimension Number of dimensions for the problem. 2 for line facets and 3 for triangle facets.
              */
             void
-            copy_node_coords_and_inds( moris::Cell< Facet_Vertex* >& aVertices, uint aDimension );
+            copy_node_coords_and_inds( Vector< Facet_Vertex* >& aVertices, uint aDimension );
 
             //-------------------------------------------------------------------------------
 

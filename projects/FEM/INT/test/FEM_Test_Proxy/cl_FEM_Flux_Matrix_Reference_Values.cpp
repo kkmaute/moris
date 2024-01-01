@@ -50,7 +50,7 @@ get_reference_dYdt()
 
 //------------------------------------------------------------------------------
 
-inline const Cell< Matrix< DDRMat > >
+inline const Vector< Matrix< DDRMat > >
 get_reference_dYdx()
 {
     // define reference value for unit test
@@ -67,7 +67,7 @@ get_reference_dYdx()
         { -1.645892684136180e+00 }
     };
 
-    Cell< Matrix< DDRMat > > tdYdx = { tdYdx1, tdYdx2 };
+    Vector< Matrix< DDRMat > > tdYdx = { tdYdx1, tdYdx2 };
 
     // return value
     return tdYdx;
@@ -93,7 +93,7 @@ get_reference_C()
 
 //------------------------------------------------------------------------------
 
-inline const Cell< Matrix< DDRMat > >
+inline const Vector< Matrix< DDRMat > >
 get_reference_A()
 {
     // define reference value for unit test
@@ -116,7 +116,7 @@ get_reference_A()
         { -3.637081333732231e+01, -4.112169128644925e+00, 4.853696278934868e+02, 2.682859838952995e+00 }
     };
 
-    Cell< Matrix< DDRMat > > tA = { tA0, tA1, tA2 };
+    Vector< Matrix< DDRMat > > tA = { tA0, tA1, tA2 };
 
     // return value
     return tA;
@@ -124,7 +124,7 @@ get_reference_A()
 
 //------------------------------------------------------------------------------
 
-inline const Cell< Matrix< DDRMat > >
+inline const Vector< Matrix< DDRMat > >
 get_reference_K()
 {
     // define reference value for unit test
@@ -153,7 +153,7 @@ get_reference_K()
         { 0.0, 9.591467551469270e-01, -1.619954531847562e+01, 8.000000000000000e-01 }
     };
 
-    Cell< Matrix< DDRMat > > tK = { tK11, tK12, tK21, tK22 };
+    Vector< Matrix< DDRMat > > tK = { tK11, tK12, tK21, tK22 };
 
     // return value
     return tK;
@@ -161,7 +161,7 @@ get_reference_K()
 
 //------------------------------------------------------------------------------
 
-inline const Cell< Matrix< DDRMat > >
+inline const Vector< Matrix< DDRMat > >
 get_reference_Kiji()
 {
     // define reference value for unit test
@@ -179,7 +179,7 @@ get_reference_Kiji()
         { 0.0, -4.457786416304896e+01, -3.201095993370650e+00, 0.0 }
     };
 
-    Cell< Matrix< DDRMat > > tKiji = { tKi1i, tKi2i };
+    Vector< Matrix< DDRMat > > tKiji = { tKi1i, tKi2i };
 
     // return value
     return tKiji;
@@ -549,7 +549,7 @@ get_reference_Tau()
 
 //------------------------------------------------------------------------------
 
-inline const Cell< Matrix< DDRMat > >
+inline const Vector< Matrix< DDRMat > >
 get_reference_dMdY()
 {
     // define reference value for unit test
@@ -581,7 +581,7 @@ get_reference_dMdY()
         { -1.64218624058043e+04, -1.04687247704933e+01, -1.46459987622759e+03, +2.93636778444785e+01 }
     };
 
-    Cell< Matrix< DDRMat > > tdMdY = { tdMdP, tdMdUX, tdMdUY, tdMdT };
+    Vector< Matrix< DDRMat > > tdMdY = { tdMdP, tdMdUX, tdMdUY, tdMdT };
 
     // return value
     return tdMdY;
@@ -589,7 +589,7 @@ get_reference_dMdY()
 
 //------------------------------------------------------------------------------
 
-inline const Cell< Matrix< DDRMat > >
+inline const Vector< Matrix< DDRMat > >
 get_reference_dTaudDof()
 {
     // define reference value for unit test
@@ -897,7 +897,7 @@ get_reference_dTaudDof()
     };
     tdTaui4dDof = trans( tdTaui4dDof );
 
-    Cell< Matrix< DDRMat > > tdTaudDof = { tdTaui1dDof, tdTaui2dDof, tdTaui3dDof, tdTaui4dDof };
+    Vector< Matrix< DDRMat > > tdTaudDof = { tdTaui1dDof, tdTaui2dDof, tdTaui3dDof, tdTaui4dDof };
 
     // return value
     return tdTaudDof;

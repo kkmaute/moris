@@ -17,7 +17,7 @@
 // moris core includes
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Logger.hpp"
 
 //------------------------------------------------------------------------------
@@ -154,8 +154,8 @@ main(
 ////     fem::IWG_L2 * tIWG = new moris::fem::IWG_L2( );
 //
 //     map< moris_id, moris_index >   tCoefficientsMap;
-//     Cell< fem::Node_Base* >        tNodes;
-//     Cell< MSI::Equation_Object* >  tElements;
+//     Vector< fem::Node_Base* >        tNodes;
+//     Vector< MSI::Equation_Object* >  tElements;
 //
 //     // get map from mesh
 //     tMesh->get_adof_map( tOrder, tCoefficientsMap );

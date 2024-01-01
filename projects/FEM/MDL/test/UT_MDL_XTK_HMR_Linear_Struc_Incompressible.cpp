@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "paths.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "HDF5_Tools.hpp"
 #include "cl_Matrix.hpp"    //LINALG
 #include "linalg_typedefs.hpp"
@@ -121,7 +121,7 @@ namespace moris
     inline void
     tConstValFunction(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -130,7 +130,7 @@ namespace moris
     inline void
     tMValFunction2d(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = { { aParameters( 0 )( 0 ), 0.0 },
@@ -140,7 +140,7 @@ namespace moris
     inline void
     tMValFunction3d(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = { { aParameters( 0 )( 0 ), 0.0, 0.0 },
@@ -242,7 +242,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.4501 );
 
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -253,7 +253,7 @@ namespace moris
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE, 0 );
@@ -387,7 +387,7 @@ namespace moris
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -419,16 +419,16 @@ namespace moris
             // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypes( 3 );
+            moris::Vector< enum MSI::Dof_Type > tDofTypes( 3 );
             tDofTypes( 0 ) = MSI::Dof_Type::UX;
             tDofTypes( 1 ) = MSI::Dof_Type::UY;
             tDofTypes( 2 ) = MSI::Dof_Type::P;
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+            moris::Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
             tDofTypesU( 0 ) = MSI::Dof_Type::UX;
             tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypesP( 1 );
+            moris::Vector< enum MSI::Dof_Type > tDofTypesP( 1 );
             tDofTypesP( 0 ) = MSI::Dof_Type::P;
 
             dla::Solver_Factory                             tSolFactory;

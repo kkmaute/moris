@@ -22,10 +22,10 @@ namespace xtk
 bool
 interpolated_coordinate_check( Cut_Integration_Mesh* aCutMesh )
 {
-    moris::Cell< std::shared_ptr< Matrix< DDRMat > > >* tCoords = aCutMesh->get_all_vertex_coordinates_loc_inds();
+    moris::Vector< std::shared_ptr< Matrix< DDRMat > > >* tCoords = aCutMesh->get_all_vertex_coordinates_loc_inds();
 
     // keep track of problem vertices
-    moris::Cell< moris_index > tProblemIgVertices( 0 );
+    moris::Vector< moris_index > tProblemIgVertices( 0 );
 
     // Allocate a basis function weight matrix
     moris::Matrix< moris::DDRMat > tBasisWeights( 1, 8 );
@@ -57,7 +57,7 @@ interpolated_coordinate_check( Cut_Integration_Mesh* aCutMesh )
         {
             moris::mtk::Cell* tIgCell = tIgCellGroup->mIgCellGroup( iCell );
 
-            moris::Cell< moris::mtk::Vertex* > tVertices = tIgCell->get_vertex_pointers();
+            moris::Vector< moris::mtk::Vertex* > tVertices = tIgCell->get_vertex_pointers();
 
             // iterate through vertices attached to the cell
             for ( moris::uint iV = 0; iV < tVertices.size(); iV++ )
@@ -127,7 +127,7 @@ verify_interface_vertices(
     moris::uint tNumVertices = tCutMesh->get_num_entities( mtk::EntityRank::NODE, 0 );
 
     // keep track of problem vertices
-    moris::Cell< moris_index > tProblemIgVertices( 0 );
+    moris::Vector< moris_index > tProblemIgVertices( 0 );
 
     // iterate through vertices in the integration mesh
     for ( moris::uint iV = 0; iV < tNumVertices; iV++ )
@@ -157,7 +157,7 @@ verify_interface_vertices(
 bool
 check_vertices(
     xtk::Model*                                           aModel,
-    moris::Cell< moris_index > const&                     aGoldNumVerts,
+    moris::Vector< moris_index > const&                     aGoldNumVerts,
     std::unordered_map< moris_index, moris_index > const& aGoldVertexMap,
     moris::Matrix< moris::DDRMat > const&                 aGoldVertexCoords,
     moris::real                                           aTolerance )
@@ -195,7 +195,7 @@ check_vertices(
 bool
 check_cells(
     xtk::Model*                                                         aModel,
-    moris::Cell< moris::moris_index > const&                            aGoldNumCells,
+    moris::Vector< moris::moris_index > const&                            aGoldNumCells,
     std::unordered_map< moris::moris_index, moris::moris_index > const& aGoldCellMap,
     moris::Matrix< moris::IndexMat > const&                             aGoldCellConn )
 {

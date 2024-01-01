@@ -32,7 +32,7 @@
 #include "cl_HMR_T_Matrix_Advanced.hpp"
 #include "cl_HMR_Lagrange_Edge2.hpp"
 #include "HMR_Globals.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Stopwatch.hpp"
 // #include "cl_Map.hpp"
 #include "cl_Tracer.hpp"
@@ -61,7 +61,7 @@ namespace moris::hmr
         luint mMySubdomainOffset[ gMaxNumberOfLevels ][ N ];
 
         //! calculation object that calculates the T-Matrices
-        Cell< T_Matrix< N >* > mTMatrix;
+        Vector< T_Matrix< N >* > mTMatrix;
 
         // ----------------------------------------------------------------------------
 
@@ -78,7 +78,7 @@ namespace moris::hmr
         Lagrange_Mesh(
                 const Parameters*           aParameters,
                 Background_Mesh_Base*       aBackgroundMesh,
-                Cell< BSpline_Mesh_Base* >& aBSplineMeshes,
+                Vector< BSpline_Mesh_Base* >& aBSplineMeshes,
                 uint                        aActivationPattern,
                 uint                        aMeshIndex )
                 : Lagrange_Mesh_Base(
@@ -93,7 +93,7 @@ namespace moris::hmr
 
             // collect the B-spline mesh indices which this Lagrange is associated with
             uint                tNumBspMeshes = aBSplineMeshes.size();
-            Cell< moris_index > tBsplineMeshIndices( tNumBspMeshes );
+            Vector< moris_index > tBsplineMeshIndices( tNumBspMeshes );
             for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
             {
                 // get access to the B-spline mesh
@@ -530,8 +530,8 @@ namespace moris::hmr
                 moris_index                                 aDiscretizationMeshIndex,
                 moris_index                                 aBSplineCellIndex,
                 Element&                                    aLagrangeCell,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& aBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            aWeights ) override
+                Vector< Vector< mtk::Vertex* > >& aBsplineBasis,
+                Vector< Matrix< DDRMat > >&            aWeights ) override
         {
             // get B-Spline pattern of this mesh
             uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -559,9 +559,9 @@ namespace moris::hmr
                 moris_index                                       aDiscretizationMeshIndex,
                 const Element*                                    aRootBSplineCell,
                 const Element*                                    aExtendedBSplineCell,
-                moris::Cell< moris::Cell< const mtk::Vertex* > >& aRootBsplineBasis,
-                moris::Cell< const mtk::Vertex* >&                aExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&                  aWeights ) override
+                Vector< Vector< const mtk::Vertex* > >& aRootBsplineBasis,
+                Vector< const mtk::Vertex* >&                aExtendedBsplineBasis,
+                Vector< Matrix< DDRMat > >&                  aWeights ) override
         {
             // ask the t-matrix object to compute the weights
             mTMatrix( aDiscretizationMeshIndex )->evaluate_L2_projection( aRootBSplineCell, aExtendedBSplineCell, aRootBsplineBasis, aExtendedBsplineBasis, aWeights );

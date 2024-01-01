@@ -10,7 +10,7 @@
 
 // #pragma once
 
-// #include "typedefs.hpp"
+// #include "moris_typedefs.hpp"
 
 // #include "cl_Matrix.hpp"
 // #include "linalg_typedefs.hpp"
@@ -27,8 +27,8 @@
 //         {
 
 //             //! object information
-//             moris::Cell< Facet* >&        mFacets;
-//             moris::Cell< Facet_Vertex* >& mVertices;
+//             Vector< Facet* >&        mFacets;
+//             Vector< Facet_Vertex* >& mVertices;
 //             const uint                    mNumberOfFacets;    // !< number of facets in object
 
 //             //!< counter for unsure nodes in voxelizing algorithm

@@ -35,7 +35,7 @@
 // namespace xtk
 // {
 // moris::real
-// OctreeSphereGeom( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParameters )
+// OctreeSphereGeom( const Matrix< DDRMat >& aPoint, const Vector< real* >& aParameters )
 // {
 //     const moris::real tCenterX = 1.0;
 //     const moris::real tCenterY = 1.0;
@@ -54,7 +54,7 @@
 // }
 
 // moris::real
-// OctreeSphereGeom2( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParameters )
+// OctreeSphereGeom2( const Matrix< DDRMat >& aPoint, const Vector< real* >& aParameters )
 // {
 //     const moris::real tCenterX = 0.5;
 //     const moris::real tCenterY = 0.5;
@@ -73,7 +73,7 @@
 // }
 
 // moris::real
-// OctreeSphereGeom3( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParameters )
+// OctreeSphereGeom3( const Matrix< DDRMat >& aPoint, const Vector< real* >& aParameters )
 // {
 //     const moris::real tCenterX = 0.0;
 //     const moris::real tCenterY = 0.0;
@@ -123,7 +123,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -141,7 +141,7 @@
 //     tXTKModel.initialize( tMesh );
 
 //     // octree refinement parameters
-//     moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE };
+//     Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE };
 //     moris::Matrix< moris::IndexMat >       tActiveGeometries( 1, 1, 0 );
 
 //     xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );
@@ -151,10 +151,10 @@
 
 //     moris::Matrix< moris::DDRMat >
 //                                                    tGoldCoords( 0, 0 );
-//     Cell< moris_index >                            tGoldNumVertex( 0 );
+//     Vector< moris_index >                            tGoldNumVertex( 0 );
 //     std::unordered_map< moris_index, moris_index > tGoldVertexMap;
 //     moris::Matrix< moris::IndexMat >               tGoldCellConn( 0, 0 );
-//     Cell< moris_index >                            tGoldNumCells( 0 );
+//     Vector< moris_index >                            tGoldNumCells( 0 );
 //     std::unordered_map< moris_index, moris_index > tGoldCellMap;
 
 //     if ( par_size() == 1 )
@@ -6130,7 +6130,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6148,7 +6148,7 @@
 //     tXTKModel.initialize( tMesh );
 
 //     // octree refinement parameters
-//     moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE };
+//     Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE };
 //     moris::Matrix< moris::IndexMat >       tActiveGeometries( 1, 1, 0 );
 
 //     xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );
@@ -6190,7 +6190,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6208,7 +6208,7 @@
 //     tXTKModel.initialize( tMesh );
 
 //     // octree refinement parameters
-//     moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
+//     Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
 //     moris::Matrix< moris::IndexMat >       tActiveGeometries( 1, 1, 0 );
 
 //     xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );
@@ -6250,7 +6250,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6268,7 +6268,7 @@
 //     tXTKModel.initialize( tMesh );
 
 //     // octree refinement parameters
-//     moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
+//     Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
 //     moris::Matrix< moris::IndexMat >       tActiveGeometries( 1, 1, 0 );
 
 //     xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );
@@ -6310,7 +6310,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6328,7 +6328,7 @@
 //     tXTKModel.initialize( tMesh );
 
 //     // octree refinement parameters
-//     moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+//     Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
 //     moris::Matrix< moris::IndexMat >       tActiveGeometries( 1, 1, 0 );
 
 //     xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );
@@ -6369,7 +6369,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6387,7 +6387,7 @@
 //     tXTKModel.initialize( tMesh );
 
 //     // octree refinement parameters
-//     moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+//     Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
 //     moris::Matrix< moris::IndexMat >       tActiveGeometries( 1, 1, 0 );
 
 //     xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );
@@ -6428,7 +6428,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 3 );
+//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 3 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryVector( 1 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom2 ) );
 //     tGeometryVector( 2 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom3 ) );
@@ -6448,7 +6448,7 @@
 //     tXTKModel.initialize( tMesh );
 
 //     // octree refinement parameters
-//     moris::Cell< enum Subdivision_Method > tMethods          = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+//     Vector< enum Subdivision_Method > tMethods          = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
 //     moris::Matrix< moris::IndexMat >       tActiveGeometries = { { 0, 1, 2 } };
 
 //     xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );

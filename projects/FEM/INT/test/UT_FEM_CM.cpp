@@ -25,7 +25,7 @@
 
 void tValFunctionCM
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
@@ -33,7 +33,7 @@ void tValFunctionCM
 
 void tDerFunctionCM
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
@@ -73,11 +73,11 @@ namespace moris
             Geometry_Interpolator tGI;
 
             // create a dof field interpolator
-            Cell< Field_Interpolator* > tDofFIs( 1, nullptr );
+            Vector< Field_Interpolator* > tDofFIs( 1, nullptr );
             tDofFIs( 0 ) = new Field_Interpolator ( 1, { MSI::Dof_Type::TEMP } );
 
             // create a dv field interpolator
-            Cell< Field_Interpolator* > tDvFIs( 2, nullptr );
+            Vector< Field_Interpolator* > tDvFIs( 2, nullptr );
             tDvFIs( 0 ) = new Field_Interpolator ( 1, { PDV_Type::LS1 } );
             tDvFIs( 1 ) = new Field_Interpolator ( 1, { PDV_Type::LS2 } );
 
@@ -93,7 +93,7 @@ namespace moris
             tSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            moris::Vector< moris::Vector< enum MSI::Dof_Type > > tDummy;
             Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
             // populate the field interpolator manager

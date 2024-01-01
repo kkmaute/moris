@@ -125,7 +125,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve values from storage
-        const Matrix< DDRMat > & Material_Model::DensityDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::DensityDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ERROR(
@@ -150,7 +150,7 @@ namespace moris
         }
 
         // trivial operation: get values from FI
-        const Matrix< DDRMat > & Material_Model::DensityDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::DensityDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofType )
         {
             // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofDensity )
@@ -182,7 +182,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve values from storage
-        const Matrix< DDRMat > & Material_Model::DensityDotDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::DensityDotDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ASSERT(
@@ -207,7 +207,7 @@ namespace moris
         }
 
         // trivial operation: get values from FI
-        const Matrix< DDRMat > & Material_Model::DensityDotDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::DensityDotDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofType )
         {
             // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofDensity )
@@ -239,7 +239,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve values from storage
-        const Matrix< DDRMat > & Material_Model::dnDensitydxnDOF_dep( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
+        const Matrix< DDRMat > & Material_Model::dnDensitydxnDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ASSERT(
@@ -292,7 +292,7 @@ namespace moris
         }
 
         // trivial operation: get values from FI
-        const Matrix< DDRMat > & Material_Model::dnDensitydxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
+        const Matrix< DDRMat > & Material_Model::dnDensitydxnDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofDensity )

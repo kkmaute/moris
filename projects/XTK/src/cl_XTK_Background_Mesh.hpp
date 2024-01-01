@@ -89,7 +89,7 @@ namespace xtk
         /*!
          * Get an mtk vertex
          */
-        Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         get_mtk_vertices( Matrix< IndexMat > const & aVertexIndices );
 
         /*!
@@ -143,10 +143,10 @@ namespace xtk
          */
         void
         batch_create_new_nodes(
-                Cell< moris_index > const &                    aNewNodeIds,
-                Cell< moris_index > const &                    aNewNodeIndices,
-                Cell< moris_index > const &                    aNewNodeOwningProc,
-                Cell< moris::Matrix< moris::DDRMat > > const & aNewNodeCoordinates );
+                Vector< moris_index > const &                    aNewNodeIds,
+                Vector< moris_index > const &                    aNewNodeIndices,
+                Vector< moris_index > const &                    aNewNodeOwningProc,
+                Vector< moris::Matrix< moris::DDRMat > > const & aNewNodeCoordinates );
 
         /*!
          * Batch create a copy node (used in unzipping)
@@ -242,7 +242,7 @@ namespace xtk
          * Package and return all intersected element to node connectivity
          * sorted by phase
          */
-        Cell< moris::Matrix< moris::IdMat > >
+        Vector< moris::Matrix< moris::IdMat > >
         get_non_intersected_element_to_node_by_phase( moris::uint aNumPhases );
 
         /*!
@@ -254,7 +254,7 @@ namespace xtk
         /*!
          * Return all ids of non-intersected elements
          */
-        Cell< moris::Matrix< moris::IdMat > >
+        Vector< moris::Matrix< moris::IdMat > >
         get_all_non_intersected_elements_by_phase( uint aNumPhases ) const;
 
         /*!
@@ -270,7 +270,7 @@ namespace xtk
         // and its children elements
         // -------------------------------------------------------------------
         void
-        register_new_downward_inheritance( Cell< std::pair< moris::moris_index, moris::moris_index > > const & aNewElementToChildMeshPairs );
+        register_new_downward_inheritance( Vector< std::pair< moris::moris_index, moris::moris_index > > const & aNewElementToChildMeshPairs );
 
         /*
          * used after clean up of child mesh and deletion of child meshes to recompute the downward inheritance
@@ -342,7 +342,7 @@ namespace xtk
         /*!
          * get the interface nodes with respect to a given geometry index
          */
-        Cell< moris::Matrix< moris::IdMat > >
+        Vector< moris::Matrix< moris::IdMat > >
         get_interface_nodes_loc_inds() const;
 
         /*!
@@ -358,7 +358,7 @@ namespace xtk
         /*!
          * get the interface nodes with respect to a given geometry index
          */
-        Cell< moris::Matrix< moris::IdMat > >
+        Vector< moris::Matrix< moris::IdMat > >
         get_interface_nodes_glob_ids();
 
         void
@@ -487,8 +487,8 @@ namespace xtk
         add_proc_to_comm_table( moris_index aProcRank );
 
         void
-        remove_cells_from_mesh( Cell< moris_index > const & aCellsToRemove,
-                Cell< moris_index >&                        aOldIndexToNewCellIndex );
+        remove_cells_from_mesh( Vector< moris_index > const & aCellsToRemove,
+                Vector< moris_index >&                        aOldIndexToNewCellIndex );
         /*!
          * Sets up the entity local to global maps
          */
@@ -508,18 +508,18 @@ namespace xtk
         Downward_Inheritance< moris::moris_index, moris::moris_index > mElementDownwardInheritance;
 
         // Local to Global Id Entity Matrix
-        moris::Cell< moris::Cell< moris::moris_index > > mEntityLocaltoGlobalMap;
+        Vector< Vector< moris::moris_index > > mEntityLocaltoGlobalMap;
 
         // communication map
         moris::Matrix< IdMat > mCommunicationMap;
 
         // Elements constructed by the decomposition process mtk Cells
         Mini_Map< moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
-        moris::Cell< moris::mtk::Cell* >  mChildMtkCells;
+        Vector< moris::mtk::Cell* >  mChildMtkCells;
 
         // Vertex constructed by the decomposition process
         std::unordered_map< moris_id, moris_index > mVertexGlbToLocalMap;
-        moris::Cell< moris::mtk::Vertex_XTK >       mXtkMtkVertices;
+        Vector< moris::mtk::Vertex_XTK >       mXtkMtkVertices;
 
         // Associate external node indices to the child meshes they belong to
         // Row - External node index

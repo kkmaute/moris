@@ -21,8 +21,8 @@ namespace moris::fem
 
     void Model_Initializer::create_properties()
     {
-        moris::Cell< ParameterList > tPropParameterList = mParameterList( 0 );
-        uint                         tNumProps          = tPropParameterList.size();
+        Vector< ParameterList > tPropParameterList = mParameterList( 0 );
+        uint                    tNumProps          = tPropParameterList.size();
         mProperties.resize( tNumProps, nullptr );
 
         // loop over the parameter lists
@@ -40,15 +40,15 @@ namespace moris::fem
             mPropertyMap[ tPropertyName ] = iProp;
 
             // set dof dependencies
-            auto tDofTypes = this->property_to_cell_of_cell( tPropParameter, "dof_dependencies", mMSIDofTypeMap );
+            auto tDofTypes = this->property_to_vec_of_vec( tPropParameter, "dof_dependencies", mMSIDofTypeMap );
             tProperty->set_dof_type_list( tDofTypes );
 
             // set dv dependencies
-            auto tDvTypes = property_to_cell_of_cell( tPropParameter, "dv_dependencies", mMSIDvTypeMap );
+            auto tDvTypes = property_to_vec_of_vec( tPropParameter, "dv_dependencies", mMSIDvTypeMap );
             tProperty->set_dv_type_list( tDvTypes );
 
             // set field dependencies
-            auto tFieldTypes = property_to_cell_of_cell( tPropParameter, "field_dependencies", mFieldTypeMap );
+            auto tFieldTypes = property_to_vec_of_vec( tPropParameter, "field_dependencies", mFieldTypeMap );
             tProperty->set_field_type_list( tFieldTypes );
 
             // set function parameters
@@ -65,25 +65,25 @@ namespace moris::fem
             }
 
             // set dof derivative function for property
-            moris::Cell< fem::PropertyFunc > tDofDerFunctions = load_library_property_functions( tPropParameter, "dof_derivative_functions" );
+            Vector< fem::PropertyFunc > tDofDerFunctions = load_library_property_functions( tPropParameter, "dof_derivative_functions" );
             tProperty->set_dof_derivative_functions( tDofDerFunctions );
 
             // set dv derivative function for property
-            moris::Cell< fem::PropertyFunc > tDvDerFunctions = load_library_property_functions( tPropParameter, "dv_derivative_functions" );
+            Vector< fem::PropertyFunc > tDvDerFunctions = load_library_property_functions( tPropParameter, "dv_derivative_functions" );
             tProperty->set_dv_derivative_functions( tDvDerFunctions );
 
             // set space derivative function for property
-            moris::Cell< fem::PropertyFunc > tSpaceDerFunctions = load_library_property_functions( tPropParameter, "space_derivative_functions" );
+            Vector< fem::PropertyFunc > tSpaceDerFunctions = load_library_property_functions( tPropParameter, "space_derivative_functions" );
             tProperty->set_space_der_functions( tSpaceDerFunctions );
 
-            mProperties(iProp) =  tProperty ;
+            mProperties( iProp ) = tProperty;
         }
     }
 
     void Model_Initializer::create_fields()
     {
-        moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
-        sint                         tNumFields          = tFieldParameterList.size();
+        Vector< ParameterList > tFieldParameterList = mParameterList( 6 );
+        sint                    tNumFields          = tFieldParameterList.size();
 
         mFields.resize( tNumFields, nullptr );
 
@@ -108,7 +108,7 @@ namespace moris::fem
                     mtk::get_field_type_map();
 
             // set field type
-            moris::Cell< mtk::Field_Type > tFieldTypes = string_to_cell< mtk::Field_Type >( tFieldParameter.get< std::string >( "field_type" ), tFieldTypeMap );
+            Vector< mtk::Field_Type > tFieldTypes = string_to_cell< mtk::Field_Type >( tFieldParameter.get< std::string >( "field_type" ), tFieldTypeMap );
             tField->set_field_type( tFieldTypes );
 
             mFieldTypes.resize( std::max( static_cast< uint >( tFieldTypes( 0 ) ) + 1, (uint)mFieldTypes.size() ), -1 );
@@ -158,17 +158,17 @@ namespace moris::fem
         }
     }
 
-    moris::Cell< fem::PropertyFunc >
+    Vector< fem::PropertyFunc >
     Model_Initializer::load_library_property_functions( ParameterList const &aParameterList, std::string const &aPropertyName )
     {
-        auto tFuncNames    = string_to_cell< std::string >( aParameterList.get< std::string >( aPropertyName ) );
-        uint tNumFunctions = tFuncNames.size();
-        moris::Cell< fem::PropertyFunc > tPropertyFunctions( tNumFunctions, nullptr );
+        auto                        tFuncNames    = string_to_cell< std::string >( aParameterList.get< std::string >( aPropertyName ) );
+        uint                        tNumFunctions = tFuncNames.size();
+        Vector< fem::PropertyFunc > tPropertyFunctions( tNumFunctions, nullptr );
         for ( uint iFunc = 0; iFunc < tNumFunctions; iFunc++ )
         {
             if ( tFuncNames( iFunc ).size() > 1 )
             {
-                tPropertyFunctions( iFunc ) =  mLibrary->load_function< FEM_Function >( tFuncNames( iFunc ) );
+                tPropertyFunctions( iFunc ) = mLibrary->load_function< FEM_Function >( tFuncNames( iFunc ) );
             }
         }
         return tPropertyFunctions;
@@ -197,7 +197,7 @@ namespace moris::fem
 
 
     template< typename T >
-    Cell< moris::Cell< T > > Model_Initializer::property_to_cell_of_cell( ParameterList const &aParameterList, std::string const &aPropertyName, map< std::string, T > const &aTypeMap ) const
+    Vector< Vector< T > > Model_Initializer::property_to_vec_of_vec( ParameterList const &aParameterList, std::string const &aPropertyName, map< std::string, T > const &aTypeMap ) const
     {
         return string_to_cell_of_cell< T >( aParameterList.get< std::string >( aPropertyName ), aTypeMap );
     }

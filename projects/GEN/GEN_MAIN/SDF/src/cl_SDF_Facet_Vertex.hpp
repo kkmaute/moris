@@ -11,8 +11,8 @@
 #pragma once
 
 #include "assert.hpp"
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Vertex.hpp"
 
 namespace moris

@@ -338,10 +338,10 @@ Vector_Epetra::vec_global_length() const
 
 //----------------------------------------------------------------------------------------------
 
-Cell< moris::real >
+Vector< moris::real >
 Vector_Epetra::vec_norm2()
 {
-    Cell< moris::real > tNorm( mNumVectors, 0.0 );
+    Vector< moris::real > tNorm( mNumVectors, 0.0 );
 
     // get the norm2 of this vector
     mEpetraVector->Norm2( tNorm.data().data() );
@@ -374,7 +374,7 @@ Vector_Epetra::extract_my_values(
         const moris::uint&                      aNumIndices,
         const moris::Matrix< DDSMat >&          aGlobalRows,
         const moris::uint&                      aRowOffsets,
-        moris::Cell< moris::Matrix< DDRMat > >& ExtractedValues )
+        moris::Vector< moris::Matrix< DDRMat > >& ExtractedValues )
 {
     ExtractedValues.resize( mNumVectors );
 

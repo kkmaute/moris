@@ -49,7 +49,7 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
     real tYNormal = 0.0;
     real tZNormal = 0.0;
 
-    Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+    Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
     tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
 
     // Create Mesh --------------------------------------------------------------------
@@ -66,7 +66,7 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
     tXTKModel.setup_diagnostics( true, "./xtk_diag/", "nhcoin1" );
 
     //Specify decomposition Method and Cut Mesh ---------------------------------------
-    Cell< enum Subdivision_Method >
+    Vector< enum Subdivision_Method >
         tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
     tXTKModel.decompose( tDecompositionMethods );
 
@@ -76,10 +76,10 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
 
     // set gold values
     moris::Matrix< moris::DDRMat >                 tGoldCoords( 0, 0 );
-    Cell< moris_index >                            tGoldNumVertex( 0 );
+    Vector< moris_index >                            tGoldNumVertex( 0 );
     std::unordered_map< moris_index, moris_index > tGoldVertexMap;
     moris::Matrix< moris::IndexMat >               tGoldCellConn( 0, 0 );
-    Cell< moris_index >                            tGoldNumCells( 0 );
+    Vector< moris_index >                            tGoldNumCells( 0 );
     std::unordered_map< moris_index, moris_index > tGoldCellMap;
 
     if ( par_size() == 1 )
@@ -582,7 +582,7 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
     real tYNormal = 0.0;
     real tZNormal = 0.0;
 
-    Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+    Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
     tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
 
     // Create Mesh --------------------------------------------------------------------
@@ -599,7 +599,7 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
     tXTKModel.setup_diagnostics( true, "./xtk_diag/", "nhcoin2" );
 
     //Specify decomposition Method and Cut Mesh ---------------------------------------
-    Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+    Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
     tXTKModel.decompose( tDecompositionMethods );
 
     // Access the Cut Mesh-------------------------------------------------------------
@@ -608,10 +608,10 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
 
     // Do some testing
     moris::Matrix< moris::DDRMat >                 tGoldCoords( 0, 0 );
-    Cell< moris_index >                            tGoldNumVertex( 0 );
+    Vector< moris_index >                            tGoldNumVertex( 0 );
     std::unordered_map< moris_index, moris_index > tGoldVertexMap;
     moris::Matrix< moris::IndexMat >               tGoldCellConn( 0, 0 );
-    Cell< moris_index >                            tGoldNumCells( 0 );
+    Vector< moris_index >                            tGoldNumCells( 0 );
     std::unordered_map< moris_index, moris_index > tGoldCellMap;
 
     if ( par_size() == 1 )
@@ -1241,7 +1241,7 @@ TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CON
     real tYNormal = 0.0;
     real tZNormal = 1.0;
 
-    Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+    Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
     tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
 
     // Create Mesh --------------------------------------------------------------------
@@ -1258,7 +1258,7 @@ TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CON
     tXTKModel.setup_diagnostics( true, "./xtk_diag/", "nhcoin3" );
 
     //Specify decomposition Method and Cut Mesh ---------------------------------------
-    Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+    Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
     tXTKModel.decompose( tDecompositionMethods );
 
     // Access the Cut Mesh-------------------------------------------------------------
@@ -1266,10 +1266,10 @@ TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CON
 
     // Do some testing
     moris::Matrix< moris::DDRMat >                 tGoldCoords( 0, 0 );
-    Cell< moris_index >                            tGoldNumVertex( 0 );
+    Vector< moris_index >                            tGoldNumVertex( 0 );
     std::unordered_map< moris_index, moris_index > tGoldVertexMap;
     moris::Matrix< moris::IndexMat >               tGoldCellConn( 0, 0 );
-    Cell< moris_index >                            tGoldNumCells( 0 );
+    Vector< moris_index >                            tGoldNumCells( 0 );
     std::unordered_map< moris_index, moris_index > tGoldCellMap;
 
     if ( par_size() == 1 )

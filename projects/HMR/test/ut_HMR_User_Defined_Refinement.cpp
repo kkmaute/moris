@@ -15,7 +15,7 @@
 
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src
-#include "typedefs.hpp"                    // COR/src
+#include "moris_typedefs.hpp"                    // COR/src
 #include "cl_Matrix.hpp"                   // LINALG/src
 #include "fn_norm.hpp"
 
@@ -216,7 +216,7 @@ namespace moris::hmr
                     tParameters.set_initial_refinement( { { 1 } } );
                     tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-                    Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                    Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                     tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
                     tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -321,7 +321,7 @@ namespace moris::hmr
             tParameters.set_initial_refinement( { { 1 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

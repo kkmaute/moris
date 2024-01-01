@@ -15,7 +15,7 @@
 
 #include "HMR_Globals.hpp"
 #include "HMR_Tools.hpp"
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 
 // -----------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ namespace moris::hmr
             ParameterList     & aFileList )
     {
 
-        Cell< std::string > tKeys;
+        Vector< std::string > tKeys;
 
         tKeys.push_back( "input_mesh_database" );
         tKeys.push_back( "output_mesh_database" );
@@ -54,8 +54,8 @@ namespace moris::hmr
 
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
-        Cell< std::string > tFirst;
-        Cell< std::string > tSecond;
+        Vector< std::string > tFirst;
+        Vector< std::string > tSecond;
 
         // fill parser with values
         tParser.get_keys_from_subtree( "moris.hmr", "files", 0, tFirst, tSecond );
@@ -86,8 +86,8 @@ namespace moris::hmr
     {
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
-        Cell< std::string > tFirst;
-        Cell< std::string > tSecond;
+        Vector< std::string > tFirst;
+        Vector< std::string > tSecond;
         tParser.get_keys_from_subtree( "moris.hmr", "refinement", 0, tFirst, tSecond );
 
         aRefParams.insert( "library", "" );
@@ -138,7 +138,7 @@ namespace moris::hmr
     void
     load_field_parameters_from_xml(
             const std::string       & aFilePath,
-            Cell< ParameterList >   & aFieldParams )
+            Vector< ParameterList >   & aFieldParams )
     {
         // clean up output
         aFieldParams.clear();
@@ -167,8 +167,8 @@ namespace moris::hmr
         // loop over all fields
         for( uint f=0; f<tNumberOfFields; ++f )
         {
-            Cell< std::string > tFirst;
-            Cell< std::string > tSecond;
+            Vector< std::string > tFirst;
+            Vector< std::string > tSecond;
 
             tParser.get_keys_from_subtree( "moris.hmr", "field", f, tFirst, tSecond );
 

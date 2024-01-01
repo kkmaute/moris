@@ -144,7 +144,7 @@ namespace moris
 
         void
         IQI_SP_Crosswind_Incompressible_NS::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type >& aDofType,
+                moris::Vector< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&             adQIdu )
         {
             MORIS_ERROR( false,

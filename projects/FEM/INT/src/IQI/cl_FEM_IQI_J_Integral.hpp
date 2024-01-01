@@ -11,8 +11,8 @@
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_J_INTEGRAL_HPP_
 #define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_J_INTEGRAL_HPP_
 
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -79,7 +79,7 @@ namespace moris
                  * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
                  */
                 void compute_dQIdu(
-                        moris::Cell< MSI::Dof_Type > & aDofType,
+                        Vector< MSI::Dof_Type > & aDofType,
                         Matrix< DDRMat >             & adQIdu )
                 {
                     MORIS_ERROR( false, "IQI_J_Integral::compute_dQIdu() - not implemented for a drag/lift coefficient IQI.");

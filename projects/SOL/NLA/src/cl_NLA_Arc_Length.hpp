@@ -11,7 +11,7 @@
 #ifndef PROJECTS_SOL_NLA_SRC_CL_NLA_ARC_LENGTH_HPP_
 #define PROJECTS_SOL_NLA_SRC_CL_NLA_ARC_LENGTH_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
 #include "cl_TSA_Time_Solver_Algorithm.hpp"
 

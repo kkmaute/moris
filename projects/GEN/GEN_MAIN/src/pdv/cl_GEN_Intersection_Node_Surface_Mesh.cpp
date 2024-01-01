@@ -21,7 +21,7 @@ namespace moris::ge
         const Matrix< DDRMat >&              aFirstParentNodeCoordinates,
         const Matrix< DDRMat >&              aSecondParentNodeCoordinates,
         const Matrix< DDUMat >&              aAncestorNodeIndices,
-        const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates )
+        const Vector< Matrix< DDRMat > >&      aAncestorNodeCoordinates )
         : Intersection_Node(
             compute_local_coordinate(
                 aFirstParentNodeCoordinates,
@@ -66,7 +66,7 @@ namespace moris::ge
     Intersection_Node_Surface_Mesh::compute_local_coordinate( 
         const Matrix< DDRMat >& aFirstParentNodeCoordinates, 
         const Matrix< DDRMat >& aSecondParentNodeCoordinates, 
-        const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates )
+        const Vector< Matrix< DDRMat > >& aAncestorNodeCoordinates )
     {
         switch( mAncestorNodeCoordinates( 0 ).numel() )
         {

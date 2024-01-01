@@ -69,8 +69,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Helmholtz_Interface::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                     moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Helmholtz_Interface::compute_jacobian_and_residual( Vector< Vector< Matrix< DDRMat > > > & aJacobians,
+                                                                     Vector< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, " IWG_Helmholtz_Interface::compute_jacobian_and_residual - Not implemented.");
         }

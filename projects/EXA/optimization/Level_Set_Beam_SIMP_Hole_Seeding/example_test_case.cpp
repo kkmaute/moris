@@ -51,9 +51,9 @@ check_results_serial(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2, 2 };
-    Cell< uint > tReferenceNumNodes = { 10477, 13815 };
-    Cell< uint > tReferenceNumElems = { 8178, 7166 };
+    Vector< uint > tReferenceNumDims  = { 2, 2 };
+    Vector< uint > tReferenceNumNodes = { 10477, 13815 };
+    Vector< uint > tReferenceNumElems = { 8178, 7166 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -107,9 +107,9 @@ check_results_parallel(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims = { 2, 2 };
-    Cell< uint > tReferenceNumNodes;
-    Cell< uint > tReferenceNumElems;
+    Vector< uint > tReferenceNumDims = { 2, 2 };
+    Vector< uint > tReferenceNumNodes;
+    Vector< uint > tReferenceNumElems;
 
     if ( par_rank() == 0 )
     {

@@ -11,9 +11,9 @@
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 
-#include "typedefs.hpp" //MRS/COR/src
+#include "moris_typedefs.hpp" //MRS/COR/src
 #include "cl_Logger.hpp"
-#include "cl_Cell.hpp" //MRS/CNT/src
+#include "cl_Vector.hpp" //MRS/CNT/src
 #include "cl_MTK_Cell.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_MTK_Mesh_Core.hpp"
@@ -40,7 +40,7 @@ class Cell_Proxy: public moris::mtk::Cell
     Cell_Info*           mCellInfo;
     moris_id             mCellId;
     moris_index          mCellInd;
-    moris::Cell<Vertex*> mCellVertices;
+    Vector<Vertex*> mCellVertices;
     Mesh*                mSTKMeshData;
 
     //------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ public:
      *  constructor
      */
     Cell_Proxy(       moris_id               aCellId,
-                const moris::Cell<Vertex*> & aCellVertices ) : mCellId(aCellId),
+                const Vector<Vertex*> & aCellVertices ) : mCellId(aCellId),
                                                                mCellVertices(aCellVertices)
     { };
     //------------------------------------------------------------------------------
@@ -123,9 +123,9 @@ public:
     //------------------------------------------------------------------------------
 
     /**
-     * fills a moris::cell with pointers to connected vertices
+     * fills a Vector with pointers to connected vertices
      */
-    moris::Cell< Vertex* >
+    Vector< Vertex* >
     get_vertex_pointers() const
     {
         return mCellVertices;
@@ -182,15 +182,15 @@ public:
         return tVertexCoords;
     }
 
-    moris::Cell<moris::mtk::Vertex const *>
+    Vector<moris::mtk::Vertex const *>
     get_vertices_on_side_ordinal(moris::moris_index aSideOrdinal) const
     {
     	MORIS_ERROR(false,"");
-        moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
+        Vector< Vertex* > tVertices = this->get_vertex_pointers();
 
         moris::Matrix<moris::IndexMat> tNodeOrdsOnSide = mCellInfo->get_node_to_facet_map(aSideOrdinal);
 
-        moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
+        Vector<moris::mtk::Vertex const *> tVerticesOnSide(tNodeOrdsOnSide.numel());
         for(moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++)
         {
             tVerticesOnSide(i) = tVertices(tNodeOrdsOnSide(i));

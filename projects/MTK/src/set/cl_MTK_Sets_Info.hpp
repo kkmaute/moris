@@ -26,9 +26,9 @@ namespace mtk
 
 struct MtkSetsInfo
 {
-    moris::Cell< MtkNodeSetInfo*  > NodeSetsInfo;
-    moris::Cell< MtkSideSetInfo*  > SideSetsInfo;
-    moris::Cell< MtkBlockSetInfo* > BlockSetsInfo;
+    Vector< MtkNodeSetInfo*  > NodeSetsInfo;
+    Vector< MtkSideSetInfo*  > SideSetsInfo;
+    Vector< MtkBlockSetInfo* > BlockSetsInfo;
 
     MtkSetsInfo():
         NodeSetsInfo( 0, nullptr),
@@ -66,7 +66,7 @@ struct MtkSetsInfo
         return NodeSetsInfo.size();
     }
 
-    moris::Cell< MtkNodeSetInfo* > const &
+    Vector< MtkNodeSetInfo* > const &
     get_node_sets() const
     {
         return NodeSetsInfo;
@@ -87,7 +87,7 @@ struct MtkSetsInfo
         return SideSetsInfo.size();
     }
 
-    moris::Cell< MtkSideSetInfo* > const &
+    Vector< MtkSideSetInfo* > const &
     get_side_sets() const
     {
         return SideSetsInfo;
@@ -108,7 +108,7 @@ struct MtkSetsInfo
         return BlockSetsInfo.size();
     }
 
-    moris::Cell< MtkBlockSetInfo* > const &
+    Vector< MtkBlockSetInfo* > const &
     get_block_sets() const
     {
         return BlockSetsInfo;

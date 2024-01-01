@@ -94,7 +94,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Advection_Strong_Residual::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
+                moris::Vector< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
             MORIS_ERROR(false,

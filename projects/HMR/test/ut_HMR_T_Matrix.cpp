@@ -96,7 +96,7 @@ namespace moris::hmr
                                 MORIS_UINT_MAX );
 
                         // create container of B-Spline meshes
-                        Cell< BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );
+                        Vector< BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );
 
                         // create B-Spline Mesh
                         Lagrange_Mesh_Base* tLagrangeMesh = tFactory.create_lagrange_mesh(
@@ -174,7 +174,7 @@ namespace moris::hmr
 
                         // Calculate T-matrix
                         Matrix< DDRMat > tTMatrixCalculated;
-                        Cell< Basis* >   tBasis;
+                        Vector< Basis* >   tBasis;
                         tTMatrix->calculate_t_matrix( tBSplineMesh->get_element( 0 )->get_memory_index(),
                                 tTMatrixCalculated,
                                 tBasis );

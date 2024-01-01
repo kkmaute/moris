@@ -123,7 +123,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -137,7 +137,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                //------------------------------------------------------------------------------
 //
 //                // input a cell of IWG types to be created
-//                Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::HELMHOLTZ };
+//                Vector< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::HELMHOLTZ };
 //
 //                // number of IWGs to be created
 //                uint tNumOfIWGs = tIWGTypeList.size();
@@ -146,7 +146,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -168,7 +168,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfElements = tMesh->get_num_elems();
 //
 //                // create equation objects
-//                Cell< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
+//                Vector< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
 //
 //                // loop over the mesh elements
 //                for( uint k = 0; k < tNumOfElements; k++ )
@@ -306,7 +306,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //
 //                // 8) Postprocessing
 //                // dof type list for the solution to write on the mesh
-//                moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
+//                Vector< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
 //
 //                // create a matrix to be filled  with the solution
 //                Matrix< DDRMat > tVXSolutionField( tNumOfNodes, 1 );
@@ -481,7 +481,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -495,7 +495,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                //------------------------------------------------------------------------------
 //
 //                // input a cell of IWG types to be created
-//                Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::HELMHOLTZ };
+//                Vector< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::HELMHOLTZ };
 //
 //                // number of IWGs to be created
 //                uint tNumOfIWGs = tIWGTypeList.size();
@@ -504,7 +504,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -528,7 +528,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfElements = tMesh->get_num_elems();
 //
 //                // create equation objects
-//                Cell< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
+//                Vector< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
 //
 //                // loop over the mesh elements
 //                for( uint k = 0; k < tNumOfElements; k++ )
@@ -660,7 +660,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //
 //                // 8) Postprocessing
 //                // dof type list for the solution to write on the mesh
-//                moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
+//                Vector< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
 //
 //                // create a matrix to be filled  with the solution
 //                Matrix< DDRMat > tVXSolutionField( tNumOfNodes, 1 );
@@ -788,7 +788,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -802,7 +802,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                //------------------------------------------------------------------------------
 //
 //                // input a cell of IWG types to be created
-//                Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::HELMHOLTZ };
+//                Vector< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::HELMHOLTZ };
 //
 //                // number of IWGs to be created
 //                uint tNumOfIWGs = tIWGTypeList.size();
@@ -811,7 +811,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -831,7 +831,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfElements = tMesh->get_num_elems();
 //
 //                // create equation objects
-//                Cell< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
+//                Vector< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
 //
 //                // loop over the mesh elements
 //                for( uint k = 0; k < tNumOfElements; k++ )
@@ -964,7 +964,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //
 //                // 8) Postprocessing
 //                // dof type list for the solution to write on the mesh
-//                moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
+//                Vector< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
 //
 //                // create a matrix to be filled  with the solution
 //                Matrix< DDRMat > tVXSolutionField( tNumOfNodes, 1 );
@@ -1073,7 +1073,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -1087,7 +1087,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                //------------------------------------------------------------------------------
 //
 //                // input a cell of IWG types to be created
-//                Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::L2 };
+//                Vector< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::L2 };
 //
 //                // number of IWGs to be created
 //                uint tNumOfIWGs = tIWGTypeList.size();
@@ -1096,7 +1096,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -1115,7 +1115,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfElements = tMesh->get_num_elems();
 //
 //                // create equation objects
-//                Cell< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
+//                Vector< MSI::Equation_Object* > tElements( tNumOfElements, nullptr );
 //
 //                // loop over the mesh elements
 //                for( uint k = 0; k < tNumOfElements; k++ )

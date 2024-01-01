@@ -11,7 +11,7 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_VERTEX_UNZIPPED_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_VERTEX_UNZIPPED_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"
 
 #include "cl_XTK_Vertex_Enrichment.hpp"
@@ -36,7 +36,7 @@ namespace xtk
         moris_index mVertexOwner;
 
         // interpolation of vertex
-        Cell< Vertex_Enrichment* > mInterpolation;    // Vertex Enrichment owned by ip mesh
+        Vector< Vertex_Enrichment* > mInterpolation;    // Vertex Enrichment owned by ip mesh
 
       public:
         Interpolation_Vertex_Unzipped(){};

@@ -17,8 +17,8 @@ namespace moris::mtk
 {
     QuadraturePointMapper_Ray::QuadraturePointMapper_Ray(
             Integration_Mesh                                           *aIGMesh,
-            moris::Cell< Side_Set const * >                            &aSideSets,
-            moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs )
+            Vector< Side_Set const * >                            &aSideSets,
+            Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs )
             : QuadraturePointMapper( aIGMesh, aSideSets, aCandidatePairs )
             , mSurfaceMeshes( initialize_surface_meshes( aIGMesh, aSideSets ) )
             , mSpatialIndexer( mSurfaceMeshes, mCandidatePairs )
@@ -32,15 +32,15 @@ namespace moris::mtk
         write_json( "surface_meshes.json", tSurfaceMeshes );
     }
 
-    moris::Cell< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes(
+    Vector< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes(
             Integration_Mesh const                *aIGMesh,
-            moris::Cell< Side_Set const * > const &aSideSets )
+            Vector< Side_Set const * > const &aSideSets )
     {
-        moris::Cell< Surface_Mesh > tSurfaceMeshes;
+        Vector< Surface_Mesh > tSurfaceMeshes;
         for ( auto const &tSideSet : aSideSets )
         {
             // initialize one surface mesh per side set
-            moris::Cell< mtk::Side_Set const * > tSideSetCast{ tSideSet };
+            Vector< mtk::Side_Set const * > tSideSetCast{ tSideSet };
             Surface_Mesh                         tSurfaceMesh( aIGMesh, tSideSetCast );
             tSurfaceMeshes.push_back( tSurfaceMesh );
         }
@@ -232,7 +232,7 @@ namespace moris::mtk
                 if ( aSpatialIndexingResult[ tVertex ].mesh_index == tTargetMeshIndex )
                 {
                     moris_index const          tClosestVertex    = aSpatialIndexingResult[ tVertex ].vertex;
-                    moris::Cell< moris_index > tNeighboringCells = tTargetMesh.get_cells_of_vertex( tClosestVertex );
+                    Vector< moris_index > tNeighboringCells = tTargetMesh.get_cells_of_vertex( tClosestVertex );
                     tPotentialTargetCells.insert( tNeighboringCells.begin(), tNeighboringCells.end() );
                 }
             }

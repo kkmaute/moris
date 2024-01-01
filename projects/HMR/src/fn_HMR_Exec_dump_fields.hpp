@@ -16,8 +16,8 @@
 #include "cl_HMR.hpp"
 #include "cl_HMR_Arguments.hpp"
 #include "assert.hpp"
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -27,13 +27,13 @@ namespace moris::hmr
 {
 //--------------------------------------------------------------------------------
 
-    void dump_fields( const Paramfile & aParams, Cell< std::shared_ptr< Field > > & aFields )
+    void dump_fields( const Paramfile & aParams, Vector< std::shared_ptr< Field > > & aFields )
     {
         // before we dump the fields, we must find out if they are all
         // written into the same output database or not
         // we create a cell of strings
 
-        Cell< std::string > tOutputFiles;
+        Vector< std::string > tOutputFiles;
 
         uint tNumberOfFields = aParams.get_number_of_fields();
 
@@ -64,7 +64,7 @@ namespace moris::hmr
         Matrix< DDUMat > tFileFlags( tNumberOfFiles, 1, 0 );
 
         // Cell of file IDs
-        Cell< hid_t > tFileIDs( tNumberOfFiles, 0 );
+        Vector< hid_t > tFileIDs( tNumberOfFiles, 0 );
 
         // loop over all fields
         for(  std::shared_ptr< Field > tField : aFields )

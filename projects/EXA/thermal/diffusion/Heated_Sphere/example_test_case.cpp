@@ -69,11 +69,11 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 3, 3, 3, 3 };
-    Cell< uint > tReferenceNumNodes = { 0, 0, 0, 0 };
-    Cell< uint > tReferenceNumElems = { 0, 0, 0, 0 };
+    Vector< uint > tReferenceNumDims  = { 3, 3, 3, 3 };
+    Vector< uint > tReferenceNumNodes = { 0, 0, 0, 0 };
+    Vector< uint > tReferenceNumElems = { 0, 0, 0, 0 };
 
-    Cell< uint > tReferenceNodeId = { 0, 0, 0, 0 };
+    Vector< uint > tReferenceNodeId = { 0, 0, 0, 0 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -98,7 +98,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumNodes( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { +7.600000000000002e-01 }, { +2.422727272727273e-01 } } );
 
@@ -123,7 +123,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-8 );
 
     // check time value for time step index 0
-    Cell< real > tReferenceTime;
+    Vector< real > tReferenceTime;
     tReferenceTime.push_back( 1.000000000000000e+00 );
 
     real tActualTime = tExoIO.get_time_value();
@@ -138,7 +138,7 @@ check_results(
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    Cell< real > tReferenceTemperature;
+    Vector< real > tReferenceTemperature;
     tReferenceTemperature.push_back( 8.670906164633136e+04 );
 
     real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 );
@@ -154,7 +154,7 @@ check_results(
     REQUIRE( tRelTempDifference < 1.0e-4 );
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
-    Cell< real > tReferenceIQI;
+    Vector< real > tReferenceIQI;
     tReferenceIQI.push_back( 8.324886510380027e+04 );
 
     real tActualIQI = tExoIO.get_global_variable( 0, 0 );

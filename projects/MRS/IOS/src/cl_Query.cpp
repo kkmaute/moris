@@ -22,10 +22,10 @@
 #include "fn_assert.hpp"
 
 // Define Cells
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // Define uint, real, etc.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 // Define enums used
 #include "cl_Tracer_Enums.hpp"

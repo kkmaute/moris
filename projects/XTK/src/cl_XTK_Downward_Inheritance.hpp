@@ -15,7 +15,7 @@
 #include <limits>
 #include <unordered_map>
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "assert.hpp"
 
 namespace xtk

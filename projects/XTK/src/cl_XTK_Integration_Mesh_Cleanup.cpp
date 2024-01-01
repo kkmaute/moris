@@ -11,7 +11,7 @@
 #include "cl_XTK_Integration_Mesh_Cleanup.hpp"
 
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_XTK_Cell_No_CM.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "fn_dot.hpp"
@@ -120,7 +120,7 @@ namespace xtk
     {
 
         // vertex index corresponds to the bulk phase of one of its attached cells
-        moris::Cell< moris_index > VertBlkPhase;
+        moris::Vector< moris_index > VertBlkPhase;
         VertBlkPhase.resize( mNumVerts, -1 );
 
         mBlkPhaseBoundary.resize( mNumVerts, false );
@@ -158,7 +158,7 @@ namespace xtk
         mOwnedVertices.resize( mNumVerts, true );
 
 
-        moris::Cell< moris_index > tNotOwnedIgCells;
+        moris::Vector< moris_index > tNotOwnedIgCells;
         tNotOwnedIgCells.reserve( mInputMesh->mIntegrationCells.size() );
 
         mNotOwnedIgCellIds.reserve( mInputMesh->mIntegrationCells.size() );
@@ -248,11 +248,11 @@ namespace xtk
     Integration_Mesh_Cleanup::calcInvert( moris_index aVert1, moris_index aVert2 )
     {
         // cell indices attached to aVert1
-        moris::Cell< moris_index > tCells = this->mVertIndToCells( aVert1 );
+        moris::Vector< moris_index > tCells = this->mVertIndToCells( aVert1 );
         tCells.remove( MORIS_INDEX_MAX );
 
         // flag, if merging aVert1 to aVert2 results in the inversion of a cell
-        moris::Cell< bool_t > tinverts;
+        moris::Vector< bool_t > tinverts;
         tinverts.reserve( tCells.size() );
 
         // sign of determinant of tri/tet vertices
@@ -283,7 +283,7 @@ namespace xtk
             if ( !duplicate )
             {
 
-                moris::Cell< moris::Matrix< DDRMat > > tCoords;
+                moris::Vector< moris::Matrix< DDRMat > > tCoords;
                 tCoords.resize( mInputMesh->get_spatial_dim() + 1 );
 
                 // get vertex coordinates of cell being analyzed
@@ -378,7 +378,7 @@ namespace xtk
     Integration_Mesh_Cleanup::delauny( moris_index aVert1, moris_index aVert2 )
     {
         // indices of cells attached to vertex of index aVert1
-        moris::Cell< moris_index > tCells = this->mVertIndToCells( aVert1 );
+        moris::Vector< moris_index > tCells = this->mVertIndToCells( aVert1 );
 
         tCells.remove( MORIS_INDEX_MAX );
 
@@ -409,7 +409,7 @@ namespace xtk
             if ( !duplicate )
             {
 
-                moris::Cell< moris::Matrix< DDRMat > > tCoords;
+                moris::Vector< moris::Matrix< DDRMat > > tCoords;
                 tCoords.resize( mInputMesh->get_spatial_dim() + 1 );
 
                 // replace aVert1 with aVert2 in tCoords, to analyze the resulting triangle/tet
@@ -543,11 +543,11 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Cell< moris_index >
+    moris::Vector< moris_index >
     Integration_Mesh_Cleanup::check_flats()
     {
 
-        moris::Cell< moris_index > tFlats;
+        moris::Vector< moris_index > tFlats;
         tFlats.reserve( mInputMesh->mIntegrationCells.size() );
 
         // go through controlled ig cells
@@ -578,9 +578,9 @@ namespace xtk
 
     // merges all coincident vertices
     void
-    Integration_Mesh_Cleanup::check_coinc_verts( moris::Cell< moris_index > aFlats, moris::Cell< moris::mtk::Cell* >& aActiveIgCells )
+    Integration_Mesh_Cleanup::check_coinc_verts( moris::Vector< moris_index > aFlats, moris::Vector< moris::mtk::Cell* >& aActiveIgCells )
     {
-        // moris::Cell<moris::Cell<moris_index>> MergeVerts;
+        // Vector<Vector<moris_index>> MergeVerts;
         // MergeVerts.reserve(mInputMesh->mIntegrationCells.size());
         int iC = 0;
         while ( (uint)iC < mInputMesh->mIntegrationCells.size() )
@@ -686,7 +686,7 @@ namespace xtk
 
 
     void
-    Integration_Mesh_Cleanup::merge( moris_index Vert1, moris_index Vert2, moris::Cell< moris::mtk::Cell* >& aActiveIgCells )
+    Integration_Mesh_Cleanup::merge( moris_index Vert1, moris_index Vert2, moris::Vector< moris::mtk::Cell* >& aActiveIgCells )
     {
 
 
@@ -837,14 +837,14 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Cleanup::shift_indices( moris::Cell< moris::mtk::Cell* >& aActiveIgCells )
+    Integration_Mesh_Cleanup::shift_indices( moris::Vector< moris::mtk::Cell* >& aActiveIgCells )
     {
 
 
         // Cells ----------------------------------------------------------------------------------
 
         // get merged vertex ids and nullify vertex pointers in mIntegrationVertices
-        moris::Cell< moris_id > tMergeIds;
+        moris::Vector< moris_id > tMergeIds;
         tMergeIds.resize( mMergeInds.size(), -1 );
         for ( moris_index iV = 0; (uint)iV < mMergeInds.size(); iV++ )
         {
@@ -853,7 +853,7 @@ namespace xtk
         }
 
         // get merged cell ids
-        moris::Cell< moris_id > tCellMergeIds;
+        moris::Vector< moris_id > tCellMergeIds;
         tCellMergeIds.resize( mCellMergeInds.size(), -1 );
         for ( moris_index iC = 0; (uint)iC < mCellMergeInds.size(); iC++ )
         {
@@ -925,7 +925,7 @@ namespace xtk
                 else if ( mVertIndToCells( iV )( iC ) > mCellMergeInds( 0 ) )
                 {
                     // indices are shifted based on their position in the merged cells
-                    moris::Cell< moris_index > tvector = mCellMergeInds;    // maybe implement a cell of index to new index instead of repeating this
+                    moris::Vector< moris_index > tvector = mCellMergeInds;    // maybe implement a cell of index to new index instead of repeating this
                     tvector.push_back( mVertIndToCells( iV )( iC ) );
                     std::sort( tvector.begin(), tvector.end() );
 
@@ -1128,7 +1128,7 @@ namespace xtk
                 }
                 else if ( mVertIndToVerts( iV )( ivV ) > mMergeInds( 0 ) )    // check if mMergeInds is sorted? or use minimum here
                 {
-                    moris::Cell< moris_index > tvector = mMergeInds;    // maybe a cell of index to new index instead of repeating this
+                    moris::Vector< moris_index > tvector = mMergeInds;    // maybe a cell of index to new index instead of repeating this
                     tvector.push_back( mVertIndToVerts( iV )( ivV ) );
                     std::sort( tvector.begin(), tvector.end() );
 
@@ -1230,19 +1230,19 @@ namespace xtk
             MORIS_ASSERT( mInputFacetConnectivity->mCellIndexToCellOrdinal.at( mCellMergeInds( iC ) ) == MORIS_INDEX_MAX, "Error" );
             mInputFacetConnectivity->mCellIndexToCellOrdinal.erase( mCellMergeInds( iC ) );
         }
-        moris::Cell< moris_index > oldOrds;
+        moris::Vector< moris_index > oldOrds;
         oldOrds.reserve( mInputFacetConnectivity->mCellIndexToCellOrdinal.size() );
         for ( std::pair< moris_id, moris_index > el : mInputFacetConnectivity->mCellIndexToCellOrdinal )
         {
             oldOrds.push_back( el.second );
         }
 
-        moris::Cell< moris_index > transOrds;
+        moris::Vector< moris_index > transOrds;
         transOrds.resize( oldOrds.size(), -1 );
         std::iota( transOrds.begin(), transOrds.end(), 0 );
         std::sort( transOrds.begin(), transOrds.end(), [ & ]( moris_index i, moris_index j ) { return oldOrds( i ) < oldOrds( j ); } );
 
-        moris::Cell< moris_index > newOrds;
+        moris::Vector< moris_index > newOrds;
         newOrds.resize( oldOrds.size(), -1 );
         for ( moris_index iO = 0; (uint)iO < oldOrds.size(); iO++ )
         {
@@ -1251,7 +1251,7 @@ namespace xtk
 
         std::unordered_map< moris_id, moris_index > tNewMap;
 
-        moris::Cell< moris_id > newKeys;
+        moris::Vector< moris_id > newKeys;
         newKeys.resize( newOrds.size(), -1 );
 
 
@@ -1266,7 +1266,7 @@ namespace xtk
             }
             else if ( el.first > mCellMergeInds( 0 ) )    // check if mCellMergeInds is sorted? or use minimum here
             {
-                moris::Cell< moris_index > tvector = mCellMergeInds;    // maybe a cell of index to new index instead of repeating this
+                moris::Vector< moris_index > tvector = mCellMergeInds;    // maybe a cell of index to new index instead of repeating this
                 tvector.push_back( el.first );
                 std::sort( tvector.begin(), tvector.end() );
 
@@ -1315,7 +1315,7 @@ namespace xtk
                 }
                 else if ( mInputFacetConnectivity->mCellToFacet( iC )( iF ) > tFacetMergeMin )
                 {
-                    moris::Cell< moris_index > tvector = mFacetMergeInds;    // maybe a cell of index to new index instead of repeating this
+                    moris::Vector< moris_index > tvector = mFacetMergeInds;    // maybe a cell of index to new index instead of repeating this
                     tvector.push_back( mInputFacetConnectivity->mCellToFacet( iC )( iF ) );
                     std::sort( tvector.begin(), tvector.end() );
 
@@ -1402,14 +1402,14 @@ namespace xtk
     Integration_Mesh_Cleanup::get_attached_vertex( moris_index aVert1 )
     {
         // list of attached vertices (indices)
-        moris::Cell< moris_index > attachedNodes = mVertIndToVerts( aVert1 );
+        moris::Vector< moris_index > attachedNodes = mVertIndToVerts( aVert1 );
 
         // list of minimum angles created by merging to attached vertex
-        moris::Cell< double > tAttachedVertsAngle;
+        moris::Vector< double > tAttachedVertsAngle;
         tAttachedVertsAngle.reserve( attachedNodes.size() );
 
         // flag if merge inverts a cell, true if no cell is inverted
-        moris::Cell< bool_t > tAttachedVertsFlag;
+        moris::Vector< bool_t > tAttachedVertsFlag;
         tAttachedVertsFlag.reserve( attachedNodes.size() );
 
         // fill angle list and flags for all attached vertices
@@ -1504,7 +1504,7 @@ namespace xtk
             {
                 for ( moris_index ivV = 0; (uint)ivV < mVertIndToVerts( mVertIndToVerts( aVert1 )( iV ) ).size(); ivV++ )
                 {
-                    moris::Cell< moris_index > tattachedCells = mVertIndToVerts( mVertIndToVerts( aVert1 )( iV ) );
+                    moris::Vector< moris_index > tattachedCells = mVertIndToVerts( mVertIndToVerts( aVert1 )( iV ) );
                     if ( std::find( tattachedCells.begin(), tattachedCells.end(), aVert2 ) == tattachedCells.end() && mVertIndToVerts( aVert1 )( iV ) != aVert2 )
                     {
                         mVertIndToVerts( mVertIndToVerts( aVert1 )( iV ) ).push_back( aVert2 );
@@ -1546,8 +1546,8 @@ namespace xtk
                 tCommunicationList( iProc ) = iProc;
             }
 
-            Cell< Matrix< IdMat > > tRequestNotOwnedCellIds( tCommSize );
-            Cell< Matrix< IdMat > > tRequestNotOwnedCellVerts( tCommSize );
+            Vector< Matrix< IdMat > > tRequestNotOwnedCellIds( tCommSize );
+            Vector< Matrix< IdMat > > tRequestNotOwnedCellVerts( tCommSize );
 
 
             int dim = mInputMesh->get_spatial_dim();
@@ -1566,8 +1566,8 @@ namespace xtk
             }
 
             // communication data being received
-            Cell< Matrix< IdMat > > tReceivedNotOwnedCellIds;
-            Cell< Matrix< IdMat > > tReceivedNotOwnedCellVerts;
+            Vector< Matrix< IdMat > > tReceivedNotOwnedCellIds;
+            Vector< Matrix< IdMat > > tReceivedNotOwnedCellVerts;
 
             // communicate between processors
             communicate_mats( tCommunicationList, tRequestNotOwnedCellIds, tReceivedNotOwnedCellIds );
@@ -1607,7 +1607,7 @@ namespace xtk
     void
     Integration_Mesh_Cleanup::make_GenMeshMap( moris::ge::Geometry_Engine* aGeometryEngine )
     {
-        moris::Cell< moris_index > GenMeshMap;
+        moris::Vector< moris_index > GenMeshMap;
         GenMeshMap.reserve( mNumVerts );
 
         for ( moris_index iV = 0; (uint)iV < mNumVerts; iV++ )
@@ -1625,7 +1625,7 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Cleanup::merge_list( moris::Cell< moris::mtk::Cell* >& aActiveIgCells )
+    Integration_Mesh_Cleanup::merge_list( moris::Vector< moris::mtk::Cell* >& aActiveIgCells )
     {
 
         // allocate lists of indices (cells, facets, vertices) being merged
@@ -1667,7 +1667,7 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Cleanup::perform( moris::Cell< moris::mtk::Cell* >& aActiveIgCells, moris::ge::Geometry_Engine* aGeometryEngine )
+    Integration_Mesh_Cleanup::perform( moris::Vector< moris::mtk::Cell* >& aActiveIgCells, moris::ge::Geometry_Engine* aGeometryEngine )
     {
 
         // mFlats = this->check_flats(); //checks for degenerate cells

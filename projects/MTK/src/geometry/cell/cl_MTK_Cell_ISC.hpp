@@ -13,8 +13,8 @@
 
 #include "cl_MTK_Cell.hpp"
 
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -28,7 +28,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
           private:
-            moris::Cell< mtk::Vertex* > mCellVertices;
+            Vector< mtk::Vertex* > mCellVertices;
 
             //------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ namespace moris
                     moris::moris_index                aCellIndex,
                     moris::moris_id                   aCellOwner,
                     std::shared_ptr< mtk::Cell_Info > aCellInfo,
-                    moris::Cell< mtk::Vertex* >       aVertices );
+                    Vector< mtk::Vertex* >       aVertices );
 
             //------------------------------------------------------------------------------
 
@@ -71,10 +71,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * fills a moris::cell with pointers to connected vertices
+             * fills a Vector with pointers to connected vertices
              */
             // FIXME: SDF's Facet_Vertex causes this to not be able to return a reference.
-            moris::Cell< mtk::Vertex* >
+            Vector< mtk::Vertex* >
             get_vertex_pointers() const
             {
                 return mCellVertices;

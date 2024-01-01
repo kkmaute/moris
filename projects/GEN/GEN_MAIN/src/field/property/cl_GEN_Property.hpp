@@ -22,7 +22,7 @@ namespace moris
         {
         private:
             Property_Parameters mParameters;
-            Cell<std::string> mDependencies;
+            Vector<std::string> mDependencies;
 
         public:
 
@@ -46,7 +46,7 @@ namespace moris
              *
              * @param aAllUpdatedFields All fields (this property will take the ones it needs)
              */
-            void update_dependencies(Cell<std::shared_ptr<Field>> aAllUpdatedFields);
+            void update_dependencies(Vector<std::shared_ptr<Field>> aAllUpdatedFields);
 
             /**
              * Gets the PDV type that this property defines.
@@ -74,7 +74,7 @@ namespace moris
              *
              * @return Mesh set names
              */
-            Cell<std::string> get_pdv_mesh_set_names();
+            Vector<std::string> get_pdv_mesh_set_names();
 
         private:
 
@@ -84,7 +84,7 @@ namespace moris
              *
              * @param aDependencyFields Fields that this property depends on.
              */
-            virtual void set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields);
+            virtual void set_dependencies(Vector<std::shared_ptr<Field>> aDependencyFields);
 
         };
     }

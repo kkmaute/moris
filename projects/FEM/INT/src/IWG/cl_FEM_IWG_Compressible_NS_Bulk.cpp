@@ -283,7 +283,7 @@ namespace moris
             // this->compute_jacobian_FD( aWStar, aPerturbation );
             {
                 // get the FD scheme info
-                moris::Cell< moris::Cell< real > > tFDScheme;
+                moris::Vector< moris::Vector< real > > tFDScheme;
                 fd_scheme( fem::FDScheme_Type::POINT_5, tFDScheme );
                 uint tNumFDPoints = tFDScheme( 0 ).size();
 
@@ -297,7 +297,7 @@ namespace moris
                     uint tDofCounter = 0;
 
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iFI );
+                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iFI );
 
                     // get the index for the dof type
                     sint tLeaderDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );

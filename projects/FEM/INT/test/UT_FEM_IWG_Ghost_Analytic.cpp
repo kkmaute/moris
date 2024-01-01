@@ -51,13 +51,13 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -65,7 +65,7 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
     Matrix< DDUMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes  = { { MSI::Dof_Type::TEMP } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes  = { { MSI::Dof_Type::TEMP } };
 
     //------------------------------------------------------------------------------
     // initialize the IWG
@@ -198,7 +198,7 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             fill_u_hat_leader( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator temperature
             tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDofTypes( 0 ) );
@@ -209,7 +209,7 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             fill_u_hat_follower( tFollowerDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator temperature
             tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDofTypes( 0 ) );
@@ -245,8 +245,8 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
+            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

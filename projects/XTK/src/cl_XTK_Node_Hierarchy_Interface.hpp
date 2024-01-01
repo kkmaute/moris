@@ -131,16 +131,16 @@ class Node_Hierarchy_Interface : public Decomposition_Algorithm
      */
     void
     select_ig_cell_groups(
-        moris::Cell<std::shared_ptr<IG_Cell_Group>> & aIgCellGroups);
+        Vector<std::shared_ptr<IG_Cell_Group>> & aIgCellGroups);
 
     bool
     determine_intersected_edges_and_make_requests(
             std::shared_ptr<Edge_Based_Connectivity>       aEdgeConnectivity,
             std::shared_ptr<Edge_Based_Ancestry>           aIgEdgeAncestry,
-            moris::Cell<moris::mtk::Cell*>*                aBackgroundCellForEdge,
-            moris::Cell<std::shared_ptr<IG_Vertex_Group>> *aVertexGroups,
-            moris::Cell<moris_index>                      &aIntersectedEdges,
-            moris::Cell<moris::real>                      &aEdgeLocalCoordinate  );
+            Vector<moris::mtk::Cell*>*                aBackgroundCellForEdge,
+            Vector<std::shared_ptr<IG_Vertex_Group>> *aVertexGroups,
+            Vector<moris_index>                      &aIntersectedEdges,
+            Vector<moris::real>                      &aEdgeLocalCoordinate  );
 
     /**
      * @brief Creates unique id for an edge based on the IDs of its two end vertices
@@ -151,61 +151,61 @@ class Node_Hierarchy_Interface : public Decomposition_Algorithm
      */
 
     moris_index
-    hash_edge(moris::Cell<moris::mtk::Vertex*> const & aEdgeVertices);
+    hash_edge(Vector<moris::mtk::Vertex*> const & aEdgeVertices);
 
     bool
     associate_new_vertices_with_cell_groups(
         std::shared_ptr<Edge_Based_Connectivity>       aEdgeConnectivity,
         std::shared_ptr<Edge_Based_Ancestry>           aIgEdgeAncestry,
-        moris::Cell<moris::mtk::Cell*>                *aBackgroundCellForEdge,
-        moris::Cell<std::shared_ptr<IG_Vertex_Group>> *aVertexGroups,
-        moris::Cell<moris_index>                      *aIntersectedEdges,
-        moris::Cell<moris::real>                      *aEdgeLocalCoordinate );
+        Vector<moris::mtk::Cell*>                *aBackgroundCellForEdge,
+        Vector<std::shared_ptr<IG_Vertex_Group>> *aVertexGroups,
+        Vector<moris_index>                      *aIntersectedEdges,
+        Vector<moris::real>                      *aEdgeLocalCoordinate );
 
     void
     create_node_hierarchy_integration_cells(
         std::shared_ptr<Edge_Based_Connectivity>       aEdgeConnectivity,
         std::shared_ptr<Edge_Based_Ancestry>           aIgEdgeAncestry,
-        moris::Cell<moris_index>                      *aIntersectedEdges);
+        Vector<moris_index>                      *aIntersectedEdges);
 
     void
     determine_intersected_cell_information(
         std::shared_ptr<Edge_Based_Connectivity>                        aEdgeConnectivity,
-        moris::Cell<moris_index>                                       *aIntersectedEdges,
-        moris::Cell<std::shared_ptr<moris::Cell<moris_index>>>         *aCellIndexIntersectedEdgeOrdinals,
-        moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex );
+        Vector<moris_index>                                       *aIntersectedEdges,
+        Vector<std::shared_ptr<Vector<moris_index>>>         *aCellIndexIntersectedEdgeOrdinals,
+        Vector<std::shared_ptr<Vector<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex );
 
     moris_index
     select_node_hier_2d_template(
-    moris::Cell<std::shared_ptr<moris::Cell<moris_index>>>         *aCellIndexIntersectedEdgeOrdinals,
-    moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex,
-    moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aNodesForTemplates,
-    moris::Cell<std::shared_ptr<Node_Hierarchy_Template>>          *aNHTemplate );
+    Vector<std::shared_ptr<Vector<moris_index>>>         *aCellIndexIntersectedEdgeOrdinals,
+    Vector<std::shared_ptr<Vector<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex,
+    Vector<std::shared_ptr<Vector<moris::mtk::Vertex*>>> *aNodesForTemplates,
+    Vector<std::shared_ptr<Node_Hierarchy_Template>>          *aNHTemplate );
 
     moris_index
     select_node_hier_3d_template(
-    moris::Cell<std::shared_ptr<moris::Cell<moris_index>>>         *aCellIndexIntersectedEdgeOrdinals,
-    moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex,
-    moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aNodesForTemplates,
-    moris::Cell<std::shared_ptr<Node_Hierarchy_Template>>          *aNHTemplate );
+    Vector<std::shared_ptr<Vector<moris_index>>>         *aCellIndexIntersectedEdgeOrdinals,
+    Vector<std::shared_ptr<Vector<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex,
+    Vector<std::shared_ptr<Vector<moris::mtk::Vertex*>>> *aNodesForTemplates,
+    Vector<std::shared_ptr<Node_Hierarchy_Template>>          *aNHTemplate );
 
     void
     sort_nodes_2d(
         moris::mtk::Cell const *                          aIgCell,
         Matrix<IndexMat>                                 *aEdgeToVertexOrdinalMap,
-        std::shared_ptr<moris::Cell<moris_index>>         aCellIndexIntersectedEdgeOrdinals,
-        std::shared_ptr<moris::Cell<moris::mtk::Vertex*>> aCellIndexIntersectedEdgeVertex,
+        std::shared_ptr<Vector<moris_index>>         aCellIndexIntersectedEdgeOrdinals,
+        std::shared_ptr<Vector<moris::mtk::Vertex*>> aCellIndexIntersectedEdgeVertex,
         moris_index &                                     aPermutation,
-        std::shared_ptr<moris::Cell<moris::mtk::Vertex*>> aSortedNodeInds);
+        std::shared_ptr<Vector<moris::mtk::Vertex*>> aSortedNodeInds);
 
     void
     sort_nodes_3d(
         moris::mtk::Cell const *                          aIgCell,
         Matrix<IndexMat>                                 *aEdgeToVertexOrdinalMap,
-        std::shared_ptr<moris::Cell<moris_index>>         aCellIndexIntersectedEdgeOrdinals,
-        std::shared_ptr<moris::Cell<moris::mtk::Vertex*>> aCellIndexIntersectedEdgeVertex,
+        std::shared_ptr<Vector<moris_index>>         aCellIndexIntersectedEdgeOrdinals,
+        std::shared_ptr<Vector<moris::mtk::Vertex*>> aCellIndexIntersectedEdgeVertex,
         moris_index &                                     aPermutation,
-        std::shared_ptr<moris::Cell<moris::mtk::Vertex*>> aSortedNodeInds);
+        std::shared_ptr<Vector<moris::mtk::Vertex*>> aSortedNodeInds);
 
 };
 

@@ -13,7 +13,7 @@ namespace moris::mtk
     class Spatial_Indexer_BruteForce : public Spatial_Indexer
     {
       public:    // constructors
-        Spatial_Indexer_BruteForce( moris::Cell< mtk::Surface_Mesh > const &aSurfaceMeshes, const moris::Cell< std::pair< moris_index, moris_index > > &aSurfacePairs )
+        Spatial_Indexer_BruteForce( Vector< mtk::Surface_Mesh > const &aSurfaceMeshes, const Vector< std::pair< moris_index, moris_index > > &aSurfacePairs )
                 : Spatial_Indexer( aSurfaceMeshes, aSurfacePairs ){};
 
         // methods

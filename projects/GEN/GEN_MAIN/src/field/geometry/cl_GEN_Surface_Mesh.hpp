@@ -37,7 +37,7 @@ namespace moris::ge
              * @param aSecondParentGlobalCoordinates Global coordinates of the second parent node queued for intersection
              * @return Cell where each entry is a matrix with an ancestor node coordinate
              */
-            Cell< Matrix< DDRMat > >
+            Vector< Matrix< DDRMat > >
             get_candidate_intersection_nodes( 
                 const Matrix< DDRMat >&         aFirstParentGlobalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentGlobalCoordinates );

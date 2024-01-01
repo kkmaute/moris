@@ -47,7 +47,7 @@ namespace moris::hmr
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster_HMR::add_primary_integration_cell(moris::Cell<moris::mtk::Cell  const *> const & aIntegrationCell)
+    Cell_Cluster_HMR::add_primary_integration_cell(moris::Vector<moris::mtk::Cell  const *> const & aIntegrationCell)
     {
         mPrimaryIntegrationCells.append( aIntegrationCell );
     }
@@ -55,7 +55,7 @@ namespace moris::hmr
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster_HMR::add_void_integration_cell(moris::Cell<moris::mtk::Cell const *> const & aIntegrationCell)
+    Cell_Cluster_HMR::add_void_integration_cell(moris::Vector<moris::mtk::Cell const *> const & aIntegrationCell)
     {
         mVoidIntegrationCells.append( aIntegrationCell );
     }
@@ -63,7 +63,7 @@ namespace moris::hmr
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster_HMR::add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex)
+    Cell_Cluster_HMR::add_vertex_to_cluster(moris::Vector<moris::mtk::Vertex const *> const & aVertex)
     {
         // add vertices to map
         moris_index tIndex = mVerticesInCluster.size();
@@ -91,7 +91,7 @@ namespace moris::hmr
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    moris::Vector<moris::mtk::Cell const *> const &
     Cell_Cluster_HMR::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mPrimaryIntegrationCells;
@@ -99,7 +99,7 @@ namespace moris::hmr
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    moris::Vector<moris::mtk::Cell const *> const &
     Cell_Cluster_HMR::get_void_cells_in_cluster() const
     {
         return mVoidIntegrationCells;
@@ -115,7 +115,7 @@ namespace moris::hmr
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Vertex const *>
+    moris::Vector<moris::mtk::Vertex const *>
     Cell_Cluster_HMR::get_vertices_in_cluster(const mtk::Leader_Follower aIsLeader ) const
     {
         if (!mTrivial)
@@ -124,9 +124,9 @@ namespace moris::hmr
         }
         else
         {
-            moris::Cell<moris::mtk::Vertex *> tVertices = mInterpolationCell->get_vertex_pointers();
+            moris::Vector<moris::mtk::Vertex *> tVertices = mInterpolationCell->get_vertex_pointers();
 
-            moris::Cell<moris::mtk::Vertex const *> tConstVertices(tVertices.size());
+            moris::Vector<moris::mtk::Vertex const *> tConstVertices(tVertices.size());
 
             for (moris::uint i = 0; i < tVertices.size(); i++)
             {

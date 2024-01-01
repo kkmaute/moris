@@ -40,7 +40,7 @@ public:
 
     Interpolation_Cell(){};
 
-    virtual moris::Cell< mtk::Vertex* >
+    virtual Vector< mtk::Vertex* >
     get_vertex_pointers() const = 0;
 
     virtual Matrix< DDRMat >

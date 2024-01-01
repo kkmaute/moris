@@ -31,11 +31,11 @@
 
 // core
 #include "assert.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "banner.hpp"
 
 // containers
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // linalg
 
@@ -133,7 +133,7 @@ void state_refine_mesh( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // initialize fields
-    moris::Cell< std::shared_ptr< Field > > tInputFields;
+    moris::Vector< std::shared_ptr< Field > > tInputFields;
     initialize_fields( aArguments, tParams, tHMR, tInputFields );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -155,7 +155,7 @@ void state_refine_mesh( const Arguments & aArguments )
     if( aArguments.map_while_refine() )
     {
         // reserve cell for output fields
-        Cell< std::shared_ptr< Field > > tOutputFields;
+        Vector< std::shared_ptr< Field > > tOutputFields;
 
         // call mapper
         perform_mapping( aArguments, tParams, tHMR, tInputFields, tOutputFields );
@@ -207,7 +207,7 @@ void state_map_fields( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // initialize fields
-    moris::Cell< std::shared_ptr< Field > > tInputFields;
+    moris::Vector< std::shared_ptr< Field > > tInputFields;
     initialize_fields( aArguments, tParams, tHMR, tInputFields );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -215,7 +215,7 @@ void state_map_fields( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // reserve cell for output fields
-    Cell< std::shared_ptr< Field > > tOutputFields;
+    Vector< std::shared_ptr< Field > > tOutputFields;
 
     // call mapper
     perform_mapping( aArguments, tParams, tHMR, tInputFields, tOutputFields );

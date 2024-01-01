@@ -8,7 +8,7 @@
  *
  */
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // C++ header files.
 #include <vector>
@@ -16,7 +16,7 @@
 #include <iostream>
 
 // MORIS library header files.
-#include "typedefs.hpp" // COR/src
+#include "moris_typedefs.hpp" // COR/src
 #include "assert.hpp"
 
 namespace moris
@@ -24,10 +24,10 @@ namespace moris
     //------------------------------------------------------------------
 
     inline
-    moris::Cell<char>
-    string_to_char(moris::Cell<std::string>& strings)
+    moris::Vector<char>
+    string_to_char(moris::Vector<std::string>& strings)
     {
-        moris::Cell<char> cstrings;
+        moris::Vector<char> cstrings;
         cstrings.reserve(strings.size());
         for(std::string s: strings)
         {

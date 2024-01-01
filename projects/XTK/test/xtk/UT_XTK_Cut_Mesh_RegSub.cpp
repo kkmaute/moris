@@ -42,7 +42,7 @@ namespace xtk
     node_is_on_face( moris_index aFaceIndex,
             Row_View_Real const &aNodeCoord )
     {
-        Cell< Matrix< DDRMat > > tFaceNodeCoords( 6 );
+        Vector< Matrix< DDRMat > > tFaceNodeCoords( 6 );
 
         // face node coordinates
         tFaceNodeCoords( 0 ) = Matrix< DDRMat >( { { 0, 0, 0 }, { 1, 0, 0 }, { 1, 0, 1 }, { 0, 0, 1 } } );

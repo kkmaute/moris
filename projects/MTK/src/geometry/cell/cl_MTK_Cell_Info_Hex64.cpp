@@ -58,7 +58,7 @@ namespace moris
         Cell_Info_Hex64::compute_cell_shape(moris::mtk::Cell const *aCell) const
         {
             // getting vertices and storing them in a local matrix, since each node will be used a few times
-            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+            moris::Vector< Vertex* > tVertices = aCell->get_vertex_pointers();
 
             // init cell shape
             CellShape tCellShape = CellShape::RECTANGULAR;
@@ -67,7 +67,7 @@ namespace moris
             real tEpsilon = 1.0E-8;
 
             // init cell of face normals
-            moris::Cell< moris::Matrix< DDRMat > > tFaceNormals( 6 );
+            moris::Vector< moris::Matrix< DDRMat > > tFaceNormals( 6 );
 
             // looping through each face
             for ( uint iFace = 0; iFace < 6; iFace++)
@@ -321,7 +321,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< moris_index >
+        moris::Vector< moris_index >
         Cell_Info_Hex64::get_vertex_path_to_entity_rank_and_ordinal(
             moris_index aVertexOrdinal,
             moris_index aOtherEntityOrdinal,
@@ -767,14 +767,14 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return moris::Vector< moris_index >( 0 );
                 }
             } // end: switch aOtherEntityRank
         }
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< moris_index >
+        moris::Vector< moris_index >
         Cell_Info_Hex64::get_edge_path_to_entity_rank_and_ordinal(
             moris_index aEdgeOrdinal,
             moris_index aOtherEntityOrdinal,
@@ -931,7 +931,7 @@ namespace moris
         moris::real
         Cell_Info_Hex64::compute_cell_size_special( moris::mtk::Cell const * aCell ) const
         {
-            moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
+            moris::Vector< Vertex* > tVertices = aCell->get_vertex_pointers();
 
             Matrix<DDRMat> tNode0Coords = tVertices(0)->get_coords();
             Matrix<DDRMat> tNode6Coords = tVertices(6)->get_coords();
@@ -951,7 +951,7 @@ namespace moris
                 moris::mtk::Cell const * aCell ,
                 moris_index      const & aSideOrd) const
         {
-            moris::Cell< mtk::Vertex const* > tVertices = aCell->get_vertices_on_side_ordinal(aSideOrd);
+            moris::Vector< mtk::Vertex const* > tVertices = aCell->get_vertices_on_side_ordinal(aSideOrd);
 
             // FIXME: only works for rectangular cells
             Matrix<DDRMat> tNodeCoords0 = tVertices(0)->get_coords();

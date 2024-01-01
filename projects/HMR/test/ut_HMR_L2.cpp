@@ -21,7 +21,7 @@
 
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src
-#include "typedefs.hpp"                    // COR/src
+#include "moris_typedefs.hpp"                    // COR/src
 #include "cl_Matrix.hpp"                   // LINALG/src
 #include "fn_r2.hpp"
 #include "fn_norm.hpp"
@@ -85,7 +85,7 @@ namespace moris::hmr
 
             tParameters.set_union_pattern( 2 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
             tLagrangeToBSplineMesh( 1 ) = { { 1 } };
 
@@ -369,7 +369,7 @@ namespace moris::hmr
 
             tParameters.set_union_pattern( 2 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
             tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
@@ -493,7 +493,7 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 2 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
             tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
@@ -624,7 +624,7 @@ namespace moris::hmr
 
             tParameters.set_staircase_buffer( 2 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
             tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
@@ -766,7 +766,7 @@ namespace moris::hmr
 
                     tParameters.set_staircase_buffer( tOrder );
 
-                    Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+                    Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
                     tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
                     tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
@@ -911,7 +911,7 @@ namespace moris::hmr
 
                     tParameters.set_staircase_buffer( tOrder );
 
-                    Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+                    Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
                     tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
                     tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
@@ -1057,7 +1057,7 @@ namespace moris::hmr
 
                     tParameters.set_staircase_buffer( tOrder );
 
-                    Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
+                    Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
                     tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
                     tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
@@ -1205,7 +1205,7 @@ namespace moris::hmr
             tParameters.set_initial_refinement( { { 1 } } );
             tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

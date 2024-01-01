@@ -116,7 +116,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
-            moris::Cell< moris_index >
+            Vector< moris_index >
             get_vertex_path_to_entity_rank_and_ordinal(
                     moris_index aVertexOrdinal,
                     moris_index aOtherEntityOrdinal,
@@ -124,7 +124,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
-            moris::Cell< moris_index >
+            Vector< moris_index >
             get_edge_path_to_entity_rank_and_ordinal(
                     moris_index aEdgeOrdinal,
                     moris_index aOtherEntityOrdinal,

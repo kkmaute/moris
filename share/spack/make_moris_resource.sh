@@ -52,6 +52,7 @@ export OBLAS_INSTALLED=`spack find openblas         | awk 'BEGIN{n=0}{ n=n+1; if
 export SLEPC_INSTALLED=`spack find slepc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export  DOXY_INSTALLED=`spack find doxygen          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export CLANG_INSTALLED=`spack find llvm             | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+export NINJA_INSTALLED=`spack find ninja            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 
 export Trilinos_DIR=`spack location --install-dir trilinos`
 
@@ -128,6 +129,11 @@ export CLANG_DIR=`spack location --install-dir llvm`
 echo "setenv CLANG_DIR"       $CLANG_DIR                                       >> $HOME/.cshrc_moris
 fi
 
+if [ $NINJA_INSTALLED == "1" ];then
+export NINJA_DIR=`spack location --install-dir ninja`
+echo "setenv NINJA_DIR"       $NINJA_DIR                                     >> $HOME/.cshrc_moris
+fi
+
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv PATH $MPI_HOME/bin/:$PATH'                                        >> $HOME/.cshrc_moris 
 echo 'setenv PATH $NETCDF_DIR/bin/:$PATH'                                      >> $HOME/.cshrc_moris 
@@ -140,6 +146,10 @@ fi
 
 if [ $CLANG_INSTALLED == "1" ];then
 echo 'setenv PATH $CLANG_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
+fi
+
+if [ $NINJA_INSTALLED == "1" ];then
+echo 'setenv PATH $NINJA_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
 fi
 
 echo ""                                                                        >> $HOME/.cshrc_moris

@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -149,7 +149,7 @@ namespace moris
         tPdofHost.set_pdof_type( tDofType, tTimePerDofType, tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Create external adof list
-        moris::Cell< moris::Cell < Adof * > > tAdofList;
+        moris::Vector< moris::Vector < Adof * > > tAdofList;
         tAdofList.resize( 1 );
         tAdofList( 0 ).resize( 5 );
 
@@ -157,7 +157,7 @@ namespace moris
 
         moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
 
-        moris::Cell < Equation_Object* >tListEqnObj;
+        moris::Vector < Equation_Object* >tListEqnObj;
         Model_Solver_Interface  tMSI( tMSIParameters, tListEqnObj );
 
         Dof_Manager tDofMgn;

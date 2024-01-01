@@ -16,8 +16,8 @@
 #include "cl_FEM_IQI.hpp"                   //FEM/INT/src
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
-#include "typedefs.hpp"                     //MRS/COR/src
+#include "cl_Vector.hpp"                      //MRS/CNT/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 
 namespace moris
 {
@@ -87,7 +87,7 @@ namespace moris
                  * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
                  */
                 void compute_dQIdu(
-                        moris::Cell< MSI::Dof_Type > & aDofType,
+                        Vector< MSI::Dof_Type > & aDofType,
                         Matrix< DDRMat >             & adQIdu )
                 {
                     MORIS_ERROR( false, "IQI_Homogenized_Constitutive::compute_dQIdu() - not implemented for a drag/lift coefficient IQI.");

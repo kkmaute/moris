@@ -50,21 +50,21 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2 };
 
     // create list with number of coeffs
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = tDispDofTypes;
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes = tDispDofTypes;
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -209,15 +209,15 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
             fill_uhat_Elast( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
+            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -244,18 +244,18 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
                 tCMLeaderStrucLinIso->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // populate the requested leader dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeaderStrucLinIso->get_global_dof_type_list();
 
                 // populate the test leader dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeaderStrucLinIso->get_dof_type_list();
 
                 // loop over requested dof type
                 for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // strain
                     //------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
                     for ( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Cell< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
+                        Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate derivative test traction
                         Matrix< DDRMat > tdtesttractiondu = tCMLeaderStrucLinIso->dTestTractiondDOF(

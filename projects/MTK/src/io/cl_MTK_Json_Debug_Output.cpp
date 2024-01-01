@@ -51,11 +51,11 @@ namespace moris
         {
             Json tVertexObj;
 
-            moris::Cell< moris_id >    tIds;
-            moris::Cell< moris_index > tIndices;
-            moris::Cell< real >        tX;
-            moris::Cell< real >        tY;
-            moris::Cell< real >        tZ;
+            Vector< moris_id >    tIds;
+            Vector< moris_index > tIndices;
+            Vector< real >        tX;
+            Vector< real >        tY;
+            Vector< real >        tZ;
             for ( auto *tVertex : aVertices )
             {
                 // Add values to corresponding arrays
@@ -115,7 +115,7 @@ namespace moris
             return tAllCells;
         }
 
-        Json Json_Debug_Output::serialize_double_side_sets( moris::Cell< moris::mtk::Double_Side_Set * > &aDoubleSideSets )
+        Json Json_Debug_Output::serialize_double_side_sets( Vector< moris::mtk::Double_Side_Set * > &aDoubleSideSets )
         {
             Json tDoubleSideSetsObj;
             for ( auto tSideSet : aDoubleSideSets )
@@ -139,7 +139,7 @@ namespace moris
             return tDoubleSideSetsObj;
         }
 
-        Json Json_Debug_Output::serialize_block_sets( moris::Cell< moris::mtk::Block_Set * > &tBlockSets )
+        Json Json_Debug_Output::serialize_block_sets( Vector< moris::mtk::Block_Set * > &tBlockSets )
         {
             Json tBlockSetsObj;
             for ( auto tBlockSet : tBlockSets )
@@ -156,7 +156,7 @@ namespace moris
             return tBlockSetsObj;
         }
 
-        Json Json_Debug_Output::serialize_cell_clusters( moris::Cell< Cluster const * > &tClusters )
+        Json Json_Debug_Output::serialize_cell_clusters( Vector< Cluster const * > &tClusters )
         {
             Json tClusterArr;
             for ( auto tCluster : tClusters )
@@ -184,7 +184,7 @@ namespace moris
             return tClusterObj;
         }
 
-        Json Json_Debug_Output::serialize_ig_cells( moris::Cell< moris::mtk::Cell const * > &aCells )
+        Json Json_Debug_Output::serialize_ig_cells( Vector< moris::mtk::Cell const * > &aCells )
         {
             Json tPrimaryCells;
             for ( auto tCell : aCells )
@@ -213,7 +213,7 @@ namespace moris
             return tPrimaryCells;
         }
 
-        Json Json_Debug_Output::serialize_side_sets( moris::Cell< moris::mtk::Side_Set * > &aSideSets )
+        Json Json_Debug_Output::serialize_side_sets( Vector< moris::mtk::Side_Set * > &aSideSets )
         {
             Json tSideSetsObj;
             for ( auto tSideSet : aSideSets )
@@ -228,7 +228,7 @@ namespace moris
             return tSideSetsObj;
         }
 
-        Json Json_Debug_Output::serialize_side_clusters( moris::Cell< Cluster const * > &aSideClusters )
+        Json Json_Debug_Output::serialize_side_clusters( Vector< Cluster const * > &aSideClusters )
         {
             Json tSideClustersList;
             for ( auto tCluster : aSideClusters )

@@ -12,8 +12,8 @@
 #define SRC_FEM_CL_FEM_PHASE_USER_INFO_HPP_
 
 //MRS/COR/src
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 //FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Material_Model.hpp"
@@ -42,26 +42,26 @@ namespace moris
                 moris::Matrix< moris::IndexMat > mPhaseIndex;
 
                 // phase dof type list
-                moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
+                Vector< Vector< MSI::Dof_Type > > mDofTypes;
 
                 // matrix to check if a dof type was already set to the phase
                 Matrix< DDSMat > mDofCheck;
 
                 // phase dv type list
-                moris::Cell< moris::Cell< PDV_Type > > mDvTypes;
+                Vector< Vector< PDV_Type > > mDvTypes;
 
                 // matrix to check if a pdv type was already set to the phase
                 Matrix< DDSMat > mPdvCheck;
 
                 // constitutive models
-                moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mCMs;
+                Vector< std::shared_ptr< fem::Constitutive_Model > > mCMs;
                 uint mNumCMs = 0;
 
                 // constitutive model map
                 std::map< std::string, uint > mCMMap;
 
                 // material models
-                moris::Cell< std::shared_ptr< fem::Material_Model > > mMMs;
+                Vector< std::shared_ptr< fem::Material_Model > > mMMs;
                 uint mNumMMs = 0;
 
                 // constitutive model map
@@ -164,7 +164,7 @@ namespace moris
                  * @param[ in ] aDofTypes list of group of dof types
                  */
                 void set_dof_type_list(
-                        const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
+                        const Vector< Vector< MSI::Dof_Type > > & aDofTypes )
                 {
                     mDofTypes = aDofTypes;
                 }
@@ -174,7 +174,7 @@ namespace moris
                  * add dof type to list
                  * @param[ in ] aDofTypes group of dof types to add to list of dof type
                  */
-                void add_dof_type_to_list( const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
+                void add_dof_type_to_list( const Vector< Vector< MSI::Dof_Type > > & aDofTypes )
                 {
                     // loop over all dof types
                     for ( uint iType = 0; iType < aDofTypes.size(); ++iType )
@@ -207,7 +207,7 @@ namespace moris
                  * @param[ out ] mDofTypes list of group of dof types
                  */
                 const
-                moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list()
+                Vector< Vector< MSI::Dof_Type > > & get_dof_type_list()
                 {
                     return mDofTypes;
                 }
@@ -217,7 +217,7 @@ namespace moris
                  * set dv type list
                  * @param[ out ] mDvTypes list of group of dv types
                  */
-                void set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes )
+                void set_dv_type_list( const Vector< Vector< PDV_Type > > & aDvTypes )
                 {
                     mDvTypes = aDvTypes;
                 }
@@ -228,7 +228,7 @@ namespace moris
                  * @param[ out ] mDvTypes list of group of dv types
                  */
                 const
-                moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list()
+                Vector< Vector< PDV_Type > > & get_dv_type_list()
                 {
                     return mDvTypes;
                 }
@@ -238,7 +238,7 @@ namespace moris
                  * add pdv type to list
                  * @param[ in ] aPdvTypes group of pdv types to add to list of pdv type
                  */
-                void add_pdv_type_to_list( moris::Cell< PDV_Type > & aPdvTypes )
+                void add_pdv_type_to_list( Vector< PDV_Type > & aPdvTypes )
                 {
                     // get pdv type index in enum list
                     uint tPdvIndex = static_cast< uint >( aPdvTypes( 0 ) );
@@ -265,7 +265,7 @@ namespace moris
                  * set CMs
                  * @param[ in ] aCMs list of CM pointers
                  */
-                void set_CMs( const moris::Cell< std::shared_ptr< fem::Constitutive_Model > > & aCMs )
+                void set_CMs( const Vector< std::shared_ptr< fem::Constitutive_Model > > & aCMs )
                 {
                     mCMs = aCMs;
                 }
@@ -314,7 +314,7 @@ namespace moris
                  * @param[ out ] mCMs list of constitutive model pointers
                  */
                 const
-                moris::Cell< std::shared_ptr< fem::Constitutive_Model > > & get_CMs() const
+                Vector< std::shared_ptr< fem::Constitutive_Model > > & get_CMs() const
                 {
                     return mCMs;
                 }
@@ -325,7 +325,7 @@ namespace moris
                  * set MMs
                  * @param[ in ] aMMs list of MM pointers
                  */
-                void set_MMs( const moris::Cell< std::shared_ptr< fem::Material_Model > > & aMMs )
+                void set_MMs( const Vector< std::shared_ptr< fem::Material_Model > > & aMMs )
                 {
                     mMMs = aMMs;
                 }
@@ -374,7 +374,7 @@ namespace moris
                  * @param[ out ] mMMs list of material model pointers
                  */
                 const
-                moris::Cell< std::shared_ptr< fem::Material_Model > > & get_MMs() const
+                Vector< std::shared_ptr< fem::Material_Model > > & get_MMs() const
                 {
                     return mMMs;
                 }

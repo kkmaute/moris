@@ -15,7 +15,7 @@
 
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"

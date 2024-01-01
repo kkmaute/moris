@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -39,8 +39,8 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
 //    if ( par_size() == 1 )
 //    {
 //        // Create and fill dof type lists
-//        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
-//        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );
+//        Vector< enum MSI::Dof_Type > tDofTypes1( 2 );
+//        Vector< enum MSI::Dof_Type > tDofTypes2( 1 );
 //
 //        tDofTypes1( 0 ) = MSI::Dof_Type::UX;
 //        tDofTypes1( 1 ) = MSI::Dof_Type::UY;
@@ -102,8 +102,8 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
     {
         if ( par_size() == 1 )
         {
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 2 );
-        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );
+        moris::Vector< enum MSI::Dof_Type > tDofTypes1( 2 );
+        moris::Vector< enum MSI::Dof_Type > tDofTypes2( 1 );
 
         tDofTypes1( 0 ) = MSI::Dof_Type::UX;
         tDofTypes1( 1 ) = MSI::Dof_Type::UY;
@@ -125,10 +125,10 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
 //    {
 //        if ( par_size() == 1 )
 //        {
-//        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );
-//        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 3 );
-//        moris::Cell< enum MSI::Dof_Type > tDofTypes3( 2 );
-//        moris::Cell< enum MSI::Dof_Type > tDofTypes4( 1 );
+//        Vector< enum MSI::Dof_Type > tDofTypes1( 1 );
+//        Vector< enum MSI::Dof_Type > tDofTypes2( 3 );
+//        Vector< enum MSI::Dof_Type > tDofTypes3( 2 );
+//        Vector< enum MSI::Dof_Type > tDofTypes4( 1 );
 //
 //
 //        tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;

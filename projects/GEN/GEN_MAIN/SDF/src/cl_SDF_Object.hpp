@@ -13,8 +13,8 @@
 #include <cl_SDF_Facet_Vertex.hpp>
 #include <string>
 
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_SDF_Triangle.hpp"
 
 namespace moris
@@ -25,8 +25,8 @@ namespace moris
         class Object
         {
             const real                   mMeshHighPass = 1e-9;
-            moris::Cell< Facet_Vertex* > mVertices;
-            moris::Cell< Facet* >        mFacets;
+            Vector< Facet_Vertex* > mVertices;
+            Vector< Facet* >        mFacets;
 
             const Matrix< DDRMat >& mOffsets;
             uint                    mDimension;
@@ -46,7 +46,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            moris::Cell< Facet* >&
+            Vector< Facet* >&
             get_facets()
             {
                 return mFacets;
@@ -62,7 +62,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            moris::Cell< Facet_Vertex* >&
+            Vector< Facet_Vertex* >&
             get_vertices()
             {
                 return mVertices;
@@ -110,7 +110,7 @@ namespace moris
              */
             void
             load_ascii_to_buffer( const std::string& aFilePath,
-                    moris::Cell< std::string >&      aBuffer );
+                    Vector< std::string >&      aBuffer );
 
             //-------------------------------------------------------------------------------
         };

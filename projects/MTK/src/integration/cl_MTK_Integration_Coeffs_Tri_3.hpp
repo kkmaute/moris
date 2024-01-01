@@ -12,7 +12,7 @@
 #define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_3_HPP_
 
 // MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 // LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

@@ -13,27 +13,27 @@
 
 // MORIS project header files.
 #include "core.hpp"
-#include "cl_Cell.hpp" // CON/src
+#include "cl_Vector.hpp" // CON/src
 
 // ----------------------------------------------------------------------------
 
 TEST_CASE(
-        "moris::Cell" )
+        "Vector" )
 {
 
-    SECTION( "moris::Cell operator=")
+    SECTION( "Vector operator=")
     {
-        moris::Cell< moris::uint > myval = { 4 };
-        moris::Cell< moris::uint > myCell1 = { 10, 2, 3 };
+        moris::Vector< moris::uint > myval = { 4 };
+        moris::Vector< moris::uint > myCell1 = { 10, 2, 3 };
 
         // Test with single value
-        moris::Cell< moris::uint > val1;
+        moris::Vector< moris::uint > val1;
         val1 = myval;
 
         REQUIRE( val1(0) == 4 );
 
         // Test with row Cell
-        moris::Cell< moris::uint > Cell1;
+        moris::Vector< moris::uint > Cell1;
         Cell1 = myCell1;
 
         REQUIRE( Cell1(0) == 10 );
@@ -41,21 +41,21 @@ TEST_CASE(
         REQUIRE( Cell1(2) == 3 );
     }
 
-    SECTION( "moris::Cell size constructor" )
+    SECTION( "Vector size constructor" )
     {
-        moris::Cell< moris::uint > myCell1( 10, 4  );
-        moris::Cell< moris::real > myCell2( 10, 3.0 );
+        moris::Vector< moris::uint > myCell1( 10, 4  );
+        moris::Vector< moris::real > myCell2( 10, 3.0 );
 
         REQUIRE( myCell1( 5 ) == 4   );
         REQUIRE( myCell2( 5 ) == 3.0 );
     }
 
-    SECTION( "moris::Cell.size()",
-             "moris::Cell.empty()" )
+    SECTION( "Vector.size()",
+             "Vector.empty()" )
     {
-        moris::Cell< moris::uint > myCell1 = {10, 2, 3};
+        moris::Vector< moris::uint > myCell1 = {10, 2, 3};
 
-        moris::Cell< moris::uint > myCell2;
+        moris::Vector< moris::uint > myCell2;
 
         moris::size_t Cell_size = myCell1.size();
 
@@ -65,10 +65,10 @@ TEST_CASE(
         REQUIRE( isempty == true );
     }
 
-    SECTION( "moris::Cell.append()")
+    SECTION( "Vector.append()")
     {
-        moris::Cell< moris::uint > myCell1 = { 4, 5, 9, 8 };
-        moris::Cell< moris::uint > myCell2 = { 10, 2, 3 };
+        moris::Vector< moris::uint > myCell1 = { 4, 5, 9, 8 };
+        moris::Vector< moris::uint > myCell2 = { 10, 2, 3 };
 
         myCell1.append(myCell2);
 
@@ -79,11 +79,11 @@ TEST_CASE(
     }
 
     
-    SECTION( "moris::Cell print_as_row_vector")
+    SECTION( "Vector print_as_row_vector")
     {
-        moris::Cell< moris::uint > myCell1 = { 4, 5, 9, 8 };
-        moris::Cell< moris::Cell<moris::uint> > myCell2 = { {10, 2, 3 }, { 4, 5, 9, 8 } };
-        moris::Cell< moris::Cell<moris::Cell<moris::uint> > > myCell3 = {{{1,2,3}, {4,5,6}}, {{7,8,9}}};;
+        moris::Vector< moris::uint > myCell1 = { 4, 5, 9, 8 };
+        moris::Vector< moris::Vector<moris::uint> > myCell2 = { {10, 2, 3 }, { 4, 5, 9, 8 } };
+        moris::Vector< moris::Vector<moris::Vector<moris::uint> > > myCell3 = {{{1,2,3}, {4,5,6}}, {{7,8,9}}};;
 
         print_as_row_vector(myCell1);
         print_as_row_vector(myCell2);

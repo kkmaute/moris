@@ -23,7 +23,7 @@ namespace moris::sdf
 
     Line::Line(
             moris_index                   aIndex,
-            moris::Cell< Facet_Vertex* >& aVertices )
+            moris::Vector< Facet_Vertex* >& aVertices )
             : Facet( aIndex, aVertices, 2 )
     {
         this->update_data();

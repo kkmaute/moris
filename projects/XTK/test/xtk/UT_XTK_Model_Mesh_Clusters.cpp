@@ -33,7 +33,7 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             real tXCenter = 1.0;
             real tYCenter = 1.0;
             real tZCenter = 0.0;
-            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+            Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
             // Create Mesh --------------------------------------------------------------------
@@ -50,7 +50,7 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             tXTKModel.mVerbose  =  false;
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+            Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
             delete tMeshData;

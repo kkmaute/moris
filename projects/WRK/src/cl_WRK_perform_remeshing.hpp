@@ -41,21 +41,21 @@ namespace moris
             bool mOutputMeshes = false;
 
             // mode ab_initio
-            moris::Cell< std::string > mRefinementsFieldNames_0;
-            Cell< Matrix< DDSMat > >   mRefinementsMode_0;
-            Cell< Matrix< DDSMat > >   mRefinementPatternMode_0;
+            Vector< std::string > mRefinementsFieldNames_0;
+            Vector< Matrix< DDSMat > >   mRefinementsMode_0;
+            Vector< Matrix< DDSMat > >   mRefinementPatternMode_0;
             std::string                mRefinementFunction;
 
-            moris::Cell< moris::Cell< std::string > > mRefinementsFieldNames_1;
+            Vector< Vector< std::string > > mRefinementsFieldNames_1;
 
             Matrix< DDSMat > mMaxRefinementsMode_1;
             Matrix< DDSMat > mMinRefinementsMode_1;
             Matrix< DDSMat > mRefinementPatternMode_1;
 
-            Cell< Matrix< DDSMat > > mRefinementPatternMode_3;
-            Cell< Matrix< DDSMat > > mRefinemenCopytPatternToPattern_3;
-            Cell< Matrix< DDSMat > > mMinimumRefinementLevel;
-            Cell< std::string >      mRefinementFunctionForField;
+            Vector< Matrix< DDSMat > > mRefinementPatternMode_3;
+            Vector< Matrix< DDSMat > > mRefinemenCopytPatternToPattern_3;
+            Vector< Matrix< DDSMat > > mMinimumRefinementLevel;
+            Vector< std::string >      mRefinementFunctionForField;
         };
 
         class Remeshing_Mini_Performer
@@ -85,16 +85,16 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void perform_remeshing(
-                    moris::Cell< std::shared_ptr< mtk::Field > >         aSourceFields,
-                    moris::Cell< std::shared_ptr< hmr::HMR > >&          aHMRPerformers,
-                    moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >& mMTKPerformer,
-                    moris::Cell< std::shared_ptr< mtk::Field > >&        aNewFields );
+                    Vector< std::shared_ptr< mtk::Field > >         aSourceFields,
+                    Vector< std::shared_ptr< hmr::HMR > >&          aHMRPerformers,
+                    Vector< std::shared_ptr< mtk::Mesh_Manager > >& mMTKPerformer,
+                    Vector< std::shared_ptr< mtk::Field > >&        aNewFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement(
                     std::shared_ptr< hmr::HMR >           aHMRPerformer,
-                    Cell< std::shared_ptr< mtk::Field > > aSourceFields );
+                    Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
 
@@ -106,25 +106,25 @@ namespace moris
              */
             void perform_refinement_mode_0(
                     std::shared_ptr< hmr::HMR >            aHMRPerformer,
-                    Cell< std::shared_ptr< mtk::Field > >& aSourceFields );
+                    Vector< std::shared_ptr< mtk::Field > >& aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement_mode_1(
                     std::shared_ptr< hmr::HMR >           aHMRPerformer,
-                    Cell< std::shared_ptr< mtk::Field > > aSourceFields );
+                    Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void perform_refinement_mode_2(
                     std::shared_ptr< hmr::HMR >           aHMRPerformer,
-                    Cell< std::shared_ptr< mtk::Field > > aSourceFields );
+                    Vector< std::shared_ptr< mtk::Field > > aSourceFields );
 
             //------------------------------------------------------------------------------
 
             void map_fields(
-                    Cell< std::shared_ptr< mtk::Field > >& aSourceFields,
-                    Cell< std::shared_ptr< mtk::Field > >& aTargetFields,
+                    Vector< std::shared_ptr< mtk::Field > >& aSourceFields,
+                    Vector< std::shared_ptr< mtk::Field > >& aTargetFields,
                     mtk::Mesh_Pair&                        aMeshPair,
                     uint                                   aDiscretizationMeshIndex,
                     bool                                   aMapFields );
@@ -132,10 +132,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void prepare_input_for_refinement(
-                    Cell< moris_index >&                       aPatternForRefinement,
-                    moris::Cell< moris::Cell< std::string > >& aFieldsForRefinement,
-                    moris::Cell< moris::Cell< uint > >&        aRefinements,
-                    moris::Cell< sint >&                       aMaxRefinementPerPattern );
+                    Vector< moris_index >&                       aPatternForRefinement,
+                    Vector< Vector< std::string > >& aFieldsForRefinement,
+                    Vector< Vector< uint > >&        aRefinements,
+                    Vector< sint >&                       aMaxRefinementPerPattern );
 
             //------------------------------------------------------------------------------
 

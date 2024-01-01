@@ -11,7 +11,7 @@
 #pragma once
 #include <limits>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -57,9 +57,9 @@ namespace moris
 
             uint                mCellCounter = 0;
 
-            moris::Cell< Cell* > mCells;
+            Vector< Cell* > mCells;
 
-            moris::Cell< Vertex* > mNeighbors;
+            Vector< Vertex* > mNeighbors;
 
 // -----------------------------------------------------------------------------
         public:

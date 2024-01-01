@@ -39,7 +39,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::tuple<
+        moris::Vector< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
         mtk::Leader_Follower > > SP_Nitsche_Interface::get_cluster_measure_tuple_list()
@@ -98,7 +98,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Nitsche_Interface::eval_dSPdLeaderDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get leader volume cluster measure value
             real tLeaderVolume = mCluster->get_cluster_measure(
@@ -167,7 +167,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Nitsche_Interface::eval_dSPdFollowerDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get leader volume cluster measure value
             real tLeaderVolume = mCluster->get_cluster_measure(

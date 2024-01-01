@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 
 #include "linalg_typedefs.hpp"
@@ -49,12 +49,12 @@ namespace tsa
 //         * Create solver warehouse
 //         *
 //         * \code{.cpp}
-//         * moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );            tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
-//         * moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );            tDofTypes2( 0 ) = MSI::Dof_Type::UX;
+//         * Vector< enum MSI::Dof_Type > tDofTypes1( 1 );            tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
+//         * Vector< enum MSI::Dof_Type > tDofTypes2( 1 );            tDofTypes2( 0 ) = MSI::Dof_Type::UX;
 //         * \endcode
 //         */
-//        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1 );            tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
-//        moris::Cell< enum MSI::Dof_Type > tDofTypes2( 1 );            tDofTypes2( 0 ) = MSI::Dof_Type::UX;
+//        Vector< enum MSI::Dof_Type > tDofTypes1( 1 );            tDofTypes1( 0 ) = MSI::Dof_Type::TEMP;
+//        Vector< enum MSI::Dof_Type > tDofTypes2( 1 );            tDofTypes2( 0 ) = MSI::Dof_Type::UX;
 //
 //        /*!
 //         * Create solver factory and linear solver algorithms

@@ -81,7 +81,7 @@ namespace moris
                 CHECK(tMesh->get_num_elems() == 1);
 
                 // Setup Node Vertices (note: this data structure will be in the STK_Implementation
-                moris::Cell<Vertex *> tElementVertices;
+                moris::Vector<Vertex *> tElementVertices;
                 for (size_t i = 0; i < tNodeIndices.numel(); i++)
                 {
                     tElementVertices.push_back(new Vertex_STK(tNodeIds(i), tNodeIndices(i), tMesh));
@@ -158,7 +158,7 @@ namespace moris
                 CHECK(tMesh->get_num_elems() == 1);
 
                 // Setup Node Vertices (note: this data structure will be in the STK_Implementation
-                moris::Cell<Vertex *> tElementVertices;
+                moris::Vector<Vertex *> tElementVertices;
                 for (size_t i = 0; i < tNodeIndices.numel(); i++)
                 {
                     tElementVertices.push_back(new Vertex_STK(tNodeIds(i), tNodeIndices(i), tMesh));
@@ -220,7 +220,7 @@ namespace moris
                 CHECK(tMesh->get_num_elems() == 1);
 
                 // Setup Node Vertices (note: this data structure will be in the STK_Implementation
-                moris::Cell<Vertex *> tElementVertices;
+                moris::Vector<Vertex *> tElementVertices;
                 for (size_t i = 0; i < tNodeIndices.numel(); i++)
                 {
                     tElementVertices.push_back(new Vertex_STK(tNodeIds(i), tNodeIndices(i), tMesh));
@@ -307,7 +307,7 @@ namespace moris
                 CHECK(tMesh->get_num_elems() == 1);
 
                 // Setup Node Vertices (note: this data structure will be in the STK_Implementation
-                moris::Cell<Vertex *> tElementVertices;
+                moris::Vector<Vertex *> tElementVertices;
                 for (size_t i = 0; i < tNodeIndices.numel(); i++)
                 {
                     tElementVertices.push_back(new Vertex_STK(tNodeIds(i), tNodeIndices(i), tMesh));
@@ -391,7 +391,7 @@ namespace moris
                 CHECK(tMesh->get_num_elems() == 1);
 
                 // Setup Node Vertices (note: this data structure will be in the STK_Implementation
-                moris::Cell<Vertex *> tElementVertices;
+                moris::Vector<Vertex *> tElementVertices;
                 for (size_t i = 0; i < tNodeIndices.numel(); i++)
                 {
                     tElementVertices.push_back(new Vertex_STK(tNodeIds(i), tNodeIndices(i), tMesh));

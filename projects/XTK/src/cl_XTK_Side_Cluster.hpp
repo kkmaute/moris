@@ -39,14 +39,14 @@ namespace xtk
       protected:
         bool                                          mTrivial;
         Interpolation_Cell_Unzipped const            *mInterpolationCell;
-        moris::Cell< moris::mtk::Cell const * >       mIntegrationCells;
+        Vector< moris::mtk::Cell const * >       mIntegrationCells;
         moris::Matrix< moris::IndexMat >              mIntegrationCellSideOrdinals;
-        moris::Cell< moris::mtk::Vertex const * >     mVerticesInCluster;
+        Vector< moris::mtk::Vertex const * >     mVerticesInCluster;
         std::shared_ptr< IG_Vertex_Group >            mVertexGroup;
-        moris::Cell< moris::Matrix< moris::DDRMat > > mVertexLocalCoords;
+        Vector< moris::Matrix< moris::DDRMat > > mVertexLocalCoords;
         moris::Matrix< moris::DDRMat >                mVertexLocalCoordsMat;  /*FIXME: get rid of mVertexLocalCoords*/
         xtk::Cell_Cluster const                      *mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in Nitsche).*/
-        moris::Cell< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
+        Vector< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //---------------------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ namespace xtk
 
         //---------------------------------------------------------------------------------------
 
-        moris::Cell< mtk::Cell const* > const&
+        Vector< mtk::Cell const* > const&
         get_cells_in_side_cluster() const;
 
         //---------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ namespace xtk
 
         //---------------------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const* > 
+        Vector< moris::mtk::Vertex const* >
         get_vertices_in_cluster(
                 const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 

@@ -39,8 +39,8 @@ TEST_CASE("Gather","[MPI][GATHER][n2]")
     {
         SECTION("Gather of uint")
         {
-            moris::Cell<xtk::uint> tResultOfGather;
-            moris::Cell<xtk::uint> tMessage(1);
+            Vector<xtk::uint> tResultOfGather;
+            Vector<xtk::uint> tMessage(1);
             int tMessageSize = 1;
 
             if (tProcRank == 0)
@@ -69,8 +69,8 @@ TEST_CASE("Gather","[MPI][GATHER][n2]")
 
         SECTION("Gather of size_t")
         {
-//            moris::Cell<size_t> tResultOfGather;
-//            moris::Cell<size_t> tMessage;
+//            Vector<size_t> tResultOfGather;
+//            Vector<size_t> tMessage;
 //            int tMessageSize = 1;
 //
 //            if (tProcRank == 0)
@@ -109,8 +109,8 @@ TEST_CASE("Scatter","[MPI][SCATTER]")
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
     MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
 
-    moris::Cell<xtk::uint> tResultOfScatter(1);
-    moris::Cell<xtk::uint> tMessage(tProcSize);
+    Vector<xtk::uint> tResultOfScatter(1);
+    Vector<xtk::uint> tMessage(tProcSize);
 
     xtk::uint tVal = 24;
     xtk::uint tVal0 = tVal;

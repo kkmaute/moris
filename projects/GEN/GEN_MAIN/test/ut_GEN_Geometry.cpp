@@ -31,10 +31,10 @@ namespace moris
     uint user_defined_phase_function( const ge::Geometry_Bitset& aGeometrySigns );
 
     real user_defined_geometry_field( const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&                              aParameters );
+            const Vector< real* >&                              aParameters );
 
     void user_defined_geometry_sensitivity( const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&                                    aParameters,
+            const Vector< real* >&                                    aParameters,
             Matrix< DDRMat >&                                       aSensitivities );
 
     //--------------------------------------------------------------------------------------------------------------
@@ -496,7 +496,7 @@ namespace moris
             // Create 2 B-spline circles
             Matrix< DDRMat >                    tADVs( 0, 0 );
             Matrix< DDRMat >                    tRadii = { { 0.5, 0.25 } };
-            Cell< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
+            Vector< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
             for ( uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++ )
             {
                 ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
@@ -722,7 +722,7 @@ namespace moris
             Matrix< DDSMat > tADVIndicesMat2 = string_to_mat< DDSMat >( tADVIndices2 );
 
             // Set up 2 circles
-            Cell< ParameterList > tCircleParameterLists( 2 );
+            Vector< ParameterList > tCircleParameterLists( 2 );
             tCircleParameterLists( 0 ) = prm::create_geometry_parameter_list();
             tCircleParameterLists( 0 ).set( "type", "circle" );
             tCircleParameterLists( 0 ).set( "field_variable_indices", "all" );
@@ -737,7 +737,7 @@ namespace moris
 
             // Create multigeometry
             Matrix< DDRMat >                    tADVs       = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
-            Cell< std::shared_ptr< Geometry > > tGeometries = create_geometries( tCircleParameterLists, tADVs );
+            Vector< std::shared_ptr< Geometry > > tGeometries = create_geometries( tCircleParameterLists, tADVs );
 
             // Should be only one total geometry
             REQUIRE( tGeometries.size() == 1 );
@@ -969,7 +969,7 @@ namespace moris
     real
     user_defined_geometry_field(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aParameters )
+            const Vector< real* >&    aParameters )
     {
         return aCoordinates( 0 ) * pow( *aParameters( 0 ), 2 ) + aCoordinates( 1 ) * pow( *aParameters( 1 ), 3 );
     }
@@ -979,7 +979,7 @@ namespace moris
     void
     user_defined_geometry_sensitivity(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aParameters,
+            const Vector< real* >&    aParameters,
             Matrix< DDRMat >&       aSensitivities )
     {
         aSensitivities = { { 2 * aCoordinates( 0 ) * *aParameters( 0 ), 3 * aCoordinates( 1 ) * pow( *aParameters( 1 ), 2 ) } };

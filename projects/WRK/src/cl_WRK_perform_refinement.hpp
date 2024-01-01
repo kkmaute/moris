@@ -45,21 +45,21 @@ namespace moris
         struct Refinement_Parameters
         {
             //! Field names
-            Cell< std::string > mFieldNames;
+            Vector< std::string > mFieldNames;
 
             //! Refinement level
-            Cell< Matrix< DDSMat > > mRefinementLevel;
+            Vector< Matrix< DDSMat > > mRefinementLevel;
 
             //! Refinement Pattern
-            Cell< Matrix< DDSMat > > mRefinementPattern;
+            Vector< Matrix< DDSMat > > mRefinementPattern;
 
-            Cell< Matrix< DDSMat > > mRefinemenCopytPatternToPattern;
+            Vector< Matrix< DDSMat > > mRefinemenCopytPatternToPattern;
 
             hmr::Refinement_Function mRefinementFunction = nullptr;
 
-            moris::Cell< std::string > mRefinementFunctionName;
+            Vector< std::string > mRefinementFunctionName;
 
-            moris::Cell< hmr::Refinement_Function_2 > mRefinementFunction_2;
+            Vector< hmr::Refinement_Function_2 > mRefinementFunction_2;
         };
 
         //--------------------------------------------------------------------------------------------------------------
@@ -93,23 +93,23 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------------
 
             void perform_refinement(
-                    Cell< std::shared_ptr< mtk::Field > > &aFields,
+                    Vector< std::shared_ptr< mtk::Field > > &aFields,
                     std::shared_ptr< hmr::HMR >            aHMR );
 
             //--------------------------------------------------------------------------------------------------------------
 
             uint perform_refinement_low_level_elements(
-                    Cell< std::shared_ptr< mtk::Field > > &aFields,
+                    Vector< std::shared_ptr< mtk::Field > > &aFields,
                     std::shared_ptr< hmr::HMR >            aHMR );
 
             //--------------------------------------------------------------------------------------------------------------
 
             void perform_refinement_based_on_working_pattern(
-                    Cell< std::shared_ptr< mtk::Field > > &aFields,
+                    Vector< std::shared_ptr< mtk::Field > > &aFields,
                     std::shared_ptr< hmr::HMR >            aHMR );
 
             void perform_refinement_2(
-                    Cell< std::shared_ptr< mtk::Field > > &aFields,
+                    Vector< std::shared_ptr< mtk::Field > > &aFields,
                     std::shared_ptr< hmr::HMR >            aHMR );
 
             //--------------------------------------------------------------------------------------------------------------
@@ -123,11 +123,11 @@ namespace moris
              * @param aRefinements          Refinements for each field per pattern
              */
             void prepare_input_for_refinement(
-                    Cell< moris_index >                                      &aPatternForRefinement,
-                    moris::Cell< moris::Cell< std::string > >                &aFieldsForRefinement,
-                    moris::Cell< moris::Cell< uint > >                       &aRefinements,
-                    moris::Cell< sint >                                      &aMaxRefinementPerPattern,
-                    moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > &aRefinementFunctions );
+                    Vector< moris_index >                                      &aPatternForRefinement,
+                    Vector< Vector< std::string > >                &aFieldsForRefinement,
+                    Vector< Vector< uint > >                       &aRefinements,
+                    Vector< sint >                                      &aMaxRefinementPerPattern,
+                    Vector< Vector< hmr::Refinement_Function_2 > > &aRefinementFunctions );
 
             //--------------------------------------------------------------------------------------------------------------
             // FIXME stuff below this line will be deleted soon
@@ -143,7 +143,7 @@ namespace moris
              */
             void perform_refinement_old(
                     std::shared_ptr< hmr::HMR >          aHMR,
-                    Cell< std::shared_ptr< Performer > > aPerformers,
+                    Vector< std::shared_ptr< Performer > > aPerformers,
                     bool                                 aSimultaneous = true );
 
             //--------------------------------------------------------------------------------------------------------------
@@ -173,12 +173,12 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------------------
 
-            moris::sint get_max_refinement_level( const Cell< std::shared_ptr< Performer > > &aPerformers );
+            moris::sint get_max_refinement_level( const Vector< std::shared_ptr< Performer > > &aPerformers );
 
             //--------------------------------------------------------------------------------------------------------------
 
             void get_all_refinement_mesh_indices(
-                    const Cell< std::shared_ptr< Performer > > &aPerformers,
+                    const Vector< std::shared_ptr< Performer > > &aPerformers,
                     moris::Matrix< DDSMat >                    &aAllPatternMap,
                     moris::uint                                &aNumPattern );
 

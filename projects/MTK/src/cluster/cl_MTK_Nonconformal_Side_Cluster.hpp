@@ -17,12 +17,12 @@ namespace moris::mtk
         Nonconformal_Side_Cluster(
                 Cluster const                              *aFollowerSideCluster,
                 Cluster const                              *aLeaderSideCluster,
-                moris::Cell< IntegrationPointPairs > const &aIntegrationPointPairs )
+                Vector< IntegrationPointPairs > const &aIntegrationPointPairs )
                 : Double_Side_Cluster( aLeaderSideCluster, aFollowerSideCluster, {} )
                 , mIntegrationPointPairs( aIntegrationPointPairs ){};
 
       private:
-        moris::Cell< IntegrationPointPairs > mIntegrationPointPairs;
+        Vector< IntegrationPointPairs > mIntegrationPointPairs;
     };
 
 

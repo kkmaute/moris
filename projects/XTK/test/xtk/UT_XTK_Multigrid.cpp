@@ -21,7 +21,7 @@
 #include "cl_Logger.hpp"
 
 // XTKL: Container includes
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // XTKL: Linear Algebra Includes
 
@@ -153,7 +153,7 @@ namespace xtk
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t tModelDimension = 3;
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+            Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
             Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
             tXTKModel.mVerbose  =  false;
 

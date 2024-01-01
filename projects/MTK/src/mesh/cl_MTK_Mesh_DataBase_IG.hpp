@@ -48,79 +48,79 @@ namespace moris
             mtk::Interpolation_Mesh_DataBase_IP* mIPMesh = nullptr;
 
             // Vertex Information
-            moris::Cell< Vertex_DataBase > mVertices;
+            Vector< Vertex_DataBase > mVertices;
             Matrix< moris::DDRMat >        mVertexCoordinates;
 
             // Cell to vertex connectivity
-            moris::Cell< mtk::Vertex* > mCellToVertices;
-            moris::Cell< moris_index >  mCellToVertexOffSet;
+            Vector< mtk::Vertex* > mCellToVertices;
+            Vector< moris_index >  mCellToVertexOffSet;
 
             // Cell cluster to primary IG cell connectivity
-            moris::Cell< mtk::Cell* >   mCellClusterToPrimaryIGCell;
-            moris::Cell< mtk::Cell* >   mCellClusterToVoidIGCell;
-            moris::Cell< mtk::Vertex* > mCellClusterToVeretx;
+            Vector< mtk::Cell* >   mCellClusterToPrimaryIGCell;
+            Vector< mtk::Cell* >   mCellClusterToVoidIGCell;
+            Vector< mtk::Vertex* > mCellClusterToVeretx;
 
             // offset data for cell cluster
-            moris::Cell< moris_index > mCellClusterToPrimaryIGCellOffSet;
-            moris::Cell< moris_index > mCellClusterToVoidIGCellOffset;
-            moris::Cell< moris_index > mCellClusterToVertexOffset;
+            Vector< moris_index > mCellClusterToPrimaryIGCellOffSet;
+            Vector< moris_index > mCellClusterToVoidIGCellOffset;
+            Vector< moris_index > mCellClusterToVertexOffset;
 
             // local coordinates of the cell cluster
             moris::Matrix< moris::DDRMat >* mCellClusterVertexCoords = nullptr;
 
             std::unordered_map< moris::moris_index, moris::moris_index > mCellClusterIndexToRowNumber;
 
-            moris::Cell< mtk::Cell_Cluster_DataBase > mCellClusters;
+            Vector< mtk::Cell_Cluster_DataBase > mCellClusters;
 
             // number of complete side clusters
             uint mNumSideClusters;
 
-            moris::Cell< mtk::Cell* >   mSideClusterToPrimaryIGCell;
-            moris::Cell< moris_index >  mSideClusterToPrimaryIGCellSideOrd;
-            moris::Cell< mtk::Cell* >   mSideClusterToVoidIGCell;
-            moris::Cell< mtk::Vertex* > mSideClusterToVeretx;
+            Vector< mtk::Cell* >   mSideClusterToPrimaryIGCell;
+            Vector< moris_index >  mSideClusterToPrimaryIGCellSideOrd;
+            Vector< mtk::Cell* >   mSideClusterToVoidIGCell;
+            Vector< mtk::Vertex* > mSideClusterToVeretx;
 
-            moris::Cell< moris_index > mSideClusterToPrimaryIGCellOffset;
-            moris::Cell< moris_index > mSideClusterToVoidIGCellOffset;
-            moris::Cell< moris_index > mSideClusterToVertexOffSet;
+            Vector< moris_index > mSideClusterToPrimaryIGCellOffset;
+            Vector< moris_index > mSideClusterToVoidIGCellOffset;
+            Vector< moris_index > mSideClusterToVertexOffSet;
 
             // side cluster to IP cell
-            moris::Cell< moris_index > mSideClusterToIPCell;
+            Vector< moris_index > mSideClusterToIPCell;
 
-            moris::Cell< mtk::Side_Cluster_DataBase >     mSideClusters;
-            moris::Cell< mtk::Double_Side_Cluster >       mDblSideClusters;
-            moris::Cell< mtk::Nonconformal_Side_Cluster > mNonconformalSideClusters;
+            Vector< mtk::Side_Cluster_DataBase >     mSideClusters;
+            Vector< mtk::Double_Side_Cluster >       mDblSideClusters;
+            Vector< mtk::Nonconformal_Side_Cluster > mNonconformalSideClusters;
 
-            moris::Cell< mtk::Side_Cluster_DataBase > mGhostLeader;
-            moris::Cell< mtk::Side_Cluster_DataBase > mGhostFollower;
-            moris::Cell< mtk::Double_Side_Cluster >   mGhostDblSidedSet;
+            Vector< mtk::Side_Cluster_DataBase > mGhostLeader;
+            Vector< mtk::Side_Cluster_DataBase > mGhostFollower;
+            Vector< mtk::Double_Side_Cluster >   mGhostDblSidedSet;
 
-            moris::Cell< moris_index > mGhostLeaderFollowerIPCellList;
-            moris::Cell< mtk::Cell* >  mGhostLeaderFollowerIGCellList;
+            Vector< moris_index > mGhostLeaderFollowerIPCellList;
+            Vector< mtk::Cell* >  mGhostLeaderFollowerIGCellList;
 
-            moris::Cell< moris_index > mGhostLeaderFollowerOrd;
+            Vector< moris_index > mGhostLeaderFollowerOrd;
 
-            moris::Cell< bool > mGhostLeaderFollowerIsTrivial;
+            Vector< bool > mGhostLeaderFollowerIsTrivial;
 
-            moris::Cell< moris_index > mGhostLeaderFollowerVertexOffSet;
+            Vector< moris_index > mGhostLeaderFollowerVertexOffSet;
 
-            moris::Cell< mtk::Vertex* > mGhostLeaderFollowerToVertex;
+            Vector< mtk::Vertex* > mGhostLeaderFollowerToVertex;
             // Cell Information
-            moris::Cell< Cell_DataBase > mCells;
+            Vector< Cell_DataBase > mCells;
 
             moris::map< std::string, enum CellTopology > mNameToCellTopologyMap;    // key: set name, value: cell topology
 
             // vertex map (used in GEN)
             std::unordered_map< moris_id, moris_index > mVertexGlobalIdToLocalIndex;
 
-            moris::Cell< moris_id > mVertexIdList;
-            moris::Cell< moris_id > mCellIdList;
-            moris::Cell< moris_id > mVertexOwnerList;
-            moris::Cell< moris_id > mCellOwnerList;
-            moris::Cell< bool >     mCellClusterIsTrivial;
-            moris::Cell< bool >     mSideClusterIsTrivial;
+            Vector< moris_id > mVertexIdList;
+            Vector< moris_id > mCellIdList;
+            Vector< moris_id > mVertexOwnerList;
+            Vector< moris_id > mCellOwnerList;
+            Vector< bool >     mCellClusterIsTrivial;
+            Vector< bool >     mSideClusterIsTrivial;
 
-            moris::Cell< std::shared_ptr< moris::mtk::Cell_Info > > mCellInfoList;
+            Vector< std::shared_ptr< moris::mtk::Cell_Info > > mCellInfoList;
 
             std::unordered_map< moris::moris_index, moris::moris_index > mSideClusterIndexToRowNumber;
 
@@ -169,7 +169,7 @@ namespace moris
             uint get_spatial_dim() const override;
 
 
-            void add_nonconformal_side_clusters( moris::Cell< Nonconformal_Side_Cluster > const & aNonconformalSideClusters );
+            void add_nonconformal_side_clusters( Vector< Nonconformal_Side_Cluster > const & aNonconformalSideClusters );
 
             void add_nonconformal_side_set( Nonconformal_Side_Set* aNonconformalSideSet );
 
@@ -282,7 +282,7 @@ namespace moris
              * @return moris::Cell< std::string > block set names
              */
 
-            virtual moris::Cell< std::string >
+            virtual Vector< std::string >
             get_block_set_names() const override;
 
             // ----------------------------------------------------------------------------
@@ -294,7 +294,7 @@ namespace moris
              * @return moris::Cell< Cluster const* > cell clusters
              */
 
-            virtual moris::Cell< Cluster const * >
+            virtual Vector< Cluster const * >
             get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const override;
 
             // ----------------------------------------------------------------------------
@@ -306,7 +306,7 @@ namespace moris
              * @return moris::Cell< Cluster const* > side clusters
              */
 
-            virtual moris::Cell< Cluster const * >
+            virtual Vector< Cluster const * >
             get_side_set_cluster( moris_index aSideSetOrdinal ) const override;
 
             // ----------------------------------------------------------------------------
@@ -360,7 +360,7 @@ namespace moris
              * Returns the double side clusters in the side set
              */
 
-            virtual moris::Cell< Cluster const * >
+            virtual Vector< Cluster const * >
             get_double_side_set_cluster( moris_index aSideSetOrdinal ) const override;
 
             // ----------------------------------------------------------------------------

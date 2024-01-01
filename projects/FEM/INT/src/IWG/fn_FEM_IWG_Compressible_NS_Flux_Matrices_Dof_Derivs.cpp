@@ -24,8 +24,8 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & adA0dDOF )
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                moris::Vector< Matrix< DDRMat > >                   & adA0dDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
@@ -207,8 +207,8 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & adA1dDOF )
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                moris::Vector< Matrix< DDRMat > >                   & adA1dDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
@@ -477,8 +477,8 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & adA2dDOF )
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                moris::Vector< Matrix< DDRMat > >                   & adA2dDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
@@ -748,8 +748,8 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & adA3dDOF )
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                moris::Vector< Matrix< DDRMat > >                   & adA3dDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
@@ -1008,9 +1008,9 @@ namespace moris
         void eval_KijYjDOF(
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                const moris::Cell< MSI::Dof_Type >                & aDofType,
-                moris::Cell< Matrix< DDRMat > >                   & aKijYjDOF )
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                const moris::Vector< MSI::Dof_Type >                & aDofType,
+                moris::Vector< Matrix< DDRMat > >                   & aKijYjDOF )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
@@ -1108,8 +1108,8 @@ namespace moris
         void eval_KijYjiDOF(
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                const moris::Cell< MSI::Dof_Type >                & aDofType,
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                const moris::Vector< MSI::Dof_Type >                & aDofType,
                 Matrix< DDRMat >                                  & aKijYjiDOF )
         {
 

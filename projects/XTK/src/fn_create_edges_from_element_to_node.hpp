@@ -105,11 +105,11 @@ namespace xtk
         // Single Element Face To Nodes
         moris::Matrix< moris::IdMat > tElementEdgeToNode(tNumEdgePerElem,tNumNodesPerEdge);
 
-        moris::Cell<Integer> tPotentialEdges;
+        moris::Vector<Integer> tPotentialEdges;
         tPotentialEdges.reserve(10);
-        moris::Cell<Integer> tPotentialEdges1;
+        moris::Vector<Integer> tPotentialEdges1;
         tPotentialEdges1.reserve(10);
-        moris::Cell<Integer> tPotentialEdges2;
+        moris::Vector<Integer> tPotentialEdges2;
         tPotentialEdges2.reserve(10);
 
         // iterate over elements

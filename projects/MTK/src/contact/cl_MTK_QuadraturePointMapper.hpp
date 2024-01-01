@@ -7,7 +7,7 @@
 
 #include <ostream>
 #include "cl_MTK_Side_Set.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_MappingResult.hpp"
 
 namespace moris::mtk
@@ -18,8 +18,8 @@ namespace moris::mtk
       public:
         QuadraturePointMapper(
                 Integration_Mesh                                           *aIGMesh,
-                moris::Cell< Side_Set const * >                            &aSideSets,
-                moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs );
+                Vector< Side_Set const * >                            &aSideSets,
+                Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs );
 
         virtual ~QuadraturePointMapper() = default;
 
@@ -27,8 +27,8 @@ namespace moris::mtk
 
       protected:
         Integration_Mesh                                    *mIGMesh;
-        moris::Cell< Side_Set const * >                      mSideSets;
-        moris::Cell< std::pair< moris_index, moris_index > > mCandidatePairs;
+        Vector< Side_Set const * >                      mSideSets;
+        Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_QUADRATUREPOINTMAPPER_HPP

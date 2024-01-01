@@ -5,7 +5,7 @@
 #ifndef MORIS_CL_FEM_MODEL_INITIALIZER_LEGACY_HPP
 #define MORIS_CL_FEM_MODEL_INITIALIZER_LEGACY_HPP
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Param_List.hpp"
 #include "cl_Library_IO.hpp"
 #include "cl_FEM_Model_Initializer.hpp"
@@ -15,7 +15,7 @@ namespace moris::fem
     {
       public:
         Model_Initializer_Legacy(
-                moris::Cell< moris::Cell< ParameterList > >      aParameterList,
+                Vector< Vector< ParameterList > >      aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 mtk::Mesh_Pair const*                            aMeshPair,
                 uint                                             aSpatialDimension,

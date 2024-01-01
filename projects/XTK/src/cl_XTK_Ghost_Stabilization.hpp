@@ -40,45 +40,45 @@ namespace xtk
      */
     struct Ghost_Setup_Data
     {
-        Cell< moris_index > mSubphaseIndexToInterpolationCellIndex; // input: subphase index || output: enriched interpolation cell index
-        Cell< moris_index > mDblSideSetIndexInMesh;                 // input: index of ghost side set || output: corresponding index of dbl. side set as saved on enriched IG mesh
+        Vector< moris_index > mSubphaseIndexToInterpolationCellIndex; // input: subphase index || output: enriched interpolation cell index
+        Vector< moris_index > mDblSideSetIndexInMesh;                 // input: index of ghost side set || output: corresponding index of dbl. side set as saved on enriched IG mesh
 
         // ----------------------------------------------------------------------------------
         // Maps for old Ghost
 
         // interpolation cells
-        Cell< Cell< moris_index > > mLeaderSideIpCells; // input: bulk phase index || output: list of enriched leader IP cells used for ghost facet construction 
-        Cell< Cell< moris_index > > mFollowerSideIpCells;  // input: bulk phase index || output: list of corresponding enriched follower IP cells used for ghost facet construction  
+        Vector< Vector< moris_index > > mLeaderSideIpCells; // input: bulk phase index || output: list of enriched leader IP cells used for ghost facet construction
+        Vector< Vector< moris_index > > mFollowerSideIpCells;  // input: bulk phase index || output: list of corresponding enriched follower IP cells used for ghost facet construction
 
         // Side ordinals
-        Cell< Cell< moris_index > > mLeaderSideIgCellSideOrds; // input: bulk phase index || output: list of side ordinals of the leader IP cells used for ghost facet construction
-        Cell< Cell< moris_index > > mFollowerSideIgCellSideOrds;  // input: bulk phase index || output: list of side ordinals of the corresponding follower IP cells used for ghost facet construction
+        Vector< Vector< moris_index > > mLeaderSideIgCellSideOrds; // input: bulk phase index || output: list of side ordinals of the leader IP cells used for ghost facet construction
+        Vector< Vector< moris_index > > mFollowerSideIgCellSideOrds;  // input: bulk phase index || output: list of side ordinals of the corresponding follower IP cells used for ghost facet construction
 
         // trivial clusters are ones that are not on a hanging node interface
-        Cell< Cell< moris_index > > mNonTrivialFlag;     // input: bulk phase index || output: list of flags indicating whether corresponding ghost facet construction is Non-trivial (i.e. it has hanging nodes)
-        Cell< Cell< moris_index > > mTransitionLocation; // input: bulk phase index || output: list of transition locations of corresponding ghost facet construction 
+        Vector< Vector< moris_index > > mNonTrivialFlag;     // input: bulk phase index || output: list of flags indicating whether corresponding ghost facet construction is Non-trivial (i.e. it has hanging nodes)
+        Vector< Vector< moris_index > > mTransitionLocation; // input: bulk phase index || output: list of transition locations of corresponding ghost facet construction
 
         // ----------------------------------------------------------------------------------
         // Revised Maps for new Ghost
 
         // interpolation cells
-        Cell< Cell< Cell< moris_index > > > mLeaderSideIpCellsNew; // input: B-spline mesh list index, bulk phase index || output: list of enriched leader IP cells used for ghost facet construction 
-        Cell< Cell< Cell< moris_index > > > mFollowerSideIpCellsNew;  // input: B-spline mesh list index, bulk phase index || output: list of corresponding enriched follower IP cells used for ghost facet construction  
+        Vector< Vector< Vector< moris_index > > > mLeaderSideIpCellsNew; // input: B-spline mesh list index, bulk phase index || output: list of enriched leader IP cells used for ghost facet construction
+        Vector< Vector< Vector< moris_index > > > mFollowerSideIpCellsNew;  // input: B-spline mesh list index, bulk phase index || output: list of corresponding enriched follower IP cells used for ghost facet construction
 
         // Side ordinals
-        Cell< Cell< Cell< moris_index > > > mLeaderSideIgCellSideOrdsNew; // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the leader IP cells used for ghost facet construction
-        Cell< Cell< Cell< moris_index > > > mFollowerSideIgCellSideOrdsNew;  // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the corresponding follower IP cells used for ghost facet construction
+        Vector< Vector< Vector< moris_index > > > mLeaderSideIgCellSideOrdsNew; // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the leader IP cells used for ghost facet construction
+        Vector< Vector< Vector< moris_index > > > mFollowerSideIgCellSideOrdsNew;  // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the corresponding follower IP cells used for ghost facet construction
 
         // trivial clusters are ones that are not on a hanging node interface
-        Cell< Cell< Cell< moris_index > > > mNonTrivialFlagNew;     // input: B-spline mesh list index, bulk phase index || output: list of trivial flags indicating whether corresponding ghost facet construction is trivial (i.e. no hanging nodes)
-        Cell< Cell< Cell< moris_index > > > mTransitionLocationNew; // input: B-spline mesh list index, bulk phase index || output: list of transition locations of corresponding ghost facet construction 
+        Vector< Vector< Vector< moris_index > > > mNonTrivialFlagNew;     // input: B-spline mesh list index, bulk phase index || output: list of trivial flags indicating whether corresponding ghost facet construction is trivial (i.e. no hanging nodes)
+        Vector< Vector< Vector< moris_index > > > mTransitionLocationNew; // input: B-spline mesh list index, bulk phase index || output: list of transition locations of corresponding ghost facet construction
 
         // ----------------------------------------------------------------------------------
 
         // Linear integration cells
         bool                                           mLinearBackgroundMesh = false;
         std::unordered_map< moris_index, moris_index > mLinearIgCellIndex;
-        Cell< mtk::Cell* >                             mLinearIgCells;
+        Vector< mtk::Cell* >                             mLinearIgCells;
 
         size_t
         capacity()
@@ -107,7 +107,7 @@ namespace xtk
             // B-spline mesh information
             Matrix< IndexMat > mMeshIndices;
             moris_index mMinMeshIndex; 
-            moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
+            Vector< Bspline_Mesh_Info* > mBsplineMeshInfos;
 
             bool
             is_linear_ip_mesh();
@@ -210,8 +210,8 @@ namespace xtk
             void
             collect_unzipped_IP_vertices_without_interpolation(
                     Ghost_Setup_Data&          aGhostSetupData,
-                    Cell< mtk::Vertex* >&      aGhostVerticesWithoutInterpolation,
-                    Cell< mtk::Cell const * >& aGhostIpCellConnectedToVertex,
+                    Vector< mtk::Vertex* >&      aGhostVerticesWithoutInterpolation,
+                    Vector< mtk::Cell const * >& aGhostIpCellConnectedToVertex,
                     const moris_index          aMeshIndex );
 
             // ----------------------------------------------------------------------------------
@@ -228,12 +228,12 @@ namespace xtk
              */
             void
             prepare_requests_for_T_matrices_without_interpolation(
-                    Cell< mtk::Vertex* > const &      aGhostVerticesWithoutInterpolation,
-                    Cell< mtk::Cell const * > const & aGhostIpCellConnectedToVertex,
-                    Cell< Cell< moris_index > > &     aNotOwnedIPVertIndsInNotOwnedList,
-                    Cell< Cell< moris_index > >&      aIPVertIndsToProcs,
-                    Cell< Matrix< IdMat > >&          aBaseVertexIds,
-                    Cell< Matrix< IdMat > >&          aUnzippedIpCellIds );
+                    Vector< mtk::Vertex* > const &      aGhostVerticesWithoutInterpolation,
+                    Vector< mtk::Cell const * > const & aGhostIpCellConnectedToVertex,
+                    Vector< Vector< moris_index > > &     aNotOwnedIPVertIndsInNotOwnedList,
+                    Vector< Vector< moris_index > >&      aIPVertIndsToProcs,
+                    Vector< Matrix< IdMat > >&          aBaseVertexIds,
+                    Vector< Matrix< IdMat > >&          aUnzippedIpCellIds );
 
             // ----------------------------------------------------------------------------------
 
@@ -250,12 +250,12 @@ namespace xtk
              */
             void
             prepare_answers_for_T_matrices(
-                    Cell< Matrix< IdMat > > const & aReceivedBaseVertexIds,
-                    Cell< Matrix< IdMat > > const & aReceivedUnzippedIpCellIds,
-                    Cell< Matrix< DDRMat > >&       aTMatrixWeights,
-                    Cell< Matrix< IdMat > >&        aTMatrixIds,
-                    Cell< Matrix< IdMat > >&        aTMatrixOwners,
-                    Cell< Matrix< IndexMat > >&     aTMatrixOffsets,
+                    Vector< Matrix< IdMat > > const & aReceivedBaseVertexIds,
+                    Vector< Matrix< IdMat > > const & aReceivedUnzippedIpCellIds,
+                    Vector< Matrix< DDRMat > >&       aTMatrixWeights,
+                    Vector< Matrix< IdMat > >&        aTMatrixIds,
+                    Vector< Matrix< IdMat > >&        aTMatrixOwners,
+                    Vector< Matrix< IndexMat > >&     aTMatrixOffsets,
                     const moris_index               aMeshIndex );
 
             // ----------------------------------------------------------------------------------
@@ -274,13 +274,13 @@ namespace xtk
              */
             void
             handle_requested_T_matrix_answers(
-                    Cell< mtk::Cell const * > const &   aGhostIpCellConnectedToVertex,
-                    Cell< Cell< moris_index > > const & aNotOwnedIPVertIndsInNotOwnedList,
-                    Cell< Cell< moris_index > > const & aIPVertIndsToProcs,
-                    Cell< Matrix< DDRMat > > const &    aReceivedTMatrixWeights,
-                    Cell< Matrix< IdMat > > const &     aReceivedTMatrixIds,
-                    Cell< Matrix< IdMat > > const &     aReceivedTMatrixOwners,
-                    Cell< Matrix< IndexMat > > const &  aReceivedTMatrixOffsets,
+                    Vector< mtk::Cell const * > const &   aGhostIpCellConnectedToVertex,
+                    Vector< Vector< moris_index > > const & aNotOwnedIPVertIndsInNotOwnedList,
+                    Vector< Vector< moris_index > > const & aIPVertIndsToProcs,
+                    Vector< Matrix< DDRMat > > const &    aReceivedTMatrixWeights,
+                    Vector< Matrix< IdMat > > const &     aReceivedTMatrixIds,
+                    Vector< Matrix< IdMat > > const &     aReceivedTMatrixOwners,
+                    Vector< Matrix< IndexMat > > const &  aReceivedTMatrixOffsets,
                     const moris_index                   aMeshIndex  );
 
             // ----------------------------------------------------------------------------------
@@ -294,9 +294,9 @@ namespace xtk
             void
             get_ip_vertices_in_ghost_sets(
                     Ghost_Setup_Data                & aGhostSetupData,
-                    moris::Cell<mtk::Vertex*>       & aGhostVerticesWithInterpolation,
-                    moris::Cell<mtk::Vertex*>       & aGhostVerticesWithoutInterpolation,
-                    moris::Cell<mtk::Cell  const *> & aGhostIpCellConnectedToVertex);
+                    Vector<mtk::Vertex*>       & aGhostVerticesWithInterpolation,
+                    Vector<mtk::Vertex*>       & aGhostVerticesWithoutInterpolation,
+                    Vector<mtk::Cell  const *> & aGhostIpCellConnectedToVertex);
 
             // ----------------------------------------------------------------------------------
             /**
@@ -311,9 +311,9 @@ namespace xtk
 
             void
             prepare_ip_cell_id_answers(
-                    Cell<Matrix<IndexMat>>                 & aReceivedEnrCellIds,
-                    Cell<moris_id>                         & aNewInterpCellIds,
-                    Cell<Matrix<IndexMat>>                 & aEnrCellIds,
+                    Vector<Matrix<IndexMat>>                 & aReceivedEnrCellIds,
+                    Vector<moris_id>                         & aNewInterpCellIds,
+                    Vector<Matrix<IndexMat>>                 & aEnrCellIds,
                     std::unordered_map<moris_id, moris_id> & aBaseEnrIdToIndexInNonTrivialOwned);
 
             // ----------------------------------------------------------------------------------
@@ -371,7 +371,7 @@ namespace xtk
             std::shared_ptr<Side_Cluster>
             create_follower_side_cluster(
                     Ghost_Setup_Data &  aGhostSetupData,
-                    Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
+                    Vector<Interpolation_Cell_Unzipped*> & aEnrIpCells,
                     uint const   & aBulkIndex,
                     uint const   & aCellIndex,
                     moris_index  & aCurrentIndex,
@@ -380,7 +380,7 @@ namespace xtk
             std::shared_ptr< Side_Cluster >
             create_follower_side_cluster_new(
                     Ghost_Setup_Data&                     aGhostSetupData,
-                    Cell< Interpolation_Cell_Unzipped* >& aEnrIpCells,
+                    Vector< Interpolation_Cell_Unzipped* >& aEnrIpCells,
                     uint const&                           aBsplineMeshListIndex,
                     uint const&                           aBulkPhaseIndex,
                     uint const&                           aGhostFacetIndexInSet,
@@ -392,7 +392,7 @@ namespace xtk
             std::shared_ptr<Side_Cluster>
             create_leader_side_cluster(
                     Ghost_Setup_Data &  aGhostSetupData,
-                    Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
+                    Vector<Interpolation_Cell_Unzipped*> & aEnrIpCells,
                     uint const & aBulkIndex,
                     uint const & aCellIndex,
                     Side_Cluster* aFollowerSideCluster,
@@ -402,7 +402,7 @@ namespace xtk
             std::shared_ptr< Side_Cluster >
             create_leader_side_cluster_new(
                     Ghost_Setup_Data&                     aGhostSetupData,
-                    Cell< Interpolation_Cell_Unzipped* >& aEnrIpCells,
+                    Vector< Interpolation_Cell_Unzipped* >& aEnrIpCells,
                     uint const&                           aBsplineMeshListIndex,
                     uint const&                           aBulkPhaseIndex,
                     uint const&                           aGhostFacetIndexInSet,
@@ -453,17 +453,17 @@ namespace xtk
 
             void
             permute_follower_vertices(
-                    moris::Cell<moris::mtk::Vertex const *> const & aFollowerVertices,
-                    moris::Cell<moris::mtk::Vertex const *> const & aLeaderVertices,
-                    moris::Cell<moris::mtk::Vertex const *>  & aPermutedFollowerVertices,
-                    moris::Cell<moris::mtk::Vertex const *>  & aPermutedAdjMastVertices);
+                    Vector<moris::mtk::Vertex const *> const & aFollowerVertices,
+                    Vector<moris::mtk::Vertex const *> const & aLeaderVertices,
+                    Vector<moris::mtk::Vertex const *>  & aPermutedFollowerVertices,
+                    Vector<moris::mtk::Vertex const *>  & aPermutedAdjMastVertices);
 
             // ----------------------------------------------------------------------------------
 
             void
             get_local_coords_on_transition_side(moris_index const    & aMySideOrdinal,
                     moris_index const    & aTransitionLoc,
-                    Cell<Matrix<DDRMat>> & aLocCoord);
+                    Vector<Matrix<DDRMat>> & aLocCoord);
 
             // ----------------------------------------------------------------------------------
 

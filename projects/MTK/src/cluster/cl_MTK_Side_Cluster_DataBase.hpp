@@ -23,8 +23,8 @@ namespace moris
         {
           private:
             // FIXME: old data member that needs to be deleted
-            moris::Cell< moris::mtk::Cell const * > mPrimaryIntegrationCells;
-            moris::Cell< moris::mtk::Cell const * > mVoidIntegrationCells;
+            Vector< moris::mtk::Cell const * > mPrimaryIntegrationCells;
+            Vector< moris::mtk::Cell const * > mVoidIntegrationCells;
 
 
             moris_index mSideClusterIndex;
@@ -88,7 +88,7 @@ namespace moris
              * Get all integration cells in this side cluster
              */
 
-            virtual moris::Cell< mtk::Cell const * > const &
+            virtual Vector< mtk::Cell const * > const &
             get_cells_in_side_cluster() const override;
 
             // ----------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ namespace moris
              * @return all the vertices in this cluster
              */
 
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
 

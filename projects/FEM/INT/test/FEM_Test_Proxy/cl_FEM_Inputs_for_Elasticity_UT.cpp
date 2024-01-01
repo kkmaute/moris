@@ -22,7 +22,7 @@ using namespace moris;
 inline void
 tConstValFunc_Elast(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -33,7 +33,7 @@ tConstValFunc_Elast(
 inline void
 tAxisymRotAxisFunc_Elast(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     MORIS_ASSERT( aParameters( 0 ).n_cols() == 2 and aParameters( 0 ).n_rows() == 2,
@@ -73,7 +73,7 @@ tAxisymRotAxisFunc_Elast(
 inline void
 tUXFIValFunc_Elast(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     moris::fem::Field_Interpolator* tFIVelocity =
@@ -85,7 +85,7 @@ tUXFIValFunc_Elast(
 inline void
 tUXFIDerFunc_Elast(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     moris::fem::Field_Interpolator* tFIVelocity =
@@ -102,7 +102,7 @@ tUXFIDerFunc_Elast(
 inline void
 tPFIValFunc_Elast(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->val();
@@ -111,7 +111,7 @@ tPFIValFunc_Elast(
 inline void
 tPFIDerFunc_Elast(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->N();
@@ -120,7 +120,7 @@ tPFIDerFunc_Elast(
 inline void
 tTEMPFIValFunc_Elast(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
@@ -129,7 +129,7 @@ tTEMPFIValFunc_Elast(
 inline void
 tTEMPFIDerFunc_Elast(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
@@ -137,7 +137,7 @@ tTEMPFIDerFunc_Elast(
 
 inline void
 tMValFunc_Elast( moris::Matrix< moris::DDRMat >&       aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     eye( aParameters( 0 )( 0 ), aParameters( 0 )( 0 ), aPropMatrix );

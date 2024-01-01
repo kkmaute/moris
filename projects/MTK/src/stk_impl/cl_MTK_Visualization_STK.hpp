@@ -12,9 +12,9 @@
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK__VISUALIZATION_STK_HPP_
 
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {
@@ -104,7 +104,7 @@ public:
 private:
     moris::mtk::MtkFieldsInfo mFieldMtkFieldsInfo;
     Scalar_Field_Info<DDRMat> mCellOwnersFields;
-    moris::Cell< Scalar_Field_Info<DDRMat>> mCellsOnProcFields;
+    Vector< Scalar_Field_Info<DDRMat>> mCellsOnProcFields;
 
 };
 }

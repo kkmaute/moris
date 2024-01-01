@@ -170,7 +170,7 @@ void Linear_Solver::solver_linear_system(
     {
 
         // Compute current solution vector norm
-        Cell< moris::real > tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
+        Vector< moris::real > tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
 
         MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. ",
                 tTryRestartOnFailIt,

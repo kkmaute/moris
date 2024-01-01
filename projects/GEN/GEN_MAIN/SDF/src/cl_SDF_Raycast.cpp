@@ -26,7 +26,7 @@ namespace moris::sdf
             , mPointIsInside( 2 )
     {
         // Get facet information from the object
-        Cell< Facet* > tFacets         = mObject.get_facets();
+        Vector< Facet* > tFacets         = mObject.get_facets();
         uint           tNumberOfFacets = tFacets.size();
 
         // Determine and store the minimum and maximum coordinates of each facet
@@ -203,7 +203,7 @@ namespace moris::sdf
         // #else
         // loop over all triangles in J-Direction
         uint tCountJ = 0;
-        Cell< uint > tCandJ( mObject.get_num_facets() );
+        Vector< uint > tCandJ( mObject.get_num_facets() );
         for ( uint k = 0; k < mObject.get_num_facets(); ++k )
         {
             // check bounding box in J-direction
@@ -268,7 +268,7 @@ namespace moris::sdf
         // #else
         // loop over all triangles in J-Direction
         uint tCountJ = 0;
-        Cell< uint > tCandJ( mObject.get_num_facets() );
+        Vector< uint > tCandJ( mObject.get_num_facets() );
         for ( uint k = 0; k < mObject.get_num_facets(); ++k )
         {
             // check bounding box in J-direction
@@ -334,7 +334,7 @@ namespace moris::sdf
         // #else
         // loop over all triangles in J-Direction
         uint tCountJ = 0;
-        Cell< uint > tCandJ( mObject.get_num_facets() );
+        Vector< uint > tCandJ( mObject.get_num_facets() );
         for ( uint k = 0; k < mObject.get_num_facets(); ++k )
         {
             // check bounding box in J-direction

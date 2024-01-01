@@ -259,8 +259,8 @@ namespace moris
             tResVec->vec_plus_vec( -1.0, *mPointVectorRHS, 1.0 );
 
             // norm of residual and RHS
-            Cell< real > tResNorm = tResVec->vec_norm2();
-            Cell< real > tRhsNorm = mPointVectorRHS->vec_norm2();
+            Vector< real > tResNorm = tResVec->vec_norm2();
+            Vector< real > tRhsNorm = mPointVectorRHS->vec_norm2();
 
             // allocate vector for relative residuals
             Matrix< DDRMat > tRelativeResidualNorm( tNumberOfRHS, 1 );

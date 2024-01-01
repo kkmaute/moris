@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_TRI6_CELL_INFO_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_TRI6_CELL_INFO_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Cell_Info.hpp"

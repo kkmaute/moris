@@ -24,8 +24,8 @@ namespace moris::mtk
 
         QuadraturePointMapper_Ray(
                 mtk::Integration_Mesh                                      *aIGMesh,
-                moris::Cell< Side_Set const * >                            &aSideSets,
-                const moris::Cell< std::pair< moris_index, moris_index > > &aCandidatePairs );
+                Vector< Side_Set const * >                            &aSideSets,
+                const Vector< std::pair< moris_index, moris_index > > &aCandidatePairs );
 
         MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates ) const override;
 
@@ -47,7 +47,7 @@ namespace moris::mtk
          */
         static auto initialize_surface_meshes(
                 Integration_Mesh const                     *aIGMesh,
-                moris::Cell< mtk::Side_Set const * > const &aSideSets ) -> moris::Cell< Surface_Mesh >;
+                Vector< mtk::Side_Set const * > const &aSideSets ) -> Vector< Surface_Mesh >;
 
         /**
          * @brief
@@ -61,7 +61,7 @@ namespace moris::mtk
         static void interpolate_source_point( moris_index aCellIndex, Matrix< DDRMat > const &aParametricCoordinates, Space_Interpolator &aCoordinateInterpolator, Space_Interpolator &aNormalInterpolator, Surface_Mesh const &aSurfaceMesh, MappingResult &aMappingResult );
 
         // data
-        moris::Cell< Surface_Mesh > mSurfaceMeshes;
+        Vector< Surface_Mesh > mSurfaceMeshes;
         Spatial_Indexer_BruteForce  mSpatialIndexer;
         void                        check_ray_cell_intersection( MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, moris_index aSourceCellIndex, moris_index aTargetCellIndex, uint aResultOffset ) const;
         void                        process_rays( moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult, uint aResultOffset, MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, bool aBruteForce ) const;

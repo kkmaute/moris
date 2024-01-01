@@ -26,8 +26,8 @@ namespace moris::mtk
                 Integration_Mesh_DataBase_IG                               *aIGMesh,
                 Interpolation_Mesh_DataBase_IP                             *aIPMesh,
                 Integrator                                                 &aIntegrator,
-                moris::Cell< Side_Set const * >                            &aCandidateSideSet,
-                moris::Cell< std::pair< moris_index, moris_index > > const &aCandidatePairs )
+                Vector< Side_Set const * >                            &aCandidateSideSet,
+                Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs )
                 : mIGMesh( aIGMesh )
                 , mIPMesh( aIPMesh )
                 , mIntegrator( std::move( aIntegrator ) )
@@ -58,7 +58,7 @@ namespace moris::mtk
         /**
          * \brief Holds information about the indices in the mapping result that belong to a specific cluster- and cell-pair.
          */
-        using ResultIndices = moris::Cell< moris_index >;
+        using ResultIndices = Vector< moris_index >;
 
         /**
          * \brief Holds information about a set of source- and target cells that are mapped to each other.
@@ -81,18 +81,18 @@ namespace moris::mtk
          * \brief Performs the mapping (i.e. ray tracing) from the follower side to the leader side. The follower side will also be called the source side, while the leader side (where the ray hits) will be called the target side. The mapping will be performed for all source sides of the candidate pairs.
          * \return Returns a mapping result for each source side of the candidate pairs.
          */
-        moris::Cell< MappingResult > perform_mapping() const;
+        Vector< MappingResult > perform_mapping() const;
 
-        std::map< SetPair, moris::Cell< Nonconformal_Side_Cluster > >
+        std::map< SetPair, Vector< Nonconformal_Side_Cluster > >
         convert_mapping_result_to_nonconformal_side_clusters( MappingResult aMappingResult ) const;
 
-        void update_ig_mesh_database( const moris::Cell< Nonconformal_Side_Cluster > &aNonconformalSideClusters, std::string const &aSetName, const Matrix< IndexMat > &aSetColor ) const;
+        void update_ig_mesh_database( const Vector< Nonconformal_Side_Cluster > &aNonconformalSideClusters, std::string const &aSetName, const Matrix< IndexMat > &aSetColor ) const;
 
         Integration_Mesh_DataBase_IG                        *mIGMesh;
         Interpolation_Mesh_DataBase_IP                      *mIPMesh;
         Integrator                                           mIntegrator;
-        moris::Cell< Side_Set const * >                      mSideSets;
-        moris::Cell< std::pair< moris_index, moris_index > > mCandidatePairs;
+        Vector< Side_Set const * >                      mSideSets;
+        Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
         QuadraturePointMapper_Ray                            mPointMapper;
         std::string                                          get_nonconformal_side_set_name( SetPair const &tSetPair ) const;
         static std::pair< std::string, std::string >         get_leaderphase_from_set_name( std::string const &aSideSetName ) ;

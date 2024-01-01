@@ -12,7 +12,7 @@
 #define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TET_11_HPP_
 
 #include "cl_MTK_Integration_Coeffs.hpp"
-#include "typedefs.hpp"           //MRS/COR/src
+#include "moris_typedefs.hpp"           //MRS/COR/src
 #include "cl_Matrix.hpp"          //LNA/src
 #include "linalg_typedefs.hpp"    //LNA/src
 #include "cl_MTK_Enums.hpp"       //MTK/src

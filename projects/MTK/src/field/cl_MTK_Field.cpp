@@ -531,7 +531,7 @@ namespace moris
                     "field_temp" );
 
             // set standard field names
-            moris::Cell< std::string > tNodalFieldNames( mNumberOfFields );
+            moris::Vector< std::string > tNodalFieldNames( mNumberOfFields );
 
             for ( uint tIndex = 0; tIndex < mNumberOfFields; ++tIndex )
             {

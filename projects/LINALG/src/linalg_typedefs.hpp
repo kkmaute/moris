@@ -11,7 +11,7 @@
 #ifndef PROJECTS_LINALG_SRC_LINALG_TYPEDEFS_HPP_
 #define PROJECTS_LINALG_SRC_LINALG_TYPEDEFS_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 namespace moris
 {
     /*

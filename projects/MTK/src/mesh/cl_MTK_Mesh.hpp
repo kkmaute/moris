@@ -12,7 +12,7 @@
 #define SRC_MESH_CL_MTK_MESH_HPP_
 
 #include <memory>
-#include "typedefs.hpp" //MRS/COR/src
+#include "moris_typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Enums.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
@@ -171,11 +171,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            uint get_sidesets_num_faces( moris::Cell< moris_index > aSidesetOrdinalList ) const
+            uint get_sidesets_num_faces( Vector< moris_index > aSidesetOrdinalList ) const
             {
                 moris::uint tNumSideSetFaces = 0;
 
-                moris::Cell<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
+                Vector<std::string> tSideSetsNames = this->get_set_names( EntityRank::FACE );
 
                 for( luint Ik=0; Ik < aSidesetOrdinalList.size(); ++Ik )
                 {
@@ -286,10 +286,10 @@ namespace moris
                     moris_index                 aSideOrdinal,
                     moris_index&                aMyRefineLevel,
                     moris_index&                aMyOctreePosition,
-                    moris::Cell< moris_index >& aNeighborElements,
-                    moris::Cell< moris_index >& aNeighborSideOrdinals,
-                    moris::Cell< moris_index >& aTransitionLocations,
-                    moris::Cell< moris_index >& aNeighborRefinementLevels ) const
+                    Vector< moris_index >& aNeighborElements,
+                    Vector< moris_index >& aNeighborSideOrdinals,
+                    Vector< moris_index >& aTransitionLocations,
+                    Vector< moris_index >& aNeighborRefinementLevels ) const
             {
                 MORIS_ERROR( false,
                     "mtk::Mesh::get_elements_connected_to_element_through_face_ord() - "
@@ -663,11 +663,11 @@ namespace moris
              //##############################################
 
              virtual
-             moris::Cell<std::string>
+             Vector<std::string>
              get_set_names(enum EntityRank aSetEntityRank) const
              {
                  MORIS_ERROR(0," get_set_names has no base implementation");
-                 return moris::Cell<std::string>(0);
+                 return Vector<std::string>(0);
              }
 
              virtual
@@ -693,7 +693,7 @@ namespace moris
              void
              get_sideset_cells_and_ords(
                      const  std::string & aSetName,
-                     moris::Cell< mtk::Cell * > & aCells,
+                     Vector< mtk::Cell * > & aCells,
                      Matrix< IndexMat > &       aSidesetOrdinals )
              {
                  Matrix<IndexMat> tCellInds;

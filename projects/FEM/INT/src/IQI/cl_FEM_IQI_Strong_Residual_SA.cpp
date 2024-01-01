@@ -92,7 +92,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Strong_Residual_SA::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
+                moris::Vector< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
             MORIS_ERROR(false,

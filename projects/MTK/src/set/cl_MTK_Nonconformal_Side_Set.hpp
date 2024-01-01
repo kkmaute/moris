@@ -22,7 +22,7 @@ namespace moris::mtk
       public:
         Nonconformal_Side_Set(
                 std::string const                    &aName,
-                moris::Cell< Cluster const * > const &aClusters,
+                Vector< Cluster const * > const &aClusters,
                 Matrix< IndexMat > const             &aColors,
                 uint const                           &aSpatialDim )
                 : Double_Side_Set( aName, aClusters, aColors, aSpatialDim )
