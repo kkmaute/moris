@@ -7,8 +7,8 @@
  * cl_Vector.hpp
  *
  */
-#ifndef MORIS_CONTAINERS_CL_CELL_HPP_
-#define MORIS_CONTAINERS_CL_CELL_HPP_
+#ifndef MORIS_CONTAINERS_CL_VECTOR_HPP_
+#define MORIS_CONTAINERS_CL_VECTOR_HPP_
 
 // C++ header files.
 #include <vector>
@@ -28,9 +28,9 @@ namespace moris
     {
       private:
         /**
-         * MORIS cell
+         * MORIS vector
          */
-        std::vector< T > mCell;
+        std::vector< T > mVector;
 
 #ifdef CHECK_MEMORY
         uint mNumResizeCalls     = 0;
@@ -51,12 +51,12 @@ namespace moris
         /**
          * Vector constructor
          *
-         * @param[in] aCell A Cell
+         * @param[in] aVector A Vector
          */
 
         Vector(
-                std::initializer_list< T > const & aCell )
-                : mCell( aCell.begin(), aCell.end() )
+                std::initializer_list< T > const & aVector )
+                : mVector( aVector.begin(), aVector.end() )
         {
         }
 
@@ -65,9 +65,9 @@ namespace moris
          *
          * Vector copy constructor
          */
-        Vector( const moris::Vector< T >& aCell )
+        Vector( const moris::Vector< T >& aVector )
         {
-            mCell = aCell.data();
+            mVector = aVector.data();
         }
 
         //------------------------------------------------------------------
@@ -75,18 +75,18 @@ namespace moris
         /**
          * Vector constructor
          *
-         * @param[in] aSize Size of the Cell to be initialized
-         * @param[in] aValue Value of the elements of the initialized Cell
+         * @param[in] aSize Size of the Vector to be initialized
+         * @param[in] aValue Value of the elements of the initialized Vector
          */
 
         template< typename A >
         Vector(
                 moris::uint const aSize,
                 A const           aValue )
-                : mCell( aSize, aValue )
+                : mVector( aSize, aValue )
         {
             MORIS_CHECK_MEMORY( sizeof( T ) * aSize < MORIS_MAX_CELL_CAPACITY,
-                    "Cell::Cell: Maximum allowable capacity exceeded: %f MB.\n",
+                    "moris::Vector: Maximum allowable capacity exceeded: %f MB.\n",
                     sizeof( T ) * aSize / 1e6 );
         }
 
@@ -94,10 +94,10 @@ namespace moris
 
         Vector(
                 moris::uint const aSize )
-                : mCell( aSize )
+                : mVector( aSize )
         {
             MORIS_CHECK_MEMORY( sizeof( T ) * aSize < MORIS_MAX_CELL_CAPACITY,
-                    "Cell::Cell: Maximum allowable capacity exceeded: %f MB.\n",
+                    "moris::Vector: Maximum allowable capacity exceeded: %f MB.\n",
                     sizeof( T ) * aSize / 1e6 );
         }
 
@@ -131,7 +131,7 @@ namespace moris
         const moris::Vector< T >&
         operator=( moris::Vector< T > const & aCell )
         {
-            mCell = aCell.data();
+            mVector = aCell.data();
 
             return *this;
         }
@@ -151,7 +151,7 @@ namespace moris
         operator=(
                 const A& val )
         {
-            mCell = val;
+            mVector = val;
 
             return *this;
         }
@@ -170,7 +170,7 @@ namespace moris
                 moris::size_t const aCount,
                 T const &           aval )
         {
-            mCell.assign( aCount, aval );
+            mVector.assign( aCount, aval );
         }
 
         //------------------------------------------------------------------
@@ -191,16 +191,16 @@ namespace moris
                 moris::size_t const i_index )
                 -> decltype(
 #ifdef MORIS_HAVE_DEBUG
-                        ( mCell.at( i_index ) )
+                        ( mVector.at( i_index ) )
 #else
-                        ( mCell[ i_index ] )
+                        ( mVector[ i_index ] )
 #endif
                 )
         {
 #ifdef MORIS_HAVE_DEBUG
-            return ( mCell.at( i_index ) );
+            return ( mVector.at( i_index ) );
 #else
-            return ( mCell[ i_index ] );
+            return ( mVector[ i_index ] );
 #endif
         }
 
@@ -215,16 +215,16 @@ namespace moris
                 moris::size_t const i_index ) const
                 -> decltype(
 #ifdef MORIS_HAVE_DEBUG
-                        ( mCell.at( i_index ) )
+                        ( mVector.at( i_index ) )
 #else
-                        ( mCell[ i_index ] )
+                        ( mVector[ i_index ] )
 #endif
                 )
         {
 #ifdef MORIS_HAVE_DEBUG
-            return ( mCell.at( i_index ) );
+            return ( mVector.at( i_index ) );
 #else
-            return ( mCell[ i_index ] );
+            return ( mVector[ i_index ] );
 #endif
         }
 
@@ -239,13 +239,13 @@ namespace moris
         std::vector< T > const &
         data() const
         {
-            return mCell;
+            return mVector;
         }
 
         std::vector< T >&
         data()
         {
-            return mCell;
+            return mVector;
         }
 
         //------------------------------------------------------------------
@@ -259,13 +259,13 @@ namespace moris
         T const *
         memptr() const
         {
-            return mCell.data();
+            return mVector.data();
         }
 
         T*
         memptr()
         {
-            return mCell.data();
+            return mVector.data();
         }
 
         //------------------------------------------------------------------
@@ -279,7 +279,7 @@ namespace moris
         bool
         empty()
         {
-            return mCell.empty();
+            return mVector.empty();
         }
 
         //------------------------------------------------------------------
@@ -292,9 +292,9 @@ namespace moris
 
         auto
         back()
-                -> decltype( mCell.back() )
+                -> decltype( mVector.back() )
         {
-            return mCell.back();
+            return mVector.back();
         }
 
         //------------------------------------------------------------------
@@ -307,9 +307,9 @@ namespace moris
 
         auto
         size()
-                -> decltype( mCell.size() )
+                -> decltype( mVector.size() )
         {
-            return mCell.size();
+            return mVector.size();
         }
 
         //------------------------------------------------------------------
@@ -320,9 +320,9 @@ namespace moris
 
         auto
         size() const
-                -> decltype( mCell.size() )
+                -> decltype( mVector.size() )
         {
-            return mCell.size();
+            return mVector.size();
         }
 
         //------------------------------------------------------------------
@@ -335,9 +335,9 @@ namespace moris
 
         auto
         max_size()
-                -> decltype( mCell.max_size() )
+                -> decltype( mVector.max_size() )
         {
-            return mCell.max_size();
+            return mVector.max_size();
         }
 
         //------------------------------------------------------------------
@@ -359,7 +359,7 @@ namespace moris
             MORIS_CHECK_MEMORY( mNumReserveCalls++ < MORIS_CELL_RESERVE_CALL_LIMIT,
                     "Cell::reserve: number of reserve calls exceeds limit.\n" );
 
-            mCell.reserve( new_cap );
+            mVector.reserve( new_cap );
         }
 
         //------------------------------------------------------------------
@@ -373,9 +373,9 @@ namespace moris
 
         auto
         capacity() const
-                -> decltype( mCell.capacity() )
+                -> decltype( mVector.capacity() )
         {
-            return mCell.capacity();
+            return mVector.capacity();
         }
 
         //------------------------------------------------------------------
@@ -397,7 +397,7 @@ namespace moris
             MORIS_CHECK_MEMORY( mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT,
                     "Cell::shrink_to_fit: number of resize + shrink_to_fit calls exceeds limit.\n" );
 
-            mCell.shrink_to_fit();
+            mVector.shrink_to_fit();
         }
 
         //------------------------------------------------------------------
@@ -420,7 +420,7 @@ namespace moris
         void
         clear()
         {
-            mCell.clear();
+            mVector.clear();
         }
 
         //------------------------------------------------------------------
@@ -437,10 +437,10 @@ namespace moris
                 moris::size_t const & pos,
                 T const &             value )
         {
-            MORIS_CHECK_MEMORY( pos >= mCell.capacity() ? mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
+            MORIS_CHECK_MEMORY( pos >= mVector.capacity() ? mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
                     "Cell::insert: number of resize calls exceeds limit.\n" );
 
-            mCell.insert( mCell.begin() + pos, value );
+            mVector.insert( mVector.begin() + pos, value );
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
@@ -461,10 +461,10 @@ namespace moris
         append(
                 moris::Vector< T > const & aCell )
         {
-            MORIS_CHECK_MEMORY( mCell.size() + aCell.size() > mCell.capacity() ? mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
+            MORIS_CHECK_MEMORY( mVector.size() + aCell.size() > mVector.capacity() ? mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
                     "Cell::append: number of resize calls exceeds limit.\n" );
 
-            mCell.insert( mCell.end(), aCell.data().begin(), aCell.data().end() );
+            mVector.insert( mVector.end(), aCell.data().begin(), aCell.data().end() );
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
@@ -485,7 +485,7 @@ namespace moris
         erase(
                 moris::size_t const & pos )
         {
-            mCell.erase( mCell.begin() + pos );
+            mVector.erase( mVector.begin() + pos );
         }
 
         //------------------------------------------------------------------
@@ -504,7 +504,7 @@ namespace moris
                 moris::size_t const & pos1,
                 moris::size_t const & pos2 )
         {
-            mCell.erase( mCell.begin() + pos1, mCell.begin() + pos2 );
+            mVector.erase( mVector.begin() + pos1, mVector.begin() + pos2 );
         }
 
         //------------------------------------------------------------------
@@ -512,7 +512,7 @@ namespace moris
         void
         remove( T const & value )
         {
-            mCell.erase( std::remove( mCell.begin(), mCell.end(), value ), mCell.end() );
+            mVector.erase( std::remove( mVector.begin(), mVector.end(), value ), mVector.end() );
         }
 
         //------------------------------------------------------------------
@@ -528,11 +528,11 @@ namespace moris
                 T const & value )
         {
 #ifdef CHECK_MEMORY
-            const moris::size_t tOldCapacity = mCell.capacity();
+            const moris::size_t tOldCapacity = mVector.capacity();
 
-            mCell.push_back( value );
+            mVector.push_back( value );
 
-            MORIS_CHECK_MEMORY( mCell.capacity() != tOldCapacity && sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? mNumImplicitResizes++ != MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT : true,
+            MORIS_CHECK_MEMORY( mVector.capacity() != tOldCapacity && sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? mNumImplicitResizes++ != MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT : true,
                     "Cell::push_back: number of implicit resize calls exceeds limit.\n" );
 
             if ( sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY && this->size() < MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() && mPushBackMemWarn )
@@ -546,7 +546,7 @@ namespace moris
                 mPushBackMemWarn = false;
             }
 #else
-            mCell.push_back( value );
+            mVector.push_back( value );
 #endif
         }
 
@@ -565,7 +565,7 @@ namespace moris
                 T const &             value,
                 moris::size_t const & tSizeInc )
         {
-            if ( mCell.size() == mCell.capacity() )
+            if ( mVector.size() == mVector.capacity() )
             {
                 MORIS_CHECK_MEMORY( mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT,
                         "Cell::push_back: number of resize calls exceeds limit.\n" );
@@ -573,10 +573,10 @@ namespace moris
                 MORIS_CHECK_MEMORY( mNumReserveCalls++ < MORIS_CELL_RESERVE_CALL_LIMIT,
                         "Cell::reserve: number of reserve calls exceeds limit.\n" );
 
-                mCell.reserve( mCell.size() + tSizeInc );
+                mVector.reserve( mVector.size() + tSizeInc );
             }
 
-            mCell.push_back( value );
+            mVector.push_back( value );
         }
 
         //------------------------------------------------------------------
@@ -588,7 +588,7 @@ namespace moris
         void
         pop_back()
         {
-            mCell.pop_back();
+            mVector.pop_back();
         }
 
         //------------------------------------------------------------------
@@ -620,7 +620,7 @@ namespace moris
             MORIS_CHECK_MEMORY( aCount != this->size() ? mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
                     "Cell::shrink_to_fit: number of resize + shrink_to_fit calls exceeds limit.\n" );
 
-            mCell.resize( aCount, aValue );
+            mVector.resize( aCount, aValue );
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
@@ -636,9 +636,9 @@ namespace moris
          */
         auto
         begin()
-                -> decltype( mCell.begin() )
+                -> decltype( mVector.begin() )
         {
-            return mCell.begin();
+            return mVector.begin();
         }
 
         //------------------------------------------------------------------
@@ -649,9 +649,9 @@ namespace moris
 
         auto
         end()
-                -> decltype( mCell.end() )
+                -> decltype( mVector.end() )
         {
-            return mCell.end();
+            return mVector.end();
         }
 
 
@@ -662,9 +662,9 @@ namespace moris
          */
         auto
         begin() const
-                -> decltype( mCell.begin() )
+                -> decltype( mVector.begin() )
         {
-            return mCell.begin();
+            return mVector.begin();
         }
 
         //------------------------------------------------------------------
@@ -675,9 +675,9 @@ namespace moris
 
         auto
         end() const
-                -> decltype( mCell.end() )
+                -> decltype( mVector.end() )
         {
-            return mCell.end();
+            return mVector.end();
         }
 
         //------------------------------------------------------------------
@@ -688,9 +688,9 @@ namespace moris
 
         auto
         cbegin() const
-                -> decltype( mCell.cbegin() )
+                -> decltype( mVector.cbegin() )
         {
-            return mCell.cbegin();
+            return mVector.cbegin();
         }
 
         //------------------------------------------------------------------
@@ -701,9 +701,9 @@ namespace moris
 
         auto
         cend() const
-                -> decltype( mCell.cend() )
+                -> decltype( mVector.cend() )
         {
-            return mCell.cend();
+            return mVector.cend();
         }
 
         //------------------------------------------------------------------
@@ -725,7 +725,7 @@ namespace moris
             MORIS_ASSERT( this->size() == pos, "Cell is being reallocated such that it can take in the new data" );
 
             // defer to call to the std::vecotr
-            mCell.insert( mCell.begin() + pos, aFirst, aLast );
+            mVector.insert( mVector.begin() + pos, aFirst, aLast );
         }
 
         //------------------------------------------------------------------
@@ -740,7 +740,7 @@ namespace moris
         void
         emplace_back( _Args&&... __args )
         {
-            mCell.emplace_back( std::forward< _Args >( __args )... );
+            mVector.emplace_back( std::forward< _Args >( __args )... );
         }
 
         //------------------------------------------------------------------

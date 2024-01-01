@@ -24,11 +24,11 @@
 namespace moris
 {
     /* ---------------------------------------------------------------------
-     * Gather cells of type T of all processors on root processor (default: 0)
-     * Note: cells need to have same size
+     * Gather vectors of type T of all processors on root processor (default: 0)
+     * Note: vectors need to have same size
      *
-     * @param aBuffer input cell
-     * @param aResult output cell (only valid on root processor)
+     * @param aBuffer input vector
+     * @param aResult output vector (only valid on root processor)
      */
     template <typename T>
     inline
@@ -44,7 +44,7 @@ namespace moris
         MPI_Comm_rank(moris::get_comm(), &tProcRank);
         MPI_Comm_size(moris::get_comm(), &tProcSize);
 
-        // get data type of cell
+        // get data type of vector
         MPI_Datatype tType = get_comm_datatype ( ( T ) 0 );
 
         // allocate proper size for root processor
@@ -54,9 +54,9 @@ namespace moris
             aResult.resize(tProcSize * tSizeofBuffer, 0);
         }
 
-        // check for equal size of cells across all processors
+        // check for equal size of vectors across all processors
         MORIS_ASSERT( max_all( tSizeofBuffer ) == tSizeofBuffer,
-                "gather - cell size differs across processors.\n");
+                "gather - vector size differs across processors.\n");
 
         // mpi call
         MPI_Gather(
@@ -71,11 +71,11 @@ namespace moris
     }
 
     /* ---------------------------------------------------------------------
-     * Scatter cells of type T form root processor  (default: 0) to all processors
-     * Note: cells need to have same size
+     * Scatter vectors of type T form root processor  (default: 0) to all processors
+     * Note: vectors need to have same size
      *
-     * @param aBuffer input cell (only valid on root processor)
-     * @param aResult output cell (needs to be size correctly externally)
+     * @param aBuffer input vector (only valid on root processor)
+     * @param aResult output vector (needs to be size correctly externally)
      */
     template <typename T>
     inline
@@ -91,7 +91,7 @@ namespace moris
         MPI_Comm_rank(moris::get_comm(), &tProcRank);
         MPI_Comm_size(moris::get_comm(), &tProcSize);
 
-        // get data type of cell
+        // get data type of vector
         MPI_Datatype tType = get_comm_datatype ( ( T ) 0 );
 
         // get size of receive buffer (needs to be set externally)
