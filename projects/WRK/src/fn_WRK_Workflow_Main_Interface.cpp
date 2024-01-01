@@ -197,7 +197,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         std::string tWRKFlowStr = tOPTParameterList( 0 )( 0 ).get< std::string >( "workflow" );
 
         // create and initialize (this includes running HMR) an instance of this workflow
-        moris::Cell< std::shared_ptr< moris::opt::Criteria_Interface > > tWorkflows = { wrk::create_workflow( tWRKFlowStr, &tPerformerManager ) };
+        moris::Vector< std::shared_ptr< moris::opt::Criteria_Interface > > tWorkflows = { wrk::create_workflow( tWRKFlowStr, &tPerformerManager ) };
 
         if ( tOPTParameterList( 0 )( 0 ).get< bool >( "is_optimization_problem" ) )
         {

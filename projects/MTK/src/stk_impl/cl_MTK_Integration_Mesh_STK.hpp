@@ -111,12 +111,12 @@ namespace moris
             /*!
              * Returns the block set names
              */
-            moris::Cell< std::string >
+            Vector< std::string >
             get_block_set_names() const;
 
             // ----------------------------------------------------------------------------
 
-            moris::Cell< Cluster const * >
+            Vector< Cluster const * >
             get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const;
 
             /*!
@@ -142,7 +142,7 @@ namespace moris
             /*!
              * Return a side set containing clusters
              */
-            moris::Cell< Cluster const * >
+            Vector< Cluster const * >
             get_side_set_cluster( moris_index aSideSetOrdinal ) const;
 
             /*!
@@ -188,29 +188,29 @@ namespace moris
             /*!
              * Returns the double side clusters in the side set
              */
-            moris::Cell< Cluster const * >
+            Vector< Cluster const * >
             get_double_side_set_cluster( moris_index aSideSetOrdinal ) const;
 
           private:
             // Cell Clusters
-            moris::Cell< Cell_Cluster_STK > mCellClusters;
+            Vector< Cell_Cluster_STK > mCellClusters;
 
             // Block sets containing Cell Clusters
             std::unordered_map< std::string, moris_index >   mBlockSetLabelToOrd;
-            moris::Cell< std::string >                       mPrimaryBlockSetNames;
-            moris::Cell< moris::Cell< moris::moris_index > > mPrimaryBlockSetClusters;
-            moris::Cell< moris::moris_index >                mIpCellToBlockSetOrd;
+            Vector< std::string >                       mPrimaryBlockSetNames;
+            Vector< Vector< moris::moris_index > > mPrimaryBlockSetClusters;
+            Vector< moris::moris_index >                mIpCellToBlockSetOrd;
 
             // side sets
             std::unordered_map< std::string, moris_index > mSideSideSetLabelToOrd;
-            moris::Cell< std::string >                     mSideSetLabels;
-            moris::Cell< moris::Cell< Side_Cluster_STK > > mSideSets;
+            Vector< std::string >                     mSideSetLabels;
+            Vector< Vector< Side_Cluster_STK > > mSideSets;
 
             // double side sets
             std::unordered_map< std::string, moris_index > mDoubleSideSetLabelToOrd;
-            moris::Cell< std::string >                     mDoubleSideSetLabels;
-            moris::Cell< moris::Cell< Cluster const * > >  mDoubleSideSets;
-            moris::Cell< Side_Cluster_STK >                mDoubleSideSetSideClusters;
+            Vector< std::string >                     mDoubleSideSetLabels;
+            Vector< Vector< Cluster const * > >  mDoubleSideSets;
+            Vector< Side_Cluster_STK >                mDoubleSideSetSideClusters;
 
             /*!
              * Setup the clustering interface
@@ -250,10 +250,10 @@ namespace moris
             void
             setup_double_side_set_clusters_all_trivial( Interpolation_Mesh &aInterpMesh );
 
-            moris::Cell< moris::mtk::Cell const * >
+            Vector< moris::mtk::Cell const * >
             get_cell_pointers_from_ids( moris::Matrix< moris::IdMat > const &aCellIds ) const;
 
-            moris::Cell< moris::mtk::Vertex const * >
+            Vector< moris::mtk::Vertex const * >
             get_vertex_pointers_from_ids( moris::Matrix< moris::IdMat > const &aVertexIds ) const;
         };
     }    // namespace mtk

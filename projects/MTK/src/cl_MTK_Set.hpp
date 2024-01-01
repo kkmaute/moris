@@ -65,7 +65,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
           protected:
-            moris::Cell< Cluster const * > mSetClusters;
+            Vector< Cluster const * > mSetClusters;
 
             mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
             mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
@@ -88,7 +88,7 @@ namespace moris
 
             Set(
                     std::string const                    &aName,
-                    moris::Cell< Cluster const * > const &aBlockSetClusters,
+                    Vector< Cluster const * > const &aBlockSetClusters,
                     Matrix< IndexMat > const             &aColors,
                     uint const                           &aSpatialDim )
                     : mSetName( aName )
@@ -313,7 +313,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual moris::Cell< Cluster const * >
+            virtual Vector< Cluster const * >
             get_clusters_on_set() const = 0;
 
             //------------------------------------------------------------------------------
@@ -535,7 +535,7 @@ namespace moris
                     mIPSpaceInterpolationOrder = mSetClusters( 0 )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_interpolation_order();
 
                     // get list of primary IG cells in cluster
-                    moris::Cell< mtk::Cell const * > const &tPrimaryIgCellsInCluster = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
+                    Vector< mtk::Cell const * > const &tPrimaryIgCellsInCluster = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
 
                     // set interpolation order for IG cells fixme
                     if ( tPrimaryIgCellsInCluster.size() > 0 )

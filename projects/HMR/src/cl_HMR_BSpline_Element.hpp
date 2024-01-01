@@ -141,7 +141,7 @@ namespace moris::hmr
          * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
          * @return Number of created bases
          */
-        luint create_basis_on_level_zero( moris::Cell< Element* >& aAllElementsOnProc ) override;
+        luint create_basis_on_level_zero( Vector< Element* >& aAllElementsOnProc ) override;
 
         //------------------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ namespace moris::hmr
          * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
          * @return Number of created bases
          */
-        luint create_basis_for_children( moris::Cell< Element* >& aAllElementsOnProc ) override;
+        luint create_basis_for_children( Vector< Element* >& aAllElementsOnProc ) override;
 
         // -----------------------------------------------------------------------------
 
@@ -250,7 +250,7 @@ namespace moris::hmr
          *                                    elements including the aura
          * @return void
          */
-        void link_basis_with_neighbors( moris::Cell< Element* >& aAllElementsOnProc ) override;
+        void link_basis_with_neighbors( Vector< Element* >& aAllElementsOnProc ) override;
 
         //------------------------------------------------------------------------------
 
@@ -260,7 +260,7 @@ namespace moris::hmr
          * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
          * @return Number of created bases
          */
-        luint refine( moris::Cell< Element* >& aAllElementsOnProc ) override;
+        luint refine( Vector< Element* >& aAllElementsOnProc ) override;
 
         //------------------------------------------------------------------------------
 
@@ -404,7 +404,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     luint
-    BSpline_Element< P, Q, R >::create_basis_on_level_zero( moris::Cell< Element* >& aAllElementsOnProc )
+    BSpline_Element< P, Q, R >::create_basis_on_level_zero( Vector< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "Don't know how to create B-Splines on level zero." );
         return 0;
@@ -414,7 +414,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     luint
-    BSpline_Element< P, Q, R >::create_basis_for_children( moris::Cell< Element* >& aAllElementsOnProc )
+    BSpline_Element< P, Q, R >::create_basis_for_children( Vector< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "Don't know how to create B-Splines for children." );
         return 0;
@@ -425,7 +425,7 @@ namespace moris::hmr
     template< uint P, uint Q, uint R >
     inline void
     BSpline_Element< P, Q, R >::link_basis_with_neighbors(
-            moris::Cell< Element* >& aAllElementsOnProc )
+            Vector< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false,
                 "Link basis with neighbors not available for this element." );
@@ -446,7 +446,7 @@ namespace moris::hmr
     template< uint P, uint Q, uint R >
     luint
     BSpline_Element< P, Q, R >::refine(
-            moris::Cell< Element* >& aAllElementsOnProc )
+            Vector< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "refine() not available for this element." );
         return 0;

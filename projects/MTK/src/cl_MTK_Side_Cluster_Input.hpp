@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_INPUT_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_INPUT_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include <unordered_map>
@@ -110,21 +110,21 @@ namespace moris
             }
 
           private:
-            moris::Cell< moris::uint >                       mTrivialFlag;
-            moris::Cell< mtk::Cell * >                       mInterpolationCells;
-            moris::Cell< moris::Matrix< IndexMat > const * > mCellIdsAndSideOrdinals;
-            moris::Cell< moris::Matrix< IndexMat > const * > mVerticesIdsInCluster;
-            moris::Cell< moris::Matrix< DDRMat > const * >   mLocalCoordsRelativeToInterpCell;
+            Vector< moris::uint >                       mTrivialFlag;
+            Vector< mtk::Cell * >                       mInterpolationCells;
+            Vector< moris::Matrix< IndexMat > const * > mCellIdsAndSideOrdinals;
+            Vector< moris::Matrix< IndexMat > const * > mVerticesIdsInCluster;
+            Vector< moris::Matrix< DDRMat > const * >   mLocalCoordsRelativeToInterpCell;
             std::unordered_map< moris_index, moris_index >   mInterpCellIndexToIndex;
         };
 
         class Side_Cluster_Input
         {
-            moris::Cell< Side_Set_Cluster_Data > mSideClusters; /*all side cluster data for a given side set*/
+            Vector< Side_Set_Cluster_Data > mSideClusters; /*all side cluster data for a given side set*/
 
             std::unordered_map< std::string, moris_index > mSideSetLabelToOrd;
 
-            moris::Cell< std::string > mSideSetLabels;
+            Vector< std::string > mSideSetLabels;
 
           public:
             Side_Cluster_Input(){};

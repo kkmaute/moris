@@ -10,7 +10,7 @@
 
 #include "cl_SDF_Facet.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "assert.hpp"
 #include "fn_dot.hpp"
@@ -27,7 +27,7 @@ namespace moris
 
         Facet::Facet(
                 moris_index                   aIndex,
-                moris::Cell< Facet_Vertex* >& aVertices,
+                moris::Vector< Facet_Vertex* >& aVertices,
                 uint                          aDimension )
                 : mIndex( aIndex )
                 , mVertices( aVertices )
@@ -73,11 +73,11 @@ namespace moris
         }
 
 
-        Cell< mtk::Vertex* >
+        Vector< mtk::Vertex* >
         Facet::get_vertex_pointers() const
         {
             uint                        tDimension = get_number_of_vertices();
-            moris::Cell< mtk::Vertex* > aVertices( tDimension, nullptr );
+            moris::Vector< mtk::Vertex* > aVertices( tDimension, nullptr );
 
             for ( uint k = 0; k < tDimension; ++k )
             {
@@ -164,7 +164,7 @@ namespace moris
 
         void
         Facet::copy_node_coords_and_inds(
-                moris::Cell< Facet_Vertex* >& aVertices,
+                moris::Vector< Facet_Vertex* >& aVertices,
                 uint                          aDimension )
         {
             // make sure that the length is correct

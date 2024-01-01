@@ -63,7 +63,7 @@ public:
      * share
      */
     void
-    set_element_pair_and_side_ordinal(moris::Cell<const moris::mtk::Cell*> aElementIndexPair,
+    set_element_pair_and_side_ordinal(Vector<const moris::mtk::Cell*> aElementIndexPair,
                                       moris::Matrix<moris::IndexMat> aElementSideOrdinals)
     {
         // Verify lengths
@@ -122,7 +122,7 @@ public:
     /*
      * Returns the cell pointers in this interface element
      */
-    moris::Cell<const moris::mtk::Cell*> const &
+    Vector<const moris::mtk::Cell*> const &
     get_cell_ptrs()
     {
         MORIS_ASSERT(mElementPairs.size() == 2,"This interface element has not been given an element index pair");
@@ -218,7 +218,7 @@ private:
     moris::moris_id                      mElementId;
     moris::moris_index                   mElementIndex;
     moris::moris_index                   mElementOwner;
-    moris::Cell<const moris::mtk::Cell*> mElementPairs;
+    Vector<const moris::mtk::Cell*> mElementPairs;
     moris::Matrix<moris::IndexMat>       mElementSideOrdinals;
 
 };

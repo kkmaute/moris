@@ -182,7 +182,7 @@ namespace moris
             virtual void
             get_vertex_xyz_active_flags(
                     Matrix< DDSMat >                   &aIsActiveDv,
-                    const moris::Cell< enum PDV_Type > &aPdvTypes )
+                    const Vector< enum PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_vertex_xyz_active_flags() - not implemented in base class" );
             }
@@ -194,7 +194,7 @@ namespace moris
              */
             virtual void
             set_vertex_xyz_active_flags(
-                    moris::Cell< Matrix< DDSMat > > &aIsActiveDv )
+                    Vector< Matrix< DDSMat > > &aIsActiveDv )
             {
                 MORIS_ERROR( false, "fem::Node_Base::set_vertex_xyz_active_flags() - not implemented in base class" );
             }
@@ -208,7 +208,7 @@ namespace moris
             virtual void
             get_vertex_xyz_pdv_ids(
                     Matrix< DDSMat >                   &aXYZPdvIds,
-                    const moris::Cell< enum PDV_Type > &aPdvTypes )
+                    const Vector< enum PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_vertex_xyz_pdv_ids() - not implemented in base class" );
             }
@@ -221,7 +221,7 @@ namespace moris
              */
             virtual void
             set_vertex_xyz_pdv_ids(
-                    moris::Cell< Matrix< DDSMat > > &aXYZPvIds )
+                    Vector< Matrix< DDSMat > > &aXYZPvIds )
             {
                 MORIS_ERROR( false, "fem::Node_Base::set_vertex_xyz_pdv_ids() - not implemented in base class" );
             }
@@ -249,7 +249,7 @@ namespace moris
             virtual void
             get_local_xyz_pdv_assembly_indices(
                     Matrix< DDSMat >                   &aXYZLocalAssemblyIndices,
-                    const moris::Cell< enum PDV_Type > &aPdvTypes )
+                    const Vector< enum PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_local_xyz_pdv_assembly_indices() - not implemented in base class" );
             }

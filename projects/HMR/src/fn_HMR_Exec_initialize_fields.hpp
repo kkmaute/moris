@@ -20,7 +20,7 @@
 #include "cl_HMR_Paramfile.hpp"
 #include "HMR_Globals.hpp"
 #include "HMR_Tools.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "moris_typedefs.hpp"
 
 namespace moris::hmr
@@ -32,7 +32,7 @@ namespace moris::hmr
             const Arguments                  & aArguments,
             const Paramfile                  & aParamfile,
             HMR                              * aHMR,
-            Cell< std::shared_ptr< Field > > & aFields )
+            Vector< std::shared_ptr< Field > > & aFields )
     {
         // reset field container
         aFields.clear();

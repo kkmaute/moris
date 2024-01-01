@@ -94,7 +94,7 @@ namespace moris
              * set the coefficient objects
              */
             void
-            set_coefficients( moris::Cell< Vertex* >& aCoefficients )
+            set_coefficients( Vector< Vertex* >& aCoefficients )
             {
                 MORIS_ERROR( 0, "set_coefficients not implemented in xtk vertex interpolation" );
             }
@@ -104,7 +104,7 @@ namespace moris
             /**
              * returns the pointers to the coefficient objects
              */
-            moris::Cell< Vertex* >&
+            Vector< Vertex* >&
             get_coefficients()
             {
                 MORIS_ERROR( 0, "get_coefficients not implemented in xtk vertex interpolation" );
@@ -116,7 +116,7 @@ namespace moris
             /**
              * returns the pointers to the coefficient objects (const version)
              */
-            const moris::Cell< Vertex* >&
+            const Vector< Vertex* >&
             get_coefficients() const
             {
                 MORIS_ERROR( 0, "get_coefficients not implemented in xtk vertex interpolation" );

@@ -24,7 +24,7 @@ namespace moris
 
         void
         Design_Variable_Interface::set_requested_IQIs(
-                const moris::Cell< std::string >& aRequestedIQIs )
+                const moris::Vector< std::string >& aRequestedIQIs )
         {
             MORIS_ASSERT( mModel != nullptr,
                     "Design_Variable_Interface::set_requested_IQIs - mModel has not been set." );

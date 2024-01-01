@@ -17,7 +17,7 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Cluster.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "fn_isvector.hpp"
 #include <unordered_map>
 
@@ -39,37 +39,37 @@ namespace mtk
         Matrix< IdMat >                 mVertexIds;//(x)
         Matrix< IdMat >                 mVertexOwners;//(x)
         Matrix< DDRMat >                mVertexCoordinates;//(x)
-        moris::Cell< Matrix< DDRMat > > mVertexTMatrixWeights;//(x)
-        moris::Cell< Matrix< IdMat > >  mVertexTMatrixBasisIds;//(x)
-        moris::Cell< Matrix< IdMat > >  mVertexTMatrixBasisOwners;//(x)
+        Vector< Matrix< DDRMat > > mVertexTMatrixWeights;//(x)
+        Vector< Matrix< IdMat > >  mVertexTMatrixBasisIds;//(x)
+        Vector< Matrix< IdMat > >  mVertexTMatrixBasisOwners;//(x)
 
         // cell related data
         Matrix< IdMat >                                               mCellIds;//(x)
         Matrix< IdMat >                                               mCellOwners;//(x)
-        moris::Cell< std::unordered_map< moris_index, moris_index > > mCollectCellMaps;
+        Vector< std::unordered_map< moris_index, moris_index > > mCollectCellMaps;
         std::unordered_map< moris_index, moris_index >                mSerialCellMap;
-        moris::Cell< moris_index >                                    mCellSerialIndexToId;
-        moris::Cell< Matrix< IdMat > >                                mCollectCellIds;//(x)
-        moris::Cell< Matrix< IdMat > >                                mCollectCellOwners;//(x)
+        Vector< moris_index >                                    mCellSerialIndexToId;
+        Vector< Matrix< IdMat > >                                mCollectCellIds;//(x)
+        Vector< Matrix< IdMat > >                                mCollectCellOwners;//(x)
 
-        moris::Cell< Matrix< IdMat > >   mCellToVertex;//(-) outer cell is the  cell topology
-        moris::Cell< enum CellTopology > mCellTopo;//(-)
+        Vector< Matrix< IdMat > >   mCellToVertex;//(-) outer cell is the  cell topology
+        Vector< enum CellTopology > mCellTopo;//(-)
 
         // Block Sets
-        moris::Cell< std::string >     mCellSetNames;
-        moris::Cell< Matrix< IdMat > > mCellsInCellSet;
+        Vector< std::string >     mCellSetNames;
+        Vector< Matrix< IdMat > > mCellsInCellSet;
 
         // collected data on proc 0
-        moris::Cell< std::unordered_map< moris_index, moris_index > > mCollectVertexMaps;
-        moris::Cell< Matrix< IdMat > >                                mCollectVertexIds;//(x)
-        moris::Cell< Matrix< IdMat > >                                mCollectVertexOwners;//(x)
-        moris::Cell< Matrix< DDRMat > >                               mCollectVertexCoords;//(x)
-        moris::Cell< moris::Cell< Matrix< DDRMat > > >                mCollectVertexTMatrixWeights;//(x)
-        moris::Cell< moris::Cell< Matrix< IdMat > > >                 mCollectVertexTMatrixBasisIds;//(x)
-        moris::Cell< moris::Cell< Matrix< IdMat > > >                 mCollectVertexTMatrixBasisOwners;
+        Vector< std::unordered_map< moris_index, moris_index > > mCollectVertexMaps;
+        Vector< Matrix< IdMat > >                                mCollectVertexIds;//(x)
+        Vector< Matrix< IdMat > >                                mCollectVertexOwners;//(x)
+        Vector< Matrix< DDRMat > >                               mCollectVertexCoords;//(x)
+        Vector< Vector< Matrix< DDRMat > > >                mCollectVertexTMatrixWeights;//(x)
+        Vector< Vector< Matrix< IdMat > > >                 mCollectVertexTMatrixBasisIds;//(x)
+        Vector< Vector< Matrix< IdMat > > >                 mCollectVertexTMatrixBasisOwners;
 
         // overall
-        moris::Cell< moris_index >                     mVertexSerialIndexToId;
+        Vector< moris_index >                     mVertexSerialIndexToId;
         std::unordered_map< moris_index, moris_index > mSerialVertexMap;
 
         //
@@ -199,13 +199,13 @@ namespace mtk
 
         template< typename MatrixType >
         Matrix< MatrixType >
-        concatenate_cell_of_mats( moris::Cell< Matrix< MatrixType > > aMat,
+        concatenate_cell_of_mats( Vector< Matrix< MatrixType > > aMat,
             moris_index                                               aFixedDim )
         {
             moris_index tFixedDimSize = 0;
             moris_index tTotalSize    = 0;
 
-            moris::Cell< moris_index > tMatSize( 2 );
+            Vector< moris_index > tMatSize( 2 );
 
             MORIS_ASSERT( aFixedDim <= 2, "Fixed dim can be 0 for row or 1 for col." );
 
@@ -264,7 +264,7 @@ namespace mtk
         template< typename MatrixType >
         void
         cell_of_mats_to_flattened_mat(
-            moris::Cell< Matrix< MatrixType > > const& aCellOfMats,
+            Vector< Matrix< MatrixType > > const& aCellOfMats,
             Matrix< MatrixType >&                      aData,
             Matrix< IndexMat >&                        aOffsets )
         {
@@ -303,7 +303,7 @@ namespace mtk
         flattened_mat_to_cell_of_mats(
             Matrix< MatrixType > const&          aData,
             Matrix< IndexMat > const&            aOffsets,
-            moris::Cell< Matrix< MatrixType > >& aCellOfMats )
+            Vector< Matrix< MatrixType > >& aCellOfMats )
         {
             aCellOfMats.resize( aOffsets.numel() - 1, Matrix< MatrixType >( 0, 0 ) );
 

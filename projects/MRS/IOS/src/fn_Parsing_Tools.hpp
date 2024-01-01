@@ -20,7 +20,7 @@
 #include "moris_typedefs.hpp"
 #include "IO_Tools.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Map.hpp"
 
 namespace moris
@@ -34,13 +34,13 @@ namespace moris
      *
      * @return  cell of strings
      */
-    inline Cell< std::string >
+    inline Vector< std::string >
     split_string(
             const std::string &aString,
             const std::string &aDelim )
     {
         // create empty cell of strings
-        Cell< std::string > tCellOfStrings;
+        Vector< std::string > tCellOfStrings;
 
         size_t start;
         size_t end = 0;
@@ -219,7 +219,7 @@ namespace moris
         }
 
         // split string into substrings
-        Cell< std::string > tSubStringVec = split_string( aString, aDelim );
+        Vector< std::string > tSubStringVec = split_string( aString, aDelim );
 
         // get number of substrings
         uint tNumberOfSubStrings = tSubStringVec.size();
@@ -373,7 +373,7 @@ namespace moris
     void
     string_to_cell_mat(
             const std::string   &aString,
-            Cell< Matrix< T > > &aCellMat )
+            Vector< Matrix< T > > &aCellMat )
     {
         if ( aString.size() > 0 )
         {
@@ -468,7 +468,7 @@ namespace moris
     inline void
     string_to_cell_mat_2(
             const std::string   &aString,
-            Cell< Matrix< T > > &aCellMat )
+            Vector< Matrix< T > > &aCellMat )
     {
         // if non-empty string
         if ( aString.size() > 0 )
@@ -551,7 +551,7 @@ namespace moris
     void
     string_to_cell_of_cell(
             const std::string               &aString,
-            moris::Cell< moris::Cell< T > > &aCellCell,
+            Vector< Vector< T > > &aCellCell,
             moris::map< std::string, T >    &aMap )
     {
         if ( aString.size() > 0 )
@@ -652,7 +652,7 @@ namespace moris
     void
     string_to_cell_of_cell(
             const std::string               &aString,
-            moris::Cell< moris::Cell< T > > &aCellCell )
+            Vector< Vector< T > > &aCellCell )
     {
         if ( aString.size() > 0 )
         {
@@ -748,7 +748,7 @@ namespace moris
     void
     string_to_cell(
             const std::string            &aString,
-            moris::Cell< T >             &aCell,
+            Vector< T >             &aCell,
             moris::map< std::string, T > &aMap )
     {
         if ( aString.size() > 0 )
@@ -818,7 +818,7 @@ namespace moris
     void
     string_to_cell(
             const std::string &aString,
-            moris::Cell< T >  &aCell )
+            Vector< T >  &aCell )
     {
         // convert string to string stream and a sub string
         std::stringstream tStringStream( aString );
@@ -838,10 +838,10 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     template< typename T >
-    moris::Cell< T >
+    Vector< T >
     string_to_cell( const std::string &aString )
     {
-        moris::Cell< T > tCell;
+        Vector< T > tCell;
         string_to_cell( aString, tCell );
         return tCell;
     }

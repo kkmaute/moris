@@ -26,7 +26,7 @@ namespace xtk
      * @return uint number of true entries in the cell
      */
     inline uint
-    punch_card_sum( const Cell< bool >& aPunchCard )
+    punch_card_sum( const Vector< bool >& aPunchCard )
     {
         uint tSum = 0;
 
@@ -41,15 +41,15 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     /**
-     * @brief generalized sum over all entries of a moris::Cell
+     * @brief generalized sum over all entries of a Vector
      *
      * @tparam T type of the Cell entries
-     * @param aCell moris::Cell to sum up
+     * @param aCell Vector to sum up
      * @return T sum over all entries
      */
     template< class T >
     inline T
-    sum_over_cell( Cell< T > const & aCell )
+    sum_over_cell( Vector< T > const & aCell )
     {
         // initialize sum with 0
         T tSum = (T)0;

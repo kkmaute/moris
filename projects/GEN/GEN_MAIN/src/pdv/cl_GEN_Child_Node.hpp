@@ -13,7 +13,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Basis_Function.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_GEN_Geometric_Proximity.hpp"
 namespace moris
 {
@@ -47,7 +47,7 @@ namespace moris
 
           protected:
             Matrix< DDUMat >         mAncestorNodeIndices;
-            Cell< Matrix< DDRMat > > mAncestorNodeCoordinates;
+            Vector< Matrix< DDRMat > > mAncestorNodeCoordinates;
             Matrix< DDRMat >         mBasisValues;
 
             //------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ namespace moris
              */
             Child_Node(
                     Matrix< DDUMat >                aAncestorNodeIndices,
-                    Cell< Matrix< DDRMat > >        aAncestorNodeCoordinates,
+                    Vector< Matrix< DDRMat > >        aAncestorNodeCoordinates,
                     const Element_Intersection_Type aBasisFunction,
                     Matrix< DDRMat >                aLocalCoordinatesInAncestor );
 

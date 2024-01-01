@@ -149,8 +149,8 @@ namespace moris
          */
 
         virtual void build_graph(
-                Cell< moris_id >& aNonZeroDiagonal,
-                Cell< moris_id >& aNonZeroOffDiagonal ) override;
+                Vector< moris_id >& aNonZeroDiagonal,
+                Vector< moris_id >& aNonZeroOffDiagonal ) override;
 
         // void BuildSparseGraph(int numElements = 5);
 

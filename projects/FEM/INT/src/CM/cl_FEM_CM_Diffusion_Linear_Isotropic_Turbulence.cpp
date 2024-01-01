@@ -131,8 +131,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                moris::Vector< moris::Vector< MSI::Dof_Type > > aDofTypes,
+                moris::Vector< std::string >                  aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -226,7 +226,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dFluxdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -299,7 +299,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_ddivfluxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
             uint tDofIndex =
@@ -340,7 +340,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal )
         {
             // get the dof type as a uint
@@ -357,7 +357,7 @@ namespace moris
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_testTraction(
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -371,9 +371,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -424,10 +424,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -491,7 +491,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dConstdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -543,7 +543,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddu( const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -586,7 +586,7 @@ namespace moris
         }
 
         const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Turbulence::deffconddu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type                aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -679,7 +679,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aDofTypes,
                 uint                                 aOrder)
         {
             // get the dof type as a uint
@@ -775,7 +775,7 @@ namespace moris
         }
 
         const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Turbulence::deffconddxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 uint                                 aOrder,
                 enum CM_Function_Type                aCMFunctionType )
         {
@@ -848,7 +848,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdu(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -902,7 +902,7 @@ namespace moris
         }
 
         const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type                aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -994,7 +994,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Vector< MSI::Dof_Type > & aDofTypes,
                 uint                                 aOrder )
         {
             // get the dof type as a uint
@@ -1075,7 +1075,7 @@ namespace moris
         }
 
         const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 uint                                 aOrder,
                 enum CM_Function_Type                aCMFunctionType )
         {
@@ -1129,7 +1129,7 @@ namespace moris
         }
 
         const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Turbulence::dchidu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type                aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1193,7 +1193,7 @@ namespace moris
         }
 
         const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Turbulence::dchidxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 uint                                 aOrder,
                 enum CM_Function_Type                aCMFunctionType )
         {
@@ -1252,7 +1252,7 @@ namespace moris
         }
 
         const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Turbulence::dfv1du(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type                aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1316,7 +1316,7 @@ namespace moris
         }
 
         const Matrix< DDRMat > & CM_Diffusion_Linear_Isotropic_Turbulence::dfv1dxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const moris::Vector< MSI::Dof_Type > & aDofType,
                 uint                                 aOrder,
                 enum CM_Function_Type                aCMFunctionType )
         {

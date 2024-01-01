@@ -8,7 +8,7 @@
  *
  */
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -34,27 +34,27 @@ namespace xtk
         // ----------------------------------------------------------------------------
 
         moris::moris_index                mMergeNum;     // Number of vertices to merge
-        moris::Cell< moris::moris_index > mMergeInds;    // Indices of vertices of merge
-        moris::Cell< moris::moris_index > mMergeIndsV2;
-        moris::Cell< moris::moris_index > mCellMergeInds;    // Indices of cells merged
-        moris::Cell< moris::moris_index > mFacetMergeInds;
+        Vector< moris::moris_index > mMergeInds;    // Indices of vertices of merge
+        Vector< moris::moris_index > mMergeIndsV2;
+        Vector< moris::moris_index > mCellMergeInds;    // Indices of cells merged
+        Vector< moris::moris_index > mFacetMergeInds;
 
-        moris::Cell< bool_t > mChildMeshBoundary;    // Flag if vertex index is on child mesh boundary
-        moris::Cell< bool_t > mBlkPhaseBoundary;     // Flag if vertex index is on material boundary
-        moris::Cell< bool_t > mOwnedVertices;        // Flag if vertex is owned by processor
+        Vector< bool_t > mChildMeshBoundary;    // Flag if vertex index is on child mesh boundary
+        Vector< bool_t > mBlkPhaseBoundary;     // Flag if vertex index is on material boundary
+        Vector< bool_t > mOwnedVertices;        // Flag if vertex is owned by processor
 
-        moris::Cell< moris_id > mNotOwnedIgCellIds;
+        Vector< moris_id > mNotOwnedIgCellIds;
 
         moris::uint mNumVerts;    // Total number of vertices
 
 
-        moris::Cell< std::shared_ptr< IG_Vertex_Group > > mVertexGroups;
-        moris::Cell< std::shared_ptr< IG_Cell_Group > >   mCellGroups;
+        Vector< std::shared_ptr< IG_Vertex_Group > > mVertexGroups;
+        Vector< std::shared_ptr< IG_Cell_Group > >   mCellGroups;
 
-        moris::Cell< moris::Cell< moris::moris_index > > mVertIndToCells;    // reference from a vertex index to all connected cells
-        moris::Cell< moris::Cell< moris::moris_index > > mVertIndToVerts;    // reference from a vertex index to all connected vertices
+        Vector< Vector< moris::moris_index > > mVertIndToCells;    // reference from a vertex index to all connected cells
+        Vector< Vector< moris::moris_index > > mVertIndToVerts;    // reference from a vertex index to all connected vertices
 
-        moris::Cell< moris::moris_index > mFlats;
+        Vector< moris::moris_index > mFlats;
 
         moris::uint mNumVertGroups;
         moris::uint mNumCellGroups;
@@ -179,7 +179,7 @@ namespace xtk
          */
         void
         perform(
-                moris::Cell< moris::mtk::Cell* >& aActiveIgCells,
+                Vector< moris::mtk::Cell* >& aActiveIgCells,
                 moris::ge::Geometry_Engine*       aGeometryEngine );
 
         // ----------------------------------------------------------------------------
@@ -301,7 +301,7 @@ namespace xtk
          * @param aActiveIgCells group of cells to be altered
          */
         void
-        merge( moris_index Vert1, moris_index Vert2, moris::Cell< moris::mtk::Cell* >& aActiveIgCells );
+        merge( moris_index Vert1, moris_index Vert2, Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 
@@ -309,7 +309,7 @@ namespace xtk
          * @brief merges a list of vertices
          */
         void
-        merge_list( moris::Cell< moris::mtk::Cell* >& aActiveIgCells );
+        merge_list( Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 
@@ -317,14 +317,14 @@ namespace xtk
          * @brief corrects the indices of cells, vertices and facets
          */
         void
-        shift_indices( moris::Cell< moris::mtk::Cell* >& aActiveIgCells );
+        shift_indices( Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 
         /**
          * @brief returns index list of flat tris/tets
          */
-        moris::Cell< moris_index >
+        Vector< moris_index >
         check_flats();
 
         // ----------------------------------------------------------------------------
@@ -333,7 +333,7 @@ namespace xtk
          * @brief checks for coinciding vertices
          */
         void
-        check_coinc_verts( moris::Cell< moris_index > aFlats, moris::Cell< moris::mtk::Cell* >& aActiveIgCells );
+        check_coinc_verts( Vector< moris_index > aFlats, Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 

@@ -26,9 +26,9 @@ namespace moris
         class Monolithic_Time_Solver : public Time_Solver_Algorithm
         {
           private:
-            void solve_monolithic_time_system( moris::Cell< sol::Dist_Vector* >& aFullVector );
+            void solve_monolithic_time_system( Vector< sol::Dist_Vector* >& aFullVector );
 
-            void solve_implicit_DqDs( moris::Cell< sol::Dist_Vector* >& aFullAdjointVector );
+            void solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullAdjointVector );
 
             moris::real mLambdaInc = 0;
 
@@ -60,7 +60,7 @@ namespace moris
              *
              * @param[in] aFullVector     Solution Vector
              */
-            void solve( moris::Cell< sol::Dist_Vector* >& aFullVector );
+            void solve( Vector< sol::Dist_Vector* >& aFullVector );
 
             //-------------------------------------------------------------------------------
 

@@ -30,7 +30,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::tuple<
+        moris::Vector< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
         mtk::Leader_Follower > > SP_Time_Velocity_Ghost::get_cluster_measure_tuple_list()
@@ -64,7 +64,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Time_Velocity_Ghost::eval_dSPdLeaderDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get element size cluster measure value
             real tElementSize = mCluster->get_cluster_measure(

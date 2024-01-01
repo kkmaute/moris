@@ -84,8 +84,8 @@ namespace moris
 
         void
         CM_Fluid_Incompressible::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                moris::Vector< moris::Vector< MSI::Dof_Type > > aDofTypes,
+                moris::Vector< std::string >                  aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -157,7 +157,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Fluid_Incompressible::eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        CM_Fluid_Incompressible::eval_ddivfluxdu( const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -239,7 +239,7 @@ namespace moris
         void
         CM_Fluid_Incompressible::eval_testTraction(
                 const Matrix< DDRMat >&             aNormal,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -369,7 +369,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Fluid_Incompressible::eval_ddivstraindu_2d( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        CM_Fluid_Incompressible::eval_ddivstraindu_2d( const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -403,7 +403,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Fluid_Incompressible::eval_ddivstraindu_3d( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        CM_Fluid_Incompressible::eval_ddivstraindu_3d( const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -572,7 +572,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Fluid_Incompressible::eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        CM_Fluid_Incompressible::eval_dFluxdDOF( const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -623,7 +623,7 @@ namespace moris
 
         void
         CM_Fluid_Incompressible::eval_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const moris::Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&             aNormal )
         {
             // get the dof type as a uint
@@ -644,10 +644,10 @@ namespace moris
 
         void
         CM_Fluid_Incompressible::eval_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const moris::Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&             aNormal,
                 const Matrix< DDRMat >&             aJump,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -698,7 +698,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Fluid_Incompressible::eval_dStraindDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        CM_Fluid_Incompressible::eval_dStraindDOF( const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

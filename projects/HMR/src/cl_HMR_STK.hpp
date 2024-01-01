@@ -54,8 +54,8 @@ class Lagrange_Mesh_Base;
         mtk::MtkFieldsInfo    mFieldsInfo;
 
         // Fields the field info contain references
-        moris::Cell< mtk::Scalar_Field_Info<DDRMat> > mRealScalarFields;
-        moris::Cell< mtk::Scalar_Field_Info<DDSMat> > mSintScalarFields;
+        Vector< mtk::Scalar_Field_Info<DDRMat> > mRealScalarFields;
+        Vector< mtk::Scalar_Field_Info<DDSMat> > mSintScalarFields;
 
         //! struc for sidesets
         mtk::MtkSetsInfo      mSetsInfo;
@@ -64,7 +64,7 @@ class Lagrange_Mesh_Base;
         uint                  mNumberOfDimensions;
 
         //! node and element data passed to MTK
-        Cell< Matrix< DDRMat > >   mRealScalarFieldData;
+        Vector< Matrix< DDRMat > >   mRealScalarFieldData;
 
         //! connectivity passed to MTK
         Matrix< IdMat >           mElementTopology;

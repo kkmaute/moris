@@ -365,7 +365,7 @@ namespace moris
                 Mesh* tMeshWithSideSets     = create_interpolation_mesh( MeshType::STK, fileName2, NULL );
                 tMeshWithSideSets->mVerbose = false;
 
-                moris::Cell< std::string > tGoldSideSetNames = { { "surface_1" },
+                moris::Vector< std::string > tGoldSideSetNames = { { "surface_1" },
                     { "surface_2" },
                     { "surface_3" },
                     { "surface_4" },
@@ -377,7 +377,7 @@ namespace moris
                 // ===================================================
 
                 // verify names
-                moris::Cell< std::string > tSetNames = tMeshWithSideSets->get_set_names( EntityRank::FACE );
+                moris::Vector< std::string > tSetNames = tMeshWithSideSets->get_set_names( EntityRank::FACE );
 
                 CHECK( tSetNames.size() / 2 == tGoldSideSetNames.size() );
 
@@ -399,7 +399,7 @@ namespace moris
                     CHECK( tCellSideOrdsInSideSet1.numel() == 64 );
 
                     // get the cell ptrs
-                    moris::Cell< mtk::Cell const * > tCellsInSideSet;
+                    moris::Vector< mtk::Cell const * > tCellsInSideSet;
                     Matrix< IndexMat >               tCellSideOrdsInSideSet2;
                     tMeshWithSideSets->get_sideset_cells_and_ords( tSetNames( i ), tCellsInSideSet, tCellSideOrdsInSideSet2 );
 

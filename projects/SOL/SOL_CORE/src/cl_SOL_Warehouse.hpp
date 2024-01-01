@@ -13,7 +13,7 @@
 // MORIS header files.
 // MORIS header files.
 #include "moris_typedefs.hpp"    // CON/src
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include <memory>
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -72,23 +72,23 @@ namespace moris
             moris::Solver_Interface* mSolverInterface;
 
             // list of preconditioners
-            Cell< dla::Preconditioner* > mPreconditioners;
+            Vector< dla::Preconditioner* > mPreconditioners;
 
             // List of solver algorithms and solvers
-            Cell< std::shared_ptr< dla::Linear_Solver_Algorithm > > mLinearSolverAlgorithms;
-            Cell< dla::Linear_Solver* >                             mLinearSolvers;
+            Vector< std::shared_ptr< dla::Linear_Solver_Algorithm > > mLinearSolverAlgorithms;
+            Vector< dla::Linear_Solver* >                             mLinearSolvers;
 
             // List of nonlinear solver algorithms and solvers
-            Cell< std::shared_ptr< NLA::Nonlinear_Algorithm > > mNonlinearSolverAlgorithms;
-            Cell< NLA::Nonlinear_Solver* >                      mNonlinearSolvers;
+            Vector< std::shared_ptr< NLA::Nonlinear_Algorithm > > mNonlinearSolverAlgorithms;
+            Vector< NLA::Nonlinear_Solver* >                      mNonlinearSolvers;
 
             // List of time solver algorithms and solvers
-            Cell< std::shared_ptr< tsa::Time_Solver_Algorithm > > mTimeSolverAlgorithms;
-            Cell< tsa::Time_Solver* >                             mTimeSolvers;
+            Vector< std::shared_ptr< tsa::Time_Solver_Algorithm > > mTimeSolverAlgorithms;
+            Vector< tsa::Time_Solver* >                             mTimeSolvers;
 
             //! Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
             //! Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
-            moris::Cell< moris::Cell< moris::ParameterList > > mParameterlist;
+            Vector< Vector< moris::ParameterList > > mParameterlist;
 
             // pointer to dynamically linked library
             std::shared_ptr< Library_IO > mLibrary = nullptr;
@@ -156,8 +156,8 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------
 
             void get_default_secondary_dof_types(
-                    Cell< Cell< MSI::Dof_Type > >&        aCellOfCellsSecDofTypes,
-                    Cell< Cell< MSI::Dof_Type > > const & aCellOfCellDofTypes );
+                    Vector< Vector< MSI::Dof_Type > >&        aCellOfCellsSecDofTypes,
+                    Vector< Vector< MSI::Dof_Type > > const & aCellOfCellDofTypes );
 
             //--------------------------------------------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------
 
             void
-            set_parameterlist( moris::Cell< moris::Cell< moris::ParameterList > > aParameterlist )
+            set_parameterlist( Vector< Vector< moris::ParameterList > > aParameterlist )
             {
                 mParameterlist = aParameterlist;
             };
@@ -375,7 +375,7 @@ namespace moris
             /**
              * @brief Returns the nonlinear solver manager list.
              */
-            // moris::Cell< Nonlinear_Solver * > & get_nonlinear_solver_manager_list(){ return mListNonlinearSolverManagers; };
+            // Vector< Nonlinear_Solver * > & get_nonlinear_solver_manager_list(){ return mListNonlinearSolverManagers; };
 
             //--------------------------------------------------------------------------------------------------------
             /**

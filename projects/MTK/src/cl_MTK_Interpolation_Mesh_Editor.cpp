@@ -148,7 +148,7 @@ namespace moris::mtk
             const mtk::Cell& tCell = mInputMesh.get_mtk_cell( iCell );
 
             // get vertex pointers
-            moris::Cell< Vertex* > tVertexPointers = tCell.get_vertex_pointers();
+            moris::Vector< Vertex* > tVertexPointers = tCell.get_vertex_pointers();
 
             // transfer pointers to the indices
             std::transform( tVertexPointers.begin(),
@@ -531,8 +531,8 @@ namespace moris::mtk
             bool tSameCellId = tCellOldMesh.get_id() == tCellNewMesh.get_id();
 
             // get the vertices of the old and new mesh
-            moris::Cell< Vertex* > tOldVertices = tCellOldMesh.get_vertex_pointers();
-            moris::Cell< Vertex* > tNewVertices = tCellNewMesh.get_vertex_pointers();
+            moris::Vector< Vertex* > tOldVertices = tCellOldMesh.get_vertex_pointers();
+            moris::Vector< Vertex* > tNewVertices = tCellNewMesh.get_vertex_pointers();
 
             // coordinate of the cells for the old and new mesh
             Matrix< DDRMat > tVertexCoordsOld = tCellOldMesh.get_vertex_coords();

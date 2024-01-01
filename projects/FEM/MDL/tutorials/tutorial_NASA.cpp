@@ -116,7 +116,7 @@ main( int    argc,
     // load user defined function
     MORIS_USER_FUNCTION user_input = tLibrary.load_function( "Input_Parameters" );
 
-    Cell< real > tInput;
+    Vector< real > tInput;
 
     user_input( tInput );
 
@@ -142,7 +142,7 @@ main( int    argc,
     moris::Matrix<DDRMat> tOffset;
     moris::Matrix<DDUMat> tSideSets;
 
-    Cell<enum Subdivision_Method> tDecompositionMethods(2);
+    Vector<enum Subdivision_Method> tDecompositionMethods(2);
 
     if ( tDim ==2 )
     {
@@ -183,7 +183,7 @@ main( int    argc,
     tParameters.set_lagrange_to_bspline_mesh( {{ {0} }});
 
     hmr::HMR tHMR(tParameters);
-    Cell<std::shared_ptr< moris::hmr::Field > > tHMRFields;
+    Vector<std::shared_ptr< moris::hmr::Field > > tHMRFields;
 
     std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
 
@@ -213,7 +213,7 @@ main( int    argc,
 
     xtk::Geom_Field tCircleFieldAsGeom(tHMRFields(0));
     xtk::Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
-    moris::Cell<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
+    Vector<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 
     size_t tModelDimension = tDim;
     xtk::Phase_Table     tPhaseTable (tGeometryVector.size());
@@ -232,10 +232,10 @@ main( int    argc,
     std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
     tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-    Cell< fem::IWG_User_Defined_Info > tBulkIWG(1);
-    Cell< fem::IWG_User_Defined_Info > tDBCIWG(1);
-    Cell< fem::IWG_User_Defined_Info > tNBCIWG(1);
-    Cell< fem::IWG_User_Defined_Info > tIntIWG(1);
+    Vector< fem::IWG_User_Defined_Info > tBulkIWG(1);
+    Vector< fem::IWG_User_Defined_Info > tDBCIWG(1);
+    Vector< fem::IWG_User_Defined_Info > tNBCIWG(1);
+    Vector< fem::IWG_User_Defined_Info > tIntIWG(1);
 
     // create IWG user defined info
     tBulkIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_BULK,
@@ -252,17 +252,17 @@ main( int    argc,
             { MSI::Dof_Type::TEMP },
             {{ MSI::Dof_Type::TEMP }},
             { fem::Property_Type::TEMP_NEUMANN },
-            moris::Cell< fem::Constitutive_Type >( 0 ) );
+            Vector< fem::Constitutive_Type >( 0 ) );
      tIntIWG( 0 )  = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE,
             { MSI::Dof_Type::TEMP },
             {{ MSI::Dof_Type::TEMP }},
-            Cell< fem::Property_Type >( 0 ),
+            Vector< fem::Property_Type >( 0 ),
             {fem::Constitutive_Type::DIFF_LIN_ISO },
             {{ MSI::Dof_Type::TEMP }},
-            Cell< fem::Property_Type >( 0 ),
+            Vector< fem::Property_Type >( 0 ),
             {fem::Constitutive_Type::DIFF_LIN_ISO } );
 
-    Cell< Cell< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 14 );
+    Vector< Vector< fem::IWG_User_Defined_Info > > tIWGUserDefinedInfo( 14 );
 
     tIWGUserDefinedInfo( 0 )  = tBulkIWG;
     tIWGUserDefinedInfo( 1 )  = tBulkIWG;
@@ -281,41 +281,41 @@ main( int    argc,
 
     // create the property user defined infos
     fem::Property_User_Defined_Info tConductivity( fem::Property_Type::CONDUCTIVITY,
-            Cell< Cell< MSI::Dof_Type > >( 0 ),
+            Vector< Vector< MSI::Dof_Type > >( 0 ),
             {{{ tKappa_1 }}},
             tConstValFunction2MatMDL,
-            Cell< fem::PropertyFunc >( 0 ) );
+            Vector< fem::PropertyFunc >( 0 ) );
 
     fem::Property_User_Defined_Info tConductivity2( fem::Property_Type::CONDUCTIVITY,
-            Cell< Cell< MSI::Dof_Type > >( 0 ),
+            Vector< Vector< MSI::Dof_Type > >( 0 ),
             {{{ tKappa_2 }}},
             tConstValFunction2MatMDL,
-            Cell< fem::PropertyFunc >( 0 ) );
+            Vector< fem::PropertyFunc >( 0 ) );
     fem::Property_User_Defined_Info tTempDirichlet( fem::Property_Type::TEMP_DIRICHLET,
-            Cell< Cell< MSI::Dof_Type > >( 0 ),
+            Vector< Vector< MSI::Dof_Type > >( 0 ),
             {{{ tDirichlet }}},
             tConstValFunction2MatMDL,
-            Cell< fem::PropertyFunc >( 0 ) );
+            Vector< fem::PropertyFunc >( 0 ) );
     fem::Property_User_Defined_Info tNeumannFlux( fem::Property_Type::TEMP_NEUMANN,
-            Cell< Cell< MSI::Dof_Type > >( 0 ),
+            Vector< Vector< MSI::Dof_Type > >( 0 ),
             {{{ tNeumann }}},
             tConstValFunction2MatMDL,
-            Cell< fem::PropertyFunc >( 0 ) );
+            Vector< fem::PropertyFunc >( 0 ) );
 
     fem::Property_User_Defined_Info tTempLoad1( fem::Property_Type::TEMP_LOAD,
-            Cell< Cell< MSI::Dof_Type > >( 0 ),
+            Vector< Vector< MSI::Dof_Type > >( 0 ),
             {{{ tLoad_1 }}},
             tConstValFunction2MatMDL,
-            Cell< fem::PropertyFunc >( 0 ) );
+            Vector< fem::PropertyFunc >( 0 ) );
 
     fem::Property_User_Defined_Info tTempLoad2( fem::Property_Type::TEMP_LOAD,
-            Cell< Cell< MSI::Dof_Type > >( 0 ),
+            Vector< Vector< MSI::Dof_Type > >( 0 ),
             {{{ tLoad_2 }}},
             tConstValFunction2MatMDL,
-            Cell< fem::PropertyFunc >( 0 ) );
+            Vector< fem::PropertyFunc >( 0 ) );
 
     // create property user defined info
-    Cell< Cell< Cell< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 14 );
+    Vector< Vector< Vector< fem::Property_User_Defined_Info > > > tPropertyUserDefinedInfo( 14 );
     tPropertyUserDefinedInfo(0)  = create_bulk_properties(tConductivity2,tTempLoad2);
     tPropertyUserDefinedInfo(1)  = create_bulk_properties(tConductivity2,tTempLoad2);
     tPropertyUserDefinedInfo(2)  = create_bulk_properties(tConductivity2,tTempLoad2);
@@ -334,7 +334,7 @@ main( int    argc,
     // create constitutive user defined info
     fem::Constitutive_User_Defined_Info tDiffLinIso = create_diff_lin_constitutive_info();
     // create constitutive user defined info
-    Cell< Cell< Cell< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 14 );
+    Vector< Vector< Vector< fem::Constitutive_User_Defined_Info > > > tConstitutiveUserDefinedInfo( 14 );
     tConstitutiveUserDefinedInfo(0) = create_bulk_diff_lin_constitutive(tDiffLinIso);
     tConstitutiveUserDefinedInfo(1) = create_bulk_diff_lin_constitutive(tDiffLinIso);
     tConstitutiveUserDefinedInfo(2) = create_bulk_diff_lin_constitutive(tDiffLinIso);
@@ -356,7 +356,7 @@ main( int    argc,
     std::string tDblInterfaceSideSetName13 = tEnrIntegMesh.get_dbl_interface_side_set_name(1,3);
     std::string tDblInterfaceSideSetName23 = tEnrIntegMesh.get_dbl_interface_side_set_name(2,3);
 
-    moris::Cell< moris_index >  tSetList = {  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+    Vector< moris_index >  tSetList = {  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
             tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
             tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
             tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
@@ -371,7 +371,7 @@ main( int    argc,
             tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName13),
             tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName23)};
 
-    moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+    Vector< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
             fem::Element_Type::BULK,
             fem::Element_Type::BULK,
             fem::Element_Type::BULK,
@@ -390,7 +390,7 @@ main( int    argc,
     // create model
     mdl::Model * tModel = new mdl::Model( tMeshManager, tBSplineMeshIndex, tSetList, tSetTypeList, tIWGUserDefinedInfo, tPropertyUserDefinedInfo, tConstitutiveUserDefinedInfo, 0, false);
 
-    moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+    Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // STEP 1: create linear solver and algorithm

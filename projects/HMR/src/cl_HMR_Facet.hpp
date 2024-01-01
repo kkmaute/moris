@@ -13,7 +13,7 @@
 
 #include "cl_HMR_Background_Facet.hpp"
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Cell.hpp"
@@ -58,7 +58,7 @@ namespace moris::hmr
         // bool mHasChildren = false;
 
         // cell containing children
-        // moris::Cell< Facet * > mChildren;
+        // Vector< Facet * > mChildren;
 
         // child index of this facet
         // uint mChildIndex;
@@ -111,9 +111,9 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * fills a moris::cell with pointers to connected vertices
+         * fills a Vector with pointers to connected vertices
          */
-        moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
+        Vector< mtk::Vertex* > get_vertex_pointers() const;
 
         // ----------------------------------------------------------------------------
 

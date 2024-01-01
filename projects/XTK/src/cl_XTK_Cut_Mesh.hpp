@@ -14,7 +14,7 @@
 // XTKL: Linear Algebra includes
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // XTKL: Mesh includes
 #include "cl_MTK_Enums.hpp" // For entity rank
@@ -128,7 +128,7 @@ namespace xtk
             moris::size_t aChildMeshIndex,
             enum TemplateType aTemplate,
             Matrix<IndexMat> &aNodeIndices,
-            Cell<Matrix<IndexMat>> &aParentEntities);
+            Vector<Matrix<IndexMat>> &aParentEntities);
 
         // ----------------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ namespace xtk
         /*!
          * Get all interface elements
          */
-        moris::Cell<Interface_Element> &
+        Vector<Interface_Element> &
         get_interface_elements();
 
         // ----------------------------------------------------------------------------------
@@ -275,7 +275,7 @@ namespace xtk
         /*!
          * Get element Ids in the cut mesh of a given id
          */
-        Cell<moris::Matrix<moris::IdMat>>
+        Vector<moris::Matrix<moris::IdMat>>
         get_child_elements_by_phase(
             uint aNumPhases,
             moris::mtk::Mesh const &aBackgroundMeshData);
@@ -358,8 +358,8 @@ namespace xtk
         void pack_cut_mesh_by_phase(
             moris::size_t const &aMeshIndex,
             moris::size_t const &aNumPhases,
-            Cell<moris::Matrix<moris::IdMat>> &aElementIds,
-            Cell<moris::Matrix<moris::IdMat>> &aElementCMInds) const;
+            Vector<moris::Matrix<moris::IdMat>> &aElementIds,
+            Vector<moris::Matrix<moris::IdMat>> &aElementCMInds) const;
 
         // ----------------------------------------------------------------------------------
 
@@ -402,7 +402,7 @@ namespace xtk
         /*
         * Get full element to node glob ids by phase
         */
-        moris::Cell<moris::Matrix<moris::IdMat>>
+        Vector<moris::Matrix<moris::IdMat>>
         get_full_element_to_node_by_phase_glob_ids(
             moris::uint aNumPhases,
             moris::mtk::Mesh &aBackgroundMeshData);
@@ -476,15 +476,15 @@ namespace xtk
          */
         void
         add_child_mesh_groups(
-            Cell<Child_Mesh *> &tOwnedChildrenMeshes,
-            Cell<Child_Mesh *> &tNotOwnedChildrenMeshes,
-            Cell<moris_id> &tNotOwnedOwningProc);
+            Vector<Child_Mesh *> &tOwnedChildrenMeshes,
+            Vector<Child_Mesh *> &tNotOwnedChildrenMeshes,
+            Vector<moris_id> &tNotOwnedOwningProc);
 
         // ----------------------------------------------------------------------------------
         /*!
              * Get the child meshes which are owned and not shared
              */
-        Cell<Child_Mesh *> &
+        Vector<Child_Mesh *> &
         get_owned_child_meshes();
 
         // ----------------------------------------------------------------------------------
@@ -492,7 +492,7 @@ namespace xtk
         /*!
              * Get the child mesh which are not owned
              */
-        Cell<Child_Mesh *> &
+        Vector<Child_Mesh *> &
         get_not_owned_child_meshes();
 
         // ----------------------------------------------------------------------------------
@@ -500,20 +500,20 @@ namespace xtk
         /*
              * Get the not owned children mesh owners
              */
-        Cell<moris_id> &
+        Vector<moris_id> &
         get_not_owned_child_owners();
 
         // ----------------------------------------------------------------------------------
 
         void
-        remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
-                                             Cell<moris::uint> const & aMeshesToDelete,
-                                             Cell<moris_index>       & aCellsToRemoveFromMesh);
+        remove_all_child_meshes_but_selected(Vector<moris::uint> const & aMeshesToKeep,
+                                             Vector<moris::uint> const & aMeshesToDelete,
+                                             Vector<moris_index>       & aCellsToRemoveFromMesh);
 
         // ----------------------------------------------------------------------------------
 
         void
-        reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex);
+        reindex_cells(Vector<moris_index> & aOldIndexToNewCellIndex);
 
         // ----------------------------------------------------------------------------------
 
@@ -531,21 +531,21 @@ namespace xtk
         moris::size_t mNumberOfChildrenMesh;
 
         // All children meshes
-        Cell<Child_Mesh*> mChildrenMeshes;
+        Vector<Child_Mesh*> mChildrenMeshes;
 
         // Groupings of children meshes determined by parent cell information (pointers to the mChildrenMeshes data)
-        Cell<Child_Mesh *> mOwnedChildrenMeshes;    /* All children meshes which are fully owned by this processor and not shared with another processor */
-        Cell<Child_Mesh *> mNotOwnedChildrenMeshes; /* All children meshes which are shared with another processors and not owned by this processor */
-        Cell<moris_id>     mNotOwnedOwningProc;         /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
+        Vector<Child_Mesh *> mOwnedChildrenMeshes;    /* All children meshes which are fully owned by this processor and not shared with another processor */
+        Vector<Child_Mesh *> mNotOwnedChildrenMeshes; /* All children meshes which are shared with another processors and not owned by this processor */
+        Vector<moris_id>     mNotOwnedOwningProc;         /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
 
         // Interface elements
-        Cell<Interface_Element> mInterfaceElements;
+        Vector<Interface_Element> mInterfaceElements;
 
         // Number of entities total in child meshes and if current count is accurate
         // mutable because some const function need this information, and if the counts
         // are not consistent we need to be able to update these vars
         mutable bool mConsistentCounts;
-        mutable Cell<moris::size_t> mNumEntities;
+        mutable Vector<moris::size_t> mNumEntities;
 
         // topology of child elements (i.e. TET4)
         mtk::CellTopology mChildElementTopo;

@@ -13,7 +13,7 @@
 
 // MORIS header files.
 #include "moris_typedefs.hpp"    // CON/src
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include <memory>
 #include "cl_Param_List.hpp"
 
@@ -28,7 +28,7 @@ namespace moris
         {
           private:
             //! Linear solver list
-            moris::Cell< std::shared_ptr< Linear_Solver_Algorithm > > mLinearSolverList;
+            Vector< std::shared_ptr< Linear_Solver_Algorithm > > mLinearSolverList;
 
             moris::uint mCallCounter = 0;
 

@@ -50,7 +50,7 @@ namespace moris
                 const uint                 aNumUsedDofTypes,
                 const Matrix< DDSMat >&    aPdofTypeMap,
                 const Matrix< DDUMat >&    aTimePerDofType,
-                moris::Cell< Pdof_Host* >& aPdofHostList )
+                moris::Vector< Pdof_Host* >& aPdofHostList )
         {
             // Resize list containing this equations objects pdof hosts set
             mNumPdofSystems = mNodeObj.size();
@@ -358,7 +358,7 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void
-        Equation_Object::build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > >& aPADofMap )
+        Equation_Object::build_PADofMap_list( Vector< Vector< Matrix< DDRMat > > >& aPADofMap )
         {
             aPADofMap.resize( mUniqueAdofTypeList.size() );
 
@@ -418,12 +418,12 @@ namespace moris
         void
         Equation_Object::build_PADofMap_1( Matrix< DDRMat >& aPADofMap )
         {
-            Cell< Cell< Matrix< DDRMat > > > tPADofMapList;
+            Vector< Vector< Matrix< DDRMat > > > tPADofMapList;
 
             // get list of all T-Matrices
             this->build_PADofMap_list( tPADofMapList );
 
-            moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes;
+            moris::Vector< enum MSI::Dof_Type > tRequestedDofTypes;
 
             // get list of requested dof types
             if ( !mEquationSet->mIsStaggered )
@@ -497,7 +497,7 @@ namespace moris
         void
         Equation_Object::get_equation_obj_dof_ids( Matrix< DDSMat >& aEqnObjAdofId )
         {
-            moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes;
+            moris::Vector< enum MSI::Dof_Type > tRequestedDofTypes;
 
             // get list of requested dof tpes
             if ( !mEquationSet->mIsStaggered )
@@ -570,13 +570,13 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void
-        Equation_Object::get_equation_obj_residual( Cell< Matrix< DDRMat > >& aEqnObjRHS )
+        Equation_Object::get_equation_obj_residual( Vector< Matrix< DDRMat > >& aEqnObjRHS )
         {
             // compute R for forward analysis or dQIdp for sensitivity analysis
             this->compute_residual();
 
             // get R or dQIdp values from set
-            Cell< Matrix< DDRMat > >& tElementalResidual = mEquationSet->get_residual();
+            Vector< Matrix< DDRMat > >& tElementalResidual = mEquationSet->get_residual();
 
             if ( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
@@ -607,7 +607,7 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void
-        Equation_Object::get_staggered_equation_obj_residual( Cell< Matrix< DDRMat > >& aEqnObjRHS )
+        Equation_Object::get_staggered_equation_obj_residual( Vector< Matrix< DDRMat > >& aEqnObjRHS )
         {
             if ( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
@@ -616,7 +616,7 @@ namespace moris
             }
 
             // get R or dQIdp values from set
-            Cell< Matrix< DDRMat > >& tElementalResidual = mEquationSet->get_residual();
+            Vector< Matrix< DDRMat > >& tElementalResidual = mEquationSet->get_residual();
 
             if ( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
@@ -649,13 +649,13 @@ namespace moris
 
         void
         Equation_Object::get_equation_obj_off_diagonal_residual(
-                Cell< Matrix< DDRMat > >& aEqnObjRHS )
+                Vector< Matrix< DDRMat > >& aEqnObjRHS )
         {
             // get number of rhs
             uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
 
             // init elemental residual list
-            Cell< Matrix< DDRMat > > tElementalResidual( tNumRHS );
+            Vector< Matrix< DDRMat > > tElementalResidual( tNumRHS );
 
             // FIXME this is a hack and will be changed in the next days
             // if sensitivity analysis
@@ -674,10 +674,10 @@ namespace moris
                 // compute previous adjoint values
                 this->compute_my_previous_adjoint_values();
 
-                const Cell< enum MSI::Dof_Type >& tRequestedDofTypes = mEquationSet->get_requested_dof_types();
+                const Vector< enum MSI::Dof_Type >& tRequestedDofTypes = mEquationSet->get_requested_dof_types();
 
                 // get leader dof type list from set
-                Cell< Cell< MSI::Dof_Type > >& tLeaderDofTypeList =
+                Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeList =
                         mEquationSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
 
                 Matrix< DDSMat > tIdentifierMat( (uint)MSI::Dof_Type::END_ENUM, 1, -1 );
@@ -702,7 +702,7 @@ namespace moris
                     }
                 }
 
-                Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
+                Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
                 for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
                 {
                     tCoeff( Ik ).set_size( tCounter, 1, MORIS_REAL_MAX );
@@ -718,7 +718,7 @@ namespace moris
                     if ( tIdentifierMat( tDofIndex ) == 1 )
                     {
                         // get the pdof values for the ith dof type group
-                        Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+                        Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
 
                         this->get_my_pdof_values(
                                 mEquationSet->mPreviousAdjointPdofValues,
@@ -780,7 +780,7 @@ namespace moris
         void
         Equation_Object::get_egn_obj_jacobian_and_residual(
                 Matrix< DDRMat >&         aEqnObjMatrix,
-                Cell< Matrix< DDRMat > >& aEqnObjRHS )
+                Vector< Matrix< DDRMat > >& aEqnObjRHS )
         {
             // compute Jacobian and residual
             this->compute_jacobian_and_residual();
@@ -810,7 +810,7 @@ namespace moris
                 aEqnObjMatrix = trans( aEqnObjMatrix );
             }
 
-            Cell< Matrix< DDRMat > >& tElementalResidual = mEquationSet->get_residual();
+            Vector< Matrix< DDRMat > >& tElementalResidual = mEquationSet->get_residual();
 
             if ( !mEquationSet->mEquationModel->get_is_forward_analysis() )
             {
@@ -836,9 +836,9 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void
-        Equation_Object::add_staggered_contribution_to_residual( Cell< Matrix< DDRMat > >& aElementResidual )
+        Equation_Object::add_staggered_contribution_to_residual( Vector< Matrix< DDRMat > >& aElementResidual )
         {
-            moris::Cell< enum MSI::Dof_Type > tAllSecDofTypes = mEquationSet->get_secondary_dof_types();
+            moris::Vector< enum MSI::Dof_Type > tAllSecDofTypes = mEquationSet->get_secondary_dof_types();
 
             if ( tAllSecDofTypes.size() != 0 )
             {
@@ -847,7 +847,7 @@ namespace moris
 
             for ( auto tSecDofTypes : tAllSecDofTypes )
             {
-                moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes = mEquationSet->get_requested_dof_types();
+                moris::Vector< enum MSI::Dof_Type > tRequestedDofTypes = mEquationSet->get_requested_dof_types();
 
                 // combined leader follower index
                 sint tSecDofIndex = mEquationSet->get_dof_index_for_type( tSecDofTypes, mtk::Leader_Follower::LEADER );
@@ -876,22 +876,22 @@ namespace moris
                             sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::LEADER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
+                            const moris::Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
-                            Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+                            Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
 
                             this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::LEADER );
 
                             uint                     tNumRHS = tCoeff_Original.size();
-                            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
+                            Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
 
                             for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
                             {
                                 // reshape tCoeffs into the order the cluster expects them
                                 this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
 
-                                Cell< Matrix< DDRMat > > tCoeff1( tNumRHS );
+                                Vector< Matrix< DDRMat > > tCoeff1( tNumRHS );
 
                                 tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(), 1, 0.0 );
 
@@ -929,15 +929,15 @@ namespace moris
                             sint tSeparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tSeparateSecDofIndex );
+                            const moris::Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tSeparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
-                            Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+                            Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
 
                             this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
 
                             uint                     tNumRHS = tCoeff_Original.size();
-                            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
+                            Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
 
                             // print(mEquationSet->get_jacobian(),"staggerd jac");
 
@@ -946,7 +946,7 @@ namespace moris
                                 // reshape tCoeffs into the order the cluster expects them
                                 this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
 
-                                Cell< Matrix< DDRMat > > tCoeff1( tNumRHS );
+                                Vector< Matrix< DDRMat > > tCoeff1( tNumRHS );
 
                                 tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(), 1, 0.0 );
 
@@ -993,15 +993,15 @@ namespace moris
                             sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::LEADER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
+                            const moris::Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
-                            Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+                            Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
 
                             this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::LEADER );
 
                             uint                     tNumRHS = tCoeff_Original.size();
-                            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
+                            Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
 
                             // print(mEquationSet->get_jacobian(),"staggerd jac");
 
@@ -1010,7 +1010,7 @@ namespace moris
                                 // reshape tCoeffs into the order the cluster expects them
                                 this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
 
-                                Cell< Matrix< DDRMat > > tCoeff1( tNumRHS );
+                                Vector< Matrix< DDRMat > > tCoeff1( tNumRHS );
 
                                 tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(), 1, 0.0 );
 
@@ -1048,15 +1048,15 @@ namespace moris
                             sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tseparateSecDofIndex );
+                            const moris::Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
-                            Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+                            Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
 
                             this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
 
                             uint                     tNumRHS = tCoeff_Original.size();
-                            Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
+                            Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
 
                             // print(mEquationSet->get_jacobian(),"staggerd jac");
 
@@ -1065,7 +1065,7 @@ namespace moris
                                 // reshape tCoeffs into the order the cluster expects them
                                 this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
 
-                                Cell< Matrix< DDRMat > > tCoeff1( tNumRHS );
+                                Vector< Matrix< DDRMat > > tCoeff1( tNumRHS );
 
                                 tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(), 1, 0.0 );
 
@@ -1097,7 +1097,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Cell< Matrix< DDRMat > > tMyValues;
+            moris::Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel->get_solution_vector()->    //
@@ -1131,7 +1131,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Cell< Matrix< DDRMat > > tMyValues;
+            moris::Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel
@@ -1163,7 +1163,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Cell< Matrix< DDRMat > > tMyValues;
+            moris::Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel
@@ -1195,7 +1195,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Cell< Matrix< DDRMat > > tMyValues;
+            moris::Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel
@@ -1227,7 +1227,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Cell< Matrix< DDRMat > > tMyValues;
+            moris::Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel->get_previous_adjoint_solution_vector()->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
@@ -1272,8 +1272,8 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        //    void Equation_Object::get_my_pdof_values( const moris::Cell< enum Dof_Type > & aRequestedDofTypes,
-        //                                                    Cell< Matrix< DDRMat > >     & aRequestedPdofValues )
+        //    void Equation_Object::get_my_pdof_values( const Vector< enum Dof_Type > & aRequestedDofTypes,
+        //                                                    Vector< Matrix< DDRMat > >     & aRequestedPdofValues )
         //    {
         //        // Initialize list which contains the maximal number of time levels per dof type
         //        Matrix< DDSMat > tTimeLevelsPerDofType( aRequestedDofTypes.size(), 1, -1 );
@@ -1327,7 +1327,7 @@ namespace moris
         //                    if ( (sint)mMyPdofHosts( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
         //                    {
         //                        // get pointer list all time pdofs on this pdof type
-        //                        moris::Cell< Pdof* > tPdofTimeList = mMyPdofHosts( Ik )->get_pdof_time_list( tDofTypeIndex );
+        //                        Vector< Pdof* > tPdofTimeList = mMyPdofHosts( Ik )->get_pdof_time_list( tDofTypeIndex );
         //
         //                        // get entry number of this pdof in the elemental pdof value vector
         //                        uint mElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;
@@ -1342,9 +1342,9 @@ namespace moris
 
         void
         Equation_Object::get_my_pdof_values(
-                const moris::Cell< Matrix< DDRMat > >&   aPdofValues,
-                const moris::Cell< enum Dof_Type >&      aRequestedDofTypes,
-                moris::Cell< Cell< Matrix< DDRMat > > >& aRequestedPdofValues,
+                const moris::Vector< Matrix< DDRMat > >&   aPdofValues,
+                const moris::Vector< enum Dof_Type >&      aRequestedDofTypes,
+                moris::Vector< Vector< Matrix< DDRMat > > >& aRequestedPdofValues,
                 const mtk::Leader_Follower                  aIsLeader )
         {
             // check that leader or follower
@@ -1425,7 +1425,7 @@ namespace moris
                         if ( (sint)mMyPdofHosts( tIsLeader )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
                         {
                             // get pointer list all time pdofs on this pdof type
-                            moris::Cell< Pdof* > tPdofTimeList = mMyPdofHosts( tIsLeader )( Ik )->get_pdof_time_list( tDofTypeIndex );
+                            moris::Vector< Pdof* > tPdofTimeList = mMyPdofHosts( tIsLeader )( Ik )->get_pdof_time_list( tDofTypeIndex );
 
                             // get entry number of this pdof in the elemental pdof value vector
                             uint tElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;
@@ -1446,7 +1446,7 @@ namespace moris
 
         void
         Equation_Object::reshape_pdof_values(
-                const Cell< Matrix< DDRMat > >& aPdofValues,
+                const Vector< Matrix< DDRMat > >& aPdofValues,
                 Matrix< DDRMat >&               aReshapedPdofValues )
         {
             MORIS_ASSERT( aPdofValues.size() != 0,
@@ -1468,7 +1468,7 @@ namespace moris
 
         void
         Equation_Object::reshape_pdof_values_vector(
-                const Cell< Matrix< DDRMat > >& aPdofValues,
+                const Vector< Matrix< DDRMat > >& aPdofValues,
                 Matrix< DDRMat >&               aReshapedPdofValues )
         {
             MORIS_ASSERT( aPdofValues.size() != 0,

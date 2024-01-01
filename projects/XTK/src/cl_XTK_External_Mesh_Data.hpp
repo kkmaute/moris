@@ -20,7 +20,7 @@
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Enums.hpp"
 // XTKL: Containers
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // XTKL: XTK Includes
 #include "cl_XTK_Pending_Node.hpp"
@@ -181,7 +181,7 @@ namespace xtk
                 mFirstExtEntityInds((moris::moris_index) mtk::EntityRank::UNDEFINED, std::numeric_limits<moris::moris_index>::max()),
                 mLocalToGlobalExtNodes(1,1),
                 mFirstAvailableInds((moris::moris_index) mtk::EntityRank::UNDEFINED, std::numeric_limits<moris::moris_index>::max()),
-                mExternalEntities((moris::moris_index) mtk::EntityRank::UNDEFINED, moris::Cell<mesh::Entity>(0))
+                mExternalEntities((moris::moris_index) mtk::EntityRank::UNDEFINED, Vector<mesh::Entity>(0))
             {
             }
 
@@ -239,10 +239,10 @@ namespace xtk
 
             void
             batch_create_new_nodes_external_data(
-                    Cell<moris_index>                    const & aNewNodeIds,
-                    Cell<moris_index>                    const & aNewNodeIndices,
-                    Cell<moris_index>                    const & aNewNodeOwners,
-                    Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
+                    Vector<moris_index>                    const & aNewNodeIds,
+                    Vector<moris_index>                    const & aNewNodeIndices,
+                    Vector<moris_index>                    const & aNewNodeOwners,
+                    Vector<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
             {
                 moris::moris_index tEntRankInd  = (moris::moris_index) moris::mtk::EntityRank::NODE;
                 moris::size_t      tAddSize     = aNewNodeIds.size();
@@ -416,15 +416,15 @@ namespace xtk
 
                 // size_t is defined as uint here because of aNumRequested
                 //Initialize gathered information outputs (information which will be scattered across processors)
-                moris::Cell<moris::moris_id> aGatheredInfo;
-                moris::Cell<moris::moris_id> tFirstId(1);
-                moris::Cell<moris::moris_id> tNumIdsRequested(1);
+                Vector<moris::moris_id> aGatheredInfo;
+                Vector<moris::moris_id> tFirstId(1);
+                Vector<moris::moris_id> tNumIdsRequested(1);
 
                 tNumIdsRequested(0) = (moris::moris_id)aNumIdstoAllocate;
 
                 moris::gather(tNumIdsRequested,aGatheredInfo);
 
-                moris::Cell<moris::moris_id> tProcFirstID(tProcSize);
+                Vector<moris::moris_id> tProcFirstID(tProcSize);
 
                 moris::moris_id tEntityRankIndex = (moris::moris_id)aEntityRank;
 
@@ -487,29 +487,29 @@ namespace xtk
 
         private:
 
-            moris::Cell<moris::moris_index> mFirstExtEntityInds;
+            Vector<moris::moris_index> mFirstExtEntityInds;
 
             // Owned by proc rank 0, other procs UINT_MAX
             // Mutable to preserve const in the allocate entity ids function
-            mutable moris::Cell<moris::moris_id> mFirstAvailableIds;
+            mutable Vector<moris::moris_id> mFirstAvailableIds;
 
             // Local to Global Node Map
             moris::Matrix<moris::IdMat> mLocalToGlobalExtNodes;
 
             // Each processor tracks this value
-            moris::Cell<moris::moris_index> mFirstAvailableInds;
+            Vector<moris::moris_index> mFirstAvailableInds;
 
             // Entity Rank outside, then entity objects inside
-            moris::Cell<moris::Cell<mesh::Entity>>mExternalEntities;
+            Vector<Vector<mesh::Entity>>mExternalEntities;
 
             // Fields
-            moris::Cell<std::string> mFieldNames;
+            Vector<std::string> mFieldNames;
 
         private:
 
             // ----------------------------------------------------------------------------------
 
-            void register_fields(moris::Cell<std::string> const & aFieldNames)
+            void register_fields(Vector<std::string> const & aFieldNames)
             {
                 if(mFieldNames.size()!=0)
                 {

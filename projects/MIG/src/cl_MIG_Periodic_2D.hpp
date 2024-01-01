@@ -24,26 +24,26 @@ namespace moris::mig
       private:
         std::shared_ptr< moris::mtk::Mesh_Manager > mMeshManager;
         moris::moris_index                          mMeshIndex;
-        moris::Cell< moris::Cell< std::string > >   mMeshSideSetPairs;
+        Vector< Vector< std::string > >   mMeshSideSetPairs;
         moris::uint                                 mNumBulkPhases;
 
         // Index of double sided cluster ( relevant indices of each cluster )
         // Each index shows a distinct interaction between leader phases and salve phases
-        moris::Cell< moris_index > mDoubleSidedClustersIndex;
+        Vector< moris_index > mDoubleSidedClustersIndex;
 
         //the outer cell is the side cluster number
         //the inner cell vertex indices
-        moris::Cell< moris::Cell< moris_index > > mSideClusterToVertexIndices ;
+        Vector< Vector< moris_index > > mSideClusterToVertexIndices ;
 
         //the outer cell is the side cluster number
-        moris::Cell< moris::Cell< moris_index > > mSideClusterToCells;
+        Vector< Vector< moris_index > > mSideClusterToCells;
 
         //the outer cell
-        moris::Cell< moris_index >                mSideClusterToIPCell;
+        Vector< moris_index >                mSideClusterToIPCell;
 
         //cell to vertex connectivity
         //outer cell is the side cluster number
-        moris::Cell< moris::Cell<moris_index> >  mCellToVertexIndices;
+        Vector< Vector<moris_index> >  mCellToVertexIndices;
 
         Matrix< DDRMat > mVerticesCoords;
         Matrix< DDRMat > mVertexParametricCoords;
@@ -56,8 +56,8 @@ namespace moris::mig
 
         //maps, outer cell is the pair number
         //inside map, key: ijk of the IP cell, value: side clusters within the same background cell
-        moris::Cell< std::unordered_map< moris::moris_index, moris::Cell< moris_index > > > mBackgroundCellToSideClusterMap1;
-        moris::Cell< std::unordered_map< moris::moris_index, moris::Cell< moris_index > > > mBackgroundCellToSideClusterMap2;
+        Vector< std::unordered_map< moris::moris_index, Vector< moris_index > > > mBackgroundCellToSideClusterMap1;
+        Vector< std::unordered_map< moris::moris_index, Vector< moris_index > > > mBackgroundCellToSideClusterMap2;
 
       public:
         // ----------------------------------------------------------------------------
@@ -93,8 +93,8 @@ namespace moris::mig
          * @param[in] tPhaseToPhaseIndex a index showing interaction of leader-side and follower-side phases
          */
         void create_dbl_sided_cluster(
-            moris::Cell< Matrix< DDRMat > > tP,
-            moris::Cell< moris_index >     &aIndicesInCutCell,
+            Vector< Matrix< DDRMat > > tP,
+            Vector< moris_index >     &aIndicesInCutCell,
             moris::mtk::Cell const         &aRightInterpCell,
             moris::mtk::Cell const         &aLeftInterpCell,
             uint                            aPairCount,
@@ -141,8 +141,8 @@ namespace moris::mig
          */
         void
         offset_vector( moris::Matrix< DDRMat > &tOffsetVector,
-            moris::Cell< std::string >         &tFirstSideSetNames,
-            moris::Cell< std::string >         &tSecondSideSetNames,
+            Vector< std::string >         &tFirstSideSetNames,
+            Vector< std::string >         &tSecondSideSetNames,
             uint                                aPairCount );
 
         // ----------------------------------------------------------------------------
@@ -193,9 +193,9 @@ namespace moris::mig
          * @param[ out ] aMap map relating the background cells to the side clusters
          */
         void
-        generate_identifier( moris::Cell< mtk::Cluster const * >                 &aSideClusters,
+        generate_identifier( Vector< mtk::Cluster const * >                 &aSideClusters,
             uint                                                                 &aPairCount,
-            std::unordered_map< moris::moris_index, moris::Cell< moris_index > > &aMap ) const;
+            std::unordered_map< moris::moris_index, Vector< moris_index > > &aMap ) const;
 
         // ----------------------------------------------------------------------------
         /*
@@ -209,11 +209,11 @@ namespace moris::mig
 
         void
         elementwise_bruteforce_search(
-            moris::Cell< moris::Matrix< DDRMat > > const &tParamCoordsCell,
+            Vector< moris::Matrix< DDRMat > > const &tParamCoordsCell,
             moris::Matrix< moris::IndexMat > const       &tIGCellToSideClusterMap,
-            moris::Cell< moris::Matrix< DDRMat > > const &tParamCoordsCell2,
+            Vector< moris::Matrix< DDRMat > > const &tParamCoordsCell2,
             moris::Matrix< moris::IndexMat > const       &tIGCellToSideClusterMap2,
-            moris::Cell< moris::Matrix< DDRMat > >       &tCutTriangles,
+            Vector< moris::Matrix< DDRMat > >       &tCutTriangles,
             moris::Matrix< moris::IndexMat >             &tCutTrianglesIdentifier ) const;
 
         // ----------------------------------------------------------------------------
@@ -241,7 +241,7 @@ namespace moris::mig
          */
         void
         group_cut_cells( moris::Matrix< IndexMat > const                  &aCutCellIdentifierMatrix,
-            std::unordered_map< moris_index, moris::Cell< moris_index > > &aCutCellIdentifierToCutCellIndex ) const;
+            std::unordered_map< moris_index, Vector< moris_index > > &aCutCellIdentifierToCutCellIndex ) const;
 
         // ----------------------------------------------------------------------------
 

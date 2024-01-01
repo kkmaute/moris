@@ -13,7 +13,7 @@
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Matrix.hpp"                    //LNA/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                      //MRS/CNT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
@@ -33,7 +33,7 @@ namespace moris
         // definition of a property value/derivative function
         typedef std::function< void(
                 moris::Matrix< moris::DDRMat >&         aPropMatrix,
-                moris::Cell< Matrix< DDRMat > >&        aCoeff,
+                Vector< Matrix< DDRMat > >&        aCoeff,
                 moris::fem::Field_Interpolator_Manager* aFIManager ) >
                 PropertyFunc;
 
@@ -41,7 +41,7 @@ namespace moris
         inline void
         Property_Function_Constant(
                 moris::Matrix< moris::DDRMat >&                aPropMatrix,
-                moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+                Vector< moris::Matrix< moris::DDRMat > >& aParameters,
                 moris::fem::Field_Interpolator_Manager*        aFIManager )
         {
             aPropMatrix = aParameters( 0 );
@@ -61,41 +61,41 @@ namespace moris
             Set* mSet = nullptr;
 
             // active dof types
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
+            Vector< Vector< MSI::Dof_Type > > mDofTypes;
 
             // active dof type map
             Matrix< DDSMat > mDofTypeMap;
 
             // active dv types
-            moris::Cell< moris::Cell< PDV_Type > > mDvTypes;
+            Vector< Vector< PDV_Type > > mDvTypes;
 
             // active dv type map
             Matrix< DDSMat > mDvTypeMap;
 
             // active dv types
-            moris::Cell< moris::Cell< mtk::Field_Type > > mFieldTypes;
+            Vector< Vector< mtk::Field_Type > > mFieldTypes;
 
             // active dv type map
             Matrix< DDSMat > mFieldTypeMap;
 
             // parameters
-            moris::Cell< Matrix< DDRMat > > mParameters;
+            Vector< Matrix< DDRMat > > mParameters;
 
             // value function
             PropertyFunc mValFunction = Property_Function_Constant;
 
             // space derivative functions
-            moris::Cell< PropertyFunc > mSpaceDerFunctions;
+            Vector< PropertyFunc > mSpaceDerFunctions;
 
             // dof and dv derivative functions
-            moris::Cell< PropertyFunc > mDofDerFunctions;
-            moris::Cell< PropertyFunc > mDvDerFunctions;
+            Vector< PropertyFunc > mDofDerFunctions;
+            Vector< PropertyFunc > mDvDerFunctions;
 
             // storage
             Matrix< DDRMat >                mProp;
-            moris::Cell< Matrix< DDRMat > > mPropDofDer;
-            moris::Cell< Matrix< DDRMat > > mPropDvDer;
-            moris::Cell< Matrix< DDRMat > > mdPropdx;
+            Vector< Matrix< DDRMat > > mPropDofDer;
+            Vector< Matrix< DDRMat > > mPropDvDer;
+            Vector< Matrix< DDRMat > > mdPropdx;
 
             // property name
             std::string mName;
@@ -176,7 +176,7 @@ namespace moris
              */
             void
             set_parameters(
-                    const moris::Cell< moris::Matrix< DDRMat > >& aParameters )
+                    const Vector< moris::Matrix< DDRMat > >& aParameters )
             {
                 mParameters = aParameters;
             }
@@ -186,7 +186,7 @@ namespace moris
              * get parameters
              * @param[ out ] mParameters list of parameters for property evaluation
              */
-            const moris::Cell< moris::Matrix< DDRMat > >&
+            const Vector< moris::Matrix< DDRMat > >&
             get_parameters() const
             {
                 return mParameters;
@@ -213,7 +213,7 @@ namespace moris
              * @param[ in ] aSpaceDerFunctions cell of functions for dnPropdxn evaluation
              */
             void set_space_der_functions(
-                    const moris::Cell< PropertyFunc >& aSpaceDerFunctions );
+                    const Vector< PropertyFunc >& aSpaceDerFunctions );
 
             //------------------------------------------------------------------------------
             /**
@@ -233,7 +233,7 @@ namespace moris
              */
             void
             set_dof_derivative_functions(
-                    const moris::Cell< PropertyFunc >& aDofDerFunctions )
+                    const Vector< PropertyFunc >& aDofDerFunctions )
             {
                 // set functions for derivatives wrt dof
                 mDofDerFunctions = aDofDerFunctions;
@@ -247,7 +247,7 @@ namespace moris
              * get dof derivative functions
              * @param[ out ] mDofDerFunctions list function for property derivatives wrt dof
              */
-            const moris::Cell< PropertyFunc >&
+            const Vector< PropertyFunc >&
             get_dof_derivative_functions() const
             {
                 return mDofDerFunctions;
@@ -260,7 +260,7 @@ namespace moris
              */
             void
             set_dv_derivative_functions(
-                    const moris::Cell< PropertyFunc >& aDvDerFunctions )
+                    const Vector< PropertyFunc >& aDvDerFunctions )
             {
                 // set functions for derivatives wrt dv
                 mDvDerFunctions = aDvDerFunctions;
@@ -274,7 +274,7 @@ namespace moris
              * get dv derivative functions
              * @param[ out ] mDofDerFunctions list function for property derivatives wrt dv
              */
-            const moris::Cell< PropertyFunc >&
+            const Vector< PropertyFunc >&
             get_dv_derivative_functions() const
             {
                 return mDvDerFunctions;
@@ -286,14 +286,14 @@ namespace moris
              * @param[ in ] aDofTypes list of dof types
              */
             void set_dof_type_list(
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes );
+                    const Vector< Vector< MSI::Dof_Type > >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
              * return a list of active dof types
              * @param[ out ] mDofTypes list of dof types
              */
-            const moris::Cell< moris::Cell< MSI::Dof_Type > >&
+            const Vector< Vector< MSI::Dof_Type > >&
             get_dof_type_list() const
             {
                 return mDofTypes;
@@ -322,21 +322,21 @@ namespace moris
              * @param[ in ]  aDofType cell of dof type
              * @param[ out ] aBool    boolean, true if dependency on the dof type
              */
-            bool check_dof_dependency( const moris::Cell< MSI::Dof_Type >& aDofType );
+            bool check_dof_dependency( const Vector< MSI::Dof_Type >& aDofType );
 
             //------------------------------------------------------------------------------
             /**
              * set a list of dv types
              * @param[ in ] aDvTypes list of dv type
              */
-            void set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes );
+            void set_dv_type_list( const Vector< Vector< PDV_Type > >& aDvTypes );
 
             //------------------------------------------------------------------------------
             /**
              * return a list of dv types
              * @param[ out ] mDvTypes list of dv type
              */
-            const moris::Cell< moris::Cell< PDV_Type > >&
+            const Vector< Vector< PDV_Type > >&
             get_dv_type_list() const
             {
                 return mDvTypes;
@@ -365,21 +365,21 @@ namespace moris
              * @param[ in ]  aDvType cell of dv type
              * @param[ out ] aBool   boolean, true if dependency on the dv type
              */
-            bool check_dv_dependency( const moris::Cell< PDV_Type >& aDvType );
+            bool check_dv_dependency( const Vector< PDV_Type >& aDvType );
 
             //------------------------------------------------------------------------------
             /**
              * set a list of field types
              * @param[ in ] aFieldTypes list of dv type
              */
-            void set_field_type_list( const moris::Cell< moris::Cell< mtk::Field_Type > >& aFieldTypes );
+            void set_field_type_list( const Vector< Vector< mtk::Field_Type > >& aFieldTypes );
 
             //------------------------------------------------------------------------------
             /**
              * return a list of field types
              * @param[ out ] mFieldTypes list of field type
              */
-            const moris::Cell< moris::Cell< mtk::Field_Type > >&
+            const Vector< Vector< mtk::Field_Type > >&
             get_field_type_list() const
             {
                 return mFieldTypes;
@@ -408,7 +408,7 @@ namespace moris
              * @param[ in ]  aFieldType cell of dv type
              * @param[ out ] aBool   boolean, true if dependency on the field type
              */
-            bool check_field_dependency( const moris::Cell< mtk::Field_Type >& aFieldType );
+            bool check_field_dependency( const Vector< mtk::Field_Type >& aFieldType );
 
             //------------------------------------------------------------------------------
             /**
@@ -435,14 +435,14 @@ namespace moris
              * @param[ in ]  aDofType   cell of dof type
              * @param[ out ] adPropdDOF matrix with derivative wrt to the dof type
              */
-            const Matrix< DDRMat >& dPropdDOF( const moris::Cell< MSI::Dof_Type >& aDofType );
+            const Matrix< DDRMat >& dPropdDOF( const Vector< MSI::Dof_Type >& aDofType );
 
             //------------------------------------------------------------------------------
             /**
              * evaluate property derivatives wrt a dof type
              * @param[ in ] aDofType cell of dof type
              */
-            void eval_dPropdDOF( const moris::Cell< MSI::Dof_Type >& aDofType );
+            void eval_dPropdDOF( const Vector< MSI::Dof_Type >& aDofType );
 
             //------------------------------------------------------------------------------
             /**
@@ -450,14 +450,14 @@ namespace moris
              * @param[ in ]  aDvType   cell of dv type
              * @param[ out ] adPropdDV matrix with derivative wrt to the dv type
              */
-            const Matrix< DDRMat >& dPropdDV( const moris::Cell< PDV_Type >& aDvType );
+            const Matrix< DDRMat >& dPropdDV( const Vector< PDV_Type >& aDvType );
 
             //------------------------------------------------------------------------------
             /**
              * evaluate property derivatives wrt a design variable
              * @param[ in ] aDvType cell of dv type
              */
-            void eval_dPropdDV( const moris::Cell< PDV_Type >& aDvType );
+            void eval_dPropdDV( const Vector< PDV_Type >& aDvType );
 
             //------------------------------------------------------------------------------
             /**
@@ -487,7 +487,7 @@ namespace moris
              * get non unique dof type list
              * @param[ in ] aDofType cell of dof type
              */
-            void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void get_non_unique_dof_types( Vector< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -497,9 +497,9 @@ namespace moris
              * @param[ in ] aFioeldType cell of field types
              */
             void get_non_unique_dof_dv_and_field_types(
-                    moris::Cell< MSI::Dof_Type >&   aDofTypes,
-                    moris::Cell< PDV_Type >&        aDvTypes,
-                    moris::Cell< mtk::Field_Type >& aFieldTypes );
+                    Vector< MSI::Dof_Type >&   aDofTypes,
+                    Vector< PDV_Type >&        aDvTypes,
+                    Vector< mtk::Field_Type >& aFieldTypes );
 
             //------------------------------------------------------------------------------
         };

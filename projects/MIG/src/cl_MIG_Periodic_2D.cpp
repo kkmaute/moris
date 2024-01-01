@@ -99,18 +99,18 @@ namespace moris::mig
 
             // prerequisite offset vector and sets on each periodic surface
             moris::Matrix< DDRMat >    tOffsetVector;
-            moris::Cell< std::string > tFirstSideSetNames;
-            moris::Cell< std::string > tSecondSideSetNames;
+            moris::Vector< std::string > tFirstSideSetNames;
+            moris::Vector< std::string > tSecondSideSetNames;
 
             // find the offset of two surfaces
             this->offset_vector( tOffsetVector, tFirstSideSetNames, tSecondSideSetNames, tPairCount );
 
             // initialize all the clusters on each side
-            moris::Cell< mtk::Cluster const * > tSideClusters1;
-            moris::Cell< mtk::Cluster const * > tSideClusters2;
+            moris::Vector< mtk::Cluster const * > tSideClusters1;
+            moris::Vector< mtk::Cluster const * > tSideClusters2;
 
             // cells on the side set are locally indexed and they are assigned a phase to each one
-            moris::Cell< moris_index > tLocalCellNumToColor1;
+            moris::Vector< moris_index > tLocalCellNumToColor1;
 
             for ( uint i = 0; i < tFirstSideSetNames.size(); i++ )
             {
@@ -121,7 +121,7 @@ namespace moris::mig
                 Matrix< IndexMat > tColor = tSet->get_set_colors();
 
                 // get clusters in the second set
-                moris::Cell< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
+                moris::Vector< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
 
                 // Assign phases to cluster
                 tLocalCellNumToColor1.resize( tLocalCellNumToColor1.size() + tSetClusters.size(), tColor( 0 ) );
@@ -131,7 +131,7 @@ namespace moris::mig
             }
 
             // cells on the side set are locally indexed and they are assigned a phase to each one
-            moris::Cell< moris_index > tLocalCellNumToColor2;
+            moris::Vector< moris_index > tLocalCellNumToColor2;
 
             for ( uint i = 0; i < tSecondSideSetNames.size(); i++ )
             {
@@ -139,7 +139,7 @@ namespace moris::mig
                 moris::mtk::Set *tSet = tIntegrationMesh->get_set_by_name( tSecondSideSetNames( i ) );
 
                 // get clusters in the second set
-                moris::Cell< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
+                moris::Vector< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
 
                 // get color(phase) associated with the set
                 Matrix< IndexMat > tColor = tSet->get_set_colors();
@@ -155,15 +155,15 @@ namespace moris::mig
             for ( const auto &tIter : mBackgroundCellToSideClusterMap1( tPairCount ) )
             {
                 // Find all the side clusters that lie in the left and right pair
-                moris::Cell< moris_index > const &tSideClustersIndices1 = tIter.second;
-                moris::Cell< moris_index > const &tSideClustersIndices2 = mBackgroundCellToSideClusterMap2( tPairCount )[tIter.first];
+                moris::Vector< moris_index > const &tSideClustersIndices1 = tIter.second;
+                moris::Vector< moris_index > const &tSideClustersIndices2 = mBackgroundCellToSideClusterMap2( tPairCount )[tIter.first];
 
                 // Consider different cases to minimize the effort of polygon clipping
                 // case 1 where both sides just have one cluster ( they can be trivial or non trivial)
                 if ( tSideClustersIndices1.size() == 1 and tSideClustersIndices2.size() == 1 )
                 {
                     // parametric coordinates are predefined as the corners and center
-                    moris::Cell< Matrix< DDRMat > > tParamCoordsCell2( 1, Matrix< DDRMat >( 1, 2 ) );
+                    moris::Vector< Matrix< DDRMat > > tParamCoordsCell2( 1, Matrix< DDRMat >( 1, 2 ) );
                     tParamCoordsCell2( 0 ) = { { -1.0, +1.0 } };
 
                     // extract the phase of each side cluster
@@ -174,7 +174,7 @@ namespace moris::mig
                     moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
 
                     // create a dummy cell in order to specify that all of the cut cells need to be assigned
-                    moris::Cell< moris_index > tDummyCel = { 0 };
+                    moris::Vector< moris_index > tDummyCel = { 0 };
 
                     // create the dbl sided cluster based on the cut cell and IP cell information
                     this->create_dbl_sided_cluster( tParamCoordsCell2, tDummyCel, tSideClusters1( tSideClustersIndices1( 0 ) )->get_interpolation_cell(), tSideClusters2( tSideClustersIndices2( 0 ) )->get_interpolation_cell(), tPairCount, tPhaseToPhaseIndex );
@@ -190,7 +190,7 @@ namespace moris::mig
                         uint tPrimaryCellInClusterNum = tSideClusters2( tSideClustersIndices2( iCluster ) )->get_num_primary_cells();
 
                         // Initialize the cell containing coordinates of the cut surfaces
-                        moris::Cell< moris::Matrix< DDRMat > > tParamCoordsCell( tPrimaryCellInClusterNum, moris::Matrix< DDRMat >( 2, 3 ) );
+                        moris::Vector< moris::Matrix< DDRMat > > tParamCoordsCell( tPrimaryCellInClusterNum, moris::Matrix< DDRMat >( 2, 3 ) );
 
                         // Iterate through each surface to get the coordinates on the side ordinal
                         for ( uint iCell = 0; iCell < tPrimaryCellInClusterNum; iCell++ )
@@ -213,7 +213,7 @@ namespace moris::mig
                         }
 
                         // create a dummy cell to indicate all the triangle elements will be processed to create dbl sided set
-                        moris::Cell< moris_index > tDummyCell( tPrimaryCellInClusterNum );
+                        moris::Vector< moris_index > tDummyCell( tPrimaryCellInClusterNum );
 
                         // fill in the dummy cell with dummy values to include all the tri elements
                         for ( uint i = 0; i < tParamCoordsCell.size(); i++ )
@@ -243,7 +243,7 @@ namespace moris::mig
                         uint tPrimaryCellInClusterNum = tSideClusters1( tSideClustersIndices1( iCluster ) )->get_num_primary_cells();
 
                         // Initialize the cell containing coordinates of the cut surfaces
-                        moris::Cell< moris::Matrix< DDRMat > > tParamCoordsCell( tPrimaryCellInClusterNum, moris::Matrix< DDRMat >( 2, 3 ) );
+                        moris::Vector< moris::Matrix< DDRMat > > tParamCoordsCell( tPrimaryCellInClusterNum, moris::Matrix< DDRMat >( 2, 3 ) );
 
                         // Iterate through each surface to get the coordinates on the side ordinal
                         for ( uint iCell = 0; iCell < tPrimaryCellInClusterNum; iCell++ )
@@ -266,7 +266,7 @@ namespace moris::mig
                         }
 
                         // create a dummy cell to indicate all the triangle elements will be processed to create dbl sided set
-                        moris::Cell< moris_index > tDummyCell( tPrimaryCellInClusterNum );
+                        moris::Vector< moris_index > tDummyCell( tPrimaryCellInClusterNum );
 
                         // fill in the dummy cell with dummy values to include all the tri elements
                         for ( uint i = 0; i < tParamCoordsCell.size(); i++ )
@@ -297,7 +297,7 @@ namespace moris::mig
                     }
 
                     // Initialize the cut cell surfaces
-                    moris::Cell< moris::Matrix< DDRMat > > tParamCoordsCell1( tIGCellNum, moris::Matrix< DDRMat >( 1, 2 ) );
+                    moris::Vector< moris::Matrix< DDRMat > > tParamCoordsCell1( tIGCellNum, moris::Matrix< DDRMat >( 1, 2 ) );
 
                     // A local map determining that each IG cell/surfaces belongs to which local cluster
                     moris::Matrix< moris::IndexMat > tIGCellToSideClusterMap1( tIGCellNum, 1 );
@@ -348,7 +348,7 @@ namespace moris::mig
                     }
 
                     // Initialize the cell of surfaces that will be intersected
-                    moris::Cell< moris::Matrix< DDRMat > > tParamCoordsCell2( tIGCellNum, moris::Matrix< DDRMat >( 1, 2 ) );
+                    moris::Vector< moris::Matrix< DDRMat > > tParamCoordsCell2( tIGCellNum, moris::Matrix< DDRMat >( 1, 2 ) );
 
                     // A local map determining that each IG cell/surfaces belongs to which local cluster
                     moris::Matrix< moris::IndexMat > tIGCellToSideClusterMap2( tIGCellNum, 1 );
@@ -390,7 +390,7 @@ namespace moris::mig
                     }
 
                     // initialize the cut polygons and their respective indices that come from their parent element
-                    moris::Cell< moris::Matrix< DDRMat > > tCutPolygons;
+                    moris::Vector< moris::Matrix< DDRMat > > tCutPolygons;
                     moris::Matrix< moris::IndexMat >       tCutPolygonIdentifier;
 
                     // Polygon clipping algorithm
@@ -398,7 +398,7 @@ namespace moris::mig
                         tParamCoordsCell1, tIGCellToSideClusterMap1, tParamCoordsCell2, tIGCellToSideClusterMap2, tCutPolygons, tCutPolygonIdentifier );
 
                     // a map from the identifier of each cut cell to all cut cells with the same identifier
-                    std::unordered_map< moris_index, moris::Cell< moris_index > > tCutCellIdentifierToCutCell;
+                    std::unordered_map< moris_index, moris::Vector< moris_index > > tCutCellIdentifierToCutCell;
 
                     // populate the map
                     this->group_cut_cells( tCutPolygonIdentifier, tCutCellIdentifierToCutCell );
@@ -411,7 +411,7 @@ namespace moris::mig
                     for ( auto &iCutCellGroup : tCutCellIdentifierToCutCell )
                     {
                         // indices of the cut polygon that exist in the particular dbl sided cluster
-                        moris::Cell< moris_index > &tIndicesInCutCell = iCutCellGroup.second;
+                        moris::Vector< moris_index > &tIndicesInCutCell = iCutCellGroup.second;
 
                         // local index of the side cluster on the right
                         uint j = ( iCutCellGroup.first ) % tMultiplier;
@@ -441,8 +441,8 @@ namespace moris::mig
     //------------------------------------------------------------------------
 
     void
-    Periodic_2D::create_dbl_sided_cluster( moris::Cell< Matrix< DDRMat > > tP,
-        moris::Cell< moris_index >                                        &aIndicesInCutCell,
+    Periodic_2D::create_dbl_sided_cluster( moris::Vector< Matrix< DDRMat > > tP,
+        moris::Vector< moris_index >                                        &aIndicesInCutCell,
         moris::mtk::Cell const                                            &aInterpCell1,
         moris::mtk::Cell const                                            &aInterpCell2,
         uint                                                               aPairCount,
@@ -533,7 +533,7 @@ namespace moris::mig
     Periodic_2D::create_leader_ig_cell( moris::mtk::Cell const &aLeaderInterpCell, uint aPairCount )
     {
         // define the permutation of the vertices
-        moris::Cell< moris_index > tPermutation;
+        moris::Vector< moris_index > tPermutation;
 
         if ( mMeshSideSetPairs( aPairCount )( 0 ) == "4" )
         {
@@ -563,7 +563,7 @@ namespace moris::mig
     Periodic_2D::create_follower_ig_cell( moris::mtk::Cell const &aFollowerInterpCell, uint aPairCount )
     {
         // define the permutation of the vertices
-        moris::Cell< moris_index > tPermutation;
+        moris::Vector< moris_index > tPermutation;
 
         if ( mMeshSideSetPairs( aPairCount )( 0 ) == "4" )
         {
@@ -607,15 +607,15 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_2D::offset_vector( moris::Matrix< DDRMat > &tOffsetVector, moris::Cell< std::string > &tFirstSideSetNames, moris::Cell< std::string > &tSecondSideSetNames, uint aPairCount )
+    Periodic_2D::offset_vector( moris::Matrix< DDRMat > &tOffsetVector, moris::Vector< std::string > &tFirstSideSetNames, moris::Vector< std::string > &tSecondSideSetNames, uint aPairCount )
     {
         // Integration mesh
         moris::mtk::Integration_Mesh *tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
 
         // get all the sidesets
-        moris::Cell< moris::mtk::Side_Set * > const &tListOfSideSets = tIntegrationMesh->get_side_sets();
+        moris::Vector< moris::mtk::Side_Set * > const &tListOfSideSets = tIntegrationMesh->get_side_sets();
 
-        moris::Cell< std::string > tSetNames( tListOfSideSets.size() );
+        moris::Vector< std::string > tSetNames( tListOfSideSets.size() );
 
         std::transform( tListOfSideSets.cbegin(),
             tListOfSideSets.cend(),
@@ -648,15 +648,15 @@ namespace moris::mig
         }
 
         // initialize all the clusters on each side
-        moris::Cell< mtk::Cluster const * > tFirstSideClusters;
-        moris::Cell< mtk::Cluster const * > tSecondSideClusters;
+        moris::Vector< mtk::Cluster const * > tFirstSideClusters;
+        moris::Vector< mtk::Cluster const * > tSecondSideClusters;
 
         for ( uint i = 0; i < tFirstSideSetNames.size(); i++ )
         {
             moris::mtk::Set *tSet = tIntegrationMesh->get_set_by_name( tFirstSideSetNames( i ) );
 
             // get clusters in the second set
-            moris::Cell< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
+            moris::Vector< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
 
             tFirstSideClusters.append( tSetClusters );
         }
@@ -667,20 +667,20 @@ namespace moris::mig
             moris::mtk::Set *tSet = tIntegrationMesh->get_set_by_name( tSecondSideSetNames( i ) );
 
             // get clusters in the second set
-            moris::Cell< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
+            moris::Vector< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
 
             tSecondSideClusters.append( tSetClusters );
         }
 
         // Second side info
         // get the Integration cell cluster for the side cluster
-        moris::Cell< moris::mtk::Cell const * > const &tSecondCells = tSecondSideClusters( 0 )->get_primary_cells_in_cluster();
+        moris::Vector< moris::mtk::Cell const * > const &tSecondCells = tSecondSideClusters( 0 )->get_primary_cells_in_cluster();
 
         // get the side ordinals of the integration cells in the cluster
         moris::Matrix< moris::IndexMat > tSecondCellOrds = tSecondSideClusters( 0 )->get_cell_side_ordinals();
 
         // each cluster has only 2 vertices
-        moris::Cell< moris::mtk::Vertex const * > tSecondVertices      = tSecondCells( 0 )->get_vertices_on_side_ordinal( tSecondCellOrds( 0 ) );
+        moris::Vector< moris::mtk::Vertex const * > tSecondVertices      = tSecondCells( 0 )->get_vertices_on_side_ordinal( tSecondCellOrds( 0 ) );
         moris::Matrix< moris::DDRMat >            tSecondVertexCoords1 = tSecondVertices( 0 )->get_coords();
         moris::Matrix< moris::DDRMat >            tSecondVertexCoords2 = tSecondVertices( 1 )->get_coords();
 
@@ -691,13 +691,13 @@ namespace moris::mig
 
         // First side info
         // get the Integration cell cluster for the side cluster
-        moris::Cell< moris::mtk::Cell const * > const &tFirstCells = tFirstSideClusters( 0 )->get_primary_cells_in_cluster();
+        moris::Vector< moris::mtk::Cell const * > const &tFirstCells = tFirstSideClusters( 0 )->get_primary_cells_in_cluster();
 
         // get the side ordinals of the integration cells in the cluster
         moris::Matrix< moris::IndexMat > tFirstCellOrds = tFirstSideClusters( 0 )->get_cell_side_ordinals();
 
         // get the vertex information
-        moris::Cell< moris::mtk::Vertex const * > tFirstVertices = tFirstCells( 0 )->get_vertices_on_side_ordinal( tFirstCellOrds( 0 ) );
+        moris::Vector< moris::mtk::Vertex const * > tFirstVertices = tFirstCells( 0 )->get_vertices_on_side_ordinal( tFirstCellOrds( 0 ) );
 
         moris::Matrix< moris::DDRMat > tFirstVertexCoords = tFirstVertices( 0 )->get_coords();
 
@@ -855,9 +855,9 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_2D::generate_identifier( moris::Cell< mtk::Cluster const * >    &aSideClusters,
+    Periodic_2D::generate_identifier( moris::Vector< mtk::Cluster const * >    &aSideClusters,
         uint                                                                 &aPairCount,
-        std::unordered_map< moris::moris_index, moris::Cell< moris_index > > &aBackgroundCellToSideClusterMap ) const
+        std::unordered_map< moris::moris_index, moris::Vector< moris_index > > &aBackgroundCellToSideClusterMap ) const
     {
         // reserve memory for output matrix
         uint tOutputSize = aSideClusters.size();
@@ -887,11 +887,11 @@ namespace moris::mig
 
     void
     Periodic_2D::elementwise_bruteforce_search(
-        moris::Cell< Matrix< moris::DDRMat > > const &aParamCoordsCell1,
+        moris::Vector< Matrix< moris::DDRMat > > const &aParamCoordsCell1,
         moris::Matrix< IndexMat > const              &aIGCellToSideClusterMap1,
-        moris::Cell< Matrix< moris::DDRMat > > const &aParamCoordsCell2,
+        moris::Vector< Matrix< moris::DDRMat > > const &aParamCoordsCell2,
         moris::Matrix< IndexMat > const              &aIGCellToSideClusterMap2,
-        moris::Cell< Matrix< moris::DDRMat > >       &aIntersectedAreas,
+        moris::Vector< Matrix< moris::DDRMat > >       &aIntersectedAreas,
         moris::Matrix< IndexMat >                    &aIntersectedAreasIdentifier ) const
     {
         // multiplier used to assign an id to each cut surfaces based on the parent cells
@@ -959,7 +959,7 @@ namespace moris::mig
 
     void
     Periodic_2D::group_cut_cells( moris::Matrix< IndexMat > const     &aCutTrianglesIdentifier,
-        std::unordered_map< moris_index, moris::Cell< moris_index > > &aCutCellIdentifierToCutCellIndex ) const
+        std::unordered_map< moris_index, moris::Vector< moris_index > > &aCutCellIdentifierToCutCellIndex ) const
     {
         // loop over all the cut cells
         for ( uint iI = 0; iI < aCutTrianglesIdentifier.n_rows(); iI++ )
@@ -989,18 +989,18 @@ namespace moris::mig
 
             // prerequisite offset vector and sets on each periodic surface
             moris::Matrix< DDRMat >    tOffsetVector;
-            moris::Cell< std::string > tFirstSideSetNames;
-            moris::Cell< std::string > tSecondSideSetNames;
+            moris::Vector< std::string > tFirstSideSetNames;
+            moris::Vector< std::string > tSecondSideSetNames;
 
             // find the offset of two surfaces
             this->offset_vector( tOffsetVector, tFirstSideSetNames, tSecondSideSetNames, tPairCount );
 
             // initialize all the clusters on each side
-            moris::Cell< mtk::Cluster const * > tSideClusters1;
-            moris::Cell< mtk::Cluster const * > tSideClusters2;
+            moris::Vector< mtk::Cluster const * > tSideClusters1;
+            moris::Vector< mtk::Cluster const * > tSideClusters2;
 
             // cells on the side set are locally indexed and they are assigned a phase to each one
-            moris::Cell< moris_index > tLocalCellNumToColor1;
+            moris::Vector< moris_index > tLocalCellNumToColor1;
 
             for ( uint i = 0; i < tFirstSideSetNames.size(); i++ )
             {
@@ -1011,14 +1011,14 @@ namespace moris::mig
                 Matrix< IndexMat > tColor = tSet->get_set_colors();
 
                 // get clusters in the second set
-                moris::Cell< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
+                moris::Vector< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
 
                 // append the clusters the list of the first side clusters
                 tSideClusters1.append( tSetClusters );
             }
 
             // cells on the side set are locally indexed and they are assigned a phase to each one
-            moris::Cell< moris_index > tLocalCellNumToColor2;
+            moris::Vector< moris_index > tLocalCellNumToColor2;
 
             for ( uint i = 0; i < tSecondSideSetNames.size(); i++ )
             {
@@ -1026,7 +1026,7 @@ namespace moris::mig
                 moris::mtk::Set *tSet = tIntegrationMesh->get_set_by_name( tSecondSideSetNames( i ) );
 
                 // get clusters in the second set
-                moris::Cell< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
+                moris::Vector< moris::mtk::Cluster const * > tSetClusters = tSet->get_clusters_on_set();
 
                 // append the clusters the list of the first side clusters
                 tSideClusters2.append( tSetClusters );

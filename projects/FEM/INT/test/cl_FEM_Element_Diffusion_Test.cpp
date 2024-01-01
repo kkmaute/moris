@@ -106,7 +106,7 @@
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -120,7 +120,7 @@
 //                //------------------------------------------------------------------------------
 //
 //                // input a cell of IWG types to be created
-//                Cell< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::SPATIALDIFF_BULK,
+//                Vector< fem::IWG_Type > tIWGTypeList = { fem::IWG_Type::SPATIALDIFF_BULK,
 //                                                       fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,
 //                                                       fem::IWG_Type::SPATIALDIFF_NEUMANN };
 //
@@ -131,7 +131,7 @@
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -147,14 +147,14 @@
 //                luint tNumOfElements = tMesh->get_num_elems();
 //
 //                // create equation objects
-//                Cell< MSI::Equation_Object* > tElements;
+//                Vector< MSI::Equation_Object* > tElements;
 //                tElements.reserve( tNumOfElements + 4 + 4 );
 //
 //                // get the block names from the mesh
-//                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( mtk::EntityRank::ELEMENT);
+//                Vector<std::string> tBlockSetsNames = tMesh->get_set_names( mtk::EntityRank::ELEMENT);
 //
 //                // Cell containing the block mesh cell ( a cell of mesh cells )
-//                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( mtk::EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+//                Vector<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( mtk::EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
 //
 //                // loop on the blocks
 //                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
@@ -170,8 +170,8 @@
 //                }
 //
 //                // create a fem element block
-//                moris::Cell< MSI::Equation_Set * > tElementBlocks( 3, nullptr );
-//                moris::Cell< IWG* > tIWGBulk = { tIWGs( 0 ) };
+//                Vector< MSI::Equation_Set * > tElementBlocks( 3, nullptr );
+//                Vector< IWG* > tIWGBulk = { tIWGs( 0 ) };
 //                tElementBlocks( 0 ) = new fem::Set( tBlockSetElement,
 //                                                              fem::Element_Type::BULK,
 //                                                              tIWGBulk,
@@ -184,14 +184,14 @@
 //                //std::cout<<" Create Dirichlet side block "<<std::endl;
 //                //-----------------------------------------------------------------------------
 //                // elements included in the Dirichlet sideset
-//                moris::Cell<mtk::Cell const *> tSideSetDirichletElement( 4, nullptr );
+//                Vector<mtk::Cell const *> tSideSetDirichletElement( 4, nullptr );
 //                tSideSetDirichletElement( 0 ) = & tMesh->get_mtk_cell( 0 );
 //                tSideSetDirichletElement( 1 ) = & tMesh->get_mtk_cell( 2 );
 //                tSideSetDirichletElement( 2 ) = & tMesh->get_mtk_cell( 4 );
 //                tSideSetDirichletElement( 3 ) = & tMesh->get_mtk_cell( 6 );
 //
 //                // create a fem element sideblock
-//                moris::Cell< IWG* > tIWGDirichlet = { tIWGs( 1 ) };
+//                Vector< IWG* > tIWGDirichlet = { tIWGs( 1 ) };
 //                tElementBlocks( 1 ) = new fem::Set( tSideSetDirichletElement,
 //                                                              fem::Element_Type::SIDESET,
 //                                                              tIWGDirichlet,
@@ -204,14 +204,14 @@
 //                //std::cout<<" Create Neumann side block "<<std::endl;
 //                //-----------------------------------------------------------------------------
 //                // elements included in the Neumann sideset
-//                moris::Cell<mtk::Cell const *> tSideSetNeumannElement( 4, nullptr );
+//                Vector<mtk::Cell const *> tSideSetNeumannElement( 4, nullptr );
 //                tSideSetNeumannElement( 0 ) = & tMesh->get_mtk_cell( 1 );
 //                tSideSetNeumannElement( 1 ) = & tMesh->get_mtk_cell( 3 );
 //                tSideSetNeumannElement( 2 ) = & tMesh->get_mtk_cell( 5 );
 //                tSideSetNeumannElement( 3 ) = & tMesh->get_mtk_cell( 7 );
 //
 //                // create a fem element sideblock
-//                moris::Cell< IWG* > tIWGNeumann = { tIWGs( 2 ) };
+//                Vector< IWG* > tIWGNeumann = { tIWGs( 2 ) };
 //                tElementBlocks( 2 ) = new fem::Set( tSideSetNeumannElement,
 //                                                              fem::Element_Type::SIDESET,
 //                                                              tIWGNeumann,
@@ -225,7 +225,7 @@
 //                //-----------------------------------------------------------------------------
 //                // nodal weak bc for Dirichlet
 //                real tTempValue = 5.0;
-//                Cell< moris_index > tDirichletElements = { 0, 2, 4, 6 };
+//                Vector< moris_index > tDirichletElements = { 0, 2, 4, 6 };
 //                for( uint iDirichlet = 0; iDirichlet < 4; iDirichlet++ )
 //                {
 //                    // set the list of face ordinals
@@ -252,7 +252,7 @@
 //
 //                // nodal weak bc for Neumann
 //                real tFluxValue = 20.0;
-//                Cell< moris_index > tNeumannElements = { 0, 2, 4, 6 };
+//                Vector< moris_index > tNeumannElements = { 0, 2, 4, 6 };
 //                for( uint iNeumann = 0; iNeumann < 4; iNeumann++ )
 //                {
 //                    // set the list of face ordinals
@@ -284,13 +284,13 @@
 ////                Element_Factory tElementFactory;
 ////
 ////                // create equation objects
-////                Cell< MSI::Equation_Object* > tElements( 16, nullptr );
+////                Vector< MSI::Equation_Object* > tElements( 16, nullptr );
 ////
 ////                // init the number of elements
 ////                uint tNumElementsCount = 0;
 ////
 ////                // select the IWG list for the blockset
-////                Cell< fem::IWG* > tIWGsBlockset = { tIWGs( 0 ) };
+////                Vector< fem::IWG* > tIWGsBlockset = { tIWGs( 0 ) };
 ////
 ////                // loop over the mesh elements to create bulk elements
 ////                for( uint k = 0; k < tNumOfElements; k++ )
@@ -305,10 +305,10 @@
 ////                tNumElementsCount = tNumElementsCount + tNumOfElements;
 ////
 ////                // select the IWG list for the Dirichlet sideset
-////                Cell< fem::IWG* > tIWGsDirichletSideset = { tIWGs( 1 ) };
+////                Vector< fem::IWG* > tIWGsDirichletSideset = { tIWGs( 1 ) };
 ////
 ////                // elements included in the Dirichlet sideset
-////                Cell< moris_index > tListOfDirichletElements = { 0, 2, 4, 6 };
+////                Vector< moris_index > tListOfDirichletElements = { 0, 2, 4, 6 };
 ////
 ////                // loop over the elements included in the Dirichlet sideset
 ////                for( uint iDirichlet = 0; iDirichlet < tListOfDirichletElements.size(); iDirichlet++ )
@@ -348,10 +348,10 @@
 ////                tNumElementsCount = tNumElementsCount + tListOfDirichletElements.size();
 ////
 ////                // select the IWG list for the Neumann sideset
-////                Cell< fem::IWG* > tIWGsNeumannSideset = { tIWGs( 2 ) };
+////                Vector< fem::IWG* > tIWGsNeumannSideset = { tIWGs( 2 ) };
 ////
 ////                // elements included in the Neumann sideset
-////                Cell< moris_index > tListOfNeumannElements = { 1, 3, 5, 7 };
+////                Vector< moris_index > tListOfNeumannElements = { 1, 3, 5, 7 };
 ////
 ////                // loop over the elements included in the Neumann sideset
 ////                for( uint iNeumann = 0; iNeumann < 4; iNeumann++ )
@@ -496,7 +496,7 @@
 //                //------------------------------------------------------------------------------
 //
 //                // dof type list for the solution to write on the mesh
-//                moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
+//                Vector< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::TEMP };
 //
 //                // create a matrix to be filled  with the solution
 //                Matrix< DDRMat > tTempSolutionField( tNumOfNodes, 1 );

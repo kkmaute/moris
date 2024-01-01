@@ -64,7 +64,7 @@ namespace moris::hmr
                 tParameters.set_initial_refinement( { { 1 } } );
                 tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -108,7 +108,7 @@ namespace moris::hmr
                 HMR tHMR_Input( "Mesh_Data_test.hdf5" );
 
                 // empty container for B-Spline meshes
-                Cell< BSpline_Mesh_Base* > tBSplineMeshes;
+                Vector< BSpline_Mesh_Base* > tBSplineMeshes;
 
                 // create factory
                 Factory tFactory( tHMR_Input.get_database()->get_parameters() );
@@ -206,7 +206,7 @@ namespace moris::hmr
                 tParameters.set_initial_refinement( { { 1 } } );
                 tParameters.set_initial_refinement_patterns( { { 0 } } );
 
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 }, { 2 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );

@@ -53,10 +53,10 @@ namespace moris
             //            tWriter.close_file();
 
             // Double sided side set clusters
-            moris::Cell< moris::Cell< Cluster const * > > tDoubleSideSetClusters( mMeshSideSetPairs.size() );
+            moris::Vector< moris::Vector< Cluster const * > > tDoubleSideSetClusters( mMeshSideSetPairs.size() );
 
             // Double sided side set
-            moris::Cell< mtk::Double_Side_Set* > tDblSideSet( mMeshSideSetPairs.size() );
+            moris::Vector< mtk::Double_Side_Set* > tDblSideSet( mMeshSideSetPairs.size() );
 
             // iterate through periodic pairs to
             for ( uint tPairCounter = 0; tPairCounter < mMeshSideSetPairs.size(); tPairCounter++ )
@@ -67,19 +67,19 @@ namespace moris
                 // Get the spatial dim of the mesh
                 uint tSpatialDim = tIntegrationMesh->get_spatial_dim();
                 // get clusters in the the first set
-                moris::Cell< moris::mtk::Cluster const * > tSetClusters = tSet1->get_clusters_on_set();
+                moris::Vector< moris::mtk::Cluster const * > tSetClusters = tSet1->get_clusters_on_set();
 
                 // Cell to store 1st side IDs of each integration cell - each member of the cell holds one cell
-                moris::Cell< moris::Matrix< moris::IdMat > > tFirstIds( tSetClusters.size() );
+                moris::Vector< moris::Matrix< moris::IdMat > > tFirstIds( tSetClusters.size() );
 
                 // get the second side set from the mesh
                 moris::mtk::Set* tSet2 = tIntegrationMesh->get_set_by_name( mMeshSideSetPairs( tPairCounter )( 1 ) );
 
                 // get clusters in the second set
-                moris::Cell< moris::mtk::Cluster const * > tSetClusters2 = tSet2->get_clusters_on_set();
+                moris::Vector< moris::mtk::Cluster const * > tSetClusters2 = tSet2->get_clusters_on_set();
 
                 // Cell to store 2nd side IDs of each integration cell - each member of the cell holds one cell
-                moris::Cell< moris::Matrix< moris::IdMat > > tSecondIds( tSetClusters.size() );
+                moris::Vector< moris::Matrix< moris::IdMat > > tSecondIds( tSetClusters.size() );
 
                 // Ids of the cell clusters corresponding to each other
                 moris::Matrix< moris::DDUMat > tPairedIndices;
@@ -312,7 +312,7 @@ namespace moris
                             moris::Matrix< moris::IdMat > tSecondPairIds = tSecondIds( tClusterPairCounter );
 
                             // vertex pairing for individual clusters
-                            moris::Cell< moris::mtk::Vertex const * > tVertexPairing( tNumVertexinCluster );
+                            moris::Vector< moris::mtk::Vertex const * > tVertexPairing( tNumVertexinCluster );
                             tVertexPairing( 0 ) = &tIntegrationMesh->get_mtk_vertex( tIntegrationMesh->get_loc_entity_ind_from_entity_glb_id( tSecondPairIds( 0, tPermutation( 0, 0 ) ), EntityRank::NODE ) );
                             tVertexPairing( 1 ) = &tIntegrationMesh->get_mtk_vertex( tIntegrationMesh->get_loc_entity_ind_from_entity_glb_id( tSecondPairIds( 0, tPermutation( 1, 0 ) ), EntityRank::NODE ) );
                             tVertexPairing( 2 ) = &tIntegrationMesh->get_mtk_vertex( tIntegrationMesh->get_loc_entity_ind_from_entity_glb_id( tSecondPairIds( 0, tPermutation( 2, 0 ) ), EntityRank::NODE ) );
@@ -528,7 +528,7 @@ namespace moris
                             moris::Matrix< moris::IdMat > tSecondPairIds = tSecondIds( tClusterPairCounter );
 
                             // vertex pairing for individual clusters
-                            moris::Cell< moris::mtk::Vertex const * > tVertexPairing( tNumVertexinCluster );
+                            moris::Vector< moris::mtk::Vertex const * > tVertexPairing( tNumVertexinCluster );
                             tVertexPairing( 0 ) = &tIntegrationMesh->get_mtk_vertex( tIntegrationMesh->get_loc_entity_ind_from_entity_glb_id( tSecondPairIds( 0, tPermutation( 0, 0 ) ), EntityRank::NODE ) );
                             tVertexPairing( 1 ) = &tIntegrationMesh->get_mtk_vertex( tIntegrationMesh->get_loc_entity_ind_from_entity_glb_id( tSecondPairIds( 0, tPermutation( 1, 0 ) ), EntityRank::NODE ) );
 

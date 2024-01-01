@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"     //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -136,61 +136,61 @@ namespace moris
 
             // storage for production coefficient related evaluation
             Matrix< DDRMat >                mProductionCoeff;
-            moris::Cell< Matrix< DDRMat > > mdProductionCoeffdu;
+            Vector< Matrix< DDRMat > > mdProductionCoeffdu;
             Matrix< DDRMat >                mProductionTerm;
-            moris::Cell< Matrix< DDRMat > > mdProductionTermdu;
+            Vector< Matrix< DDRMat > > mdProductionTermdu;
 
             Matrix< DDRMat >                mWallDestructionCoeff;
-            moris::Cell< Matrix< DDRMat > > mdWallDestructionCoeffdu;
+            Vector< Matrix< DDRMat > > mdWallDestructionCoeffdu;
             Matrix< DDRMat >                mWallDestructionTerm;
-            moris::Cell< Matrix< DDRMat > > mdWallDestructionTermdu;
+            Vector< Matrix< DDRMat > > mdWallDestructionTermdu;
 
             Matrix< DDRMat >                        mDiffusionCoeff;
-            moris::Cell< Matrix< DDRMat > >         mdDiffusionCoeffdu;
-            moris::Cell< Matrix< DDRMat > >         mdDiffusionCoeffdx;
-            moris::Cell< Cell< Matrix< DDRMat > > > mdDiffusionCoeffdxdu;
+            Vector< Matrix< DDRMat > >         mdDiffusionCoeffdu;
+            Vector< Matrix< DDRMat > >         mdDiffusionCoeffdx;
+            Vector< Vector< Matrix< DDRMat > > > mdDiffusionCoeffdxdu;
 
             Matrix< DDRMat >                mModVelocity;
-            moris::Cell< Matrix< DDRMat > > mdModVelocitydu;
+            Vector< Matrix< DDRMat > > mdModVelocitydu;
 
             Matrix< DDRMat >                mModVelocityLinearized;
-            moris::Cell< Matrix< DDRMat > > mdModVelocityLinearizeddu;
+            Vector< Matrix< DDRMat > > mdModVelocityLinearizeddu;
 
             // storage for chi
             moris::real                             mChi;
-            moris::Cell< Matrix< DDRMat > >         mdChidu;
-            moris::Cell< Matrix< DDRMat > >         mdChidx;
-            moris::Cell< Cell< Matrix< DDRMat > > > mdChidxdu;
+            Vector< Matrix< DDRMat > >         mdChidu;
+            Vector< Matrix< DDRMat > >         mdChidx;
+            Vector< Vector< Matrix< DDRMat > > > mdChidxdu;
 
             moris::real                     mFt2;
-            moris::Cell< Matrix< DDRMat > > mdFt2du;
+            Vector< Matrix< DDRMat > > mdFt2du;
 
             Matrix< DDRMat >                mW;
-            moris::Cell< Matrix< DDRMat > > mdWdu;
+            Vector< Matrix< DDRMat > > mdWdu;
             moris::real                     mS;
-            moris::Cell< Matrix< DDRMat > > mdSdu;
+            Vector< Matrix< DDRMat > > mdSdu;
             moris::real                     mSBar;
-            moris::Cell< Matrix< DDRMat > > mdSBardu;
+            Vector< Matrix< DDRMat > > mdSBardu;
             moris::real                     mSMod;
-            moris::Cell< Matrix< DDRMat > > mdSModdu;
+            Vector< Matrix< DDRMat > > mdSModdu;
             moris::real                     mSTilde;
-            moris::Cell< Matrix< DDRMat > > mdSTildedu;
+            Vector< Matrix< DDRMat > > mdSTildedu;
             moris::real                     mFv1;
-            moris::Cell< Matrix< DDRMat > > mdFv1du;
+            Vector< Matrix< DDRMat > > mdFv1du;
             moris::real                     mFv2;
-            moris::Cell< Matrix< DDRMat > > mdFv2du;
+            Vector< Matrix< DDRMat > > mdFv2du;
 
             moris::real                     mFw;
-            moris::Cell< Matrix< DDRMat > > mdFwdu;
+            Vector< Matrix< DDRMat > > mdFwdu;
             moris::real                     mG;
-            moris::Cell< Matrix< DDRMat > > mdGdu;
+            Vector< Matrix< DDRMat > > mdGdu;
             moris::real                     mR;
-            moris::Cell< Matrix< DDRMat > > mdRdu;
+            Vector< Matrix< DDRMat > > mdRdu;
 
             moris::real                             mFn;
-            moris::Cell< Matrix< DDRMat > >         mdFndu;
-            moris::Cell< Matrix< DDRMat > >         mdFndx;
-            moris::Cell< Cell< Matrix< DDRMat > > > mdFndxdu;
+            Vector< Matrix< DDRMat > >         mdFndu;
+            Vector< Matrix< DDRMat > >         mdFndx;
+            Vector< Vector< Matrix< DDRMat > > > mdFndxdu;
 
             friend class IQI_Spalart_Allmaras_Coefficient;
 
@@ -234,7 +234,7 @@ namespace moris
              * set parameters
              * @param[ in ] aParameters a list of parameters
              */
-            void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
+            void set_parameters( Vector< Matrix< DDRMat > > aParameters );
 
             //------------------------------------------------------------------------------
             /**
@@ -243,8 +243,8 @@ namespace moris
              * @param[ in ] aDofStrings a list of strings to describe the dof types
              */
             void set_dof_type_list(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                    moris::Cell< std::string >                  aDofStrings );
+                    Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                    Vector< std::string >                  aDofStrings );
 
             //------------------------------------------------------------------------------
             /**
@@ -260,8 +260,8 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    moris::Cell< moris::Cell< PDV_Type > > aDvTypes,
-                    moris::Cell< std::string >             aDvStrings )
+                    Vector< Vector< PDV_Type > > aDvTypes,
+                    Vector< std::string >             aDvStrings )
             {
                 Constitutive_Model::set_dv_type_list( aDvTypes );
             }
@@ -292,7 +292,7 @@ namespace moris
              */
             void eval_testTraction(
                     const Matrix< DDRMat >&             aNormal,
-                    const moris::Cell< MSI::Dof_Type >& aTestDofTypes );
+                    const Vector< MSI::Dof_Type >& aTestDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -301,7 +301,7 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             void eval_dTractiondDOF(
-                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     const Matrix< DDRMat >&             aNormal );
 
             //--------------------------------------------------------------------------------------------------------------
@@ -311,9 +311,9 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             void eval_dTestTractiondDOF(
-                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     const Matrix< DDRMat >&             aNormal,
-                    const moris::Cell< MSI::Dof_Type >& aTestDofTypes );
+                    const Vector< MSI::Dof_Type >& aTestDofTypes );
 
             /**
              * get the the production coefficient
@@ -330,7 +330,7 @@ namespace moris
              * @param[ out ] mdProductionTermdu derivative of the production term wrt dof types
              */
             const Matrix< DDRMat >& dproductiontermdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -349,7 +349,7 @@ namespace moris
              * @param[ out ] mdproductioncoeffdu derivative of the production coefficient wrt dof types
              */
             const Matrix< DDRMat >& dproductioncoeffdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -367,7 +367,7 @@ namespace moris
              * @param[ out ] mdwalldestructiontermdu derivative of the wall destruction term wrt dof types
              */
             const Matrix< DDRMat >& dwalldestructiontermdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -386,7 +386,7 @@ namespace moris
              * @param[ out ] mdwalldestructioncoeffdu derivative of the wall destruction coefficient wrt dof types
              */
             const Matrix< DDRMat >& dwalldestructioncoeffdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -404,7 +404,7 @@ namespace moris
              * @param[ out ] mdproductioncoeffdu derivative of the diffusion wrt dof types
              */
             const Matrix< DDRMat >& ddiffusioncoeffdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -422,7 +422,7 @@ namespace moris
              * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
              */
             const Matrix< DDRMat >& dmodvelocitydu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -440,7 +440,7 @@ namespace moris
              * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
              */
             const Matrix< DDRMat >& dmodvelocitylinearizeddu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //--------------------------------------------------------------------------------------------------------------
@@ -456,7 +456,7 @@ namespace moris
              * evaluate the derivative of the divergence of the flux wrt to dof type
              */
             void eval_ddivfluxdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofTypes );
+                    const Vector< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -478,7 +478,7 @@ namespace moris
              * evaluate the production coefficient derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dproductioncoeffdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dproductioncoeffdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //                /**
             //                 * get the derivative of the production coefficient wrt dof type
@@ -487,7 +487,7 @@ namespace moris
             //                 * @param[ out ] mdproductioncoeffdu derivative of the production coefficient wrt dof types
             //                 */
             //                const Matrix< DDRMat > & dproductioncoeffdu(
-            //                        const moris::Cell< MSI::Dof_Type > & aDofType,
+            //                        const Vector< MSI::Dof_Type > & aDofType,
             //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -510,7 +510,7 @@ namespace moris
              * evaluate the production term derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dproductiontermdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dproductiontermdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //                /**
             //                 * get the derivative of the production term wrt dof type
@@ -519,7 +519,7 @@ namespace moris
             //                 * @param[ out ] mdProductionTermdu derivative of the production term wrt dof types
             //                 */
             //                const Matrix< DDRMat > & dproductiontermdu(
-            //                        const moris::Cell< MSI::Dof_Type > & aDofType,
+            //                        const Vector< MSI::Dof_Type > & aDofType,
             //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ namespace moris
              * evaluate the wall destruction coefficient derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dwalldestructioncoeffdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dwalldestructioncoeffdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //                /**
             //                 * get the derivative of the wall destruction coefficient wrt dof type
@@ -551,7 +551,7 @@ namespace moris
             //                 * @param[ out ] mdwalldestructioncoeffdu derivative of the wall destruction coefficient wrt dof types
             //                 */
             //                const Matrix< DDRMat > & dwalldestructioncoeffdu(
-            //                        const moris::Cell< MSI::Dof_Type > & aDofType,
+            //                        const Vector< MSI::Dof_Type > & aDofType,
             //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -574,7 +574,7 @@ namespace moris
              * evaluate the wall destruction term derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dwalldestructiontermdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dwalldestructiontermdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //                /**
             //                 * get the derivative of the wall destruction term wrt dof type
@@ -583,7 +583,7 @@ namespace moris
             //                 * @param[ out ] mdwalldestructiontermdu derivative of the wall destruction term wrt dof types
             //                 */
             //                const Matrix< DDRMat > & dwalldestructiontermdu(
-            //                        const moris::Cell< MSI::Dof_Type > & aDofType,
+            //                        const Vector< MSI::Dof_Type > & aDofType,
             //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -606,7 +606,7 @@ namespace moris
              * evaluate the diffusion coefficient derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_ddiffusioncoeffdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_ddiffusioncoeffdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //                /**
             //                 * get the derivative of the diffusion coefficient wrt dof type
@@ -615,7 +615,7 @@ namespace moris
             //                 * @param[ out ] mdproductioncoeffdu derivative of the diffusion wrt dof types
             //                 */
             //                const Matrix< DDRMat > & ddiffusioncoeffdu(
-            //                        const moris::Cell< MSI::Dof_Type > & aDofType,
+            //                        const Vector< MSI::Dof_Type > & aDofType,
             //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -640,7 +640,7 @@ namespace moris
              * @param[ in ] aOrder order of the space derivative
              */
             void eval_ddiffusioncoeffdxdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     uint                                aOrder );
 
             /**
@@ -651,7 +651,7 @@ namespace moris
              * @param[ out ] mdDiffusionCoeffdxdu derivative of the diffusion coefficient wrt dof types
              */
             const Matrix< DDRMat >& ddiffusioncoeffdxdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     uint                                aOrder,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
@@ -666,7 +666,7 @@ namespace moris
              * evaluate the modified velocity derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dmodvelocitydu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dmodvelocitydu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -679,7 +679,7 @@ namespace moris
              * evaluate the modified velocity derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dmodvelocitylinearizeddu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dmodvelocitylinearizeddu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -697,7 +697,7 @@ namespace moris
              * @param[ out ] mdchidu derivative of the chi wrt dof types
              */
             const Matrix< DDRMat >& dchidu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -718,7 +718,7 @@ namespace moris
              * @param[ out ] mdeffconddxdu derivative of the chi wrt dof types
              */
             const Matrix< DDRMat >& dchidxdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     uint                                aOrder,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
@@ -740,7 +740,7 @@ namespace moris
              * evaluate ft2 derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dft2du( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dft2du( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of ft2 wrt dof type
@@ -749,7 +749,7 @@ namespace moris
              * @param[ out ] mdchidu derivative of ft2 wrt dof types
              */
             const Matrix< DDRMat >& dft2du(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -771,7 +771,7 @@ namespace moris
              * evaluate the w derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dwdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dwdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of w wrt dof type
@@ -780,7 +780,7 @@ namespace moris
              * @param[ out ] mdwdu derivative of w wrt dof types
              */
             const Matrix< DDRMat >& dwdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -802,7 +802,7 @@ namespace moris
              * evaluate the s derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dsdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dsdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of S wrt dof type
@@ -811,7 +811,7 @@ namespace moris
              * @param[ out ] mdSdu derivative of S wrt dof types
              */
             const Matrix< DDRMat >& dsdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -830,7 +830,7 @@ namespace moris
              * @param[ out ] mdfv1du derivative of fv1 wrt dof types
              */
             const Matrix< DDRMat >& dfv1du(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -851,7 +851,7 @@ namespace moris
              * evaluate the fv2 derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dfv2du( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dfv2du( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of fv2 wrt dof type
@@ -860,7 +860,7 @@ namespace moris
              * @param[ out ] mdFv2du derivative of fv2 wrt dof types
              */
             const Matrix< DDRMat >& dfv2du(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -881,7 +881,7 @@ namespace moris
              * evaluate the Sbar derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dsbardu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dsbardu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of Sbar wrt dof type
@@ -890,7 +890,7 @@ namespace moris
              * @param[ out ] mdSbardu derivative of Sbar wrt dof types
              */
             const Matrix< DDRMat >& dsbardu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -911,7 +911,7 @@ namespace moris
              * evaluate the SMod derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dsmoddu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dsmoddu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of SMod wrt dof type
@@ -920,7 +920,7 @@ namespace moris
              * @param[ out ] mdSModdu derivative of SMod wrt dof types
              */
             const Matrix< DDRMat >& dsmoddu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -942,7 +942,7 @@ namespace moris
              * evaluate the STilde derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dstildedu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dstildedu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of STilde wrt dof type
@@ -951,7 +951,7 @@ namespace moris
              * @param[ out ] mdSTildedu derivative of STilde wrt dof types
              */
             const Matrix< DDRMat >& dstildedu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -972,7 +972,7 @@ namespace moris
              * evaluate the r derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_drdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_drdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of r wrt dof type
@@ -981,7 +981,7 @@ namespace moris
              * @param[ out ] mdRdu derivative of r wrt dof types
              */
             const Matrix< DDRMat >& drdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -1002,7 +1002,7 @@ namespace moris
              * evaluate the g derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dgdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dgdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of g wrt dof type
@@ -1011,7 +1011,7 @@ namespace moris
              * @param[ out ] mdGdu derivative of g wrt dof types
              */
             const Matrix< DDRMat >& dgdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -1032,7 +1032,7 @@ namespace moris
              * evaluate the fw derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dfwdu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dfwdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of fw wrt dof type
@@ -1041,7 +1041,7 @@ namespace moris
              * @param[ out ] mdFwdu derivative of fw wrt dof types
              */
             const Matrix< DDRMat >& dfwdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
@@ -1062,7 +1062,7 @@ namespace moris
              * evaluate the fn derivative wrt to dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dfndu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dfndu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * get the derivative of fn wrt dof type
@@ -1071,7 +1071,7 @@ namespace moris
              * @param[ out ] mdFwdu derivative of fn wrt dof types
              */
             const Matrix< DDRMat >& dfndu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -1096,7 +1096,7 @@ namespace moris
              * @param[ in ] aOrder order of the space derivative
              */
             void eval_dfndxdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     uint                                aOrder );
 
             /**
@@ -1107,7 +1107,7 @@ namespace moris
              * @param[ out ] mdfndxdu derivative of the fn wrt dof types
              */
             const Matrix< DDRMat >& dfndxdu(
-                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    const Vector< MSI::Dof_Type >& aDofType,
                     uint                                aOrder,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 

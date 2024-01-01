@@ -113,31 +113,31 @@ namespace moris
                 case 10:
                 {
                     // compute norm of derivative of production coefficient
-                    aQI = norm( tCMSATurbulencePtr->dproductioncoeffdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    aQI = norm( tCMSATurbulencePtr->dproductioncoeffdu( Vector< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
                     break;
                 }
                 // compute norm of derivative of wall destruction coefficient
                 case 11:
                 {
-                    aQI = norm( tCMSATurbulencePtr->dwalldestructioncoeffdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    aQI = norm( tCMSATurbulencePtr->dwalldestructioncoeffdu( Vector< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
                     break;
                 }
                 // compute norm of derivative of diffusion coefficient
                 case 12:
                 {
-                    aQI = norm( tCMSATurbulencePtr->ddiffusioncoeffdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    aQI = norm( tCMSATurbulencePtr->ddiffusioncoeffdu( Vector< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
                     break;
                 }
                 // production term
                 case 13:
                 {
-                    aQI = norm( tCMSATurbulencePtr->dproductiontermdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    aQI = norm( tCMSATurbulencePtr->dproductiontermdu( Vector< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
                     break;
                 }
                 // wall destruction term
                 case 14:
                 {
-                    aQI = norm( tCMSATurbulencePtr->dwalldestructiontermdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    aQI = norm( tCMSATurbulencePtr->dwalldestructiontermdu( Vector< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
                     break;
                 }
 

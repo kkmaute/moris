@@ -36,7 +36,7 @@ namespace xtk
         moris_index mVertexOwner;
 
         // interpolation of vertex
-        Cell< Vertex_Enrichment* > mInterpolation;    // Vertex Enrichment owned by ip mesh
+        Vector< Vertex_Enrichment* > mInterpolation;    // Vertex Enrichment owned by ip mesh
 
       public:
         Interpolation_Vertex_Unzipped(){};

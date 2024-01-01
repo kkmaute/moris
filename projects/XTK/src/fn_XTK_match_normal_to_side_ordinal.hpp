@@ -47,7 +47,7 @@ namespace xtk
         // case: 2D
         if ( aNormal.numel() == 2 )
         {
-            const Cell< Matrix< DDRMat > > tOrdinalNormals = { 
+            const Vector< Matrix< DDRMat > > tOrdinalNormals = {
                     { {  0.0, -1.0 } },   // 0 
                     { {  1.0,  0.0 } },   // 1
                     { {  0.0,  1.0 } },   // 2
@@ -70,7 +70,7 @@ namespace xtk
         // case: 3D
         else if ( aNormal.numel() == 3 ) 
         {
-            const Cell< Matrix< DDRMat > > tOrdinalNormals = { 
+            const Vector< Matrix< DDRMat > > tOrdinalNormals = {
                     { {  0.0, -1.0,  0.0 } },   // 0 
                     { {  1.0,  0.0,  0.0 } },   // 1
                     { {  0.0,  1.0,  0.0 } },   // 2

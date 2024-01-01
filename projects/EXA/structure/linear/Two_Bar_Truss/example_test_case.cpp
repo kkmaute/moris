@@ -72,7 +72,7 @@ TEST_CASE( "Two_Bar_Truss",
     REQUIRE( tObjectiveAnalytical.length() == tConstraintsAnalytical.length() );    // one objective and one constraint for this problem only
 
     // Read FD sensitivities and compare
-    Cell< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
+    Vector< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
 
     MORIS_LOG_INFO( "------------------------------------------------------" );
 

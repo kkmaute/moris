@@ -206,7 +206,7 @@ namespace moris::hmr
                     luint tDescendantCounter = tBasisFunction->count_descendants();
 
                     // initialize container of descendants
-                    Cell< Basis* > tChildren( tDescendantCounter, nullptr );
+                    Vector< Basis* > tChildren( tDescendantCounter, nullptr );
 
                     // reset basis counter
                     tDescendantCounter = 0;
@@ -298,10 +298,10 @@ namespace moris::hmr
     void
     BSpline_Mesh_Base::collect_active_and_refined_elements_from_level(
             uint              aLevel,
-            Cell< Element* >& aElements )
+            Vector< Element* >& aElements )
     {
         // cell containing background elements on this level
-        Cell< Background_Element_Base* > tBackgroundElements;
+        Vector< Background_Element_Base* > tBackgroundElements;
 
         // ask background mesh about elements on this level
         mBackgroundMesh->collect_elements_on_level_including_aura( aLevel,
@@ -337,11 +337,11 @@ namespace moris::hmr
     void
     BSpline_Mesh_Base::process_level( uint aLevel )
     {
-        Cell< Element* > tElementsOnThisLevel;
+        Vector< Element* > tElementsOnThisLevel;
         this->collect_active_and_refined_elements_from_level( aLevel, tElementsOnThisLevel );
 
         // initialize list of all basis functions on the current refinement level
-        Cell< Basis* > tBFsOnThisLevel;
+        Vector< Basis* > tBFsOnThisLevel;
 
         // collect basis from given level
         this->preprocess_bases_from_level(
@@ -713,9 +713,9 @@ namespace moris::hmr
             Matrix< DDUMat >  tEmptyUint;
 
             // create cells for basis and element indices to send
-            Cell< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
-            Cell< Matrix< DDUMat > >  tSendBasis( tCommLength, tEmptyUint );
-            Cell< Matrix< DDUMat > >  tSendPedigree( tCommLength, tEmptyUint );
+            Vector< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
+            Vector< Matrix< DDUMat > >  tSendBasis( tCommLength, tEmptyUint );
+            Vector< Matrix< DDUMat > >  tSendPedigree( tCommLength, tEmptyUint );
 
             // assign memory for Index and Basis
             for ( uint p = 0; p < tCommLength; ++p )
@@ -804,7 +804,7 @@ namespace moris::hmr
                 }
             }
             // local basis IDs received by other procs
-            Cell< Matrix< DDUMat > > tReceiveBasis( tCommLength, tEmptyUint );
+            Vector< Matrix< DDUMat > > tReceiveBasis( tCommLength, tEmptyUint );
 
             // communicate local basis indices to request
             communicate_mats( aCommTable,
@@ -860,8 +860,8 @@ namespace moris::hmr
                 }
             }
 
-            Cell< Matrix< DDLUMat > > tReceiveIndex( tCommLength, tEmptyLuint );
-            Cell< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
+            Vector< Matrix< DDLUMat > > tReceiveIndex( tCommLength, tEmptyLuint );
+            Vector< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
 
             // communicate ancestor IDs
             communicate_mats( aCommTable,
@@ -1083,9 +1083,9 @@ namespace moris::hmr
             Matrix< DDUMat >  tEmptyUint;
 
             // create cells for basis and element indices to send
-            Cell< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
-            Cell< Matrix< DDUMat > >  tSendBasis( tCommLength, tEmptyUint );
-            Cell< Matrix< DDUMat > >  tSendPedigree( tCommLength, tEmptyUint );
+            Vector< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
+            Vector< Matrix< DDUMat > >  tSendBasis( tCommLength, tEmptyUint );
+            Vector< Matrix< DDUMat > >  tSendPedigree( tCommLength, tEmptyUint );
 
             // assign memory for Index and Basis
             for ( uint p = 0; p < tCommLength; ++p )
@@ -1137,7 +1137,7 @@ namespace moris::hmr
             }
 
             // local basis IDs received by other procs
-            Cell< Matrix< DDUMat > > tReceiveBasis( tCommLength, tEmptyUint );
+            Vector< Matrix< DDUMat > > tReceiveBasis( tCommLength, tEmptyUint );
 
             // communicate local basis IDs to request
             communicate_mats( aCommTable,
@@ -1193,8 +1193,8 @@ namespace moris::hmr
                 }
             }
 
-            Cell< Matrix< DDLUMat > > tReceiveIndex( tCommLength, tEmptyLuint );
-            Cell< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
+            Vector< Matrix< DDLUMat > > tReceiveIndex( tCommLength, tEmptyLuint );
+            Vector< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
 
             // communicate ancestor IDs
             communicate_mats( aCommTable,
@@ -1712,7 +1712,7 @@ namespace moris::hmr
         for ( uint e = 0; e < tNumberOfElements; ++e )
         {
             // get Cell of connected vertices
-            moris::Cell< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
+            moris::Vector< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
 
             // unflag these vertices
             for ( mtk::Vertex* tVertex : tVertices )
@@ -1730,7 +1730,7 @@ namespace moris::hmr
         for ( uint e = 0; e < tNumberOfElements; ++e )
         {
             // get Cell of connected vertices
-            moris::Cell< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
+            moris::Vector< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
 
             // unflag these vertices
             for ( mtk::Vertex* tVertex : tVertices )

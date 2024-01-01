@@ -68,8 +68,8 @@ void
 Paramfile::parse_xtk_problem_input_mesh(moris::uint aProblemIndex)
 {
   // first stores the keys, second stores the vals
-  Cell< std::string > tFirst;
-  Cell< std::string > tSecond;
+  Vector< std::string > tFirst;
+  Vector< std::string > tSecond;
 
   // here I need to be only looking at the first xtk_problem
   mParser->get_keys_from_subtree( "moris.xtk_problem", "mesh_input", 0, tFirst, tSecond );
@@ -97,8 +97,8 @@ void
 Paramfile::parse_xtk_problem_geometry(moris::uint aProblemIndex)
 {
   // first stores the keys, second stores the vals
-  Cell< std::string > tFirst;
-  Cell< std::string > tSecond;
+  Vector< std::string > tFirst;
+  Vector< std::string > tSecond;
 
   // here I need to be only looking at the first xtk_problem
   mParser->get_keys_from_subtree( "moris.xtk_problem", "geometry", 0, tFirst, tSecond );
@@ -142,8 +142,8 @@ void
 Paramfile::parse_xtk_problem_decomp(moris::uint aProblemIndex)
 {
   // first stores the keys, second stores the vals
-  Cell< std::string > tFirst;
-  Cell< std::string > tSecond;
+  Vector< std::string > tFirst;
+  Vector< std::string > tSecond;
 
   // here I need to be only looking at the first xtk_problem
   mParser->get_keys_from_subtree( "moris.xtk_problem", "refine", 0, tFirst, tSecond );
@@ -187,8 +187,8 @@ void
 Paramfile::parse_xtk_problem_operators(moris::uint aProblemIndex)
 {
   // first stores the keys, second stores the vals
-  Cell< std::string > tFirst;
-  Cell< std::string > tSecond;
+  Vector< std::string > tFirst;
+  Vector< std::string > tSecond;
 
   // here I need to be only looking at the first xtk_problem
   mParser->get_keys_from_subtree( "moris.xtk_problem", "operators", 0, tFirst, tSecond );
@@ -226,8 +226,8 @@ Paramfile::parse_xtk_problem_operators(moris::uint aProblemIndex)
   Paramfile::parse_xtk_problem_output(moris::uint aProblemIndex)
   {
     // first stores the keys, second stores the vals
-    Cell< std::string > tFirst;
-    Cell< std::string > tSecond;
+    Vector< std::string > tFirst;
+    Vector< std::string > tSecond;
 
     // here I need to be only looking at the first xtk_problem
     mParser->get_keys_from_subtree( "moris.xtk_problem", "output", 0, tFirst, tSecond );
@@ -259,8 +259,8 @@ Paramfile::parse_xtk_problem_operators(moris::uint aProblemIndex)
   Paramfile::parse_xtk_problem_obj(moris::uint aProblemIndex)
   {
       // first stores the keys, second stores the vals
-      Cell< std::string > tFirst;
-      Cell< std::string > tSecond;
+      Vector< std::string > tFirst;
+      Vector< std::string > tSecond;
 
       // here I need to be only looking at the first xtk_problem
       mParser->get_keys_from_subtree( "moris.xtk_problem", "obj", 0, tFirst, tSecond );

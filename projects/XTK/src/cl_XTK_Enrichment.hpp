@@ -20,7 +20,7 @@
 #include <unordered_set>
 
 // XTK: XTK Includes
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
@@ -99,45 +99,45 @@ namespace xtk
         // Enrichment Data ordered by basis function indices
         // For each basis function, the element indices and elemental enrichment levels //?
         // NOTE: this data is for debug purposes only, it is not used in the enrichment process however it is populated
-        Cell< Cell< moris_index > > mElementIndsInBasis;        // input: non-enriched BF index || output: list of IG cells within the basis support
-        Cell< Cell< moris_index > > mElementEnrichmentLevel;    // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
+        Vector< Vector< moris_index > > mElementIndsInBasis;        // input: non-enriched BF index || output: list of IG cells within the basis support
+        Vector< Vector< moris_index > > mElementEnrichmentLevel;    // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
 
         // For each enriched basis function, the subphase indices in support
         // input: enriched BF index || output: list of subphase indices in which enriched BF is active
-        Cell< moris::Matrix< IndexMat > > mSubphaseIndsInEnrichedBasis;
+        Vector< moris::Matrix< IndexMat > > mSubphaseIndsInEnrichedBasis;
 
         // FIXME: for SPG based enrichment, the above needs to go eventually
-        Cell< moris::Matrix< IndexMat > > mSubphaseGroupIndsInEnrichedBasis;    // input: enriched BF index || output: list of SPG indices in which enriched BF is active
+        Vector< moris::Matrix< IndexMat > > mSubphaseGroupIndsInEnrichedBasis;    // input: enriched BF index || output: list of SPG indices in which enriched BF is active
         Matrix< IdMat >                   mBulkPhaseInEnrichedBasis;            // input: enriched BF index || output: bulk phase basis function interpolates into
 
         // transpose of the above map, it is empty by default
-        moris::Cell< moris::Cell< moris_index > > mEnrichedBasisInSubphaseGroup;    // input: SPG index || output: list of enriched BF indices active in the SPG
+        Vector< Vector< moris_index > > mEnrichedBasisInSubphaseGroup;    // input: SPG index || output: list of enriched BF indices active in the SPG
 
         // Basis enrichment level indices
-        moris::Cell< Matrix< IndexMat > > mBasisEnrichmentIndices;    // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index
+        Vector< Matrix< IndexMat > > mBasisEnrichmentIndices;    // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index
         moris::Matrix< IdMat >            mEnrichedBasisIndexToId;    // input: enriched BF index || output: global ID of that enriched BF
-        moris::Cell< moris_index >        mNonEnrBfIndForEnrBfInd;    // input: enriched BF index || output: non-enriched BF index which the enr. BF is enriched from
-        moris::Cell< moris_index >        mEnrLvlOfEnrBf;             // input: enriched BF index || output: enrichment level of this enr. BF wrt. the underlying non-enriched BF
+        Vector< moris_index >        mNonEnrBfIndForEnrBfInd;    // input: enriched BF index || output: non-enriched BF index which the enr. BF is enriched from
+        Vector< moris_index >        mEnrLvlOfEnrBf;             // input: enriched BF index || output: enrichment level of this enr. BF wrt. the underlying non-enriched BF
 
         // list of owned and non-owned enriched basis functions
-        moris::Cell< moris_index > mOwnedEnrBasisIndices;
-        moris::Cell< moris_index > mNotOwnedEnrBasisIndices;
+        Vector< moris_index > mOwnedEnrBasisIndices;
+        Vector< moris_index > mNotOwnedEnrBasisIndices;
 
         // non-intersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
         // outer cell corresponds to interp cell index
         // inner cell corresponds to basis/enr-lev in interp cell
-        moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisIndices;    // input: subphase index || output: list of non-enriched BF indices active on given subphase
-        moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisEnrLev;     // input: subphase index || output: list of enrichment levels for the respective BFs active on the given subphase
+        Vector< Vector< moris_index > > mSubphaseBGBasisIndices;    // input: subphase index || output: list of non-enriched BF indices active on given subphase
+        Vector< Vector< moris_index > > mSubphaseBGBasisEnrLev;     // input: subphase index || output: list of enrichment levels for the respective BFs active on the given subphase
 
         // FIXME: for SPG based enrichment, the above needs to go eventually
-        moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisIndices;    // input: SPG index || output: list of non-enriched BF indices active on given subphase group
-        moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisEnrLev;     // input: SPG index || output: list of enrichment levels for the respective BFs active on the given subphase group
+        Vector< Vector< moris_index > > mSubphaseGroupBGBasisIndices;    // input: SPG index || output: list of non-enriched BF indices active on given subphase group
+        Vector< Vector< moris_index > > mSubphaseGroupBGBasisEnrLev;     // input: SPG index || output: list of enrichment levels for the respective BFs active on the given subphase group
 
         // total number of basis enrichment levels (i.e. number of enriched Basis functions)
         uint mNumEnrichedBasisFunctions;
 
         // Vertex interpolations for this enrichment ordered by background vertex index
-        Cell< mtk::Vertex_Interpolation* > mBGVertexInterpolations;
+        Vector< mtk::Vertex_Interpolation* > mBGVertexInterpolations;
 
         // flag whether SPG or SP based Enrichment is used
         bool mUseSPGs = false;
@@ -180,41 +180,41 @@ namespace xtk
         moris::mtk::Mesh*           mBackgroundMeshPtr = nullptr;
 
         // enrichment strategy data (outer cell - mesh index, inner cell - necessary data for enrichment of mesh index)
-        Cell< Enrichment_Data > mEnrichmentData;
+        Vector< Enrichment_Data > mEnrichmentData;
 
         // flag whether to sort basis enrichment levels
         bool mSortBasisEnrichmentLevels;
 
         // quick access to the Cut integration mesh's Bspline Mesh Infos (the Bspline to Lagrange mesh relationships)
-        moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
+        Vector< Bspline_Mesh_Info* > mBsplineMeshInfos;
 
         // Maps tracking how an IP cell gets unzipped
         moris_index                                              mNumEnrIpCells;
-        moris::Cell< uint >                                      mNumUnzippingsOnIpCell;           // input: IP-cell index || output: number of enr. IP-cells and clusters to be created
-        moris::Cell< moris::Cell< moris::Cell< moris_index > > > mMaterialSpgsUnzippedOnIpCell;    // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which clusters containing material need to be created
-        moris::Cell< moris::Cell< moris::Cell< moris_index > > > mVoidSpgsUnzippedOnIpCell;        // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which void clusters need to be created
+        Vector< uint >                                      mNumUnzippingsOnIpCell;           // input: IP-cell index || output: number of enr. IP-cells and clusters to be created
+        Vector< Vector< Vector< moris_index > > > mMaterialSpgsUnzippedOnIpCell;    // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which clusters containing material need to be created
+        Vector< Vector< Vector< moris_index > > > mVoidSpgsUnzippedOnIpCell;        // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which void clusters need to be created
 
         // indices of enriched IP cells as a function of the base IP cell and the local SPG index
-        moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices;        // input: base IP cell index, index of unzipping || output: index of enr. IP cell
-        moris::Cell< moris_index >                mUipcUnzippingIndices;    // input: UIPC index || output: unzipping index
+        Vector< Vector< moris_index > > mEnrIpCellIndices;        // input: base IP cell index, index of unzipping || output: index of enr. IP cell
+        Vector< moris_index >                mUipcUnzippingIndices;    // input: UIPC index || output: unzipping index
 
         // map allowing correct UIPC to be grabbed based on base IP cell and SPG index (for Ghost)
         // input: B-spline mesh index, base IP cell index, SPG index local to corresponding B-spline element || output: Enr. IP cell index
-        Cell< Cell< Cell< moris_index > > > mBaseIpCellAndSpgToUnzipping;
+        Vector< Vector< Vector< moris_index > > > mBaseIpCellAndSpgToUnzipping;
 
         // map allowing to enr. IP cell / non-void cluster associated with a given subphase
         // input: subphase index || output: enriched interpolation cell index
-        Cell< moris_index > mSubphaseIndexToEnrIpCellIndex;
+        Vector< moris_index > mSubphaseIndexToEnrIpCellIndex;
 
         // maps associating UIPCs / Cell clusters with SPGs
         // input: B-spline mesh list index, SPG index || output: List of enr. IP cells / cell clusters on SPG
-        Cell< Cell< Cell< moris_index > > > mSpgToUipcIndex;
+        Vector< Vector< Vector< moris_index > > > mSpgToUipcIndex;
 
         // input: B-spline mesh list index, Cluster/UIPC index || output: SPG index this Cluster/UIPC is in
-        Cell< Cell< moris_index > > mUipcToSpgIndex;
+        Vector< Vector< moris_index > > mUipcToSpgIndex;
 
         // input: B-spline mesh index, base IP cell index, index of unzipping || output: SPG index the UIPC belongs to
-        Cell< Cell< Cell< moris_index > > > mUnzippingToSpgIndex;
+        Vector< Vector< Vector< moris_index > > > mUnzippingToSpgIndex;
 
         // ----------------------------------------------------------------------------------
 
@@ -260,7 +260,7 @@ namespace xtk
          * Returns the subphases indices in enriched basis functions support
          * Note: Used in XTK Multigrid
          */
-        Cell< moris::Matrix< moris::IndexMat > > const &
+        Vector< moris::Matrix< moris::IndexMat > > const &
         get_subphases_loc_inds_in_enriched_basis( moris_index const & aEnrichmentDataIndex = 0 ) const;
 
         // ----------------------------------------------------------------------------------
@@ -271,7 +271,7 @@ namespace xtk
          */
         void
         write_cell_enrichment_to_fields(
-                Cell< std::string >& aEnrichmentFieldStrs,
+                Vector< std::string >& aEnrichmentFieldStrs,
                 mtk::Mesh*           aMeshWithEnrFields ) const;
 
         // ----------------------------------------------------------------------------------
@@ -280,7 +280,7 @@ namespace xtk
          * Returns a vector of cell fields names to declare in STK mesh if you want to visualize the cell level
          * enrichment fields. cells within each subphase of a given basis function. One field per basis function, one field per child mesh
          */
-        Cell< std::string >
+        Vector< std::string >
         get_cell_enrichment_field_names() const;
 
         // ----------------------------------------------------------------------------------
@@ -289,7 +289,7 @@ namespace xtk
          * Returns the element inds in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
          * Note: Only used for debug outputting in function write_cell_enrichment_to_fields.
          */
-        Cell< Cell< moris_index > > const &
+        Vector< Vector< moris_index > > const &
         get_element_inds_in_basis_support( moris_index const & aEnrichmentDataIndex = 0 ) const;
 
         // ----------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ namespace xtk
          * Correspond to the element inds found at the same index in mElementIndsInBasis.
          * Note: Only used for debug outputting in function write_cell_enrichment_to_fields.
          */
-        Cell< Cell< moris_index > > const &
+        Vector< Vector< moris_index > > const &
         get_element_enrichment_levels_in_basis_support( moris_index const & aEnrichmentDataIndex = 0 ) const;
 
         // ----------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< moris::Cell< moris_index > > const &
+        Vector< Vector< moris_index > > const &
         get_unzipped_IP_cell_to_base_IP_cell_and_SPG( const moris_index aBsplineMeshListIndex ) const
         {
             return mBaseIpCellAndSpgToUnzipping( aBsplineMeshListIndex );
@@ -362,7 +362,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< moris_index > const &
+        Vector< moris_index > const &
         get_subphase_to_UIPC_map() const
         {
             return mSubphaseIndexToEnrIpCellIndex;
@@ -378,7 +378,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< moris_index > const &
+        Vector< moris_index > const &
         get_enr_ip_cell_indices_on_base_ip_cell( moris_index aBaseIpCellIndex ) const
         {
             return mEnrIpCellIndices( aBaseIpCellIndex );
@@ -386,7 +386,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< moris::Cell< moris::Cell< moris_index > > > const &
+        Vector< Vector< Vector< moris_index > > > const &
         get_SPG_to_UIPC_map() const
         {
             return mSpgToUipcIndex;
@@ -394,7 +394,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< moris_index > const &
+        Vector< moris_index > const &
         get_UIPC_indices_on_SPG(
                 const moris_index aBspMeshListIndex,
                 const moris_index aSpgIndex ) const
@@ -404,7 +404,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< moris::Cell< moris_index > > const &
+        Vector< Vector< moris_index > > const &
         get_UIPC_to_SPG_map() const
         {
             return mUipcToSpgIndex;
@@ -616,9 +616,9 @@ namespace xtk
         void
         construct_enriched_basis_to_subphase_connectivity(
                 moris_index const &                                     aEnrichmentDataIndex,
-                moris::Cell< moris::Matrix< moris::IndexMat > > const & aSubPhaseBinEnrichment,
-                moris::Cell< moris::Matrix< moris::IndexMat > > const & aSubphaseClusterIndicesInSupport,
-                moris::Cell< moris_index > const &                      aMaxEnrichmentLevel );
+                Vector< moris::Matrix< moris::IndexMat > > const & aSubPhaseBinEnrichment,
+                Vector< moris::Matrix< moris::IndexMat > > const & aSubphaseClusterIndicesInSupport,
+                Vector< moris_index > const &                      aMaxEnrichmentLevel );
 
         // ----------------------------------------------------------------------------------
         /**
@@ -633,9 +633,9 @@ namespace xtk
         void
         construct_enriched_basis_to_subphase_group_connectivity(
                 moris_index const &                                     aEnrichmentDataIndex,
-                moris::Cell< moris::Matrix< moris::IndexMat > > const & aSpgBinEnrichment,
-                moris::Cell< moris::Matrix< moris::IndexMat > > const & aSpgIndicesInSupport,
-                moris::Cell< moris_index > const &                      aMaxEnrichmentLevel );
+                Vector< moris::Matrix< moris::IndexMat > > const & aSpgBinEnrichment,
+                Vector< moris::Matrix< moris::IndexMat > > const & aSpgIndicesInSupport,
+                Vector< moris_index > const &                      aMaxEnrichmentLevel );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
@@ -646,7 +646,7 @@ namespace xtk
         void
         assign_enriched_coefficients_identifiers_new(
                 moris_index const &                aEnrichmentDataIndex,
-                moris::Cell< moris_index > const & aMaxEnrichmentLevel );
+                Vector< moris_index > const & aMaxEnrichmentLevel );
 
         // ----------------------------------------------------------------------------------
 
@@ -659,7 +659,7 @@ namespace xtk
         void
         sort_enriched_coefficients_into_owned_and_not_owned(
                 moris_index const &         aEnrichmentDataIndex,
-                Cell< moris_index > const & aMaxEnrichmentLevel );
+                Vector< moris_index > const & aMaxEnrichmentLevel );
 
         // ----------------------------------------------------------------------------------
 
@@ -687,9 +687,9 @@ namespace xtk
         void
         prepare_requests_for_not_owned_enriched_coefficient_IDs(
                 moris_index const &          aEnrichmentDataIndex,
-                Cell< Cell< moris_index > >& aNotOwnedEnrBfsToProcs,
-                Cell< Matrix< IdMat > >&     aNonEnrBasisIDs,
-                Cell< Matrix< IdMat > >&     aSubphaseGroupIdInSupport );
+                Vector< Vector< moris_index > >& aNotOwnedEnrBfsToProcs,
+                Vector< Matrix< IdMat > >&     aNonEnrBasisIDs,
+                Vector< Matrix< IdMat > >&     aSubphaseGroupIdInSupport );
 
         // ----------------------------------------------------------------------------------
 
@@ -704,9 +704,9 @@ namespace xtk
         void
         prepare_answers_for_owned_enriched_coefficient_IDs(
                 moris_index const &             aEnrichmentDataIndex,
-                Cell< Matrix< IdMat > > const & aReceivedNonEnrBasisIDs,
-                Cell< Matrix< IdMat > > const & aReceivedSubphaseGroupIdInSupport,
-                Cell< Matrix< IdMat > >&        aEnrBfIds );
+                Vector< Matrix< IdMat > > const & aReceivedNonEnrBasisIDs,
+                Vector< Matrix< IdMat > > const & aReceivedSubphaseGroupIdInSupport,
+                Vector< Matrix< IdMat > >&        aEnrBfIds );
 
         // ----------------------------------------------------------------------------------
 
@@ -720,8 +720,8 @@ namespace xtk
         void
         handle_requested_unzipped_enriched_coefficient_answers(
                 moris_index const &                 aEnrichmentDataIndex,
-                Cell< Cell< moris_index > > const & aNotOwnedEnrBfsToProcs,
-                Cell< Matrix< IdMat > > const &     aReceivedEnrBfIds );
+                Vector< Vector< moris_index > > const & aNotOwnedEnrBfsToProcs,
+                Vector< Matrix< IdMat > > const &     aReceivedEnrBfIds );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
@@ -732,26 +732,26 @@ namespace xtk
         void
         assign_enriched_coefficients_identifiers(
                 moris_index const &                aEnrichmentDataIndex,
-                moris::Cell< moris_index > const & aMaxEnrichmentLevel );
+                Vector< moris_index > const & aMaxEnrichmentLevel );
 
         // ----------------------------------------------------------------------------------
 
         void
         communicate_basis_information_with_owner(
                 moris_index const &                       aEnrichmentDataIndex,
-                Cell< Cell< moris_index > > const &       aBasisIdToBasisOwner,
-                Cell< Cell< moris_index > > const &       aMaxSubphaseIdToBasisOwner,
-                Cell< moris_index > const &               aProcRanks,
+                Vector< Vector< moris_index > > const &       aBasisIdToBasisOwner,
+                Vector< Vector< moris_index > > const &       aMaxSubphaseIdToBasisOwner,
+                Vector< moris_index > const &               aProcRanks,
                 std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData,
-                Cell< moris::Matrix< moris::IndexMat > >& aEnrichedBasisId );
+                Vector< moris::Matrix< moris::IndexMat > >& aEnrichedBasisId );
 
         // ----------------------------------------------------------------------------------
 
         void
         set_received_enriched_basis_ids(
                 moris_index const &                              aEnrichmentDataIndex,
-                Cell< moris::Matrix< moris::IndexMat > > const & aReceivedEnrichedIds,
-                Cell< Cell< moris_index > > const &              aBasisIndexToBasisOwner );
+                Vector< moris::Matrix< moris::IndexMat > > const & aReceivedEnrichedIds,
+                Vector< Vector< moris_index > > const &              aBasisIndexToBasisOwner );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
@@ -861,8 +861,8 @@ namespace xtk
          */
         void
         average_T_matrices(
-                Cell< Vertex_Enrichment* > const & aAverageTmatrices,
-                Cell< real > const &               aWeights,
+                Vector< Vertex_Enrichment* > const & aAverageTmatrices,
+                Vector< real > const &               aWeights,
                 Vertex_Enrichment&                 aAverageEnrichedTmatrix ) const;
 
         // ----------------------------------------------------------------------------------
@@ -883,9 +883,9 @@ namespace xtk
          *
          * @param aIpCellIndex index of the base IP cell / Lagrange element
          * @param aUnzippingOnIpCell index of the unzipping (i.e. position of the enr. IP cell (UIPC) in the stack of UIPCs on this base IP cell)
-         * @return Cell< moris_index > const& list of subphases
+         * @return Vector< moris_index > const& list of subphases
          */
-        Cell< moris_index > const &
+        Vector< moris_index > const &
         collect_SPs_in_coarsest_element_in_same_material_subdomain_as_unzipped_cell(
                 const moris_index aIpCellIndex,
                 const moris_index aUnzippingIndex ) const;
@@ -935,10 +935,10 @@ namespace xtk
          */
         void
         prepare_requests_for_not_owned_unzipped_IP_cell_IDs(
-                Cell< Cell< moris_index > >& aUnzippedCellIndices,
-                Cell< Matrix< IdMat > >&     aRequestBaseCellIds,
-                Cell< Matrix< IndexMat > >&  aUnzippingOnCells,
-                Cell< Matrix< IndexMat > >&  aRequestBulkPhaseIndices );
+                Vector< Vector< moris_index > >& aUnzippedCellIndices,
+                Vector< Matrix< IdMat > >&     aRequestBaseCellIds,
+                Vector< Matrix< IndexMat > >&  aUnzippingOnCells,
+                Vector< Matrix< IndexMat > >&  aRequestBulkPhaseIndices );
 
         // ----------------------------------------------------------------------------------
 
@@ -952,10 +952,10 @@ namespace xtk
          */
         void
         prepare_answers_for_owned_unzipped_IP_cell_IDs(
-                Cell< Matrix< IdMat > >&           aAnswerUipcIds,
-                Cell< Matrix< IdMat > > const &    aReceivedBaseCellIds,
-                Cell< Matrix< IndexMat > > const & aReceivedUnzippingOnCells,
-                Cell< Matrix< IndexMat > > const & aReceivedBulkPhaseIndices );
+                Vector< Matrix< IdMat > >&           aAnswerUipcIds,
+                Vector< Matrix< IdMat > > const &    aReceivedBaseCellIds,
+                Vector< Matrix< IndexMat > > const & aReceivedUnzippingOnCells,
+                Vector< Matrix< IndexMat > > const & aReceivedBulkPhaseIndices );
 
         // ----------------------------------------------------------------------------------
 
@@ -967,8 +967,8 @@ namespace xtk
          */
         void
         handle_requested_unzipped_unzipped_IP_cell_answers(
-                Cell< Cell< moris_index > > const & aUnzippedCellIndices,
-                Cell< Matrix< IdMat > > const &     aReceivedBaseCellIds );
+                Vector< Vector< moris_index > > const & aUnzippedCellIndices,
+                Vector< Matrix< IdMat > > const &     aReceivedBaseCellIds );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
@@ -1021,13 +1021,13 @@ namespace xtk
         construct_enriched_vertex_interpolation(
                 moris_index const &             aEnrichmentDataIndex,
                 mtk::Vertex_Interpolation*      aBaseVertexInterp,
-                Cell< moris_index > const &     aSubPhaseBasisEnrLev,
+                Vector< moris_index > const &     aSubPhaseBasisEnrLev,
                 Mini_Map< moris_id, moris_id >& aMapBasisIndexToLocInSubPhase,
                 Vertex_Enrichment&              aVertexEnrichment );
         // ----------------------------------------------------------------------------------
 
         Mini_Map< moris_id, moris_id >
-        construct_subphase_basis_to_basis_map( Cell< moris_id > const & aSubPhaseBasisIndex );
+        construct_subphase_basis_to_basis_map( Vector< moris_id > const & aSubPhaseBasisIndex );
 
         // ----------------------------------------------------------------------------------
 
@@ -1036,9 +1036,9 @@ namespace xtk
          *
          * @param aParentCell
          * @param aMeshIndex
-         * @return moris::Cell< mtk::Vertex_Interpolation* >
+         * @return Vector< mtk::Vertex_Interpolation* >
          */
-        moris::Cell< mtk::Vertex_Interpolation* >
+        Vector< mtk::Vertex_Interpolation* >
         get_vertex_interpolations(
                 moris::mtk::Cell& aParentCell,
                 const uint        aMeshIndex ) const;
@@ -1083,10 +1083,10 @@ namespace xtk
         /**
          * @brief Get the enrichment data struct
          *
-         * @return Cell< Enrichment_Data >&
+         * @return Vector< Enrichment_Data >&
          */
 
-        moris::Cell< Enrichment_Data > const &
+        Vector< Enrichment_Data > const &
         get_enrichment_data() const;
 
         //-----------------------------------------------------------------------------------

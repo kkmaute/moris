@@ -50,7 +50,7 @@ Calling this constructor the Dof_Manager is constructed automatically as shown b
 Additional arguments when calling the MSI constructor are an adof global to local map and the maximal number of local adofs. These inputs shall only be used by HMR.
 
 @code{.cpp}
-Model_Solver_Interface(       moris::Cell < Equation_Object* >                  & aListEqnObj,
+Model_Solver_Interface(       Vector < Equation_Object* >                  & aListEqnObj,
                         const moris::Mat< moris::uint >                         & aCommTable,
                         const moris::map< moris::moris_id, moris::moris_index > & tAdofGlobalToLocalMap = moris::map< moris::moris_id, moris::moris_index >(),
                         const moris::sint                                       & tMaxNumAdofs          = -1 ) : 

@@ -42,7 +42,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        IWG_Nonlocal_Bulk::set_parameters( const moris::Cell< Matrix< DDRMat > >& aParameters )
+        IWG_Nonlocal_Bulk::set_parameters( const moris::Vector< Matrix< DDRMat > >& aParameters )
         {
             // set parameters
             mParameters = aParameters;
@@ -194,7 +194,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );

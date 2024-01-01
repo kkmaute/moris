@@ -12,7 +12,7 @@
 
 #include "assert.hpp"
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Vertex.hpp"
 
 namespace moris

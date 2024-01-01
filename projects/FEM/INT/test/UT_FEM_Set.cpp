@@ -28,7 +28,7 @@ namespace moris
 
 void tConstValFunction_UTFEMSET
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -45,7 +45,7 @@ void tConstValFunction_UTFEMSET
 //            tSet.mSpaceDim = 3;
 //
 //            // list of IWG types
-//            moris::Cell< fem::IWG_Type >  tIWGTypeList= { fem::IWG_Type::SPATIALDIFF_BULK ,
+//            Vector< fem::IWG_Type >  tIWGTypeList= { fem::IWG_Type::SPATIALDIFF_BULK ,
 //                                                          fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,
 //                                                          fem::IWG_Type::HELMHOLTZ,
 //                                                          fem::IWG_Type::LSNORMAL };
@@ -54,14 +54,14 @@ void tConstValFunction_UTFEMSET
 //            uint tNumOfIWGs = tIWGTypeList.size();
 //
 //            // list of residual dof type
-//            moris::Cell< moris::Cell< MSI::Dof_Type > > aResidualDofType( tNumOfIWGs );
+//            Vector< Vector< MSI::Dof_Type > > aResidualDofType( tNumOfIWGs );
 //            aResidualDofType( 0 ) = { MSI::Dof_Type::TEMP };
 //            aResidualDofType( 1 ) = { MSI::Dof_Type::TEMP };
 //            aResidualDofType( 2 ) = { MSI::Dof_Type::VX };
 //            aResidualDofType( 3 ) = { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ };
 //
 //            // list of active dof type
-//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aLeaderDofTypes( tNumOfIWGs );
+//            Vector< Vector< Vector< MSI::Dof_Type > > > aLeaderDofTypes( tNumOfIWGs );
 //            aLeaderDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
 //            aLeaderDofTypes( 1 ) = {{ MSI::Dof_Type::TEMP }};
 //            aLeaderDofTypes( 2 ) = {{ MSI::Dof_Type::VX }};
@@ -69,13 +69,13 @@ void tConstValFunction_UTFEMSET
 //                                    { MSI::Dof_Type::LS1}};
 //
 //            // list of active property type
-//            moris::Cell< moris::Cell< fem::Property_Type > > aLeaderPropTypes( tNumOfIWGs );
+//            Vector< Vector< fem::Property_Type > > aLeaderPropTypes( tNumOfIWGs );
 //            aLeaderPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
 //            aLeaderPropTypes( 1 ) = { fem::Property_Type::CONDUCTIVITY,
 //                                      fem::Property_Type::TEMP_DIRICHLET };
 //
 //            // list of active constitutive type
-//            moris::Cell< moris::Cell< fem::Constitutive_Type > > aLeaderConstitutiveTypes( tNumOfIWGs );
+//            Vector< Vector< fem::Constitutive_Type > > aLeaderConstitutiveTypes( tNumOfIWGs );
 //            aLeaderConstitutiveTypes( 0 ) = { fem::Constitutive_Type::DIFF_LIN_ISO };
 //            aLeaderConstitutiveTypes( 1 ) = { fem::Constitutive_Type::DIFF_LIN_ISO  };
 //
@@ -83,7 +83,7 @@ void tConstValFunction_UTFEMSET
 //            fem::IWG_Factory tIWGFactory;
 //
 //            // create a cell of IWGs for the problem considered
-//            moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//            Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //           // loop over the IWG types
 //           for( uint i = 0; i < tNumOfIWGs; i++)
@@ -134,7 +134,7 @@ void tConstValFunction_UTFEMSET
 //            //std::cout<<"Test create_constitutive_models"<<std::endl;
 //            //------------------------------------------------------------------------------
 //
-//                Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
+//                Vector< Vector< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 1 );
 //                tConstitutiveUserDefinedInfo( 0 ).resize( 1 );
 //                tConstitutiveUserDefinedInfo( 0 )( 0 ) = Constitutive_User_Defined_Info( { fem::Constitutive_Type::DIFF_LIN_ISO },
 //                                                                                         {{ MSI::Dof_Type::TEMP }},
@@ -181,18 +181,18 @@ void tConstValFunction_UTFEMSET
 //            //std::cout<<"Test create_properties"<<std::endl;
 //            //------------------------------------------------------------------------------
 //
-//                Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
+//                Vector< Vector< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 1 );
 //                tPropertyUserDefinedInfo( 0 ).resize( 2 );
 //                tPropertyUserDefinedInfo( 0 )( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
 //                                                                                 {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
 //                                                                                 {{{ 1.0 }}},
 //                                                                                 tConstValFunction_UTFEMSET,
-//                                                                                 Cell< PropertyFunc >( 0 ) );
+//                                                                                 Vector< PropertyFunc >( 0 ) );
 //                tPropertyUserDefinedInfo( 0 )( 1 ) = Property_User_Defined_Info( { fem::Property_Type::TEMP_DIRICHLET },
-//                                                                                 Cell< Cell< MSI::Dof_Type > >( 0 ),
+//                                                                                 Vector< Vector< MSI::Dof_Type > >( 0 ),
 //                                                                                 {{{ 5.0 }}},
 //                                                                                 tConstValFunction_UTFEMSET,
-//                                                                                 Cell< PropertyFunc >( 0 ) );
+//                                                                                 Vector< PropertyFunc >( 0 ) );
 //
 //                // create the properties for the set
 //                tSet.create_properties( tPropertyUserDefinedInfo );
@@ -280,7 +280,7 @@ void tConstValFunction_UTFEMSET
 //            //std::cout<<"Mimic create_field_interpolators"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a cell of field interpolator pointers---------------------------------
-//                moris::Cell< Field_Interpolator* > tFieldInterpolators( tSet.get_number_of_field_interpolators(), nullptr );
+//                Vector< Field_Interpolator* > tFieldInterpolators( tSet.get_number_of_field_interpolators(), nullptr );
 //
 //                // set the number of coefficients for each field interpolator
 //                tFieldInterpolators( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP } );
@@ -413,34 +413,34 @@ void tConstValFunction_UTFEMSET
 //            Set tSet;
 //
 //            // list of IWG types
-//            moris::Cell< fem::IWG_Type > tIWGTypeList= { fem::IWG_Type::SPATIALDIFF_GHOST,
+//            Vector< fem::IWG_Type > tIWGTypeList= { fem::IWG_Type::SPATIALDIFF_GHOST,
 //                                                         fem::IWG_Type::HELMHOLTZ };
 //
 //            // number of IWGs to be created
 //            uint tNumOfIWGs = tIWGTypeList.size();
 //
 //            // list of residual dof type
-//            moris::Cell< moris::Cell< MSI::Dof_Type > > aResidualDofType( tNumOfIWGs );
+//            Vector< Vector< MSI::Dof_Type > > aResidualDofType( tNumOfIWGs );
 //            aResidualDofType( 0 ) = { MSI::Dof_Type::TEMP };
 //            aResidualDofType( 1 ) = { MSI::Dof_Type::VX };
 //
 //            // list of active dof type
-//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aLeaderDofTypes( tNumOfIWGs );
+//            Vector< Vector< Vector< MSI::Dof_Type > > > aLeaderDofTypes( tNumOfIWGs );
 //            aLeaderDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
 //            aLeaderDofTypes( 1 ) = {{ MSI::Dof_Type::VX }};
-//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aFollowerDofTypes( tNumOfIWGs );
+//            Vector< Vector< Vector< MSI::Dof_Type > > > aFollowerDofTypes( tNumOfIWGs );
 //            aFollowerDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
 //
 //            // list of active property type
-//            moris::Cell< moris::Cell< fem::Property_Type > > aLeaderPropTypes( tNumOfIWGs );
+//            Vector< Vector< fem::Property_Type > > aLeaderPropTypes( tNumOfIWGs );
 //            aLeaderPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
-//            moris::Cell< moris::Cell< fem::Property_Type > > aFollowerPropTypes( tNumOfIWGs );
+//            Vector< Vector< fem::Property_Type > > aFollowerPropTypes( tNumOfIWGs );
 //            aFollowerPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
 //
-//            moris::Cell< moris::Cell< fem::Constitutive_Type > > aLeaderConstitutiveTypes( tNumOfIWGs );
+//            Vector< Vector< fem::Constitutive_Type > > aLeaderConstitutiveTypes( tNumOfIWGs );
 //
 //            // create a cell of IWGs for the problem considered
-//            moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//            Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //            // a factory to create the IWGs
 //            fem::IWG_Factory tIWGFactory;
@@ -491,7 +491,7 @@ void tConstValFunction_UTFEMSET
 //            //std::cout<<"Test create_constitutive_models"<<std::endl;
 //            //------------------------------------------------------------------------------
 //
-//                Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 2 );
+//                Vector< Vector< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefinedInfo( 2 );
 //
 //                // create the properties for the set
 //                tSet.create_constitutive_models( tConstitutiveUserDefinedInfo );
@@ -548,7 +548,7 @@ void tConstValFunction_UTFEMSET
 //            //------------------------------------------------------------------------------
 //
 //                // create a property user defined info container
-//                Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 2 );
+//                Vector< Vector< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 2 );
 //
 //                // fill the leader property user defined info container
 //                tPropertyUserDefinedInfo( 0 ).resize( 1 );
@@ -668,7 +668,7 @@ void tConstValFunction_UTFEMSET
 //            //std::cout<<"Mimic create_field_interpolators"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a cell of leader field interpolator pointers
-//                moris::Cell< Field_Interpolator* > tLeaderFI( tSet.get_number_of_field_interpolators(), nullptr );
+//                Vector< Field_Interpolator* > tLeaderFI( tSet.get_number_of_field_interpolators(), nullptr );
 //
 //                // set the number of coefficients for each field interpolator
 //                tLeaderFI( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP } );
@@ -680,7 +680,7 @@ void tConstValFunction_UTFEMSET
 //                tSet.mLeaderFI = tLeaderFI;
 //
 //                // create a cell of leader field interpolator pointers
-//                moris::Cell< Field_Interpolator* > tFollowerFI( tSet.get_number_of_field_interpolators( mtk::Leader_Follower::FOLLOWER ), nullptr );
+//                Vector< Field_Interpolator* > tFollowerFI( tSet.get_number_of_field_interpolators( mtk::Leader_Follower::FOLLOWER ), nullptr );
 //
 //                // set the number of coefficients for each field interpolator
 //                tFollowerFI( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP } );

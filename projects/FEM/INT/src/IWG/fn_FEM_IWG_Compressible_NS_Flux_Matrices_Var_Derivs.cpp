@@ -24,7 +24,7 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
                 const Matrix< DDRMat >                            & aVL,
                 const uint                                          aI,
                 Matrix< DDRMat >                                  & aVLdAdY )
@@ -215,7 +215,7 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
                 const uint                                          aAind,
                 const uint                                          aYind,
                 Matrix< DDRMat >                                  & adAdY )
@@ -844,7 +844,7 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const moris::Vector< moris::Vector< MSI::Dof_Type > > & aResidualDofTypes,
                 const Matrix< DDRMat >                            & aVR,
                 const uint                                          aI,
                 Matrix< DDRMat >                                  & adAdYVR )
@@ -1035,7 +1035,7 @@ namespace moris
                 std::shared_ptr< Property >                       aPropThermalConductivity,
                 Field_Interpolator_Manager                      * aLeaderFIManager,
                 const uint                                        aYind,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > >  & adKdY )
+                moris::Vector< moris::Vector< Matrix< DDRMat > > >  & adKdY )
         {
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
@@ -1890,7 +1890,7 @@ namespace moris
                 Field_Interpolator_Manager      * aLeaderFIManager,
                 const Matrix< DDRMat >          & aVL,
                 const uint                        aJ,
-                moris::Cell< Matrix< DDRMat > > & aVLdKijidY )
+                moris::Vector< Matrix< DDRMat > > & aVLdKijidY )
         {
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
@@ -2098,7 +2098,7 @@ namespace moris
                 Field_Interpolator_Manager      * aLeaderFIManager,
                 const Matrix< DDRMat >          & aVR,
                 const uint                        aJ,
-                moris::Cell< Matrix< DDRMat > > & adKijidYVR )
+                moris::Vector< Matrix< DDRMat > > & adKijidYVR )
         {
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );

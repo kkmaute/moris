@@ -41,19 +41,19 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         template< typename Vector_Type >
-        Cell< std::shared_ptr< Property > >
+        Vector< std::shared_ptr< Property > >
         create_properties(
-                Cell< ParameterList >               aPropertyParameterLists,
+                Vector< ParameterList >               aPropertyParameterLists,
                 Vector_Type&                        aADVs,
-                Cell< std::shared_ptr< Geometry > > aGeometries,
+                Vector< std::shared_ptr< Geometry > > aGeometries,
                 std::shared_ptr< Library_IO >       aLibrary )
         {
             // Initialize
             uint                                     tNumProperties = aPropertyParameterLists.size();
-            Cell< std::shared_ptr< Property > >      tProperties( tNumProperties );
-            Cell< std::string >                      tPropertyNames( tNumProperties );
-            Cell< Cell< std::string > >              tNeededFieldNames( tNumProperties );
-            Cell< Cell< std::shared_ptr< Field > > > tNeededFields( tNumProperties );
+            Vector< std::shared_ptr< Property > >      tProperties( tNumProperties );
+            Vector< std::string >                      tPropertyNames( tNumProperties );
+            Vector< Vector< std::string > >              tNeededFieldNames( tNumProperties );
+            Vector< Vector< std::shared_ptr< Field > > > tNeededFields( tNumProperties );
 
             // Fill names, dependencies
             for ( uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++ )
@@ -146,7 +146,7 @@ namespace moris
         create_property(
                 ParameterList                    aPropertyParameterList,
                 Vector_Type&                     aADVs,
-                Cell< std::shared_ptr< Field > > aFieldDependencies,
+                Vector< std::shared_ptr< Field > > aFieldDependencies,
                 std::shared_ptr< Library_IO >    aLibrary )
         {
             // Property type/name
@@ -274,16 +274,16 @@ namespace moris
         // Explicit template instantiation
         //--------------------------------------------------------------------------------------------------------------
 
-        template Cell< std::shared_ptr< Property > > create_properties(
-                Cell< ParameterList >               aPropertyParameterLists,
+        template Vector< std::shared_ptr< Property > > create_properties(
+                Vector< ParameterList >               aPropertyParameterLists,
                 Matrix< DDRMat >&                   aADVs,
-                Cell< std::shared_ptr< Geometry > > aGeometries,
+                Vector< std::shared_ptr< Geometry > > aGeometries,
                 std::shared_ptr< Library_IO >       aLibrary );
 
-        template Cell< std::shared_ptr< Property > > create_properties(
-                Cell< ParameterList >               aPropertyParameterLists,
+        template Vector< std::shared_ptr< Property > > create_properties(
+                Vector< ParameterList >               aPropertyParameterLists,
                 sol::Dist_Vector*&                  aADVs,
-                Cell< std::shared_ptr< Geometry > > aGeometries,
+                Vector< std::shared_ptr< Geometry > > aGeometries,
                 std::shared_ptr< Library_IO >       aLibrary );
 
         //--------------------------------------------------------------------------------------------------------------

@@ -280,7 +280,7 @@ namespace moris
                 tdMdVar += tdCdY * tC + tC * tdCdY;
 
                 // get the variable derivs for the K matrices
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKdY;
+                moris::Vector< moris::Vector< Matrix< DDRMat > > > tdKdY;
                 eval_dKdY( tPropMu, tPropKappa, mLeaderFIManager, iVar, tdKdY );
 
                 // loops for addition over indices j,k,l,m
@@ -382,7 +382,7 @@ namespace moris
             // STEP 2: get the state variable derivatives of the inverse of M
 
             // initialize
-            moris::Cell< Matrix< DDRMat > > tMinusdMinvdY( tNumStateVars );
+            moris::Vector< Matrix< DDRMat > > tMinusdMinvdY( tNumStateVars );
             
             // for each state variable compute the derivative
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
@@ -396,7 +396,7 @@ namespace moris
             //         of the inverse of M using the Sylvester equation
 
             // initialize
-            moris::Cell< Matrix< DDRMat > > tdSqrtMinvdY( tNumStateVars );
+            moris::Vector< Matrix< DDRMat > > tdSqrtMinvdY( tNumStateVars );
             
             // for each state variable compute the derivative
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
@@ -488,13 +488,13 @@ namespace moris
             std::shared_ptr< Property > tPropKappa = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
 
             // initialize cell containing A-matrices pre-multiplied with the state variable vector
-            moris::Cell< Matrix< DDRMat > > tdAjdY_Yj( this->num_space_dims() + 1 );
+            moris::Vector< Matrix< DDRMat > > tdAjdY_Yj( this->num_space_dims() + 1 );
 
             // initialize cell containing Kij,i-matrices pre-multiplied with the state variable vector
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijidY_Yj( this->num_space_dims() );
+            moris::Vector< moris::Vector< Matrix< DDRMat > > > tdKijidY_Yj( this->num_space_dims() );
 
             // initialize cell containing Kij,i-matrices pre-multiplied with the state variable vector
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijdY_Yij( this->num_space_dims() );
+            moris::Vector< moris::Vector< Matrix< DDRMat > > > tdKijdY_Yij( this->num_space_dims() );
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++)
             {
                 tdKijdY_Yij( iDim ).resize( this->num_space_dims() );
@@ -628,13 +628,13 @@ namespace moris
             std::shared_ptr< Property > tPropKappa = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
 
             // initialize cell containing A-matrices pre-multiplied with VL
-            moris::Cell< Matrix< DDRMat > > tVLdAjdY( this->num_space_dims() + 1 );
+            moris::Vector< Matrix< DDRMat > > tVLdAjdY( this->num_space_dims() + 1 );
 
             // initialize cell containing Kij,i-matrices pre-multiplied with VL
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tVLdKijidY( this->num_space_dims() );
+            moris::Vector< moris::Vector< Matrix< DDRMat > > > tVLdKijidY( this->num_space_dims() );
 
             // initialize cell containing Kij,i-matrices pre-multiplied with VL
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tVLdKijdY( this->num_space_dims() );
+            moris::Vector< moris::Vector< Matrix< DDRMat > > > tVLdKijdY( this->num_space_dims() );
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++)
             {
                 tVLdKijdY( iDim ).resize( this->num_space_dims() );
@@ -697,13 +697,13 @@ namespace moris
             std::shared_ptr< Property > tPropKappa = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
 
             // initialize cell containing A-matrices pre-multiplied with VR
-            moris::Cell< Matrix< DDRMat > > tdAjdYVR( this->num_space_dims() + 1 );
+            moris::Vector< Matrix< DDRMat > > tdAjdYVR( this->num_space_dims() + 1 );
 
             // initialize cell containing Kij,i-matrices pre-multiplied with VR
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijidYVR( this->num_space_dims() );
+            moris::Vector< moris::Vector< Matrix< DDRMat > > > tdKijidYVR( this->num_space_dims() );
 
             // initialize cell containing Kij,i-matrices pre-multiplied with VL
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tdKijdYVR( this->num_space_dims() );
+            moris::Vector< moris::Vector< Matrix< DDRMat > > > tdKijdYVR( this->num_space_dims() );
             for ( uint iDim = 0; iDim < this->num_space_dims(); iDim++)
             {
                 tdKijdYVR( iDim ).resize( this->num_space_dims() );

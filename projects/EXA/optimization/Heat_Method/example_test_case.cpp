@@ -55,7 +55,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 4, 13, 4, 13 };
+    Vector< uint > tReferenceNodeId = { 4, 13, 4, 13 };
 
     // perturbation of denominator when building relative error
     real tDeltaEps = 1.0e-14;
@@ -90,9 +90,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2, 3, 2, 3 };
-    Cell< uint > tReferenceNumNodes = { 82, 414, 130, 1088 };
-    Cell< uint > tReferenceNumElems = { 60, 632, 60, 920 };
+    Vector< uint > tReferenceNumDims  = { 2, 3, 2, 3 };
+    Vector< uint > tReferenceNumNodes = { 82, 414, 130, 1088 };
+    Vector< uint > tReferenceNumElems = { 60, 632, 60, 920 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -117,7 +117,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { 0.0 }, { 0.0 } } );
     tReferenceCoordinate.push_back( { { 0.0 }, { 0.0 }, { 0.0 } } );
@@ -149,7 +149,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-8 );
 
     // check time value for time step index 0
-    Cell< real > tReferenceTime;
+    Vector< real > tReferenceTime;
     tReferenceTime.push_back( 1.000000000000000e+00 );
     tReferenceTime.push_back( 1.000000000000000e+00 );
     tReferenceTime.push_back( 1.000000000000000e+00 );
@@ -167,7 +167,7 @@ check_results(
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
     // check Theta at node aNodeId in first time step (Theta is 3rd nodal field, first time step has index 0)
-    Cell< real > tReferenceTheta;
+    Vector< real > tReferenceTheta;
     tReferenceTheta.push_back( 5.917299018173376e-01 );
     tReferenceTheta.push_back( 7.194331939566655e-01 );
     tReferenceTheta.push_back( 6.349840630136200e-01 );
@@ -185,7 +185,7 @@ check_results(
     REQUIRE( tRelThetaDifference < 1.0e-4 );
 
     // check Phid at node aNodeId in first time step (Phid is 4th nodal field, first time step has index 0)
-    Cell< real > tReferencePhid;
+    Vector< real > tReferencePhid;
     tReferencePhid.push_back( 3.872167974340174e-01 );
     tReferencePhid.push_back( 3.587919624293675e-01 );
     tReferencePhid.push_back( 2.740283249190941e-01 );
@@ -203,7 +203,7 @@ check_results(
     REQUIRE( tRelPhidDifference < 1.0e-4 );
 
     // check Pdsg at node aNodeId in first time step (Pdsg is 4th nodal field, first time step has index 0)
-    Cell< real > tReferencePdsg;
+    Vector< real > tReferencePdsg;
     tReferencePdsg.push_back( 4.710000000000003e-01 );
     tReferencePdsg.push_back( 4.709999999999997e-01 );
     tReferencePdsg.push_back( 2.862624741953033e-01 );
@@ -238,7 +238,7 @@ check_results(
     load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus );
 
     // Read FD sensitivities and compare
-    Cell< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
+    Vector< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
     for ( uint tFDIndex = 0; tFDIndex < tFDTypes.size(); tFDIndex++ )
     {
         load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 epsilon_1-1 " + tFDTypes( tFDIndex ), tObjectiveFD, tStatus );

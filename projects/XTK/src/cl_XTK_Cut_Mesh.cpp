@@ -135,7 +135,7 @@ namespace xtk
             moris::size_t              aChildMeshIndex,
             enum TemplateType          aTemplate,
             Matrix< IndexMat >       & aNodeIndices,
-            Cell<Matrix< IndexMat >> & aParentEntities)
+            Vector<Matrix< IndexMat >> & aParentEntities)
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
 
@@ -271,7 +271,7 @@ namespace xtk
         mInterfaceElements.push_back(aInterfaceElement);
     }
     // ----------------------------------------------------------------------------------
-    moris::Cell<Interface_Element> &
+    moris::Vector<Interface_Element> &
     Cut_Mesh::get_interface_elements()
     {
         return mInterfaceElements;
@@ -428,7 +428,7 @@ namespace xtk
         return  tElementInds;
     }
     // ----------------------------------------------------------------------------------
-    Cell<moris::Matrix< moris::IdMat >>
+    Vector<moris::Matrix< moris::IdMat >>
     Cut_Mesh::get_child_elements_by_phase(
             uint aNumPhases,
             moris::mtk::Mesh const & aBackgroundMeshData)
@@ -436,7 +436,7 @@ namespace xtk
         moris::size_t tNumElems = this->get_num_entities(mtk::EntityRank::ELEMENT);
 
         //Initialize output
-        Cell<moris::Matrix<moris::IdMat>> tElementsByPhase(aNumPhases);
+        Vector<moris::Matrix<moris::IdMat>> tElementsByPhase(aNumPhases);
         moris::Matrix<moris::DDUMat> tPhaseCount(1,aNumPhases,0);
         for(uint i =0; i <aNumPhases; i++)
         {
@@ -568,8 +568,8 @@ namespace xtk
     Cut_Mesh::pack_cut_mesh_by_phase(
             moris::size_t const & aMeshIndex,
             moris::size_t const & aNumPhases,
-            Cell<moris::Matrix< moris::IdMat >> & aElementIds,
-            Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const
+            Vector<moris::Matrix< moris::IdMat >> & aElementIds,
+            Vector<moris::Matrix< moris::IdMat >> & aElementCMInds) const
     {
 
         mChildrenMeshes(aMeshIndex)->pack_child_mesh_by_phase(aNumPhases,aElementCMInds,aElementIds);
@@ -690,7 +690,7 @@ namespace xtk
         return tElementToNodeInds;
     }
     // ----------------------------------------------------------------------------------
-    moris::Cell<moris::Matrix<moris::IdMat>>
+    moris::Vector<moris::Matrix<moris::IdMat>>
     Cut_Mesh::get_full_element_to_node_by_phase_glob_ids(moris::uint aNumPhases,
             moris::mtk::Mesh & aBackgroundMeshData)
     {
@@ -711,8 +711,8 @@ namespace xtk
             MORIS_ERROR(0,"Not implemented");
         }
 
-        moris::Cell<moris::Matrix<moris::IdMat>> tElementToNodeIdsByPhase(aNumPhases , moris::Matrix<moris::IdMat>(tNumElements,tNumNodesPerElem));
-        moris::Cell<moris::size_t> tCount(aNumPhases,0);
+        moris::Vector<moris::Matrix<moris::IdMat>> tElementToNodeIdsByPhase(aNumPhases , moris::Matrix<moris::IdMat>(tNumElements,tNumNodesPerElem));
+        moris::Vector<moris::size_t> tCount(aNumPhases,0);
 
         for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
         {
@@ -773,7 +773,7 @@ namespace xtk
         {
             Child_Mesh const & tChildMesh = this->get_child_mesh(iCM);
 
-            moris::Cell<moris::moris_index> const & tCMSubphaseIndices = tChildMesh.get_subphase_indices();
+            moris::Vector<moris::moris_index> const & tCMSubphaseIndices = tChildMesh.get_subphase_indices();
 
             // iterate through subphase on child meshes
             for(moris::uint iSP = 0; iSP < tCMSubphaseIndices.size(); iSP++)
@@ -793,7 +793,7 @@ namespace xtk
         moris_index tCMIndex = mSubPhaseIndexToChildMesh(aSubPhaseIndex);
         moris_index tCMSubphaseIndex = mSubPhaseIndexToChildMeshSubphaseIndex(aSubPhaseIndex);
 
-        Cell<moris::moris_index> const & tSubphaseBulk =  this->get_child_mesh(tCMIndex).get_subphase_bin_bulk_phase();
+        Vector<moris::moris_index> const & tSubphaseBulk =  this->get_child_mesh(tCMIndex).get_subphase_bin_bulk_phase();
 
         return tSubphaseBulk(tCMSubphaseIndex);
     }
@@ -808,7 +808,7 @@ namespace xtk
         {
             Child_Mesh & tChildMesh = this->get_child_mesh(i);
             moris::Matrix<moris::IndexMat> const & tElementInds = tChildMesh.get_element_inds();
-            Cell<moris_index> const & tSubphaseInds = tChildMesh.get_subphase_indices();
+            Vector<moris_index> const & tSubphaseInds = tChildMesh.get_subphase_indices();
 
             for(moris::uint iCE = 0; iCE < tElementInds.numel(); iCE++)
             {
@@ -871,37 +871,37 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     void
     Cut_Mesh::add_child_mesh_groups(
-            Cell<Child_Mesh*>   & tOwnedChildrenMeshes,
-            Cell<Child_Mesh*>   & tNotOwnedChildrenMeshes,
-            Cell<moris_id>      & tNotOwnedOwningProc)
+            Vector<Child_Mesh*>   & tOwnedChildrenMeshes,
+            Vector<Child_Mesh*>   & tNotOwnedChildrenMeshes,
+            Vector<moris_id>      & tNotOwnedOwningProc)
     {
         mOwnedChildrenMeshes    = tOwnedChildrenMeshes;
         mNotOwnedChildrenMeshes = tNotOwnedChildrenMeshes;
         mNotOwnedOwningProc     = tNotOwnedOwningProc;
     }
     // ----------------------------------------------------------------------------------
-    Cell<Child_Mesh*> &
+    Vector<Child_Mesh*> &
     Cut_Mesh::get_owned_child_meshes()
     {
         return mOwnedChildrenMeshes;
     }
     // ----------------------------------------------------------------------------------
-    Cell<Child_Mesh*> &
+    Vector<Child_Mesh*> &
     Cut_Mesh::get_not_owned_child_meshes()
     {
         return mNotOwnedChildrenMeshes;
     }
     // ----------------------------------------------------------------------------------
-    Cell<moris_id> &
+    Vector<moris_id> &
     Cut_Mesh::get_not_owned_child_owners()
     {
         return mNotOwnedOwningProc;
     }
 
     void
-    Cut_Mesh::remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
-                                                   Cell<moris::uint> const & aMeshesToDelete,
-                                                   Cell<moris_index> & aCellsToRemoveFromMesh)
+    Cut_Mesh::remove_all_child_meshes_but_selected(Vector<moris::uint> const & aMeshesToKeep,
+                                                   Vector<moris::uint> const & aMeshesToDelete,
+                                                   Vector<moris_index> & aCellsToRemoveFromMesh)
     {
         uint tNumCells = 0;
         // count the cells to delete
@@ -912,7 +912,7 @@ namespace xtk
 
         aCellsToRemoveFromMesh.reserve(tNumCells);
 
-        Cell<Child_Mesh*> tCMToKeep(aMeshesToKeep.size());
+        Vector<Child_Mesh*> tCMToKeep(aMeshesToKeep.size());
 
         // collect a temporary list then populate member data
         for(moris::uint iCM = 0; iCM < aMeshesToKeep.size(); iCM++)
@@ -950,7 +950,7 @@ namespace xtk
     }
 
     void
-    Cut_Mesh::reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex)
+    Cut_Mesh::reindex_cells(Vector<moris_index> & aOldIndexToNewCellIndex)
     {
         for(moris::uint i = 0; i < this->get_num_child_meshes(); i++)
         {
@@ -965,7 +965,7 @@ namespace xtk
         // If the counts aren't up to date then recount them.
         if(!mConsistentCounts)
         {
-            moris::Cell<moris::size_t> tRanks = {0,1,2,3};
+            moris::Vector<moris::size_t> tRanks = {0,1,2,3};
 
             if(mSpatialDim == 2)
             {

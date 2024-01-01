@@ -36,7 +36,7 @@ namespace moris
                 : mLibrary( aLibrary )
         {
             // set field names
-            moris::Cell< std::string > tFieldNames;
+            moris::Vector< std::string > tFieldNames;
             string_to_cell(
                     aParameterlist.get< std::string >( "field_names" ),
                     mParameters.mFieldNames );
@@ -71,7 +71,7 @@ namespace moris
 
         void
         Refinement_Mini_Performer::perform_refinement(
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 std::shared_ptr< hmr::HMR >            aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform refinement" );
@@ -83,11 +83,11 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Cell< moris_index >                                      tPattern;
-            moris::Cell< moris::Cell< std::string > >                tFieldNames;
-            moris::Cell< moris::Cell< uint > >                       tRefinements;
-            moris::Cell< sint >                                      tMaxRefinementPerLevel;
-            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< moris_index >                                      tPattern;
+            moris::Vector< moris::Vector< std::string > >                tFieldNames;
+            moris::Vector< moris::Vector< uint > >                       tRefinements;
+            moris::Vector< sint >                                      tMaxRefinementPerLevel;
+            moris::Vector< moris::Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -148,7 +148,7 @@ namespace moris
 
         void
         Refinement_Mini_Performer::perform_refinement_2(
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 std::shared_ptr< hmr::HMR >            aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform advanced refinement" );
@@ -160,11 +160,11 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Cell< moris_index >                                      tPattern;
-            moris::Cell< moris::Cell< std::string > >                tFieldNames;
-            moris::Cell< moris::Cell< uint > >                       tRefinements;
-            moris::Cell< sint >                                      tMaxRefinementPerLevel;
-            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< moris_index >                                      tPattern;
+            moris::Vector< moris::Vector< std::string > >                tFieldNames;
+            moris::Vector< moris::Vector< uint > >                       tRefinements;
+            moris::Vector< sint >                                      tMaxRefinementPerLevel;
+            moris::Vector< moris::Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -191,7 +191,7 @@ namespace moris
             // create a map with ids
             std::unordered_map< moris_index, luint > tMap;
 
-            moris::Cell< hmr::Background_Element_Base* > tBGElements;
+            moris::Vector< hmr::Background_Element_Base* > tBGElements;
             aHMR->get_database()->get_background_mesh()->collect_all_elements( tBGElements );
 
             for ( uint Ib = 0; Ib < tBGElements.size(); Ib++ )
@@ -310,7 +310,7 @@ namespace moris
 
         void
         Refinement_Mini_Performer::perform_refinement_based_on_working_pattern(
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 std::shared_ptr< hmr::HMR >            aHMR )
         {
             // create field name to index map
@@ -358,7 +358,7 @@ namespace moris
 
         uint
         Refinement_Mini_Performer::perform_refinement_low_level_elements(
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 std::shared_ptr< hmr::HMR >            aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform refinement of low level elements" );
@@ -372,11 +372,11 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Cell< moris_index >                                      tPattern;
-            moris::Cell< moris::Cell< std::string > >                tFieldNames;
-            moris::Cell< moris::Cell< uint > >                       tRefinements;
-            moris::Cell< sint >                                      tMaxRefinementPerLevel;
-            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< moris_index >                                      tPattern;
+            moris::Vector< moris::Vector< std::string > >                tFieldNames;
+            moris::Vector< moris::Vector< uint > >                       tRefinements;
+            moris::Vector< sint >                                      tMaxRefinementPerLevel;
+            moris::Vector< moris::Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -417,11 +417,11 @@ namespace moris
 
         void
         Refinement_Mini_Performer::prepare_input_for_refinement(
-                Cell< moris_index >&                                      aPatternForRefinement,
-                moris::Cell< moris::Cell< std::string > >&                aFieldsForRefinement,
-                moris::Cell< moris::Cell< uint > >&                       aRefinements,
-                moris::Cell< sint >&                                      aMaxRefinementPerPattern,
-                moris::Cell< moris::Cell< hmr::Refinement_Function_2 > >& aRefinementFunctions )
+                Vector< moris_index >&                                      aPatternForRefinement,
+                moris::Vector< moris::Vector< std::string > >&                aFieldsForRefinement,
+                moris::Vector< moris::Vector< uint > >&                       aRefinements,
+                moris::Vector< sint >&                                      aMaxRefinementPerPattern,
+                moris::Vector< moris::Vector< hmr::Refinement_Function_2 > >& aRefinementFunctions )
         {
 
             // produce unique list of pattern which will be refined
@@ -485,7 +485,7 @@ namespace moris
         void
         Refinement_Mini_Performer::perform_refinement_old(
                 std::shared_ptr< hmr::HMR >          aHMR,
-                Cell< std::shared_ptr< Performer > > aPerformers,
+                Vector< std::shared_ptr< Performer > > aPerformers,
                 bool                                 aSimultaneous )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform GEN refinement" );
@@ -708,7 +708,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         moris::sint
-        Refinement_Mini_Performer::get_max_refinement_level( const Cell< std::shared_ptr< Performer > >& aPerformers )
+        Refinement_Mini_Performer::get_max_refinement_level( const Vector< std::shared_ptr< Performer > >& aPerformers )
         {
             sint tMaxNumRefinements = 0;
 
@@ -735,7 +735,7 @@ namespace moris
 
         void
         Refinement_Mini_Performer::get_all_refinement_mesh_indices(
-                const Cell< std::shared_ptr< Performer > >& aPerformers,
+                const Vector< std::shared_ptr< Performer > >& aPerformers,
                 moris::Matrix< DDSMat >&                    aAllPatternMap,
                 moris::uint&                                aNumPattern )
         {

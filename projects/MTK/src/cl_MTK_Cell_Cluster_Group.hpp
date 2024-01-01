@@ -33,10 +33,10 @@ namespace moris
             /**
              * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
              * 
-             * @return moris::Cell< Cluster const* > const& list of clusters in the cluster group
+             * @return Vector< Cluster const* > const& list of clusters in the cluster group
              */
             virtual
-            const moris::Cell< mtk::Cluster const* >
+            const Vector< mtk::Cluster const* >
             get_clusters_in_group() const = 0;
 
             //------------------------------------------------------------------------------

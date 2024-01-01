@@ -122,7 +122,7 @@ TEST_CASE( "IWG_Hamilton-Jacobi", "[moris],[fem],[IWG_HJ]" )
     tvN->set_space_time( tParamPoint );
     tPhi->set_space_time( tParamPoint );
 
-    Cell< Field_Interpolator* > tFieldInterpolators( 2 );
+    Vector< Field_Interpolator* > tFieldInterpolators( 2 );
     tFieldInterpolators( 0 ) = tPhi;
     tFieldInterpolators( 1 ) = tvN;
 
@@ -149,7 +149,7 @@ TEST_CASE( "IWG_Hamilton-Jacobi", "[moris],[fem],[IWG_HJ]" )
         // check evaluation of the jacobian for IWG_Hamilton_Jacobi_Bulk by FD
         //------------------------------------------------------------------------------
         // evaluate the jacobian from IWG_Hamilton_Jacobi_Bulk
-        Cell< Matrix< DDRMat > > tJacobiansHJBulk( 2 );
+        Vector< Matrix< DDRMat > > tJacobiansHJBulk( 2 );
         tIWGHJBulk.compute_jacobian( tJacobiansHJBulk,
                                      tFieldInterpolators );
 

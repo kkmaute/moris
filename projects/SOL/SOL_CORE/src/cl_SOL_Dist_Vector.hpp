@@ -174,7 +174,7 @@ namespace moris
              *
              * @return  Euclidean Vector norm.
              */
-            virtual Cell< moris::real > vec_norm2() = 0;
+            virtual Vector< moris::real > vec_norm2() = 0;
 
             /**
              * Prints this vector.
@@ -231,7 +231,7 @@ namespace moris
                     const moris::uint&                      aNumIndices,
                     const moris::Matrix< DDSMat >&          aGlobalBlockRows,
                     const moris::uint&                      aBlockRowOffsets,
-                    moris::Cell< moris::Matrix< DDRMat > >& LHSValues ) = 0;
+                    Vector< moris::Matrix< DDRMat > >& LHSValues ) = 0;
 
             /**
              * Gets a pointer to the real values stored in this vector.

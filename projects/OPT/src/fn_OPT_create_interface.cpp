@@ -20,8 +20,8 @@ namespace moris
 
         std::shared_ptr< Criteria_Interface >
         create_interface(
-                Cell< ParameterList >                         aParameterLists,
-                Cell< std::shared_ptr< Criteria_Interface > > aInterfaces )
+                Vector< ParameterList >                         aParameterLists,
+                Vector< std::shared_ptr< Criteria_Interface > > aInterfaces )
         {
             // Get number of interfaces
             uint tNumInterfaces = aParameterLists.size() + aInterfaces.size() - 1;

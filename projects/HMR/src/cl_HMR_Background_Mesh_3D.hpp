@@ -1260,7 +1260,7 @@ namespace moris::hmr
     inline void
     Background_Mesh< 3 >::collect_coarsest_elements_on_side(
             uint                       aSideOrdinal,
-            Cell< Background_Element_Base* >& aCoarsestElementsOnSide )
+            Vector< Background_Element_Base* >& aCoarsestElementsOnSide )
     {
         // clear output cell
         aCoarsestElementsOnSide.clear();
@@ -1425,7 +1425,7 @@ namespace moris::hmr
     template<>
     inline void
     Background_Mesh< 3 >::collect_coarsest_elements_in_bounding_box(
-            moris::Cell< Background_Element_Base* >& aBackgroundElements,
+            Vector< Background_Element_Base* >& aBackgroundElements,
             luint                                    aBoundingBoxStartEndIJK[][ 2 ],
             uint                                     alevel )
     {

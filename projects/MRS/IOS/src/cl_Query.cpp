@@ -22,7 +22,7 @@
 #include "fn_assert.hpp"
 
 // Define Cells
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // Define uint, real, etc.
 #include "moris_typedefs.hpp"

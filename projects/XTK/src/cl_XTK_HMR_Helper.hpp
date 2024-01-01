@@ -12,7 +12,7 @@
 
 // includes from MORIS
 #include "moris_typedefs.hpp"    // COR/src
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 
 
@@ -44,10 +44,10 @@ namespace xtk
         hmr::Lagrange_Mesh_Base* mHMRLagrangeMesh = nullptr;
 
         // Cell of enriched basis IDs/Indices, it gets overwritten for each call
-        moris::Cell< moris_id > mEnrichedBasisIDs = {};
+        Vector< moris_id > mEnrichedBasisIDs = {};
 
         // Cell of enriched basis IDs for each Bspline cell and refinement level
-        moris::Cell< moris_id > mEnrichedBasisOwners = {};
+        Vector< moris_id > mEnrichedBasisOwners = {};
 
         // number of basis per element
         uint mNumberOfBasis = 0;
@@ -59,7 +59,7 @@ namespace xtk
         uint mBsplineMeshIndex = 0;
 
         Matrix< DDRMat >                mL2ProjectionMatrix = { {} };
-        moris::Cell< Matrix< DDRMat > > mMatrices1D;
+        Vector< Matrix< DDRMat > > mMatrices1D;
 
         // local order of the basis in the bspline element
         Matrix< DDUMat > mBasisIndex = { {} };
@@ -112,10 +112,10 @@ namespace xtk
          *
          * @param aCell a parent pointer to the hmr element
          * @param aSPGIndex subphase group index of the cell
-         * @return moris::Cell< moris_id >& enirched basis ids ordered in the order of hmr nodes
+         * @return Vector< moris_id >& enirched basis ids ordered in the order of hmr nodes
          */
 
-        moris::Cell< moris_id > const&
+        Vector< moris_id > const&
         get_enriched_basis_id_of_cell( const mtk::Cell* aCell, moris_index aSPGIndex );
 
         //------------------------------------------------------------------------------------
@@ -125,10 +125,10 @@ namespace xtk
          *
          * @param aCell a parent pointer to the hmr element
          * @param aSPGIndex subphase group index of the cell
-         * @return moris::Cell< moris_id >& enirched basis indices ordered in the order of hmr nodes
+         * @return Vector< moris_id >& enirched basis indices ordered in the order of hmr nodes
          */
 
-        moris::Cell< moris_id >&
+        Vector< moris_id >&
         get_enriched_basis_indicies_of_cell( const mtk::Cell* aCell, moris_index aSPGIndex );
 
         //------------------------------------------------------------------------------------
@@ -148,10 +148,10 @@ namespace xtk
          * @brief Get the bg basis indices of cell object
          *
          * @param aCell  parent pointer to the hmr element
-         * @return moris::Cell< moris_id >& get the background ( unenriched ) basis indices of this cell
+         * @return Vector< moris_id >& get the background ( unenriched ) basis indices of this cell
          */
 
-        moris::Cell< moris_id > const &
+        Vector< moris_id > const &
         get_bg_basis_indices_of_cell( const mtk::Cell* aCell );
 
         //------------------------------------------------------------------------------------
@@ -217,12 +217,12 @@ namespace xtk
         /**
          * @brief Get the enriched basis owners of cell object this function is used in conjunction with the get_enriched_basis_id_of_cell function
          *  
-         * @return moris::Cell<moris_id>& the owners of the basis in the order of hmr nodes
+         * @return Vector<moris_id>& the owners of the basis in the order of hmr nodes
          * 
          * This is done this way to save memory, since the size enriched basis owners are the same size for all the subphase groups, so this cell gets overwritten
          */
 
-        moris::Cell< moris_id > const &
+        Vector< moris_id > const &
         get_enriched_basis_owners_of_cell()
         {
             return mEnrichedBasisOwners;

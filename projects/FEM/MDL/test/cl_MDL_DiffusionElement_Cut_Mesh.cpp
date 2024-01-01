@@ -85,7 +85,7 @@ namespace mdl
 
 void tConstValFunction_MDLCUT
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -388,7 +388,7 @@ void tConstValFunction_MDLCUT
             tSetGhost.set_IWGs( { tIWGGhost } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 5 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 5 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -400,7 +400,7 @@ void tConstValFunction_MDLCUT
                                                    1,
                                                    tSetInfo );
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+            moris::Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create linear solver and algorithm

@@ -35,10 +35,10 @@ class Decomposition_Algorithm
   public:
     // number of cells less the number you are replace
     moris_index                                             mNumNewCells = 0;
-    moris::Cell< moris::Cell< moris::moris_index > >        mNewCellToVertexConnectivity; // over allocated
-    moris::Cell< moris::moris_index >                       mNewCellChildMeshIndex;       // over allocated
-    moris::Cell< moris::moris_index >                       mNewCellCellIndexToReplace;   // over allocated
-    moris::Cell< std::shared_ptr< moris::mtk::Cell_Info > > mNewCellCellInfo;             // over allocated
+    Vector< Vector< moris::moris_index > >        mNewCellToVertexConnectivity; // over allocated
+    Vector< moris::moris_index >                       mNewCellChildMeshIndex;       // over allocated
+    Vector< moris::moris_index >                       mNewCellCellIndexToReplace;   // over allocated
+    Vector< std::shared_ptr< moris::mtk::Cell_Info > > mNewCellCellInfo;             // over allocated
 
   public:
     Decomposition_Algorithm() {}

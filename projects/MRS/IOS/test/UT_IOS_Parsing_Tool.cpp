@@ -13,7 +13,7 @@
 // MORIS header files.
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // ----------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ namespace moris
 {
     TEST_CASE( "String_To_Cell_Mat", "[moris],[ios],[cl_Logger],[String_to_Cell_Mat]")
     {
-        Cell< Matrix< DDUMat > > tCellMat;
+        Vector< Matrix< DDUMat > > tCellMat;
 
         std::string tString = "1, 2; 3, 11, 5; 7; 8, 10";
 
@@ -35,7 +35,7 @@ namespace moris
 
     TEST_CASE( "String_To_Cell_Mat_2", "[moris],[ios],[cl_Logger],[String_to_Cell_Mat_2]")
     {
-        Cell< Matrix< DDRMat > > tCellMat;
+        Vector< Matrix< DDRMat > > tCellMat;
 
         std::string tString = "1.0, 2.0; 3.0, 11.0 / 1.0 , 4.0 , 3.0 ; 2.0 , 5.0 ,8.0 ";
 

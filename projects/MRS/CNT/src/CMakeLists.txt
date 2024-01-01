@@ -15,7 +15,7 @@ set(HEADERS
     cl_Bitbool.hpp
     cl_Bitset.hpp
     cl_BoostBitset.hpp
-    cl_Cell.hpp
+    cl_Vector.hpp
     cl_Dist_Map.hpp
     cl_Map.hpp
     cl_Mini_Maps.hpp
@@ -27,7 +27,7 @@ set(HEADERS
     
 # List library source files
 set(LIB_SOURCES
-	cl_Cell.cpp
+	cl_Vector.cpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -36,7 +36,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        SP_Dirichlet_Nitsche::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        SP_Dirichlet_Nitsche::set_parameters( moris::Vector< Matrix< DDRMat > > aParameters )
         {
             // set mParameters
             mParameters = aParameters;
@@ -57,7 +57,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::tuple<
+        moris::Vector< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
                 mtk::Leader_Follower > >
@@ -121,7 +121,7 @@ namespace moris
 
         void
         SP_Dirichlet_Nitsche::eval_dSPdLeaderDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             real tElementSize = 0;
 

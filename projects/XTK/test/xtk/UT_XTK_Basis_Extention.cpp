@@ -82,7 +82,7 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
 
             // define ge engine
@@ -116,7 +116,7 @@ namespace xtk
             tXTKModel.mBsplineMeshIndices = { { 0 } };
 
             // Specify decomposition Method and Cut Mesh --- ------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment
@@ -203,7 +203,7 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
 
             // define ge engine
@@ -237,7 +237,7 @@ namespace xtk
             tXTKModel.mBsplineMeshIndices = { { 0 } };
 
             // Specify decomposition Method and Cut Mesh --- ------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment based on the SPGs

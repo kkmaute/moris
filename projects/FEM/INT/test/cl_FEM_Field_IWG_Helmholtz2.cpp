@@ -117,7 +117,7 @@ TEST_CASE( "IWG_Helmholtz2", "[moris],[fem],[IWG_Helmholtz2]" )
     tPhi->set_space_time( tParamPoint );
 
 	// create a cell of field interpolators with tVN and tPhi
-    Cell< Field_Interpolator * > tFieldInterpolators( 2 , nullptr);
+    Vector< Field_Interpolator * > tFieldInterpolators( 2 , nullptr);
     tFieldInterpolators( 0 ) = tVN;
     tFieldInterpolators( 1 ) = tPhi;
 
@@ -139,7 +139,7 @@ TEST_CASE( "IWG_Helmholtz2", "[moris],[fem],[IWG_Helmholtz2]" )
         //print( tResidualHelmBulk, "r_vN" );
 
         // evaluate the jacobian from IWG
-        Cell< Matrix< DDRMat > > tJacobiansHelmBulk( 2 );
+        Vector< Matrix< DDRMat > > tJacobiansHelmBulk( 2 );
         tIWGHelmBulk.compute_jacobian( tJacobiansHelmBulk );
         //print( tJacobiansHelmBulk( 0 ), "j_vN_vN" );
         //print( tJacobiansHelmBulk( 1 ), "j_vN_phi" );

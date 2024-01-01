@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include <string>
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // XTKL: Geometry  Include
 #include "cl_Logger.hpp"
@@ -39,7 +39,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     bool tBilinear = false;
 
     // XTK parameter list
-    moris::Cell< moris::Cell< moris::ParameterList > > tXTKParams(1);
+    moris::Vector< moris::Vector< moris::ParameterList > > tXTKParams(1);
     tXTKParams( 0 ).resize( 1 );
     tXTKParams( 0 )( 0 ) = prm::create_xtk_parameter_list();
     tXTKParams( 0 )( 0 ).set( "decompose",                 true );
@@ -57,7 +57,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // GEN Parameters
-    moris::Cell< moris::Cell< moris::ParameterList > > tGENParams(3);
+    moris::Vector< moris::Vector< moris::ParameterList > > tGENParams(3);
     tGENParams( 0 ).resize( 1 );
     tGENParams( 1 ).resize( 3 );
 
@@ -109,7 +109,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     std::string tInterpolationOrder = "1";
 
     int tRefineBuffer      = 1;
-    moris::Cell< moris::Cell< moris::ParameterList > > tHMRParams(1);
+    moris::Vector< moris::Vector< moris::ParameterList > > tHMRParams(1);
     tHMRParams( 0 ).resize( 1 );
     tHMRParams( 0 )( 0 ) = prm::create_hmr_parameter_list();
     tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );

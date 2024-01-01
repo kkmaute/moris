@@ -338,7 +338,7 @@ namespace moris
                 // construct VIS vertex objects
 
                 // initialize map relating the FEM/MTK vertex index to the VIS vertex index for the current block set
-                Cell< moris_index > tFemVertexIndexToVisVertexIndex( tNumVerticesInFemMesh, -1 );
+                Vector< moris_index > tFemVertexIndexToVisVertexIndex( tNumVerticesInFemMesh, -1 );
 
                 // get vertex indices on block set
                 moris::Matrix< DDSMat > tFemVertexIndicesInFemBlock = mFemBlockSets( iBlockSet )->get_ig_vertices_inds_on_block( mOnlyPrimaryCells );
@@ -412,7 +412,7 @@ namespace moris
             for ( uint iBlockSet = 0; iBlockSet < mRequestedBlockSetNames.size(); iBlockSet++ )
             {
                 // get the clusters in the current block
-                Cell< mtk::Cluster const * > tClustersOnSet = mFemBlockSets( iBlockSet )->get_clusters_on_set();
+                Vector< mtk::Cluster const * > tClustersOnSet = mFemBlockSets( iBlockSet )->get_clusters_on_set();
 
                 // count up the number of VIS vertices on this block by counting the number of vertices in each cluster
                 // disregarding FEM vertices which may be shared between clusters
@@ -474,7 +474,7 @@ namespace moris
                 // construct VIS vertex objects
 
                 // get the clusters in the current block
-                Cell< mtk::Cluster const * > tClustersOnSet = mFemBlockSets( iBlockSet )->get_clusters_on_set();
+                Vector< mtk::Cluster const * > tClustersOnSet = mFemBlockSets( iBlockSet )->get_clusters_on_set();
 
                 // create vertices for each cluster separately disregarding FEM vertices which may be shared between clusters
                 for ( mtk::Cluster const * iCluster : tClustersOnSet )
@@ -486,7 +486,7 @@ namespace moris
                     // construct VIS vertex objects
 
                     // get the FEM/MTK vertices on the current cluster
-                    Cell< mtk::Vertex const * > tFemVerticesInCluster = iCluster->get_vertices_in_cluster();
+                    Vector< mtk::Vertex const * > tFemVerticesInCluster = iCluster->get_vertices_in_cluster();
 
                     // create a VIS
                     for ( mtk::Vertex const * iFemVertexInCluster : tFemVerticesInCluster )
@@ -512,7 +512,7 @@ namespace moris
                     // fill map relating the the VIS vertices with the FEM cells
 
                     // get the FEM/MTK cells on the current cluster
-                    Cell< mtk::Cell const * > tFemCellsInCluster = iCluster->get_primary_cells_in_cluster();
+                    Vector< mtk::Cell const * > tFemCellsInCluster = iCluster->get_primary_cells_in_cluster();
 
                     // add or leave out void cells depending on the mesh type requested
                     if ( !mOnlyPrimaryCells )
@@ -590,11 +590,11 @@ namespace moris
                     moris_index tFemCellIndex = tCellIndicesInFemSet( iCellOnBlockSet );
 
                     // get list of VIS vertex indices for the current cell
-                    const Cell< moris_index > tVisVertexIndicesOnCell = mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex );
+                    const Vector< moris_index > tVisVertexIndicesOnCell = mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex );
                     uint                      tNumVertsOnCell         = tVisVertexIndicesOnCell.size();
 
                     // Create List of VIS vertex pointers for this cell
-                    moris::Cell< mtk::Vertex* > tVisCellVertices( tNumVertsOnCell, nullptr );
+                    moris::Vector< mtk::Vertex* > tVisCellVertices( tNumVertsOnCell, nullptr );
 
                     // loop over integration vertices and get the corresponding vis vertices for this set
                     for ( uint iVertOnCell = 0; iVertOnCell < tNumVertsOnCell; iVertOnCell++ )
@@ -676,7 +676,7 @@ namespace moris
                 }
 
                 // get list of old clusters on set
-                moris::Cell< mtk::Cluster const * > tClustersOnFemSet = mFemBlockSets( iBlockSet )->get_clusters_on_set();
+                moris::Vector< mtk::Cluster const * > tClustersOnFemSet = mFemBlockSets( iBlockSet )->get_clusters_on_set();
 
                 // resize list of clusters for this set
                 mVisMesh->mClustersOnBlockSets( iBlockSet ).resize( tNumClustersOnSet, nullptr );
@@ -697,13 +697,13 @@ namespace moris
                     // add cells to cluster
 
                     // get primary/void cells on old cluster
-                    const moris::Cell< moris::mtk::Cell const * >& tPrimaryFemCells = tClustersOnFemSet( iClusterOnSet )->get_primary_cells_in_cluster();
-                    const moris::Cell< moris::mtk::Cell const * >& tVoidFemCells    = tClustersOnFemSet( iClusterOnSet )->get_void_cells_in_cluster();
+                    const moris::Vector< moris::mtk::Cell const * >& tPrimaryFemCells = tClustersOnFemSet( iClusterOnSet )->get_primary_cells_in_cluster();
+                    const moris::Vector< moris::mtk::Cell const * >& tVoidFemCells    = tClustersOnFemSet( iClusterOnSet )->get_void_cells_in_cluster();
 
                     // resize primary/void cell list for VIS cluster
                     // (these will be filled with VIS cells that have been constructed from the corresponding mtk/fem cells)
-                    moris::Cell< moris::mtk::Cell const * > tClusterPrimaryVisCells( tPrimaryFemCells.size(), nullptr );
-                    moris::Cell< moris::mtk::Cell const * > tClusterVoidVisCells( tVoidFemCells.size(), nullptr );
+                    moris::Vector< moris::mtk::Cell const * > tClusterPrimaryVisCells( tPrimaryFemCells.size(), nullptr );
+                    moris::Vector< moris::mtk::Cell const * > tClusterVoidVisCells( tVoidFemCells.size(), nullptr );
 
                     // find VIS primary cells corresponding to mtk/fem cells
                     for ( uint iPrimaryCell = 0; iPrimaryCell < tPrimaryFemCells.size(); iPrimaryCell++ )
@@ -740,7 +740,7 @@ namespace moris
                     // add vertices to cluster
 
                     // get vertices from the mtk/fem cluster
-                    moris::Cell< moris::mtk::Vertex const * > tFemVertices = tClustersOnFemSet( iClusterOnSet )->get_vertices_in_cluster();
+                    moris::Vector< moris::mtk::Vertex const * > tFemVertices = tClustersOnFemSet( iClusterOnSet )->get_vertices_in_cluster();
 
                     // construct map relating fem vertex indices to their respective position in the list of vertices on the cluster
                     map< moris_index, moris_index > tFemVertexIndexToPosInFemClusterMap;
@@ -755,11 +755,11 @@ namespace moris
                     uint                            tNextVertexInVisClusterPosition = 0;
 
                     // initialize a list of all VIS vertices used by the cluster
-                    moris::Cell< mtk::Vertex const * > tClusterVisVertices;
+                    moris::Vector< mtk::Vertex const * > tClusterVisVertices;
                     tClusterVisVertices.reserve( tFemVertices.size() );
 
                     // compile a list of IG cells used by the newly constructed VIS cluster
-                    Cell< const moris::mtk::Cell* > tUsedClusterFemCells = tPrimaryFemCells;
+                    Vector< const moris::mtk::Cell* > tUsedClusterFemCells = tPrimaryFemCells;
 
                     // for overlapping meshes consider the void as well
                     if ( !mOnlyPrimaryCells )
@@ -774,7 +774,7 @@ namespace moris
                         moris_index tFemCellIndex = tUsedClusterFemCells( iCellInCluster )->get_index();
 
                         // access the list of VIS vertices attached to the cell
-                        Cell< moris_index > tVisVertexIndicesOnCell = mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex );
+                        Vector< moris_index > tVisVertexIndicesOnCell = mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex );
 
                         MORIS_ASSERT( tVisVertexIndicesOnCell.size() > 0,
                                 "VIS_Factory::create_visualization_clusters() - Map doesn't show any vertices connected to IG cell." );
@@ -867,7 +867,7 @@ namespace moris
                 }
 
                 // get list of clusters on existing fem/mtk set
-                moris::Cell< mtk::Cluster const * > tSideClustersOnFemSet = tFemSideSet->get_clusters_on_set();
+                moris::Vector< mtk::Cluster const * > tSideClustersOnFemSet = tFemSideSet->get_clusters_on_set();
 
                 // resize list of clusters for this set
                 mVisMesh->mClustersOnSideSets( iSideSet ).resize( tNumSideClustersOnSet, nullptr );
@@ -888,14 +888,14 @@ namespace moris
                     // IG cells that the side cluster is attached to
 
                     // get the IG cells the side elements are attached to
-                    const moris::Cell< const moris::mtk::Cell* >& tFemCellsInCluster =
+                    const moris::Vector< const moris::mtk::Cell* >& tFemCellsInCluster =
                             tSideClustersOnFemSet( iSideClusterOnSet )->get_primary_cells_in_cluster();
 
                     MORIS_ASSERT( tFemCellsInCluster.size() > 0,
                             "VIS_Factory::create_visualization_side_clusters() - Empty side cluster in FEM mesh. This shouldn't happen." );
 
                     // initialize list of VIS IG cells the side set elements are attached to
-                    moris::Cell< moris::mtk::Cell const * > tSideClusterVisIgCells( tFemCellsInCluster.size(), nullptr );
+                    moris::Vector< moris::mtk::Cell const * > tSideClusterVisIgCells( tFemCellsInCluster.size(), nullptr );
 
                     // find the corresponding VIS cells constructed from the original mtk/fem cells and collect these in a list for constructing the VIS side cluster
                     for ( uint iIgCellOnCluster = 0; iIgCellOnCluster < tFemCellsInCluster.size(); iIgCellOnCluster++ )
@@ -936,7 +936,7 @@ namespace moris
                     // add vertices to cluster
 
                     // get vertices from the mtk/fem cluster
-                    moris::Cell< moris::mtk::Vertex const * > tFemVertices = tSideClustersOnFemSet( iSideClusterOnSet )->get_vertices_in_cluster();
+                    moris::Vector< moris::mtk::Vertex const * > tFemVertices = tSideClustersOnFemSet( iSideClusterOnSet )->get_vertices_in_cluster();
 
                     // get the number of vertices on the fem cluster for convenient access
                     uint tNumUsedVerticesInFemCluster = tFemVertices.size();
@@ -950,7 +950,7 @@ namespace moris
                     }
 
                     // initialize list of VIS vertices constructed from the corresponding mtk/fem vertices
-                    moris::Cell< mtk::Vertex const * > tClusterVisVertices;
+                    moris::Vector< mtk::Vertex const * > tClusterVisVertices;
                     tClusterVisVertices.reserve( tNumUsedVerticesInFemCluster );
 
                     // initialize map identifying which VIS vertices are in the newly constructed VIS cluster and at which position
@@ -967,7 +967,7 @@ namespace moris
                         moris_index tPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemCellIndex );
 
                         // get the VIS vertex indices
-                        const Cell< moris_index > tVisVertexIndices = mBlockAndFemCellIndexToVisVertexIndices( tPrimaryBlockSetIndex )( tFemCellIndex );
+                        const Vector< moris_index > tVisVertexIndices = mBlockAndFemCellIndexToVisVertexIndices( tPrimaryBlockSetIndex )( tFemCellIndex );
 
                         // go through the vertices listed in the FEM cluster, find the corresponding VIS vertices, and store them in the above list
                         for ( uint iVertOnCell = 0; iVertOnCell < tVisVertexIndices.size(); iVertOnCell++ )
@@ -1071,7 +1071,7 @@ namespace moris
                 }
 
                 // get list of clusters on existing fem/mtk set
-                moris::Cell< mtk::Cluster const * > tDblSideClustersOnFemSet = tFemDblSideSet->get_clusters_on_set();
+                moris::Vector< mtk::Cluster const * > tDblSideClustersOnFemSet = tFemDblSideSet->get_clusters_on_set();
 
                 // resize list of clusters for this set
                 mVisMesh->mClustersOnDoubleSideSets( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
@@ -1104,8 +1104,8 @@ namespace moris
                     // IG cells that the side cluster are attached to
 
                     // get the IG cells the side elements are attached to
-                    const moris::Cell< const moris::mtk::Cell* >& tFemCellsInLeaderCluster   = tFemLeaderSideCluster.get_primary_cells_in_cluster();
-                    const moris::Cell< const moris::mtk::Cell* >& tFemCellsInFollowerCluster = tFemFollowerSideCluster.get_primary_cells_in_cluster();
+                    const moris::Vector< const moris::mtk::Cell* >& tFemCellsInLeaderCluster   = tFemLeaderSideCluster.get_primary_cells_in_cluster();
+                    const moris::Vector< const moris::mtk::Cell* >& tFemCellsInFollowerCluster = tFemFollowerSideCluster.get_primary_cells_in_cluster();
 
                     MORIS_ASSERT(
                             tFemCellsInLeaderCluster.size() == tFemCellsInFollowerCluster.size(),
@@ -1124,8 +1124,8 @@ namespace moris
                     uint tNumFacetsInSideClusters = tFemCellsInLeaderCluster.size();
 
                     // initialize list of VIS IG cells the facets are attached to
-                    Cell< mtk::Cell const * > tLeaderSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
-                    Cell< mtk::Cell const * > tFollowerSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
+                    Vector< mtk::Cell const * > tLeaderSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
+                    Vector< mtk::Cell const * > tFollowerSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
 
                     // find the corresponding VIS cells constructed from the original mtk/fem cells and collect these in a list for constructing the VIS side cluster
                     for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
@@ -1176,8 +1176,8 @@ namespace moris
                     // NOTE: the VIS dbl side clusters will only contain vertices which sit on the interface, as the rest is not needed for visualization purposes
 
                     // get vertices from the mtk/fem cluster
-                    Cell< mtk::Vertex const * > tFemLeaderVertices   = tFemLeaderSideCluster.get_vertices_in_cluster();
-                    Cell< mtk::Vertex const * > tFemFollowerVertices = tFemFollowerSideCluster.get_vertices_in_cluster();
+                    Vector< mtk::Vertex const * > tFemLeaderVertices   = tFemLeaderSideCluster.get_vertices_in_cluster();
+                    Vector< mtk::Vertex const * > tFemFollowerVertices = tFemFollowerSideCluster.get_vertices_in_cluster();
 
                     // get the number of vertices on the fem cluster for convenient access
                     uint tNumFemVerticesInLeaderCluster   = tFemLeaderVertices.size();
@@ -1256,8 +1256,8 @@ namespace moris
                     uint tNumInterfaceVertices = (uint)tInterfaceVertexCounter;
 
                     // initialize list of VIS vertices constructed from the mtk/fem vertices on the interface
-                    moris::Cell< mtk::Vertex const * > tLeaderClusterVisVertices( tNumInterfaceVertices, nullptr );
-                    moris::Cell< mtk::Vertex const * > tFollowerClusterVisVertices( tNumInterfaceVertices, nullptr );
+                    moris::Vector< mtk::Vertex const * > tLeaderClusterVisVertices( tNumInterfaceVertices, nullptr );
+                    moris::Vector< mtk::Vertex const * > tFollowerClusterVisVertices( tNumInterfaceVertices, nullptr );
 
                     // go through the IG cells the side cluster is attached to
                     for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
@@ -1271,9 +1271,9 @@ namespace moris
                         moris_index tFollowerPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemFollowerCellIndex );
 
                         // get the VIS vertex indices
-                        const Cell< moris_index > tVisLeaderVertexIndices =
+                        const Vector< moris_index > tVisLeaderVertexIndices =
                                 mBlockAndFemCellIndexToVisVertexIndices( tLeaderPrimaryBlockSetIndex )( tFemLeaderCellIndex );
-                        const Cell< moris_index > tVisFollowerVertexIndices =
+                        const Vector< moris_index > tVisFollowerVertexIndices =
                                 mBlockAndFemCellIndexToVisVertexIndices( tFollowerPrimaryBlockSetIndex )( tFemFollowerCellIndex );
 
                         // go through the vertices listed in the leader FEM cluster, find the corresponding VIS vertices, and store them if they are interface vertices

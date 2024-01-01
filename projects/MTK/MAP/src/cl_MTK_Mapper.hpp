@@ -12,7 +12,7 @@
 #define PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_HPP_
 
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

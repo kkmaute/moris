@@ -31,11 +31,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Property::update_dependencies(Cell<std::shared_ptr<Field>> aAllUpdatedFields)
+        void Property::update_dependencies(Vector<std::shared_ptr<Field>> aAllUpdatedFields)
         {
             // Set up dependency fields
             uint tNumDependencies = mParameters.mDependencyNames.size();
-            Cell<std::shared_ptr<Field>> tDependencyFields(tNumDependencies);
+            Vector<std::shared_ptr<Field>> tDependencyFields(tNumDependencies);
 
             // Grab dependencies
             for (uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++)
@@ -76,14 +76,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Cell<std::string> Property::get_pdv_mesh_set_names()
+        Vector<std::string> Property::get_pdv_mesh_set_names()
         {
             return mParameters.mPDVMeshSetNames;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Property::set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields)
+        void Property::set_dependencies(Vector<std::shared_ptr<Field>> aDependencyFields)
         {
         }
 

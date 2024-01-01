@@ -41,7 +41,7 @@ namespace moris::hmr
     T_Matrix_Base::calculate_t_matrix(
             luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
-            Cell< Basis* >&   aDOFs )
+            Vector< Basis* >&   aDOFs )
     {
         if ( mTruncate )
         {
@@ -59,7 +59,7 @@ namespace moris::hmr
     T_Matrix_Base::calculate_untruncated_t_matrix(
             luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
-            Cell< Basis* >&   aDOFs )
+            Vector< Basis* >&   aDOFs )
     {
         aDOFs.clear();
 
@@ -127,7 +127,7 @@ namespace moris::hmr
     T_Matrix_Base::calculate_truncated_t_matrix(
             luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
-            Cell< Basis* >&   aDOFs )
+            Vector< Basis* >&   aDOFs )
     {
         // Clear adofs
         aDOFs.clear();
@@ -149,7 +149,7 @@ namespace moris::hmr
         uint tBasisCount = 0;
 
         // container for basis levels
-        moris::Cell< Basis* > tAllBasis( tNumberOfBasis, nullptr );
+        moris::Vector< Basis* > tAllBasis( tNumberOfBasis, nullptr );
 
         // size T-matrix
         aTMatrixTransposed.set_size( tNumberOfBasisPerElement, tNumberOfBasis, 0.0 );
@@ -367,7 +367,7 @@ namespace moris::hmr
 
                 // calculate the B-Spline T-Matrix
                 Matrix< DDRMat > tB;
-                Cell< Basis* >   tDOFs;
+                Vector< Basis* >   tDOFs;
 
                 uint tElemMemIndex = tBackgroundElement->get_memory_index();
                 this->calculate_t_matrix(
@@ -406,7 +406,7 @@ namespace moris::hmr
                         uint tNodeCount = 0;
 
                         // reserve DOF cell
-                        Cell< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
+                        Vector< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
 
                         // reserve matrix with coefficients
                         Matrix< DDRMat > tCoefficients( tNCols, 1 );
@@ -491,7 +491,7 @@ namespace moris::hmr
                     Matrix< DDRMat > tCoefficients( 1, 1, 1.0 );
 
                     // reserve DOF cell
-                    Cell< mtk::Vertex* > tNodeDOFs( 1, tNode );
+                    Vector< mtk::Vertex* > tNodeDOFs( 1, tNode );
 
                     if ( aBool )
                     {
@@ -517,8 +517,8 @@ namespace moris::hmr
     T_Matrix_Base::evaluate_extended_t_matrix(
             Element*                                    aBsplineElement,
             Element*                                    aLagrangeElement,
-            moris::Cell< moris::Cell< mtk::Vertex* > >& aBsplineBasis,
-            moris::Cell< Matrix< DDRMat > >&            aWeights )
+            moris::Vector< moris::Vector< mtk::Vertex* > >& aBsplineBasis,
+            moris::Vector< Matrix< DDRMat > >&            aWeights )
     {
         Background_Element_Base* aBSpBackgroundElement = aBsplineElement->get_background_element();
 
@@ -574,7 +574,7 @@ namespace moris::hmr
 
         // calculate the B-Spline T-Matrix
         Matrix< DDRMat > tB;
-        Cell< Basis* >   tDOFs;
+        Vector< Basis* >   tDOFs;
 
         this->calculate_t_matrix(
                 aBSpBackgroundElement->get_memory_index(),
@@ -610,7 +610,7 @@ namespace moris::hmr
             uint tCount = 0;
 
             // reserve DOF cell
-            Cell< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
+            Vector< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
 
             // reserve matrix with coefficients
             Matrix< DDRMat > tCoefficients( tNCols, 1 );

@@ -94,7 +94,7 @@ main(
 //                            tParameters->get_bspline_input_pattern(),
 //                            tOrder );
 //
-//                   moris::Cell< moris::hmr::BSpline_Mesh_Base*  > tBSplineMeshes( 1, tBSplineMesh );
+//                   Vector< moris::hmr::BSpline_Mesh_Base*  > tBSplineMeshes( 1, tBSplineMesh );
 //
 //                    // create B-Spline Mesh
 //                    moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh

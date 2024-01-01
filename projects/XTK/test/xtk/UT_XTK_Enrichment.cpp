@@ -22,7 +22,7 @@
 #include "cl_Logger.hpp"
 
 // XTKL: Container includes
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // XTKL: Linear Algebra Includes
 #include "cl_MTK_Mesh_Checker.hpp"
@@ -88,7 +88,7 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         std::string tMeshOutputFile2 = "./xtk_exo/unit_enrichment_1_background.e";
         tMeshData->create_output_mesh( tMeshOutputFile2 );
 
-        moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+        moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
         tGeometry( 0 ) = std::make_shared< moris::ge::Mesh_Field_Geometry >( tMeshData, tLSFName );
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -99,7 +99,7 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
          * Setup XTK Model and tell it how to cut
          */
         size_t                          tModelDimension       = 3;
-        Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+        Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
         Model                           tXTKModel( tModelDimension, tMeshData, &tGeometryEngine );
         tXTKModel.mVerbose = false;
         /*
@@ -113,7 +113,7 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         Enrichment const& tEnrichment = tXTKModel.get_basis_enrichment();
 
         // Declare the fields related to enrichment strategy in output options
-        Cell< std::string > tEnrichmentFieldNames;
+        Vector< std::string > tEnrichmentFieldNames;
         if ( tOutputEnrichmentFields )
         {
             tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
@@ -194,7 +194,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         std::string tMeshOutputFile2 = "./xtk_exo/enrichment_test_10_cluster_background.e";
         tMeshData->create_output_mesh( tMeshOutputFile2 );
 
-        moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+        moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
         tGeometry( 0 ) = std::make_shared< moris::ge::Mesh_Field_Geometry >( tMeshData, tLSFName );
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -205,7 +205,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
          * Setup XTK Model and tell it how to cut
          */
         size_t                          tModelDimension       = 3;
-        Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+        Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
         Model                           tXTKModel( tModelDimension, tMeshData, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
@@ -220,7 +220,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         Enrichment const& tEnrichment = tXTKModel.get_basis_enrichment();
 
         // declare cell enrichment fields in output mesh
-        Cell< std::string > tEnrichmentFieldNames;
+        Vector< std::string > tEnrichmentFieldNames;
         if ( tOutputEnrichmentFields )
         {
             tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
@@ -233,7 +233,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
 
         tEnrIntegMesh.create_dbl_sided_interface_sets( { 1 }, { 0 } );
 
-        moris::Cell< mtk::Cluster const* > tDoubleSideCluster = tEnrIntegMesh.get_double_side_set_cluster( 0 );
+        moris::Vector< mtk::Cluster const* > tDoubleSideCluster = tEnrIntegMesh.get_double_side_set_cluster( 0 );
         moris::real                        tGoldVolume        = 2;
         moris::real                        tGoldSurface       = 0.6862003781;
 

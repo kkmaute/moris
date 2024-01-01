@@ -23,10 +23,10 @@ namespace moris
         // User-defined field functions
         typedef real ( *Field_Function ) (
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< moris::real* > & aParameters );
+                const Vector< moris::real* > & aParameters );
         typedef void ( *Sensitivity_Function ) (
                 const moris::Matrix< DDRMat >&     aCoordinates,
-                const moris::Cell< moris::real* >& aParameters,
+                const Vector< moris::real* >& aParameters,
                 moris::Matrix< DDRMat >&           aReturnValue);
 
         class User_Defined_Field : public Field_Analytic
@@ -124,7 +124,7 @@ namespace moris
              */
             static void no_sensitivities(
                     const Matrix<DDRMat>& aCoordinates,
-                    const Cell<real*>&    aParameters,
+                    const Vector<real*>&    aParameters,
                     Matrix<DDRMat>&       aSensitivities);
 
         };

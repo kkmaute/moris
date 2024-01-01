@@ -16,7 +16,7 @@
 // #include "cl_Logger.hpp"
 
 // // XTKL: Container includes
-// #include "cl_Cell.hpp"
+// #include "cl_Vector.hpp"
 
 // // XTKL: Linear Algebra Includes
 
@@ -158,7 +158,7 @@
 //         std::string tBackgroundMeshOutput = "./xtk_exo/volume_check_rs_bm.e";
 //         tMeshData->create_output_mesh(tBackgroundMeshOutput);
 
-//         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+//         Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 //         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
 //         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -171,7 +171,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         // Specify your decomposition methods and start cutting
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
 //         tXTKModel.decompose(tDecompositionMethods);
 //         moris::real tGoldVolume = 4;
 
@@ -216,7 +216,7 @@
 //         std::string tMeshFileName = "generated:1x1x4";
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-//         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+//         Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 //         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
 //         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -229,7 +229,7 @@
 //         tXTKModel.mVerbose  =  false;
 
 //         // Specify your decomposition methods and start cutting
-//         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+//         Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
 //         tXTKModel.decompose(tDecompositionMethods);
 
 //         verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
@@ -277,7 +277,7 @@
 //             std::string tMeshFileName = "generated:1x1x1";
 //             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-//             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+//             Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 //             tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
 //             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -289,7 +289,7 @@
 //             Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
 
 //             //Specify your decomposition methods and start cutting
-//             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
+//             Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
 //             tXTKModel.decompose(tDecompositionMethods);
 
 //             moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();

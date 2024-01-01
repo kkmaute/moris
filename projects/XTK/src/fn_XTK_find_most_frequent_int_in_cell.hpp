@@ -27,7 +27,7 @@ namespace xtk
      */
     inline moris_index
     find_most_frequent_index_in_cell(
-            moris::Cell< moris_index >& aCellOfIndices,
+            Vector< moris_index >& aCellOfIndices,
             uint&                       aCount )
     {
         uint tNumElemsInArray = aCellOfIndices.size();

@@ -116,7 +116,7 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
     tPhi->set_space_time( tParamPoint );
 
 	// create a cell of field interpolators with tVN and tPhi
-    Cell< Field_Interpolator * > tFieldInterpolators( 2 , nullptr);
+    Vector< Field_Interpolator * > tFieldInterpolators( 2 , nullptr);
     tFieldInterpolators( 1 ) = tVN;
     tFieldInterpolators( 0 ) = tPhi;
 
@@ -138,7 +138,7 @@ TEST_CASE( "IWG_Hamilton_Jacobi2", "[moris],[fem],[IWG_HJ2]" )
         //print( tResidualHJBulk, "r_phi" );
 
         // evaluate the jacobian from IWG
-        Cell< Matrix< DDRMat > > tJacobiansHJBulk( 2 );
+        Vector< Matrix< DDRMat > > tJacobiansHJBulk( 2 );
         tIWGHJBulk.compute_jacobian( tJacobiansHJBulk );
         //print( tJacobiansHJBulk( 0 ), "j_phi_phi" );
         //print( tJacobiansHJBulk( 1 ), "j_phi_vN" );

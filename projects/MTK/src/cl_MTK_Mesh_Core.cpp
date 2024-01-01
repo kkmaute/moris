@@ -32,7 +32,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Mesh::get_Mesh_GEN_map( moris::Cell< moris_index >& aMesh_GEN_map )
+        Mesh::get_Mesh_GEN_map( moris::Vector< moris_index >& aMesh_GEN_map )
         {
             MORIS_ASSERT( false, "get_Mesh_GEN_map(), not implemented for base class" );
         }
@@ -107,12 +107,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Cell< Vertex const * >
+        moris::Vector< Vertex const * >
         Mesh::get_all_vertices() const
         {
             MORIS_ERROR( 0, "No default implementation of get_all_vertices_no_aura" );
 
-            return moris::Cell< Vertex const * >( 0, nullptr );
+            return moris::Vector< Vertex const * >( 0, nullptr );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -513,11 +513,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Cell< Matrix< IdMat > >
+        moris::Vector< Matrix< IdMat > >
         Mesh::get_communication_vertex_pairing() const
         {
             MORIS_ERROR( 0, "get_communication_vertex_pairing not implemented" );
-            return moris::Cell< Matrix< IdMat > >( 0 );
+            return moris::Vector< Matrix< IdMat > >( 0 );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -705,7 +705,7 @@ namespace moris
                 }
             }
 
-            moris::Cell< uint > tIndices;
+            moris::Vector< uint > tIndices;
             tIndices.reserve( tCounter );
 
             for ( uint Ik = 0; Ik < aNodeIndices.numel(); Ik++ )
@@ -763,7 +763,7 @@ namespace moris
                 }
             }
 
-            moris::Cell< uint > tIndices;
+            moris::Vector< uint > tIndices;
             tIndices.reserve( tCounter );
 
             tCounter = 0;
@@ -897,11 +897,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Cell< std::string >
+        moris::Vector< std::string >
         Mesh::get_set_names( enum EntityRank aSetEntityRank ) const
         {
             MORIS_ERROR( 0, " get_set_names has no base implementation" );
-            return moris::Cell< std::string >( 0 );
+            return moris::Vector< std::string >( 0 );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -943,14 +943,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Cell< Cell const * >
+        moris::Vector< Cell const * >
         Mesh::get_set_cells( std::string aSetLabel ) const
         {
             Set* tSet = this->get_set_by_name( aSetLabel );
 
             enum SetType tSetType = tSet->get_set_type();
 
-            moris::Cell< Cell const * > tBlockSetCells;
+            moris::Vector< Cell const * > tBlockSetCells;
 
             if ( tSetType == SetType::BULK )
             {
@@ -973,12 +973,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Cell< Cell const * >
+        moris::Vector< Cell const * >
         Mesh::get_block_set_cells( std::string aSetName ) const
         {
             Matrix< IndexMat > tBlockSetElementInd = this->get_set_entity_loc_inds( EntityRank::ELEMENT, aSetName );
 
-            moris::Cell< Cell const * > tBlockSetCells( tBlockSetElementInd.numel() );
+            moris::Vector< Cell const * > tBlockSetCells( tBlockSetElementInd.numel() );
 
             for ( luint k = 0; k < tBlockSetElementInd.numel(); ++k )
             {
@@ -1004,7 +1004,7 @@ namespace moris
         void
         Mesh::get_sideset_cells_and_ords(
                 const std::string&           aSetName,
-                moris::Cell< Cell const * >& aCells,
+                moris::Vector< Cell const * >& aCells,
                 Matrix< IndexMat >&          aSidesetOrdinals ) const
         {
             Matrix< IndexMat > tElemIndices;
@@ -1012,7 +1012,7 @@ namespace moris
 
             // convert element indices to cell pointers
             uint tNumCellsInSet = tElemIndices.numel();
-            aCells              = moris::Cell< Cell const * >( tNumCellsInSet );
+            aCells              = moris::Vector< Cell const * >( tNumCellsInSet );
 
             for ( uint i = 0; i < tNumCellsInSet; i++ )
             {
@@ -1023,11 +1023,11 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         uint
-        Mesh::get_sidesets_num_faces( moris::Cell< moris_index > aSideSetIndex ) const
+        Mesh::get_sidesets_num_faces( moris::Vector< moris_index > aSideSetIndex ) const
         {
             uint tNumSideSetFaces = 0;
 
-            moris::Cell< std::string > tSideSetsNames = this->get_set_names( this->get_facet_rank() );
+            moris::Vector< std::string > tSideSetsNames = this->get_set_names( this->get_facet_rank() );
 
             for ( luint Ik = 0; Ik < aSideSetIndex.size(); ++Ik )
             {
@@ -1046,11 +1046,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Cell< Vertex const * >
+        moris::Vector< Vertex const * >
         Mesh::get_vertices_in_vertex_set_no_aura( std::string aSetName ) const
         {
             MORIS_ERROR( 0, "No default implementation of get_vertices_in_vertex_set" );
-            return moris::Cell< Vertex const * >( 0 );
+            return moris::Vector< Vertex const * >( 0 );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1083,9 +1083,9 @@ namespace moris
         void
         Mesh::get_mtk_cells(
                 Matrix< IndexMat >           aCellInds,
-                moris::Cell< Cell const * >& aCells )
+                moris::Vector< Cell const * >& aCells )
         {
-            aCells = moris::Cell< Cell const * >( aCellInds.numel() );
+            aCells = moris::Vector< Cell const * >( aCellInds.numel() );
 
             for ( uint i = 0; i < aCellInds.numel(); i++ )
             {
@@ -1178,7 +1178,7 @@ namespace moris
 
         uint Mesh::get_order()
         {
-            moris::Cell< std::string > tSetNames = this->get_set_names( EntityRank::ELEMENT );
+            moris::Vector< std::string > tSetNames = this->get_set_names( EntityRank::ELEMENT );
             return get_order_from_topology( this->get_blockset_topology( tSetNames(0) ) );
         }
 
@@ -1214,7 +1214,7 @@ namespace moris
         Mesh::get_elements_in_bspline_element(
                 moris_index const          aBspElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
-                moris::Cell< mtk::Cell* >& aCells )
+                moris::Vector< mtk::Cell* >& aCells )
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_bspline_element() -  not implemented in mtk base class" );
         }
@@ -1224,11 +1224,11 @@ namespace moris
         void
         Mesh::get_lagrange_elements_in_bspline_elements(
                 moris_index const                          aDiscretizationMeshIndex,
-                moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
-                moris::Cell< moris::Cell< moris_index > >& aCellIndices,
-                moris::Cell< moris_index >&                aLagToBspCellIndices,
-                moris::Cell< uint >&                       aBspCellRefineLevels,
-                moris::Cell< mtk::Cell* >&                 aBspCells )
+                moris::Vector< moris::Vector< mtk::Cell* > >&  aCells,
+                moris::Vector< moris::Vector< moris_index > >& aCellIndices,
+                moris::Vector< moris_index >&                aLagToBspCellIndices,
+                moris::Vector< uint >&                       aBspCellRefineLevels,
+                moris::Vector< mtk::Cell* >&                 aBspCells )
         {
             MORIS_ERROR( false, "Mesh::get_lagrange_elements_in_bspline_elements() -  not implemented in mtk base class" );
         }
@@ -1252,8 +1252,8 @@ namespace moris
                 moris_index                                 aDiscretizationMeshIndex,
                 moris_index                                 aBSplineCellIndex,
                 moris::mtk::Cell&                           aLagrangeCell,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            tWeights )
+                moris::Vector< moris::Vector< mtk::Vertex* > >& tBsplineBasis,
+                moris::Vector< Matrix< DDRMat > >&            tWeights )
         {
             MORIS_ERROR( false, "Mesh::get_extended_t_matrix() -  not implemented in mtk base class" );
         }
@@ -1265,9 +1265,9 @@ namespace moris
                 moris_index                                 aDiscretizationMeshIndex,
                 const mtk::Cell*                            aRootBSplineCell,
                 const mtk::Cell*                            aExtendedBSplineCell,
-                moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
-                moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            tWeights )
+                moris::Vector< moris::Vector< const mtk::Vertex* > >& tRootBsplineBasis,
+                moris::Vector< const mtk::Vertex* >&                tExtendedBsplineBasis,
+                moris::Vector< Matrix< DDRMat > >&            tWeights )
         {
             MORIS_ERROR( false, "Mesh::get_L2_projection_matrix() -  not implemented in mtk base class" );
         }
@@ -1278,7 +1278,7 @@ namespace moris
         Mesh::get_elements_in_interpolation_cluster(
                 moris_index                aElementIndex,
                 moris_index                aDiscretizationMeshIndex,
-                moris::Cell< mtk::Cell* >& tCells )
+                moris::Vector< mtk::Cell* >& tCells )
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_interpolation_cluster() -  not implemented in mtk base class" );
         }
@@ -1290,7 +1290,7 @@ namespace moris
                 moris_index const          aBsplineElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
                 moris_index const          aSideOrdinal,
-                moris::Cell< mtk::Cell* >& aCells )
+                moris::Vector< mtk::Cell* >& aCells )
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_bspline_element_and_side_ordinal() -  not implemented in mtk base class" );
         }
@@ -1302,7 +1302,7 @@ namespace moris
                 moris_index const          aElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
                 moris_index const          aSideOrdinal,
-                moris::Cell< mtk::Cell* >& aCells )
+                moris::Vector< mtk::Cell* >& aCells )
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_interpolation_cluster_and_side_ordinal() -  not implemented in mtk base class" );
         }

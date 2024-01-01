@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_VIS_FACTORY_HPP_
 #define SRC_FEM_CL_VIS_FACTORY_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
 
@@ -49,39 +49,39 @@ namespace moris
             vis::Visualization_Mesh* mVisMesh = nullptr;
 
             /// @brief Names of sets requested for output
-            Cell< std::string > mAllRequestedSetNames;
-            Cell< std::string > mRequestedBlockSetNames;
-            Cell< std::string > mRequestedSideSetNames;
-            Cell< std::string > mRequestedDoubleSideSetNames;
+            Vector< std::string > mAllRequestedSetNames;
+            Vector< std::string > mRequestedBlockSetNames;
+            Vector< std::string > mRequestedSideSetNames;
+            Vector< std::string > mRequestedDoubleSideSetNames;
 
             /// @brief mtk/fem mesh sets corresponding to the sets listed above
-            Cell< moris::mtk::Set* > mFemBlockSets;
-            Cell< moris::mtk::Set* > mFemSideSets;
-            Cell< moris::mtk::Set* > mFemDoubleSideSets;
+            Vector< moris::mtk::Set* > mFemBlockSets;
+            Vector< moris::mtk::Set* > mFemSideSets;
+            Vector< moris::mtk::Set* > mFemDoubleSideSets;
 
             /// @brief map relating the FEM/MTK cells in each block to the VIS cells (to be) created
             // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh 
             // || output: index of VIS cell created from this FEM/MTK cell 
-            Cell< Cell< moris_index > > mBlockAndFemCellIndexToVisCellIndex;
+            Vector< Vector< moris_index > > mBlockAndFemCellIndexToVisCellIndex;
 
             /// @brief map relating the FEM/MTK cells in each block to the VIS vertices (to be) created
             // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh 
             // || output: list of indices of VIS vertices in element local order
-            Cell< Cell< Cell< moris_index > > > mBlockAndFemCellIndexToVisVertexIndices;
+            Vector< Vector< Vector< moris_index > > > mBlockAndFemCellIndexToVisVertexIndices;
 
             /// @brief map relating the fem cell index to the vis cell index
             // || input: index of IG cell from FEM mesh 
             // || output: index of the corresponding VIS cell which is primary material
             // (Note: for overlapping meshes there may be multiple VIS cells created on the same FEM/MTK cell 
             // but only one is primary wrt. to one of the material phases)
-            Cell< moris_index > mPrimaryFemCellIndexToVisCellIndex;
+            Vector< moris_index > mPrimaryFemCellIndexToVisCellIndex;
 
             /// @brief map relating the fem cell index to the vis cell index
             // || input: index of IG cell from FEM mesh 
             // || output: index of the VIS block set in which this cell sits
             // (Note: for overlapping meshes there may be multiple VIS cells created on the same FEM/MTK cell 
             // but only one is primary wrt. to one of the material phases)
-            Cell< moris_index > mPrimaryFemCellIndexToBlockIndex;
+            Vector< moris_index > mPrimaryFemCellIndexToBlockIndex;
 
             /// @brief which cells to output depending on VIS mesh type used
             bool mOnlyPrimaryCells = false;

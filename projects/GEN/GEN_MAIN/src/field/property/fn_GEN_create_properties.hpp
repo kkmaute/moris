@@ -37,10 +37,10 @@ namespace moris
          * @return Pointer to specific Property class
          */
         template <typename Vector_Type>
-        Cell<std::shared_ptr<Property>> create_properties(
-                Cell<ParameterList>             aPropertyParameterLists,
+        Vector<std::shared_ptr<Property>> create_properties(
+                Vector<ParameterList>             aPropertyParameterLists,
                 Vector_Type&                    aADVs,
-                Cell<std::shared_ptr<Geometry>> aGeometries = {},
+                Vector<std::shared_ptr<Geometry>> aGeometries = {},
                 std::shared_ptr<Library_IO>     aLibrary = nullptr);
 
         /**
@@ -56,7 +56,7 @@ namespace moris
         std::shared_ptr<Property> create_property(
                 ParameterList                aPropertyParameterList,
                 Vector_Type&                 aADVs,
-                Cell<std::shared_ptr<Field>> aFieldDependencies = {},
+                Vector<std::shared_ptr<Field>> aFieldDependencies = {},
                 std::shared_ptr<Library_IO>  aLibrary = nullptr);
     }
 }

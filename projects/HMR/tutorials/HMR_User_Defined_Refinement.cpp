@@ -46,7 +46,7 @@ extern "C"
             int
             user_defined_refinement(
                           Element                  * aElement,
-                    const Cell< Matrix< DDRMat > > & aElementLocalValues,
+                    const Vector< Matrix< DDRMat > > & aElementLocalValues,
                           ParameterList            & aParameters )
             {
                 /**

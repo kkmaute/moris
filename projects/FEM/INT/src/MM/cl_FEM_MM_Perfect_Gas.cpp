@@ -37,8 +37,8 @@ namespace moris
 
         void
         MM_Perfect_Gas::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                moris::Vector< moris::Vector< MSI::Dof_Type > > aDofTypes,
+                moris::Vector< std::string >                  aDofStrings )
         {
             // set dof type list
             Material_Model::set_dof_type_list( aDofTypes );
@@ -138,7 +138,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_EintDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_EintDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the heat capacity
             std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
@@ -159,7 +159,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_EintDotDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_EintDotDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the heat capacity
             std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
@@ -180,7 +180,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_dEintdxDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_dEintdxDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the heat capacity
             std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
@@ -201,7 +201,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_d2Eintdx2DOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_d2Eintdx2DOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the heat capacity
             std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
@@ -280,7 +280,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_DensityDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_DensityDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
@@ -308,7 +308,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_DensityDotDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_DensityDotDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
@@ -339,7 +339,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_dDensitydxDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_dDensitydxDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
@@ -370,7 +370,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_d2Densitydx2DOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_d2Densitydx2DOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Densitydx2DOF - Not implemented yet." );
@@ -431,7 +431,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_PressureDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_PressureDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
@@ -450,7 +450,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_PressureDotDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_PressureDotDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
@@ -473,7 +473,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_dPressuredxDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_dPressuredxDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the specific gas constant
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
@@ -496,7 +496,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_d2Pressuredx2DOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_d2Pressuredx2DOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Pressuredx2DOF - Not implemented yet." );
@@ -544,7 +544,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_TemperatureDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_TemperatureDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_TemperatureDOF - Not implemented yet." );
@@ -553,7 +553,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_TemperatureDotDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_TemperatureDotDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_TemperatureDotDOF - Not implemented yet." );
@@ -562,7 +562,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_dTemperaturedxDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_dTemperaturedxDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_dTemperaturedxDOF - Not implemented yet." );
@@ -571,7 +571,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_d2Temperaturedx2DOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_d2Temperaturedx2DOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Temperaturedx2DOF - Not implemented yet." );
@@ -591,7 +591,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_VolumeExpansivityDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -612,7 +612,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_IsothermalCompressibilityDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -633,7 +633,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_CvDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_CvDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             MORIS_ERROR( false, " MM_Perfect_Gas::eval_CvDOF - This function is not implemented yet. " );
         }
@@ -651,7 +651,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_CpDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_CpDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -673,7 +673,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MM_Perfect_Gas::eval_GammaDOF( const moris::Cell< MSI::Dof_Type > &aDofTypes )
+        MM_Perfect_Gas::eval_GammaDOF( const moris::Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

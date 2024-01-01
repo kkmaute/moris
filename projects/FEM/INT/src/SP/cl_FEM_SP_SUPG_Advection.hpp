@@ -14,7 +14,7 @@
 #include <map>
 // MRS/CNT/src
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 // LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -67,7 +67,7 @@ namespace moris
 
             // storage
             real                            mLengthScale;
-            moris::Cell< Matrix< DDRMat > > mdLengthScaledLeaderDof;
+            Vector< Matrix< DDRMat > > mdLengthScaledLeaderDof;
 
             /*
              * Rem: mParameters
@@ -99,7 +99,7 @@ namespace moris
              */
             bool compute_derivative_of_effective_conductivity(
                     Matrix< DDRMat >&                   aEffectiveConductivitydu,
-                    const moris::Cell< MSI::Dof_Type >& aDofTypess );
+                    const Vector< MSI::Dof_Type >& aDofTypess );
 
           public:
             //------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ namespace moris
             /**
              * set parameters
              */
-            void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
+            void set_parameters( Vector< Matrix< DDRMat > > aParameters );
 
             //------------------------------------------------------------------------------
             /**
@@ -135,8 +135,8 @@ namespace moris
              * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_dof_type_list(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                    moris::Cell< std::string >&                  aDofStrings,
+                    Vector< Vector< MSI::Dof_Type > >& aDofTypes,
+                    Vector< std::string >&                  aDofStrings,
                     mtk::Leader_Follower                            aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -155,8 +155,8 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
-                    moris::Cell< std::string >&             aDvStrings,
+                    Vector< Vector< PDV_Type > >& aDvTypes,
+                    Vector< std::string >&             aDvStrings,
                     mtk::Leader_Follower                       aIsLeader = mtk::Leader_Follower::LEADER )
             {
                 Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
@@ -173,7 +173,7 @@ namespace moris
              * evaluate the stabilization parameter derivative wrt to a leader dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dSPdLeaderDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -181,7 +181,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
             void
-            eval_dSPdLeaderDV( const moris::Cell< PDV_Type >& aDvTypes )
+            eval_dSPdLeaderDV( const Vector< PDV_Type >& aDvTypes )
             {
                 MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdLeaderDV - not implemented." );
             }
@@ -204,13 +204,13 @@ namespace moris
              * return the length scale derivative wrt to a leader dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            const Matrix< DDRMat >& dlengthscaledleaderu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            const Matrix< DDRMat >& dlengthscaledleaderu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             /**
              * evaluate the length scale derivative wrt to a leader dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dlengthscaledleaderu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dlengthscaledleaderu( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
         };

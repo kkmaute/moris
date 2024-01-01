@@ -56,8 +56,8 @@ namespace moris
             //-------------------------------------------------------------------------------
 
           protected:
-            Cell< std::shared_ptr< Geometry > > mGeometries;
-            Cell< std::shared_ptr< Property > > mProperties;
+            Vector< std::shared_ptr< Geometry > > mGeometries;
+            Vector< std::shared_ptr< Property > > mProperties;
 
             //-------------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ namespace moris
             Matrix< IdMat >  mOwnedijklIds;
 
             // IQIs
-            Cell< std::string > mRequestedIQIs;
+            Vector< std::string > mRequestedIQIs;
 
             // Library
             std::shared_ptr< Library_IO > mLibrary;
@@ -105,7 +105,7 @@ namespace moris
             // 1 - G(x) == threshold
             // 2 - G(x) > threshold
             // Max not set
-            Cell< Geometric_Proximity > mVertexGeometricProximity;
+            Vector< Geometric_Proximity > mVertexGeometricProximity;
 
             // diagnostic information
             bool        mDiagnostics    = false;
@@ -125,7 +125,7 @@ namespace moris
              * @param aMesh Mesh for discrete or mesh based geomtries
              */
             Geometry_Engine(
-                    Cell< Cell< ParameterList > > aParameterLists,
+                    Vector< Vector< ParameterList > > aParameterLists,
                     std::shared_ptr< Library_IO > aLibrary = nullptr,
                     mtk::Mesh*                    aMesh    = nullptr );
 
@@ -207,7 +207,7 @@ namespace moris
              * Lets MDL know about the stored requested IQIs through the PDV host manager
              */
             void communicate_requested_IQIs();
-            void communicate_requested_IQIs( Cell< std::string > aIQINames );
+            void communicate_requested_IQIs( Vector< std::string > aIQINames );
 
             //-------------------------------------------------------------------------------
 
@@ -219,7 +219,7 @@ namespace moris
             set_phase_function(
                     PHASE_FUNCTION      aPhaseFunction,
                     uint                aNumPhases,
-                    Cell< std::string > aPhaseNames = {} );
+                    Vector< std::string > aPhaseNames = {} );
 
             //-------------------------------------------------------------------------------
 
@@ -229,7 +229,7 @@ namespace moris
              */
             void
             set_dQIdp(
-                    Cell< Matrix< DDRMat >* > adQIdp,
+                    Vector< Matrix< DDRMat >* > adQIdp,
                     Matrix< DDSMat >*         aMap );
 
             //-------------------------------------------------------------------------------
@@ -267,7 +267,7 @@ namespace moris
 
             bool is_intersected(
                     const Matrix< IndexMat >&                    aNodeIndices,
-                    Cell< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
+                    Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
 
             //-------------------------------------------------------------------------------
 
@@ -297,7 +297,7 @@ namespace moris
                     const Matrix< DDRMat >&         aFirstNodeGlobalCoordinates,
                     const Matrix< DDRMat >&         aSecondNodeGlobalCoordinates,
                     const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
-                    const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates );
+                    const Vector< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates );
 
             //-------------------------------------------------------------------------------
 
@@ -363,19 +363,19 @@ namespace moris
              * @param[ in ] aNodeCoords node coordinates
              */
             void create_new_child_nodes(
-                    const Cell< moris_index >&               aNewNodeIndices,
-                    const Cell< Element_Intersection_Type >& aParentIntersectionType,
-                    const Cell< Matrix< IndexMat > >&        tVertexIndices,
-                    const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
+                    const Vector< moris_index >&               aNewNodeIndices,
+                    const Vector< Element_Intersection_Type >& aParentIntersectionType,
+                    const Vector< Matrix< IndexMat > >&        tVertexIndices,
+                    const Vector< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
                     const Matrix< DDRMat >&                  aGlobalNodeCoord );
 
             //-------------------------------------------------------------------------------
 
             void create_new_child_nodes(
-                    const Cell< moris_index >*                   aNewNodeIndices,
-                    Cell< mtk::Cell* >*                          aNewNodeParentCell,
-                    Cell< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
-                    Cell< Matrix< DDRMat > >*                    aNodeCoordinates );
+                    const Vector< moris_index >*                   aNewNodeIndices,
+                    Vector< mtk::Cell* >*                          aNewNodeParentCell,
+                    Vector< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
+                    Vector< Matrix< DDRMat > >*                    aNodeCoordinates );
 
             //-------------------------------------------------------------------------------
 
@@ -487,7 +487,7 @@ namespace moris
              *
              * @return MTK fields
              */
-            Cell< std::shared_ptr< mtk::Field > > get_mtk_fields();
+            Vector< std::shared_ptr< mtk::Field > > get_mtk_fields();
 
             //-------------------------------------------------------------------------------
 
@@ -525,7 +525,7 @@ namespace moris
              */
             void distribute_advs(
                     mtk::Mesh_Pair                        aMeshPair,
-                    Cell< std::shared_ptr< mtk::Field > > aFields,
+                    Vector< std::shared_ptr< mtk::Field > > aFields,
                     mtk::EntityRank                       aADVEntityRank = mtk::EntityRank::BSPLINE );
 
             //-------------------------------------------------------------------------------
@@ -617,7 +617,7 @@ namespace moris
                     Matrix< IdMat >& aAllCoefIds,
                     Matrix< IdMat >& aAllCoefOwners,
                     Matrix< IdMat >& aAllCoefijklIds,
-                    Cell< uint >&    aNumCoeff,
+                    Vector< uint >&    aNumCoeff,
                     uint             aFieldIndex,
                     uint             aDiscretizationMeshIndex,
                     mtk::MeshType    aMeshType );
@@ -633,7 +633,7 @@ namespace moris
             void create_interpolation_pdvs(
                     mtk::Interpolation_Mesh*         aInterpolationMesh,
                     mtk::Integration_Mesh*           aIntegrationMesh,
-                    Cell< Cell< Cell< PDV_Type > > > aPdvTypes );
+                    Vector< Vector< Vector< PDV_Type > > > aPdvTypes );
 
             //-------------------------------------------------------------------------------
 
@@ -700,7 +700,7 @@ namespace moris
              * @return Phase table
              */
             static Phase_Table create_phase_table(
-                    Cell< Cell< ParameterList > > aParameterLists,
+                    Vector< Vector< ParameterList > > aParameterLists,
                     std::shared_ptr< Library_IO > aLibrary );
 
             //-------------------------------------------------------------------------------

@@ -111,7 +111,7 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ",
     tSideIntegrator.get_weights( tIntegWeights );
 
     // get side phys and param coords
-    Cell< moris_index > tAllSideOrdinals = { 0, 1, 2, 3 };
+    Vector< moris_index > tAllSideOrdinals = { 0, 1, 2, 3 };
 
     // boolean for surface check
     bool tSurfaceCheck    = true;
@@ -299,7 +299,7 @@ TEST_CASE( "Interpolation mesh TRI3 - Integration mesh TRI3 ",
     tSideIntegrator.get_weights( tIntegWeights );
 
     // get side phys and param coords
-    Cell< moris_index > tAllSideOrdinals = { 0, 1, 2 };
+    Vector< moris_index > tAllSideOrdinals = { 0, 1, 2 };
 
     // boolean for surface check
     bool tSurfaceCheck    = true;
@@ -492,7 +492,7 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ",
     tSideIntegrator.get_weights( tIntegWeights );
 
     // get side phys and param coords
-    Cell< moris_index > tAllSideOrdinals = { 0, 1, 2, 3 };
+    Vector< moris_index > tAllSideOrdinals = { 0, 1, 2, 3 };
 
     // boolean for surface check
     bool tSurfaceCheck    = true;
@@ -736,7 +736,7 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ",
     tSideIntegrator.get_weights( tIntegWeights );
 
     // get side phys and param coords
-    Cell< moris_index > tAllSideOrdinals = { 0, 1, 2, 3, 4, 5 };
+    Vector< moris_index > tAllSideOrdinals = { 0, 1, 2, 3, 4, 5 };
 
     // boolean for surface check
     bool tSurfaceCheck    = true;

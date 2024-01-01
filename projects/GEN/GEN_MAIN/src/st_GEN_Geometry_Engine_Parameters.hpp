@@ -11,7 +11,7 @@
 #ifndef MORIS_ST_GEN_GEOMETRY_ENGINE_PARAMETERS_HPP
 #define MORIS_ST_GEN_GEOMETRY_ENGINE_PARAMETERS_HPP
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
@@ -35,10 +35,10 @@ namespace moris
              * @var mTimeOffset Time offset for writing sequential meshes
              */
             Matrix<DDRMat>                  mADVs = {{}};
-            Cell<std::shared_ptr<Geometry>> mGeometries = {};
-            Cell<std::shared_ptr<Property>> mProperties = {};
+            Vector<std::shared_ptr<Geometry>> mGeometries = {};
+            Vector<std::shared_ptr<Property>> mProperties = {};
             Matrix<DDUMat>                  mBulkPhases = {{}};
-            Cell<std::string>               mRequestedIQIs = {};
+            Vector<std::string>               mRequestedIQIs = {};
             std::string                     mGeometryFieldFile = "";
             std::string                     mOutputMeshFile = "";
             real                            mTimeOffset = 0.0;

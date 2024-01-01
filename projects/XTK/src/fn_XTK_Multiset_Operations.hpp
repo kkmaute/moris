@@ -12,7 +12,7 @@
 
 #include <set>
 #include <algorithm>
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "fn_XTK_convert_cell_to_multiset.hpp"
 
 using namespace moris;
@@ -27,9 +27,9 @@ namespace xtk
 
     inline void
     multiset_union(
-            const Cell< moris_index >& aMultiSet1,
-            const Cell< moris_index >& aMultiSet2,
-            Cell< moris_index >&       aMultiSetUnion )
+            const Vector< moris_index >& aMultiSet1,
+            const Vector< moris_index >& aMultiSet2,
+            Vector< moris_index >&       aMultiSetUnion )
     {
         // convert the first multiset into std::multisets
         std::multiset< moris_index > tFirstMultiSet;
@@ -60,9 +60,9 @@ namespace xtk
 
     void
     multiset_difference(
-            const Cell< moris_index >& aMultiSet,
-            const Cell< moris_index >& aMultiSetToSubtract,
-            Cell< moris_index >&       aMultiSetDifference )
+            const Vector< moris_index >& aMultiSet,
+            const Vector< moris_index >& aMultiSetToSubtract,
+            Vector< moris_index >&       aMultiSetDifference )
     {
         // convert the first multiset into std::multisets
         std::multiset< moris_index > tMultiSet;

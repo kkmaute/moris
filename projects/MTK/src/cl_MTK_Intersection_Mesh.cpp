@@ -57,11 +57,11 @@ namespace moris
         }
 
         // ----------------------------------------------------------------------------
-        moris::Cell< std::string >
+        moris::Vector< std::string >
         Intersection_Mesh::get_set_names(enum EntityRank aSetEntityRank) const
         {
             //get the current list of sets
-            moris::Cell< std::string > tSetNames = mBackGroundMesh->get_set_names(aSetEntityRank);
+            moris::Vector< std::string > tSetNames = mBackGroundMesh->get_set_names(aSetEntityRank);
 
             //Distinguish between side sets and block sets
             if ( aSetEntityRank == EntityRank::FACE or aSetEntityRank == EntityRank::EDGE )
@@ -133,7 +133,7 @@ namespace moris
                 {
 
                     //access the clusters in the side set
-                    moris::Cell<mtk::Cluster const *> tSideClusters = mIntersectionDetect->mLeaderSideSets(tSideSetIndex);
+                    moris::Vector<mtk::Cluster const *> tSideClusters = mIntersectionDetect->mLeaderSideSets(tSideSetIndex);
 
                     // iterate through side clusters and count number of sides in set
                     moris::uint tNumSides = 0;

@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_IQI_HPP_
 
 #include "moris_typedefs.hpp"     //MRS/COR/src
-#include "cl_Cell.hpp"      //MRS/CNT/src
+#include "cl_Vector.hpp"      //MRS/CNT/src
 #include "cl_Matrix.hpp"    //LNA/src
 // MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
@@ -66,19 +66,19 @@ namespace moris
             const real mToleranceFD = 1e-12;
 
             // quantity dof type for IQI dof, max dof
-            moris::Cell< MSI::Dof_Type > mQuantityDofType;
+            Vector< MSI::Dof_Type > mQuantityDofType;
 
             // leader and follower dof type lists
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mLeaderDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mFollowerDofTypes;
+            Vector< Vector< MSI::Dof_Type > > mLeaderDofTypes;
+            Vector< Vector< MSI::Dof_Type > > mFollowerDofTypes;
 
             // leader and follower global dof type list
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mLeaderGlobalDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mFollowerGlobalDofTypes;
+            Vector< Vector< MSI::Dof_Type > > mLeaderGlobalDofTypes;
+            Vector< Vector< MSI::Dof_Type > > mFollowerGlobalDofTypes;
 
             // leader and follower requested global dof type lists
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedLeaderGlobalDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedFollowerGlobalDofTypes;
+            Vector< Vector< MSI::Dof_Type > > mRequestedLeaderGlobalDofTypes;
+            Vector< Vector< MSI::Dof_Type > > mRequestedFollowerGlobalDofTypes;
 
             // flag for building global dof type list
             bool mGlobalDofBuild = true;
@@ -89,41 +89,41 @@ namespace moris
             Field_Interpolator_Manager* mLeaderEigenFIManager = nullptr;
 
             // leader and follower dv type lists
-            moris::Cell< moris::Cell< PDV_Type > > mLeaderDvTypes;
-            moris::Cell< moris::Cell< PDV_Type > > mFollowerDvTypes;
+            Vector< Vector< PDV_Type > > mLeaderDvTypes;
+            Vector< Vector< PDV_Type > > mFollowerDvTypes;
 
             // leader and follower global dv type list
-            moris::Cell< moris::Cell< PDV_Type > > mLeaderGlobalDvTypes;
-            moris::Cell< moris::Cell< PDV_Type > > mFollowerGlobalDvTypes;
+            Vector< Vector< PDV_Type > > mLeaderGlobalDvTypes;
+            Vector< Vector< PDV_Type > > mFollowerGlobalDvTypes;
 
             // flag for building global dv type list
             bool mGlobalDvBuild = true;
 
             // leader and follower field type lists
-            moris::Cell< moris::Cell< mtk::Field_Type > > mLeaderFieldTypes;
-            moris::Cell< moris::Cell< mtk::Field_Type > > mFollowerFieldTypes;
+            Vector< Vector< mtk::Field_Type > > mLeaderFieldTypes;
+            Vector< Vector< mtk::Field_Type > > mFollowerFieldTypes;
 
-            moris::Cell< moris::Cell< mtk::Field_Type > > mLeaderGlobalFieldTypes;
-            moris::Cell< moris::Cell< mtk::Field_Type > > mFollowerGlobalFieldTypes;
+            Vector< Vector< mtk::Field_Type > > mLeaderGlobalFieldTypes;
+            Vector< Vector< mtk::Field_Type > > mFollowerGlobalFieldTypes;
 
             bool mGlobalFieldBuild = true;
 
             // leader and follower properties
-            moris::Cell< std::shared_ptr< fem::Property > > mLeaderProp;
-            moris::Cell< std::shared_ptr< fem::Property > > mFollowerProp;
+            Vector< std::shared_ptr< fem::Property > > mLeaderProp;
+            Vector< std::shared_ptr< fem::Property > > mFollowerProp;
 
             // local string to int map for properties
             std::map< std::string, uint > mPropertyMap;
 
             // leader and follower constitutive models
-            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mLeaderCM;
-            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mFollowerCM;
+            Vector< std::shared_ptr< fem::Constitutive_Model > > mLeaderCM;
+            Vector< std::shared_ptr< fem::Constitutive_Model > > mFollowerCM;
 
             // Local string to int map for constitutive models
             std::map< std::string, uint > mConstitutiveMap;
 
             // stabilization parameters
-            moris::Cell< std::shared_ptr< Stabilization_Parameter > > mStabilizationParam;
+            Vector< std::shared_ptr< Stabilization_Parameter > > mStabilizationParam;
 
             // local string to int map for stabilization parameters
             std::map< std::string, uint > mStabilizationMap;
@@ -136,7 +136,7 @@ namespace moris
             std::map< std::string, MSI::Dof_Type > mFollowerDofMap;
 
             // parameters
-            moris::Cell< Matrix< DDRMat > > mParameters;
+            Vector< Matrix< DDRMat > > mParameters;
 
             // IQI name
             std::string mName;
@@ -173,7 +173,7 @@ namespace moris
                     real                               aPerturbation,
                     fem::FDScheme_Type                 aFDSchemeType,
                     Matrix< DDSMat >&                  aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > >& aVertexIndices ) = nullptr;
+                    Vector< Matrix< IndexMat > >& aVertexIndices ) = nullptr;
 
             // function pointer for building the perturbation size for FD
             real ( IQI::*m_build_perturbation_size )(
@@ -326,7 +326,7 @@ namespace moris
              * @param[ in ] aQuantityDofType a cell of residual dof types
              */
             void
-            set_quantity_dof_type( const moris::Cell< MSI::Dof_Type >& aQuantityDofType )
+            set_quantity_dof_type( const Vector< MSI::Dof_Type >& aQuantityDofType )
             {
                 mQuantityDofType = aQuantityDofType;
             }
@@ -336,7 +336,7 @@ namespace moris
              * return a dof type for the quantity (IQI dof, max dof)
              * @param[ out ] mQuantityDofType a cell of residual dof types
              */
-            const moris::Cell< MSI::Dof_Type >&
+            const Vector< MSI::Dof_Type >&
             get_quantity_dof_type() const
             {
                 return mQuantityDofType;
@@ -417,7 +417,7 @@ namespace moris
              * @param[ in ] aParameters a list of parameters
              */
             virtual void
-            set_parameters( const moris::Cell< Matrix< DDRMat > >& aParameters )
+            set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
             {
                 // set a cluster
                 mParameters = aParameters;
@@ -468,7 +468,7 @@ namespace moris
              * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_dof_type_list(
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
+                    const Vector< Vector< MSI::Dof_Type > >& aDofTypes,
                     mtk::Leader_Follower                                  aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -480,8 +480,8 @@ namespace moris
              */
             virtual void
             set_dof_type_list(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                    moris::Cell< std::string >&                  aDofStrings,
+                    Vector< Vector< MSI::Dof_Type > >& aDofTypes,
+                    Vector< std::string >&                  aDofStrings,
                     mtk::Leader_Follower                            aIsLeader = mtk::Leader_Follower::LEADER )
             {
                 MORIS_ERROR( false, "IQI::set_dof_type_list - not implemented for base class." );
@@ -492,7 +492,7 @@ namespace moris
              * return a cell of dof types
              * @param[ in ] aIsLeader enum leader or follower
              */
-            const moris::Cell< moris::Cell< MSI::Dof_Type > >& get_dof_type_list(
+            const Vector< Vector< MSI::Dof_Type > >& get_dof_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -502,9 +502,9 @@ namespace moris
              * for both leader and follower
              */
             void get_non_unique_dof_dv_and_field_types(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > >&   aDofTypes,
-                    moris::Cell< moris::Cell< PDV_Type > >&        aDvTypes,
-                    moris::Cell< moris::Cell< mtk::Field_Type > >& aFieldTypes );
+                    Vector< Vector< MSI::Dof_Type > >&   aDofTypes,
+                    Vector< Vector< PDV_Type > >&        aDvTypes,
+                    Vector< Vector< mtk::Field_Type > >& aFieldTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -512,7 +512,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aIsLeader enum leader or follower
              */
-            const moris::Cell< moris::Cell< MSI::Dof_Type > >& get_global_dof_type_list(
+            const Vector< Vector< MSI::Dof_Type > >& get_global_dof_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -530,7 +530,7 @@ namespace moris
              * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_dv_type_list(
-                    const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
+                    const Vector< Vector< PDV_Type > >& aDvTypes,
                     mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -538,7 +538,7 @@ namespace moris
              * return a cell of dv types
              * @param[ in ] aIsLeader enum leader or follower
              */
-            moris::Cell< moris::Cell< PDV_Type > >& get_dv_type_list(
+            Vector< Vector< PDV_Type > >& get_dv_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -547,7 +547,7 @@ namespace moris
              * @param[ in ]  aIsLeader enum leader or follower
              * @param[ out ] aFieldTypes a list of group of field types
              */
-            const moris::Cell< moris::Cell< mtk::Field_Type > >& get_field_type_list(
+            const Vector< Vector< mtk::Field_Type > >& get_field_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
@@ -557,7 +557,7 @@ namespace moris
              * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_field_type_list(
-                    const moris::Cell< moris::Cell< mtk::Field_Type > >& aDvTypes,
+                    const Vector< Vector< mtk::Field_Type > >& aDvTypes,
                     mtk::Leader_Follower                                    aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -566,7 +566,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aGlobalDvTypeList a non unique list of dv types to fill
              */
-            void get_non_unique_global_dv_type_list( moris::Cell< PDV_Type >& aGlobalDvTypeList );
+            void get_non_unique_global_dv_type_list( Vector< PDV_Type >& aGlobalDvTypeList );
 
             //------------------------------------------------------------------------------
             /**
@@ -574,7 +574,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aIsLeader enum leader or follower
              */
-            const moris::Cell< moris::Cell< PDV_Type > >& get_global_dv_type_list(
+            const Vector< Vector< PDV_Type > >& get_global_dv_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -584,7 +584,7 @@ namespace moris
              * @param[ in ]  aIsLeader    enum leader or follower
              * @param[ out ] mFieldTypes global list of group of dv types
              */
-            const moris::Cell< moris::Cell< mtk::Field_Type > >& get_global_field_type_list(
+            const Vector< Vector< mtk::Field_Type > >& get_global_field_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -605,7 +605,7 @@ namespace moris
              * @param[ in ]  aIsLeader   enum leader or follower
              * @param[ out ] aProperties cell of property pointers
              */
-            moris::Cell< std::shared_ptr< fem::Property > >& get_properties(
+            Vector< std::shared_ptr< fem::Property > >& get_properties(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -626,7 +626,7 @@ namespace moris
              * @param[ in ]  aIsLeader           enum leader or follower
              * @param[ out ] aConstitutiveModels cell of constitutive model pointers
              */
-            moris::Cell< std::shared_ptr< fem::Constitutive_Model > >& get_constitutive_models(
+            Vector< std::shared_ptr< fem::Constitutive_Model > >& get_constitutive_models(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -644,7 +644,7 @@ namespace moris
              * get stabilization parameters
              * @param[ out ] mStabilizationParam cell of stabilization parameter pointers
              */
-            moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > >&
+            Vector< std::shared_ptr< fem::Stabilization_Parameter > >&
             get_stabilization_parameters()
             {
                 // return stabilization parameter pointers
@@ -758,7 +758,7 @@ namespace moris
                     moris::real                        aPerturbation,
                     fem::FDScheme_Type                 aFDSchemeType,
                     Matrix< DDSMat >&                  aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > >& aVertexIndices )
+                    Vector< Matrix< IndexMat > >& aVertexIndices )
             {
                 // compute dQIdp geometry by FD
                 ( this->*m_compute_dQIdp_FD_geometry )(
@@ -774,14 +774,14 @@ namespace moris
                     moris::real                        aPerturbation,
                     fem::FDScheme_Type                 aFDSchemeType,
                     Matrix< DDSMat >&                  aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > >& aVertexIndices );
+                    Vector< Matrix< IndexMat > >& aVertexIndices );
 
             void select_dQIdp_FD_geometry_sideset(
                     moris::real                        aWStar,
                     moris::real                        aPerturbation,
                     fem::FDScheme_Type                 aFDSchemeType,
                     Matrix< DDSMat >&                  aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > >& aVertexIndices );
+                    Vector< Matrix< IndexMat > >& aVertexIndices );
 
             void
             select_dQIdp_FD_geometry_double(
@@ -789,7 +789,7 @@ namespace moris
                     moris::real                        aPerturbation,
                     fem::FDScheme_Type                 aFDSchemeType,
                     Matrix< DDSMat >&                  aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > >& aVertexIndices )
+                    Vector< Matrix< IndexMat > >& aVertexIndices )
             {
                 MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet" );
             }
@@ -828,7 +828,7 @@ namespace moris
              * @param[ out ] adQIdu derivative of quantity of interest
              */
             virtual void compute_dQIdu(
-                    moris::Cell< MSI::Dof_Type >& aDofType,
+                    Vector< MSI::Dof_Type >& aDofType,
                     Matrix< DDRMat >&             adQIdu ) = 0;
 
             //------------------------------------------------------------------------------

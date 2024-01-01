@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                      //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -57,7 +57,7 @@ namespace moris
                 void ( CM_Fluid_Incompressible:: * m_eval_teststrain )() = nullptr;
                 void ( CM_Fluid_Incompressible:: * m_eval_dstraindx )( uint aOrder ) = nullptr;
                 void ( CM_Fluid_Incompressible:: * m_eval_ddivstraindu )(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
+                        const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
                 void ( CM_Fluid_Incompressible:: * m_flatten_normal )(
                         const Matrix< DDRMat > & aNormal,
                         Matrix< DDRMat >       & aFlatNormal ) = nullptr;
@@ -110,8 +110,8 @@ namespace moris
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 void set_dof_type_list(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                        moris::Cell< std::string >                  aDofStrings );
+                        Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                        Vector< std::string >                  aDofStrings );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -120,8 +120,8 @@ namespace moris
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
-                        moris::Cell< moris::Cell< PDV_Type > > aDvTypes,
-                        moris::Cell< std::string >             aDvStrings )
+                        Vector< Vector< PDV_Type > > aDvTypes,
+                        Vector< std::string >             aDvStrings )
                 {
                     Constitutive_Model::set_dv_type_list( aDvTypes );
                 }
@@ -148,7 +148,7 @@ namespace moris
                 /**
                  * evaluate the derivative of the divergence of the flux wrt dof type
                  */
-                void eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_ddivfluxdu( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -171,7 +171,7 @@ namespace moris
                  */
                 void eval_testTraction(
                         const Matrix< DDRMat >             & aNormal,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -199,12 +199,12 @@ namespace moris
                 /**
                  * evaluate the derivative of the divergence of the strain wrt dof type
                  */
-                void eval_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                void eval_ddivstraindu( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     ( this->*m_eval_ddivstraindu)( aDofTypes );
                 }
-                void eval_ddivstraindu_2d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_ddivstraindu_3d( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_ddivstraindu_2d( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_ddivstraindu_3d( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -234,7 +234,7 @@ namespace moris
                  * evaluate the constitutive model flux derivative wrt to a dof type
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dFluxdDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -243,7 +243,7 @@ namespace moris
                  * @param[ in ] aNormal   normal
                  */
                 void eval_dTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -253,10 +253,10 @@ namespace moris
                  * @param[ in ] aNormal   normal
                  */
                 void eval_dTestTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal,
                         const Matrix< DDRMat >             & aJump,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -264,7 +264,7 @@ namespace moris
                  * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
                  * @param[ in ] adStraindDOF a matrix to fill with derivative evaluation
                  */
-                void eval_dStraindDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dStraindDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**

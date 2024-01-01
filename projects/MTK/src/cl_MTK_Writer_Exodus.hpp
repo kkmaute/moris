@@ -58,9 +58,9 @@ namespace moris
             moris::map< std::string, int > mGlobalVariableNamesMap;
 
             // indices of non-empty sets across all procs
-            moris::Cell< uint > mElementBlockIndices;
-            moris::Cell< uint > mSideSetIndices;
-            moris::Cell< uint > mNodeSetIndices;
+            Vector< uint > mElementBlockIndices;
+            Vector< uint > mSideSetIndices;
+            Vector< uint > mNodeSetIndices;
 
             // map mtk element indices to exodus element indices
             Matrix< IndexMat > mMtkExodusElementIndexMap;
@@ -71,7 +71,7 @@ namespace moris
             // punch card marking which facets on a given side set are actually present in the final exodus mesh
             // note: facets within the aura may not be part of it
             // input: (1) ordinal of side set in exo mesh, (2) index of facet within side set of enr. IG mesh || output: true for facets in exo mesh
-            moris::Cell< moris::Cell< bool > > mFacetUsedInExodus;
+            Vector< Vector< bool > > mFacetUsedInExodus;
 
             // name of temporary file
             std::string mTempFileName;
@@ -201,7 +201,7 @@ namespace moris
              *
              * @param aFieldNames The names of the fields that can be written
              */
-            void set_point_fields( moris::Cell< std::string > aFieldNames );
+            void set_point_fields( Vector< std::string > aFieldNames );
 
             //------------------------------------------------------------------------------
             
@@ -210,7 +210,7 @@ namespace moris
              *
              * @param aFieldNames The names of the fields that can be written
              */
-            void set_nodal_fields( moris::Cell< std::string > aFieldNames );
+            void set_nodal_fields( Vector< std::string > aFieldNames );
 
             //------------------------------------------------------------------------------
             
@@ -219,7 +219,7 @@ namespace moris
              *
              * @param aFieldNames The names of the fields that can be written
              */
-            void set_elemental_fields( moris::Cell< std::string > aFieldNames );
+            void set_elemental_fields( Vector< std::string > aFieldNames );
 
             //------------------------------------------------------------------------------
 
@@ -229,7 +229,7 @@ namespace moris
              * @param aFieldNames The names of the fields that can be written
              */
             void
-            set_side_set_fields( moris::Cell< std::string > aFieldNames );
+            set_side_set_fields( Vector< std::string > aFieldNames );
 
             //------------------------------------------------------------------------------
             
@@ -238,7 +238,7 @@ namespace moris
              *
              * @param aFieldNames The names of the fields that can be written
              */
-            void set_global_variables( moris::Cell< std::string > aFieldNames );
+            void set_global_variables( Vector< std::string > aFieldNames );
 
             //------------------------------------------------------------------------------
             
@@ -311,7 +311,7 @@ namespace moris
              *  @param aVariableValues vector of values of the global variables
              */
             void write_global_variables(
-                    moris::Cell< std::string >& aVariableNames,
+                    Vector< std::string >& aVariableNames,
                     const Matrix< DDRMat >&     aVariableValues );
 
             //------------------------------------------------------------------------------

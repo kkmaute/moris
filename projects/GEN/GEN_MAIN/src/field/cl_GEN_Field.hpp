@@ -25,7 +25,7 @@ namespace moris
         {
 
           protected:
-            Cell< real* >    mFieldVariables;
+            Vector< real* >    mFieldVariables;
             Matrix< DDRMat > mSensitivities;
 
             uint mNumOriginalNodes;

@@ -56,7 +56,7 @@ TEST_CASE( "STK Mesh Test Serial", "[MESH][STK]" )
         {
             // Specify Mesh Inputs
             std::string                tMeshFileName = "generated:1x1x2";
-            moris::Cell< std::string > tScalarFields( 0 );
+            Vector< std::string > tScalarFields( 0 );
 
             // Generate mesh from file
             std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true );
@@ -139,7 +139,7 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
     /*
      * Construct the Mesh
      */
-    moris::Cell< std::string >                                                                            tScalarFields( 0 );
+    Vector< std::string >                                                                            tScalarFields( 0 );
     std::string                                                                                           tMeshFileName = "generated:1x1x2";
     mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat >             tMeshBuilder;
     std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true );
@@ -169,7 +169,7 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
     /*
      * Setup pending node data structure
      */
-    moris::Cell< xtk::Pending_Node< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tPendingNodes( 3 );
+    Vector< xtk::Pending_Node< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tPendingNodes( 3 );
 
     /*
      * Setup Parent Element Topology with Nodes Corresponding to Element 1
@@ -241,7 +241,7 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
      * Do a second round of batch creation with a different number of nodes
      */
 
-    tPendingNodes = moris::Cell< xtk::Pending_Node< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > >( 2 );
+    tPendingNodes = Vector< xtk::Pending_Node< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > >( 2 );
 
     /*
      * Pending Node 0
@@ -307,8 +307,8 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
     /*
      * Iterate over buckets
      */
-    moris::Cell< std::string > tPartNames;
-    moris::Cell< xtk::size_t > tPartOrdinals;
+    Vector< std::string > tPartNames;
+    Vector< xtk::size_t > tPartOrdinals;
 
     for ( xtk::size_t i = 0; i < tNumBuckets; i++ )
     {
@@ -379,8 +379,8 @@ TEST_CASE( "STK Mesh with Side Set", "[STK][SIDE_SET]" )
      * Iterate over buckets
      */
     xtk::size_t                tNumBuckets = tMeshData->get_num_buckets( mtk::EntityRank::ELEMENT );
-    moris::Cell< std::string > tPartNames;
-    moris::Cell< xtk::size_t > tPartOrdinals;
+    Vector< std::string > tPartNames;
+    Vector< xtk::size_t > tPartOrdinals;
     //    xtk::size_t tNumParts;
 
     for ( xtk::size_t i = 0; i < tNumBuckets; i++ )
@@ -438,7 +438,7 @@ namespace xtk
         //    Matrix_Factory<real, size_t> tMatrixFactory;
         //
         //    // Create Mesh (w/o edge and face data)----------------------------------
-        //    Cell<std::string> tScalarFieldNames = {tFieldName1};
+        //    Vector<std::string> tScalarFieldNames = {tFieldName1};
         //    mesh::Mesh_Builder_Stk<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
         //
         //    // Setup geometry and discretize onto a levelset mesh--------------------
@@ -447,7 +447,7 @@ namespace xtk
         //    real tYCenter = 10.0;
         //    real tZCenter = 10.0;
         //    Analytic_Level_Set_Sphere<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tLevelsetSphere1(tRadius, tXCenter, tYCenter, tZCenter);
-        //    Cell<Geometry<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat>*> tLevelSetFunctions = {&tLevelsetSphere1};
+        //    Vector<Geometry<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat>*> tLevelSetFunctions = {&tLevelsetSphere1};
         //    Mesh_Field_Geometry<real,size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tLevelSetMeshManager(tMatrixFactory,tLevelSetFunctions,tFineMeshInput,tScalarFieldNames,tMeshBuilder);
         //
         //    // Build a coarse mesh which the levelset mesh will be transfered to-----
@@ -496,7 +496,7 @@ namespace xtk
          * Check to see the field from the exodus file is included and the data has been loaded
          * also see if the interface function accesses the value correctly
          */
-        //    moris::Cell<std::string> tFieldNames = {"levelset_field_01"};
+        //    Vector<std::string> tFieldNames = {"levelset_field_01"};
         //    CHECK(tMeshData->get_entity_field_value(0,tFieldNames(0), mtk::EntityRank::NODE)==Approx(275));
     }
 

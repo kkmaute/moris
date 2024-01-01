@@ -98,7 +98,7 @@ namespace xtk
             tXTKParameters.set( "write_cell_enrichments_levels", false );
 
             // define the sphere such that it is non interacting
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( 1.5, 0.5, 1.0, 0.0 );
 
             // define ge engine
@@ -113,7 +113,7 @@ namespace xtk
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment

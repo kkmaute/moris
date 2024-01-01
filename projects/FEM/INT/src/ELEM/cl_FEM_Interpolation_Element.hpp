@@ -17,7 +17,7 @@
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"                     //MTK/src
 #include "cl_MSI_Equation_Object.hpp"          //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                    //FEM/INT/src
@@ -47,7 +47,7 @@ namespace moris
             // pointer to the mesh cluster
             // NOTE: first cluster in list is the one that gets built in XTK
             // NOTE: the subsequent clusters usually correspond to clusters created from each of the VIS meshes
-            moris::Cell< std::shared_ptr< fem::Cluster > > mFemCluster;
+            Vector< std::shared_ptr< fem::Cluster > > mFemCluster;
 
             // pointer to the leader and follower mesh interpolation cell
             const mtk::Cell* mLeaderInterpolationCell;
@@ -83,8 +83,8 @@ namespace moris
              */
             Interpolation_Element(
                     const Element_Type                     aElementType,
-                    const moris::Cell< const mtk::Cell* >& aInterpolationCell,
-                    const moris::Cell< Node_Base* >&       aNodes,
+                    const Vector< const mtk::Cell* >& aInterpolationCell,
+                    const Vector< Node_Base* >&       aNodes,
                     Set*                                   aSet );
 
             //------------------------------------------------------------------------------
@@ -243,8 +243,8 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void populate_fields(
-                    moris::Cell< std::shared_ptr< fem::Field > >& aFields,
-                    moris::Cell< std::string > const &            tFieldIQINames );
+                    Vector< std::shared_ptr< fem::Field > >& aFields,
+                    Vector< std::string > const &            tFieldIQINames );
 
             //------------------------------------------------------------------------------
 

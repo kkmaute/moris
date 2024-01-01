@@ -53,13 +53,13 @@ namespace moris::hmr
         const uint mNumberOfNeighborsPerElement;
 
         //! cell of Lagrange elements
-        Cell< Element* > mAllElementsOnProc;
+        Vector< Element* > mAllElementsOnProc;
 
         //! cell of coarsest Lagrange elements including aura
-        Cell< Element* > mAllCoarsestElementsOnProc;
+        Vector< Element* > mAllCoarsestElementsOnProc;
 
         //! Cell containing all nodes this proc has
-        Cell< Basis* > mAllBasisOnProc;
+        Vector< Basis* > mAllBasisOnProc;
 
         //! all elements on proc, including aura, active and refined
         luint mNumberOfAllElementsOnProc = 0;
@@ -457,7 +457,7 @@ namespace moris::hmr
          */
         void collect_basis_from_aura( uint aProcNeighborIndex,
                 uint                       aMode,
-                Cell< Basis* >&            aNodeList );
+                Vector< Basis* >&            aNodeList );
 
       protected:
         // ----------------------------------------------------------------------------
@@ -523,7 +523,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void encode_foreign_basis_path(
-                Cell< Basis* >&    aBasis,
+                Vector< Basis* >&    aBasis,
                 const moris_id&    aOwner,
                 Matrix< DDLUMat >& aElementAncestors,
                 Matrix< DDUMat >&  aElementPedigree,

@@ -15,7 +15,7 @@
 
 #include "HMR_Globals.hpp"        //HMR/src
 #include "moris_typedefs.hpp"           //COR/src
-#include "cl_Cell.hpp"            //CNT/src
+#include "cl_Vector.hpp"            //CNT/src
 #include "cl_Bitset.hpp"          //CNT/src
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -79,7 +79,7 @@ namespace moris::hmr
         //! global index in whole domain ( all procs), depends on pattern ( only active elements )
         //! access using get_hmr_index( const uint aPattern )
         //! same as get_id() - 1
-        Cell< luint > mDomainIndex;
+        Vector< luint > mDomainIndex;
 
         //! index in memory, set by collect_all_elements from background mesh
         luint mMemoryIndex;
@@ -632,7 +632,7 @@ namespace moris::hmr
          * @return void
          */
         virtual void collect_descendants(
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         //--------------------------------------------------------------------------------
@@ -651,12 +651,12 @@ namespace moris::hmr
          */
         virtual void collect_active_descendants(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         virtual void collect_active_descendants(
                 uint                                    aPattern,
-                Cell< const Background_Element_Base* >& aElementList,
+                Vector< const Background_Element_Base* >& aElementList,
                 luint&                                  aElementCount ) const = 0;
 
         //--------------------------------------------------------------------------------
@@ -757,42 +757,42 @@ namespace moris::hmr
 
         virtual void collect_active_descendants_on_side_1(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         //--------------------------------------------------------------------------------
 
         virtual void collect_active_descendants_on_side_2(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         //--------------------------------------------------------------------------------
 
         virtual void collect_active_descendants_on_side_3(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         //--------------------------------------------------------------------------------
 
         virtual void collect_active_descendants_on_side_4(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         //--------------------------------------------------------------------------------
 
         virtual void collect_active_descendants_on_side_5(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         //--------------------------------------------------------------------------------
 
         virtual void collect_active_descendants_on_side_6(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         //--------------------------------------------------------------------------------
@@ -844,7 +844,7 @@ namespace moris::hmr
          */
         virtual void collect_elements_on_level(
                 uint                              aLevel,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
         //-------------------------------------------------------------------------------
@@ -866,7 +866,7 @@ namespace moris::hmr
          */
         virtual void get_neighbors_from_same_level(
                 uint                              aOrder,
-                Cell< Background_Element_Base* >& aNeighbors ) = 0;
+                Vector< Background_Element_Base* >& aNeighbors ) = 0;
 
         //-------------------------------------------------------------------------------
 

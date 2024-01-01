@@ -11,7 +11,7 @@
 #ifndef UNIT_TEST_SRC_XTK_CL_XTK_OUTPUT_OPTIONS_HPP_
 #define UNIT_TEST_SRC_XTK_CL_XTK_OUTPUT_OPTIONS_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace xtk
 {
@@ -63,11 +63,11 @@ std::string mDxDpIndicesName;
 std::string mDxDpNumIndicesName;
 
 // Other fields to add to the mesh
-moris::Cell<std::string> mRealNodeExternalFieldNames;
-moris::Cell<std::string> mIntNodeExternalFieldNames;
+moris::Vector<std::string> mRealNodeExternalFieldNames;
+moris::Vector<std::string> mIntNodeExternalFieldNames;
 
-moris::Cell<std::string> mRealElementExternalFieldNames;
-moris::Cell<std::string> mIntElementExternalFieldNames;
+moris::Vector<std::string> mRealElementExternalFieldNames;
+moris::Vector<std::string> mIntElementExternalFieldNames;
 
 // Add cluster information to STK integration Mesh
 bool mAddClusters;
@@ -113,13 +113,13 @@ bool output_phase(size_t const & aPhaseIndex) const
 /*
 * Modify which phases are to be outputted
 * aNumPhase -number of possible phae indices
-* aPhasesToOutput - moris::Cell of phase indices to output
+* aPhasesToOutput - Vector of phase indices to output
 */
 void change_phases_to_output(size_t const & aNumPhases,
-                             moris::Cell<size_t> const & aPhasesToOutput)
+                             moris::Vector<size_t> const & aPhasesToOutput)
 {
     MORIS_ASSERT(mOutputAllPhases, "Phases have already been added, please only call this function once");
-    mPhasesToOutput = moris::Cell<size_t>(aNumPhases,0);
+    mPhasesToOutput = moris::Vector<size_t>(aNumPhases,0);
 
     mNumPhasesToOutput = aPhasesToOutput.size();
 
@@ -148,7 +148,7 @@ private:
 
 bool                mOutputAllPhases;
 moris::uint         mNumPhasesToOutput;
-moris::Cell<size_t> mPhasesToOutput;
+moris::Vector<size_t> mPhasesToOutput;
 
 };
 }

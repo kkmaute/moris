@@ -33,7 +33,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        Memory_Map(Cell<std::string> const & aKeys,
+        Memory_Map(Vector<std::string> const & aKeys,
                    Matrix<DDSTMat>   const & aVals);
 
         // ----------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ namespace moris
          * @param[out] aGatheredMemMap Gathered Memory Maps;
          */
         void
-        gather_all(Cell<Memory_Map> & aGatheredMemMap);
+        gather_all(Vector<Memory_Map> & aGatheredMemMap);
 
         // ----------------------------------------------------------------------------------
         /*!
@@ -96,7 +96,7 @@ namespace moris
          * @param[out] aValCell Mat of vals (on root proc)
          */
         void
-        serialize( Cell<std::string> & aKeyCell,
+        serialize( Vector<std::string> & aKeyCell,
                    Matrix<DDSTMat>   & aValCell);
 
         /*!
@@ -104,9 +104,9 @@ namespace moris
          * @param[out]
          */
         void
-        deserialize( Cell<Cell<std::string>> & aGatheredKeyCells,
-                     Cell<Matrix<DDSTMat>>   & aGatheredValCells,
-                     Cell<Memory_Map>        & aGatheredMemMaps);
+        deserialize( Vector<Vector<std::string>> & aGatheredKeyCells,
+                     Vector<Matrix<DDSTMat>>   & aGatheredValCells,
+                     Vector<Memory_Map>        & aGatheredMemMaps);
 
     };
 } // namespace moris

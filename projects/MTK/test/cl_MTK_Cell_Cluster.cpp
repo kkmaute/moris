@@ -43,7 +43,7 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     Matrix<IndexMat> tInterpCellVertices = {{13, 14, 16, 15, 17, 18, 20, 19}};
 
     // interpolation vertex setup
-    moris::Cell<mtk::Vertex_Proxy> tInterpVertices(8);
+    moris::Vector<mtk::Vertex_Proxy> tInterpVertices(8);
     for(moris::uint  i = 0; i<tInterpVertices.size(); i++)
     {
         tInterpVertices(i).mVertexId  = tInterpCellVertices(i);
@@ -77,7 +77,7 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
 
     // setup vertices
     uint tNumVertices = tLocalToGlobalNodeMap.numel();
-    moris::Cell<Vertex_Proxy> tVertices(tNumVertices);
+    moris::Vector<Vertex_Proxy> tVertices(tNumVertices);
 
     for(moris::uint  i = 0; i < tNumVertices; i++)
     {
@@ -87,7 +87,7 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     }
 
     // setup cells and cell cluster
-    moris::Cell<Cell_Proxy> tPrimaryCells(tCellIdsPhase0.numel());
+    moris::Vector<Cell_Proxy> tPrimaryCells(tCellIdsPhase0.numel());
     Cell_Info_Tet4 tTet4CellInfo;
     Cell_Info_Hex8 tHex8CellInfo;
 
@@ -112,7 +112,7 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     }
 
     // for cells in the ghost
-    moris::Cell<Cell_Proxy> tVoidCells( tCellIdsGhost0.numel() );
+    moris::Vector<Cell_Proxy> tVoidCells( tCellIdsGhost0.numel() );
 
     for(moris::uint  i = 0; i < tCellIdsGhost0.numel(); i++)
     {
@@ -136,7 +136,7 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     CHECK( tInterpCell.mIndex == 3 );
 
     // set vertex in cluster
-    moris::Cell<moris::mtk::Vertex const *> tVerticesInCluster(tVertexIDsInCluster.numel());
+    moris::Vector<moris::mtk::Vertex const *> tVerticesInCluster(tVertexIDsInCluster.numel());
     for(moris::uint  i = 0; i <tVertexIDsInCluster.numel(); i++)
     {
         tVerticesInCluster(i) = &tVertices(tVertexIDsInCluster(i)-1);
@@ -146,14 +146,14 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
 
     // set parametric coordinate relative to the interpolation cell
     tCellCluster.mVertexParamCoords = tLocalCoordinatesWrtInterpCell;
-    moris::Cell<moris::mtk::Cell  const *> const & tPrimaryCells2 = tCellCluster.get_primary_cells_in_cluster();
+    moris::Vector<moris::mtk::Cell  const *> const & tPrimaryCells2 = tCellCluster.get_primary_cells_in_cluster();
 
     for(moris::uint  i = 0; i <tPrimaryCells2.size(); i++)
     {
         CHECK(tPrimaryCells2(i)->get_id() == tCellIdsPhase0(i));
     }
 
-    moris::Cell<moris::mtk::Cell const *> const & tVoidCells2    = tCellCluster.get_void_cells_in_cluster();
+    moris::Vector<moris::mtk::Cell const *> const & tVoidCells2    = tCellCluster.get_void_cells_in_cluster();
 
     for(moris::uint  i = 0; i <tVoidCells2.size(); i++)
     {
@@ -162,7 +162,7 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
 
     CHECK(all_true(tLocalCoordinatesWrtInterpCell == tCellCluster.get_vertices_local_coordinates_wrt_interp_cell()));
 
-    moris::Cell<moris::mtk::Vertex const *> const & tVerticesInCluster2 = tCellCluster.get_vertices_in_cluster();
+    moris::Vector<moris::mtk::Vertex const *> const & tVerticesInCluster2 = tCellCluster.get_vertices_in_cluster();
     for(moris::uint  i = 0; i <tVerticesInCluster2.size(); i++)
     {
         CHECK(tVerticesInCluster2(i)->get_id() == tVertexIDsInCluster(i));
@@ -452,12 +452,12 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         CHECK(all_true(tLocalCoordinatesWrtInterpCell == tLocalCoords));
 
         // check the local coordinates we receive from primary cells
-        moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = tCellClusterIndex3.get_primary_cells_in_cluster();
+        moris::Vector<moris::mtk::Cell const *> const & tPrimaryCells = tCellClusterIndex3.get_primary_cells_in_cluster();
         for(moris::uint i = 0; i < tPrimaryCells.size(); i++)
         {
             moris::Matrix<moris::DDRMat> tCellParametricCoords = tCellClusterIndex3.get_primary_cell_local_coords_on_side_wrt_interp_cell(i);
 
-            moris::Cell<moris::mtk::Vertex*> tVertsOnSide = tPrimaryCells(i)->get_vertex_pointers();
+            moris::Vector<moris::mtk::Vertex*> tVertsOnSide = tPrimaryCells(i)->get_vertex_pointers();
 
             moris::Matrix<moris::DDRMat> tGoldParamCoords(4,3);
             for(moris::uint j = 0; j<tVertsOnSide.size(); j++)
@@ -470,13 +470,13 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         }
 
         // check the local coordinates we receive from void cells
-        moris::Cell<moris::mtk::Cell const *> const & tVoidCells = tCellClusterIndex3.get_void_cells_in_cluster();
+        moris::Vector<moris::mtk::Cell const *> const & tVoidCells = tCellClusterIndex3.get_void_cells_in_cluster();
 
         for(moris::uint i = 0; i < tVoidCells.size(); i++)
         {
             moris::Matrix<moris::DDRMat> tCellParametricCoords = tCellClusterIndex3.get_void_cell_local_coords_on_side_wrt_interp_cell(i);
 
-            moris::Cell<moris::mtk::Vertex*> tVertsOnSide = tVoidCells(i)->get_vertex_pointers();
+            moris::Vector<moris::mtk::Vertex*> tVertsOnSide = tVoidCells(i)->get_vertex_pointers();
 
             moris::Matrix<moris::DDRMat> tGoldParamCoords(4,3);
             for(moris::uint j = 0; j<tVertsOnSide.size(); j++)
@@ -510,7 +510,7 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         CHECK(tInterpCellId0 == tConvertedPrimaryCellIds(0));
 
         // test block set access
-        moris::Cell<std::string> tBlockSetNames = tIntegMesh1->get_block_set_names();
+        moris::Vector<std::string> tBlockSetNames = tIntegMesh1->get_block_set_names();
 
         // the sets that have no primary integration cells do not show up here
         CHECK(tBlockSetNames.size() == 7);
@@ -518,9 +518,9 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         CHECK(tBlockSetNames(4).compare("Omega_0_hex")==0);
         CHECK(tBlockSetNames(6).compare("Ghost_Cells_0")==0);
 
-        moris::Cell<Cluster const *> tClustersInBlock0 = tIntegMesh1->get_cell_clusters_in_set(3);
-        moris::Cell<Cluster const *> tClustersInBlock1 = tIntegMesh1->get_cell_clusters_in_set(4);
-        moris::Cell<Cluster const *> tClustersInBlock2 = tIntegMesh1->get_cell_clusters_in_set(6);
+        moris::Vector<Cluster const *> tClustersInBlock0 = tIntegMesh1->get_cell_clusters_in_set(3);
+        moris::Vector<Cluster const *> tClustersInBlock1 = tIntegMesh1->get_cell_clusters_in_set(4);
+        moris::Vector<Cluster const *> tClustersInBlock2 = tIntegMesh1->get_cell_clusters_in_set(6);
 
         CHECK(tClustersInBlock0.size() == 1);
         CHECK(all_true(tClustersInBlock0(0)->get_primary_cell_ids_in_cluster() == tCellIdsCluster1Material));

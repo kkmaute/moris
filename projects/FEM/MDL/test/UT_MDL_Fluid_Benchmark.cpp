@@ -85,7 +85,7 @@ namespace moris
     inline void
     ConstFuncVal_MDLFluidBench(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -94,7 +94,7 @@ namespace moris
     inline void
     InletVelocityFunc_MDLFluidBench(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // unpack parameters
@@ -115,7 +115,7 @@ namespace moris
     inline void
     FSVelocityFunc_MDLFluidBench(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get space dim
@@ -128,7 +128,7 @@ namespace moris
     inline void
     InletPressureFunc_MDLFluidBench(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // set size for aPropMatrix
@@ -204,7 +204,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 4 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 4 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
             tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
             tGeometry( 2 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
@@ -226,7 +226,7 @@ namespace moris
             tXTKModel.mVerbose = true;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -429,7 +429,7 @@ namespace moris
             tSetGhost.set_IWGs( { tIWGGPViscous, tIWGGPConvective, tIWGGPPressure } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 6 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 6 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetInlet;
@@ -462,7 +462,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 8 );
+            moris::Vector< moris::Vector< moris::ParameterList > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
@@ -565,7 +565,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 4 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 4 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
             tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
             tGeometry( 2 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
@@ -587,7 +587,7 @@ namespace moris
             tXTKModel.mVerbose = true;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -786,7 +786,7 @@ namespace moris
             tSetGhost.set_IWGs( { tIWGGPViscous, tIWGGPConvective, tIWGGPPressure } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 6 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 6 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetInlet;
@@ -819,7 +819,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 8 );
+            moris::Vector< moris::Vector< moris::ParameterList > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
@@ -938,7 +938,7 @@ namespace moris
     //             moris::ge::Plane< 3 > tPlane03( {{ 0.0, 0.0, tPlaneFront }},  {{ 0.0, 0.0, 1.0 }} );
     //             moris::ge::Plane< 3 > tPlane04( {{ tPlaneLeft, 0.0, 0.0 }},   {{ 1.0, 0.0, 0.0 }} );
     //             moris::ge::Plane< 3 > tPlane05( {{ tPlaneRight, 0.0, 0.0 }},  {{ 1.0, 0.0, 0.0 }} );
-    //             moris::Cell< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03, &tPlane04, &tPlane05 };
+    //             Vector< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03, &tPlane04, &tPlane05 };
     //
     //             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
     //             moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
@@ -998,7 +998,7 @@ namespace moris
     //
     //        // NOTE the order of this geometry vector is important.
     //        // If it changes the resulting bulk phase of the output mesh change.
-    //        moris::Cell<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3, &tPlane4, &tPlane5 };
+    //        Vector<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3, &tPlane4, &tPlane5 };
     //
     //        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
     //        moris::ge::Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
@@ -1008,7 +1008,7 @@ namespace moris
     //        tXTKModel.mVerbose = true;
     //
     //        //Specify decomposition Method and Cut Mesh ---------------------------------------
-    //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+    //        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
     //                                                               Subdivision_Method::C_HIERARCHY_TET4};
     //        tXTKModel.decompose(tDecompositionMethods);
     //
@@ -1218,7 +1218,7 @@ namespace moris
     //        tSetGhost.set_IWGs( { tIWGGPViscous, tIWGGPConvective, tIWGGPPressure } );
     //
     //        // create a cell of set info
-    //        moris::Cell< fem::Set_User_Info > tSetInfo( 8 );
+    //        Vector< fem::Set_User_Info > tSetInfo( 8 );
     //        tSetInfo( 0 )  = tSetBulk1;
     //        tSetInfo( 1 )  = tSetBulk2;
     //        tSetInfo( 2 )  = tSetInlet;
@@ -1256,7 +1256,7 @@ namespace moris
     //
     //        // create linear solver and algorithm
     //        // --------------------------------------------------------------------------------------
-    //        moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
+    //        Vector< Vector< moris::ParameterList > > tSOLParameterlist( 7 );
     //        for( uint Ik = 0; Ik < 7; Ik ++)
     //        {
     //            tSOLParameterlist( Ik ).resize(1);
@@ -1496,7 +1496,7 @@ namespace moris
     //         tSetInlet.set_IWGs( { tIWGInletVelocity, tIWGInletPressure } );
     //
     //         // create a cell of set info
-    //         moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+    //         Vector< fem::Set_User_Info > tSetInfo( 4 );
     //         tSetInfo( 0 ) = tSetBulk;
     //         tSetInfo( 1 ) = tSetInlet;
     //         tSetInfo( 2 ) = tSetFSBottom;
@@ -1524,7 +1524,7 @@ namespace moris
     //
     //         // create linear solver and algorithm
     //         // --------------------------------------------------------------------------------------
-    //         moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
+    //         Vector< Vector< moris::ParameterList > > tSOLParameterlist( 7 );
     //         for( uint Ik = 0; Ik < 7; Ik ++)
     //         {
     //             tSOLParameterlist( Ik ).resize(1);
@@ -1755,7 +1755,7 @@ namespace moris
     //         tSetInlet.set_IWGs( { tIWGInletPressure } );
     //
     //         // create a cell of set info
-    //         moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+    //         Vector< fem::Set_User_Info > tSetInfo( 4 );
     //         tSetInfo( 0 ) = tSetBulk;
     //         tSetInfo( 1 ) = tSetInlet;
     //         tSetInfo( 2 ) = tSetFSBottom;
@@ -1787,7 +1787,7 @@ namespace moris
     //
     //         // create linear solver and algorithm
     //         // --------------------------------------------------------------------------------------
-    //         moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
+    //         Vector< Vector< moris::ParameterList > > tSOLParameterlist( 7 );
     //         for( uint Ik = 0; Ik < 7; Ik ++)
     //         {
     //             tSOLParameterlist( Ik ).resize(1);
@@ -2035,7 +2035,7 @@ namespace moris
     //         tSetInlet.set_IWGs( { tIWGInletPressure } );
     //
     //         // create a cell of set info
-    //         moris::Cell< fem::Set_User_Info > tSetInfo( 6 );
+    //         Vector< fem::Set_User_Info > tSetInfo( 6 );
     //         tSetInfo( 0 ) = tSetBulk;
     //         tSetInfo( 1 ) = tSetInlet;
     //         tSetInfo( 2 ) = tSetFSBottom;
@@ -2081,7 +2081,7 @@ namespace moris
     //
     //         // create linear solver and algorithm
     //         // --------------------------------------------------------------------------------------
-    //         moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
+    //         Vector< Vector< moris::ParameterList > > tSOLParameterlist( 7 );
     //         for( uint Ik = 0; Ik < 7; Ik ++)
     //         {
     //             tSOLParameterlist( Ik ).resize(1);
@@ -2122,7 +2122,7 @@ namespace moris
 
     void
     RVelocityFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&       aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
             moris::fem::Field_Interpolator_Manager*              aFIManager )
     {
         // velocity magnitude
@@ -2142,7 +2142,7 @@ namespace moris
 
     void
     ImposedVelocityFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&             aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >&             aParameters,
             moris::fem::Field_Interpolator_Manager*                    aFIManager )
     {
         // velocity magnitude
@@ -2165,7 +2165,7 @@ namespace moris
 
     void
     AnalyticdVelocitydxFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&                 aParameters,
+            moris::Vector< moris::Matrix< moris::DDRMat > >&                 aParameters,
             moris::fem::Field_Interpolator_Manager*                        aFIManager )
     {
         // velocity magnitude
@@ -2253,7 +2253,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROut );
             tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRIn );
 
@@ -2274,7 +2274,7 @@ namespace moris
             tXTKModel.mVerbose = true;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -2478,7 +2478,7 @@ namespace moris
             tSetGhostPenalty.set_IWGs( { tIWGGPViscous, tIWGGPConvective, tIWGGPPressure } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetRIn;
@@ -2514,7 +2514,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 8 );
+            moris::Vector< moris::Vector< moris::ParameterList > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );

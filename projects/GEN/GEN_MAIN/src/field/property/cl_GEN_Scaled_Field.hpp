@@ -96,7 +96,7 @@ namespace moris
              *
              * @param aDependencyFields Fields that this property depends on.
              */
-            void set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields);
+            void set_dependencies(Vector<std::shared_ptr<Field>> aDependencyFields);
 
         };
     }

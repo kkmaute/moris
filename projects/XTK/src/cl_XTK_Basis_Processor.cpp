@@ -115,9 +115,9 @@ namespace xtk
         for ( const auto iMeshIndex : mMeshIndices )
         {
             // creat a cell to keep track of the basis that has been grouped
-            moris::Cell< uint > tBasisHasBeenUsed( mXTKModelPtr->mEnrichment->mEnrichmentData( iMeshIndex ).mEnrLvlOfEnrBf.size(), 0 );
+            moris::Vector< uint > tBasisHasBeenUsed( mXTKModelPtr->mEnrichment->mEnrichmentData( iMeshIndex ).mEnrLvlOfEnrBf.size(), 0 );
 
-            moris::Cell< moris::Cell< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( iMeshIndex ).mEnrichedBasisInSubphaseGroup;
+            moris::Vector< moris::Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( iMeshIndex ).mEnrichedBasisInSubphaseGroup;
 
             Bspline_Mesh_Info* tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( iMeshIndex );
 
@@ -143,17 +143,17 @@ namespace xtk
                 }
 
                 // otherwise get the IG cells in that SPG and integrate over the volume of those
-                const moris::Cell< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
+                const moris::Vector< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
 
                 // compute the volume of the cell
-                real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) { 
+                real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) {
                                     const mtk::Cell & tCell = mXTKModelPtr->mCutIntegrationMesh->get_mtk_cell(index) ;
                                     return aVol + tCell.compute_cell_measure(); } );
 
                 // If volume is less than a specific threshold then add it to the list of
                 if ( tVolume < 0.1 )
                 {
-                    moris::Cell< moris_index > const & tEnrichedBFIndices = tEnrichedBasisInSubphaseGroup( iSPGIndex );
+                    moris::Vector< moris_index > const & tEnrichedBFIndices = tEnrichedBasisInSubphaseGroup( iSPGIndex );
 
                     mBasisData( iMeshIndex ).mBasisInSubspace.push_back( tEnrichedBFIndices );
 
@@ -182,8 +182,8 @@ namespace xtk
     Basis_Processor::construct_follower_basis_using_basis_support( moris_index aMeshIndex )
     {
         // get the enriched to spg map and vice versa
-        moris::Cell< moris::Cell< moris_index > > const & tEnrichedBasisInSubphaseGroup     = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
-        Cell< moris::Matrix< IndexMat > > const &         tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+        moris::Vector< moris::Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup     = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
+        Vector< moris::Matrix< IndexMat > > const &         tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
 
         // get the b-spline mesh info
         Bspline_Mesh_Info* tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
@@ -201,7 +201,7 @@ namespace xtk
         // loop over the B-spline elements to determine the cut elements
         for ( uint iBspElem = 0; iBspElem < tNumBspElems; iBspElem++ )
         {
-            moris::Cell< moris_index > const & tSPGIndicesInBsplineCell = tBsplineMeshInfo->get_SPG_indices_in_bspline_cell( iBspElem );
+            moris::Vector< moris_index > const & tSPGIndicesInBsplineCell = tBsplineMeshInfo->get_SPG_indices_in_bspline_cell( iBspElem );
 
             // B-spline element is not cut thus does not need to be grouped
             if ( 1 == tSPGIndicesInBsplineCell.size() )
@@ -210,7 +210,7 @@ namespace xtk
                 mRootSPGIds( tSPGIndicesInBsplineCell( 0 ) ) = tSPGIndicesInBsplineCell( 0 );
 
                 // find the basis that are on this non-cut cell
-                moris::Cell< moris_index > const & tEnrichedBasis = tEnrichedBasisInSubphaseGroup( tSPGIndicesInBsplineCell( 0 ) );
+                moris::Vector< moris_index > const & tEnrichedBasis = tEnrichedBasisInSubphaseGroup( tSPGIndicesInBsplineCell( 0 ) );
 
                 // loop over the basis and integrate the support of each basis function
                 for ( const auto& iEnrBasisIndex : tEnrichedBasis )
@@ -230,7 +230,7 @@ namespace xtk
         uint tNumSubphaseGroups = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex )->get_num_SPGs();
 
         // get the enriched basis to subphase group map
-        moris::Cell< moris::Cell< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
+        moris::Vector< moris::Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
 
         // resize the dependent basis to root map
         mBasisData( aMeshIndex ).mFollowerBasisOwningCell.resize( mBasisData( aMeshIndex ).mFollowerBasis.size(), gNoIndex );
@@ -242,7 +242,7 @@ namespace xtk
             if ( iSPGIndex != mRootSPGIds( iSPGIndex ) )
             {
                 // get the enriched basis indices present in the SPGs
-                moris::Cell< moris_index > const & tEnrichedBasis = tEnrichedBasisInSubphaseGroup( iSPGIndex );
+                moris::Vector< moris_index > const & tEnrichedBasis = tEnrichedBasisInSubphaseGroup( iSPGIndex );
 
                 // loop over the enriched basis and if there a is a follower then assign the root as the owner, might be overwritten later
                 for ( const auto& iEnrichedBase : tEnrichedBasis )
@@ -272,7 +272,7 @@ namespace xtk
         // get the cells that exist in the
 
         // Fields constructed here
-        Cell< std::string > tCellFields = { "Root_Cell_Index_B" + std::to_string( aMeshIndex ) };
+        Vector< std::string > tCellFields = { "Root_Cell_Index_B" + std::to_string( aMeshIndex ) };
 
         // set field index
         moris_index tFieldIndex = mXTKModelPtr->mEnrichedIntegMesh( 0 )->create_field( tCellFields( 0 ), mtk::EntityRank::ELEMENT, MORIS_INDEX_MAX );
@@ -283,7 +283,7 @@ namespace xtk
         // loop over the SPGs and assign dpg id to each cell index
         for ( uint iSPG = 0; iSPG < tNumSubphaseGroups; iSPG++ )
         {
-            const moris::Cell< moris_index >& tIGCellIndices = tBsplineMeshInfo->mSubphaseGroups( iSPG )->get_ig_cell_indices_in_group();
+            const moris::Vector< moris_index >& tIGCellIndices = tBsplineMeshInfo->mSubphaseGroups( iSPG )->get_ig_cell_indices_in_group();
 
             std::for_each( tIGCellIndices.begin(), tIGCellIndices.end(), [ &tCellIdField, this, iSPG ]( moris_index aIGCellIndex )    //
                     { tCellIdField( aIGCellIndex ) = mRootSPGIds( iSPG ); } );
@@ -308,7 +308,7 @@ namespace xtk
         for ( uint iSPG = 0; iSPG < tNumSubphaseGroups; iSPG++ )
         {
             // get the all the lagrange cells of the that SPG index
-            moris::Cell< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPG );
+            moris::Vector< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPG );
 
             // add the root SPG and SPG index to the field
             std::for_each( tUIPCIndices.begin(), tUIPCIndices.end(), [ &tCellIPField, this, iSPG, &tCellSPGField ]( moris_index aIPCellIndex )    //
@@ -403,10 +403,10 @@ namespace xtk
     Basis_Processor::compute_averaging_weights( moris_index aMeshIndex )
     {
         // get a reference to pointer to the required data for readability
-        Cell< moris::Matrix< IndexMat > > const &         tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
-        moris::Cell< moris::Cell< moris_index > > const & tEnrichedBasisInSubphaseGroup     = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
+        Vector< moris::Matrix< IndexMat > > const &         tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+        moris::Vector< moris::Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup     = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
         const Bspline_Mesh_Info*                          tBsplineMeshInfo                  = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        moris::Cell< Subphase_Group* > const &            tSPGs                             = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< Subphase_Group* > const &            tSPGs                             = tBsplineMeshInfo->mSubphaseGroups;
         uint                                              tNumEnrichedBF                    = tSubphaseGroupIndsInEnrichedBasis.size();
 
         // assign the correct size to the averaging weights
@@ -431,10 +431,10 @@ namespace xtk
                     Subphase_Group* tSubphaseGroup = tSPGs( iSPGIndex );
 
                     // otherwise get the IG cells in that SPG and integrate over the volume of those
-                    const moris::Cell< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
+                    const moris::Vector< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
 
                     // compute the volume of the cell
-                    real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) { 
+                    real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) {
                                     const mtk::Cell & tCell = mXTKModelPtr->mCutIntegrationMesh->get_mtk_cell(index) ;
                                     return aVol + tCell.compute_cell_measure(); } );
 
@@ -443,7 +443,7 @@ namespace xtk
                 }
 
                 // create a reference for readability and ease of use,  this is a cell of volumes
-                moris::Cell< real >& tAveragingWeightsInEnriched = mBasisData( aMeshIndex ).mAveragingWeights( iEnrBasisIndex );
+                moris::Vector< real >& tAveragingWeightsInEnriched = mBasisData( aMeshIndex ).mAveragingWeights( iEnrBasisIndex );
 
                 // normalize the averaging wights against their sum
                 real tAccumulatedVolume = std::accumulate( tAveragingWeightsInEnriched.begin(), tAveragingWeightsInEnriched.end(), 0.0 );
@@ -486,7 +486,7 @@ namespace xtk
             // if it is a bad basis then process further
             // get the SPG indices for the enriched BF index
             moris::Matrix< IndexMat > const & tSPGIndices                 = tSubphaseGroupIndsInEnrichedBasis( iEnrBasisIndex );
-            moris::Cell< real > const &       tAveragingWeightsInEnriched = mBasisData( aMeshIndex ).mAveragingWeights( iEnrBasisIndex );
+            moris::Vector< real > const &       tAveragingWeightsInEnriched = mBasisData( aMeshIndex ).mAveragingWeights( iEnrBasisIndex );
 
             MORIS_ASSERT( tSPGIndices.numel() == tAveragingWeightsInEnriched.size(), "The number of SPGs and the number of averaging weights are not the same" );
 
@@ -497,7 +497,7 @@ namespace xtk
                 moris_index iSPGIndex = tSPGIndices( iSPGOrd );
 
                 // get all the enriched basis that exist on the SPG
-                moris::Cell< moris_index > const & tEnrichedBasisInSPG = tEnrichedBasisInSubphaseGroup( iSPGIndex );
+                moris::Vector< moris_index > const & tEnrichedBasisInSPG = tEnrichedBasisInSubphaseGroup( iSPGIndex );
 
                 // resize the weights for the enriched basis in the SPG
                 mBasisData( aMeshIndex ).mAveragingWeightsSPGBased[ iSPGIndex ].resize( tEnrichedBasisInSPG.size(), gNoIndex );
@@ -523,14 +523,14 @@ namespace xtk
         real tVolThreshold = this->compute_threshold_volume( aMeshIndex );
 
         // get the spg to enr basis and its transpose( enr basis to spg map)
-        // moris::Cell< moris::Cell< moris_index > > const & tEnrichedBasisInSubphaseGroup     = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
-        Cell< moris::Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+        // Vector< Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup     = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
+        Vector< moris::Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
 
         // get the bspline mesh info to access the spgs
         const Bspline_Mesh_Info* tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
 
         // get the spgs from b-spline mesh info
-        moris::Cell< Subphase_Group* > const & tSPGs = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< Subphase_Group* > const & tSPGs = tBsplineMeshInfo->mSubphaseGroups;
 
         // get the number of active B-spline elements ( this is un-enriched)
         uint tNumBspElems      = tBsplineMeshInfo->get_num_Bspline_cells();
@@ -554,7 +554,7 @@ namespace xtk
         for ( uint iBspElem = 0; iBspElem < tNumBspElems; iBspElem++ )
         {
             // get the SPGs that live on the bspline element
-            moris::Cell< moris_index > const & tSPGIndicesInBsplineCell = tBsplineMeshInfo->get_SPG_indices_in_bspline_cell( iBspElem );
+            moris::Vector< moris_index > const & tSPGIndicesInBsplineCell = tBsplineMeshInfo->get_SPG_indices_in_bspline_cell( iBspElem );
 
             // if only one spg then B-spline element is not cut
             if ( 1 == tSPGIndicesInBsplineCell.size() )
@@ -586,10 +586,10 @@ namespace xtk
                 }
 
                 // otherwise get the IG cells in that SPG and integrate over the volume of those
-                const moris::Cell< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
+                const moris::Vector< moris_index >& tIGCellsInGroup = tSubphaseGroup->get_ig_cell_indices_in_group();
 
                 // compute the volume of the cell
-                real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) { 
+                real tVolume = std::accumulate( tIGCellsInGroup.begin(), tIGCellsInGroup.end(), 0.0, [ & ]( real aVol, int index ) {
                                     const mtk::Cell & tCell = mXTKModelPtr->mCutIntegrationMesh->get_mtk_cell(index) ;
                                     return aVol + tCell.compute_cell_measure(); } );
 
@@ -614,7 +614,7 @@ namespace xtk
 
         // get the all the lagrange cells of the that SPG index 0
         // will be used to get number of lagrange cells
-        moris::Cell< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, 0 );
+        moris::Vector< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, 0 );
 
         // get the enriched IP cell with index 0
         mtk::Cell& tFirstCell = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_mtk_cell( 0 );
@@ -638,17 +638,17 @@ namespace xtk
         Bspline_Mesh_Info* tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
 
         // get the spgs from b-spline mesh info
-        moris::Cell< Subphase_Group* > const & tSPGs = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< Subphase_Group* > const & tSPGs = tBsplineMeshInfo->mSubphaseGroups;
 
         // get the bspline cell
-        moris::Cell< mtk::Cell* > const & tBsplineCells = tBsplineMeshInfo->mBsplineCells;
+        moris::Vector< mtk::Cell* > const & tBsplineCells = tBsplineMeshInfo->mBsplineCells;
 
         // get the subphase connectivity
         std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseGroupNeighborhood = mXTKModelPtr->mCutIntegrationMesh->get_subphase_group_neighborhood( aMeshIndex );
 
         // initialize cells to keep possible candidate root cells and their distance
-        moris::Cell< moris_index > tCandidateRootCell;
-        moris::Cell< moris_index > tDistanceCell;
+        moris::Vector< moris_index > tCandidateRootCell;
+        moris::Vector< moris_index > tDistanceCell;
 
         // loop over the spgs and process the ones that do not have root spgs
         for ( size_t iSPGIndex = 0; iSPGIndex < mRootSPGIds.size(); iSPGIndex++ )
@@ -662,7 +662,7 @@ namespace xtk
             {
                 // get the first degree neighbor of the SPG
                 // TODO: only first degree neighbor is considered, need to consider higher degree neighbors
-                moris::Cell< moris_index > tNeighbour;
+                moris::Vector< moris_index > tNeighbour;
 
                 for ( moris_index iNeighborDegree = 1; iNeighborDegree <= mMaxExtention; iNeighborDegree++ )
                 {
@@ -736,9 +736,9 @@ namespace xtk
     {
         // Get a reference or a pointer to the required data
         Bspline_Mesh_Info*                        tBsplineMeshInfo                  = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        Cell< moris::Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
-        moris::Cell< Subphase_Group* > const &    tSPGs                             = tBsplineMeshInfo->mSubphaseGroups;
-        moris::Cell< mtk::Cell* > const &         tBsplineCells                     = tBsplineMeshInfo->mBsplineCells;
+        Vector< moris::Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+        moris::Vector< Subphase_Group* > const &    tSPGs                             = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< mtk::Cell* > const &         tBsplineCells                     = tBsplineMeshInfo->mBsplineCells;
 
         // loop over the basis
         for ( uint iBasisIndex = 0; iBasisIndex < mBasisData( aMeshIndex ).mFollowerBasis.size(); iBasisIndex++ )
@@ -768,23 +768,23 @@ namespace xtk
                     moris_index tExtentionBSplineCellIndex = tSPGs( iSPGIndex )->get_bspline_cell_index();
 
                     // initialize the basis extension/projection data
-                    moris::Cell< moris::Cell< const mtk::Vertex* > > tRootBsplineBasis;
-                    moris::Cell< const mtk::Vertex* >                tExtendedBsplineBasis;
-                    moris::Cell< Matrix< DDRMat > >                  tWeights;
+                    moris::Vector< moris::Vector< const mtk::Vertex* > > tRootBsplineBasis;
+                    moris::Vector< const mtk::Vertex* >                tExtendedBsplineBasis;
+                    moris::Vector< Matrix< DDRMat > >                  tWeights;
 
                     // get the L2-projection matrix along from the root to the extended b-spline
                     mXTKModelPtr->mBackgroundMesh->get_L2_projection_matrix( aMeshIndex, tBsplineCells( tRootBSplineCellIndex ), tBsplineCells( tExtentionBSplineCellIndex ), tRootBsplineBasis, tExtendedBsplineBasis, tWeights );
 
                     // This two maps help to get the the enriched basis index from the
-                    moris::Cell< moris_index > const & tBGBasisIndicesRoot = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisIndices( tRootSPGIndex );
-                    moris::Cell< moris_index > const & tBGBasisLevelsRoot  = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisEnrLev( tRootSPGIndex );
+                    moris::Vector< moris_index > const & tBGBasisIndicesRoot = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisIndices( tRootSPGIndex );
+                    moris::Vector< moris_index > const & tBGBasisLevelsRoot  = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisEnrLev( tRootSPGIndex );
                     IndexMap                           tBasisToLocalIndexMapRoot;
 
                     // need to convert the first one to map
                     convert_cell_to_map( tBGBasisIndicesRoot, tBasisToLocalIndexMapRoot );
 
                     // get the BG basis function index of the basis
-                    moris::Cell< moris_index > const & tNonEnrBfIndForEnrBfInd = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mNonEnrBfIndForEnrBfInd;
+                    moris::Vector< moris_index > const & tNonEnrBfIndForEnrBfInd = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mNonEnrBfIndForEnrBfInd;
                     moris_index                        tNonEnrBasisIndex       = tNonEnrBfIndForEnrBfInd( iBasisIndex );
 
                     // find the location in the L2 projection matrix
@@ -797,11 +797,11 @@ namespace xtk
                     uint tNonEnrBasisOrd = std::distance( tExtendedBsplineBasis.begin(), tIterator );
 
                     // get the map relating non-enriched bf index and level to enriched bf index
-                    moris::Cell< Matrix< IndexMat > > const & tBasisEnrichmentIndices = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mBasisEnrichmentIndices;
+                    moris::Vector< Matrix< IndexMat > > const & tBasisEnrichmentIndices = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mBasisEnrichmentIndices;
 
                     // find the max size in enriched basis index
                     auto tCellMaxsize = std::max_element( tRootBsplineBasis.begin(), tRootBsplineBasis.end(),                      //
-                            []( moris::Cell< const mtk::Vertex* >& aCellFirst, moris::Cell< const mtk::Vertex* >& aCellSecond )    //
+                            []( moris::Vector< const mtk::Vertex* >& aCellFirst, moris::Vector< const mtk::Vertex* >& aCellSecond )    //
                             { return aCellFirst.size() < aCellSecond.size(); } );
 
                     // reserve enough space for the enriched basis indices
@@ -841,15 +841,15 @@ namespace xtk
     Basis_Processor::replace_t_matrices( moris_index aMeshIndex )
     {
         // get a reference or a pointer to required data
-        Cell< Interpolation_Cell_Unzipped* > const & tEnrichedIPCells                  = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_enriched_interpolation_cells();
+        Vector< Interpolation_Cell_Unzipped* > const & tEnrichedIPCells                  = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_enriched_interpolation_cells();
         Matrix< IndexMat > const &                   tBasisEnrichmentIndices           = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisIndexToId;
-        Cell< moris::Matrix< IndexMat > > const &    tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+        Vector< moris::Matrix< IndexMat > > const &    tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
         Enriched_Interpolation_Mesh&                 tEnrInterpMesh                    = mXTKModelPtr->get_enriched_interp_mesh( aMeshIndex );
 
         // get the bspline mesh info
         Bspline_Mesh_Info* tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
         // get the subphase groups
-        moris::Cell< Subphase_Group* > const & tSPGs = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< Subphase_Group* > const & tSPGs = tBsplineMeshInfo->mSubphaseGroups;
 
         // define an unordered set to keep track of the vertices that have been already processed
         std::unordered_set< moris_index > tListOfBGVertices;
@@ -857,7 +857,7 @@ namespace xtk
 
         // find the max size that a basis will be replaced by
         auto tCellMaxsize = std::max_element( mBasisData( aMeshIndex ).mFollowerToLeaderBasis.begin(), mBasisData( aMeshIndex ).mFollowerToLeaderBasis.end(),    //
-                []( moris::Cell< moris_index >& aCellFirst, moris::Cell< moris_index >& aCellSecond )                                                            //
+                []( moris::Vector< moris_index >& aCellFirst, moris::Vector< moris_index >& aCellSecond )                                                            //
                 { return aCellFirst.size() < aCellSecond.size(); } );
 
         // loop over the subphase groups to find the problematic ones
@@ -869,7 +869,7 @@ namespace xtk
             if ( tSPGs( iSPGIndex )->get_id() != mRootSPGIds( iSPGIndex ) )
             {
                 // get the all the lagrange cells of the that SPG index
-                moris::Cell< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPGIndex );
+                moris::Vector< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPGIndex );
 
                 // loop over the unzipped lagrange cells and evaluate t-matrices
                 for ( const auto& iUIPCIndex : tUIPCIndices )
@@ -878,7 +878,7 @@ namespace xtk
                     const Interpolation_Cell_Unzipped* tConstUIPC = tEnrichedIPCells( iUIPCIndex );
 
                     // Get the lagrange vertices of the UIPC to obtain the vertex interpolation object of each lagrange node
-                    moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tXTKUIPVs = tConstUIPC->get_xtk_interpolation_vertices();
+                    moris::Vector< xtk::Interpolation_Vertex_Unzipped* > const & tXTKUIPVs = tConstUIPC->get_xtk_interpolation_vertices();
 
                     // loop over the unzipped interpolation vertices and get their t-matrix info to overwrite
                     for ( size_t iLocalVertIndex = 0; iLocalVertIndex < tXTKUIPVs.size(); iLocalVertIndex++ )
@@ -945,9 +945,9 @@ namespace xtk
                             else
                             {
                                 // obtain the replacement basis
-                                moris::Cell< moris_index > const & tFollowerBasis        = mBasisData( aMeshIndex ).mFollowerToLeaderBasis( tBasisIndex );
-                                moris::Cell< real > const &        tFollowerBasisWeights = mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights( tBasisIndex );
-                                moris::Cell< real > const &        tFollowerBasisOwners  = mBasisData( aMeshIndex ).mFollowerToLeaderBasisOwners( tBasisIndex );
+                                moris::Vector< moris_index > const & tFollowerBasis        = mBasisData( aMeshIndex ).mFollowerToLeaderBasis( tBasisIndex );
+                                moris::Vector< real > const &        tFollowerBasisWeights = mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights( tBasisIndex );
+                                moris::Vector< real > const &        tFollowerBasisOwners  = mBasisData( aMeshIndex ).mFollowerToLeaderBasisOwners( tBasisIndex );
 
                                 // loop over and replace the t matrix
                                 for ( uint iSlaveBasisOrd = 0; iSlaveBasisOrd < tFollowerBasis.size(); iSlaveBasisOrd++ )
@@ -1018,15 +1018,15 @@ namespace xtk
 
         // get the bspline mesh info
         Bspline_Mesh_Info*                tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        moris::Cell< mtk::Cell* > const & tBSpCells        = tBsplineMeshInfo->mBsplineCells;
+        moris::Vector< mtk::Cell* > const & tBSpCells        = tBsplineMeshInfo->mBsplineCells;
 
         // get the subphase groups
-        moris::Cell< Subphase_Group* >& tSPGs = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< Subphase_Group* >& tSPGs = tBsplineMeshInfo->mSubphaseGroups;
 
         // initialize candidate root cell and distance cell( candidate root cell is the list of potential root cells for the current SPG)
         // Distance cell is the list of distances from the current SPG to the candidate root cells
-        moris::Cell< moris_index > tCandidateRootCell;
-        moris::Cell< moris_index > tDistanceCell;
+        moris::Vector< moris_index > tCandidateRootCell;
+        moris::Vector< moris_index > tDistanceCell;
 
         // reserve space for the candidate root cell and distance cell
         tCandidateRootCell.reserve( mSpatialDim * 2 );
@@ -1058,7 +1058,7 @@ namespace xtk
                 // this means that it is not assigned
                 if ( mRootSPGIds( iSPGIndex ) == -1 )
                 {
-                    std::shared_ptr< moris::Cell< moris_index > > tNeighbour = tSubphaseGroupNeighborhood->mSubphaseToSubPhase( iSPGIndex );
+                    std::shared_ptr< moris::Vector< moris_index > > tNeighbour = tSubphaseGroupNeighborhood->mSubphaseToSubPhase( iSPGIndex );
 
                     // get the cells that are already touched
                     std::copy_if( tNeighbour->begin(), tNeighbour->end(), std::back_inserter( tCandidateRootCell ), [ & ]( moris_index aNeighborSPGIndex )    //
@@ -1140,10 +1140,10 @@ namespace xtk
         Bspline_Mesh_Info* tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
 
         // get the subphase groups
-        moris::Cell< Subphase_Group* > tSPGs = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< Subphase_Group* > tSPGs = tBsplineMeshInfo->mSubphaseGroups;
 
         // get a reference to the enriched interpolation cells
-        Cell< Interpolation_Cell_Unzipped* > const & tEnrichedIPCells = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_enriched_interpolation_cells();
+        Vector< Interpolation_Cell_Unzipped* > const & tEnrichedIPCells = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_enriched_interpolation_cells();
 
         // get the number of subphase groups
         uint tNumSubphaseGroups = mXTKModelPtr->mCutIntegrationMesh->get_num_subphase_groups( aMeshIndex );
@@ -1158,7 +1158,7 @@ namespace xtk
                 moris_index tRootBSplineCellIndex = tSPGs( mRootSPGIds( iSPGIndex ) )->get_bspline_cell_index();
 
                 // get the all the lagrange cells of the that SPG index
-                moris::Cell< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPGIndex );
+                moris::Vector< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPGIndex );
 
                 // loop over the unzipped lagrange cells and evaluate t-matrices
                 for ( const auto& iUIPCIndex : tUIPCIndices )
@@ -1166,8 +1166,8 @@ namespace xtk
                     // get base cell of the lagrange mesh
                     Interpolation_Cell_Unzipped* tUIPC = tEnrichedIPCells( iUIPCIndex );
 
-                    moris::Cell< moris::Cell< mtk::Vertex* > > tBsplineBasis;
-                    moris::Cell< Matrix< DDRMat > >            tWeights;
+                    moris::Vector< moris::Vector< mtk::Vertex* > > tBsplineBasis;
+                    moris::Vector< Matrix< DDRMat > >            tWeights;
 
                     // get the indices, ids and weights from the hmr mesh from the
                     mXTKModelPtr->mBackgroundMesh->get_extended_t_matrix( aMeshIndex, tRootBSplineCellIndex, *tUIPC->get_base_cell(), tBsplineBasis, tWeights );
@@ -1176,7 +1176,7 @@ namespace xtk
                     const Interpolation_Cell_Unzipped* tConstUIPC = tUIPC;
 
                     // Get the lagrange vertices of the UIPC to obtain the vertex interpolation object of each lagrange node
-                    moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tXTKUIPVs = tConstUIPC->get_xtk_interpolation_vertices();
+                    moris::Vector< xtk::Interpolation_Vertex_Unzipped* > const & tXTKUIPVs = tConstUIPC->get_xtk_interpolation_vertices();
 
                     // loop over the unzipped interpolation vertices and get their t-matrix info to overwrite
                     for ( size_t iLocalVertIndex = 0; iLocalVertIndex < tXTKUIPVs.size(); iLocalVertIndex++ )
@@ -1227,15 +1227,15 @@ namespace xtk
                                 }
 
                                 // This two maps help to get the the enriched basis index from the
-                                moris::Cell< moris_index > const & tBGBasisIndices = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisIndices( tRootSPGIndex );
-                                moris::Cell< moris_index > const & tBGBasisLevels  = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisEnrLev( tRootSPGIndex );
+                                moris::Vector< moris_index > const & tBGBasisIndices = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisIndices( tRootSPGIndex );
+                                moris::Vector< moris_index > const & tBGBasisLevels  = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisEnrLev( tRootSPGIndex );
 
                                 // convert the bg basis indices to the map
                                 IndexMap tBasisToLocalIndexMap;
                                 convert_cell_to_map( tBGBasisIndices, tBasisToLocalIndexMap );
 
                                 // get the enrichment indices that contains combines data of the above cells
-                                moris::Cell< Matrix< IndexMat > > const & tBasisEnrichmentIndices = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mBasisEnrichmentIndices;
+                                moris::Vector< Matrix< IndexMat > > const & tBasisEnrichmentIndices = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mBasisEnrichmentIndices;
 
                                 // loop over the unenriched BSpline vertices
                                 for ( uint iBGBasisIndex = 0; iBGBasisIndex < tBsplineBasis( iLocalVertIndex ).size(); iBGBasisIndex++ )
@@ -1303,15 +1303,15 @@ namespace xtk
         Matrix< IdMat > const & tCommTable = mXTKModelPtr->mCutIntegrationMesh->get_communication_table();
 
         // convert it to a cell
-        moris::Cell< moris_index > tCommCell;
+        moris::Vector< moris_index > tCommCell;
         tCommCell.insert( tCommCell.size(), tCommTable.begin(), tCommTable.end() );
 
         /* ---------------------------------------------------------------------------------------- */
         /* Step 0: Prepare requests for non-owned entities */
 
         // initialize lists of information that identifies entities (on other procs)
-        Cell< Cell< moris_index > >     tNotOwnedSpgsToProcs;    // SPG index (local to current proc, just used for construction of arrays)
-        Cell< moris::Cell< moris_id > > tSendSPGIds;             // first SP IDs in SPGs in each of the SPGs
+        Vector< Vector< moris_index > >     tNotOwnedSpgsToProcs;    // SPG index (local to current proc, just used for construction of arrays)
+        Vector< moris::Vector< moris_id > > tSendSPGIds;             // first SP IDs in SPGs in each of the SPGs
 
         // TODO: this function could be further optimized by preparing data of the SPGs that don't have a root SPG
         this->prepare_requests_for_not_owned_subphase_groups( aMeshIndex, tNotOwnedSpgsToProcs, tSendSPGIds );
@@ -1320,7 +1320,7 @@ namespace xtk
         /* Step 1: Send and Receive requests about non-owned entities to and from other procs */
 
         // initialize arrays for receiving
-        Cell< Cell< moris_id > > tReceivedSPGIds;
+        Vector< Vector< moris_id > > tReceivedSPGIds;
 
         // communicate information
         moris::communicate_cells( tCommCell, tSendSPGIds, tReceivedSPGIds );
@@ -1333,8 +1333,8 @@ namespace xtk
         /* Step 2: Find answers to the requests */
 
         // initialize lists of ID answers to other procs
-        Cell< moris::Cell< moris_id > > tSendSubphaseGroupRootIds;
-        Cell< moris::Cell< moris_id > > tSendSubphaseGroupRootOwners;
+        Vector< moris::Vector< moris_id > > tSendSubphaseGroupRootIds;
+        Vector< moris::Vector< moris_id > > tSendSubphaseGroupRootOwners;
 
         // answer requests from other procs
         this->prepare_answers_for_owned_subphase_groups( aMeshIndex,
@@ -1350,8 +1350,8 @@ namespace xtk
         /* Step 3: Send and receive answers to and from other procs */
 
         // initialize arrays for receiving
-        Cell< moris::Cell< moris_id > > tReceivedSubphaseGroupRootIds;
-        Cell< moris::Cell< moris_id > > tReceivedSubphaseGroupRootOwners;
+        Vector< moris::Vector< moris_id > > tReceivedSubphaseGroupRootIds;
+        Vector< moris::Vector< moris_id > > tReceivedSubphaseGroupRootOwners;
 
         // communicate answers
         moris::communicate_cells( tCommCell, tSendSubphaseGroupRootIds, tReceivedSubphaseGroupRootIds );
@@ -1374,12 +1374,12 @@ namespace xtk
     void
     Basis_Processor::prepare_requests_for_not_owned_subphase_groups(
             moris_index const &              aMeshIndex,
-            Cell< Cell< moris_index > >&     aNotOwnedSpgsToProcs,
-            Cell< moris::Cell< moris_id > >& aSPGIDs )
+            Vector< Vector< moris_index > >&     aNotOwnedSpgsToProcs,
+            Vector< moris::Vector< moris_id > >& aSPGIDs )
     {
         // get the bspline mesh info
         const Bspline_Mesh_Info*               tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        moris::Cell< Subphase_Group* > const & tSPGs            = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< Subphase_Group* > const & tSPGs            = tBsplineMeshInfo->mSubphaseGroups;
 
         // get the communication table and map
         Matrix< IdMat > const &                   tCommTable              = mXTKModelPtr->mCutIntegrationMesh->get_communication_table();
@@ -1387,7 +1387,7 @@ namespace xtk
         std::map< moris_id, moris_index > const & tProcIdToCommTableIndex = mXTKModelPtr->mCutIntegrationMesh->get_communication_map();
 
         // get the non-owned Subphases on the executing processor
-        moris::Cell< moris_index > const & tNotOwnedSPGs    = tBsplineMeshInfo->mNotOwnedSubphaseGroupIndices;
+        moris::Vector< moris_index > const & tNotOwnedSPGs    = tBsplineMeshInfo->mNotOwnedSubphaseGroupIndices;
         uint                               tNumNotOwnedSPGs = tNotOwnedSPGs.size();
 
         // initialize lists of identifying information
@@ -1395,8 +1395,8 @@ namespace xtk
         aSPGIDs.resize( tCommTableSize );
 
         // reserve enough space for all non-owned SPGs  ( over allocation, but better than under allocation )
-        std::for_each( aNotOwnedSpgsToProcs.begin(), aNotOwnedSpgsToProcs.end(), [ tNumNotOwnedSPGs ]( Cell< moris_index >& aCell ) { aCell.reserve( tNumNotOwnedSPGs ); } );
-        std::for_each( aSPGIDs.begin(), aSPGIDs.end(), [ tNumNotOwnedSPGs ]( Cell< moris_index >& aCell ) { aCell.reserve( tNumNotOwnedSPGs ); } );
+        std::for_each( aNotOwnedSpgsToProcs.begin(), aNotOwnedSpgsToProcs.end(), [ tNumNotOwnedSPGs ]( Vector< moris_index >& aCell ) { aCell.reserve( tNumNotOwnedSPGs ); } );
+        std::for_each( aSPGIDs.begin(), aSPGIDs.end(), [ tNumNotOwnedSPGs ]( Vector< moris_index >& aCell ) { aCell.reserve( tNumNotOwnedSPGs ); } );
 
         // go through SPGs that executing proc knows about, but doesn't own, ...
         for ( const auto iNotOwnedSPGIndex : tNotOwnedSPGs )
@@ -1447,13 +1447,13 @@ namespace xtk
     void
     Basis_Processor::prepare_answers_for_owned_subphase_groups(
             moris_index const &                            aMeshIndex,
-            moris::Cell< moris::Cell< moris_id > >&        aSendSubphaseGroupRootIds,
-            moris::Cell< moris::Cell< moris_id > >&        aSendSubphaseGroupRootOwners,
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedSPGIds )
+            moris::Vector< moris::Vector< moris_id > >&        aSendSubphaseGroupRootIds,
+            moris::Vector< moris::Vector< moris_id > >&        aSendSubphaseGroupRootOwners,
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedSPGIds )
     {
         // get the bspline mesh info
         Bspline_Mesh_Info* tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        // moris::Cell<Subphase_Group*> const & tSPGs = tBsplineMeshInfo->mSubphaseGroups;
+        // Vector<Subphase_Group*> const & tSPGs = tBsplineMeshInfo->mSubphaseGroups;
 
         // get the communication table and map
         Matrix< IdMat > const & tCommTable     = mXTKModelPtr->mCutIntegrationMesh->get_communication_table();
@@ -1499,9 +1499,9 @@ namespace xtk
 
     void
     Basis_Processor::handle_requested_subphase_groups_answers(
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootIds,
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootOwners,
-            moris::Cell< moris::Cell< moris_id > > const & aNotOwnedSpgsToProcs )
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedSubphaseGroupRootIds,
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedSubphaseGroupRootOwners,
+            moris::Vector< moris::Vector< moris_id > > const & aNotOwnedSpgsToProcs )
     {
         // process answers from each proc communicated with
         for ( uint iProc = 0; iProc < aReceivedSubphaseGroupRootIds.size(); iProc++ )
@@ -1564,7 +1564,7 @@ namespace xtk
         std::unordered_set< moris_index > tProcessorsToReceiveFromSet( mRootSPGOwner.begin(), mRootSPGOwner.end() );
 
         // in order to communicate the set above it needs to be in a continues memory block ( cell )
-        moris::Cell< moris_id > tProcessorsToReceiveFrom;
+        moris::Vector< moris_id > tProcessorsToReceiveFrom;
         tProcessorsToReceiveFrom.reserve( tSize );
 
         // copy the set to the cell
@@ -1579,7 +1579,7 @@ namespace xtk
         moris_index tRootProc = 0;
 
         // create a continues memory array that will contain all the relationship between processors
-        moris::Cell< moris_id > tProcessorsToReceiveFromAllProcs( tSize * tSize );
+        moris::Vector< moris_id > tProcessorsToReceiveFromAllProcs( tSize * tSize );
         if ( tRootProc == par_rank() )
         {
             // gather everything on processor zero
@@ -1594,7 +1594,7 @@ namespace xtk
         /* ---------------------------------------------------------------------------------------- */
         /* Step 2: process the data that will need to be distrusted to individual processors as the comm table  */
         // create a continues memory array that will contain all the relationship between processors
-        moris::Cell< moris::Cell< moris_id > > tCommTable( tSize );
+        moris::Vector< moris::Vector< moris_id > > tCommTable( tSize );
         if ( tRootProc == par_rank() )
         {
             for ( auto& iCell : tCommTable )
@@ -1630,7 +1630,7 @@ namespace xtk
         if ( tRootProc == par_rank() )
         {
             // create a continues memory array that will contain all the relationship between processors
-            moris::Cell< moris_id > tCommTableFlattened;
+            moris::Vector< moris_id > tCommTableFlattened;
             tCommTableFlattened.resize( tSize * tSize );
 
             // iterate through the data and create the comm table
@@ -1683,8 +1683,8 @@ namespace xtk
         /* Step 0: Prepare requests for non-owned entities */
 
         // initialize lists of information that identifies entities (on other procs)
-        Cell< Cell< moris_index > >     tNotOwnedSpgsToProcs;    // SPG index (local to current proc, just used for construction of arrays)
-        Cell< moris::Cell< moris_id > > tSendSPGIds;             // first SP IDs in SPGs in each of the SPGs
+        Vector< Vector< moris_index > >     tNotOwnedSpgsToProcs;    // SPG index (local to current proc, just used for construction of arrays)
+        Vector< moris::Vector< moris_id > > tSendSPGIds;             // first SP IDs in SPGs in each of the SPGs
 
         // TODO: this function could be further optimized by preparing data of the SPGs that don't have a root SPG
         this->prepare_requests_for_not_owned_root_spg_projections( aMeshIndex, tNotOwnedSpgsToProcs, tSendSPGIds );
@@ -1693,7 +1693,7 @@ namespace xtk
         /* Step 1: Send and Receive requests about non-owned entities to and from other procs */
 
         // initialize arrays for receiving
-        Cell< Cell< moris_id > > tReceivedSPGIds;
+        Vector< Vector< moris_id > > tReceivedSPGIds;
 
         // communicate information
         moris::communicate_cells( mCommTable, tSendSPGIds, tReceivedSPGIds );
@@ -1705,9 +1705,9 @@ namespace xtk
         /* Step 2: Find answers to the requests */
 
         // initialize lists of ID answers to other procs
-        Cell< moris::Cell< moris_id > > tSendSubphaseGroupRootBsplineElementIds;
-        Cell< moris::Cell< moris_id > > tSendSubphaseGroupRootBsplineBasisIds;
-        Cell< moris::Cell< moris_id > > tSendSubphaseGroupRootBsplineBasisOwners;
+        Vector< moris::Vector< moris_id > > tSendSubphaseGroupRootBsplineElementIds;
+        Vector< moris::Vector< moris_id > > tSendSubphaseGroupRootBsplineBasisIds;
+        Vector< moris::Vector< moris_id > > tSendSubphaseGroupRootBsplineBasisOwners;
 
         // answer requests from other procs
         this->prepare_answers_for_owned_root_spg_projections( aMeshIndex,
@@ -1724,9 +1724,9 @@ namespace xtk
         /* Step 3: Send and receive answers to and from other procs */
 
         // initialize arrays for receiving
-        Cell< moris::Cell< moris_id > > tReceivedSubphaseGroupRootBsplineElementIds;
-        Cell< moris::Cell< moris_id > > tReceivedSubphaseGroupRootBsplineBasisIds;
-        Cell< moris::Cell< moris_id > > tReceivedSubphaseGroupRootBsplineBasisOwners;
+        Vector< moris::Vector< moris_id > > tReceivedSubphaseGroupRootBsplineElementIds;
+        Vector< moris::Vector< moris_id > > tReceivedSubphaseGroupRootBsplineBasisIds;
+        Vector< moris::Vector< moris_id > > tReceivedSubphaseGroupRootBsplineBasisOwners;
 
         // communicate answers
         moris::communicate_cells( mCommTable, tSendSubphaseGroupRootBsplineElementIds, tReceivedSubphaseGroupRootBsplineElementIds );
@@ -1755,12 +1755,12 @@ namespace xtk
 
     void
     Basis_Processor::prepare_requests_for_not_owned_root_spg_projections( moris_index aMeshIndex,
-            Cell< Cell< moris_index > >&                                              aNotOwnedSpgsToProcs,
-            Cell< moris::Cell< moris_id > >&                                          aSPGIDs )
+            Vector< Vector< moris_index > >&                                              aNotOwnedSpgsToProcs,
+            Vector< moris::Vector< moris_id > >&                                          aSPGIDs )
     {
         // get the bspline mesh info
         Bspline_Mesh_Info* tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        // moris::Cell< Subphase_Group* > const & tSPGs            = tBsplineMeshInfo->mSubphaseGroups;
+        // Vector< Subphase_Group* > const & tSPGs            = tBsplineMeshInfo->mSubphaseGroups;
 
         // get the communication table and map
         uint                                        tCommTableSize = mCommTable.size();
@@ -1774,7 +1774,7 @@ namespace xtk
         }
 
         // get the non-owned Subphases on the executing processor
-        moris::Cell< moris_index >& tOwnedSPGs    = tBsplineMeshInfo->mOwnedSubphaseGroupIndices;
+        moris::Vector< moris_index >& tOwnedSPGs    = tBsplineMeshInfo->mOwnedSubphaseGroupIndices;
         uint                        tNumOwnedSPGs = tOwnedSPGs.size();
 
         // initialize lists of identifying information
@@ -1782,8 +1782,8 @@ namespace xtk
         aSPGIDs.resize( tCommTableSize );
 
         // reserve enough space for all non-owned SPGs  ( over allocation, but better than under allocation )
-        std::for_each( aNotOwnedSpgsToProcs.begin(), aNotOwnedSpgsToProcs.end(), [ tNumOwnedSPGs ]( Cell< moris_index >& aCell ) { aCell.reserve( tNumOwnedSPGs ); } );
-        std::for_each( aSPGIDs.begin(), aSPGIDs.end(), [ tNumOwnedSPGs ]( Cell< moris_index >& aCell ) { aCell.reserve( tNumOwnedSPGs ); } );
+        std::for_each( aNotOwnedSpgsToProcs.begin(), aNotOwnedSpgsToProcs.end(), [ tNumOwnedSPGs ]( Vector< moris_index >& aCell ) { aCell.reserve( tNumOwnedSPGs ); } );
+        std::for_each( aSPGIDs.begin(), aSPGIDs.end(), [ tNumOwnedSPGs ]( Vector< moris_index >& aCell ) { aCell.reserve( tNumOwnedSPGs ); } );
 
         // go through SPGs that executing proc knows about, but doesn't own, ...
         for ( const auto& iNotOwnedSPGIndex : tOwnedSPGs )
@@ -1842,10 +1842,10 @@ namespace xtk
     void
     Basis_Processor::handle_requested_root_spg_projections(
             moris_index                                    aMeshIndex,
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineElementIds,
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineBasisIds,
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineBasisOwners,
-            moris::Cell< moris::Cell< moris_id > > const & aNotOwnedSpgsToProcs )
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedSubphaseGroupRootBsplineElementIds,
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedSubphaseGroupRootBsplineBasisIds,
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedSubphaseGroupRootBsplineBasisOwners,
+            moris::Vector< moris::Vector< moris_id > > const & aNotOwnedSpgsToProcs )
     {
 
         // process answers from each proc communicated with
@@ -1867,8 +1867,8 @@ namespace xtk
                 // get the current SPG index and ID from the data provided
                 moris_index                     tSubphaseGroupIndex     = aNotOwnedSpgsToProcs( iProc )( iSPG );
                 moris_id                        tRootBsplineId          = aReceivedSubphaseGroupRootBsplineElementIds( iProc )( iSPG );
-                moris::Cell< moris_id > const & tRootBsplineBasisId     = aReceivedSubphaseGroupRootBsplineBasisIds( iProc );
-                moris::Cell< moris_id > const & tRootBsplineBasisOwners = aReceivedSubphaseGroupRootBsplineBasisOwners( iProc );
+                moris::Vector< moris_id > const & tRootBsplineBasisId     = aReceivedSubphaseGroupRootBsplineBasisIds( iProc );
+                moris::Vector< moris_id > const & tRootBsplineBasisOwners = aReceivedSubphaseGroupRootBsplineBasisOwners( iProc );
 
                 // construct the extension for the current SPG
                 this->construct_follower_to_leader_basis_relationship_for_spg(
@@ -1888,15 +1888,15 @@ namespace xtk
 
     void
     Basis_Processor::prepare_answers_for_owned_root_spg_projections( moris_index const & aMeshIndex,
-            moris::Cell< moris::Cell< moris_id > >&                                      aSendSubphaseGroupRootBsplineElementIds,
-            moris::Cell< moris::Cell< moris_id > >&                                      aSendSubphaseGroupRootBsplineBasisIds,
-            moris::Cell< moris::Cell< moris_id > >&                                      aSendSubphaseGroupRootBsplineBasisOwners,
-            moris::Cell< moris::Cell< moris_id > > const &                               aReceivedSPGIds )
+            moris::Vector< moris::Vector< moris_id > >&                                      aSendSubphaseGroupRootBsplineElementIds,
+            moris::Vector< moris::Vector< moris_id > >&                                      aSendSubphaseGroupRootBsplineBasisIds,
+            moris::Vector< moris::Vector< moris_id > >&                                      aSendSubphaseGroupRootBsplineBasisOwners,
+            moris::Vector< moris::Vector< moris_id > > const &                               aReceivedSPGIds )
     {
         // get the bspline mesh info
         Bspline_Mesh_Info*                     tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        moris::Cell< mtk::Cell* > const &      tSPGBsplineCells = tBsplineMeshInfo->mBsplineCells;
-        moris::Cell< Subphase_Group* > const & tSPGs            = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< mtk::Cell* > const &      tSPGBsplineCells = tBsplineMeshInfo->mBsplineCells;
+        moris::Vector< Subphase_Group* > const & tSPGs            = tBsplineMeshInfo->mSubphaseGroups;
         uint                                   tNumberOfBasis   = mHMRHelper( aMeshIndex )->get_number_of_bases_per_element();
 
         // get the communication table and map
@@ -1942,8 +1942,8 @@ namespace xtk
                 aSendSubphaseGroupRootBsplineElementIds( iProc )( iSPG ) = tGlobalElementID;
 
                 // get the enriched basis of the bspline cell based on the enrichment level
-                moris::Cell< moris_id > const & tEnrichedBasisIds    = mHMRHelper( aMeshIndex )->get_enriched_basis_id_of_cell( tBsplineCell, tSubphaseIndex );
-                moris::Cell< moris_id > const & tEnrichedBasisOwners = mHMRHelper( aMeshIndex )->get_enriched_basis_owners_of_cell();
+                moris::Vector< moris_id > const & tEnrichedBasisIds    = mHMRHelper( aMeshIndex )->get_enriched_basis_id_of_cell( tBsplineCell, tSubphaseIndex );
+                moris::Vector< moris_id > const & tEnrichedBasisOwners = mHMRHelper( aMeshIndex )->get_enriched_basis_owners_of_cell();
 
                 // insert the data in the appropriate arrays
                 aSendSubphaseGroupRootBsplineBasisIds( iProc )
@@ -1969,22 +1969,22 @@ namespace xtk
     Basis_Processor::construct_follower_to_leader_basis_relationship_for_spg(
             moris_index                     aSubphaseGroupIndex,
             moris_id                        aRootBsplineId,
-            moris::Cell< moris_id > const & aRootBsplineBasisId,
-            moris::Cell< moris_id > const & aRootBsplineBasisOwner,
+            moris::Vector< moris_id > const & aRootBsplineBasisId,
+            moris::Vector< moris_id > const & aRootBsplineBasisOwner,
             uint                            aStartRange,
             uint                            aMeshIndex )
     {
         // Get a reference or a pointer to the required data
         Bspline_Mesh_Info*                                tBsplineMeshInfo              = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        moris::Cell< moris::Cell< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
-        moris::Cell< Subphase_Group* > const &            tSPGs                         = tBsplineMeshInfo->mSubphaseGroups;
-        moris::Cell< moris_index > const &                tNonEnrBfIndForEnrBfInd       = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mNonEnrBfIndForEnrBfInd;
+        moris::Vector< moris::Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
+        moris::Vector< Subphase_Group* > const &            tSPGs                         = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< moris_index > const &                tNonEnrBfIndForEnrBfInd       = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mNonEnrBfIndForEnrBfInd;
         Enriched_Interpolation_Mesh&                      tEnrInterpMesh                = mXTKModelPtr->get_enriched_interp_mesh( aMeshIndex );
 
-        std::unordered_map< moris_index, moris::Cell< real > >& tAveragingWeightsSPGBased = mBasisData( aMeshIndex ).mAveragingWeightsSPGBased;
+        std::unordered_map< moris_index, moris::Vector< real > >& tAveragingWeightsSPGBased = mBasisData( aMeshIndex ).mAveragingWeightsSPGBased;
 
         // get the enriched basis function that might be bad in the extened cell ( old ones )
-        moris::Cell< moris_index > const & tEnrichedBFInSPG = tEnrichedBasisInSubphaseGroup( aSubphaseGroupIndex );
+        moris::Vector< moris_index > const & tEnrichedBFInSPG = tEnrichedBasisInSubphaseGroup( aSubphaseGroupIndex );
 
         // get the Bspline cell corresponding to the extened SPG index
         moris_index tExtenedBspCellIndex = tSPGs( aSubphaseGroupIndex )->get_bspline_cell_index();
@@ -1994,7 +1994,7 @@ namespace xtk
         Matrix< DDRMat > const & tL2Projection = mHMRHelper( aMeshIndex )->get_l2_projection_matrix( tExtendedBspCell, aRootBsplineId );
 
         // get the list of BG Basis Indices that exist on the extened SPG index
-        moris::Cell< moris_index > const & tExtenedBGBspIndices = mHMRHelper( aMeshIndex )->get_bg_basis_indices_of_cell( tExtendedBspCell );
+        moris::Vector< moris_index > const & tExtenedBGBspIndices = mHMRHelper( aMeshIndex )->get_bg_basis_indices_of_cell( tExtendedBspCell );
 
         // loop over the enriched basis functions in the SPG
         for ( uint iEnrichedBasisOrd = 0; iEnrichedBasisOrd < tEnrichedBFInSPG.size(); iEnrichedBasisOrd++ )
@@ -2073,8 +2073,8 @@ namespace xtk
     {
         // Get a reference or a pointer to the required data
         Bspline_Mesh_Info*                                tBsplineMeshInfo              = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        moris::Cell< moris::Cell< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
-        moris::Cell< Subphase_Group* > const &            tSPGs                         = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< moris::Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
+        moris::Vector< Subphase_Group* > const &            tSPGs                         = tBsplineMeshInfo->mSubphaseGroups;
 
 
         // loop over the SPGs and determine if they are their own SPG , if not look for the neighbor, if the neighbor is complete then use it
@@ -2084,7 +2084,7 @@ namespace xtk
             // then all the basis attached to this are good basis
             if ( tSubphaseGroup->get_id() == mRootSPGIds( iSPGIndex ) )
             {
-                moris::Cell< moris_index > const & tEnrBFsInInSPG = tEnrichedBasisInSubphaseGroup( iSPGIndex );
+                moris::Vector< moris_index > const & tEnrBFsInInSPG = tEnrichedBasisInSubphaseGroup( iSPGIndex );
 
                 for ( const auto iEnrBF : tEnrBFsInInSPG )
                 {
@@ -2101,11 +2101,11 @@ namespace xtk
     {
         // Get a reference or a pointer to the required data
         Bspline_Mesh_Info*                                tBsplineMeshInfo              = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        moris::Cell< moris::Cell< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
-        // Cell< moris::Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
-        moris::Cell< Subphase_Group* > const &                  tSPGs                     = tBsplineMeshInfo->mSubphaseGroups;
-        moris::Cell< moris_index > const &                      tNonEnrBfIndForEnrBfInd   = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mNonEnrBfIndForEnrBfInd;
-        std::unordered_map< moris_index, moris::Cell< real > >& tAveragingWeightsSPGBased = mBasisData( aMeshIndex ).mAveragingWeightsSPGBased;
+        moris::Vector< moris::Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
+        // Vector< moris::Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+        moris::Vector< Subphase_Group* > const &                  tSPGs                     = tBsplineMeshInfo->mSubphaseGroups;
+        moris::Vector< moris_index > const &                      tNonEnrBfIndForEnrBfInd   = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mNonEnrBfIndForEnrBfInd;
+        std::unordered_map< moris_index, moris::Vector< real > >& tAveragingWeightsSPGBased = mBasisData( aMeshIndex ).mAveragingWeightsSPGBased;
 
 
         // loop over the SPGs and find out the ones that need extension such that the root processor is within processor domain
@@ -2151,11 +2151,11 @@ namespace xtk
 
             // step 2: get the enriched basis
             //  TODO: the first one is copied, can add a member data to avoid copying
-            moris::Cell< moris_index >         tEnrichedRootBasisIndices = mHMRHelper( aMeshIndex )->get_enriched_basis_indicies_of_cell( tRootBsplineCell, tRootSPGIndex );
-            moris::Cell< moris_index > const & tBGExtendedBasisIndices   = mHMRHelper( aMeshIndex )->get_bg_basis_indices_of_cell( tExtendedBsplineCell );
+            moris::Vector< moris_index >         tEnrichedRootBasisIndices = mHMRHelper( aMeshIndex )->get_enriched_basis_indicies_of_cell( tRootBsplineCell, tRootSPGIndex );
+            moris::Vector< moris_index > const & tBGExtendedBasisIndices   = mHMRHelper( aMeshIndex )->get_bg_basis_indices_of_cell( tExtendedBsplineCell );
 
             // step 3: get the enriched basis connected to the extended cell
-            moris::Cell< moris_index > const & tEnrBFinSPGExtended = tEnrichedBasisInSubphaseGroup( iSPGIndex );
+            moris::Vector< moris_index > const & tEnrBFinSPGExtended = tEnrichedBasisInSubphaseGroup( iSPGIndex );
 
             // step 4: loop over the enriched basis in the extened call and find out which ones need to be replaces
             for ( uint iEnrichedBasisOrd = 0; iEnrichedBasisOrd < tEnrBFinSPGExtended.size(); iEnrichedBasisOrd++ )
@@ -2220,15 +2220,15 @@ namespace xtk
         Matrix< IdMat > const & tCommTable = mXTKModelPtr->mCutIntegrationMesh->get_communication_table();
 
         // convert it to a cell
-        moris::Cell< moris_index > tCommCell;
+        moris::Vector< moris_index > tCommCell;
         tCommCell.insert( tCommCell.size(), tCommTable.begin(), tCommTable.end() );
 
         /* ---------------------------------------------------------------------------------------- */
         /* Step 0: Prepare requests for non-owned entities */
 
         // initialize lists of information that identifies entities (on other procs)
-        Cell< Cell< moris_index > >     tBasisIndexToProcs;    // SPG index (local to current proc, just used for construction of arrays)
-        Cell< moris::Cell< moris_id > > tSendBasisIds;         // first SP IDs in SPGs in each of the SPGs
+        Vector< Vector< moris_index > >     tBasisIndexToProcs;    // SPG index (local to current proc, just used for construction of arrays)
+        Vector< moris::Vector< moris_id > > tSendBasisIds;         // first SP IDs in SPGs in each of the SPGs
 
         // TODO: this function could be further optimized by preparing data of the SPGs that don't have a root SPG
         this->prepare_requests_for_shared_follower_basis( aMeshIndex, tBasisIndexToProcs, tSendBasisIds );
@@ -2237,7 +2237,7 @@ namespace xtk
         /* Step 1: Send and Receive requests about non-owned entities to and from other procs */
 
         // initialize arrays for receiving
-        Cell< Cell< moris_id > > tReceivedBasisIds;
+        Vector< Vector< moris_id > > tReceivedBasisIds;
 
         // communicate information
         moris::communicate_cells( tCommCell, tSendBasisIds, tReceivedBasisIds );
@@ -2249,10 +2249,10 @@ namespace xtk
         /* Step 2: Find answers to the requests */
 
         // initialize lists of ID answers to other procs
-        Cell< moris::Cell< real > >     tSendFollowerToLeaderBasisWeights;
-        Cell< moris::Cell< moris_id > > tSendFollowerToLeaderBasisIds;
-        Cell< moris::Cell< moris_id > > tSendFollowerToLeaderBasisOwners;
-        Cell< moris::Cell< moris_id > > tSendFollowerToLeaderOffset;
+        Vector< moris::Vector< real > >     tSendFollowerToLeaderBasisWeights;
+        Vector< moris::Vector< moris_id > > tSendFollowerToLeaderBasisIds;
+        Vector< moris::Vector< moris_id > > tSendFollowerToLeaderBasisOwners;
+        Vector< moris::Vector< moris_id > > tSendFollowerToLeaderOffset;
 
         // answer requests from other procs
         this->prepare_answers_for_follower_shared_basis( aMeshIndex,
@@ -2271,10 +2271,10 @@ namespace xtk
         /* Step 3: Send and receive answers to and from other procs */
 
         // initialize arrays for receiving
-        Cell< moris::Cell< moris_id > > tReceivedFollowerToLeaderBasisIds;
-        Cell< moris::Cell< moris_id > > tReceivedFollowerToLeaderBasisOwners;
-        Cell< moris::Cell< real > >     tReceivedFollowerToLeaderBasisWeights;
-        Cell< moris::Cell< moris_id > > tReceivedFollowerToLeaderOffset;
+        Vector< moris::Vector< moris_id > > tReceivedFollowerToLeaderBasisIds;
+        Vector< moris::Vector< moris_id > > tReceivedFollowerToLeaderBasisOwners;
+        Vector< moris::Vector< real > >     tReceivedFollowerToLeaderBasisWeights;
+        Vector< moris::Vector< moris_id > > tReceivedFollowerToLeaderOffset;
 
         // communicate answers
         moris::communicate_cells( tCommCell, tSendFollowerToLeaderBasisIds, tReceivedFollowerToLeaderBasisIds );
@@ -2310,13 +2310,13 @@ namespace xtk
 
     void
     Basis_Processor::prepare_requests_for_shared_follower_basis( moris_index aMeshIndex,
-            Cell< Cell< moris_index > >&                                     aBasisIndexToProcs,
-            Cell< moris::Cell< moris_id > >&                                 aSendBasisIds )
+            Vector< Vector< moris_index > >&                                     aBasisIndexToProcs,
+            Vector< moris::Vector< moris_id > >&                                 aSendBasisIds )
     {
         // get the bspline mesh info
         Bspline_Mesh_Info*                        tBsplineMeshInfo                  = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
-        moris::Cell< Subphase_Group* > const &    tSPGs                             = tBsplineMeshInfo->mSubphaseGroups;
-        Cell< moris::Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+        moris::Vector< Subphase_Group* > const &    tSPGs                             = tBsplineMeshInfo->mSubphaseGroups;
+        Vector< moris::Matrix< IndexMat > > const & tSubphaseGroupIndsInEnrichedBasis = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
 
         // get the communication table and map
         uint                                        tCommTableSize = mCommTable.size();
@@ -2339,8 +2339,8 @@ namespace xtk
         aSendBasisIds.resize( tCommTableSize );
 
         // reserve enough space for all non-owned SPGs  ( over allocation, but better than under allocation )
-        std::for_each( aBasisIndexToProcs.begin(), aBasisIndexToProcs.end(), [ tNumFollowerBasis ]( Cell< moris_index >& aCell ) { aCell.reserve( tNumFollowerBasis ); } );
-        std::for_each( aSendBasisIds.begin(), aSendBasisIds.end(), [ tNumFollowerBasis ]( Cell< moris_index >& aCell ) { aCell.reserve( tNumFollowerBasis ); } );
+        std::for_each( aBasisIndexToProcs.begin(), aBasisIndexToProcs.end(), [ tNumFollowerBasis ]( Vector< moris_index >& aCell ) { aCell.reserve( tNumFollowerBasis ); } );
+        std::for_each( aSendBasisIds.begin(), aSendBasisIds.end(), [ tNumFollowerBasis ]( Vector< moris_index >& aCell ) { aCell.reserve( tNumFollowerBasis ); } );
 
         // go through SPGs that executing proc knows about, but doesn't own, ...
         for ( uint iBasisIndex = 0; iBasisIndex < mBasisData( aMeshIndex ).mFollowerBasis.size(); iBasisIndex++ )
@@ -2421,11 +2421,11 @@ namespace xtk
 
     void
     Basis_Processor::prepare_answers_for_follower_shared_basis( moris_index const & aMeshIndex,
-            moris::Cell< moris::Cell< moris_id > >&                                 aSendFollowerToLeaderBasisIds,
-            moris::Cell< moris::Cell< moris_id > >&                                 aSendFollowerToLeaderBasisOwners,
-            moris::Cell< moris::Cell< real > >&                                     aSendFollowerToLeaderBasisWeights,
-            moris::Cell< moris::Cell< moris_id > >&                                 aSendFollowerToLeaderBasisOffset,
-            moris::Cell< moris::Cell< moris_id > > const &                          aReceivedBasisIds )
+            moris::Vector< moris::Vector< moris_id > >&                                 aSendFollowerToLeaderBasisIds,
+            moris::Vector< moris::Vector< moris_id > >&                                 aSendFollowerToLeaderBasisOwners,
+            moris::Vector< moris::Vector< real > >&                                     aSendFollowerToLeaderBasisWeights,
+            moris::Vector< moris::Vector< moris_id > >&                                 aSendFollowerToLeaderBasisOffset,
+            moris::Vector< moris::Vector< moris_id > > const &                          aReceivedBasisIds )
     {
         // get a pointer or reference to required data for readability
         xtk::Enriched_Interpolation_Mesh* tEnrichedInterpMesh    = mXTKModelPtr->mEnrichedInterpMesh( 0 );
@@ -2502,11 +2502,11 @@ namespace xtk
     void
     Basis_Processor::handle_requested_shared_follower_basis(
             moris_index                                    aMeshIndex,
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedFollowerToLeaderBasisIds,
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedFollowerToLeaderBasisOwners,
-            moris::Cell< moris::Cell< real > > const &     aReceivedFollowerToLeaderBasisWeights,
-            moris::Cell< moris::Cell< moris_id > > const & aReceivedFollowerToLeaderBasisOffset,
-            moris::Cell< moris::Cell< moris_id > > const & tBasisIndexToProcs )
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedFollowerToLeaderBasisIds,
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedFollowerToLeaderBasisOwners,
+            moris::Vector< moris::Vector< real > > const &     aReceivedFollowerToLeaderBasisWeights,
+            moris::Vector< moris::Vector< moris_id > > const & aReceivedFollowerToLeaderBasisOffset,
+            moris::Vector< moris::Vector< moris_id > > const & tBasisIndexToProcs )
     {
         // get a pointer or reference to required data for readability
         Basis_Data&                  tBasisData     = mBasisData( aMeshIndex );

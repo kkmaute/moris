@@ -11,7 +11,7 @@
 #include "cl_XTK_Hole_Seeder.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_GEN_Superellipsoid.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Communication_Tools.hpp"
 
 namespace xtk
@@ -129,7 +129,7 @@ Hole_Seeder::seed_field()
 
     moris::uint tNumSpheres = mNumSpheresInX*mNumSpheresInY*mNumSpheresInZ;
 
-    moris::Cell<moris::Matrix<moris::DDRMat>> tCenters(tNumSpheres);
+    moris::Vector<moris::Matrix<moris::DDRMat>> tCenters(tNumSpheres);
 
     moris::uint tCount = 0;
     for(moris::uint i = 0; i <mNumSpheresInX; i++)
@@ -152,7 +152,7 @@ Hole_Seeder::seed_field()
     }
 
     // iterate through node to compute a level set value at each node
-    moris::Cell<moris::Matrix<moris::DDRMat>> tSphereLSV(tNumNodes);
+    moris::Vector<moris::Matrix<moris::DDRMat>> tSphereLSV(tNumNodes);
 //    moris::real tNodeVal = 0;
     for(moris::uint i =0; i <tNumNodes; i++)
     {
@@ -190,7 +190,7 @@ Hole_Seeder::get_seeded_field()
     return mSeededField;
 }
 
-moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> &
+moris::Vector<std::shared_ptr<moris::ge::Superellipsoid>> &
 Hole_Seeder::get_seeded_geometies()
 {
     return mSpheres;

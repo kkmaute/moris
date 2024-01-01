@@ -13,7 +13,7 @@
 
 #include "cl_MTK_Cell.hpp"
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"     //MRS/CNT/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src
@@ -77,10 +77,10 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         /**
-         * fills a moris::cell with pointers to connected vertices
+         * fills a Vector with pointers to connected vertices
          */
         // FIXME: SDF's Facet_Vertex causes this to not be able to return a reference.
-        moris::Cell< mtk::Vertex * >
+        Vector< mtk::Vertex * >
         get_vertex_pointers() const;
 
         //------------------------------------------------------------------------------

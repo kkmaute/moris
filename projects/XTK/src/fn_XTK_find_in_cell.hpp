@@ -28,7 +28,7 @@ namespace xtk
     template< class T >
     inline moris_index
     find_in_cell(
-            Cell< T > const & aList,
+            Vector< T > const & aList,
             T                 aKeyToFind )
     {
         // get the size of the cell
@@ -62,9 +62,9 @@ namespace xtk
     template< class T >
     inline moris_index
     find_in_cell(
-            Cell< T > const & aList,
+            Vector< T > const & aList,
             T                 aKeyToFind,
-            Cell< bool >&     aPunchCard )
+            Vector< bool >&     aPunchCard )
     {
         // get the size of the cell
         moris_index tSize = (moris_index)aList.size();

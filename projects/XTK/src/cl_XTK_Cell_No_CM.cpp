@@ -20,7 +20,7 @@ namespace xtk
                                    moris::moris_index              aElementIndex,
                                    moris::moris_index              aElementOwner,
                                    std::shared_ptr<mtk::Cell_Info> aCellInfo,
-                                   moris::Cell< mtk::Vertex* >     aVertices)
+                                   moris::Vector< mtk::Vertex* >     aVertices)
     : Cell(aElementId,aElementIndex,aElementOwner, aCellInfo),
       mCellVertices(aVertices)
     {}

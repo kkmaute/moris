@@ -18,7 +18,7 @@
 
 #include "cl_Library_Enums.hpp"
 #include "cl_Param_List.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris
 {
@@ -28,7 +28,7 @@ namespace moris
     class XML_Parser;
 
     // Define what a module parameter list is
-    typedef moris::Cell< moris::Cell< moris::ParameterList > > ModuleParameterList;
+    typedef Vector< Vector< moris::ParameterList > > ModuleParameterList;
 
     // Define what a parameter function is
     typedef void ( *Parameter_Function )( ModuleParameterList& aParameterList );
@@ -62,7 +62,7 @@ namespace moris
         Library_Type mLibraryType;
 
         // storage for the parameters for the various Modules
-        Cell< ModuleParameterList > mParameterLists;
+        Vector< ModuleParameterList > mParameterLists;
 
         // XML parser for output
         std::unique_ptr< XML_Parser > mXmlWriter;

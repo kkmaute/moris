@@ -99,8 +99,8 @@ void Paramfile::load_mesh_params()
 
     for( uint m=0; m<tNumberOfMeshes; ++m )
     {
-        Cell< std::string > tFirst;
-        Cell< std::string > tSecond;
+        Vector< std::string > tFirst;
+        Vector< std::string > tSecond;
         mParser->get_keys_from_subtree( "moris.hmr", "mesh", m, tFirst, tSecond );
 
         Mesh_Param & tMesh = mMeshParams( m );
@@ -163,8 +163,8 @@ void Paramfile::load_mesh_params()
 
         for( uint f=0; f<tNumberOfFields; ++f )
         {
-            Cell< std::string > tFirst;
-            Cell< std::string > tSecond;
+            Vector< std::string > tFirst;
+            Vector< std::string > tSecond;
             mParser->get_keys_from_subtree( "moris.hmr", "field", f, tFirst, tSecond );
 
             Field_Param & tField = mFieldParams( f );
@@ -236,8 +236,8 @@ void Paramfile::load_mesh_params()
 
     void Paramfile::load_state_params()
     {
-        Cell< std::string > tFirst;
-        Cell< std::string > tSecond;
+        Vector< std::string > tFirst;
+        Vector< std::string > tSecond;
 
         // string for fields
         //std::string tFields;
@@ -320,8 +320,8 @@ void Paramfile::load_mesh_params()
     {
         // call parameter list initializer from cl_Parameters.hpp
         mParameterList = prm::create_hmr_parameter_list();
-        Cell< std::string > tFirst;
-        Cell< std::string > tSecond;
+        Vector< std::string > tFirst;
+        Vector< std::string > tSecond;
         mParser->get_keys_from_subtree( "moris.hmr", "parameters", 0, tFirst, tSecond );
 
         for( uint k=0; k<tFirst.size(); ++k )
@@ -512,8 +512,8 @@ void Paramfile::load_mesh_params()
 
     void Paramfile::load_user_refinement_parameters()
     {
-        Cell< std::string > tFirst;
-        Cell< std::string > tSecond;
+        Vector< std::string > tFirst;
+        Vector< std::string > tSecond;
         mParser->get_keys_from_subtree( "moris.hmr", "refine", 0, tFirst, tSecond );
 
         // reset counter

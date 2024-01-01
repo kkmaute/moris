@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                      //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -76,8 +76,8 @@ namespace moris
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 void set_dof_type_list(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                        moris::Cell< std::string >                  aDofStrings );
+                        Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                        Vector< std::string >                  aDofStrings );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -101,10 +101,10 @@ namespace moris
                  * evaluate the specific internal energy derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_EintDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_EintDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_dEintdxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes);
-                void eval_d2Eintdx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes);
+                void eval_EintDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_EintDotDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_dEintdxDOF( const Vector< MSI::Dof_Type > & aDofTypes);
+                void eval_d2Eintdx2DOF( const Vector< MSI::Dof_Type > & aDofTypes);
 
                 //------------------------------------------------------------------------------
                 // DENSITY (SECOND EQUATION OF STATE)
@@ -122,10 +122,10 @@ namespace moris
                  * evaluate the thermodynamic density derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_DensityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_DensityDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_dDensitydxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_d2Densitydx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_DensityDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_DensityDotDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_dDensitydxDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_d2Densitydx2DOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 // PRESSURE (SECOND EQUATION OF STATE)
@@ -143,10 +143,10 @@ namespace moris
                  * evaluate the thermodynamic pressure derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_PressureDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_PressureDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_dPressuredxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_d2Pressuredx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_PressureDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_PressureDotDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_dPressuredxDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_d2Pressuredx2DOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 // TEMPERATURE (SECOND EQUATION OF STATE)
@@ -164,10 +164,10 @@ namespace moris
                  * evaluate the thermodynamic temperature derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_TemperatureDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_TemperatureDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_dTemperaturedxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_d2Temperaturedx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_TemperatureDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_TemperatureDotDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_dTemperaturedxDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_d2Temperaturedx2DOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 // THERMODYNAMIC QUANTITIES
@@ -186,11 +186,11 @@ namespace moris
                  * evaluate the thermodynamic quantity derivatives wrt to the dof types
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_VolumeExpansivityDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_IsothermalCompressibilityDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_CvDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_CpDOF( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_GammaDOF( const Vector< MSI::Dof_Type > & aDofTypes );
         };
 
         //--------------------------------------------------------------------------------------

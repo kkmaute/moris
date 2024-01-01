@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_DOF_MANAGER_HPP_
 #define SRC_FEM_CL_DOF_MANAGER_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
 #include "cl_MSI_Equation_Object.hpp"
@@ -28,15 +28,15 @@ namespace moris
         class Dof_Manager
         {
           private:
-            moris::Cell< Pdof_Host* >           mPdofHostList;              // List of all pdof hosts
-            moris::Cell< Adof* >                mAdofList;                  // List of all adofs
+            Vector< Pdof_Host* >           mPdofHostList;              // List of all pdof hosts
+            Vector< Adof* >                mAdofList;                  // List of all adofs
 
             // outer cell : type-time identifier of adof, inner cell: local index of the adof
-            moris::Cell< moris::Cell< Adof* > > mAdofListOwned;    // List of all owned adofs
+            Vector< Vector< Adof* > > mAdofListOwned;    // List of all owned adofs
             // outer cell : type-time identifier of adof, inner cell: local index of the adof
-            moris::Cell< moris::Cell< Adof* > > mAdofListOwnedAndShared;    // List of all owned and shared adofs
+            Vector< Vector< Adof* > > mAdofListOwnedAndShared;    // List of all owned and shared adofs
 
-            moris::Cell< enum Dof_Type > mPdofTypeList;    // List containing all used unique dof types.
+            Vector< enum Dof_Type > mPdofTypeList;    // List containing all used unique dof types.
             Matrix< DDSMat >             mPdofTypeMap;     // Map which maps the unique dof types onto consecutive values.
 
             Matrix< DDUMat > mPdofHostTimeLevelList;    // List containing the number of time levels per dof type.
@@ -48,7 +48,7 @@ namespace moris
             // outer cell : discretization mesh index
             // inner map: key[first] : adof external id,  value[second] adof id 
             // note: adof external id is "one-based" index system while adof id is zero-based
-            Cell< moris::map< moris::moris_id, moris::moris_index > > mAdofGlobaltoLocalMap;
+            Vector< moris::map< moris::moris_id, moris::moris_index > > mAdofGlobaltoLocalMap;
 
             moris::sint mNumMaxAdofs   = -1;
             moris::uint mNumOwnedAdofs = 0;
@@ -68,7 +68,7 @@ namespace moris
              * @param[in] aListEqnObj   List containing all the equation objects.
              *
              */
-            moris::uint initialize_max_number_of_possible_pdof_hosts( moris::Cell< Equation_Object* >& aListEqnObj );
+            moris::uint initialize_max_number_of_possible_pdof_hosts( Vector< Equation_Object* >& aListEqnObj );
 
             //------------------------------------------------------------------------------
             /**
@@ -77,7 +77,7 @@ namespace moris
              * @param[in] aPdofTypeList   List of pdof types
              *
              */
-            void communicate_dof_types( moris::Cell< enum Dof_Type >& aPdofTypeList );
+            void communicate_dof_types( Vector< enum Dof_Type >& aPdofTypeList );
 
             //------------------------------------------------------------------------------
             /**
@@ -117,7 +117,7 @@ namespace moris
              */
             void
             communicate_check_if_owned_adof_exists(
-                    moris::Cell< moris::Cell< Adof* > >& tAdofListofTypes,
+                    Vector< Vector< Adof* > >& tAdofListofTypes,
                     Matrix< IndexMat > const &           aDiscretizationIndexPerTypeAndTime );
 
             //------------------------------------------------------------------------------
@@ -139,10 +139,10 @@ namespace moris
              *
              */
             void communicate_shared_adof_ids(
-                    moris::Cell< moris::Cell< Adof* > > const & aAdofListofTypes,
+                    Vector< Vector< Adof* > > const & aAdofListofTypes,
                     Matrix< IndexMat > const &                  aDiscretizationIndexPerTypeAndTime,
-                    moris::Cell< Matrix< DDUMat > >&            aListSharedAdofIds,
-                    moris::Cell< Matrix< DDUMat > >&            aListSharedAdofPos );
+                    Vector< Matrix< DDUMat > >&            aListSharedAdofIds,
+                    Vector< Matrix< DDUMat > >&            aListSharedAdofPos );
 
             //------------------------------------------------------------------------------
             /**
@@ -162,7 +162,7 @@ namespace moris
              *
              */
             void set_owned_adofs_ids(
-                    const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
+                    const Vector< Vector< Adof* > >& aAdofListofTypes,
                     const uint&                                aAdofOffsets );
 
             //------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ namespace moris
              *
              */
             void set_owned_adofs_ids_by_type(
-                    const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
+                    const Vector< Vector< Adof* > >& aAdofListofTypes,
                     const uint&                                aAdofOffsets );
 
             //------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ namespace moris
              *
              */
             void set_owned_adofs_ids_by_host(
-                    const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
+                    const Vector< Vector< Adof* > >& aAdofListofTypes,
                     const uint&                                aAdofOffsets );
 
             //------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ namespace moris
             }
 
             //-----------------------------------------------------------------------------------------------------------
-            Cell< moris::map< moris::moris_id, moris::moris_index > >&
+            Vector< moris::map< moris::moris_id, moris::moris_index > >&
             get_adof_map()
             {
                 return mAdofGlobaltoLocalMap;
@@ -247,7 +247,7 @@ namespace moris
              * @param[in] aListEqnObj   List containing all the equation objects.
              *
              */
-            void initialize_pdof_type_list( Cell< MSI::Equation_Set* >& aListEqnBlock );
+            void initialize_pdof_type_list( Vector< MSI::Equation_Set* >& aListEqnBlock );
 
             //-----------------------------------------------------------------------------------------------------------
 
@@ -288,7 +288,7 @@ namespace moris
              * @param[in] aListEqnObj   List containing all the equation objects.
              *
              */
-            void initialize_pdof_host_list( moris::Cell< Equation_Object* >& aListEqnObj );
+            void initialize_pdof_host_list( Vector< Equation_Object* >& aListEqnObj );
 
             //-----------------------------------------------------------------------------------------------------------
             /**
@@ -342,7 +342,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------------------
 
-            Cell< moris::Cell< Adof* > >
+            Vector< Vector< Adof* > >
             get_owned_adofs()
             {
                 return mAdofListOwned;
@@ -353,10 +353,10 @@ namespace moris
             /**
              * @brief Get list of owned and shared adofs
              *
-             * @return moris::Cell< Adof* >&
+             * @return Vector< Adof* >&
              */
 
-            moris::Cell< Adof* >&
+            Vector< Adof* >&
             get_adofs()
             {
                 return mAdofList;
@@ -367,11 +367,11 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------------------
 
-            Matrix< DDSMat > get_local_adof_ids( const moris::Cell< enum Dof_Type >& aListOfDofTypes );
+            Matrix< DDSMat > get_local_adof_ids( const Vector< enum Dof_Type >& aListOfDofTypes );
 
             //-----------------------------------------------------------------------------------------------------------
 
-            Matrix< DDSMat > get_local_overlapping_adof_ids( const moris::Cell< enum Dof_Type >& aListOfDofTypes );
+            Matrix< DDSMat > get_local_overlapping_adof_ids( const Vector< enum Dof_Type >& aListOfDofTypes );
 
             //-----------------------------------------------------------------------------------------------------------
 

@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                      //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -69,8 +69,8 @@ namespace moris
                  * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dof_type_list(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                        moris::Cell< std::string >                  & aDofStrings,
+                        Vector< Vector< MSI::Dof_Type > > & aDofTypes,
+                        Vector< std::string >                  & aDofStrings,
                         mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER )
                 {
                     Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsLeader );
@@ -84,8 +84,8 @@ namespace moris
                  * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dv_type_list(
-                        moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                        moris::Cell< std::string >             & aDvStrings,
+                        Vector< Vector< PDV_Type > > & aDvTypes,
+                        Vector< std::string >             & aDvStrings,
                         mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
                 {
                     Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
@@ -98,18 +98,18 @@ namespace moris
                  * @param[ in ] aClusterMeasureTypes  list of strings describing the cluster measure types
                  */
                 void set_cluster_measure_type_list(
-                        moris::Cell< std::tuple<
+                        Vector< std::tuple<
                         fem::Measure_Type,
                         mtk::Primary_Void,
                         mtk::Leader_Follower > >      & aClusterMeasureTuples,
-                        moris::Cell< std::string > & aClusterMeasureNames );
+                        Vector< std::string > & aClusterMeasureNames );
 
                 //------------------------------------------------------------------------------
                 /**
                  * get cluster measure tuples
                  * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
                  */
-                moris::Cell< std::tuple<
+                Vector< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
                 mtk::Leader_Follower > > get_cluster_measure_tuple_list();
@@ -126,7 +126,7 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * dPPdLeaderDOF ( 1 x numDerDof )
                  */
-                void eval_dSPdLeaderDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                void eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, "SP_Measure - eval_dSPdLeaderDOF: not implemented." );
                 }
@@ -137,7 +137,7 @@ namespace moris
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
                  * dPPdLeaderDV ( 1 x numDerDv )
                  */
-                void eval_dSPdLeaderDV( const moris::Cell< PDV_Type > & aDvTypes )
+                void eval_dSPdLeaderDV( const Vector< PDV_Type > & aDvTypes )
                 {
                     MORIS_ERROR( false, "SP_Measure - eval_dSPdLeaderDV: not implemented." );
                 }

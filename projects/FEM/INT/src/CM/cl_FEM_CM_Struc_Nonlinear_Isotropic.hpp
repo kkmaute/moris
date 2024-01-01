@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                      //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -53,17 +53,17 @@ namespace moris
                 Matrix< DDRMat > mEATestStrain;
                 // FIXME: storage for deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
                 Matrix< DDRMat > mDGTestStrain;
-                moris::Cell< Matrix< DDRMat > > mdLGTestStraindu;
-                moris::Cell< Matrix< DDRMat > > mdEATestStraindu;
+                Vector< Matrix< DDRMat > > mdLGTestStraindu;
+                Vector< Matrix< DDRMat > > mdEATestStraindu;
                 // FIXME: storage for deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
-                moris::Cell< Matrix< DDRMat > > mdDGTestStraindu;
+                Vector< Matrix< DDRMat > > mdDGTestStraindu;
 
                 Matrix< DDRMat > mTestDefGrad; // test deformation gradient
-                moris::Cell< Matrix< DDRMat > > mdDefGraddu;
-                moris::Cell< Matrix< DDRMat > > mdLGStraindu;
-                moris::Cell< Matrix< DDRMat > > mdEAStraindu;
+                Vector< Matrix< DDRMat > > mdDefGraddu;
+                Vector< Matrix< DDRMat > > mdLGStraindu;
+                Vector< Matrix< DDRMat > > mdEAStraindu;
                 // FIXME: storage for derivative of deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
-                moris::Cell< Matrix< DDRMat > > mdDGStraindu;
+                Vector< Matrix< DDRMat > > mdDGStraindu;
 
                 // storage for volume change jacobian evaluation
                 real mVolumeChangeJ;
@@ -76,25 +76,25 @@ namespace moris
                 Matrix< DDRMat > m2PKStress;
                 Matrix< DDRMat > mCauchyStress;
 
-                moris::Cell< Matrix< DDRMat > > md1PKStressdu;
-                moris::Cell< Matrix< DDRMat > > md2PKStressdu;
-                moris::Cell< Matrix< DDRMat > > mdCauchyStressdu;
+                Vector< Matrix< DDRMat > > md1PKStressdu;
+                Vector< Matrix< DDRMat > > md2PKStressdu;
+                Vector< Matrix< DDRMat > > mdCauchyStressdu;
 
                 Matrix< DDRMat > m1PKTraction;
                 Matrix< DDRMat > m2PKTraction;
                 Matrix< DDRMat > mCauchyTraction;
 
-                moris::Cell< Matrix< DDRMat > > md1PKTractiondu;
-                moris::Cell< Matrix< DDRMat > > md2PKTractiondu;
-                moris::Cell< Matrix< DDRMat > > mdCauchyTractiondu;
+                Vector< Matrix< DDRMat > > md1PKTractiondu;
+                Vector< Matrix< DDRMat > > md2PKTractiondu;
+                Vector< Matrix< DDRMat > > mdCauchyTractiondu;
 
-                moris::Cell< Matrix< DDRMat > > m1PKTestTraction;
-                moris::Cell< Matrix< DDRMat > > m2PKTestTraction;
-                moris::Cell< Matrix< DDRMat > > mCauchyTestTraction;
+                Vector< Matrix< DDRMat > > m1PKTestTraction;
+                Vector< Matrix< DDRMat > > m2PKTestTraction;
+                Vector< Matrix< DDRMat > > mCauchyTestTraction;
 
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > md1PKTestTractiondu;
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > md2PKTestTractiondu;
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > mdCauchyTestTractiondu;
+                Vector< Vector< Matrix< DDRMat > > > md1PKTestTractiondu;
+                Vector< Vector< Matrix< DDRMat > > > md2PKTestTractiondu;
+                Vector< Vector< Matrix< DDRMat > > > mdCauchyTestTractiondu;
 
                 Model_Type mPlaneType  = Model_Type::PLANE_STRAIN; // Plane stress or plane strain, only used in 2d
 
@@ -173,17 +173,17 @@ namespace moris
                 // function pointers
 
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_test_deformation_gradient )(
-                        const Cell< MSI::Dof_Type > & aTestDofTypes ) = nullptr;
+                        const Vector< MSI::Dof_Type > & aTestDofTypes ) = nullptr;
 
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_dLGStraindDOF )(
-                        const Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
+                        const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_dEAStraindDOF )(
-                        const Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
+                        const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
 
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_dLGTestStraindDOF )(
-                        const Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
+                        const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_dEATestStraindDOF )(
-                        const Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
+                        const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
 
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_flatten_normal )(
                         const Matrix< DDRMat > & aNormal,
@@ -250,8 +250,8 @@ namespace moris
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 void set_dof_type_list(
-                        Cell< Cell< MSI::Dof_Type > > aDofTypes,
-                        Cell< std::string >           aDofStrings );
+                        Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                        Vector< std::string >           aDofStrings );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -260,8 +260,8 @@ namespace moris
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
-                        Cell< Cell< PDV_Type > > aDvTypes,
-                        Cell< std::string >      aDvStrings )
+                        Vector< Vector< PDV_Type > > aDvTypes,
+                        Vector< std::string >      aDvStrings )
                 {
                     Constitutive_Model::set_dv_type_list( aDvTypes );
                 }
@@ -306,7 +306,7 @@ namespace moris
                  */
                 const Matrix< DDRMat > &
                 test_deformation_gradient(
-                        const Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -363,7 +363,7 @@ namespace moris
                  * @param[ out ] mdStraindDof    derivative of the strain wrt dof
                  */
                 const Matrix< DDRMat >& dStraindDOF(
-                        const moris::Cell< MSI::Dof_Type >& aDofType,
+                        const Vector< MSI::Dof_Type >& aDofType,
                         enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -382,7 +382,7 @@ namespace moris
                  * @param[ out ] mdTeststraindDof Derivative of the teststrain wrt. DOF
                  */
                 const Matrix< DDRMat >& dTestStraindDOF(
-                        const moris::Cell< MSI::Dof_Type >& aDofType,
+                        const Vector< MSI::Dof_Type >& aDofType,
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -405,7 +405,7 @@ namespace moris
                  * @param[ out ] mFluxDofDer derivative of the flux wrt dof
                  */
                 const Matrix< DDRMat >& dFluxdDOF(
-                        const moris::Cell< MSI::Dof_Type >& aDofType,
+                        const Vector< MSI::Dof_Type >& aDofType,
                         enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -426,7 +426,7 @@ namespace moris
                  * @param[ out ] mFluxDofDer derivative of the flux wrt dof
                  */
                 const Matrix< DDRMat >& dTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type >& aDofType,
+                        const Vector< MSI::Dof_Type >& aDofType,
                         const Matrix< DDRMat >&             aNormal,
                         enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
@@ -438,7 +438,7 @@ namespace moris
                  */
                 const Matrix< DDRMat >& testTraction(
                         const Matrix< DDRMat >&             aNormal,
-                        const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                        const Vector< MSI::Dof_Type >& aTestDofTypes,
                         enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -449,10 +449,10 @@ namespace moris
                  * @param[ out ] mdTestTractiondDof derivative of the traction wrt dof
                  */
                 const Matrix< DDRMat >& dTestTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type >& aDofType,
+                        const Vector< MSI::Dof_Type >& aDofType,
                         const Matrix< DDRMat >&             aNormal,
                         const Matrix< DDRMat >&             aJump,
-                        const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                        const Vector< MSI::Dof_Type >& aTestDofTypes,
                         enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -472,13 +472,13 @@ namespace moris
                  */
                 void
                 eval_test_deformation_gradient(
-                        const Cell< MSI::Dof_Type > & aTestDofTypes )
+                        const Vector< MSI::Dof_Type > & aTestDofTypes )
                 {
                     ( this->*m_eval_test_deformation_gradient )( aTestDofTypes );
                 }
 
-                void eval_test_deformation_gradient_2d( const Cell< MSI::Dof_Type > & aTestDofTypes  );
-                void eval_test_deformation_gradient_3d( const Cell< MSI::Dof_Type > & aTestDofTypes  );
+                void eval_test_deformation_gradient_2d( const Vector< MSI::Dof_Type > & aTestDofTypes  );
+                void eval_test_deformation_gradient_3d( const Vector< MSI::Dof_Type > & aTestDofTypes  );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -549,13 +549,13 @@ namespace moris
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
                 void
-                eval_dLGStraindDOF( const Cell< MSI::Dof_Type > & aDofTypes )
+                eval_dLGStraindDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     ( this->*m_eval_dLGStraindDOF )( aDofTypes );
                 }
 
-                void eval_dLGStraindDOF_2d( const Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_dLGStraindDOF_3d( const Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dLGStraindDOF_2d( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_dLGStraindDOF_3d( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -563,13 +563,13 @@ namespace moris
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
                 void
-                eval_dEAStraindDOF( const Cell< MSI::Dof_Type > & aDofTypes )
+                eval_dEAStraindDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     ( this->*m_eval_dLGStraindDOF )( aDofTypes );
                 }
 
-                void eval_dEAStraindDOF_2d( const Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_dEAStraindDOF_3d( const Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dEAStraindDOF_2d( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_dEAStraindDOF_3d( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -577,7 +577,7 @@ namespace moris
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
                 void
-                eval_dDGStraindDOF( const Cell< MSI::Dof_Type > & aDofTypes );
+                eval_dDGStraindDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -611,7 +611,7 @@ namespace moris
                  * evaluate the derivative of first Piola-Kirchhoff stress tensor wrt dof
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_d1PKStressdDOF( const Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_d1PKStressdDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, "eval_d1PKStressdDOF - Not implemented in parent. " );
                 }
@@ -621,7 +621,7 @@ namespace moris
                  * evaluate the derivative of second Piola-Kirchhoff stress tensor wrt dof
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_d2PKStressdDOF( const Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_d2PKStressdDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, "eval_d2PKStressdDOF - Not implemented in parent. " );
                 }
@@ -631,7 +631,7 @@ namespace moris
                  * evaluate the derivative of cauchy stress tensor wrt dof
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
-                virtual void eval_dCauchyStressdDOF( const Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dCauchyStressdDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, "eval_dCauchyStressdDOF - Not implemented in parent. " );
                 }
@@ -682,7 +682,7 @@ namespace moris
                  */
                 virtual void eval_dTractiondDOF_first_piola_kirchhoff(
                         const Matrix< DDRMat > & aNormal,
-                        const Cell< MSI::Dof_Type > & aDofTypes )
+                        const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, "eval_d1PKTractiondDOF - Not implemented in parent. " );
                 }
@@ -694,7 +694,7 @@ namespace moris
                  */
                 virtual void eval_dTractiondDOF_second_piola_kirchhoff(
                         const Matrix< DDRMat > & aNormal,
-                        const Cell< MSI::Dof_Type > & aDofTypes )
+                        const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, "eval_d2PKTractiondDOF - Not implemented in parent. " );
                 }
@@ -706,7 +706,7 @@ namespace moris
                  */
                 virtual void eval_dTractiondDOF_cauchy(
                         const Matrix< DDRMat > & aNormal,
-                        const Cell< MSI::Dof_Type > & aDofTypes )
+                        const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, "eval_dCauchyTractiondDOF - Not implemented in parent. " );
                 }
@@ -718,7 +718,7 @@ namespace moris
                  */
                 virtual void eval_testTraction_first_piola_kirchhoff(
                         const Matrix< DDRMat >      & aNormal,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes )
+                        const Vector< MSI::Dof_Type > & aTestDofTypes )
                 {
                     MORIS_ERROR( false, "eval_testTraction_first_piola_kirchhoff - Not implemented in parent. " );
                 }
@@ -730,7 +730,7 @@ namespace moris
                  */
                 virtual void eval_testTraction_second_piola_kirchhoff(
                         const Matrix< DDRMat >      & aNormal,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes )
+                        const Vector< MSI::Dof_Type > & aTestDofTypes )
                 {
                     MORIS_ERROR( false, "eval_testTraction_second_piola_kirchhoff - Not implemented in parent. " );
                 }
@@ -742,7 +742,7 @@ namespace moris
                  */
                 virtual void eval_testTraction_cauchy(
                         const Matrix< DDRMat >      & aNormal,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes )
+                        const Vector< MSI::Dof_Type > & aTestDofTypes )
                 {
                     MORIS_ERROR( false, "eval_testTraction_cauchy - Not implemented in parent. " );
                 }
@@ -755,10 +755,10 @@ namespace moris
                  * @param[ in ] aNormal   normal in the reference configuration
                  */
                 virtual void eval_dTestTractiondDOF_first_piola_kirchhoff(
-                        const Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >      & aNormal,
                         const Matrix< DDRMat >      & aJump,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes )
+                        const Vector< MSI::Dof_Type > & aTestDofTypes )
                 {
                     MORIS_ERROR( false, "eval_dTestTractiondDOF_first_piola_kirchhoff - Not implemented in parent. " );
                 }
@@ -771,10 +771,10 @@ namespace moris
                  * @param[ in ] aNormal   normal in the reference configuration
                  */
                 virtual void eval_dTestTractiondDOF_second_piola_kirchhoff(
-                        const Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >      & aNormal,
                         const Matrix< DDRMat >      & aJump,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes )
+                        const Vector< MSI::Dof_Type > & aTestDofTypes )
                 {
                     MORIS_ERROR( false, "eval_dTestTractiondDOF_second_piola_kirchhoff - Not implemented in parent. " );
                 }
@@ -787,10 +787,10 @@ namespace moris
                  * @param[ in ] aNormal   normal in the reference configuration
                  */
                 virtual void eval_dTestTractiondDOF_cauchy(
-                        const Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >      & aNormal,
                         const Matrix< DDRMat >      & aJump,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes )
+                        const Vector< MSI::Dof_Type > & aTestDofTypes )
                 {
                     MORIS_ERROR( false, "eval_dTestTractiondDOF_cauchy - Not implemented in parent. " );
                 }
@@ -800,35 +800,35 @@ namespace moris
                  * evaluate the derivative of the Lagrangian/Green test strain wrt to a dof type
                  */
                 void eval_dLGTestStraindDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
                 {
                     ( this->*m_eval_dLGTestStraindDOF )( aDofType );
                 }
 
-                void eval_dLGTestStraindDOF_2d( const moris::Cell< MSI::Dof_Type > & aDofType );
-                void eval_dLGTestStraindDOF_3d( const moris::Cell< MSI::Dof_Type > & aDofType );
+                void eval_dLGTestStraindDOF_2d( const Vector< MSI::Dof_Type > & aDofType );
+                void eval_dLGTestStraindDOF_3d( const Vector< MSI::Dof_Type > & aDofType );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of the Eulerian/Almansi test strain wrt to a dof type
                  */
                 void eval_dEATestStraindDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
                 {
                     ( this->*m_eval_dEATestStraindDOF )( aDofType );
                 }
 
-                void eval_dEATestStraindDOF_2d( const moris::Cell< MSI::Dof_Type > & aDofType );
-                void eval_dEATestStraindDOF_3d( const moris::Cell< MSI::Dof_Type > & aDofType );
+                void eval_dEATestStraindDOF_2d( const Vector< MSI::Dof_Type > & aDofType );
+                void eval_dEATestStraindDOF_3d( const Vector< MSI::Dof_Type > & aDofType );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of the deformation gradient test strain wrt to a dof type
                  */
                 void eval_dDGTestStraindDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofType );
+                        const Vector< MSI::Dof_Type > & aDofType );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -836,7 +836,7 @@ namespace moris
                  * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
                  * @param[ in ] adConstdDOF a matrix to fill with derivative evaluation
                  */
-                virtual void eval_dConstdDOF( const Cell< MSI::Dof_Type > & aDofTypes )
+                virtual void eval_dConstdDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     MORIS_ERROR( false, "eval_dConstdDOF - Not implemented in parent. " );
                 }

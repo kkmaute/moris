@@ -13,7 +13,7 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "moris_typedefs.hpp" // COR/src
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "banner.hpp" // COR/src
 
@@ -50,8 +50,8 @@ using namespace sdf;
 void
 unite_raycast(
         const uint                      & aNumberOfObjects,
-        moris::Cell< Matrix< DDRMat > > & aFieldValues,
-        moris::Cell< std::string >      & aFieldLabels )
+        moris::Vector< Matrix< DDRMat > > & aFieldValues,
+        moris::Vector< std::string >      & aFieldLabels )
 {
     // get number of nodes
     uint tNumberOfNodes = aFieldValues( 0 ).length();
@@ -81,8 +81,8 @@ unite_raycast(
 void
 unite_sdfs(
         const uint                      & aNumberOfObjects,
-        moris::Cell< Matrix< DDRMat > > & aFieldValues,
-        moris::Cell< std::string >      & aFieldLabels )
+        moris::Vector< Matrix< DDRMat > > & aFieldValues,
+        moris::Vector< std::string >      & aFieldLabels )
 {
     // get number of nodes
     uint tNumberOfNodes = aFieldValues( 0 ).length();
@@ -170,7 +170,7 @@ perform_calculation(
 
     // step 1: load parameters
     ParameterList tGlobalParameters;
-    moris::Cell< ParameterList > tObjectParameters;
+    moris::Vector< ParameterList > tObjectParameters;
 
     // load XML file
     load_sdf_parameter_list_from_xml(
@@ -235,8 +235,8 @@ perform_calculation(
         tNumberOfFields = 2*tNumberOfObjects;
     }
 
-    moris::Cell< Matrix< DDRMat > > tFieldValues( tNumberOfFields, tEmpty );
-    moris::Cell< std::string > tFieldLabels( tNumberOfFields, "" );
+    moris::Vector< Matrix< DDRMat > > tFieldValues( tNumberOfFields, tEmpty );
+    moris::Vector< std::string > tFieldLabels( tNumberOfFields, "" );
 
     // step 4: perform raycast
 

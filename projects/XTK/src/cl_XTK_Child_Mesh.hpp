@@ -20,7 +20,7 @@
 
 #include "cl_Communication_Tools.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_XTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -84,7 +84,7 @@ public:
                moris::uint               aSpatialDimension,
                moris::mtk::Cell*         aParentCell,
                moris::mtk::Mesh*         aBackgroundMesh,
-               Cell<moris_index> const & aGeometryIndices );
+               Vector<moris_index> const & aGeometryIndices );
 
     // ----------------------------------------------------------------------------------
 
@@ -377,7 +377,7 @@ public:
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Vertex const *> const &
+    Vector<moris::mtk::Vertex const *> const &
     get_vertices() const;
 
     // ----------------------------------------------------------------------------------
@@ -510,7 +510,7 @@ public:
     // ----------------------------------------------------------------------------------
 
     void
-    add_vertices(moris::Cell<moris::mtk::Vertex const *> const & aVertices);
+    add_vertices(Vector<moris::mtk::Vertex const *> const & aVertices);
 
     // ----------------------------------------------------------------------------------
 
@@ -711,8 +711,8 @@ public:
     /*!
      * Returns the active bulk phases in this child mesh
      */
-    Cell<moris_index>
-    get_active_bulk_phases(Cell<moris_index> & aBulkPhasesIndex) const;
+    Vector<moris_index>
+    get_active_bulk_phases(Vector<moris_index> & aBulkPhasesIndex) const;
 
     // ----------------------------------------------------------------------------------
 
@@ -731,17 +731,17 @@ public:
 
     // ----------------------------------------------------------------------------------
 
-    Cell<moris::moris_index> const &
+    Vector<moris::moris_index> const &
     get_subphase_bin_bulk_phase() const;
 
     // ----------------------------------------------------------------------------------
 
-    Cell<moris::Matrix< moris::IndexMat >> const &
+    Vector<moris::Matrix< moris::IndexMat >> const &
     get_subphase_groups() const;
 
     // ----------------------------------------------------------------------------------
 
-    Cell<moris_index> const &
+    Vector<moris_index> const &
     get_subphase_indices( ) const;
 
     // ----------------------------------------------------------------------------------
@@ -758,9 +758,9 @@ public:
 
     void
     get_subphases_attached_to_facet(moris_index aFacetIndex,
-                                    Cell<moris_index> & aSubPhaseCMIndex,
-                                    Cell<moris_index> & aRepresentativeChildCellInd,
-                                    Cell<moris_index> & aRepresentativeChildCellSideOrdinal) const;
+                                    Vector<moris_index> & aSubPhaseCMIndex,
+                                    Vector<moris_index> & aRepresentativeChildCellInd,
+                                    Vector<moris_index> & aRepresentativeChildCellSideOrdinal) const;
 
     // ----------------------------------------------------------------------------------
 
@@ -783,17 +783,17 @@ public:
 
     // ----------------------------------------------------------------------------------
 
-    Cell< moris_index > const &
+    Vector< moris_index > const &
     get_double_side_interface_subphase_indices(moris_index aDblSideCMIndex) const;
 
     // ----------------------------------------------------------------------------------
 
-    Cell<Cell< moris_index >> const &
+    Vector<Vector< moris_index >> const &
     get_double_side_interface_cell_pairs(moris_index aDblSideCMIndex) const;
 
     // ----------------------------------------------------------------------------------
 
-    Cell<Cell< moris_index >> const &
+    Vector<Vector< moris_index >> const &
     get_double_side_interface_cell_pairs_facet_ords(moris_index aDblSideCMIndex) const;
 
     // ----------------------------------------------------------------------------------
@@ -841,26 +841,26 @@ public:
 
     // ----------------------------------------------------------------------------------
 
-    Cell<moris_index> const &
+    Vector<moris_index> const &
     get_subphase_basis_indices(moris_index aSubphaseBin) const;
 
     // ----------------------------------------------------------------------------------
 
-    Cell<moris_index> const &
+    Vector<moris_index> const &
     get_subphase_basis_enrichment_levels(moris_index aSubphaseBin) const;
 
     // --------------------------------------------------------------
 
     void
-    reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex);
+    reindex_cells(Vector<moris_index> & aOldIndexToNewCellIndex);
 
     // --------------------------------------------------------------
     // Functions IO
     // --------------------------------------------------------------
 
     void pack_child_mesh_by_phase(moris::size_t const & aNumPhases,
-                                  Cell<moris::Matrix< moris::IdMat >> & aElementIds,
-                                  Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const;
+                                  Vector<moris::Matrix< moris::IdMat >> & aElementIds,
+                                  Vector<moris::Matrix< moris::IdMat >> & aElementCMInds) const;
 
     // ----------------------------------------------------------------------------------
 
@@ -892,7 +892,7 @@ public:
 
     // ----------------------------------------------------------------------------------
 
-    void identify_hanging_nodes( const moris::Cell< moris_index > & aTransitionFacetIndices );
+    void identify_hanging_nodes( const Vector< moris_index > & aTransitionFacetIndices );
 
     // ----------------------------------------------------------------------------------
 
@@ -929,7 +929,7 @@ private:
     moris::uint mSpatialDimension;
 
     // Geometries which intersect this child mesh
-    Cell<moris_index> mGeometryIndex;
+    Vector<moris_index> mGeometryIndex;
 
     // Child element information ---------------------------
     moris::Matrix< moris::IdMat >    mChildElementIds;
@@ -939,7 +939,7 @@ private:
     // child mesh.
 
     // Node information ------------------------------------
-    moris::Cell<moris::mtk::Vertex const *> mVertices;
+    Vector<moris::mtk::Vertex const *> mVertices;
     moris::Matrix< moris::IdMat >           mNodeIds;
     moris::Matrix< moris::IndexMat>         mNodeInds;
     moris::Matrix< moris::DDSTMat >         mNodeParentRank;
@@ -975,8 +975,8 @@ private:
 
     // Auxiliary connectivity data and pending nodes (mesh modification data)
     moris::Matrix<moris::IndexMat>  mIntersectConnectivity;
-    moris::Cell< moris_index >      mIntersectedCMNodeIndex;
-    moris::Cell< moris_index >      mIntersectedEdges;
+    Vector< moris_index >      mIntersectedCMNodeIndex;
+    Vector< moris_index >      mIntersectedEdges;
 
     bool                             mHasCoincidentEdges;
     moris::Matrix< moris::IndexMat > mEdgeOnInterface;
@@ -987,18 +987,18 @@ private:
     bool                                   mHasPhaseInfo;
     moris::Matrix< moris::IndexMat >       mElementPhaseIndices;
     moris::Matrix< moris::IndexMat >       mElementBinIndex;
-    Cell<moris::moris_index>               mBinBulkPhase;
+    Vector<moris::moris_index>               mBinBulkPhase;
 
     moris::Matrix<moris::IndexMat>         mSubPhaseBinId; /*glob id of subphase bin*/
-    Cell<moris_index>                      mSubPhaseBinIndices; /*proc index of subphase bin*/
-    Cell<moris::Matrix< moris::IndexMat >> mSubPhaseBins;
-    Cell<Cell< moris_index >>              mSubphaseBasisIndices;
-    Cell<Cell< moris_index >>              mSubphaseBasisEnrichmentLevel;
+    Vector<moris_index>                      mSubPhaseBinIndices; /*proc index of subphase bin*/
+    Vector<moris::Matrix< moris::IndexMat >> mSubPhaseBins;
+    Vector<Vector< moris_index >>              mSubphaseBasisIndices;
+    Vector<Vector< moris_index >>              mSubphaseBasisEnrichmentLevel;
 
     // Double side set between subphases
-    Cell<Cell< moris_index >>       mDoubleSideSetSubphaseInds;
-    Cell<Cell<Cell< moris_index >>> mDoubleSideSetCellPairs;
-    Cell<Cell<Cell< moris_index >>> mDoubleSideSetFacetPairs;
+    Vector<Vector< moris_index >>       mDoubleSideSetSubphaseInds;
+    Vector<Vector<Vector< moris_index >>> mDoubleSideSetCellPairs;
+    Vector<Vector<Vector< moris_index >>> mDoubleSideSetFacetPairs;
 
     Matrix< IndexMat >              mHangingNodes;
 

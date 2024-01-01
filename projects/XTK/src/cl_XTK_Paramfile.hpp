@@ -48,14 +48,14 @@ public:
 
     // geometry
     std::string        mGeometryName;
-    Cell<real>         mRealGeomParams;
-    Cell<std::string>  mRealGeomLabels;
-    Cell<moris_index>  mIntGeomParams;
-    Cell<std::string>  mIntGeomLabels;
+    Vector<real>         mRealGeomParams;
+    Vector<std::string>  mRealGeomLabels;
+    Vector<moris_index>  mIntGeomParams;
+    Vector<std::string>  mIntGeomLabels;
 
     // decomposition
-    Cell<enum Subdivision_Method> mSubdivisionMethods;
-    Cell<std::string> mSubdivisionStrings;
+    Vector<enum Subdivision_Method> mSubdivisionMethods;
+    Vector<std::string> mSubdivisionStrings;
 
     // compute sens
     bool mComputeSens;
@@ -131,7 +131,7 @@ public:
 
     ~Paramfile();
 
-    Cell<XTK_Problem_Params> &
+    Vector<XTK_Problem_Params> &
     get_xtk_problem_params()
     {
         return mXTKProblems;
@@ -142,7 +142,7 @@ private:
     XML_Parser * mParser = nullptr;
 
     // XTK problems to run
-    Cell<XTK_Problem_Params> mXTKProblems;
+    Vector<XTK_Problem_Params> mXTKProblems;
 
     /*!
      * Load mesh parameters from XML file
@@ -219,11 +219,11 @@ private:
       }
     }
 
-    Cell<real>
+    Vector<real>
     convert_str_to_cell_real(std::string const & aStr)
     {
       std::stringstream ss( aStr );
-      Cell<real> result;
+      Vector<real> result;
 
       while( ss.good() )
       {
@@ -235,11 +235,11 @@ private:
       return result;
     }
 
-    Cell<std::string>
+    Vector<std::string>
     convert_str_to_cell_str(std::string const & aStr)
     {
       std::stringstream ss( aStr );
-      Cell<std::string> result;
+      Vector<std::string> result;
 
       while( ss.good() )
       {

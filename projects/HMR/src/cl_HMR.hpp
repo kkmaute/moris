@@ -48,14 +48,14 @@ namespace moris::hmr
             bool mRestartedFromFile = false;
 
             //! mesh which points to input pattern
-            Cell< std::shared_ptr< Mesh > > mMeshes;
-            Cell< std::shared_ptr< Mesh > > mInputMeshes;
+            Vector< std::shared_ptr< Mesh > > mMeshes;
+            Vector< std::shared_ptr< Mesh > > mInputMeshes;
 
             //! mesh which points to output pattern
-            //Cell< std::shared_ptr< Mesh > > mOutputMeshes;
+            //Vector< std::shared_ptr< Mesh > > mOutputMeshes;
 
             //! container with field objects
-            Cell< std::shared_ptr< Field > > mFields;
+            Vector< std::shared_ptr< Field > > mFields;
 
             //! map for Lagrange orders
             Matrix< DDUMat > mLagrangeOrderToInputMeshIndexMap;
@@ -72,15 +72,15 @@ namespace moris::hmr
              * @param[in] aUpperBound   - upper bound of LS
              */
             void find_cells_intersected_by_levelset(
-                    Cell< hmr::Element * >   & aCells,
-                    Cell< hmr::Element * >   & aCandidates,
+                    Vector< hmr::Element * >   & aCells,
+                    Vector< hmr::Element * >   & aCandidates,
                     const  Matrix< DDRMat >  & aVertexValues,
                     real                       aLowerBound = -0.0001,
                     real                       aUpperBound =  0.0001);
 
             void find_low_level_cells_intersected_by_levelset(
-                    Cell< hmr::Element * >   & aCells,
-                    Cell< hmr::Element * >   & aCandidates,
+                    Vector< hmr::Element * >   & aCells,
+                    Vector< hmr::Element * >   & aCandidates,
                     const  Matrix< DDRMat >  & aVertexValues,
                     real                       aLowerBound = -0.0001,
                     real                       aUpperBound =  0.0001);
@@ -94,8 +94,8 @@ namespace moris::hmr
              * @param[in] aUpperBound   - upper bound of LS
              */
             void find_cells_within_levelset(
-                    Cell< hmr::Element * >  & aCells,
-                    Cell< hmr::Element * >  & aCandidates,
+                    Vector< hmr::Element * >  & aCells,
+                    Vector< hmr::Element * >  & aCandidates,
                     const  Matrix< DDRMat > & aVertexValues,
                     uint                      aUpperBound = 0.0 );
 
@@ -240,7 +240,7 @@ namespace moris::hmr
              *                                     the child is automatically flagged in the next iteration
              */
             void flag_elements_on_working_pattern(
-                    Cell< hmr::Element* > & aElements,
+                    Vector< hmr::Element* > & aElements,
                     uint               aMinRefinementLevel = 0 );
 
             // -----------------------------------------------------------------------------
@@ -266,7 +266,7 @@ namespace moris::hmr
 
             // -----------------------------------------------------------------------------
 
-            void put_elements_on_refinement_queue( Cell< hmr::Element* > & aElements);
+            void put_elements_on_refinement_queue( Vector< hmr::Element* > & aElements);
 
             // -----------------------------------------------------------------------------
 
@@ -381,19 +381,19 @@ namespace moris::hmr
              * for flagging
              */
             void get_candidates_for_refinement(
-                    Cell< hmr::Element* > & aCandidates,
+                    Vector< hmr::Element* > & aCandidates,
                     uint              aLagrangeMeshIndex);
 
             void get_candidates_for_refinement(
-                    Cell< hmr::Element* > & aCandidates,
+                    Vector< hmr::Element* > & aCandidates,
                     Lagrange_Mesh_Base    * aMesh );
 
             void get_active_candidates_for_refinement(
-                    Cell< hmr::Element* > & aCandidates,
+                    Vector< hmr::Element* > & aCandidates,
                     uint              aLagrangeMeshIndex);
 
             void get_active_candidates_for_refinement(
-                    Cell< hmr::Element* > & aCandidates,
+                    Vector< hmr::Element* > & aCandidates,
                     Lagrange_Mesh_Base    * aMesh );
 
             // -----------------------------------------------------------------------------
@@ -584,14 +584,14 @@ namespace moris::hmr
         private:
 
             void user_defined_flagging(
-                    Cell< hmr::Element * >   & aCells,
-                    Cell< hmr::Element * >   & aCandidates,
+                    Vector< hmr::Element * >   & aCells,
+                    Vector< hmr::Element * >   & aCandidates,
                     const  Matrix< DDRMat >  & aVertexValues,
                     uint                       aFunctionIndex);
 
             void user_defined_flagging(
-                    Cell< hmr::Element * >   & aCells,
-                    Cell< hmr::Element * >   & aCandidates,
+                    Vector< hmr::Element * >   & aCells,
+                    Vector< hmr::Element * >   & aCandidates,
                     const  Matrix< DDRMat >  & aVertexValues,
                     Refinement_Function        aRefinementFunction);
 

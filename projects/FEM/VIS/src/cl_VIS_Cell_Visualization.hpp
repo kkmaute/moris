@@ -13,7 +13,7 @@
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Logger.hpp"
-#include "cl_Cell.hpp"        //MRS/CNT/src
+#include "cl_Vector.hpp"        //MRS/CNT/src
 #include "cl_MTK_Cell.hpp"    //MRS/CNT/src
 #include "fn_cross.hpp"
 #include "fn_norm.hpp"
@@ -32,7 +32,7 @@ namespace moris
 
         class Cell_Visualization : public moris::mtk::Cell
         {
-            moris::Cell< mtk::Vertex* > mCellVertices;
+            Vector< mtk::Vertex* > mCellVertices;
             const moris::mtk::Cell*     mIntegrationcell = nullptr;
 
             //------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ namespace moris
              */
             Cell_Visualization( moris_id              aCellId,
                     moris_index                       aCellInd,
-                    const moris::Cell< mtk::Vertex* > aCellVertices,
+                    const Vector< mtk::Vertex* > aCellVertices,
                     const moris::mtk::Cell*           aIntegrationCell )
                     : Cell( aCellId,
                             aCellInd,
@@ -121,9 +121,9 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * fills a moris::cell with pointers to connected vertices
+             * fills a Vector with pointers to connected vertices
              */
-            moris::Cell< mtk::Vertex* >
+            Vector< mtk::Vertex* >
             get_vertex_pointers() const
             {
                 return mCellVertices;

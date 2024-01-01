@@ -170,8 +170,8 @@ namespace xtk
         mCutMesh            = Cut_Mesh( this, mModelDimension );
         mEnrichment         = nullptr;
         mGhostStabilization = nullptr;
-        mEnrichedInterpMesh = Cell< Enriched_Interpolation_Mesh * >( 0, nullptr );
-        mEnrichedIntegMesh  = Cell< Enriched_Integration_Mesh  *>( 0, nullptr );
+        mEnrichedInterpMesh = Vector< Enriched_Interpolation_Mesh * >( 0, nullptr );
+        mEnrichedIntegMesh  = Vector< Enriched_Integration_Mesh  *>( 0, nullptr );
         mConvertedToTet10s  = false;
     }
 
@@ -243,7 +243,7 @@ namespace xtk
             // }
 
             // generate list of decomposition methods to be performed to generate the XTK mesh
-            Cell< enum Subdivision_Method > tSubdivisionMethods = this->get_subdivision_methods();
+            Vector< enum Subdivision_Method > tSubdivisionMethods = this->get_subdivision_methods();
 
             // perform the decomposition methods specified
             bool tSuccess = this->decompose( tSubdivisionMethods );
@@ -302,8 +302,8 @@ namespace xtk
                 // initialize the lists of double sided side sets to be created
                 // Note: the number of side set combinations is ( n^2 - n ) where n is the number of bulk phases - we're only looking at the lower triangular part, so divide by 2
                 uint tNumDblSideSetsToCreate = tNumBulkPhases * ( tNumBulkPhases - 1 ) / 2;
-                Cell< moris_index > tLeaderPhaseIndices( tNumDblSideSetsToCreate, MORIS_INDEX_MAX );
-                Cell< moris_index > tFollowerPhaseIndices( tNumDblSideSetsToCreate, MORIS_INDEX_MAX );
+                Vector< moris_index > tLeaderPhaseIndices( tNumDblSideSetsToCreate, MORIS_INDEX_MAX );
+                Vector< moris_index > tFollowerPhaseIndices( tNumDblSideSetsToCreate, MORIS_INDEX_MAX );
 
                 // count number of double side sets to be created
                 uint tNumDblSideSetsCreated = 0;
@@ -393,14 +393,14 @@ namespace xtk
         if ( !tUnionBlockStr.empty() )
         {
             // get the blocks to unionize
-            moris::Cell< moris::Cell< std::string > > tUnionBlockCells;
+            moris::Vector< moris::Vector< std::string > > tUnionBlockCells;
             moris::string_to_cell_of_cell( tUnionBlockStr, tUnionBlockCells );
 
             // Row based
             Matrix< IndexMat > tUnionBlockColors      = string_to_mat< IndexMat >( mParameterList.get< std::string >( "union_block_colors" ) );
             std::string        tUnionNewBlockNamesStr = mParameterList.get< std::string >( "union_block_names" );
 
-            moris::Cell< moris::Cell< std::string > > tNewBlockNames;
+            moris::Vector< moris::Vector< std::string > > tNewBlockNames;
             moris::string_to_cell_of_cell( tUnionNewBlockNamesStr, tNewBlockNames );
 
             MORIS_ERROR( tUnionBlockCells.size() == tNewBlockNames.size(), "Dimension Mismatch in number of union operations for block" );
@@ -419,14 +419,14 @@ namespace xtk
         if ( !tUnionSideSetStr.empty() )
         {
             // get the blocks to unionize
-            moris::Cell< moris::Cell< std::string > > tUnionSideSetCells;
+            moris::Vector< moris::Vector< std::string > > tUnionSideSetCells;
             moris::string_to_cell_of_cell( tUnionSideSetStr, tUnionSideSetCells );
 
             // Row based
             Matrix< IndexMat > tUnionSideSetColors      = string_to_mat< IndexMat >( mParameterList.get< std::string >( "union_side_set_colors" ) );
             std::string        tUnionNewSideSetNamesStr = mParameterList.get< std::string >( "union_side_set_names" );
 
-            moris::Cell< moris::Cell< std::string > > tNewSideSetNames;
+            moris::Vector< moris::Vector< std::string > > tNewSideSetNames;
             moris::string_to_cell_of_cell( tUnionNewSideSetNamesStr, tNewSideSetNames );
 
             MORIS_ERROR( tUnionSideSetCells.size() == tNewSideSetNames.size(), "Dimension Mismatch in number of union operations for side set" );
@@ -445,7 +445,7 @@ namespace xtk
         if ( !tDeactivatedBlockStr.empty() )
         {
             // get the blocks to unionize
-            moris::Cell< moris::Cell< std::string > > tBlocksToKeepStr;
+            moris::Vector< moris::Vector< std::string > > tBlocksToKeepStr;
             moris::string_to_cell_of_cell( tDeactivatedBlockStr, tBlocksToKeepStr );
 
             MORIS_ERROR( tBlocksToKeepStr.size() == 1, "deactivate_all_but_block issue: This operation can only be performed on time" );
@@ -457,7 +457,7 @@ namespace xtk
         if ( !tDeactivatedSideSetStr.empty() )
         {
             // get the blocks to unionize
-            moris::Cell< moris::Cell< std::string > > tSideSetsToKeepStr;
+            moris::Vector< moris::Vector< std::string > > tSideSetsToKeepStr;
             moris::string_to_cell_of_cell( tDeactivatedSideSetStr, tSideSetsToKeepStr );
 
             MORIS_ERROR( tSideSetsToKeepStr.size() == 1, "deactivate_all_side_sets_except_selected issue: This operation can only be performed on time" );
@@ -602,12 +602,12 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Cell< enum Subdivision_Method >
+    Vector< enum Subdivision_Method >
     Model::get_subdivision_methods()
     {
         MORIS_ASSERT( this->has_parameter_list(), "Perform can only be called on a parameter list based XTK" );
 
-        moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
+        moris::Vector< enum Subdivision_Method > tSubdivisionMethods;
 
         uint               tSpatialDimension = this->get_spatial_dim();
         mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
@@ -643,12 +643,12 @@ namespace xtk
         {
             if ( tBGCellTopo == mtk::Geometry_Type::QUAD && tConformal )
             {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+                moris::Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::QUAD && !tConformal )
             {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
+                moris::Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
                 tSubdivisionMethods.append( tMethods );
             }
         }
@@ -656,17 +656,17 @@ namespace xtk
         {
             if ( tBGCellTopo == mtk::Geometry_Type::HEX && tConformal )
             {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+                moris::Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::HEX && !tConformal )
             {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
+                moris::Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::HEX && tConformal )
             {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::C_HIERARCHY_TET4 };
+                moris::Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::C_HIERARCHY_TET4 };
                 tSubdivisionMethods.append( tMethods );
             }
         }
@@ -683,7 +683,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     bool
-    Model::decompose( Cell< enum Subdivision_Method > aMethods )
+    Model::decompose( Vector< enum Subdivision_Method > aMethods )
     {
         // log/trace the mesh decomposition
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
@@ -767,8 +767,8 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< std::string >
-    Model::check_for_and_remove_internal_seacas_side_sets( moris::Cell< std::string > &aSideSetNames )
+    moris::Vector< std::string >
+    Model::check_for_and_remove_internal_seacas_side_sets( moris::Vector< std::string > &aSideSetNames )
     {
         for ( std::vector< std::string >::iterator iSet = aSideSetNames.begin(); iSet != aSideSetNames.end(); ++iSet )
         {
@@ -906,7 +906,7 @@ namespace xtk
         //     // get the neighbors
         //     Matrix< IndexMat > tElementNeighbors = mBackgroundMesh->get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
 
-        //     moris::Cell< moris_index > tTransitionFacets;
+        //     Vector< moris_index > tTransitionFacets;
 
         //     // iterate through neighbor
         //     for ( uint iN = 0; iN < tElementNeighbors.n_cols(); iN++ )
@@ -937,7 +937,7 @@ namespace xtk
             moris_index                  tIndex      = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), mtk::EntityRank::ELEMENT );
             mtk::Cell                   &tCell       = mBackgroundMesh->get_mtk_cell( tIndex );
             Matrix< IndexMat >           tVertexIds  = tCell.get_vertex_ids();
-            moris::Cell< mtk::Vertex * > tVertexPtrs = tCell.get_vertex_pointers();
+            moris::Vector< mtk::Vertex * > tVertexPtrs = tCell.get_vertex_pointers();
 
             MORIS_LOG_SPEC( "Cell Id", tBGCellIds( i ) );
             MORIS_LOG_SPEC( "Cell Index", tIndex );
@@ -946,7 +946,7 @@ namespace xtk
 
             // collect geometric info
             uint                     tNumGeom = mGeometryEngine->get_num_geometries();
-            Cell< Matrix< DDRMat > > tVertexGeomVals( tNumGeom, Matrix< DDRMat >( 1, tVertexPtrs.size() ) );
+            Vector< Matrix< DDRMat > > tVertexGeomVals( tNumGeom, Matrix< DDRMat >( 1, tVertexPtrs.size() ) );
             for ( uint iG = 0; iG < tNumGeom; iG++ )
             {
                 for ( uint iV = 0; iV < tVertexPtrs.size(); iV++ )
@@ -1236,7 +1236,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< moris::Cell< moris_index > > const &
+    moris::Vector< moris::Vector< moris_index > > const &
     Model::get_subphase_to_subphase()
     {
         MORIS_ERROR( 0, "Deprecated." );
@@ -1245,7 +1245,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< moris::Cell< moris_index > > const &
+    moris::Vector< moris::Vector< moris_index > > const &
     Model::get_subphase_to_subphase_my_side_ords()
     {
         MORIS_ERROR( 0, "Deprecated." );
@@ -1254,7 +1254,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< moris::Cell< moris_index > > const &
+    moris::Vector< moris::Vector< moris_index > > const &
     Model::get_subphase_to_subphase_transition_loc()
     {
         MORIS_ERROR( 0, "Deprecated." );
@@ -1263,7 +1263,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< moris::Cell< moris_index > > const &
+    moris::Vector< moris::Vector< moris_index > > const &
     Model::get_subphase_to_subphase_neighbor_side_ords()
     {
         MORIS_ERROR( 0, "Deprecated." );
@@ -1283,7 +1283,7 @@ namespace xtk
     moris::Matrix< moris::IndexMat >
     Model::get_num_subphase_neighbors()
     {
-        moris::Cell< moris::Cell< moris_index > > const &tSubPhaseToSubphase = this->get_subphase_to_subphase();
+        moris::Vector< moris::Vector< moris_index > > const &tSubPhaseToSubphase = this->get_subphase_to_subphase();
         moris::Matrix< moris::IndexMat >                 tSubphaseNumNeighbors( 1, tSubPhaseToSubphase.size() );
         for ( size_t iSP = 0; iSP < tSubPhaseToSubphase.size(); iSP++ )
         {

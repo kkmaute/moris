@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_Geometric_Proximity_HPP_
 #define MORIS_CL_Geometric_Proximity_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "moris_typedefs.hpp"
 namespace moris
 {
@@ -29,7 +29,7 @@ namespace moris
             // 1 - G(x) == threshold (interface)
             // 2 - G(x) > threshold (inside)
             // MORIS_INDEX_MAX - proximity not set
-            moris::Cell< moris_index > mGeometricProximity;    // input: vertex index || output: proximity value
+            Vector< moris_index > mGeometricProximity;    // input: vertex index || output: proximity value
 
             //-----------------------------------------------------------------------------------------
             //-----------------------------------------------------------------------------------------

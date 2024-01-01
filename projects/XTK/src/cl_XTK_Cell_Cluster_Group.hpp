@@ -30,16 +30,16 @@ namespace xtk
     protected:
     
         // list of clusters in group
-        moris::Cell< std::shared_ptr< mtk::Cluster > > mClusters;
+        Vector< std::shared_ptr< mtk::Cluster > > mClusters;
 
         //------------------------------------------------------------------------------
 
         /**
          * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
          * 
-         * @return moris::Cell< Cluster const* > const& list of clusters in the cluster group
+         * @return Vector< Cluster const* > const& list of clusters in the cluster group
          */
-        const moris::Cell< mtk::Cluster const* > 
+        const Vector< mtk::Cluster const* >
         get_clusters_in_group() const;
 
         //------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ namespace xtk
          */
         Cell_Cluster_Group( 
                 const moris_index                              aDiscretizationMeshIndex,
-                moris::Cell< std::shared_ptr< mtk::Cluster > > aClusters );
+                Vector< std::shared_ptr< mtk::Cluster > > aClusters );
 
         //------------------------------------------------------------------------------
 

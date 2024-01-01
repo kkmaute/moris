@@ -29,7 +29,7 @@ namespace moris
 
         Child_Node::Child_Node(
                 Matrix< DDUMat >          aAncestorNodeIndices,
-                Cell< Matrix< DDRMat > >  aAncestorNodeCoordinates,
+                Vector< Matrix< DDRMat > >  aAncestorNodeCoordinates,
                 Element_Intersection_Type aBasisFunction,
                 Matrix< DDRMat >          aLocalCoordinatesInAncestor )
         {
@@ -111,7 +111,7 @@ namespace moris
             // use specifically bi or tri-linear interpolation to compute level set value
             if ( aEvaluateAsLinear )
             {
-                Cell< moris::mtk::Vertex* > tVerts = aParentCell->get_vertex_pointers();
+                Vector< moris::mtk::Vertex* > tVerts = aParentCell->get_vertex_pointers();
 
                 if ( aParentCell->get_cell_info()->get_cell_geometry() == mtk::Geometry_Type::QUAD )
                 {
@@ -145,7 +145,7 @@ namespace moris
             }
             else
             {
-                Cell< moris::mtk::Vertex* > tVerts = aParentCell->get_vertex_pointers();
+                Vector< moris::mtk::Vertex* > tVerts = aParentCell->get_vertex_pointers();
 
                 mAncestorNodeIndices.resize( 1, tVerts.size() );
                 mAncestorNodeCoordinates.resize( tVerts.size(), Matrix< DDRMat >( 1, 3 ) );

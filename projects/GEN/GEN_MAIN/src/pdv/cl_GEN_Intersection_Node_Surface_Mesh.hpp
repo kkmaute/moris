@@ -49,7 +49,7 @@ namespace moris::ge
                     const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                     const Matrix< DDUMat >&              aAncestorNodeIndices,
-                    const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates );
+                    const Vector< Matrix< DDRMat > >&      aAncestorNodeCoordinates );
 
         protected:
 
@@ -87,7 +87,7 @@ namespace moris::ge
         real compute_local_coordinate( 
             const Matrix< DDRMat >& aFirstParentNodeCoordinates, 
             const Matrix< DDRMat >& aSecondParentNodeCoordinates, 
-            const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates);
+            const Vector< Matrix< DDRMat > >& aAncestorNodeCoordinates);
 
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the

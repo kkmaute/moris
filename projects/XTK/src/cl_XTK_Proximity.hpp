@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "enums.hpp"
 
 using namespace moris;
@@ -31,7 +31,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
       private:
-        Cell< Geometric_Proximity > mGeomProximity;
+        Vector< Geometric_Proximity > mGeomProximity;
 
         // ----------------------------------------------------------------------------------
 
@@ -92,18 +92,18 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     xtk::Geometric_Proximity
-    decide_proximity_from_parent_proximities( Cell< xtk::Geometric_Proximity > const & aParentProximities );
+    decide_proximity_from_parent_proximities( Vector< xtk::Geometric_Proximity > const & aParentProximities );
 
     // ----------------------------------------------------------------------------------
 
     xtk::Geometric_Proximity
-    proximity_vote( Cell< xtk::Geometric_Proximity > const & aParentProximities );
+    proximity_vote( Vector< xtk::Geometric_Proximity > const & aParentProximities );
 
     // ----------------------------------------------------------------------------------
 
     xtk::Geometric_Proximity
     decide_proximity_from_parent_proximities(
-            Cell< const Proximity* > const & aParentProximities,
+            Vector< const Proximity* > const & aParentProximities,
             const moris_index                aGeometryIndex );
 
     // ----------------------------------------------------------------------------------

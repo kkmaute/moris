@@ -32,7 +32,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Velocity_Dirichlet_Nitsche::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        SP_Velocity_Dirichlet_Nitsche::set_parameters( moris::Vector< Matrix< DDRMat > > aParameters )
         {
             // FIXME not necessary
             // set mParameters
@@ -92,8 +92,8 @@ namespace moris
 
         void
         SP_Velocity_Dirichlet_Nitsche::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                moris::Cell< std::string >&                  aDofStrings,
+                moris::Vector< moris::Vector< MSI::Dof_Type > >& aDofTypes,
+                moris::Vector< std::string >&                  aDofStrings,
                 mtk::Leader_Follower                         aIsLeader )
         {
             // switch on leader follower
@@ -144,7 +144,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::tuple<
+        moris::Vector< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
                 mtk::Leader_Follower > >
@@ -220,7 +220,7 @@ namespace moris
 
         void
         SP_Velocity_Dirichlet_Nitsche::eval_dSPdLeaderDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get element size cluster measure value
             real tElementSize = ( this->*mGeometryMeasureFunc )();

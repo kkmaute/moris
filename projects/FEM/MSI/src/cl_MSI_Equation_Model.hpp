@@ -12,7 +12,7 @@
 #define PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"     //MRS/CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -48,10 +48,10 @@ namespace moris
         {
           protected:
             // list of equation sets
-            moris::Cell< MSI::Equation_Set* > mFemSets;
+            Vector< MSI::Equation_Set* > mFemSets;
 
             // list of equation objects
-            moris::Cell< MSI::Equation_Object* > mFemClusters;
+            Vector< MSI::Equation_Object* > mFemClusters;
 
             // map from mesh set indices to fem set indices
             map< std::tuple< moris_index, bool, bool >, moris_index > mMeshSetToFemSetMap;
@@ -65,7 +65,7 @@ namespace moris
 
             sol::Dist_Map* mdQIdpMap = nullptr;
 
-            moris::Cell< moris::Matrix< DDRMat > > mGlobalIQIVal;
+            Vector< moris::Matrix< DDRMat > > mGlobalIQIVal;
 
             sol::Dist_Vector* mImplicitdQidp = nullptr;
             sol::Dist_Vector* mExplicitdQidp = nullptr;
@@ -84,7 +84,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
             // Dummy Variables
-            moris::Cell< std::string > mDummy;
+            Vector< std::string > mDummy;
 
             //------------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ namespace moris
             /**
              * get equation sets for test
              */
-            moris::Cell< MSI::Equation_Set* >&
+            Vector< MSI::Equation_Set* >&
             get_equation_sets()
             {
                 return mFemSets;
@@ -125,7 +125,7 @@ namespace moris
             /**
              * get equation objects
              */
-            moris::Cell< MSI::Equation_Object* >&
+            Vector< MSI::Equation_Object* >&
             get_equation_objects()
             {
                 return mFemClusters;
@@ -374,7 +374,7 @@ namespace moris
              * @param[ in ] aRequestedIQINames List of requested IQI names
              */
             virtual void
-            set_requested_IQI_names( const moris::Cell< std::string >& aRequestedIQINames )
+            set_requested_IQI_names( const Vector< std::string >& aRequestedIQINames )
             {
                 MORIS_ERROR( false, "Equation_Model::set_requested_IQI_names - not implemented for base class." );
             }
@@ -383,7 +383,7 @@ namespace moris
             /**
              * get requested IQI names
              */
-            virtual const moris::Cell< std::string >&
+            virtual const Vector< std::string >&
             get_requested_IQI_names()
             {
                 MORIS_ERROR( false, "Equation_Model::get_requested_IQI_names - not implemented for base class." );
@@ -518,7 +518,7 @@ namespace moris
              * get QI global values
              * @param[ out ] mGlobalIQIVal cell filled with global QI values
              */
-            moris::Cell< moris::Matrix< DDRMat > >&
+            Vector< moris::Matrix< DDRMat > >&
             get_IQI_values()
             {
                 return mGlobalIQIVal;
@@ -540,7 +540,7 @@ namespace moris
             virtual void
             get_integration_xyz_active_flags(
                     const Matrix< IndexMat >&      aNodeIndices,
-                    const moris::Cell< PDV_Type >& aPdvTypes,
+                    const Vector< PDV_Type >& aPdvTypes,
                     Matrix< DDSMat >&              aIsActiveDv )
             {
                 MORIS_ERROR( false,
@@ -558,7 +558,7 @@ namespace moris
             virtual void
             get_integration_xyz_pdv_ids(
                     const Matrix< IndexMat >&      aNodeIndices,
-                    const moris::Cell< PDV_Type >& aPdvTypes,
+                    const Vector< PDV_Type >& aPdvTypes,
                     Matrix< DDSMat >&              aXYZPdvIds )
             {
                 MORIS_ERROR( false,
@@ -578,7 +578,7 @@ namespace moris
             virtual void
             get_integration_xyz_pdv_active_flags_and_ids(
                     const Matrix< IndexMat >&      aNodeIndices,
-                    const moris::Cell< PDV_Type >& aRequestedPdvTypes,
+                    const Vector< PDV_Type >& aRequestedPdvTypes,
                     Matrix< DDSMat >&              aIsActiveDv,
                     Matrix< DDSMat >&              aXYZPdvIds )
             {
@@ -628,7 +628,7 @@ namespace moris
             virtual void
             get_integration_xyz_pdv_assembly_indices(
                     const Matrix< IndexMat >&      aNodeIndices,
-                    const moris::Cell< PDV_Type >& aRequestedPdvTypes,
+                    const Vector< PDV_Type >& aRequestedPdvTypes,
                     Matrix< DDSMat >&              aXYZPdvAssemblyIndices )
             {
                 MORIS_ERROR( false,
@@ -648,7 +648,7 @@ namespace moris
             /**
              * return fields
              */
-            virtual moris::Cell< std::shared_ptr< mtk::Field > > get_fields() = 0;
+            virtual Vector< std::shared_ptr< mtk::Field > > get_fields() = 0;
 
             //------------------------------------------------------------------------------
 

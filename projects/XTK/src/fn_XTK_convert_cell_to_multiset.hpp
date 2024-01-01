@@ -23,13 +23,13 @@ namespace xtk
     /**
      * @brief converts a cell of <T> into an ordered multiset of <T>
      *
-     * @param aIndexCell moris::Cell<T>
+     * @param aIndexCell Vector<T>
      * @param aMultiSet std::multiset<T> to fill
      */
     template< class T >
     inline void
     convert_index_cell_to_index_multiset(
-            Cell< T > const &   aIndexCell,
+            Vector< T > const &   aIndexCell,
             std::multiset< T >& aMultiSet )
     {
         for ( uint i = 0; i < aIndexCell.size(); i++ )

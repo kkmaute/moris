@@ -63,7 +63,7 @@ public:
     moris::Matrix<moris::DDRMat> const &
     get_seeded_field();
 
-    moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> &
+    moris::Vector<std::shared_ptr<moris::ge::Superellipsoid>> &
     get_seeded_geometies();
 
 private:
@@ -76,7 +76,7 @@ private:
     moris::uint mNumSpheresInY;
     moris::uint mNumSpheresInZ;
     moris::Matrix<moris::DDRMat> mSeededField;
-    moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> mSpheres;
+    moris::Vector<std::shared_ptr<moris::ge::Superellipsoid>> mSpheres;
 
 };
 

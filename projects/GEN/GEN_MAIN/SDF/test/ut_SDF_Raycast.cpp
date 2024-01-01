@@ -50,7 +50,7 @@ TEST_CASE(
             // create triangle object from object file
             std::string         tObjectPath = tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/tetrahedron.obj";
             sdf::Object         tObject( tObjectPath );
-            Cell< sdf::Facet* > tFacets = tObject.get_facets();
+            Vector< sdf::Facet* > tFacets = tObject.get_facets();
 
             // create raycaster
             sdf::Raycast tRaycaster( tObject );
@@ -66,8 +66,8 @@ TEST_CASE(
 
             // preselect in x direction and ensure they are correct
             tRaycaster.preselect_triangles_x();
-            Cell< uint > tCandidatesExpected = { 0, 1, 2 };
-            Cell< uint > tCandidateTriangles = tRaycaster.get_candidate_facets();
+            Vector< uint > tCandidatesExpected = { 0, 1, 2 };
+            Vector< uint > tCandidateTriangles = tRaycaster.get_candidate_facets();
 
             REQUIRE( tCandidateTriangles.size() == 3 );
             CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
@@ -95,8 +95,8 @@ TEST_CASE(
 
             // check for intersection with facets and ensure they are correct
             tRaycaster.intersect_triangles( 2 );
-            Cell< sdf::Facet* > tIntersectedTriangles = tRaycaster.get_intersected_facets();
-            Cell< sdf::Facet* > tIntersectedFacetsExpected( 2 );
+            Vector< sdf::Facet* > tIntersectedTriangles = tRaycaster.get_intersected_facets();
+            Vector< sdf::Facet* > tIntersectedFacetsExpected( 2 );
             tIntersectedFacetsExpected( 0 ) = tFacets( 0 );
             tIntersectedFacetsExpected( 1 ) = tFacets( 3 );
 
@@ -106,8 +106,8 @@ TEST_CASE(
 
             // compute the intersection locations and ensure they are correct
             tRaycaster.intersect_ray_with_facets( 2 );
-            Cell< real > tIntersectionCoordinatesExpected = { 0.4718, 0.9024 };
-            Cell< real > tIntersectionCoordinates         = tRaycaster.get_intersection_coordinates();
+            Vector< real > tIntersectionCoordinatesExpected = { 0.4718, 0.9024 };
+            Vector< real > tIntersectionCoordinates         = tRaycaster.get_intersection_coordinates();
             REQUIRE( tIntersectionCoordinates.size() == 2 );
             CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) < sdf::gSDFepsilon );
             CHECK( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) < sdf::gSDFepsilon );
@@ -177,7 +177,7 @@ TEST_CASE(
             // create triangle object from object file
             std::string         tObjectPath = tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/rhombus.obj";
             sdf::Object         tObject( tObjectPath );
-            Cell< sdf::Facet* > tFacets = tObject.get_facets();
+            Vector< sdf::Facet* > tFacets = tObject.get_facets();
 
             // create raycaster
             sdf::Raycast tRaycaster( tObject );
@@ -191,8 +191,8 @@ TEST_CASE(
             tRaycaster.preselect_lines( 1 );
             uint                tIntersectedLinesExpected = 1;
             sdf::Facet*         tCandidateLinesExpected   = tFacets( 2 );
-            Cell< uint >        tIntersectedLines         = tRaycaster.get_candidate_facets();
-            Cell< sdf::Facet* > tCandidateLines           = tRaycaster.get_intersected_facets();
+            Vector< uint >        tIntersectedLines         = tRaycaster.get_candidate_facets();
+            Vector< sdf::Facet* > tCandidateLines           = tRaycaster.get_intersected_facets();
 
             REQUIRE( tIntersectedLines.size() == 1 );
             REQUIRE( tCandidateLines.size() == 1 );
@@ -213,7 +213,7 @@ TEST_CASE(
             // intersect the candidate facets and determine the intersection location
             tRaycaster.intersect_ray_with_facets( 0 );
             real         tIntersectionCoordinateExpected = -0.2;
-            Cell< real > tIntersectionCoordinates        = tRaycaster.get_intersection_coordinates();
+            Vector< real > tIntersectionCoordinates        = tRaycaster.get_intersection_coordinates();
 
             REQUIRE( tIntersectionCoordinates.size() == 1 );
             CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected < sdf::gSDFepsilon );

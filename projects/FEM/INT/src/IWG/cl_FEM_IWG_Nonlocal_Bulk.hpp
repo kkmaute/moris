@@ -13,7 +13,7 @@
 
 #include <map>
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
+#include "cl_Vector.hpp"                      //MRS/CON/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -74,7 +74,7 @@ namespace moris
                  * set parameters
                  * @param[ in ] aParameters a list of parameters
                  */
-                void set_parameters( const moris::Cell< Matrix< DDRMat > >& aParameters );
+                void set_parameters( const Vector< Matrix< DDRMat > >& aParameters );
 
                 //------------------------------------------------------------------------------
                 /**

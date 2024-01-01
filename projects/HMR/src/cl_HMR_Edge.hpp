@@ -48,7 +48,7 @@ namespace moris::hmr
         uint mIndexOfLeader;
 
         // pointer with elements
-        moris::Cell< Element* > mElements;
+        Vector< Element* > mElements;
 
         // ----------------------------------------------------------------------------
 
@@ -112,9 +112,9 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * fills a moris::cell with pointers to connected vertices
+         * fills a Vector with pointers to connected vertices
          */
-        moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
+        Vector< mtk::Vertex* > get_vertex_pointers() const;
 
         // ----------------------------------------------------------------------------
 

@@ -38,7 +38,7 @@ public:
         return mNumPermutations;
     }
 
-    Cell<size_t>
+    Vector<size_t>
     get_permutation(size_t aIndex)
     {
         return mPermutations(aIndex);
@@ -46,7 +46,7 @@ public:
 
 private:
     size_t mNumPermutations;
-    Cell<Cell<size_t>> mPermutations;
+    Vector<Vector<size_t>> mPermutations;
 
     void
     load_all_2d_permutations()
@@ -155,7 +155,7 @@ TEST_CASE(" 2-D Conformal Decomposition Templates ","[2D_Conf_Temp]")
         tChildMesh.add_node_ids(tNodeIds);
 
         // select template
-        Cell<size_t> tCurrentPermutation = tPermutations.get_permutation(iPerm);
+        Vector<size_t> tCurrentPermutation = tPermutations.get_permutation(iPerm);
         moris::moris_index tEdge0  = tCurrentPermutation(0);
         moris::moris_index tEdge1  = tCurrentPermutation(1);
 

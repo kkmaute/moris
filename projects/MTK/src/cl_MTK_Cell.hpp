@@ -12,7 +12,7 @@
 #define SRC_MESH_CL_MTK_CELL_HPP_
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"     //MRS/CNT/src
 #include "cl_Matrix.hpp"
 #include "fn_isrow.hpp"
 #include "linalg_typedefs.hpp"
@@ -154,7 +154,7 @@ namespace moris
             /**
              * @return Ptrs of vertices connected to this cell
              */
-            virtual moris::Cell< Vertex * >
+            virtual Vector< Vertex * >
             get_vertex_pointers() const = 0;
 
             //-----------------------------------------------------------------------------
@@ -238,7 +238,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual moris::Cell< mtk::Vertex_Interpolation * >
+            virtual Vector< mtk::Vertex_Interpolation * >
             get_vertex_interpolations( const uint aOrder ) const;
 
             //------------------------------------------------------------------------------
@@ -247,7 +247,7 @@ namespace moris
              * get vertices on side ordinal.
              * This functions is needed for side clustering
              */
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_vertices_on_side_ordinal( moris::moris_index aSideOrdinal ) const;
 
             //------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ namespace moris
              * get vertices on side ordinal that define the geometry (i.e. the corner nodes)
              * This functions is needed for side clustering
              */
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_geometric_vertices_on_side_ordinal( moris::moris_index aSideOrdinal ) const;
 
             //------------------------------------------------------------------------------

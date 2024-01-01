@@ -21,7 +21,7 @@ namespace moris
         {
 
         private:
-            Cell<std::shared_ptr<Geometry>> mGeometries;
+            Vector<std::shared_ptr<Geometry>> mGeometries;
 
         public:
 
@@ -30,7 +30,7 @@ namespace moris
              *
              * @param aGeometries Created geometries
              */
-            Multigeometry(Cell<std::shared_ptr<Geometry>> aGeometries);
+            Multigeometry(Vector<std::shared_ptr<Geometry>> aGeometries);
 
             /**
              * Given a node coordinate, the geometry needs to return the distance to the nearest function.

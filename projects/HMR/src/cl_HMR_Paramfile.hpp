@@ -21,7 +21,7 @@
 #include "cl_Communication_Tools.hpp"
 #include "moris_typedefs.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 //#include "cl_Matrix.hpp"
 //#include "linalg_typedefs.hpp"
@@ -59,13 +59,13 @@ namespace moris::hmr
         ParameterList       mParameterList;
 
         //! container with mesh settings
-        Cell< Mesh_Param >  mMeshParams;
+        Vector< Mesh_Param >  mMeshParams;
 
         //! container with field setting
-        Cell< Field_Param > mFieldParams;
+        Vector< Field_Param > mFieldParams;
 
         //! list of target files for mappint
-        //Cell< std::string > mTargets;
+        //Vector< std::string > mTargets;
 
         map< moris_id, uint > mMeshMap;
         map< moris_id, uint > mFieldMap;

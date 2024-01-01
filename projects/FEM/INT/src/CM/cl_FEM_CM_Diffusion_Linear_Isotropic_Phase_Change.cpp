@@ -45,8 +45,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Phase_Change::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                moris::Vector< moris::Vector< MSI::Dof_Type > > aDofTypes,
+                moris::Vector< std::string >                  aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -189,7 +189,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dEnergydDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -271,7 +271,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dEnergyDotdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -344,7 +344,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradEnergydDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -420,7 +420,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void CM_Diffusion_Linear_Isotropic_Phase_Change::eval_dGradEnergyDotdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                const moris::Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

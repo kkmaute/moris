@@ -73,9 +73,9 @@ namespace xtk
         // Single Element Face To Nodes
         moris::Matrix< moris::IndexMat > tElementFaceToNode(1,tNumNodesPerFace);
 
-        moris::Cell<moris::size_t> tPotentialFaces;
-        moris::Cell<moris::size_t> tPotentialFaces1;
-        moris::Cell<moris::size_t> tPotentialFaces2;
+        moris::Vector<moris::size_t> tPotentialFaces;
+        moris::Vector<moris::size_t> tPotentialFaces1;
+        moris::Vector<moris::size_t> tPotentialFaces2;
 
         // iterate over elements
         for( moris::size_t i = 0; i<tNumElements; i++)

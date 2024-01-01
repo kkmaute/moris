@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_Cell.hpp
+ * cl_Vector.hpp
  *
  */
 #ifndef MORIS_CONTAINERS_CL_CELL_HPP_
@@ -24,7 +24,7 @@ namespace moris
 {
     //------------------------------------------------------------------
     template< typename T >
-    class Cell
+    class Vector
     {
       private:
         /**
@@ -43,18 +43,18 @@ namespace moris
         using value_type = T;
 
         /**
-         * moris::Cell constructor
+         * Vector constructor
          */
-        Cell() = default;
+        Vector() = default;
 
         //------------------------------------------------------------------
         /**
-         * moris::Cell constructor
+         * Vector constructor
          *
          * @param[in] aCell A Cell
          */
 
-        Cell(
+        Vector(
                 std::initializer_list< T > const & aCell )
                 : mCell( aCell.begin(), aCell.end() )
         {
@@ -63,9 +63,9 @@ namespace moris
         //------------------------------------------------------------------
         /**
          *
-         * moris::Cell copy constructor
+         * Vector copy constructor
          */
-        Cell( const moris::Cell< T >& aCell )
+        Vector( const moris::Vector< T >& aCell )
         {
             mCell = aCell.data();
         }
@@ -73,14 +73,14 @@ namespace moris
         //------------------------------------------------------------------
 
         /**
-         * moris::Cell constructor
+         * Vector constructor
          *
          * @param[in] aSize Size of the Cell to be initialized
          * @param[in] aValue Value of the elements of the initialized Cell
          */
 
         template< typename A >
-        Cell(
+        Vector(
                 moris::uint const aSize,
                 A const           aValue )
                 : mCell( aSize, aValue )
@@ -92,7 +92,7 @@ namespace moris
 
         //------------------------------------------------------------------
 
-        Cell(
+        Vector(
                 moris::uint const aSize )
                 : mCell( aSize )
         {
@@ -104,7 +104,7 @@ namespace moris
         //------------------------------------------------------------------
 
         /**
-         * moris::Cell destructor
+         * Vector destructor
          */
 #ifdef CHECK_MEMORY
         ~Cell()
@@ -116,7 +116,7 @@ namespace moris
                     this->capacity() );
         }
 #else
-        ~Cell() = default;    // 'default' tells the compiler to automatically
+        ~Vector() = default;    // 'default' tells the compiler to automatically
                               // delete the underlying Cell
 #endif
 
@@ -128,8 +128,8 @@ namespace moris
          * @param[in] val Contents to be copied into the container
          */
 
-        const moris::Cell< T >&
-        operator=( moris::Cell< T > const & aCell )
+        const moris::Vector< T >&
+        operator=( moris::Vector< T > const & aCell )
         {
             mCell = aCell.data();
 
@@ -147,7 +147,7 @@ namespace moris
          */
 
         template< typename A >
-        const moris::Cell< T >&
+        const moris::Vector< T >&
         operator=(
                 const A& val )
         {
@@ -452,14 +452,14 @@ namespace moris
         //------------------------------------------------------------------
 
         /**
-         * Appends a moris::Cell, similar to how push_back appends a single value.
+         * Appends a Vector, similar to how push_back appends a single value.
          *
          * @param[in] aCell Cell to be appended
          */
 
         void
         append(
-                moris::Cell< T > const & aCell )
+                moris::Vector< T > const & aCell )
         {
             MORIS_CHECK_MEMORY( mCell.size() + aCell.size() > mCell.capacity() ? mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
                     "Cell::append: number of resize calls exceeds limit.\n" );
@@ -752,7 +752,7 @@ namespace moris
     // Free functions
     template< typename T >
     void
-    unique( Cell< T >& aCell )
+    unique( Vector< T >& aCell )
     {
         // get ref to data
         std::vector< T >& tVec = aCell.data();
@@ -769,8 +769,8 @@ namespace moris
     // https://stackoverflow.com/questions/25921706/creating-a-vector-of-indices-of-a-sorted-vector
     //  extended to create a unique with the first index of unique values
     template< typename T >
-    Cell< moris::moris_index >
-    unique_index( Cell< T >& aCell )
+    Vector< moris::moris_index >
+    unique_index( Vector< T >& aCell )
     {
         std::vector< T > x = aCell.data();
 
@@ -782,7 +782,7 @@ namespace moris
                 std::end( y ),
                 [ & ]( int i1, int i2 ) { return x[ i1 ] < x[ i2 ]; } );
 
-        Cell< moris::moris_index > tUniqueInds;
+        Vector< moris::moris_index > tUniqueInds;
         for ( moris::uint i = 0; i < aCell.size(); i++ )
         {
             if ( i == 0 )
@@ -808,7 +808,7 @@ namespace moris
     template< typename T >
     void
     print(
-            Cell< T > const & aCell,
+            Vector< T > const & aCell,
             std::string       aStr = "Cell" )
     {
         std::cout << "Cell Name: " << aStr << "\n";
@@ -831,7 +831,7 @@ namespace moris
 
     // Specialization for moris cell type
     template< typename T >
-    struct is_moris_cell< Cell< T > > : std::true_type
+    struct is_moris_cell< Vector< T > > : std::true_type
     {
     };
 
@@ -883,7 +883,7 @@ namespace moris
     template< typename T >
     void
     print_as_row_vector(
-            Cell< T > const & aCell,
+            Vector< T > const & aCell,
             std::string       aStr = "Cell" )
     {
         std::cout << aStr << " = " << print_nested_cells( aCell ) << std::endl;
@@ -891,14 +891,14 @@ namespace moris
 
     //------------------------------------------------------------------
 
-    inline moris::Cell< char >
-    string_to_char( moris::Cell< std::string >& strings );
+    inline moris::Vector< char >
+    string_to_char( moris::Vector< std::string >& strings );
 
     //------------------------------------------------------------------
 
     template< typename T >
     void
-    shrink_to_fit_all( moris::Cell< T >& aCell )
+    shrink_to_fit_all( moris::Vector< T >& aCell )
     {
         aCell.shrink_to_fit();
     }
@@ -907,7 +907,7 @@ namespace moris
 
     template< typename T >
     void
-    shrink_to_fit_all( moris::Cell< moris::Cell< T > >& aCell )
+    shrink_to_fit_all( moris::Vector< moris::Vector< T > >& aCell )
     {
         // trim inner cells
         for ( uint iI = 0; iI < aCell.size(); ++iI )
@@ -924,7 +924,7 @@ namespace moris
     template< typename T >
     void
     write_to_txt_file(
-            Cell< T > const & aCell,
+            Vector< T > const & aCell,
             std::string       aFileName )
     {
         // Open a file stream for writing
@@ -939,6 +939,11 @@ namespace moris
         // Close the file stream
         tOutFile.close();
     }
+
+    // Since 2024, the name Cell is deprecated and will be removed in the future.
+    // It is a relict from the time when MORIS was trying to mimic MATLAB as close as possible.
+    template<typename T>
+    using Cell [[deprecated( "moris::Cell is now moris::Vector!" )]] = Vector< T >;
 
 }    // namespace moris
 

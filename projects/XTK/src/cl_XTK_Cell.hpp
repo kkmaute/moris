@@ -75,8 +75,8 @@
 //     *
 //     * @param[in] val Contents to be copied into the container
 //     */
-//    const Cell<T> &
-//    operator=(Cell<T> const & val)
+//    const Vector<T> &
+//    operator=(Vector<T> const & val)
 //    {
 //        mCell = val.data();
 //
@@ -91,7 +91,7 @@
 //     * @return Assignment.
 //     */
 //    template<typename A>
-//    const Cell<T> &
+//    const Vector<T> &
 //    operator=(const A & val)
 //    {
 //        mCell = val;
@@ -266,7 +266,7 @@
 //     *
 //     * @param[in] aCell Cell to be appended
 //     */
-//    void append(Cell<T> const & aCell)
+//    void append(Vector<T> const & aCell)
 //    {
 //        mCell.insert(mCell.end(), aCell.data().begin(), aCell.data().end());
 //    }

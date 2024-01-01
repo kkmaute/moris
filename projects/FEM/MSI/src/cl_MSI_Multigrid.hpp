@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_MSI_MULTIGRID_HPP_
 #define SRC_FEM_CL_MSI_MULTIGRID_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
 
@@ -41,13 +41,13 @@ namespace moris
             moris::Matrix< DDUMat > mNumDofsRemain;
 
             //! List of external indices for each level
-            moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;
+            Vector< Matrix< DDUMat > > mListAdofExtIndMap;
 
             //! List of type/time identifiers for each level
-            moris::Cell< Matrix< DDSMat > > mListAdofTypeTimeIdentifier;
+            Vector< Matrix< DDSMat > > mListAdofTypeTimeIdentifier;
 
             //! Map which maps external indices to internal MSI indices. List 1 = Level; List 2 = type/time;
-            moris::Cell< moris::Cell< Matrix< DDSMat > > > mMultigridMap;
+            Vector< Vector< Matrix< DDSMat > > > mMultigridMap;
 
             // Mesh pointer
             mtk::Mesh * mMesh;
@@ -97,17 +97,17 @@ namespace moris
                                       const moris::sint               aTypeTimeIdentifier,
                                             moris::Matrix< DDSMat > & aInternalFineIndices);
 
-            const moris::Cell< Matrix< DDUMat > > & get_lists_of_ext_index_multigrid( )
+            const Vector< Matrix< DDUMat > > & get_lists_of_ext_index_multigrid( )
             {
                 return mListAdofExtIndMap;
             };
 
-            const moris::Cell< Matrix< DDSMat > > & get_lists_of_multigrid_identifiers( )
+            const Vector< Matrix< DDSMat > > & get_lists_of_multigrid_identifiers( )
             {
                 return mListAdofTypeTimeIdentifier;
             };
 
-            const moris::Cell< moris::Cell< Matrix< DDSMat > > > & get_multigrid_map( )
+            const Vector< Vector< Matrix< DDSMat > > > & get_multigrid_map( )
             {
                 return mMultigridMap;
             };

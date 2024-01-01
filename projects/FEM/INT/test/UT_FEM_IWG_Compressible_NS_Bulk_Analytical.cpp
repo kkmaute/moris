@@ -66,12 +66,12 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
+    moris::Vector< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
+    moris::Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
+    moris::Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
+    moris::Vector< moris::Vector< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
             mtk::Interpolation_Order::LINEAR );
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
     // create the field interpolator density
     tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
@@ -326,8 +326,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
     // create a field interpolator manager
-    moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-    moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+    moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
+    moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
     Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
     // populate the field interpolator manager
@@ -359,7 +359,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     Matrix< DDRMat > tGPResiduals( 18, tNumGPs, 0.0 );
 
     // initialize cell storing individual Gausspoint residuals
-    moris::Cell< Matrix< DDRMat > > tGPJacobians( tNumGPs );
+    moris::Vector< Matrix< DDRMat > > tGPJacobians( tNumGPs );
 
     // loop over integration points
     //for( uint iGP = 0; iGP < tNumGPs - tNumGPs + 1; iGP ++ ) // uncomment for debug - only use first GP

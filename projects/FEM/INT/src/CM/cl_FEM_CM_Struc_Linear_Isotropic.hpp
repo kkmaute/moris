@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"     //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -80,7 +80,7 @@ namespace moris
              * @param[ in ] aDofTypes            a dof type wrt which the derivative is evaluated
              * @param[ out ] dInvBulkModulusdDOF derivative of K
              */
-            virtual Matrix< DDRMat > eval_dInvBulkModulusdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+            virtual Matrix< DDRMat > eval_dInvBulkModulusdDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -103,7 +103,7 @@ namespace moris
              * evaluate the constitutive model flux derivative wrt to a dof type
              * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+            virtual void eval_dFluxdDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
           private:
             //--------------------------------------------------------------------------------------------------------------
@@ -130,10 +130,10 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             virtual void eval_dTestTractiondDOF(
-                    const Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     const Matrix< DDRMat >&      aNormal,
                     const Matrix< DDRMat >&      aJump,
-                    const Cell< MSI::Dof_Type >& aTestDofTypes );
+                    const Vector< MSI::Dof_Type >& aTestDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**

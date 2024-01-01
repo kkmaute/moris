@@ -39,8 +39,8 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                moris::Vector< moris::Vector< MSI::Dof_Type > > aDofTypes,
+                moris::Vector< std::string >                  aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -266,7 +266,7 @@ namespace moris
         void
         CM_Diffusion_Linear_Isotropic::eval_testTraction(
                 const Matrix< DDRMat >&             aNormal,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -324,7 +324,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dFluxdDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -388,7 +388,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dEnergydDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -442,7 +442,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dEnergyDotdDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -496,7 +496,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dGradEnergydDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -550,7 +550,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dGradEnergyDotdDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -604,7 +604,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dGradDivFluxdDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get conductivity property value
             moris::real tK = mPropConductivity->val()( 0 );
@@ -669,7 +669,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_ddivfluxdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -698,7 +698,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_ddivstraindu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -728,7 +728,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void
         CM_Diffusion_Linear_Isotropic::eval_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const moris::Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&             aNormal )
         {
             // get the dof type as a uint
@@ -745,9 +745,9 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const moris::Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&             aNormal,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -774,10 +774,10 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const moris::Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&             aNormal,
                 const Matrix< DDRMat >&             aJump,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -812,7 +812,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dStraindDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -839,7 +839,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dConstdDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const moris::Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -866,7 +866,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dFluxdDV(
-                const moris::Cell< PDV_Type >& aDvTypes )
+                const moris::Vector< PDV_Type >& aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dFluxdDV - This function is not implemented." );
         }
@@ -875,7 +875,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dStraindDV(
-                const moris::Cell< PDV_Type >& aDvTypes )
+                const moris::Vector< PDV_Type >& aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dStraindDV - This function is not implemented." );
         }

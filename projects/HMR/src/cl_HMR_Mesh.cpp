@@ -1059,7 +1059,7 @@ namespace moris::hmr
     Mesh::get_elements_in_bspline_element(
             moris_index const          aBspElementIndex,
             moris_index const          aDiscretizationMeshIndex,
-            moris::Cell< mtk::Cell* >& aCells )
+            moris::Vector< mtk::Cell* >& aCells )
     {
         mMesh->get_elements_in_bspline_element(
                 aBspElementIndex,
@@ -1072,11 +1072,11 @@ namespace moris::hmr
     void
     Mesh::get_lagrange_elements_in_bspline_elements(
             moris_index const                          aDiscretizationMeshIndex,
-            moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
-            moris::Cell< moris::Cell< moris_index > >& aCellIndices,
-            moris::Cell< moris_index >&                aLagToBspCellIndices,
-            moris::Cell< uint >&                       aBspCellRefineLevels,
-            moris::Cell< mtk::Cell* >&                 aBspCells )
+            moris::Vector< moris::Vector< mtk::Cell* > >&  aCells,
+            moris::Vector< moris::Vector< moris_index > >& aCellIndices,
+            moris::Vector< moris_index >&                aLagToBspCellIndices,
+            moris::Vector< uint >&                       aBspCellRefineLevels,
+            moris::Vector< mtk::Cell* >&                 aBspCells )
     {
         mMesh->get_lagrange_elements_in_bspline_elements(
                 aDiscretizationMeshIndex,
@@ -1110,8 +1110,8 @@ namespace moris::hmr
             moris_index                                 aDiscretizationMeshIndex,
             moris_index                                 aBSplineCellIndex,
             moris::mtk::Cell&                           aLagrangeCell,
-            moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
-            moris::Cell< Matrix< DDRMat > >&            tWeights )
+            moris::Vector< moris::Vector< mtk::Vertex* > >& tBsplineBasis,
+            moris::Vector< Matrix< DDRMat > >&            tWeights )
     {
         Element& aHMRLagrangeCell = dynamic_cast< Element& >( aLagrangeCell );
         mMesh->get_extended_t_matrix( aDiscretizationMeshIndex,
@@ -1128,9 +1128,9 @@ namespace moris::hmr
             moris_index                                       aDiscretizationMeshIndex,
             const mtk::Cell*                                  aRootBSplineCell,
             const mtk::Cell*                                  aExtendedBSplineCell,
-            moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
-            moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
-            moris::Cell< Matrix< DDRMat > >&                  tWeights )
+            moris::Vector< moris::Vector< const mtk::Vertex* > >& tRootBsplineBasis,
+            moris::Vector< const mtk::Vertex* >&                tExtendedBsplineBasis,
+            moris::Vector< Matrix< DDRMat > >&                  tWeights )
     {
         const Element* aHMRRootCell     = dynamic_cast< const Element* >( aRootBSplineCell );
         const Element* aHMRExtendedCell = dynamic_cast< const Element* >( aExtendedBSplineCell );
@@ -1149,7 +1149,7 @@ namespace moris::hmr
     Mesh::get_elements_in_interpolation_cluster(
             moris_index                aElementIndex,
             moris_index                aDiscretizationMeshIndex,
-            moris::Cell< mtk::Cell* >& aCells )
+            moris::Vector< mtk::Cell* >& aCells )
     {
         mMesh->get_elements_in_interpolation_cluster(
                 aElementIndex,
@@ -1164,7 +1164,7 @@ namespace moris::hmr
             moris_index const          aBsplineElementIndex,
             moris_index const          aDiscretizationMeshIndex,
             moris_index const          aSideOrdinal,
-            moris::Cell< mtk::Cell* >& aCells )
+            moris::Vector< mtk::Cell* >& aCells )
     {
         mMesh->get_elements_in_bspline_element_and_side_ordinal(
                 aBsplineElementIndex,
@@ -1180,7 +1180,7 @@ namespace moris::hmr
             moris_index const          aElementIndex,
             moris_index const          aDiscretizationMeshIndex,
             moris_index const          aSideOrdinal,
-            moris::Cell< mtk::Cell* >& aCells )
+            moris::Vector< mtk::Cell* >& aCells )
     {
         mMesh->get_elements_in_interpolation_cluster_and_side_ordinal(
                 aElementIndex,
@@ -1288,10 +1288,10 @@ namespace moris::hmr
             moris_index                 aElementIndex,
             moris_index                 aSideOrdinal,
             moris_index&                aMyRefineLevel,
-            moris::Cell< moris_index >& aNeighborElements,
-            moris::Cell< moris_index >& aNeighborSideOrdinals,
-            moris::Cell< moris_index >& aTransitionLocations,
-            moris::Cell< moris_index >& aNeighborRefinementLevels ) const
+            moris::Vector< moris_index >& aNeighborElements,
+            moris::Vector< moris_index >& aNeighborSideOrdinals,
+            moris::Vector< moris_index >& aTransitionLocations,
+            moris::Vector< moris_index >& aNeighborRefinementLevels ) const
     {
         // get the current element's refinement level
         Element* tElement = mMesh->get_element_including_aura( aElementIndex );
@@ -1315,7 +1315,7 @@ namespace moris::hmr
 
         // initialize counter
         uint                tNumNeighborsOnSideOrd = 0;
-        moris::Cell< uint > tValidNeighbors( 0 );
+        moris::Vector< uint > tValidNeighbors( 0 );
 
         // find the number of neighbors on the given side ordinal
         for ( uint iNeighbor = 0; iNeighbor < tNumberOfNeighbors; iNeighbor++ )
@@ -1870,12 +1870,12 @@ namespace moris::hmr
 
     //-----------------------------------------------------------------------------
 
-    moris::Cell< mtk::Vertex const * >
+    moris::Vector< mtk::Vertex const * >
     Mesh::get_all_vertices() const
     {
         uint tNumVertices = this->get_num_entities( mtk::EntityRank::NODE );
 
-        moris::Cell< mtk::Vertex const * > tVertices( tNumVertices );
+        moris::Vector< mtk::Vertex const * > tVertices( tNumVertices );
 
         for ( uint i = 0; i < tNumVertices; i++ )
         {
@@ -1887,12 +1887,12 @@ namespace moris::hmr
 
     ////-----------------------------------------------------------------------------
     //
-    //        moris::Cell<mtk::Vertex const *>
+    //        Vector<mtk::Vertex const *>
     //        Mesh::get_all_vertices_including_aura() const
     //        {
     //            uint tNumVertices = this->get_num_nodes_including_aura();
     //
-    //            moris::Cell<mtk::Vertex const *> tVertices (tNumVertices);
+    //            Vector<mtk::Vertex const *> tVertices (tNumVertices);
     //
     //            for(uint  i = 0; i < tNumVertices; i++)
     //            {
@@ -2104,14 +2104,14 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    moris::Cell< std::string >
+    moris::Vector< std::string >
     Mesh::get_set_names( mtk::EntityRank aSetEntityRank ) const
     {
         if ( aSetEntityRank == mtk::EntityRank::ELEMENT )
         {
             std::string tDummy = "HMR_dummy";
 
-            moris::Cell< std::string > tSetNames( 1, tDummy );
+            moris::Vector< std::string > tSetNames( 1, tDummy );
 
             return tSetNames;
         }
@@ -2123,7 +2123,7 @@ namespace moris::hmr
             {
                 uint tNumSideSets = mDatabase->get_side_sets().size();
 
-                moris::Cell< std::string > tSetNames( tNumSideSets );
+                moris::Vector< std::string > tSetNames( tNumSideSets );
 
                 for ( uint iEntity = 0; iEntity < tNumSideSets; ++iEntity )
                 {
@@ -2134,19 +2134,19 @@ namespace moris::hmr
             }
             else
             {
-                return Cell< std::string >( 0 );
+                return Vector< std::string >( 0 );
             }
         }
         else if ( aSetEntityRank == mtk::EntityRank::NODE )
         {
-            return Cell< std::string >( 0 );
+            return Vector< std::string >( 0 );
         }
         else
         {
             MORIS_ERROR( false, "Mesh::get_set_names(), only mtk::EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you." );
         }
 
-        return moris::Cell< std::string >( 0 );
+        return moris::Vector< std::string >( 0 );
     }
 
     //-------------------------------------------------------------------------------
@@ -2302,7 +2302,7 @@ namespace moris::hmr
         }
 
         // allocate cell with connected elements
-        Cell< const Background_Element_Base* > tBackElements( tCount, nullptr );
+        Vector< const Background_Element_Base* > tBackElements( tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -2339,7 +2339,7 @@ namespace moris::hmr
         MORIS_LOG_INFO( "Setting up global to local maps on HMR mesh" );
 
         // Initialize global to local map
-        mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 + mMesh->get_number_of_bspline_meshes() );
+        mEntityGlobalToLocalMap = moris::Vector< std::unordered_map< moris_id, moris_index > >( 4 + mMesh->get_number_of_bspline_meshes() );
 
         // count number of mesh entities
         uint tCounter = 0;

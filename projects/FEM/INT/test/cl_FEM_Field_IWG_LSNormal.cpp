@@ -121,7 +121,7 @@ TEST_CASE( "IWG_LSNormal", "[moris],[fem],[IWG_LSNormal]" )
     tnPhi->set_space_time( tParamPoint );
     tPhi->set_space_time( tParamPoint );
 
-    Cell< Field_Interpolator* > tFieldInterpolators( 2 );
+    Vector< Field_Interpolator* > tFieldInterpolators( 2 );
     tFieldInterpolators( 0 ) = tnPhi;
     tFieldInterpolators( 1 ) = tPhi;
 
@@ -147,7 +147,7 @@ TEST_CASE( "IWG_LSNormal", "[moris],[fem],[IWG_LSNormal]" )
         // check evaluation of the jacobian j_nPhi_nPhi for IWG_LSNormal_Bulk by FD
         //------------------------------------------------------------------------------
         // evaluate the jacobian from IWG_Hamilton_Jacobi_Bulk
-        Cell< Matrix< DDRMat > > tJacobiansLSNormalBulk( 2 );
+        Vector< Matrix< DDRMat > > tJacobiansLSNormalBulk( 2 );
         tIWGLSNormalBulk.compute_jacobian( tJacobiansLSNormalBulk );
 
         // number of nPhi dofs

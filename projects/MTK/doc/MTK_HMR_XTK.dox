@@ -30,7 +30,7 @@ Consider a "circle-in-square" or "sphere-in-cube" problem, and perform the follo
 
 HMR provides: 
 - an mtk::Mesh class with refined elements
-- a moris::Cell of mtk::Field pointers, each of which representing a phase
+- a Vector of mtk::Field pointers, each of which representing a phase
 - Cell to Vertex Connectivity (only geometry defining vertices)
 - Face to Vertex Connectivity
 - Edge to Vertex Connectivity

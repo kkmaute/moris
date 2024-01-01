@@ -57,9 +57,9 @@ namespace moris
 
             uint                mCellCounter = 0;
 
-            moris::Cell< Cell* > mCells;
+            Vector< Cell* > mCells;
 
-            moris::Cell< Vertex* > mNeighbors;
+            Vector< Vertex* > mNeighbors;
 
 // -----------------------------------------------------------------------------
         public:

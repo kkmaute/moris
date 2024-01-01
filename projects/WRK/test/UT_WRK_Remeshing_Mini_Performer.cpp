@@ -137,8 +137,8 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
         mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
 
         // Define two analytic MTK fields
-        moris::Cell< std::shared_ptr< mtk::Field > > tFields( 1, nullptr );
-        moris::Cell< std::shared_ptr< mtk::Field > > tFieldsOut;
+        moris::Vector< std::shared_ptr< mtk::Field > > tFields( 1, nullptr );
+        moris::Vector< std::shared_ptr< mtk::Field > > tFieldsOut;
 
         moris::Matrix< DDRMat > tMat = { { 1.5237 } };
 
@@ -182,8 +182,8 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
         // HMR finalize
         tHMRPerformer->perform();
 
-        Cell< std::shared_ptr< hmr::HMR > >          tHMRPerformers( 1, tHMRPerformer );
-        Cell< std::shared_ptr< mtk::Mesh_Manager > > tMTKPerformers( 1 );
+        Vector< std::shared_ptr< hmr::HMR > >          tHMRPerformers( 1, tHMRPerformer );
+        Vector< std::shared_ptr< mtk::Mesh_Manager > > tMTKPerformers( 1 );
 
         wrk::Remeshing_Mini_Performer tRemeshingPerformer( tRemeshingParameters );
         tRemeshingPerformer.perform_remeshing( tFields, tHMRPerformers, tMTKPerformers, tFieldsOut );
