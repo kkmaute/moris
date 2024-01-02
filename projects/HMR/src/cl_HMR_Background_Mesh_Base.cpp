@@ -1985,7 +1985,7 @@ namespace moris::hmr
 
     void
     Background_Mesh_Base::unite_patterns(
-            const moris::Vector< uint >& aSourcePattern,
+            const Vector< uint >& aSourcePattern,
             const uint                 aTarget )
     {
         for ( uint Il = 0; Il < aSourcePattern.size(); ++Il )
@@ -2447,7 +2447,7 @@ namespace moris::hmr
         for ( uint l = 0; l <= mMaxLevel; ++l )
         {
             // collect elements from this level
-            moris::Vector< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             this->collect_elements_on_level_including_aura( l, tElements );
 
@@ -2469,7 +2469,7 @@ namespace moris::hmr
         for ( uint iLevel = 0; iLevel <= mMaxLevel; ++iLevel )
         {
             // collect elements from this level
-            moris::Vector< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             this->collect_elements_on_level_including_aura( iLevel, tElements );
 

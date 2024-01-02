@@ -32,7 +32,7 @@ namespace moris
         Interpolation_Element::Interpolation_Element(
                 const Element_Type               aElementType,
                 const Vector< const mtk::Cell* >&  aInterpolationCell,
-                const moris::Vector< Node_Base* >& aNodes,
+                const Vector< Node_Base* >& aNodes,
                 Set*                             aSet )
                 : MSI::Equation_Object( aSet )
                 , mSet( aSet )
@@ -42,7 +42,7 @@ namespace moris
             mLeaderInterpolationCell = aInterpolationCell( 0 );
 
             // get vertices from cell
-            moris::Vector< mtk::Vertex* > tVertices =
+            Vector< mtk::Vertex* > tVertices =
                     mLeaderInterpolationCell->get_vertex_pointers();
 
             // get number of vertices from cell
@@ -65,7 +65,7 @@ namespace moris
                 mFollowerInterpolationCell = aInterpolationCell( 1 );
 
                 // get vertices from cell
-                moris::Vector< mtk::Vertex* > tFollowerVertices =
+                Vector< mtk::Vertex* > tFollowerVertices =
                         mFollowerInterpolationCell->get_vertex_pointers();
 
                 // get number of vertices from cell
@@ -137,7 +137,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tLeaderNumDofTypes; iDOF++ )
             {
                 // get the ith dof type group
-                moris::Vector< MSI::Dof_Type >& tDofTypeGroup = tLeaderDofTypeList( iDOF );
+                Vector< MSI::Dof_Type >& tDofTypeGroup = tLeaderDofTypeList( iDOF );
 
                 // get the pdof values for the ith dof type group
                 Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
@@ -200,7 +200,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tFollowerNumDofTypes; iDOF++ )
             {
                 // get the ith dof type group
-                moris::Vector< MSI::Dof_Type >& tDofTypeGroup = tFollowerDofTypeList( iDOF );
+                Vector< MSI::Dof_Type >& tDofTypeGroup = tFollowerDofTypeList( iDOF );
 
                 // get the pdof values for the ith dof type group
                 Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
@@ -227,7 +227,7 @@ namespace moris
             for ( uint iDv = 0; iDv < tLeaderNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                const moris::Vector< PDV_Type >& tDvTypeGroup = tLeaderDvTypeList( iDv );
+                const Vector< PDV_Type >& tDvTypeGroup = tLeaderDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 // FIXME: the underlying use of the base cell needs to be hidden within PDV
@@ -256,7 +256,7 @@ namespace moris
             for ( uint iDv = 0; iDv < tFollowerNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                const moris::Vector< PDV_Type >& tDvTypeGroup = tFollowerDvTypeList( iDv );
+                const Vector< PDV_Type >& tDvTypeGroup = tFollowerDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 Vector< Matrix< DDRMat > > tCoeff_Original;
@@ -286,7 +286,7 @@ namespace moris
             for ( uint iFi = 0; iFi < tLeaderNumFieldTypes; iFi++ )
             {
                 // get the field type group
-                const moris::Vector< mtk::Field_Type >& tFieldTypeGroup = tLeaderFieldTypeList( iFi );
+                const Vector< mtk::Field_Type >& tFieldTypeGroup = tLeaderFieldTypeList( iFi );
 
                 Matrix< IndexMat > tIPCellIndices = mLeaderInterpolationCell->get_vertex_inds();
 
@@ -310,7 +310,7 @@ namespace moris
             for ( uint iFi = 0; iFi < tFollowerNumFieldTypes; iFi++ )
             {
                 // get the field type group
-                const moris::Vector< mtk::Field_Type >& tFieldTypeGroup = tFollowerFieldTypeList( iFi );
+                const Vector< mtk::Field_Type >& tFieldTypeGroup = tFollowerFieldTypeList( iFi );
 
                 Matrix< IndexMat > tIPCellIndices = mFollowerInterpolationCell->get_vertex_inds();
 
@@ -364,7 +364,7 @@ namespace moris
                     mSet->mEquationModel->get_design_variable_interface();
 
             // get the list of requested dv types by the opt solver
-            moris::Vector< moris::Vector< enum PDV_Type > > tRequestedDvTypes;
+            Vector< Vector< enum PDV_Type > > tRequestedDvTypes;
             mSet->get_ip_dv_types_for_set( tRequestedDvTypes );
 
             // reset material pdv assembly vector
@@ -381,7 +381,7 @@ namespace moris
             for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
             {
                 // get dv ids for this type and node indices
-                moris::Vector< Matrix< IdMat > > tPdvIds;
+                Vector< Matrix< IdMat > > tPdvIds;
 
                 // get the pdv ids for requested vertices and pdv type
                 tDVInterface->get_ip_dv_ids_for_type_and_ind(
@@ -419,7 +419,7 @@ namespace moris
                 for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
                 {
                     // get dv ids for this type and node indices
-                    moris::Vector< Matrix< IdMat > > tPdvIds;
+                    Vector< Matrix< IdMat > > tPdvIds;
 
                     // get the pdv ids for requested vertices and pdv type
                     tDVInterface->get_ip_dv_ids_for_type_and_ind(
@@ -779,7 +779,7 @@ namespace moris
             mFemCluster( 0 )->compute_dRdp_and_dQIdp();
 
             // get reference to computed dRdp
-            moris::Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
+            Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
 
             // extract adjoint values for this equation object
             this->compute_my_adjoint_values();
@@ -967,7 +967,7 @@ namespace moris
             mFemCluster( 0 )->compute_dRdp();
 
             // get reference to computed dRdp
-            moris::Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
+            Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
 
             // extract adjoint values for this equation object
             this->compute_my_adjoint_values();
@@ -1396,8 +1396,8 @@ namespace moris
 
         void
         Interpolation_Element::populate_fields(
-                moris::Vector< std::shared_ptr< fem::Field > >& aFields,
-                moris::Vector< std::string > const &            tFieldIQINames )
+                Vector< std::shared_ptr< fem::Field > >& aFields,
+                Vector< std::string > const &            tFieldIQINames )
         {
             // compute pdof values
             // FIXME do this only once
@@ -1420,7 +1420,7 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            const moris::Vector< std::shared_ptr< IQI > >& tIQI =
+            const Vector< std::shared_ptr< IQI > >& tIQI =
                     mSet->get_requested_field_IQIs();
 
             // get number of active local IQIs

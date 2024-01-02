@@ -78,7 +78,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::set_parameters(
-                moris::Vector< Matrix< DDRMat > > aParameters )
+                Vector< Matrix< DDRMat > > aParameters )
         {
             // set parameters
             mParameters = aParameters;
@@ -336,7 +336,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dDamagedu(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -392,7 +392,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dSmoothDamagedu(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -448,7 +448,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dEqStraindu(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -504,7 +504,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dHistorydu(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -560,7 +560,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dHistoryRefdu(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1559,7 +1559,7 @@ namespace moris
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::select_derivative_FD(
                 enum CM_Request_Type                aCMRequestType,
-                const moris::Vector< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 const Matrix< DDRMat >&             aNormal,
                 const Matrix< DDRMat >&             aJump,
                 enum CM_Function_Type               aCMFunctionType )
@@ -1618,8 +1618,8 @@ namespace moris
         CM_Struc_Linear_Isotropic_Damage::set_derivative_FD(
                 enum CM_Request_Type                aCMRequestType,
                 Matrix< DDRMat >&                   aDerivativeFD,
-                const moris::Vector< MSI::Dof_Type >& aDofTypes,
-                const moris::Vector< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // get the dof index

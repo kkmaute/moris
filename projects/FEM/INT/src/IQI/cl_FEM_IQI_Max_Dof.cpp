@@ -238,7 +238,7 @@ namespace moris
 
         void
         IQI_Max_Dof::compute_dQIdu(
-                moris::Vector< MSI::Dof_Type >& aDofType,
+                Vector< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&             adQIdu )
         {
             // get field interpolator for max dof type

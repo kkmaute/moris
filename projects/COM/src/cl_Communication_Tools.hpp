@@ -1028,8 +1028,8 @@ namespace moris
         if ( tMyRank == 0 )
         {
             // create the
-            moris::Vector< Matrix< T > > tMats( tParSize );
-            moris::Vector< moris::uint > tNumRows( tParSize );
+            Vector< Matrix< T > > tMats( tParSize );
+            Vector< moris::uint > tNumRows( tParSize );
 
             tNumRows( tMyRank ) = aMat.n_rows();
             tMats( tMyRank )    = aMat;
@@ -1108,8 +1108,8 @@ namespace moris
         if ( tMyRank == 0 )
         {
             // create the
-            moris::Vector< moris::Vector< T > > tCells( tParSize );
-            moris::Vector< moris::uint >      tCellSizes( tParSize );
+            Vector< Vector< T > > tCells( tParSize );
+            Vector< moris::uint >      tCellSizes( tParSize );
 
             tCellSizes( tMyRank ) = aCell.size();
             tCells( tMyRank )     = aCell;

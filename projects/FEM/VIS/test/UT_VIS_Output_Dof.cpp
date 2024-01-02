@@ -93,7 +93,7 @@ PlaneVisTest( const moris::Matrix< moris::DDRMat >& aPoint )
 
 inline void
 tConstValFunc_OUTDOF( moris::Matrix< moris::DDRMat >&  aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -162,7 +162,7 @@ namespace moris
 
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-                moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+                Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
                 tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 0.11, 0.11, 1.0, 0.0 );
 
                 size_t                                tModelDimension = 2;
@@ -188,7 +188,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 // create residual dof types
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tResDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
+                Vector< Vector< MSI::Dof_Type > > tResDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
 
                 // create the properties
                 std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property >();
@@ -324,7 +324,7 @@ namespace moris
                 tSetInterface.set_IWGs( { tIWGInterface } );
 
                 // create a cell of set info
-                moris::Vector< fem::Set_User_Info > tSetInfo( 7 );
+                Vector< fem::Set_User_Info > tSetInfo( 7 );
                 tSetInfo( 0 ) = tSetBulk1;
                 tSetInfo( 1 ) = tSetBulk2;
                 tSetInfo( 2 ) = tSetBulk3;
@@ -358,7 +358,7 @@ namespace moris
 
                 // --------------------------------------------------------------------------------------
                 // Define Solver
-                moris::Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
+                Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
                 tDofTypesU( 0 ) = MSI::Dof_Type::UX;
                 tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 

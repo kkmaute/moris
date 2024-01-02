@@ -186,7 +186,7 @@ namespace moris::mtk
     Integration_Mesh_DataBase_IG::get_IG_blockset_shape( const std::string& aSetName )
     {
         // get the clusters in the set
-        moris::Vector< mtk::Cluster const* > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+        Vector< mtk::Cluster const* > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
         // init cell shape
         CellShape tCellShape = CellShape::EMPTY;
@@ -195,7 +195,7 @@ namespace moris::mtk
         if ( tSetClusters.size() > 0 )
         {
             // get the cells in the first cluster
-            moris::Vector< moris::mtk::Cell const* > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
+            Vector< moris::mtk::Cell const* > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
 
             // compute the cell shape based on the first cell
             if( tClusterCells.size() > 0 )
@@ -219,7 +219,7 @@ namespace moris::mtk
             for ( uint iCluster = 0; iCluster < tSetClusters.size(); iCluster++ )
             {
                 // get cell of cells in the cluster
-                moris::Vector< moris::mtk::Cell const* > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Cell const* > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
 
                 // looping through the cells in the cluster
                 for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
@@ -244,7 +244,7 @@ namespace moris::mtk
         // return mIGMesh.get_IP_blockset_shape( aSetName );
 
         // get the clusters in the set
-        moris::Vector< mtk::Cluster const* > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+        Vector< mtk::Cluster const* > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
         // init cell shape
         CellShape tCellShape = CellShape::EMPTY;
@@ -341,7 +341,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< std::string >
+    Vector< std::string >
     Integration_Mesh_DataBase_IG::get_block_set_names() const
     {
         MORIS_ERROR( 0, "get_block_set_names not implemented for Integration_Mesh_DataBase_IG" );
@@ -351,7 +351,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< Cluster const* >
+    Vector< Cluster const* >
     Integration_Mesh_DataBase_IG::get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const
     {
         MORIS_ERROR( 0, "get_cell_clusters_in_set not implemented for Integration_Mesh_DataBase_IG" );
@@ -361,7 +361,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< Cluster const* >
+    Vector< Cluster const* >
     Integration_Mesh_DataBase_IG::get_side_set_cluster( moris_index aSideSetOrdinal ) const
     {
         MORIS_ERROR( 0, "get_side_set_cluster not implemented for Integration_Mesh_DataBase_IG" );
@@ -422,7 +422,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< Cluster const* >
+    Vector< Cluster const* >
     Integration_Mesh_DataBase_IG::get_double_side_set_cluster( moris_index aSideSetOrdinal ) const
     {
         MORIS_ERROR( 0, "get_double_side_set_cluster not implemented for Integration_Mesh_DataBase_IG" );

@@ -47,7 +47,7 @@ namespace xtk
     
     //----------------------------------------------------------------
     
-    moris::Vector<moris::mtk::Cell const *> const &
+    Vector<moris::mtk::Cell const *> const &
     Side_Cluster::get_cells_in_side_cluster() const
     {
         return mIntegrationCells;
@@ -75,7 +75,7 @@ namespace xtk
     
     //----------------------------------------------------------------
     
-    moris::Vector<moris::mtk::Vertex const *>
+    Vector<moris::mtk::Vertex const *>
     Side_Cluster::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mVerticesInCluster;
@@ -154,7 +154,7 @@ namespace xtk
     {
         moris_index tSideOrd = mIntegrationCellSideOrdinals(aCellIndexInCluster);
 
-        moris::Vector<moris::mtk::Vertex const *> tVerticesOnSide = mIntegrationCells(aCellIndexInCluster)->get_vertices_on_side_ordinal(tSideOrd);
+        Vector<moris::mtk::Vertex const *> tVerticesOnSide = mIntegrationCells(aCellIndexInCluster)->get_vertices_on_side_ordinal(tSideOrd);
         // iterate through vertices and see if the ids match
         for(moris::moris_index i = 0; i < (moris_index)tVerticesOnSide.size(); i++)
         {

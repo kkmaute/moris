@@ -73,7 +73,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         for( moris::uint iOrder = 1; iOrder < 2; iOrder ++)
         {
 
-            moris::Vector< moris::Vector< ParameterList > > tParameterlist;
+            Vector< Vector< ParameterList > > tParameterlist;
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
             tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();

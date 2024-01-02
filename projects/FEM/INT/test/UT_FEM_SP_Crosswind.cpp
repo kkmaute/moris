@@ -52,13 +52,13 @@ TEST_CASE( "SP_Crosswind", "[SP_Crosswind]" )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -66,9 +66,9 @@ TEST_CASE( "SP_Crosswind", "[SP_Crosswind]" )
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Vector< MSI::Dof_Type > tTargetDofTypes = { MSI::Dof_Type::VX };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes = { tVelDofTypes( 0 ), tTargetDofTypes };
+    Vector< Vector< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    Vector< MSI::Dof_Type > tTargetDofTypes = { MSI::Dof_Type::VX };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes = { tVelDofTypes( 0 ), tTargetDofTypes };
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -233,8 +233,8 @@ TEST_CASE( "SP_Crosswind", "[SP_Crosswind]" )
             tSPCrosswind->set_interpolation_order( iInterpOrder );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > > tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -265,7 +265,7 @@ TEST_CASE( "SP_Crosswind", "[SP_Crosswind]" )
                 //print(tSPCrosswind->val(),"tSPCrosswind");
 
                 // populate the requested leader dof type for SP
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tSPCrosswind->get_global_dof_type_list();
 
                 // loop over requested dof type

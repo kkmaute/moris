@@ -675,7 +675,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< std::string >
+    Vector< std::string >
     Cut_Integration_Mesh::get_set_names( mtk::EntityRank aSetEntityRank ) const
     {
         switch ( aSetEntityRank )
@@ -706,7 +706,7 @@ namespace xtk
             {
                 MORIS_ERROR( 0, "Currently only supporting block, node and side sets in XTK enriched integration meshes" );
             }
-                return moris::Vector< std::string >( 0 );
+                return Vector< std::string >( 0 );
                 break;
         }
     }
@@ -830,7 +830,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< std::shared_ptr< Matrix< DDRMat > > >*
+    Vector< std::shared_ptr< Matrix< DDRMat > > >*
     Cut_Integration_Mesh::get_all_vertex_coordinates_loc_inds()
     {
         return &mVertexCoordinates;
@@ -838,7 +838,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< std::shared_ptr< IG_Cell_Group > >&
+    Vector< std::shared_ptr< IG_Cell_Group > >&
     Cut_Integration_Mesh::get_all_cell_groups()
     {
         return mIntegrationCellGroups;
@@ -943,7 +943,7 @@ namespace xtk
             moris_index                              aCellIndex,
             moris_id                                 aCellId,
             std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
-            moris::Vector< moris::mtk::Vertex* >&      aVertexPointers )
+            Vector< moris::mtk::Vertex* >&      aVertexPointers )
     {
         MORIS_ERROR( aCellIndex >= mFirstControlledCellIndex, "Cannot set integration cell that I do not control." );
 
@@ -1042,15 +1042,15 @@ namespace xtk
 
         // size_t is defined as uint here because of aNumRequested
         // Initialize gathered information outputs (information which will be scattered across processors)
-        moris::Vector< moris_id > aGatheredInfo;
-        moris::Vector< moris_id > tFirstId( 1 );
-        moris::Vector< moris_id > tNumIdsRequested( 1 );
+        Vector< moris_id > aGatheredInfo;
+        Vector< moris_id > tFirstId( 1 );
+        Vector< moris_id > tNumIdsRequested( 1 );
 
         tNumIdsRequested( 0 ) = (moris_id)aNumIdsToAllocate;
 
         moris::gather( tNumIdsRequested, aGatheredInfo );
 
-        moris::Vector< moris_id > tProcFirstID( tProcSize );
+        Vector< moris_id > tProcFirstID( tProcSize );
 
         if ( tProcRank == 0 )
         {
@@ -1092,9 +1092,9 @@ namespace xtk
 
         // size_t is defined as uint here because of aNumRequested
         // Initialize gathered information outputs (information which will be scattered across processors)
-        moris::Vector< moris_id > aGatheredInfo;
-        moris::Vector< moris_id > tFirstId( 1 );
-        moris::Vector< moris_id > tNumIdsRequested( 1 );
+        Vector< moris_id > aGatheredInfo;
+        Vector< moris_id > tFirstId( 1 );
+        Vector< moris_id > tNumIdsRequested( 1 );
 
         // put current processors ID request size into the Cell that will be shared across procs
         tNumIdsRequested( 0 ) = (moris_id)aNumIdsToAllocate;
@@ -1103,7 +1103,7 @@ namespace xtk
         moris::gather( tNumIdsRequested, aGatheredInfo );
 
         // initialize list holding the first ID in range for each processor
-        moris::Vector< moris_id > tProcFirstID( tProcSize );
+        Vector< moris_id > tProcFirstID( tProcSize );
 
         // Subphase IDs up to the number of IP cells have already been used. Hence, the first free ID is:
         moris_index tFirstSubphaseId = mBackgroundMesh->get_max_entity_id( mtk::EntityRank::ELEMENT ) + 1;
@@ -1168,7 +1168,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_ig_cell_group_memberships( moris_index aIgCellIndex )
     {
         return mIntegrationCellToCellGroupIndex( aIgCellIndex );
@@ -1195,9 +1195,9 @@ namespace xtk
     void
     Cut_Integration_Mesh::set_child_mesh_subphase(
             moris_index                 aCMIndex,
-            moris::Vector< moris_index >& aSubphasesGroups )
+            Vector< moris_index >& aSubphasesGroups )
     {
-        moris::Vector< std::shared_ptr< IG_Cell_Group > > tIgCellSubphases( aSubphasesGroups.size() );
+        Vector< std::shared_ptr< IG_Cell_Group > > tIgCellSubphases( aSubphasesGroups.size() );
 
         for ( uint i = 0; i < aSubphasesGroups.size(); i++ )
         {
@@ -1225,7 +1225,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< std::shared_ptr< Child_Mesh_Experimental > >&
+    Vector< std::shared_ptr< Child_Mesh_Experimental > >&
     Cut_Integration_Mesh::get_owned_child_meshes()
     {
         return mOwnedChildMeshes;
@@ -1233,7 +1233,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index >&
+    Vector< moris_index >&
     Cut_Integration_Mesh::get_owned_subphase_indices()
     {
         return mOwnedSubphaseGroupsInds;
@@ -1241,7 +1241,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index >&
+    Vector< moris_index >&
     Cut_Integration_Mesh::get_not_owned_subphase_indices()
     {
         return mNotOwnedSubphaseGroupsInds;
@@ -1265,7 +1265,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    const moris::Vector< moris_index >&
+    const Vector< moris_index >&
     Cut_Integration_Mesh::get_ig_cells_in_SPG( moris_index aMeshIndexInList, moris_index aSubphaseGroupIndex )
     {
         return mBsplineMeshInfos( aMeshIndexInList )->mSubphaseGroups( aSubphaseGroupIndex )->get_ig_cell_indices_in_group();
@@ -1367,7 +1367,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_parent_cell_subphases( moris_index aParentCellIndex )
     {
         return mParentCellToSubphase( aParentCellIndex );
@@ -1459,14 +1459,14 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::set_interface_facets( moris::Vector< moris_index >& aInterfaces )
+    Cut_Integration_Mesh::set_interface_facets( Vector< moris_index >& aInterfaces )
     {
         mInterfaceFacets = aInterfaces;
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_interface_facets()
     {
         return mInterfaceFacets;
@@ -1475,14 +1475,14 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::set_bulk_phase_to_bulk_phase_dbl_side_interface( moris::Vector< moris::Vector< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aBpToBpDblSideInterfaces )
+    Cut_Integration_Mesh::set_bulk_phase_to_bulk_phase_dbl_side_interface( Vector< Vector< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aBpToBpDblSideInterfaces )
     {
         mBpToBpDblSideInterfaces = aBpToBpDblSideInterfaces;
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris::Vector< std::shared_ptr< IG_Cell_Double_Side_Group > > > const &
+    Vector< Vector< std::shared_ptr< IG_Cell_Double_Side_Group > > > const &
     Cut_Integration_Mesh::get_bulk_phase_to_bulk_phase_dbl_side_interface()
     {
         return mBpToBpDblSideInterfaces;
@@ -1491,14 +1491,14 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::set_background_facet_to_child_facet_connectivity( moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const & aBgToChildFacet )
+    Cut_Integration_Mesh::set_background_facet_to_child_facet_connectivity( Vector< std::shared_ptr< Vector< moris_index > > > const & aBgToChildFacet )
     {
         mBGFacetToChildFacet = aBgToChildFacet;
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const &
+    Vector< std::shared_ptr< Vector< moris_index > > > const &
     Cut_Integration_Mesh::get_background_facet_to_child_facet_connectivity()
     {
         return mBGFacetToChildFacet;
@@ -1530,7 +1530,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< Bspline_Mesh_Info* >&
+    Vector< Bspline_Mesh_Info* >&
     Cut_Integration_Mesh::get_bspline_mesh_info()
     {
         return mBsplineMeshInfos;
@@ -1603,7 +1603,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     Vector< moris_index >
-    Cut_Integration_Mesh::register_side_set_names( moris::Vector< std::string > const & aSideSetNames )
+    Cut_Integration_Mesh::register_side_set_names( Vector< std::string > const & aSideSetNames )
     {
         uint tNumSetsToRegister = aSideSetNames.size();
 
@@ -1630,7 +1630,7 @@ namespace xtk
 
     Vector< moris_index >
     Cut_Integration_Mesh::register_block_set_names(
-            moris::Vector< std::string > const & aBlockSetNames,
+            Vector< std::string > const & aBlockSetNames,
             mtk::CellTopology                  aCellTopo )
     {
         uint tNumSetsToRegister = aBlockSetNames.size();
@@ -1724,7 +1724,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const
     {
         MORIS_ASSERT( mUnionVoidMsdIndices.size() > 0,
@@ -1736,7 +1736,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_bulk_phases_for_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const
     {
         MORIS_ASSERT( mUnionVoidMsdIndexBulkPhases.size() > 0,
@@ -1748,7 +1748,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_material_SPG_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
@@ -1760,7 +1760,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_material_MSD_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
@@ -1772,7 +1772,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_void_SPG_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
@@ -1784,7 +1784,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_void_MSD_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
@@ -1796,7 +1796,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< moris_index > const &
+    Vector< moris_index > const &
     Cut_Integration_Mesh::get_free_void_MSD_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
@@ -1852,7 +1852,7 @@ namespace xtk
         for ( uint i = 0; i < this->get_num_entities( mtk::EntityRank::ELEMENT, 0 ); i++ )
         {
             mtk::Cell&                         tCell     = this->get_mtk_cell( (moris_index)i );
-            moris::Vector< moris::mtk::Vertex* > tVertices = tCell.get_vertex_pointers();
+            Vector< moris::mtk::Vertex* > tVertices = tCell.get_vertex_pointers();
 
             tStringStream << std::to_string( tCell.get_id() ) + ",";
             if ( !aOmitIndex ) { tStringStream << std::to_string( tCell.get_index() ) + ","; }
@@ -2645,7 +2645,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::update_communication_table( moris::Vector< moris_id > const & aNewCommunicationTable )
+    Cut_Integration_Mesh::update_communication_table( Vector< moris_id > const & aNewCommunicationTable )
     {
         // resize the communication table
         mCommunicationTable.resize( aNewCommunicationTable.size(), 1 );

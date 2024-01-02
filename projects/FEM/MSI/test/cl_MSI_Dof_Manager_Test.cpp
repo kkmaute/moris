@@ -88,15 +88,15 @@ namespace moris
 
         moris::uint tNumNodes = 2;
 
-        moris::Vector < Equation_Object* >tListEqnObj( tNumEquationObjects, nullptr );
+        Vector < Equation_Object* >tListEqnObj( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
-        moris::Vector< moris::Vector< fem::Node_Base * > > tNodeIds_1( 1 );
+        Vector< Vector< fem::Node_Base * > > tNodeIds_1( 1 );
         tNodeIds_1( 0 ).resize( tNumNodes );
         tNodeIds_1( 0 )( 0 ) = Node1;
         tNodeIds_1( 0 )( 1 ) = Node2;
 
-        moris::Vector< moris::Vector< fem::Node_Base * > > tNodeIds_2( 1 );
+        Vector< Vector< fem::Node_Base * > > tNodeIds_2( 1 );
         tNodeIds_2( 0 ).resize( tNumNodes );
         tNodeIds_2( 0 )( 0 ) = Node1;
         tNodeIds_2( 0 )( 1 ) = Node2;
@@ -212,16 +212,16 @@ namespace moris
 
         moris::uint tNumNodes = 2;
 
-        moris::Vector < Equation_Object* >tListEqnObj;
+        Vector < Equation_Object* >tListEqnObj;
         tListEqnObj.resize( tNumEquationObjects, nullptr );
 
         // Create List with node pointern correponding to generic equation object
-        moris::Vector< moris::Vector< fem::Node_Base * > > tNodeIds_1( 1 );
+        Vector< Vector< fem::Node_Base * > > tNodeIds_1( 1 );
         tNodeIds_1( 0 ).resize( tNumNodes );
         tNodeIds_1( 0 )( 0 ) = Node1;
         tNodeIds_1( 0 )( 1 ) = Node2;
 
-        moris::Vector< moris::Vector< fem::Node_Base * > > tNodeIds_2( 1 );
+        Vector< Vector< fem::Node_Base * > > tNodeIds_2( 1 );
         tNodeIds_2( 0 ).resize( tNumNodes );
         tNodeIds_2( 0 )( 0 ) = Node1;
         tNodeIds_2( 0 )( 1 ) = Node2;
@@ -346,7 +346,7 @@ namespace moris
             tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )->mAdofIds = tAdofsId1;
             tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds = tAdofsId2;
 
-            moris::Vector < Equation_Object* >tListEqnObj;
+            Vector < Equation_Object* >tListEqnObj;
             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
@@ -446,7 +446,7 @@ namespace moris
         (tDofMgn.mPdofHostList( 0 )->mListOfPdofTimePerType( 1 )( 0 )) = new Pdof;
         (tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )) = new Pdof;
 
-        moris::Vector < Equation_Object* >tListEqnObj;
+        Vector < Equation_Object* >tListEqnObj;
         moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
         tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
         tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
@@ -472,7 +472,7 @@ namespace moris
          Equation_Set EquObj_1;
          Equation_Set EquObj_2;
 
-         moris::Vector < Equation_Set* >tListEqnObj;
+         Vector < Equation_Set* >tListEqnObj;
 
          // Determine process rank
          size_t tRank = par_rank();
@@ -540,7 +540,7 @@ namespace moris
         Equation_Set EquObj_1;
         Equation_Set EquObj_2;
 
-        moris::Vector < Equation_Set* >tListEqnObj;
+        Vector < Equation_Set* >tListEqnObj;
 
         // Determine process rank
         size_t tRank = par_rank();
@@ -764,7 +764,7 @@ namespace moris
             // set map of dof manager
             tDofMgn.set_adof_map( &tMap );
 
-            moris::Vector < Equation_Object* >tListEqnObj;
+            Vector < Equation_Object* >tListEqnObj;
             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
@@ -958,7 +958,7 @@ namespace moris
             // set map of dof manager
             tDofMgn.set_adof_map( &tMap );
 
-            moris::Vector < Equation_Object* >tListEqnObj;
+            Vector < Equation_Object* >tListEqnObj;
             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
             tDofMgn.mModelSolverInterface = new Model_Solver_Interface( tMSIParameters, tListEqnObj );
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;

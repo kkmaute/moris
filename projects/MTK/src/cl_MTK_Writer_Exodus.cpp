@@ -215,7 +215,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Writer_Exodus::set_point_fields( moris::Vector< std::string > aFieldNames )
+        Writer_Exodus::set_point_fields( Vector< std::string > aFieldNames )
         {
             // Set the field names
             if ( aFieldNames.size() > 0 )
@@ -235,7 +235,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Writer_Exodus::set_nodal_fields( moris::Vector< std::string > aFieldNames )
+        Writer_Exodus::set_nodal_fields( Vector< std::string > aFieldNames )
         {
             if ( aFieldNames.size() > 0 && mNumNodes > 0 )
             {
@@ -254,7 +254,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Writer_Exodus::set_elemental_fields( moris::Vector< std::string > aFieldNames )
+        Writer_Exodus::set_elemental_fields( Vector< std::string > aFieldNames )
         {
             if ( aFieldNames.size() > 0 && mNumUniqueExodusElements > 0 )
             {
@@ -273,7 +273,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Writer_Exodus::set_side_set_fields( moris::Vector< std::string > aFieldNames )
+        Writer_Exodus::set_side_set_fields( Vector< std::string > aFieldNames )
         {
             if ( aFieldNames.size() > 0 && mNumUniqueExodusElements > 0 )
             {
@@ -292,7 +292,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Writer_Exodus::set_global_variables( moris::Vector< std::string > aVariableNames )
+        Writer_Exodus::set_global_variables( Vector< std::string > aVariableNames )
         {
             if ( aVariableNames.size() > 0 )
             {
@@ -586,7 +586,7 @@ namespace moris
 
         void
         Writer_Exodus::write_global_variables(
-                moris::Vector< std::string >& aVariableNames,
+                Vector< std::string >& aVariableNames,
                 const Matrix< DDRMat >&     aVariableValues )
         {
             // number of global variables
@@ -725,7 +725,7 @@ namespace moris
         void
         Writer_Exodus::get_node_sets()
         {
-            moris::Vector< std::string > tNodeSetNames = mMesh->get_set_names( EntityRank::NODE );
+            Vector< std::string > tNodeSetNames = mMesh->get_set_names( EntityRank::NODE );
 
             // Determine number of nodes in each local node set
             Matrix< DDUMat > tNumLocalNodesOnNodeSets( tNodeSetNames.size(), 1 );
@@ -760,7 +760,7 @@ namespace moris
         Writer_Exodus::get_side_sets()
         {
             // Determine number of non-empty side sets across all procs
-            moris::Vector< std::string > tSideSetNames = mMesh->get_set_names( mMesh->get_facet_rank() );
+            Vector< std::string > tSideSetNames = mMesh->get_set_names( mMesh->get_facet_rank() );
 
             // Determine number of sides in each local side set
             Matrix< DDUMat > tNumLocalSidesOnSideSets( tSideSetNames.size(), 1 );
@@ -803,7 +803,7 @@ namespace moris
         void
         Writer_Exodus::get_block_sets()
         {
-            moris::Vector< std::string > tBlockNames = mMesh->get_set_names( EntityRank::ELEMENT );
+            Vector< std::string > tBlockNames = mMesh->get_set_names( EntityRank::ELEMENT );
 
             // Initialize map from mesh indices to exodus indices
             mMtkExodusElementIndexMap.set_size( mNumMtkElements, 1, MORIS_INDEX_MAX );
@@ -942,7 +942,7 @@ namespace moris
         Writer_Exodus::write_node_sets()
         {
             // Get the number of node sets and their names
-            moris::Vector< std::string > tNodeSetNames = mMesh->get_set_names( EntityRank::NODE );
+            Vector< std::string > tNodeSetNames = mMesh->get_set_names( EntityRank::NODE );
 
             // Loop through all non-empty node sets
             for ( uint tIndex = 0; tIndex < mNodeSetIndices.size(); tIndex++ )
@@ -1009,7 +1009,7 @@ namespace moris
             Matrix< IdMat > tExodusTotalElementIds( mNumTotalExodusElements, 1 );
 
             // All of the block names
-            moris::Vector< std::string > tBlockNames = mMesh->get_set_names( EntityRank::ELEMENT );
+            Vector< std::string > tBlockNames = mMesh->get_set_names( EntityRank::ELEMENT );
 
             // Initialize element counter: order in which elements are written to exodus file
             uint tElemCounter = 0;
@@ -1130,7 +1130,7 @@ namespace moris
         Writer_Exodus::write_side_sets()
         {
             // Get side set names
-            moris::Vector< std::string > tSideSetNames = mMesh->get_set_names( mMesh->get_facet_rank() );
+            Vector< std::string > tSideSetNames = mMesh->get_set_names( mMesh->get_facet_rank() );
 
             // get the number of side sets in the exo mesh
             uint tNumSideSets = mSideSetIndices.size();

@@ -85,7 +85,7 @@ namespace moris
     inline void
     ConstFunctionVal_MDLFEMBench2(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -94,7 +94,7 @@ namespace moris
     inline void
     AnalyticalTempFunc_MDLFEMBench2(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get parameters
@@ -119,7 +119,7 @@ namespace moris
     inline void
     AnalyticalTemp2MatFunc_MDLFEMBench2(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get parameters
@@ -359,7 +359,7 @@ namespace moris
             tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
+            Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet1;
@@ -391,7 +391,7 @@ namespace moris
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
             // define dof type for solve
-            moris::Vector< enum MSI::Dof_Type > tDofTypesU( 1 );
+            Vector< enum MSI::Dof_Type > tDofTypesU( 1 );
             tDofTypesU( 0 ) = MSI::Dof_Type::TEMP;
 
             dla::Solver_Factory tSolFactory;
@@ -694,7 +694,7 @@ namespace moris
             tSetDisplGhost.set_IWGs( { tIWGGhost } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 5 );
+            Vector< fem::Set_User_Info > tSetInfo( 5 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet1;
@@ -727,7 +727,7 @@ namespace moris
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
             // define dof type for solve
-            moris::Vector< enum MSI::Dof_Type > tDofTypesU( 1 );
+            Vector< enum MSI::Dof_Type > tDofTypesU( 1 );
             tDofTypesU( 0 ) = MSI::Dof_Type::TEMP;
 
             dla::Solver_Factory tSolFactory;
@@ -1051,7 +1051,7 @@ namespace moris
             tSetInterfaceBA1.set_IWGs( { tIWGInterface } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 7 );
+            Vector< fem::Set_User_Info > tSetInfo( 7 );
             tSetInfo( 0 ) = tSetBulkB1;
             tSetInfo( 1 ) = tSetBulkB2;
             tSetInfo( 2 ) = tSetBulkA1;
@@ -1086,7 +1086,7 @@ namespace moris
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
             // define dof type for solve
-            moris::Vector< enum MSI::Dof_Type > tSolveDofTypes( 1 );
+            Vector< enum MSI::Dof_Type > tSolveDofTypes( 1 );
             tSolveDofTypes( 0 ) = MSI::Dof_Type::TEMP;
 
             dla::Solver_Factory tSolFactory;
@@ -1403,7 +1403,7 @@ namespace moris
             tSetInterfaceBA1.set_IWGs( { tIWGInterface } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 7 );
+            Vector< fem::Set_User_Info > tSetInfo( 7 );
             tSetInfo( 0 ) = tSetBulkB1;
             tSetInfo( 1 ) = tSetBulkB2;
             tSetInfo( 2 ) = tSetBulkA1;
@@ -1438,7 +1438,7 @@ namespace moris
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
             // define dof type for solve
-            moris::Vector< enum MSI::Dof_Type > tSolveDofTypes( 1 );
+            Vector< enum MSI::Dof_Type > tSolveDofTypes( 1 );
             tSolveDofTypes( 0 ) = MSI::Dof_Type::TEMP;
 
             dla::Solver_Factory tSolFactory;

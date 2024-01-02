@@ -35,7 +35,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< std::tuple<
+        Vector< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
         mtk::Leader_Follower > > SP_Lagrange_Multiplier_L2::get_cluster_measure_tuple_list()
@@ -58,7 +58,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Lagrange_Multiplier_L2::eval_dSPdLeaderDOF(
-                const moris::Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

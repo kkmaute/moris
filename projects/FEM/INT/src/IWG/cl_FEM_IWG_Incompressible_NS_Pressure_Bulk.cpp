@@ -366,7 +366,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Incompressible_NS_Pressure_Bulk::compute_jacobian_strong_form_momentum(
-                const moris::Vector< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & aJM )
         {
             // get the velocity dof and the derivative dof FIs

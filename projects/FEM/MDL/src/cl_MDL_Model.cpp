@@ -59,7 +59,7 @@ namespace moris
         Model::Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const uint                           aBSplineIndex,
-                moris::Vector< fem::Set_User_Info >&   aSetInfo,
+                Vector< fem::Set_User_Info >&   aSetInfo,
                 const moris_index                    aMeshPairIndex,
                 const bool                           aUseMultigrid )
                 : mMeshManager( aMeshManager )
@@ -160,7 +160,7 @@ namespace moris
         Model::Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const uint                           aBSplineIndex,
-                moris::Vector< fem::Set_User_Info >&   aSetInfo,
+                Vector< fem::Set_User_Info >&   aSetInfo,
                 MSI::Design_Variable_Interface*      aDesignVariableInterface,
                 const moris_index                    aMeshPairIndex,
                 const bool                           aUseMultigrid )
@@ -431,7 +431,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< moris::Matrix< DDRMat > >
+        Vector< moris::Matrix< DDRMat > >
         Model::get_IQI_values()
         {
             return mEquationModel->get_IQI_values();
@@ -463,7 +463,7 @@ namespace moris
         void
         Model::set_weak_bcs( const Matrix< DDRMat >& aWeakBCs )
         {
-            moris::Vector< MSI::Equation_Object* > tFemClusters = mEquationModel->get_equation_objects();
+            Vector< MSI::Equation_Object* > tFemClusters = mEquationModel->get_equation_objects();
 
             // set weak BCs
             for ( auto tElement : tFemClusters )
@@ -484,7 +484,7 @@ namespace moris
         void
         Model::set_weak_bcs_from_nodal_field( moris_index aFieldIndex )
         {
-            moris::Vector< MSI::Equation_Object* > tFemClusters = mEquationModel->get_equation_objects();
+            Vector< MSI::Equation_Object* > tFemClusters = mEquationModel->get_equation_objects();
 
             for ( auto tElement : tFemClusters )
             {
@@ -543,7 +543,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< std::shared_ptr< mtk::Field > >
+        Vector< std::shared_ptr< mtk::Field > >
         Model::get_mtk_fields()
         {
             return mEquationModel->get_fields();

@@ -92,10 +92,10 @@ Elevate_Order_Interface::perform(
     *aDecompositionData = Decomposition_Data();
 
     // get list of all cell groups in mesh (which will be treated later)
-    moris::Vector< std::shared_ptr< IG_Cell_Group > > tIgCellGroups = mCutIntegrationMesh->get_all_cell_groups();
+    Vector< std::shared_ptr< IG_Cell_Group > > tIgCellGroups = mCutIntegrationMesh->get_all_cell_groups();
 
     // extract the cells from groups into a continuous list
-    moris::Vector< moris::mtk::Cell* > tIgCellsInGroups;
+    Vector< moris::mtk::Cell* > tIgCellsInGroups;
     aMeshGenerator->extract_cells_from_cell_groups( tIgCellGroups, tIgCellsInGroups );
 
     // construct the edge connectivity for these ig cell groups
@@ -103,11 +103,11 @@ Elevate_Order_Interface::perform(
     aMeshGenerator->create_edges_from_element_to_node( tIgCellsInGroups, tIgCellGroupEdgeConnectivity );
 
     // collect a representative background cell for each edges
-    moris::Vector< moris::mtk::Cell* > tBackgroundCellForEdge;// input: edge index || output: BG cell it belongs to
+    Vector< moris::mtk::Cell* > tBackgroundCellForEdge;// input: edge index || output: BG cell it belongs to
     aMeshGenerator->select_background_cell_for_edge( tIgCellGroupEdgeConnectivity, aCutIntegrationMesh, tBackgroundCellForEdge );
 
     // collect the vertex group related to the representative background cell
-    moris::Vector< std::shared_ptr< IG_Vertex_Group > > tVertexGroups;// input: BG cell index || output: IG vertex group
+    Vector< std::shared_ptr< IG_Vertex_Group > > tVertexGroups;// input: BG cell index || output: IG vertex group
     aMeshGenerator->collect_vertex_groups_for_background_cells( aMeshGenerationData, aCutIntegrationMesh, &tBackgroundCellForEdge, &tVertexGroups );
 
     // deduce the edge parent entity index and rank
@@ -115,8 +115,8 @@ Elevate_Order_Interface::perform(
     aMeshGenerator->deduce_edge_ancestry( aCutIntegrationMesh, aBackgroundMesh, tIgCellGroupEdgeConnectivity, tBackgroundCellForEdge, tIgEdgeAncestry );
 
     // request vertices and make sure vertices on edges don't get requested twice, additionally build the local
-    moris::Vector< moris_index > tEmptyCellVertexList( mElevateOrderTemplate->get_total_ig_verts(), -1 );
-    moris::Vector< moris::Vector< moris_index > > tCellToLocalVertices( tIgCellsInGroups.size(), tEmptyCellVertexList );
+    Vector< moris_index > tEmptyCellVertexList( mElevateOrderTemplate->get_total_ig_verts(), -1 );
+    Vector< Vector< moris_index > > tCellToLocalVertices( tIgCellsInGroups.size(), tEmptyCellVertexList );
     this->make_vertex_requests(
         tIgCellGroupEdgeConnectivity,
         tIgEdgeAncestry,
@@ -153,8 +153,8 @@ bool
 Elevate_Order_Interface::make_vertex_requests(
     std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
     std::shared_ptr< Edge_Based_Ancestry >             aIgEdgeAncestry,
-    moris::Vector< moris::mtk::Cell* >*                  aIgCells,
-    moris::Vector< moris::Vector< moris_index > >*         aCellToNewLocalVertexIndices )
+    Vector< moris::mtk::Cell* >*                  aIgCells,
+    Vector< Vector< moris_index > >*         aCellToNewLocalVertexIndices )
 {
     Tracer tTracer( "XTK", "Elevate_Order_Interface", "make vertex requests" );
 
@@ -167,7 +167,7 @@ Elevate_Order_Interface::make_vertex_requests(
     uint tNumElemsInCIM = mCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
 
     // initialize proc-global to element-local map of vertex indices for each cell/element
-    moris::Vector< std::map< moris_index, uint > > tVertIndicesOnCell( tNumElemsInCIM );
+    Vector< std::map< moris_index, uint > > tVertIndicesOnCell( tNumElemsInCIM );
 
     // initialize iCell-map, provides a relationship between the location of a cell in the provided list of cells and their indices
     std::unordered_map< moris_index, uint > tCellToIndexMap;
@@ -425,8 +425,8 @@ bool
 Elevate_Order_Interface::associate_new_vertices_with_cell_groups(
         std::shared_ptr<Edge_Based_Connectivity>       aEdgeConnectivity,
         std::shared_ptr<Edge_Based_Ancestry>           aIgEdgeAncestry,
-        moris::Vector<moris::mtk::Cell*>                *aBackgroundCellForEdge,
-        moris::Vector< moris::mtk::Cell* >              *aIgCells )
+        Vector<moris::mtk::Cell*>                *aBackgroundCellForEdge,
+        Vector< moris::mtk::Cell* >              *aIgCells )
 {
     // trace this function
     Tracer tTracer( "XTK", "Decomposition_Algorithm", "Vertex Associations" );
@@ -514,8 +514,8 @@ void
 Elevate_Order_Interface::create_higher_order_integration_cells(
     std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
     std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-    moris::Vector< moris::mtk::Cell* >*          aIgCells,
-    moris::Vector< moris::Vector< moris_index > >* aCellToNewLocalVertexIndices )
+    Vector< moris::mtk::Cell* >*          aIgCells,
+    Vector< Vector< moris_index > >* aCellToNewLocalVertexIndices )
 {
     // time/log function
     Tracer tTracer( "XTK", "Elevate_Order_Interface", "Create Higher Order Integration Cells" );
@@ -532,10 +532,10 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
     std::shared_ptr< moris::mtk::Cell_Info > tCellInfo = tFactory.create_cell_info_sp( mElevateOrderTemplate->get_ig_cell_topology() );
 
     // initialize the algorithm data
-    mNewCellToVertexConnectivity = moris::Vector< moris::Vector< moris::moris_index > >( tNumIgCellsInMesh, moris::Vector< moris::moris_index >( tNodesPerCell ) );
-    mNewCellChildMeshIndex       = moris::Vector< moris::moris_index >( tNumIgCellsInMesh );
-    mNewCellCellIndexToReplace   = moris::Vector< moris::moris_index >( tNumIgCellsInMesh );
-    mNewCellCellInfo             = moris::Vector< std::shared_ptr< moris::mtk::Cell_Info > >( tNumIgCellsInMesh, tCellInfo );
+    mNewCellToVertexConnectivity = Vector< Vector< moris::moris_index > >( tNumIgCellsInMesh, Vector< moris::moris_index >( tNodesPerCell ) );
+    mNewCellChildMeshIndex       = Vector< moris::moris_index >( tNumIgCellsInMesh );
+    mNewCellCellIndexToReplace   = Vector< moris::moris_index >( tNumIgCellsInMesh );
+    mNewCellCellInfo             = Vector< std::shared_ptr< moris::mtk::Cell_Info > >( tNumIgCellsInMesh, tCellInfo );
 
     // construct the Cell-Vertex-Connectivity for all new cells
     for ( moris::uint iCell = 0; iCell < tNumIgCellsInMesh; iCell++ )
@@ -548,7 +548,7 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
         mNewCellChildMeshIndex( iCell ) = tCellGroupMembershipIndex;
 
         // get list of vertices belonging to new cell, sorted in
-        moris::Vector< moris_index > tSortedVerticesForCell( mElevateOrderTemplate->get_total_ig_verts() );
+        Vector< moris_index > tSortedVerticesForCell( mElevateOrderTemplate->get_total_ig_verts() );
 
         // iterate through old corner vertices on cell, get their indices, and construct the Cell-Vertex-Connectivity map
         for ( uint iVert = 0; iVert < mElevateOrderTemplate->get_num_spatial_dims() + 1; iVert++ )
@@ -576,7 +576,7 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
 // ----------------------------------------------------------------------------------
 
 moris_index
-Elevate_Order_Interface::hash_edge( moris::Vector< moris::mtk::Vertex* > const& aEdgeVertices )
+Elevate_Order_Interface::hash_edge( Vector< moris::mtk::Vertex* > const& aEdgeVertices )
 {
     MORIS_ERROR( aEdgeVertices.size() == 2, "Edge is expected to have two vertices" );
     moris_index tMinIdIndex = 0;
@@ -592,7 +592,7 @@ Elevate_Order_Interface::hash_edge( moris::Vector< moris::mtk::Vertex* > const& 
 // ----------------------------------------------------------------------------------
 
 moris_index
-Elevate_Order_Interface::hash_face( moris::Vector< moris::mtk::Vertex* > const& aFaceVertices )
+Elevate_Order_Interface::hash_face( Vector< moris::mtk::Vertex* > const& aFaceVertices )
 {
     // check input
     MORIS_ERROR( aFaceVertices.size() == 3, "Face is expected to have three vertices" );
@@ -644,7 +644,7 @@ Elevate_Order_Interface::swap_indices( moris_index & aInd1, moris_index & aInd2 
 
 Matrix< DDRMat >
 Elevate_Order_Interface::compute_edge_vertex_global_coordinates(
-        moris::Vector<moris::mtk::Vertex*> const & aEdgeVertices,
+        Vector<moris::mtk::Vertex*> const & aEdgeVertices,
         Matrix< DDRMat > aEdgeCoordinate )
 {
     // check inputs
@@ -667,7 +667,7 @@ Elevate_Order_Interface::compute_edge_vertex_global_coordinates(
 
 Matrix< DDRMat >
 Elevate_Order_Interface::compute_tri_vertex_global_coordinates(
-        moris::Vector<moris::mtk::Vertex*> const & aTriVertices,
+        Vector<moris::mtk::Vertex*> const & aTriVertices,
         Matrix< DDRMat > aTriCoords )
 {
     MORIS_ERROR( false, "Elevate_Order_Interface::compute_tri_vertex_global_coordinates() - function not implemented yet." );
@@ -678,7 +678,7 @@ Elevate_Order_Interface::compute_tri_vertex_global_coordinates(
 
 Matrix< DDRMat >
 Elevate_Order_Interface::compute_tet_vertex_global_coordinates(
-        moris::Vector<moris::mtk::Vertex*> const & aTriVertices,
+        Vector<moris::mtk::Vertex*> const & aTriVertices,
         Matrix< DDRMat > aTriCoords )
 {
     MORIS_ERROR( false, "Elevate_Order_Interface::compute_tet_vertex_global_coordinates() - function not implemented yet." );

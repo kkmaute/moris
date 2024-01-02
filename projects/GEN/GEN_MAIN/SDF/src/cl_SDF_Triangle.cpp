@@ -25,7 +25,7 @@ namespace moris
 
         Triangle::Triangle(
                 moris_index                      aIndex,
-                moris::Vector< Facet_Vertex* >& aVertices )
+                Vector< Facet_Vertex* >& aVertices )
                 : Facet( aIndex, aVertices, 3 )
                 , mPredictY( 3, 3 )
                 , mPredictYRA( 3, 3 )

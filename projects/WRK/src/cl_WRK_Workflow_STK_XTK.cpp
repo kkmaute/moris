@@ -146,7 +146,7 @@ namespace moris
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
-            moris::Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
+            Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             // Communicate IQIs
             for ( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )

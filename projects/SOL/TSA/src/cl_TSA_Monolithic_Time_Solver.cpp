@@ -27,7 +27,7 @@ using namespace tsa;
 //-------------------------------------------------------------------------------
 
 void
-Monolithic_Time_Solver::solve_monolithic_time_system( moris::Vector< sol::Dist_Vector* >& aFullVector )
+Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vector* >& aFullVector )
 {
     // trace this solve
     Tracer tTracer( "Time Solver Algorithm", "Monolithic", "Solve" );
@@ -42,7 +42,7 @@ Monolithic_Time_Solver::solve_monolithic_time_system( moris::Vector< sol::Dist_V
     bool tMaxTimeIterationReached = false;
 
     // get list of time frames
-    moris::Vector< Matrix< DDRMat > >& tTimeFrames = mMyTimeSolver->get_time_frames();
+    Vector< Matrix< DDRMat > >& tTimeFrames = mMyTimeSolver->get_time_frames();
 
     Matrix< DDRMat > tTimeInitial( 2, 1, 0.0 );
     tTimeFrames.push_back( tTimeInitial );
@@ -124,7 +124,7 @@ Monolithic_Time_Solver::solve_monolithic_time_system( moris::Vector< sol::Dist_V
 //-------------------------------------------------------------------------------
 
 void
-Monolithic_Time_Solver::solve_implicit_DqDs( moris::Vector< sol::Dist_Vector* >& aFullAdjointVector )
+Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullAdjointVector )
 {
     // trace this solve
     Tracer tTracer( "TimeSolver", "Monolithic", "Solve" );
@@ -132,11 +132,11 @@ Monolithic_Time_Solver::solve_implicit_DqDs( moris::Vector< sol::Dist_Vector* >&
     sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
 
     // initialize time for time slab
-    moris::Vector< Matrix< DDRMat > >& tTimeFrames = mMyTimeSolver->get_time_frames();
+    Vector< Matrix< DDRMat > >& tTimeFrames = mMyTimeSolver->get_time_frames();
 
     sint tStopTimeStepIndex = 0;    // Only consider last time step
 
-    moris::Vector< sol::Dist_Vector* >& tSolVec = mMyTimeSolver->get_solution_vectors();
+    Vector< sol::Dist_Vector* >& tSolVec = mMyTimeSolver->get_solution_vectors();
 
     // Loop over all time iterations backwards
     for ( sint Ik = tTimeSteps; Ik > tStopTimeStepIndex; --Ik )
@@ -167,7 +167,7 @@ Monolithic_Time_Solver::solve_implicit_DqDs( moris::Vector< sol::Dist_Vector* >&
 
         mNonlinearSolverForAdjoint->solve( aFullAdjointVector( 0 ) );
 
-        moris::Vector< enum MSI::Dof_Type > tDofTypeUnion = mMyTimeSolver->get_dof_type_union();
+        Vector< enum MSI::Dof_Type > tDofTypeUnion = mMyTimeSolver->get_dof_type_union();
 
         mSolverInterface->set_requested_dof_types( tDofTypeUnion );
 
@@ -180,7 +180,7 @@ Monolithic_Time_Solver::solve_implicit_DqDs( moris::Vector< sol::Dist_Vector* >&
 //-------------------------------------------------------------------------------
 
 void
-Monolithic_Time_Solver::solve( moris::Vector< sol::Dist_Vector* >& aFullVector )
+Monolithic_Time_Solver::solve( Vector< sol::Dist_Vector* >& aFullVector )
 {
     if ( mMyTimeSolver->get_is_forward_analysis() )
     {

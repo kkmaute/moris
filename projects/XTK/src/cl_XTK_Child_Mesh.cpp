@@ -840,7 +840,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector<moris::mtk::Vertex const *> const &
+    Vector<moris::mtk::Vertex const *> const &
     Child_Mesh::get_vertices() const
     {
         return mVertices;
@@ -1124,7 +1124,7 @@ namespace xtk
         moris::uint tNumElements = this->get_num_entities(moris::mtk::EntityRank::ELEMENT);
 
         // Figure out which faces are interface faces
-        moris::Vector<moris::moris_index> tInterfaceFaceIndices;
+        Vector<moris::moris_index> tInterfaceFaceIndices;
 
         moris::Matrix<moris::IndexMat> const & tElementToFacet = this->get_element_to_facet();
 
@@ -1370,7 +1370,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Child_Mesh::add_vertices(moris::Vector<moris::mtk::Vertex const *> const & aVertices)
+    Child_Mesh::add_vertices(Vector<moris::mtk::Vertex const *> const & aVertices)
     {
         mVertices.append(aVertices);
     }
@@ -2108,7 +2108,7 @@ namespace xtk
         Matrix<IndexMat> const & tCellFacets  = this->get_element_to_facet();
 
         // information about subphases
-        moris::Vector<moris::Matrix< moris::IndexMat >> const &  tSubphaseClusters = this->get_subphase_groups();
+        Vector<moris::Matrix< moris::IndexMat >> const &  tSubphaseClusters = this->get_subphase_groups();
         Vector<moris::moris_index> const & tSubphaseBulkPhases  = this->get_subphase_bin_bulk_phase();
 
         // facet rank
@@ -4027,9 +4027,9 @@ namespace xtk
     }
     // ---------------------------------------------------------------------------------
 
-    void Child_Mesh::identify_hanging_nodes( const moris::Vector< moris_index > & aTransitionFacetIndices )
+    void Child_Mesh::identify_hanging_nodes( const Vector< moris_index > & aTransitionFacetIndices )
     {
-        moris::Vector< moris_index> tHangingNodeIndices;
+        Vector< moris_index> tHangingNodeIndices;
 
         for( uint Ik = 0; Ik < aTransitionFacetIndices.size(); Ik ++ )
         {

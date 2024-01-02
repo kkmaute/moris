@@ -125,7 +125,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve values from storage
-        const Matrix< DDRMat > & Material_Model::PressureDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::PressureDOF_dep( const Vector< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ASSERT(
@@ -150,7 +150,7 @@ namespace moris
         }
 
         // trivial operation: get values from FI
-        const Matrix< DDRMat > & Material_Model::PressureDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::PressureDOF_triv( const Vector< MSI::Dof_Type > & aDofType )
         {
             // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofPressure )
@@ -182,7 +182,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve values from storage
-        const Matrix< DDRMat > & Material_Model::PressureDotDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::PressureDotDOF_dep( const Vector< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ASSERT(
@@ -207,7 +207,7 @@ namespace moris
         }
 
         // trivial operation: get values from FI
-        const Matrix< DDRMat > & Material_Model::PressureDotDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::PressureDotDOF_triv( const Vector< MSI::Dof_Type > & aDofType )
         {
             // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofPressure )
@@ -238,7 +238,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         // if thermodynamic state variable is dependent compute and retrieve values from storage
-        const Matrix< DDRMat > & Material_Model::dnPressuredxnDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofType, uint aOrder )
+        const Matrix< DDRMat > & Material_Model::dnPressuredxnDOF_dep( const Vector< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ASSERT(
@@ -291,7 +291,7 @@ namespace moris
         }
 
         // trivial operation: get values from FI
-        const Matrix< DDRMat > & Material_Model::dnPressuredxnDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofType, uint aOrder )
+        const Matrix< DDRMat > & Material_Model::dnPressuredxnDOF_triv( const Vector< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofPressure )

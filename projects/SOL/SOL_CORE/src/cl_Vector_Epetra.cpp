@@ -374,7 +374,7 @@ Vector_Epetra::extract_my_values(
         const moris::uint&                      aNumIndices,
         const moris::Matrix< DDSMat >&          aGlobalRows,
         const moris::uint&                      aRowOffsets,
-        moris::Vector< moris::Matrix< DDRMat > >& ExtractedValues )
+        Vector< moris::Matrix< DDRMat > >& ExtractedValues )
 {
     ExtractedValues.resize( mNumVectors );
 

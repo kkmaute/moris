@@ -291,7 +291,7 @@ namespace moris
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Vector< moris::real* >& aGeometryParameters )
+            const Vector< moris::real* >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -307,7 +307,7 @@ namespace moris
     void
     Func_Sphere_Deriv(
             const moris::Matrix< moris::DDRMat >&                aCoordinates,
-            const moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            const Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::Matrix< DDRMat >&                             aFieldSensitivity )
     {
         // derivative of level set function wrt sphere radius
@@ -320,7 +320,7 @@ namespace moris
     moris::real
     Func_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Vector< moris::real* >& aGeometryParameters )
+            const Vector< moris::real* >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -346,7 +346,7 @@ namespace moris
     void
     Func_Inlet_V(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix.set_size( 1, 1, 0.0 );
@@ -360,7 +360,7 @@ namespace moris
     // wall distance function
     void
     Func_Wall_Distance( moris::Matrix< moris::DDRMat >&    aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->val();
@@ -369,7 +369,7 @@ namespace moris
     // Wall distance derivative function
     void
     Func_Wall_Distance_Der( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >&  aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&  aParameters,
             moris::fem::Field_Interpolator_Manager*         aFIManager )
     {
         aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->N();
@@ -535,7 +535,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
@@ -556,7 +556,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    HMRParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
 
@@ -593,7 +593,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    XTKParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -615,7 +615,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    GENParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
@@ -703,7 +703,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    FEMParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
     {
         if ( par_rank() == 0 )
         {
@@ -1936,7 +1936,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
 
@@ -2052,7 +2052,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -2068,7 +2068,7 @@ namespace moris
     }
 
     void
-    VISParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -2087,7 +2087,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
     }
 

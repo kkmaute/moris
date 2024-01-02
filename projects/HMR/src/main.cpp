@@ -133,7 +133,7 @@ void state_refine_mesh( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // initialize fields
-    moris::Vector< std::shared_ptr< Field > > tInputFields;
+    Vector< std::shared_ptr< Field > > tInputFields;
     initialize_fields( aArguments, tParams, tHMR, tInputFields );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -207,7 +207,7 @@ void state_map_fields( const Arguments & aArguments )
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // initialize fields
-    moris::Vector< std::shared_ptr< Field > > tInputFields;
+    Vector< std::shared_ptr< Field > > tInputFields;
     initialize_fields( aArguments, tParams, tHMR, tInputFields );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

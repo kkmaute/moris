@@ -783,7 +783,7 @@ namespace moris
 
         void
         CM_Struc_Linear_MoriTanaka::eval_dConstdDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

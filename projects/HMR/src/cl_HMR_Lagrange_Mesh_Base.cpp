@@ -3642,7 +3642,7 @@ namespace moris::hmr
     Lagrange_Mesh_Base::get_elements_in_bspline_element(
             moris_index const          aBspElementIndex,
             moris_index const          aDiscretizationMeshIndex,
-            moris::Vector< mtk::Cell* >& aCells )
+            Vector< mtk::Cell* >& aCells )
     {
         // get pointer to b-spline and background elements
         Element*                 tBsplineElement    = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( aBspElementIndex );
@@ -3659,7 +3659,7 @@ namespace moris::hmr
 
         // collect the active Lagrange elements
         tNumActiveLagrangeElements = 0;
-        moris::Vector< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
+        Vector< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
         tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElements );
 
         // initialize output cell with correct size
@@ -3678,11 +3678,11 @@ namespace moris::hmr
     void
     Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements(
             moris_index const                          aDiscretizationMeshIndex,
-            moris::Vector< moris::Vector< mtk::Cell* > >&  aCells,
-            moris::Vector< moris::Vector< moris_index > >& aCellIndices,
-            moris::Vector< moris_index >&                aLagToBspCellIndices,
-            moris::Vector< uint >&                       aBspCellRefineLevels,
-            moris::Vector< mtk::Cell* >&                 aBsplineCells )
+            Vector< Vector< mtk::Cell* > >&  aCells,
+            Vector< Vector< moris_index > >& aCellIndices,
+            Vector< moris_index >&                aLagToBspCellIndices,
+            Vector< uint >&                       aBspCellRefineLevels,
+            Vector< mtk::Cell* >&                 aBsplineCells )
     {
         // get B-Spline pattern of this mesh
         uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -3735,7 +3735,7 @@ namespace moris::hmr
 
             // collect the active Lagrange elements
             luint                                   tNumActiveLagrangeElementsCheck = 0;
-            moris::Vector< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
+            Vector< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
             tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElementsCheck );
 
             // sanity check that the number of descendants in list matches number reported
@@ -3773,7 +3773,7 @@ namespace moris::hmr
     Lagrange_Mesh_Base::get_elements_in_interpolation_cluster(
             moris_index const          aElementIndex,
             moris_index const          aDiscretizationMeshIndex,
-            moris::Vector< mtk::Cell* >& aCells )
+            Vector< mtk::Cell* >& aCells )
     {
         // get B-Spline pattern of this mesh
         auto tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -3803,7 +3803,7 @@ namespace moris::hmr
 
         tBackgroundElement->get_number_of_active_descendants( tLagrangePattern, tCount );
 
-        moris::Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
+        Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -3827,7 +3827,7 @@ namespace moris::hmr
             moris_index const          aBsplineElementIndex,
             moris_index const          aDiscretizationMeshIndex,
             moris_index const          aSideOrdinal,
-            moris::Vector< mtk::Cell* >& aCells )
+            Vector< mtk::Cell* >& aCells )
     {
         // get pattern of the current B-spline mesh
         uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -3894,7 +3894,7 @@ namespace moris::hmr
         }
 
         // initialize list of background elements on side ordinal
-        moris::Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
+        Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -3959,7 +3959,7 @@ namespace moris::hmr
             moris_index const          aElementIndex,
             moris_index const          aDiscretizationMeshIndex,
             moris_index const          aSideOrdinal,
-            moris::Vector< mtk::Cell* >& aCells )
+            Vector< mtk::Cell* >& aCells )
     {
         // get B-Spline pattern of this mesh
         auto tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -4023,7 +4023,7 @@ namespace moris::hmr
             }
         }
 
-        moris::Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
+        Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -4107,7 +4107,7 @@ namespace moris::hmr
         Matrix< DDSMat > tReverseIndexMap( tMaxID + 1, 1, -1 );
         Matrix< DDSMat > tReverseIDMap( tMaxID + 1, 1, -1 );
 
-        moris::Vector< Basis* > tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
+        Vector< Basis* > tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
 
         this->calculate_t_matrices( false );
 

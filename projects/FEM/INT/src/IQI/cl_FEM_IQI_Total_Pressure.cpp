@@ -159,7 +159,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Total_Pressure::compute_dQIdu(
-                moris::Vector< MSI::Dof_Type > & aDofType,
+                Vector< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
             // get the fluid CM

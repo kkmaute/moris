@@ -53,7 +53,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     //        PetscInitializeNoArguments();
     //    }
 
-    const moris::Vector< enum MSI::Dof_Type >& tRequestedDofTypes = mSolverInterface->get_requested_dof_types();
+    const Vector< enum MSI::Dof_Type >& tRequestedDofTypes = mSolverInterface->get_requested_dof_types();
 
     // delete pointers if they already exist
     this->delete_pointers();
@@ -225,12 +225,12 @@ Nonlinear_Problem::build_linearized_problem(
     // of secondary dof types to residual
     if ( !mSolverInterface->get_is_forward_analysis() )
     {
-        moris::Vector< enum MSI::Dof_Type > tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
+        Vector< enum MSI::Dof_Type > tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
 
         // in case of secondary dof types
         if ( tSecDofTypes.size() != 0 )
         {
-            moris::Vector< enum MSI::Dof_Type > tDofTypeUnion = mMyNonLinSolver->get_dof_type_union();
+            Vector< enum MSI::Dof_Type > tDofTypeUnion = mMyNonLinSolver->get_dof_type_union();
 
             mSolverInterface->set_requested_dof_types( tSecDofTypes );
             mSolverInterface->set_secondary_dof_types( tDofTypeUnion );
@@ -278,7 +278,7 @@ Nonlinear_Problem::extract_my_values(
         const moris::uint&                      aNumIndices,
         const moris::Matrix< DDSMat >&          aGlobalBlockRows,
         const moris::uint&                      aBlockRowOffsets,
-        moris::Vector< moris::Matrix< DDRMat > >& LHSValues )
+        Vector< moris::Matrix< DDRMat > >& LHSValues )
 {
     mFullVector->extract_my_values(
             aNumIndices,

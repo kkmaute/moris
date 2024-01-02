@@ -887,9 +887,9 @@ namespace xtk
     void
     Ghost_Stabilization::get_ip_vertices_in_ghost_sets(
             Ghost_Setup_Data&                 aGhostSetupData,
-            moris::Vector< mtk::Vertex* >&      aGhostVerticesWithInterpolation,
-            moris::Vector< mtk::Vertex* >&      aGhostVerticesWithoutInterpolation,
-            moris::Vector< mtk::Cell const * >& aGhostIpCellConnectedToVertex )
+            Vector< mtk::Vertex* >&      aGhostVerticesWithInterpolation,
+            Vector< mtk::Vertex* >&      aGhostVerticesWithoutInterpolation,
+            Vector< mtk::Cell const * >& aGhostIpCellConnectedToVertex )
     {
         uint tNumGhostSets = aGhostSetupData.mDblSideSetIndexInMesh.size();
 
@@ -901,7 +901,7 @@ namespace xtk
         for ( uint iS = 0; iS < tNumGhostSets; iS++ )
         {
             // get the clusters
-            moris::Vector< mtk::Cluster const * > tDblSideSetClusters =
+            Vector< mtk::Cluster const * > tDblSideSetClusters =
                     mXTKModel->get_enriched_integ_mesh( 0 ).get_double_side_set_cluster( aGhostSetupData.mDblSideSetIndexInMesh( iS ) );
 
             // iterate through clusters
@@ -914,8 +914,8 @@ namespace xtk
                 moris::mtk::Cell const & tFollowerIpCell = tDblSideSetClusters( iC )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER );
 
                 // get the vertices attached to leader/follower cells
-                moris::Vector< mtk::Vertex* > tLeaderVertices   = tLeaderIpCell.get_vertex_pointers();
-                moris::Vector< mtk::Vertex* > tFollowerVertices = tFollowerIpCell.get_vertex_pointers();
+                Vector< mtk::Vertex* > tLeaderVertices   = tLeaderIpCell.get_vertex_pointers();
+                Vector< mtk::Vertex* > tFollowerVertices = tFollowerIpCell.get_vertex_pointers();
 
                 // iterate through leader vertices and place them in the correct list
                 for ( uint iV = 0; iV < tLeaderVertices.size(); iV++ )
@@ -1006,7 +1006,7 @@ namespace xtk
         Interpolation_Cell_Unzipped* tEnrIpCell = tEnrInterpMesh.get_enriched_interpolation_cells()( tCellIndex );
 
         // get the vertices
-        moris::Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertexPointers = tEnrIpCell->get_xtk_interpolation_vertices();
+        Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertexPointers = tEnrIpCell->get_xtk_interpolation_vertices();
 
         moris_index tVertexPointerInd = 0;
         uint        tCount            = 0;
@@ -1111,10 +1111,10 @@ namespace xtk
 
         // access subphase neighborhood information
         std::shared_ptr< Subphase_Neighborhood_Connectivity >                tSubphaseNeighborhood               = tCutIgMesh->get_subphase_neighborhood();
-        moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const & tSubphaseToSubphase                 = tSubphaseNeighborhood->mSubphaseToSubPhase;
-        moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const & tSubphaseToSubphaseMySideOrds       = tSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds;
-        moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const & tSubphaseToSubphaseNeighborSideOrds = tSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds;
-        moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const & tTransitionLocation                 = tSubphaseNeighborhood->mTransitionNeighborCellLocation;
+        Vector< std::shared_ptr< Vector< moris_index > > > const & tSubphaseToSubphase                 = tSubphaseNeighborhood->mSubphaseToSubPhase;
+        Vector< std::shared_ptr< Vector< moris_index > > > const & tSubphaseToSubphaseMySideOrds       = tSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds;
+        Vector< std::shared_ptr< Vector< moris_index > > > const & tSubphaseToSubphaseNeighborSideOrds = tSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds;
+        Vector< std::shared_ptr< Vector< moris_index > > > const & tTransitionLocation                 = tSubphaseNeighborhood->mTransitionNeighborCellLocation;
 
         // get number of bulk phases in the mesh
         uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
@@ -1260,7 +1260,7 @@ namespace xtk
         Matrix< DDUMat > tTotalNumberOfGhostFacets = sum_all_matrix( tLocalNumberOfGhostFacets );
 
         // build list of double side set indices
-        moris::Vector< moris_index > tDoubleSideSetIndexList;
+        Vector< moris_index > tDoubleSideSetIndexList;
         tDoubleSideSetIndexList.reserve( aGhostSetupData.mLeaderSideIpCells.size() );
 
         // ----------------------------------------------------------------------------------
@@ -1376,9 +1376,9 @@ namespace xtk
 
             // access subphase group neighborhood information
             std::shared_ptr< Subphase_Neighborhood_Connectivity >                tSpgNeighborhood          = tCutIgMesh->get_subphase_group_neighborhood( iBspMesh );
-            moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const & tSpgToSpg                 = tSpgNeighborhood->mSubphaseToSubPhase;
-            moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const & tSpgToSpgMySideOrds       = tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds;
-            moris::Vector< std::shared_ptr< moris::Vector< moris_index > > > const & tSpgToSpgNeighborSideOrds = tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds;
+            Vector< std::shared_ptr< Vector< moris_index > > > const & tSpgToSpg                 = tSpgNeighborhood->mSubphaseToSubPhase;
+            Vector< std::shared_ptr< Vector< moris_index > > > const & tSpgToSpgMySideOrds       = tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds;
+            Vector< std::shared_ptr< Vector< moris_index > > > const & tSpgToSpgNeighborSideOrds = tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds;
             // Vector< std::shared_ptr< Vector< moris_index > > > const& tTransitionLocation       = tSpgNeighborhood->mTransitionNeighborCellLocation;
 
             // reserve memory in ghost setup data according to estimate
@@ -1397,7 +1397,7 @@ namespace xtk
             aGhostSetupData.mTransitionLocationNew( iBspMesh ).resize( tNumBulkPhases );
 
             // quick access to SPG list for current Bspline mesh
-            moris::Vector< Subphase_Group* > const & tSubphaseGroups = mBsplineMeshInfos( iBspMesh )->mSubphaseGroups;
+            Vector< Subphase_Group* > const & tSubphaseGroups = mBsplineMeshInfos( iBspMesh )->mSubphaseGroups;
             uint                                   tNumSPGs        = tSubphaseGroups.size();
 
             // sanity check
@@ -1406,7 +1406,7 @@ namespace xtk
                     "Number of SPGs in SPG neighborhood and in B-spline mesh info don't match." );
 
             // get the relationship between the unzipped IP cells, the base IP cells and SPGs from the enrichment
-            moris::Vector< moris::Vector< moris_index > > const & tBaseIpCellAndSpgToUnzipping =
+            Vector< Vector< moris_index > > const & tBaseIpCellAndSpgToUnzipping =
                     mXTKModel->mEnrichment->get_unzipped_IP_cell_to_base_IP_cell_and_SPG( iBspMesh );
 
             // loop collecting ghost side sets to be constructed for the current mesh
@@ -1420,9 +1420,9 @@ namespace xtk
                 moris_index tLeaderRepIpCellIndex = mBsplineMeshInfos( iBspMesh )->mExtractionCellsIndicesInBsplineCells( tLeaderBspElemIndex )( 0 );
 
                 // access SPGs that are connected to the current SPG
-                moris::Vector< moris_index > const & tNeighborSPGs     = *tSpgToSpg( iSPG );
-                moris::Vector< moris_index > const & tMySideOrds       = *tSpgToSpgMySideOrds( iSPG );
-                moris::Vector< moris_index > const & tNeighborSideOrds = *tSpgToSpgNeighborSideOrds( iSPG );
+                Vector< moris_index > const & tNeighborSPGs     = *tSpgToSpg( iSPG );
+                Vector< moris_index > const & tMySideOrds       = *tSpgToSpgMySideOrds( iSPG );
+                Vector< moris_index > const & tNeighborSideOrds = *tSpgToSpgNeighborSideOrds( iSPG );
 
                 uint tNumNeighborSPGs = tNeighborSPGs.size();
 
@@ -1447,7 +1447,7 @@ namespace xtk
                     if ( tCreateGhostFacets )
                     {
                         // initialize lists of base Ip cells on the leader B-spline element
-                        moris::Vector< mtk::Cell* > tBaseIpCellsOnMyOrdinal;
+                        Vector< mtk::Cell* > tBaseIpCellsOnMyOrdinal;
 
                         // get the base IP elements on the first B-spline elements' facet
                         // Note: HMR uses 1-based indices for the side ordinals, hence the "+1"
@@ -1473,10 +1473,10 @@ namespace xtk
                             moris_index tMyRefineLevel = -1;
 
                             // list of information describing the transition
-                            moris::Vector< moris_index > tNeighborElements;
-                            moris::Vector< moris_index > tNeighborSideOrdinals;
-                            moris::Vector< moris_index > tTransitionLocations;
-                            moris::Vector< moris_index > tNeighborRefinementLevels;
+                            Vector< moris_index > tNeighborElements;
+                            Vector< moris_index > tNeighborSideOrdinals;
+                            Vector< moris_index > tTransitionLocations;
+                            Vector< moris_index > tNeighborRefinementLevels;
 
                             // get the IP cells the current cell is connected to and whether it's a non-trivial element transition
                             bool tNonTrivialFlag = tLagrangeBackgroundMesh->get_elements_connected_to_element_through_face_ord(
@@ -1605,7 +1605,7 @@ namespace xtk
         Matrix< DDUMat > tTotalNumberOfGhostFacets = sum_all_matrix( tLocalNumberOfGhostFacets );
 
         // initialize list of double side set indices
-        moris::Vector< moris_index > tDoubleSideSetIndexList;
+        Vector< moris_index > tDoubleSideSetIndexList;
         tDoubleSideSetIndexList.reserve( tNumBspMeshes * tNumBulkPhases );
 
         // initialize Ghost-Dbl.-SS. index
@@ -2063,7 +2063,7 @@ namespace xtk
                     tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tLeaderSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
 
             // Add the follower vertex to the vertex group
-            moris::Vector< moris::mtk::Vertex const * > tFollowerVertices =
+            Vector< moris::mtk::Vertex const * > tFollowerVertices =
                     aFollowerSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( aFollowerSideCluster->mIntegrationCellSideOrdinals( 0 ) );
 
             // iterate through vertices
@@ -2198,7 +2198,7 @@ namespace xtk
                     tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tLeaderSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
 
             // Add the follower vertex to the vertex group
-            moris::Vector< moris::mtk::Vertex const * > tFollowerVertices =
+            Vector< moris::mtk::Vertex const * > tFollowerVertices =
                     aFollowerSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( aFollowerSideCluster->mIntegrationCellSideOrdinals( 0 ) );
 
             // iterate through vertices
@@ -2290,7 +2290,7 @@ namespace xtk
                 "Follower side cluster should have exactly one integration cell." );
 
         // get the vertices on the side for the follower side cluster
-        moris::Vector< moris::mtk::Vertex const * > tFollowerVertices =
+        Vector< moris::mtk::Vertex const * > tFollowerVertices =
                 aFollowerSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( aFollowerSideCluster->mIntegrationCellSideOrdinals( 0 ) );
 
         // get the leader UIPC
@@ -2307,12 +2307,12 @@ namespace xtk
                 aGhostSetupData.mLeaderSideIgCellSideOrds( aBulkIndex )( aCellIndex ) );
 
         // setup the vertices and local coordinates of the vertices relative to the cell
-        moris::Vector< moris::mtk::Vertex const * > tAdjVertices =
+        Vector< moris::mtk::Vertex const * > tAdjVertices =
                 tBaseLeaderCell->get_geometric_vertices_on_side_ordinal( tAdjFacetOrd );
 
         // line up the ordering of the leader and follower side vertices such that they match
-        moris::Vector< moris::mtk::Vertex const * > tPermutedFollowerVertices;
-        moris::Vector< moris::mtk::Vertex const * > tPermutedAdjVertices;
+        Vector< moris::mtk::Vertex const * > tPermutedFollowerVertices;
+        Vector< moris::mtk::Vertex const * > tPermutedAdjVertices;
         this->permute_follower_vertices(
                 tFollowerVertices,
                 tAdjVertices,
@@ -2320,7 +2320,7 @@ namespace xtk
                 tPermutedAdjVertices );
 
         // collect all vertices on the ghost facet
-        moris::Vector< moris::mtk::Vertex* > tCellVertices( tPermutedAdjVertices.size() + tPermutedFollowerVertices.size() );
+        Vector< moris::mtk::Vertex* > tCellVertices( tPermutedAdjVertices.size() + tPermutedFollowerVertices.size() );
 
         uint tCount = 0;
         for ( auto iV : tPermutedAdjVertices )
@@ -2371,7 +2371,7 @@ namespace xtk
                 "Follower side cluster should have exactly one integration cell." );
 
         // get the vertices on the side for the follower side cluster
-        moris::Vector< moris::mtk::Vertex const * > tFollowerVertices =
+        Vector< moris::mtk::Vertex const * > tFollowerVertices =
                 aFollowerSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( aFollowerSideCluster->mIntegrationCellSideOrdinals( 0 ) );
 
         // get the leader UIPC
@@ -2388,12 +2388,12 @@ namespace xtk
                 aGhostSetupData.mLeaderSideIgCellSideOrdsNew( aBsplineMeshListIndex )( aBulkIndex )( aCellIndex ) );
 
         // setup the vertices and local coordinates of the vertices relative to the cell
-        moris::Vector< moris::mtk::Vertex const * > tAdjVertices =
+        Vector< moris::mtk::Vertex const * > tAdjVertices =
                 tBaseLeaderCell->get_geometric_vertices_on_side_ordinal( tAdjFacetOrd );
 
         // line up the ordering of the leader and follower side vertices such that they match
-        moris::Vector< moris::mtk::Vertex const * > tPermutedFollowerVertices;
-        moris::Vector< moris::mtk::Vertex const * > tPermutedAdjVertices;
+        Vector< moris::mtk::Vertex const * > tPermutedFollowerVertices;
+        Vector< moris::mtk::Vertex const * > tPermutedAdjVertices;
         this->permute_follower_vertices(
                 tFollowerVertices,
                 tAdjVertices,
@@ -2401,7 +2401,7 @@ namespace xtk
                 tPermutedAdjVertices );
 
         // collect all vertices on the ghost facet
-        moris::Vector< moris::mtk::Vertex* > tCellVertices( tPermutedAdjVertices.size() + tPermutedFollowerVertices.size() );
+        Vector< moris::mtk::Vertex* > tCellVertices( tPermutedAdjVertices.size() + tPermutedFollowerVertices.size() );
 
         uint tCount = 0;
         for ( auto iV : tPermutedAdjVertices )
@@ -2474,9 +2474,9 @@ namespace xtk
         moris::mtk::Cell const * tBaseCell = aInterpCell->get_base_cell();
 
         // get the geometric vertices
-        moris::Vector< moris::mtk::Vertex* > tAllVertices = tBaseCell->get_vertex_pointers();
+        Vector< moris::mtk::Vertex* > tAllVertices = tBaseCell->get_vertex_pointers();
 
-        moris::Vector< moris::mtk::Vertex* > tLinearVertices;
+        Vector< moris::mtk::Vertex* > tLinearVertices;
 
         uint tSpatialDim = mXTKModel->get_spatial_dim();
 
@@ -2543,10 +2543,10 @@ namespace xtk
 
     void
     Ghost_Stabilization::permute_follower_vertices(
-            moris::Vector< moris::mtk::Vertex const * > const & aFollowerVertices,
-            moris::Vector< moris::mtk::Vertex const * > const & aLeaderVertices,
-            moris::Vector< moris::mtk::Vertex const * >&        aPermutedFollowerVertices,
-            moris::Vector< moris::mtk::Vertex const * >&        aPermutedAdjMastVertices )
+            Vector< moris::mtk::Vertex const * > const & aFollowerVertices,
+            Vector< moris::mtk::Vertex const * > const & aLeaderVertices,
+            Vector< moris::mtk::Vertex const * >&        aPermutedFollowerVertices,
+            Vector< moris::mtk::Vertex const * >&        aPermutedAdjMastVertices )
     {
         uint tSpatialDim = mXTKModel->get_spatial_dim();
 

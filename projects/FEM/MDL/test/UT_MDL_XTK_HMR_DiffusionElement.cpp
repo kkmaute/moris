@@ -149,7 +149,7 @@ namespace moris
     }
 
     inline moris::real
-    LevelSetSphereCylinderGeometry( const moris::Matrix< moris::DDRMat >& aCoordinates, const moris::Vector< moris::real* >& aParameters )
+    LevelSetSphereCylinderGeometry( const moris::Matrix< moris::DDRMat >& aCoordinates, const Vector< moris::real* >& aParameters )
     {
         return LevelSetSphereCylinder( aCoordinates );
     }
@@ -167,7 +167,7 @@ namespace moris
     inline void
     tConstValFunction_MDL_XTK_HMR(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -242,7 +242,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
             tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
@@ -342,7 +342,7 @@ namespace moris
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
+            Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -353,7 +353,7 @@ namespace moris
                     tBSplineMeshIndex,
                     tSetInfo );
 
-            moris::Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+            Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create linear solver and algorithm
@@ -488,7 +488,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
             tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
@@ -599,7 +599,7 @@ namespace moris
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
+            Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -631,7 +631,7 @@ namespace moris
 
             // --------------------------------------------------------------------------------------
 
-            moris::Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+            Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create linear solver and algorithm

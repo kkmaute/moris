@@ -76,7 +76,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         uint tNumOfNodes = tInterpMesh->get_num_nodes();
 
         //create a cell of fem nodes
-        moris::Vector< fem::Node_Base* > tNodes( tNumOfNodes, nullptr );
+        Vector< fem::Node_Base* > tNodes( tNumOfNodes, nullptr );
 
         // loop over the mesh nodes
         for( uint iNode = 0; iNode < tNumOfNodes; iNode++ )
@@ -97,13 +97,13 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         // Create the elements -------------------------------------------------------
 
         // create a cell of FEM sets
-        moris::Vector< MSI::Equation_Set * > tFEMSets( 1, nullptr );
+        Vector< MSI::Equation_Set * > tFEMSets( 1, nullptr );
 
         // get the mesh set from the integration mesh
         moris::mtk::Set * tMeshSet = tIntegMesh->get_set_by_index( 0 );
 
         // define set info
-         moris::Vector< fem::Set_User_Info > tSetInfo( 1 );
+         Vector< fem::Set_User_Info > tSetInfo( 1 );
          tSetInfo( 0 ).set_mesh_index( 0 );
          tSetInfo( 0 ).set_IWGs( { tIWG } );
 

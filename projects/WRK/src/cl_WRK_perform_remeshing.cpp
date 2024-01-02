@@ -152,10 +152,10 @@ namespace moris
 
         void
         Remeshing_Mini_Performer::perform_remeshing(
-                moris::Vector< std::shared_ptr< mtk::Field > >         aSourceFields,
-                moris::Vector< std::shared_ptr< hmr::HMR > >&          aHMRPerformers,
-                moris::Vector< std::shared_ptr< mtk::Mesh_Manager > >& aMTKPerformer,
-                moris::Vector< std::shared_ptr< mtk::Field > >&        aNewFields )
+                Vector< std::shared_ptr< mtk::Field > >         aSourceFields,
+                Vector< std::shared_ptr< hmr::HMR > >&          aHMRPerformers,
+                Vector< std::shared_ptr< mtk::Mesh_Manager > >& aMTKPerformer,
+                Vector< std::shared_ptr< mtk::Field > >&        aNewFields )
         {
             Tracer tTracer( "WRK", "Remeshing Mini Performer", "Perform remeshing" );
 
@@ -199,7 +199,7 @@ namespace moris
             // extract pattern from mesh on which this field id based on
             // both Lagrange and discretization order if they are not the same
             Matrix< DDLUMat >                tElementCounterPerLevelAndPattern;
-            moris::Vector< Matrix< DDLUMat > > tElementPerPattern;
+            Vector< Matrix< DDLUMat > > tElementPerPattern;
 
             // create list of fields
             Vector< std::shared_ptr< mtk::Field > > tOldFields;
@@ -452,9 +452,9 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
 
             Vector< moris_index >                       tRefinementPattern;
-            moris::Vector< moris::Vector< std::string > > tFieldNames;
-            moris::Vector< moris::Vector< uint > >        tRefinements;
-            moris::Vector< sint >                       tMaxRefinementPerLevel;
+            Vector< Vector< std::string > > tFieldNames;
+            Vector< Vector< uint > >        tRefinements;
+            Vector< sint >                       tMaxRefinementPerLevel;
 
             this->prepare_input_for_refinement(
                     tRefinementPattern,
@@ -752,9 +752,9 @@ namespace moris
         void
         Remeshing_Mini_Performer::prepare_input_for_refinement(
                 Vector< moris_index >&                       aPatternForRefinement,
-                moris::Vector< moris::Vector< std::string > >& aFieldsForRefinement,
-                moris::Vector< moris::Vector< uint > >&        aRefinements,
-                moris::Vector< sint >&                       aMaxRefinementPerPattern )
+                Vector< Vector< std::string > >& aFieldsForRefinement,
+                Vector< Vector< uint > >&        aRefinements,
+                Vector< sint >&                       aMaxRefinementPerPattern )
         {
             // produce unique list of pattern which will be refined
             for ( uint Ik = 0; Ik < mParameters.mRefinementPatternMode_0.size(); Ik++ )

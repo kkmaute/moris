@@ -60,7 +60,7 @@ namespace moris
         Object::load_from_object_file( const std::string& aFilePath )
         {
             // copy file into buffer
-            moris::Vector< std::string > tBuffer;
+            Vector< std::string > tBuffer;
             this->load_ascii_to_buffer( aFilePath, tBuffer );
 
             // step 1: count number of dimensions, vertices and facets in file
@@ -266,7 +266,7 @@ namespace moris
         //-------------------------------------------------------------------------------
         void
         Object::load_ascii_to_buffer( const std::string& aFilePath,
-                moris::Vector< std::string >&              aBuffer )
+                Vector< std::string >&              aBuffer )
         {
             // try to open ascii file
             std::ifstream tAsciiFile( aFilePath );
@@ -310,7 +310,7 @@ namespace moris
         Object::load_from_stl_file( const std::string& aFilePath )
         {
             // copy file into buffer
-            moris::Vector< std::string > tBuffer;
+            Vector< std::string > tBuffer;
             this->load_ascii_to_buffer( aFilePath, tBuffer );
 
             // get length of buffer

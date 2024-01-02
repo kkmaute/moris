@@ -130,7 +130,7 @@ Circle4MatMDL( const moris::Matrix< moris::DDRMat >& aPoint )
 
 inline void
 tConstValFunction2MatMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >&    aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >&    aParameters,
         moris::fem::Field_Interpolator_Manager*           aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -286,7 +286,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 2 );
+        Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 2 );
         tGeometryVector( 0 ) = std::make_shared< moris::ge::Circle >( 0.01, 0.01, 0.47334 );
         tGeometryVector( 1 ) = std::make_shared< moris::ge::Plane >( 0.1, 0.1, 1.0, 0.0 );
 
@@ -539,7 +539,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         tSetInterface4.set_IWGs( { tIWGInterface3 } );
 
         // create a cell of set info
-        moris::Vector< fem::Set_User_Info > tSetInfo( 14 );
+        Vector< fem::Set_User_Info > tSetInfo( 14 );
         tSetInfo( 0 )  = tSetBulk1;
         tSetInfo( 1 )  = tSetBulk2;
         tSetInfo( 2 )  = tSetBulk3;
@@ -579,7 +579,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
 
         tModel->set_output_manager( &tOutputData );
 
-        moris::Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -703,7 +703,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 2 );
+        Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 2 );
         tGeometryVector( 0 ) = std::make_shared< moris::ge::User_Defined_Geometry >( Matrix< DDRMat >( 0, 0 ), &( MultiMat3dCylGeometry ) );
         tGeometryVector( 1 ) = std::make_shared< moris::ge::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
 
@@ -981,7 +981,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         tSetInterface4.set_IWGs( { tIWGInterface3 } );
 
         // create a cell of set info
-        moris::Vector< fem::Set_User_Info > tSetInfo( 14 );
+        Vector< fem::Set_User_Info > tSetInfo( 14 );
         tSetInfo( 0 )  = tSetBulk1;
         tSetInfo( 1 )  = tSetBulk2;
         tSetInfo( 2 )  = tSetBulk3;
@@ -1004,7 +1004,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
                 0,
                 false );
 
-        moris::Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // --------------------------------------------------------------------------------------
         // Define outputs

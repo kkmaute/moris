@@ -39,8 +39,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_GGLS_Diffusion::set_dof_type_list(
-                moris::Vector< moris::Vector< MSI::Dof_Type > > & aDofTypes,
-                moris::Vector< std::string >                  & aDofStrings,
+                Vector< Vector< MSI::Dof_Type > > & aDofTypes,
+                Vector< std::string >                  & aDofStrings,
                 mtk::Leader_Follower                             aIsLeader )
         {
 
@@ -91,7 +91,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< std::tuple<
+        Vector< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
         mtk::Leader_Follower > > SP_GGLS_Diffusion::get_cluster_measure_tuple_list()
@@ -171,7 +171,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_GGLS_Diffusion::eval_dSPdLeaderDOF(
-                const moris::Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get element size cluster measure value
             real tElementSize = mCluster->get_cluster_measure(

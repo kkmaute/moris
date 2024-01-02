@@ -149,7 +149,7 @@ namespace moris::hmr
         uint tBasisCount = 0;
 
         // container for basis levels
-        moris::Vector< Basis* > tAllBasis( tNumberOfBasis, nullptr );
+        Vector< Basis* > tAllBasis( tNumberOfBasis, nullptr );
 
         // size T-matrix
         aTMatrixTransposed.set_size( tNumberOfBasisPerElement, tNumberOfBasis, 0.0 );
@@ -517,8 +517,8 @@ namespace moris::hmr
     T_Matrix_Base::evaluate_extended_t_matrix(
             Element*                                    aBsplineElement,
             Element*                                    aLagrangeElement,
-            moris::Vector< moris::Vector< mtk::Vertex* > >& aBsplineBasis,
-            moris::Vector< Matrix< DDRMat > >&            aWeights )
+            Vector< Vector< mtk::Vertex* > >& aBsplineBasis,
+            Vector< Matrix< DDRMat > >&            aWeights )
     {
         Background_Element_Base* aBSpBackgroundElement = aBsplineElement->get_background_element();
 

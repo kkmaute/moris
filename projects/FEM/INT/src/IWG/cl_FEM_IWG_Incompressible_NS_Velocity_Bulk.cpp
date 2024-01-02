@@ -862,7 +862,7 @@ namespace moris
 
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form_momentum(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   aJM )
         {
             // get the res dof and the derivative dof FIs
@@ -1033,7 +1033,7 @@ namespace moris
 
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form_continuity(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   aJC )
         {
             // get the res dof and the derivative dof FIs

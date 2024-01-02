@@ -120,8 +120,8 @@ namespace moris
 
             mIter = 0;
 
-            moris::Vector< std::shared_ptr< mtk::Field > > tFieldsIn;
-            moris::Vector< std::shared_ptr< mtk::Field > > tFieldsOut;
+            Vector< std::shared_ptr< mtk::Field > > tFieldsIn;
+            Vector< std::shared_ptr< mtk::Field > > tFieldsOut;
 
             // perform in first optimization iteration only
             if ( tIsFirstOptSolve )
@@ -461,7 +461,7 @@ namespace moris
             }
 
             // evaluate IQIs
-            moris::Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
+            Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             // get number of design criteria
             mNumCriteria = tVal.size();

@@ -29,7 +29,7 @@ namespace moris::hmr
 //------------------------------------------------------------------------------
 
     Element * Element::get_neighbor(
-            moris::Vector< Element * > & aAllElementsOnProc,
+            Vector< Element * > & aAllElementsOnProc,
             luint aNeighborNumber )
     {
         // get neighbor of background element
@@ -57,7 +57,7 @@ namespace moris::hmr
 //-------------------------------------------------------------------------------
 
     Element * Element::get_child(
-            moris::Vector< Element * > & aAllElementsOnProc,
+            Vector< Element * > & aAllElementsOnProc,
             uint aChildIndex )
     {
         if( mElement->has_children() )

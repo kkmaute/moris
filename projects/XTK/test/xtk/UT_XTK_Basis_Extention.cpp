@@ -82,7 +82,7 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
 
             // define ge engine
@@ -203,7 +203,7 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
 
             // define ge engine

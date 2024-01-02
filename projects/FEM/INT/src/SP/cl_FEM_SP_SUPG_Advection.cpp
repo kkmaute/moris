@@ -43,7 +43,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_SUPG_Advection::set_parameters( moris::Vector< Matrix< DDRMat > > aParameters )
+        SP_SUPG_Advection::set_parameters( Vector< Matrix< DDRMat > > aParameters )
         {
             // FIXME not necessary
             // set mParameters
@@ -77,8 +77,8 @@ namespace moris
 
         void
         SP_SUPG_Advection::set_dof_type_list(
-                moris::Vector< moris::Vector< MSI::Dof_Type > >& aDofTypes,
-                moris::Vector< std::string >&                  aDofStrings,
+                Vector< Vector< MSI::Dof_Type > >& aDofTypes,
+                Vector< std::string >&                  aDofStrings,
                 mtk::Leader_Follower                            aIsLeader )
         {
             // switch on leader follower
@@ -242,7 +242,7 @@ namespace moris
         bool
         SP_SUPG_Advection::compute_derivative_of_effective_conductivity(
                 Matrix< DDRMat >&                   aEffectiveConductivitydu,
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the conductivity property
             const std::shared_ptr< Property >& tPropConductivity =
@@ -457,7 +457,7 @@ namespace moris
 
         void
         SP_SUPG_Advection::eval_dSPdLeaderDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             const uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -633,7 +633,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         SP_SUPG_Advection::dlengthscaledleaderu(
-                const moris::Vector< MSI::Dof_Type >& aDofType )
+                const Vector< MSI::Dof_Type >& aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
@@ -659,7 +659,7 @@ namespace moris
 
         void
         SP_SUPG_Advection::eval_dlengthscaledleaderu(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

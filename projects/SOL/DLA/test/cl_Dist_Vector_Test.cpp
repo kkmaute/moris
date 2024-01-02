@@ -261,7 +261,7 @@ TEST_CASE("Norm/Length Dist Vector","[Norm Dist Vector],[DistLinAlg]")
         tVectorA->vector_global_assembly();
 
         // Get Vector norm
-        moris::Vector< moris::real > tNorm = tVectorA->vec_norm2();
+        Vector< moris::real > tNorm = tVectorA->vec_norm2();
         // Get local vector lengt
         moris::uint tLocLength = tVectorA->vec_local_length();
         // Get global vector lengt

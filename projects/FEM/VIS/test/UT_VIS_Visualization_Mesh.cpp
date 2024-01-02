@@ -121,7 +121,7 @@ namespace moris
 
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-                moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+                Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
                 tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 0.11, 0.11, 1.0, 0.0 );
 
                 size_t                                tModelDimension = 2;

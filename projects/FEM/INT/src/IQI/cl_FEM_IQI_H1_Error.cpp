@@ -223,7 +223,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_H1_Error::compute_dQIdu(
-                moris::Vector< MSI::Dof_Type > & aDofType,
+                Vector< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
             // check whether to compute derivatives

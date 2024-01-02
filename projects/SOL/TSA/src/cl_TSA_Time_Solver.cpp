@@ -71,7 +71,7 @@ Time_Solver::Time_Solver(
 //--------------------------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver(
-        moris::Vector< std::shared_ptr< Time_Solver_Algorithm > >& aTimeSolverList,
+        Vector< std::shared_ptr< Time_Solver_Algorithm > >& aTimeSolverList,
         const enum TimeSolverType                                aTimeSolverType )
         : mTimeSolverType( aTimeSolverType )
 {
@@ -125,7 +125,7 @@ Time_Solver::delete_pointers()
 
 void
 Time_Solver::set_dof_type_list(
-        const moris::Vector< enum MSI::Dof_Type > aDofTypeList,
+        const Vector< enum MSI::Dof_Type > aDofTypeList,
         const moris::sint                       aLevel )
 {
     mDofTypeList.push_back( aDofTypeList );
@@ -219,7 +219,7 @@ Time_Solver::set_sub_time_solver(
 
 //-------------------------------------------------------------------------------------------------------
 
-moris::Vector< enum MSI::Dof_Type >
+Vector< enum MSI::Dof_Type >
 Time_Solver::get_dof_type_union()
 {
     moris::sint tCounter = 0;
@@ -231,7 +231,7 @@ Time_Solver::get_dof_type_union()
     }
 
     // Create list of dof types with earlier determines size
-    moris::Vector< enum MSI::Dof_Type > tUnionEnumList( tCounter );
+    Vector< enum MSI::Dof_Type > tUnionEnumList( tCounter );
     tCounter = 0;
 
     // Loop over all dof types. Add them to union list
@@ -305,9 +305,9 @@ Time_Solver::check_for_outputs(
 //-------------------------------------------------------------------------------------------------------
 
 void
-Time_Solver::solve( moris::Vector< sol::Dist_Vector* >& aFullVector )
+Time_Solver::solve( Vector< sol::Dist_Vector* >& aFullVector )
 {
-    moris::Vector< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
+    Vector< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
     mSolverInterface->set_requested_dof_types( tDofTypeUnion );
 
@@ -378,7 +378,7 @@ Time_Solver::solve()
     this->initialize_sol_vec();
     this->initialize_prev_sol_vec();
 
-    moris::Vector< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
+    Vector< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
     mSolverInterface->set_requested_dof_types( tDofTypeUnion );
 
@@ -482,7 +482,7 @@ Time_Solver::solve_sensitivity()
     mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity( 0 ) );
     mSolverInterface->set_previous_adjoint_solution_vector( mFullVectorSensitivity( 1 ) );
 
-    moris::Vector< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
+    Vector< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
     mSolverInterface->set_requested_dof_types( tDofTypeUnion );
 
@@ -515,7 +515,7 @@ void
 Time_Solver::initialize_sol_vec()
 {
     // extract initialization string from parameter list
-    moris::Vector< moris::Vector< std::string > > tDofTypeAndValuePair;
+    Vector< Vector< std::string > > tDofTypeAndValuePair;
 
     // get string for initial guess from parameter list
     std::string tStrInitialGuess = mParameterListTimeSolver.get< std::string >( "TSA_Initialize_Sol_Vec" );
@@ -590,7 +590,7 @@ Time_Solver::initialize_sol_vec()
             for ( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
             {
                 // First string is dof type
-                moris::Vector< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
+                Vector< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
 
                 // get local global ids for this dof type
                 moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
@@ -716,7 +716,7 @@ void
 Time_Solver::initialize_time_levels()
 {
     // extract initialization string from parameter list
-    moris::Vector< moris::Vector< std::string > > tDofTypeAndTimeLevelPair;
+    Vector< Vector< std::string > > tDofTypeAndTimeLevelPair;
 
     string_to_cell_of_cell( mParameterListTimeSolver.get< std::string >( "TSA_time_level_per_type" ),
             tDofTypeAndTimeLevelPair );

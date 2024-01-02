@@ -419,7 +419,7 @@ namespace moris
 
         void
         IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian_strong_form(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   aJ )
         {
             // get the residual viscosity FI

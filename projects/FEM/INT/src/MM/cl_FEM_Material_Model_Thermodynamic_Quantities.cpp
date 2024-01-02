@@ -55,7 +55,7 @@ namespace moris
         //-----------------------------------------------------------------------------
         //-----------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Material_Model::AlphaPDOF( const moris::Vector< MSI::Dof_Type > & aDofTypes )
+        const Matrix< DDRMat > & Material_Model::AlphaPDOF( const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // if aDofTypes is not an active dof type for the MM
             MORIS_ERROR(
@@ -81,7 +81,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Material_Model::BetaTDOF( const moris::Vector< MSI::Dof_Type > & aDofTypes )
+        const Matrix< DDRMat > & Material_Model::BetaTDOF( const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // if aDofTypes is not an active dof type for the MM
             MORIS_ERROR(
@@ -133,7 +133,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Material_Model::CvDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofTypes )
+        const Matrix< DDRMat > & Material_Model::CvDOF_dep( const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // if aDofTypes is not an active dof type for the MM
             MORIS_ERROR(
@@ -158,7 +158,7 @@ namespace moris
         }
 
         // trivial operation: get values from property
-        const Matrix< DDRMat > & Material_Model::CvDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofTypes )
+        const Matrix< DDRMat > & Material_Model::CvDOF_triv( const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the specific isochorich heat capacity
             const std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
@@ -211,7 +211,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Material_Model::CpDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofTypes )
+        const Matrix< DDRMat > & Material_Model::CpDOF_dep( const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // if aDofTypes is not an active dof type for the MM
             MORIS_ERROR(
@@ -236,7 +236,7 @@ namespace moris
         }
 
         // trivial operation: get values from property
-        const Matrix< DDRMat > & Material_Model::CpDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofTypes )
+        const Matrix< DDRMat > & Material_Model::CpDOF_triv( const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the specific isobaric heat capcity
             const std::shared_ptr< Property > tPropIsobaricHeatCapacity = get_property( "IsobaricHeatCapacity" );
@@ -289,7 +289,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Material_Model::GammaDOF_dep( const moris::Vector< MSI::Dof_Type > & aDofTypes )
+        const Matrix< DDRMat > & Material_Model::GammaDOF_dep( const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // if aDofTypes is not an active dof type for the MM
             MORIS_ERROR(
@@ -314,7 +314,7 @@ namespace moris
         }
 
         // trivial operation: get values from property
-        const Matrix< DDRMat > & Material_Model::GammaDOF_triv( const moris::Vector< MSI::Dof_Type > & aDofTypes )
+        const Matrix< DDRMat > & Material_Model::GammaDOF_triv( const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the ratio of the specific heat capacities
             const std::shared_ptr< Property > tPropGamma = get_property( "SpecificHeatRatio" );

@@ -18,7 +18,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        moris::Vector< std::tuple<
+        Vector< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
         mtk::Leader_Follower > > SP_Ghost_Virtual_Work::get_cluster_measure_tuple_list()
@@ -43,7 +43,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Ghost_Virtual_Work::eval_dSPdLeaderDOF(
-                const moris::Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

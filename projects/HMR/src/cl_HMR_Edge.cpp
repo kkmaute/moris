@@ -76,10 +76,10 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    moris::Vector< mtk::Vertex* >
+    Vector< mtk::Vertex* >
     Edge::get_vertex_pointers() const
     {
-        return moris::Vector< mtk::Vertex* >( 0 );
+        return Vector< mtk::Vertex* >( 0 );
     }
 
     //------------------------------------------------------------------------------

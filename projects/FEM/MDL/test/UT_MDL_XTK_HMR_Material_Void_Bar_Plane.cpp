@@ -91,7 +91,7 @@ PlaneMatVoidMDL( const moris::Matrix< moris::DDRMat >& aPoint )
 
 void
 tConstValFunctionMatVoidMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
         moris::fem::Field_Interpolator_Manager*              aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -156,7 +156,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+        Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
         tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 0.9545459, 0.11, 1.0, 0.0 );
 
         size_t                                tModelDimension = 2;
@@ -281,7 +281,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         tSetGhost.set_IWGs( { tIWGGhost } );
 
         // create a cell of set info
-        moris::Vector< fem::Set_User_Info > tSetInfo( 5 );
+        Vector< fem::Set_User_Info > tSetInfo( 5 );
         tSetInfo( 0 ) = tSetBulk1;
         tSetInfo( 1 ) = tSetBulk2;
         tSetInfo( 2 ) = tSetDirichlet;
@@ -295,7 +295,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
                 0,
                 false );
 
-        moris::Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm

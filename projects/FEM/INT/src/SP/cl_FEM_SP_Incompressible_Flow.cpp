@@ -41,7 +41,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        SP_Incompressible_Flow::set_parameters( moris::Vector< Matrix< DDRMat > > aParameters )
+        SP_Incompressible_Flow::set_parameters( Vector< Matrix< DDRMat > > aParameters )
         {
             // set mParameters
             mParameters = aParameters;
@@ -85,8 +85,8 @@ namespace moris
 
         void
         SP_Incompressible_Flow::set_dof_type_list(
-                moris::Vector< moris::Vector< MSI::Dof_Type > >& aDofTypes,
-                moris::Vector< std::string >&                  aDofStrings,
+                Vector< Vector< MSI::Dof_Type > >& aDofTypes,
+                Vector< std::string >&                  aDofStrings,
                 mtk::Leader_Follower                            aIsLeader )
         {
             // switch on leader follower
@@ -219,7 +219,7 @@ namespace moris
 
         void
         SP_Incompressible_Flow::eval_dSPdLeaderDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

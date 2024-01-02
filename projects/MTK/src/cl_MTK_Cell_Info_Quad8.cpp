@@ -63,7 +63,7 @@ namespace moris
         Cell_Info_Quad8::compute_cell_shape( moris::mtk::Cell const * aCell ) const
         {
             // getting vertices and storing them in a local matrix, since each node will be used a few times
-            moris::Vector< Vertex* > tVertices = aCell->get_vertex_pointers();
+            Vector< Vertex* > tVertices = aCell->get_vertex_pointers();
 
             // init cell shape
             CellShape tCellShape = CellShape::RECTANGULAR;
@@ -72,7 +72,7 @@ namespace moris
             real tEpsilon = 1.0E-8;
 
             // init cell of edge vectors
-            moris::Vector< moris::Matrix< DDRMat > > tEdgeVectors( 4 );
+            Vector< moris::Matrix< DDRMat > > tEdgeVectors( 4 );
 
             // looping through each Edge
             for ( uint iEdge = 0; iEdge < 4; iEdge++ )
@@ -333,7 +333,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        moris::Vector< moris_index >
+        Vector< moris_index >
         Cell_Info_Quad8::get_vertex_path_to_entity_rank_and_ordinal(
                 moris_index aVertexOrdinal,
                 moris_index aOtherEntityOrdinal,
@@ -421,14 +421,14 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                    return moris::Vector< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
             }    // end: switch aOtherEntityRank
         }
 
         // ----------------------------------------------------------------------------------
 
-        moris::Vector< moris_index >
+        Vector< moris_index >
         Cell_Info_Quad8::get_edge_path_to_entity_rank_and_ordinal(
                 moris_index aEdgeOrdinal,
                 moris_index aOtherEntityOrdinal,
@@ -458,7 +458,7 @@ namespace moris
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for Quad8" );
-                                    return moris::Vector< moris_index >( 0 );
+                                    return Vector< moris_index >( 0 );
                                 }
                             }
                         }
@@ -466,7 +466,7 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( 0, "Invalid other entity rank for Quad8 - edge has only path to edges" );
-                            return moris::Vector< moris_index >( 0 );
+                            return Vector< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
                 }        // end: case: edge ordinal 0
@@ -493,7 +493,7 @@ namespace moris
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
-                                    return moris::Vector< moris_index >( 0 );
+                                    return Vector< moris_index >( 0 );
                                 }
                             }
                         }
@@ -501,7 +501,7 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( 0, "Invalid other entity rank for Quad8 - edge only has path to edges" );
-                            return moris::Vector< moris_index >( 0 );
+                            return Vector< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
                 }        // end: case: edge ordinal 1
@@ -528,7 +528,7 @@ namespace moris
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
-                                    return moris::Vector< moris_index >( 0 );
+                                    return Vector< moris_index >( 0 );
                                 }
                             }
                         }
@@ -536,7 +536,7 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( 0, "Invalid other entity rank for Quad8 - edge only has path to edges" );
-                            return moris::Vector< moris_index >( 0 );
+                            return Vector< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
                 }        // end: case: edge ordinal 2
@@ -563,7 +563,7 @@ namespace moris
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
-                                    return moris::Vector< moris_index >( 0 );
+                                    return Vector< moris_index >( 0 );
                                 }
                             }
                         }
@@ -571,7 +571,7 @@ namespace moris
                         default:
                         {
                             MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 - edge only has path to edges" );
-                            return moris::Vector< moris_index >( 0 );
+                            return Vector< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
                 }        // end: case: edge ordinal 3
@@ -579,7 +579,7 @@ namespace moris
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid vertex ordinal for QUAD4" );
-                    return moris::Vector< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
             }
         }
@@ -735,7 +735,7 @@ namespace moris
         moris::real
         Cell_Info_Quad8::compute_cell_size_special( moris::mtk::Cell const * aCell ) const
         {
-            moris::Vector< Vertex* > tVertices = aCell->get_vertex_pointers();
+            Vector< Vertex* > tVertices = aCell->get_vertex_pointers();
 
             Matrix< DDRMat > tNodeCoords0 = tVertices( 0 )->get_coords();
             Matrix< DDRMat > tNodeCoords2 = tVertices( 2 )->get_coords();
@@ -756,7 +756,7 @@ namespace moris
                 moris::mtk::Cell const * aCell,
                 moris_index const &      aSideOrd ) const
         {
-            moris::Vector< mtk::Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
+            Vector< mtk::Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
 
             Matrix< DDRMat > tLVec = tVertices( 1 )->get_coords() - tVertices( 0 )->get_coords();
 

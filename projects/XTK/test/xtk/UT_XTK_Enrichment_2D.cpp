@@ -145,7 +145,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         Enriched_Interpolation_Mesh const & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
 
         // Check the basis to enriched basis table
-        moris::Vector<moris::Matrix<moris::IndexMat>> tGoldCoeffToEnrCoeff(6);
+        Vector<moris::Matrix<moris::IndexMat>> tGoldCoeffToEnrCoeff(6);
         tGoldCoeffToEnrCoeff(0) = {{0,1,2}};
         tGoldCoeffToEnrCoeff(1) = {{3,4,5,6}};
         tGoldCoeffToEnrCoeff(2) = {{7,8,9,10}};
@@ -165,7 +165,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         CHECK(tCells.size() == tExpectedNumSubphase);
 
         // Expected primary cells in each cluster
-        moris::Vector<moris::Matrix<moris::IndexMat>> tGoldPrimaryCellsInClusters(6);
+        Vector<moris::Matrix<moris::IndexMat>> tGoldPrimaryCellsInClusters(6);
         tGoldPrimaryCellsInClusters(0) = {{3, 13}};
         tGoldPrimaryCellsInClusters(1) = {{15, 17, 20, 21, 22, 24, 25, 26}};
         tGoldPrimaryCellsInClusters(2) = {{10,14}};
@@ -174,7 +174,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         tGoldPrimaryCellsInClusters(5) = {{18, 23}};
 
         // Expected void cells in each cluster
-        moris::Vector<moris::Matrix<moris::IndexMat>> tGoldVoidCellsInClusters(6);
+        Vector<moris::Matrix<moris::IndexMat>> tGoldVoidCellsInClusters(6);
         tGoldVoidCellsInClusters(0) = {{4, 5, 6, 7, 8, 9, 10, 11, 12, 14}};
         tGoldVoidCellsInClusters(1) = {{16, 18, 19, 23}};
         tGoldVoidCellsInClusters(2) = {{3, 5, 9, 13}};
@@ -193,7 +193,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 //
 
         // Expected interpolation vertices
-        moris::Vector<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
+        Vector<moris::Matrix<moris::IndexMat>> tGoldInterpCoeff(6);
         tGoldInterpCoeff(0) = {{0,6,7,11}};
         tGoldInterpCoeff(1) = {{3, 14, 17, 8}};
         tGoldInterpCoeff(2) = {{1, 3, 8, 12}};
