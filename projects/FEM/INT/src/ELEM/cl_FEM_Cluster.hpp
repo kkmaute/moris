@@ -62,7 +62,7 @@ namespace moris
             Vector< fem::Element * > mElements;
 
             // flag for all IG element whether or not to compute residual and QI (and derivatives)
-            Matrix< DDUMat > mComputeResidualAndIQI;
+            Vector< bool > mComputeResidualAndIQI;
 
             // pointer to the fem set
             Set *mSet = nullptr;

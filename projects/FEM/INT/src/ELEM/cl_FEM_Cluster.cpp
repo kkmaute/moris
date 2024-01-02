@@ -555,10 +555,10 @@ namespace moris
 
         void
         Cluster::compute_quantity_of_interest(
-                Matrix< DDRMat >           &aValues,
+                Matrix< DDRMat >      &aValues,
                 mtk::Field_Entity_Type aFieldType,
-                uint                        aIQIIndex,
-                real                       &aSpaceTimeVolume )
+                uint                   aIQIIndex,
+                real                  &aSpaceTimeVolume )
         {
             // FIXME
             // cannot do it here cause vis mesh
@@ -1177,10 +1177,10 @@ namespace moris
         Cluster::determine_elements_for_residual_and_iqi_computation()
         {
             // number of elements in cluster
-            uint tNumberOfElements = mElements.size();
+            uint const tNumberOfElements = mElements.size();
 
             // initialize flags for computing residuals and IQIs (default: on)
-            mComputeResidualAndIQI.set_size( tNumberOfElements, 1, 1 );
+            mComputeResidualAndIQI.resize( tNumberOfElements, true );
 
             // skip remainder if there is only one element
             if ( tNumberOfElements == 1 )
@@ -1194,14 +1194,15 @@ namespace moris
             // check for degenerated element, i.e. all components of tRelativeElementVolume are negative
             if ( tRelativeElementVolume( 0 ) < 0.0 )
             {
-                mComputeResidualAndIQI.fill( 0 );
+                for ( size_t iElem = 0; iElem < mComputeResidualAndIQI.size(); ++iElem )
+                {
+                    mComputeResidualAndIQI( iElem ) = false;
+                }
                 return;
             }
 
             // get drop tolerance
-            real tElementDropTolerance = this->compute_volume_drop_threshold(
-                    tRelativeElementVolume,
-                    mVolumeError );
+            real const tElementDropTolerance = this->compute_volume_drop_threshold( tRelativeElementVolume, mVolumeError );
 
             // check that drop tolerance is positive
             MORIS_ASSERT( tElementDropTolerance > -MORIS_REAL_MIN,
@@ -1214,7 +1215,7 @@ namespace moris
                 // set flag to false (0) if element volume is smaller than threshold
                 if ( tRelativeElementVolume( iElem ) < tElementDropTolerance )
                 {
-                    mComputeResidualAndIQI( iElem ) = 0;
+                    mComputeResidualAndIQI( iElem ) = false;
                 }
             }
         }
