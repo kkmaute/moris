@@ -271,8 +271,6 @@ namespace xtk
       private:
         Model*                      mXTKModel       = nullptr;
         moris::ge::Geometry_Engine* mGeometryEngine = nullptr;
-
-        moris::Matrix< moris::IndexMat >       mActiveGeometries;
         moris::Cell< enum Subdivision_Method > mSubdivisionMethods;
 
         bool mOutputCutIgMesh = false;
@@ -286,8 +284,7 @@ namespace xtk
 
         Integration_Mesh_Generator(
                 xtk::Model*                      aXTKModelPtr,
-                Cell< enum Subdivision_Method >  aMethods,
-                moris::Matrix< moris::IndexMat > aActiveGeometries );
+                Cell< enum Subdivision_Method >  aMethods );
 
         // ----------------------------------------------------------------------------------
 
@@ -297,11 +294,6 @@ namespace xtk
 
         std::shared_ptr< Cut_Integration_Mesh >
         perform();
-
-        // ----------------------------------------------------------------------------------
-
-        moris::Matrix< moris::IndexMat > const *
-        get_active_geometries();
 
         // ----------------------------------------------------------------------------------
 

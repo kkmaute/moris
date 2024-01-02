@@ -67,18 +67,11 @@ Node_Hierarchy_Interface::perform(
     mBackgroundMesh     = aBackgroundMesh;
     mGenerator          = aMeshGenerator;
 
-    // active geometries
-    moris::Matrix< moris::IndexMat > const* tActiveGeometries = aMeshGenerator->get_active_geometries();
-
     // iterate through geometries
-    for ( moris::uint iGeom = 0; iGeom < tActiveGeometries->numel(); iGeom++ )
+    for ( moris::uint iGeom = 0; iGeom < mGeometryEngine->get_number_of_geometries(); iGeom++ )
     {
         // set a new decomposition data
         *aDecompositionData = Decomposition_Data();
-
-        // set the current geometry index
-        mCurrentGeomIndex = ( *tActiveGeometries )( iGeom );
-
         aDecompositionData->tDecompId = 10000 * iGeom + this->get_signature();
 
         // cell groups relevant to this geometry pick them out
@@ -147,6 +140,12 @@ Node_Hierarchy_Interface::perform(
 
         // commit the cells to the mesh
         aMeshGenerator->commit_new_ig_cells_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
+
+        // Advance geometry index
+        if ( iGeom != mGeometryEngine->get_number_of_geometries() )
+        {
+            mGeometryEngine->advance_geometry_index();
+        }
     }
 
     // trim data of CutIntegration mesh
@@ -189,7 +188,6 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     tGeometricQuery.set_edge_connectivity( aEdgeConnectivity );
     tGeometricQuery.set_edge_associated_background_cell( aBackgroundCellForEdge );
     tGeometricQuery.set_associated_vertex_group( aVertexGroups );
-    tGeometricQuery.set_geometric_index( mCurrentGeomIndex );
 
     mDecompositionData->mHasSecondaryIdentifier = true;
 
@@ -410,7 +408,8 @@ Node_Hierarchy_Interface::select_ig_cell_groups(
 {
     Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select Ig Cell Groups", mGenerator->verbosity_level(), 1 );
     // intersected background cells for the current geometry
-    moris::Cell< moris_index > const& tIntersectedBackground = mMeshGenerationData->mIntersectedBackgroundCellIndex( mCurrentGeomIndex );
+    moris::Cell< moris_index > const& tIntersectedBackground = mMeshGenerationData->mIntersectedBackgroundCellIndex(
+            mGeometryEngine->get_active_geometry_index() );
 
     // number of intersected background cells
     moris::uint tNumIntersectedBackground = tIntersectedBackground.size();
