@@ -262,7 +262,7 @@ namespace moris::hmr
         uint tNumBSPattern  = tBSplinePatter.numel();
 
         // make pattern unique
-        moris::Vector< uint > tPatternList( tNumLagPattern + tNumBSPattern );
+        Vector< uint > tPatternList( tNumLagPattern + tNumBSPattern );
 
         for ( uint Ik = 0; Ik < tNumLagPattern; Ik++ )
         {

@@ -115,7 +115,7 @@ namespace mtk
         // iterate through the double side sets
         for ( moris::uint iSet = 0; iSet < tNumDoubleSideSets; iSet++ )
         {
-            moris::Vector< Cluster const* > tClustersInSet = aIgMesh->get_double_side_set_cluster( (moris_index)iSet );
+            Vector< Cluster const* > tClustersInSet = aIgMesh->get_double_side_set_cluster( (moris_index)iSet );
 
             // iterate through clusters in set
             for ( auto iCl : tClustersInSet )
@@ -159,7 +159,7 @@ namespace mtk
             mtk::Cell const& tIpCell = aCluster->get_interpolation_cell( aLeaderFollower );
 
             // get the integration primary cells
-            moris::Vector< moris::mtk::Cell const* > const& tIgCells = aCluster->get_primary_cells_in_cluster( aLeaderFollower );
+            Vector< moris::mtk::Cell const* > const& tIgCells = aCluster->get_primary_cells_in_cluster( aLeaderFollower );
 
             if ( tIgCells.size() != 1 )
             {
@@ -176,8 +176,8 @@ namespace mtk
                 return false;
             }
 
-            moris::Vector< moris::mtk::Vertex const* > tIpVertsOnSide = tIpCell.get_vertices_on_side_ordinal( tSideOrd( 0 ) );
-            moris::Vector< moris::mtk::Vertex const* > tIgVertsOnSide = tIgCells( 0 )->get_vertices_on_side_ordinal( tSideOrd( 0 ) );
+            Vector< moris::mtk::Vertex const* > tIpVertsOnSide = tIpCell.get_vertices_on_side_ordinal( tSideOrd( 0 ) );
+            Vector< moris::mtk::Vertex const* > tIgVertsOnSide = tIgCells( 0 )->get_vertices_on_side_ordinal( tSideOrd( 0 ) );
 
             if ( tIpVertsOnSide.size() != tIgVertsOnSide.size() )
             {
@@ -205,7 +205,7 @@ namespace mtk
             moris::mtk::Cell_Info* tCellInfo = tCellInfoFactory.create_cell_info( tIpCell.get_geometry_type(), tIpCell.get_interpolation_order() );
 
             // get the vertices in the cluster
-            moris::Vector< moris::mtk::Vertex const* > tVertsInCluster = aCluster->get_vertices_in_cluster( aLeaderFollower );
+            Vector< moris::mtk::Vertex const* > tVertsInCluster = aCluster->get_vertices_in_cluster( aLeaderFollower );
 
             // ip verts
             Matrix< DDRMat > tIpCoords = tIpCell.get_vertex_coords();
@@ -596,8 +596,8 @@ namespace mtk
         Matrix< IndexMat > tVertexTMatrixWeightsOffsets;
         this->cell_of_mats_to_flattened_mat( aSerializedMesh->mVertexTMatrixWeights, tVertexTMatrixWeightsData, tVertexTMatrixWeightsOffsets );
 
-        moris::Vector< Matrix< DDRMat > >   tGatheredFlattenedWeightsData;
-        moris::Vector< Matrix< IndexMat > > tGatheredFlattenedWeightsOffsets;
+        Vector< Matrix< DDRMat > >   tGatheredFlattenedWeightsData;
+        Vector< Matrix< IndexMat > > tGatheredFlattenedWeightsOffsets;
         moris::all_gather_vector( tVertexTMatrixWeightsData, tGatheredFlattenedWeightsData, tTag, 0 );
         moris::all_gather_vector( tVertexTMatrixWeightsOffsets, tGatheredFlattenedWeightsOffsets, tTag + 1, 0 );
 
@@ -607,8 +607,8 @@ namespace mtk
         this->cell_of_mats_to_flattened_mat( aSerializedMesh->mVertexTMatrixBasisIds, tVertexTMatrixIdsData, tVertexTMatrixIdsOffsets );
 
         // gather the vertex t-matrices
-        moris::Vector< Matrix< IndexMat > > tGatheredFlattenedBasisIdData;
-        moris::Vector< Matrix< IndexMat > > tGatheredFlattenedBasisIdOffsets;
+        Vector< Matrix< IndexMat > > tGatheredFlattenedBasisIdData;
+        Vector< Matrix< IndexMat > > tGatheredFlattenedBasisIdOffsets;
         moris::all_gather_vector( tVertexTMatrixIdsData, tGatheredFlattenedBasisIdData, tTag + 2, 0 );
         moris::all_gather_vector( tVertexTMatrixIdsOffsets, tGatheredFlattenedBasisIdOffsets, tTag + 3, 0 );
 

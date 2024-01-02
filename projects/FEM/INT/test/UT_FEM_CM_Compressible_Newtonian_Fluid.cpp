@@ -54,13 +54,13 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -69,10 +69,10 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Vector< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
-    moris::Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    Vector< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
+    Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof };
 
     //------------------------------------------------------------------------------
     // create the properties
@@ -323,8 +323,8 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTemp );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > > tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField,tSet );
 
             // populate the field interpolator manager
@@ -355,11 +355,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                 tCMLeaderFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // populate the requested leader dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeaderFluid->get_global_dof_type_list();
 
                 // populate the test leader dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeaderFluid->get_dof_type_list();
 
                 // loop over requested dof type
@@ -904,13 +904,13 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -919,10 +919,10 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Vector< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
-    moris::Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes = { tPressureDof, tVelocityDof, tTempDof };
+    Vector< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
+    Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes = { tPressureDof, tVelocityDof, tTempDof };
 
     //------------------------------------------------------------------------------
     // create the properties
@@ -1173,8 +1173,8 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTemp );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > > tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -1205,11 +1205,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                 tCMLeaderFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // populate the requested leader dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeaderFluid->get_global_dof_type_list();
 
                 // populate the test leader dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeaderFluid->get_dof_type_list();
 
                 // loop over requested dof type

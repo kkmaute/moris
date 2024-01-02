@@ -490,7 +490,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Advection_Bulk::compute_jacobian_strong_form (
-                const moris::Vector< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & aJT )
         {
             // get the res dof and the derivative dof FIs

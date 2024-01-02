@@ -579,7 +579,7 @@ namespace moris
 
                 // define set info
                 // FIXME should be provided to the function
-                moris::Vector< fem::Set_User_Info > tSetInfo( 1 );
+                Vector< fem::Set_User_Info > tSetInfo( 1 );
                 tSetInfo( 0 ).set_mesh_index( 0 );
                 tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
@@ -667,7 +667,7 @@ namespace moris
             // define time, nonlinear and linear solver
             sol::SOL_Warehouse tSolverWarehouse( mModel->get_solver_interface() );
 
-            moris::Vector< moris::Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );

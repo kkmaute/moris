@@ -49,7 +49,7 @@ namespace moris
         //----------------------------------------------------------------
 
         void
-        Cell_Cluster_STK::add_primary_integration_cell( moris::Vector< moris::mtk::Cell const * > const &aIntegrationCell )
+        Cell_Cluster_STK::add_primary_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
         {
             mPrimaryIntegrationCells.append( aIntegrationCell );
         }
@@ -57,7 +57,7 @@ namespace moris
         //----------------------------------------------------------------
 
         void
-        Cell_Cluster_STK::add_void_integration_cell( moris::Vector< moris::mtk::Cell const * > const &aIntegrationCell )
+        Cell_Cluster_STK::add_void_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
         {
             mVoidIntegrationCells.append( aIntegrationCell );
         }
@@ -65,7 +65,7 @@ namespace moris
         //----------------------------------------------------------------
 
         void
-        Cell_Cluster_STK::add_vertex_to_cluster( moris::Vector< moris::mtk::Vertex const * > const &aVertex )
+        Cell_Cluster_STK::add_vertex_to_cluster( Vector< moris::mtk::Vertex const * > const &aVertex )
         {
             // add vertices to map
             moris_index tIndex = mVerticesInCluster.size();
@@ -93,7 +93,7 @@ namespace moris
 
         //----------------------------------------------------------------
 
-        moris::Vector< moris::mtk::Cell const * > const &
+        Vector< moris::mtk::Cell const * > const &
         Cell_Cluster_STK::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
         {
             return mPrimaryIntegrationCells;
@@ -101,7 +101,7 @@ namespace moris
 
         //----------------------------------------------------------------
 
-        moris::Vector< moris::mtk::Cell const * > const &
+        Vector< moris::mtk::Cell const * > const &
         Cell_Cluster_STK::get_void_cells_in_cluster() const
         {
             return mVoidIntegrationCells;
@@ -117,7 +117,7 @@ namespace moris
 
         //----------------------------------------------------------------
 
-        moris::Vector< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Cell_Cluster_STK::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
         {
             return mVerticesInCluster;

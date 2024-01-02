@@ -1142,7 +1142,7 @@ namespace xtk
 
 #ifdef MORIS_HAVE_DEBUG
         // since I can't write these functions in one line, need to have ifdef
-        moris::Vector< moris::moris_index > tUniqueCellIds = moris::unique_index( mEntityLocaltoGlobalMap( 3 ) );
+        Vector< moris::moris_index > tUniqueCellIds = moris::unique_index( mEntityLocaltoGlobalMap( 3 ) );
 
         MORIS_ASSERT( mEntityLocaltoGlobalMap( 3 ).size() == tUniqueCellIds.size(),
                 "Background_Mesh::add_cells_to_global_to_local_map() - Duplicate cell id detected." );

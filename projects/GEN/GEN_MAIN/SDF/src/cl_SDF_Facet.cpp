@@ -27,7 +27,7 @@ namespace moris
 
         Facet::Facet(
                 moris_index                   aIndex,
-                moris::Vector< Facet_Vertex* >& aVertices,
+                Vector< Facet_Vertex* >& aVertices,
                 uint                          aDimension )
                 : mIndex( aIndex )
                 , mVertices( aVertices )
@@ -77,7 +77,7 @@ namespace moris
         Facet::get_vertex_pointers() const
         {
             uint                        tDimension = get_number_of_vertices();
-            moris::Vector< mtk::Vertex* > aVertices( tDimension, nullptr );
+            Vector< mtk::Vertex* > aVertices( tDimension, nullptr );
 
             for ( uint k = 0; k < tDimension; ++k )
             {
@@ -164,7 +164,7 @@ namespace moris
 
         void
         Facet::copy_node_coords_and_inds(
-                moris::Vector< Facet_Vertex* >& aVertices,
+                Vector< Facet_Vertex* >& aVertices,
                 uint                          aDimension )
         {
             // make sure that the length is correct

@@ -182,7 +182,7 @@ namespace moris::hmr
     void
     Database::load_refinement_pattern(
             Matrix< DDLUMat >&                aElementCounterPerLevelAndPattern,
-            moris::Vector< Matrix< DDLUMat > >& aElementPerPattern,
+            Vector< Matrix< DDLUMat > >& aElementPerPattern,
             Matrix< DDUMat >&                 aPatternListUniqueMat )
     {
         uint tNumPattern = aElementPerPattern.size();

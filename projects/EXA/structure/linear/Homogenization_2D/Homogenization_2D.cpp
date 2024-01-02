@@ -111,7 +111,7 @@
         // Level set function for diamond shaped wedge
         moris::real Inclusion(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Vector< moris::real* > & aGeometryParameters )
+                const Vector< moris::real* > & aGeometryParameters )
         {
             // distance from sphere center
             moris::real tDx1 = aCoordinates(0) - tCenterX1;
@@ -129,7 +129,7 @@
 
         void Func_Const( moris::Matrix<
                 moris::DDRMat >                                & aPropMatrix,
-                moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+                Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                 moris::fem::Field_Interpolator_Manager         * aFIManager )
         {
             aPropMatrix = aParameters( 0 );
@@ -140,7 +140,7 @@
         // Dirichlet function for properties
         void Func_Dirichlet( moris::Matrix<
                 moris::DDRMat >                                & aPropMatrix,
-                moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+                Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                 moris::fem::Field_Interpolator_Manager         * aFIManager )
         {
             // Coordinates of pont
@@ -164,7 +164,7 @@
 
         /* ------------------------------------------------------------------------ */
 
-        void OPTParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterlist )
+        void OPTParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -174,7 +174,7 @@
             tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false);
         }
 
-        void HMRParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterlist )
+        void HMRParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -207,7 +207,7 @@
 
         }
 
-        void XTKParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterlist )
+        void XTKParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -226,7 +226,7 @@
             tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
         }
 
-        void GENParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterlist )
+        void GENParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 3 );
             tParameterlist( 0 ).resize( 1 );
@@ -243,7 +243,7 @@
         }
 
         void
-        MIGParameterList( moris::Vector< moris::Vector< ParameterList > >& tParameterlist )
+        MIGParameterList( Vector< Vector< ParameterList > >& tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -255,7 +255,7 @@
 
         }
 
-        void FEMParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterList )
+        void FEMParameterList( Vector< Vector< ParameterList > > & tParameterList )
         {
             // create a cell of cell of parameter list for fem
             tParameterList.resize( 8 );
@@ -568,7 +568,7 @@
             tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
         }
 
-        void SOLParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterlist )
+        void SOLParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize(8);
 
@@ -598,7 +598,7 @@
             tParameterlist( 7 ).push_back(moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ));
         }
 
-        void MSIParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterlist )
+        void MSIParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -607,7 +607,7 @@
             tParameterlist( 0 )( 0 ).set("order_adofs_by_host",false);
         }
 
-        void VISParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterlist )
+        void VISParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -624,7 +624,7 @@
 
         /* ------------------------------------------------------------------------ */
 
-                void MORISGENERALParameterList( moris::Vector< moris::Vector< ParameterList > > & tParameterlist )
+                void MORISGENERALParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
 
         }

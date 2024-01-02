@@ -119,7 +119,7 @@ namespace xtk
         // set size of fine to coarse list
         mCoarseBasisToFineBasis.resize( mNumBasis );
 
-        moris::Vector< uint > tCounter( mNumBasis, 0 );
+        Vector< uint > tCounter( mNumBasis, 0 );
 
         for ( uint Ik = 0; Ik < mFineBasisToCoarseBasis.size(); Ik++ )
         {
@@ -398,7 +398,7 @@ namespace xtk
         tWriter.write_points( tMorisRoot, aName, tMorisRoot, tTempName, mEnrichedBasisCoords );
 
         // Create fields
-        moris::Vector< std::string > tPointFieldNames( 2 );
+        Vector< std::string > tPointFieldNames( 2 );
         tPointFieldNames( 0 ) = "Enriched Basis Level";
         tPointFieldNames( 1 ) = "Enriched Basis Status";
         tWriter.set_point_fields( tPointFieldNames );

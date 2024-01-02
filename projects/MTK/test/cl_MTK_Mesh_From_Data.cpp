@@ -258,8 +258,8 @@ namespace moris
                     tMtkMeshSets.add_node_set( &tNodeSet1 );
 
                     MtkMeshData aMeshData;
-                    aMeshData.ElemConn             = moris::Vector< Matrix< IdMat >* >( 1 );
-                    aMeshData.LocaltoGlobalElemMap = moris::Vector< Matrix< IdMat >* >( 1 );
+                    aMeshData.ElemConn             = Vector< Matrix< IdMat >* >( 1 );
+                    aMeshData.LocaltoGlobalElemMap = Vector< Matrix< IdMat >* >( 1 );
 
                     aMeshData.SpatialDim                = &aNumDim;
                     aMeshData.ElemConn( 0 )             = &aElemConn;

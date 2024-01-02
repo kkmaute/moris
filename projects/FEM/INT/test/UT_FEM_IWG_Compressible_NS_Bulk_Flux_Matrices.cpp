@@ -66,12 +66,12 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // dof type list
-    moris::Vector< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
-    moris::Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
+    Vector< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
+    Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
 
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
+    Vector< Vector< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
+    Vector< Vector< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -333,8 +333,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
     // create a field interpolator manager
-    moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
-    moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+    Vector< Vector< enum PDV_Type > > tDummyDv;
+    Vector< Vector< mtk::Field_Type > > tDummyField;
     Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
     // populate the field interpolator manager

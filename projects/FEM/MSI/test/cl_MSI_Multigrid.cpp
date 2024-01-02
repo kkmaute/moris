@@ -152,7 +152,7 @@ namespace moris
              tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Leader_Follower::LEADER );
 
              // define set info
-              moris::Vector< fem::Set_User_Info > tSetInfo( 1 );
+              Vector< fem::Set_User_Info > tSetInfo( 1 );
 //              tSetInfo( 0 ).set_mesh_index( 0 );
               tSetInfo( 0 ).set_mesh_set_name( "HMR_dummy_c_p0" );
               tSetInfo( 0 ).set_IWGs( { tIWGL2 } );

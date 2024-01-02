@@ -30,7 +30,7 @@ namespace moris::sdf
 
         // example coordinartes for the line
         // create list of vertices
-        moris::Vector< Facet_Vertex* > tVertices;
+        Vector< Facet_Vertex* > tVertices;
         tVertices.resize( 2, nullptr );
         tVertices( 0 ) = new Facet_Vertex( 0, { { 2.0 }, { 2.0 } } );
         tVertices( 1 ) = new Facet_Vertex( 1, { { -2.0 }, { -1.0 } } );
@@ -123,7 +123,7 @@ namespace moris::sdf
             CHECK( abs( tComputedIntersection - tIntersection ) < tEpsilon );
 
             // Check to ensure proper error for a horizontal line
-            moris::Vector< Facet_Vertex* > tHorizontalVertices;
+            Vector< Facet_Vertex* > tHorizontalVertices;
             tHorizontalVertices.resize( 2, nullptr );
             tHorizontalVertices( 0 ) = new Facet_Vertex( 2, { { -4.0 }, { 2.0 } } );
             tHorizontalVertices( 1 ) = new Facet_Vertex( 3, { { 4.0 }, { 2.0 } } );
@@ -181,7 +181,7 @@ namespace moris::sdf
             tError = false;
 
             // Check to ensure proper error for a vertical line
-            moris::Vector< Facet_Vertex* > tVerticalVertices;
+            Vector< Facet_Vertex* > tVerticalVertices;
             tVerticalVertices.resize( 2, nullptr );
             tVerticalVertices( 0 ) = new Facet_Vertex( 2, { { 2.0 }, { 2.0 } } );
             tVerticalVertices( 1 ) = new Facet_Vertex( 3, { { 2.0 }, { 6.0 } } );

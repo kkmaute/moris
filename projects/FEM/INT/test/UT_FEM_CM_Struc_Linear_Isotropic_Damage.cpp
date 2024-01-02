@@ -40,7 +40,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
     // Local equivalent strain - 0 - energy release rate
     // Damage law - 2 - smooth exponential
     // Smoothing law - 0 - no smoothing
-    moris::Vector< Matrix< DDRMat > > tDamageParameters = { //
+    Vector< Matrix< DDRMat > > tDamageParameters = { //
         { { 0.0 } },                                      //
         { { 2.0, 1.0e-3, 10.0 } },                        //
         { { 0.0 } }
@@ -61,14 +61,14 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -78,10 +78,10 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
     Matrix< DDRMat > tNumHalfCoeffs = { { 4, 9, 16 }, { 8, 27, 64 } };
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+    Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -273,8 +273,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > >        tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -303,11 +303,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
                 tCMLeader->reset_eval_flags();
 
                 // populate the requested master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeader->get_global_dof_type_list();
 
                 // populate the test master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeader->get_dof_type_list();
 
                 // loop over requested dof type
@@ -564,7 +564,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
     // Local equivalent strain - 0 - energy release rate
     // Damage law - 2 - smooth exponential
     // Smoothing law - 0 - no smoothing
-    moris::Vector< Matrix< DDRMat > > tDamageParameters = { //
+    Vector< Matrix< DDRMat > > tDamageParameters = { //
         { { 0.0 } },                                      //
         { { 2.0, 1.0e-3, 10.0 } },                        //
         { { 0.0 } }
@@ -585,14 +585,14 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -602,10 +602,10 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
     Matrix< DDRMat > tNumHalfCoeffs = { { 4, 9, 16 }, { 8, 27, 64 } };
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+    Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -797,8 +797,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > >        tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -827,11 +827,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
                 tCMLeader->reset_eval_flags();
 
                 // populate the requested master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeader->get_global_dof_type_list();
 
                 // populate the test master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeader->get_dof_type_list();
 
                 // loop over requested dof type
@@ -1078,7 +1078,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
     // Local equivalent strain - 1 - tensile/compressive strength
     // Damage law - 0- linear
     // Smoothing law - 1 - ks smoothing
-    moris::Vector< Matrix< DDRMat > > tDamageParameters = { //
+    Vector< Matrix< DDRMat > > tDamageParameters = { //
         { { 1.0, 4.0 } },                                 //
         { { 0.0, 1.0e-3, 10.0 } },                        //
         { { 1.0, 7.0 } }
@@ -1099,14 +1099,14 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -1116,10 +1116,10 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
     Matrix< DDRMat > tNumHalfCoeffs = { { 4, 9, 16 }, { 8, 27, 64 } };
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+    Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -1311,8 +1311,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > >        tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -1341,11 +1341,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
                 tCMLeader->reset_eval_flags();
 
                 // populate the requested master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeader->get_global_dof_type_list();
 
                 // populate the test master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeader->get_dof_type_list();
 
                 // loop over requested dof type
@@ -1602,7 +1602,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
     // Local equivalent strain - 1 - tensile/compressive strength
     // Damage law - 0- linear
     // Smoothing law - 1 - ks smoothing
-    moris::Vector< Matrix< DDRMat > > tDamageParameters = { //
+    Vector< Matrix< DDRMat > > tDamageParameters = { //
         { { 1.0, 4.0 } },                                 //
         { { 0.0, 1.0, 10.0 } },                           //
         { { 1.0, 7.0 } }
@@ -1623,14 +1623,14 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -1640,10 +1640,10 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
     Matrix< DDRMat > tNumHalfCoeffs = { { 4, 9, 16 }, { 8, 27, 64 } };
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+    Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -1835,8 +1835,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > >        tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -1865,11 +1865,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
                 tCMLeader->reset_eval_flags();
 
                 // populate the requested master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeader->get_global_dof_type_list();
 
                 // populate the test master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeader->get_dof_type_list();
 
                 // loop over requested dof type
@@ -2126,7 +2126,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
     // Local equivalent strain - 1 - tensile/compressive strength
     // Damage law - 0- linear
     // Smoothing law - 1 - ks smoothing
-    moris::Vector< Matrix< DDRMat > > tDamageParameters = { //
+    Vector< Matrix< DDRMat > > tDamageParameters = { //
         { { 1.0, 4.0 } },                                 //
         { { 1.0, 1.0e-3, 0.95, 100.0 } },                 //
         { { 2.0, 7.0 } }
@@ -2147,14 +2147,14 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -2164,10 +2164,10 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
     Matrix< DDRMat > tNumHalfCoeffs = { { 4, 9, 16 }, { 8, 27, 64 } };
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+    Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -2359,8 +2359,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > >        tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -2389,11 +2389,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
                 tCMLeader->reset_eval_flags();
 
                 // populate the requested master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeader->get_global_dof_type_list();
 
                 // populate the test master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeader->get_dof_type_list();
 
                 // loop over requested dof type
@@ -2650,7 +2650,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
     // Local equivalent strain - 1 - tensile/compressive strength
     // Damage law - 1 - exponential
     // Smoothing law - 2 - corrected ks smoothing
-    moris::Vector< Matrix< DDRMat > > tDamageParameters = { //
+    Vector< Matrix< DDRMat > > tDamageParameters = { //
         { { 1.0, 4.0 } },                                 //
         { { 1.0, 1.0, 0.95, 100.0 } },                    //
         { { 2.0, 7.0 } }
@@ -2671,14 +2671,14 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -2688,10 +2688,10 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
     Matrix< DDRMat > tNumHalfCoeffs = { { 4, 9, 16 }, { 8, 27, 64 } };
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes       = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+    Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDispDofTypes( 0 ), tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -2883,8 +2883,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > >        tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -2913,11 +2913,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
                 tCMLeader->reset_eval_flags();
 
                 // populate the requested master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeader->get_global_dof_type_list();
 
                 // populate the test master dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeader->get_dof_type_list();
 
                 // loop over requested dof type

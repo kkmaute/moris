@@ -178,13 +178,13 @@ namespace moris
                 moris::Matrix< DDRMat > tSecondMesh1 = { { -1.0, +1.0, +1.0 }, { -1.0, +1.0, -1.0 } };
                 moris::Matrix< DDRMat > tSecondMesh2 = { { -1.0, -1.0, +1.0 }, { -1.0, 1.0, 1.0 } };
 
-                moris::Vector< moris::Matrix< DDRMat > > tFirstMesh  = { tFirstMesh1, tFirstMesh2 };
-                moris::Vector< moris::Matrix< DDRMat > > tSecondMesh = { tSecondMesh1, tSecondMesh2 };
+                Vector< moris::Matrix< DDRMat > > tFirstMesh  = { tFirstMesh1, tFirstMesh2 };
+                Vector< moris::Matrix< DDRMat > > tSecondMesh = { tSecondMesh1, tSecondMesh2 };
 
                 Matrix< IndexMat > tFirstMeshIdentifier  = { { 0, 1 } };
                 Matrix< IndexMat > tSecondMeshIdentifier = { { 0, 1 } };
 
-                moris::Vector< moris::Matrix< DDRMat > > tCutTriangles;
+                Vector< moris::Matrix< DDRMat > > tCutTriangles;
                 moris::Matrix< moris::IndexMat >       tCutTrianglesIdentifier;
 
                 tIsDetetc.elementwise_bruteforce_search( tFirstMesh,

@@ -36,7 +36,7 @@ namespace moris
                 : mLibrary( aLibrary )
         {
             // set field names
-            moris::Vector< std::string > tFieldNames;
+            Vector< std::string > tFieldNames;
             string_to_cell(
                     aParameterlist.get< std::string >( "field_names" ),
                     mParameters.mFieldNames );
@@ -84,10 +84,10 @@ namespace moris
             }
 
             Vector< moris_index >                                      tPattern;
-            moris::Vector< moris::Vector< std::string > >                tFieldNames;
-            moris::Vector< moris::Vector< uint > >                       tRefinements;
-            moris::Vector< sint >                                      tMaxRefinementPerLevel;
-            moris::Vector< moris::Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< Vector< std::string > >                tFieldNames;
+            Vector< Vector< uint > >                       tRefinements;
+            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -161,10 +161,10 @@ namespace moris
             }
 
             Vector< moris_index >                                      tPattern;
-            moris::Vector< moris::Vector< std::string > >                tFieldNames;
-            moris::Vector< moris::Vector< uint > >                       tRefinements;
-            moris::Vector< sint >                                      tMaxRefinementPerLevel;
-            moris::Vector< moris::Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< Vector< std::string > >                tFieldNames;
+            Vector< Vector< uint > >                       tRefinements;
+            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -191,7 +191,7 @@ namespace moris
             // create a map with ids
             std::unordered_map< moris_index, luint > tMap;
 
-            moris::Vector< hmr::Background_Element_Base* > tBGElements;
+            Vector< hmr::Background_Element_Base* > tBGElements;
             aHMR->get_database()->get_background_mesh()->collect_all_elements( tBGElements );
 
             for ( uint Ib = 0; Ib < tBGElements.size(); Ib++ )
@@ -373,10 +373,10 @@ namespace moris
             }
 
             Vector< moris_index >                                      tPattern;
-            moris::Vector< moris::Vector< std::string > >                tFieldNames;
-            moris::Vector< moris::Vector< uint > >                       tRefinements;
-            moris::Vector< sint >                                      tMaxRefinementPerLevel;
-            moris::Vector< moris::Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< Vector< std::string > >                tFieldNames;
+            Vector< Vector< uint > >                       tRefinements;
+            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -418,10 +418,10 @@ namespace moris
         void
         Refinement_Mini_Performer::prepare_input_for_refinement(
                 Vector< moris_index >&                                      aPatternForRefinement,
-                moris::Vector< moris::Vector< std::string > >&                aFieldsForRefinement,
-                moris::Vector< moris::Vector< uint > >&                       aRefinements,
-                moris::Vector< sint >&                                      aMaxRefinementPerPattern,
-                moris::Vector< moris::Vector< hmr::Refinement_Function_2 > >& aRefinementFunctions )
+                Vector< Vector< std::string > >&                aFieldsForRefinement,
+                Vector< Vector< uint > >&                       aRefinements,
+                Vector< sint >&                                      aMaxRefinementPerPattern,
+                Vector< Vector< hmr::Refinement_Function_2 > >& aRefinementFunctions )
         {
 
             // produce unique list of pattern which will be refined

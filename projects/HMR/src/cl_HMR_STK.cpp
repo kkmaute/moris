@@ -166,12 +166,12 @@ namespace moris::hmr
         if( mMesh->get_activation_pattern() == mParameters->get_lagrange_input_pattern() )
         {
             // Initialize scalar field data
-            mRealScalarFields = moris::Vector< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfRealScalarFields+1 );
+            mRealScalarFields = Vector< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfRealScalarFields+1 );
         }
         else
         {
             // Initialize scalar field data
-            mRealScalarFields = moris::Vector< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfRealScalarFields );
+            mRealScalarFields = Vector< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfRealScalarFields );
         }
 
         // add real scalar fields

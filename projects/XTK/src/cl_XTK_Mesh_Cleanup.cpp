@@ -40,7 +40,7 @@ namespace xtk
         Tracer tTracer( "XTK", "Mesh Cleanup", "Remove Inactive Child Mesh" );
 
         // Using a map here so that I can remove some from the removal process.
-        moris::Vector<moris_index> tChildMeshesToDelete;
+        Vector<moris_index> tChildMeshesToDelete;
         std::unordered_map<moris_index,moris_index> tChildMeshesToDeleteMap;
 
         // select candidate cell groups for deletion
@@ -117,7 +117,7 @@ namespace xtk
     void
     Mesh_Cleanup::get_vector_of_child_meshes_for_removal(
         std::unordered_map< moris_index, moris_index > const& aChildMeshesToDeleteMap,
-        moris::Vector< moris_index >&                           aChildMeshesToDelete )
+        Vector< moris_index >&                           aChildMeshesToDelete )
     {
         aChildMeshesToDelete.clear();
         aChildMeshesToDelete.reserve( aChildMeshesToDeleteMap.size() );

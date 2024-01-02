@@ -85,7 +85,7 @@ namespace moris
     inline void
     ConstFuncVal_MDLFluidBench(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -94,7 +94,7 @@ namespace moris
     inline void
     InletVelocityFunc_MDLFluidBench(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // unpack parameters
@@ -115,7 +115,7 @@ namespace moris
     inline void
     FSVelocityFunc_MDLFluidBench(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get space dim
@@ -128,7 +128,7 @@ namespace moris
     inline void
     InletPressureFunc_MDLFluidBench(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // set size for aPropMatrix
@@ -429,7 +429,7 @@ namespace moris
             tSetGhost.set_IWGs( { tIWGGPViscous, tIWGGPConvective, tIWGGPPressure } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 6 );
+            Vector< fem::Set_User_Info > tSetInfo( 6 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetInlet;
@@ -462,7 +462,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Vector< moris::Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
@@ -786,7 +786,7 @@ namespace moris
             tSetGhost.set_IWGs( { tIWGGPViscous, tIWGGPConvective, tIWGGPPressure } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 6 );
+            Vector< fem::Set_User_Info > tSetInfo( 6 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetInlet;
@@ -819,7 +819,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Vector< moris::Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
@@ -2122,7 +2122,7 @@ namespace moris
 
     void
     RVelocityFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
             moris::fem::Field_Interpolator_Manager*              aFIManager )
     {
         // velocity magnitude
@@ -2142,7 +2142,7 @@ namespace moris
 
     void
     ImposedVelocityFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >&             aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&             aParameters,
             moris::fem::Field_Interpolator_Manager*                    aFIManager )
     {
         // velocity magnitude
@@ -2165,7 +2165,7 @@ namespace moris
 
     void
     AnalyticdVelocitydxFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >&                 aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&                 aParameters,
             moris::fem::Field_Interpolator_Manager*                        aFIManager )
     {
         // velocity magnitude
@@ -2478,7 +2478,7 @@ namespace moris
             tSetGhostPenalty.set_IWGs( { tIWGGPViscous, tIWGGPConvective, tIWGGPPressure } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
+            Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetRIn;
@@ -2514,7 +2514,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Vector< moris::Vector< moris::ParameterList > > tSOLParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tSOLParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );

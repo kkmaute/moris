@@ -131,8 +131,7 @@ void moris::mig::Periodic_Mesh_Editor::merge_meshes()
     mOutputMesh->collect_all_sets();
 }
 //------------------------------------------------------------------------------------------------------------
-void
-moris::mig::Periodic_Mesh_Editor::reconstruct_connectivity()
+void moris::mig::Periodic_Mesh_Editor::reconstruct_connectivity()
 {
     uint iCounter = 0;
     // populate the cell to vertex connectivity list
@@ -249,7 +248,7 @@ moris::mig::Periodic_Mesh_Editor::reconstruct_connectivity()
         mOutputMesh->mGhostDblSidedSet( iCluster ) = tDblSideCluster;
     }
 }
-    namespace moris::mig
+namespace moris::mig
 {
     //------------------------------------------------------------------------------------------------------------
     Periodic_Mesh_Editor::Periodic_Mesh_Editor( mtk::Integration_Mesh_DataBase_IG* aIGMesh, mig::Periodic_2D* aPeriodicData2D )
@@ -360,14 +359,14 @@ moris::mig::Periodic_Mesh_Editor::reconstruct_connectivity()
     void
     Periodic_Mesh_Editor::construct_periodic_data_base(
             Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
-            Matrix< DDRMat >                           aVerticesCoords,
+            Matrix< DDRMat >                 aVerticesCoords,
             Vector< Vector< moris_index > >& aSideClusterToCells,
             Vector< Vector< moris_index > >& aCellToVertexIndices,
-            Vector< moris_index >&                aSideClusterToIPCell,
-            Matrix< DDRMat >&                          aVertexParametricCoords,
-            Vector< moris_index >&                aDoubleSidedClustersIndex,
-            uint                                       mNumDblSideCluster,
-            uint                                       aNumGeometry )
+            Vector< moris_index >&           aSideClusterToIPCell,
+            Matrix< DDRMat >&                aVertexParametricCoords,
+            Vector< moris_index >&           aDoubleSidedClustersIndex,
+            uint                             mNumDblSideCluster,
+            uint                             aNumGeometry )
     {
         // get the previous sizes to
         mNumPreviousVertices       = mOutputMesh->mVertices.size();

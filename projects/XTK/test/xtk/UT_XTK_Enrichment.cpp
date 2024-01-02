@@ -88,7 +88,7 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         std::string tMeshOutputFile2 = "./xtk_exo/unit_enrichment_1_background.e";
         tMeshData->create_output_mesh( tMeshOutputFile2 );
 
-        moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+        Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
         tGeometry( 0 ) = std::make_shared< moris::ge::Mesh_Field_Geometry >( tMeshData, tLSFName );
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -194,7 +194,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         std::string tMeshOutputFile2 = "./xtk_exo/enrichment_test_10_cluster_background.e";
         tMeshData->create_output_mesh( tMeshOutputFile2 );
 
-        moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+        Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
         tGeometry( 0 ) = std::make_shared< moris::ge::Mesh_Field_Geometry >( tMeshData, tLSFName );
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -233,7 +233,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
 
         tEnrIntegMesh.create_dbl_sided_interface_sets( { 1 }, { 0 } );
 
-        moris::Vector< mtk::Cluster const* > tDoubleSideCluster = tEnrIntegMesh.get_double_side_set_cluster( 0 );
+        Vector< mtk::Cluster const* > tDoubleSideCluster = tEnrIntegMesh.get_double_side_set_cluster( 0 );
         moris::real                        tGoldVolume        = 2;
         moris::real                        tGoldSurface       = 0.6862003781;
 

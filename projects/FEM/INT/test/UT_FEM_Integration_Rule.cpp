@@ -21,7 +21,7 @@ TEST_CASE("Integration_Rule_LINE", "[moris],[fem],[Integration_Rule_LINE]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Vector< mtk::Integration_Order > tIntegrationOrderList = {
+    Vector< mtk::Integration_Order > tIntegrationOrderList = {
             mtk::Integration_Order::BAR_1,
             mtk::Integration_Order::BAR_2,
             mtk::Integration_Order::BAR_3,
@@ -122,7 +122,7 @@ TEST_CASE("Integration_Rule_QUAD", "[moris],[fem],[Integration_Rule_QUAD]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Vector< mtk::Integration_Order > tIntegrationOrderList = {
+    Vector< mtk::Integration_Order > tIntegrationOrderList = {
             //Integration_Order::QUAD_1x1,
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::QUAD_3x3,
@@ -222,7 +222,7 @@ TEST_CASE("Integration_Rule_HEX", "[moris],[fem],[Integration_Rule_HEX]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Vector< mtk::Integration_Order > tIntegrationOrderList = {
+    Vector< mtk::Integration_Order > tIntegrationOrderList = {
             //Integration_Order::HEX_1x1x1,
             mtk::Integration_Order::HEX_2x2x2,
             mtk::Integration_Order::HEX_3x3x3,
@@ -326,7 +326,7 @@ TEST_CASE("Integration_Rule_TRI", "[moris],[fem],[Integration_Rule_TRI]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Vector< mtk::Integration_Order > tIntegrationOrderList = {
+    Vector< mtk::Integration_Order > tIntegrationOrderList = {
             mtk::Integration_Order::TRI_1,
             mtk::Integration_Order::TRI_3,
             mtk::Integration_Order::TRI_4,
@@ -431,7 +431,7 @@ TEST_CASE("Integration_Rule_TET", "[moris],[fem],[Integration_Rule_TET]")
     real tEpsilon = 1E-12;
 
     // list of integration rules
-    moris::Vector< mtk::Integration_Order > tIntegrationOrderList = {
+    Vector< mtk::Integration_Order > tIntegrationOrderList = {
             //Integration_Order::TET_1,
             mtk::Integration_Order::TET_4,
             mtk::Integration_Order::TET_5,

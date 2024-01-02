@@ -47,10 +47,10 @@ namespace moris
 
         void
         Equation_Object::create_my_pdof_hosts(
-                const uint                   aNumUsedDofTypes,
-                const Matrix< DDSMat >&      aPdofTypeMap,
-                const Matrix< DDUMat >&      aTimePerDofType,
-                moris::Vector< Pdof_Host* >& aPdofHostList )
+                const uint              aNumUsedDofTypes,
+                const Matrix< DDSMat >& aPdofTypeMap,
+                const Matrix< DDUMat >& aTimePerDofType,
+                Vector< Pdof_Host* >&   aPdofHostList )
         {
             // Resize list containing this equations objects pdof hosts set
             mNumPdofSystems = mNodeObj.size();
@@ -423,7 +423,7 @@ namespace moris
             // get list of all T-Matrices
             this->build_PADofMap_list( tPADofMapList );
 
-            moris::Vector< enum MSI::Dof_Type > tRequestedDofTypes;
+            Vector< enum MSI::Dof_Type > tRequestedDofTypes;
 
             // get list of requested dof types
             if ( !mEquationSet->mIsStaggered )
@@ -497,7 +497,7 @@ namespace moris
         void
         Equation_Object::get_equation_obj_dof_ids( Matrix< DDSMat >& aEqnObjAdofId )
         {
-            moris::Vector< enum MSI::Dof_Type > tRequestedDofTypes;
+            Vector< enum MSI::Dof_Type > tRequestedDofTypes;
 
             // get list of requested dof tpes
             if ( !mEquationSet->mIsStaggered )
@@ -838,7 +838,7 @@ namespace moris
         void
         Equation_Object::add_staggered_contribution_to_residual( Vector< Matrix< DDRMat > >& aElementResidual )
         {
-            moris::Vector< enum MSI::Dof_Type > tAllSecDofTypes = mEquationSet->get_secondary_dof_types();
+            Vector< enum MSI::Dof_Type > tAllSecDofTypes = mEquationSet->get_secondary_dof_types();
 
             if ( tAllSecDofTypes.size() != 0 )
             {
@@ -847,7 +847,7 @@ namespace moris
 
             for ( auto tSecDofTypes : tAllSecDofTypes )
             {
-                moris::Vector< enum MSI::Dof_Type > tRequestedDofTypes = mEquationSet->get_requested_dof_types();
+                Vector< enum MSI::Dof_Type > tRequestedDofTypes = mEquationSet->get_requested_dof_types();
 
                 // combined leader follower index
                 sint tSecDofIndex = mEquationSet->get_dof_index_for_type( tSecDofTypes, mtk::Leader_Follower::LEADER );
@@ -876,7 +876,7 @@ namespace moris
                             sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::LEADER );
 
                             // get the ith dof type group
-                            const moris::Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
+                            const Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
@@ -929,7 +929,7 @@ namespace moris
                             sint tSeparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                             // get the ith dof type group
-                            const moris::Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tSeparateSecDofIndex );
+                            const Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tSeparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
@@ -993,7 +993,7 @@ namespace moris
                             sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::LEADER );
 
                             // get the ith dof type group
-                            const moris::Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
+                            const Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
@@ -1048,7 +1048,7 @@ namespace moris
                             sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                             // get the ith dof type group
-                            const moris::Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tseparateSecDofIndex );
+                            const Vector< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
@@ -1097,7 +1097,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Vector< Matrix< DDRMat > > tMyValues;
+            Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel
@@ -1132,7 +1132,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Vector< Matrix< DDRMat > > tMyValues;
+            Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel
@@ -1164,7 +1164,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Vector< Matrix< DDRMat > > tMyValues;
+            Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel
@@ -1196,7 +1196,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Vector< Matrix< DDRMat > > tMyValues;
+            Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel
@@ -1228,7 +1228,7 @@ namespace moris
             // build T-matrix
             this->build_PADofMap( tTMatrix );
 
-            moris::Vector< Matrix< DDRMat > > tMyValues;
+            Vector< Matrix< DDRMat > > tMyValues;
 
             // Extract this equation objects adof values from solution vector
             mEquationSet->mEquationModel->get_previous_adjoint_solution_vector()->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
@@ -1343,10 +1343,10 @@ namespace moris
 
         void
         Equation_Object::get_my_pdof_values(
-                const moris::Vector< Matrix< DDRMat > >&     aPdofValues,
-                const moris::Vector< enum Dof_Type >&        aRequestedDofTypes,
-                moris::Vector< Vector< Matrix< DDRMat > > >& aRequestedPdofValues,
-                const mtk::Leader_Follower                   aIsLeader )
+                const Vector< Matrix< DDRMat > >&     aPdofValues,
+                const Vector< enum Dof_Type >&        aRequestedDofTypes,
+                Vector< Vector< Matrix< DDRMat > > >& aRequestedPdofValues,
+                const mtk::Leader_Follower            aIsLeader )
         {
             // check that leader or follower
             MORIS_ERROR( ( aIsLeader == mtk::Leader_Follower::LEADER ) || ( aIsLeader == mtk::Leader_Follower::FOLLOWER ),
@@ -1426,7 +1426,7 @@ namespace moris
                         if ( (sint)mMyPdofHosts( tIsLeader )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
                         {
                             // get pointer list all time pdofs on this pdof type
-                            moris::Vector< Pdof* > tPdofTimeList = mMyPdofHosts( tIsLeader )( Ik )->get_pdof_time_list( tDofTypeIndex );
+                            Vector< Pdof* > tPdofTimeList = mMyPdofHosts( tIsLeader )( Ik )->get_pdof_time_list( tDofTypeIndex );
 
                             // get entry number of this pdof in the elemental pdof value vector
                             uint tElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;

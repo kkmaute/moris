@@ -115,7 +115,7 @@ namespace moris
 
         void
         IQI_Traction::compute_dQIdu(
-                moris::Vector< MSI::Dof_Type >& aDofType,
+                Vector< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&             adQIdu )
         {
             MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );

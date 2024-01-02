@@ -149,7 +149,7 @@ namespace moris
     inline void
     tConstValFunction(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -218,7 +218,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
             tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
 
             size_t tModelDimension = 2;
@@ -413,7 +413,7 @@ namespace moris
             tSetDirichlet.set_IWGs( { tIWGDirichletU, tIWGDirichletTEMP } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 2 );
+            Vector< fem::Set_User_Info > tSetInfo( 2 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetDirichlet;
 
@@ -441,7 +441,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            moris::Vector< moris::Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -692,7 +692,7 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
             tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
 
             size_t tModelDimension = 2;
@@ -889,7 +889,7 @@ namespace moris
             tSetDirichlet.set_IWGs( { tIWGDirichletU, tIWGDirichletTEMP } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 2 );
+            Vector< fem::Set_User_Info > tSetInfo( 2 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetDirichlet;
 
@@ -918,7 +918,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            moris::Vector< moris::Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
 
             tParameterlist( 0 ).resize( 3 );
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );

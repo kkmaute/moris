@@ -242,7 +242,7 @@ namespace moris
 
         void
         Geometry_Engine::set_dQIdp(
-                moris::Vector< Matrix< DDRMat >* > adQIdp,
+                Vector< Matrix< DDRMat >* > adQIdp,
                 Matrix< DDSMat >*                aMap )
         {
             mPDVHostManager.set_dQIdp( adQIdp, aMap );
@@ -324,7 +324,7 @@ namespace moris
                 Matrix< IndexMat > const & tEdgeToVertex = aGeometricQuery->get_query_entity_to_vertex_connectivity();
 
                 // get the physical vertex coordinates in the parent BG cell
-                moris::Vector< std::shared_ptr< Matrix< DDRMat > > >* tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
+                Vector< std::shared_ptr< Matrix< DDRMat > > >* tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
 
                 // get the vertex indices in the parent BG cell
                 Matrix< IndexMat > tParentEntityIndices = aGeometricQuery->get_query_parent_entity_connectivity();
@@ -444,7 +444,7 @@ namespace moris
         bool
         Geometry_Engine::is_intersected(
                 const Matrix< IndexMat >&                           aNodeIndices,
-                moris::Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates )
+                Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates )
         {
             // Check input
             // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
@@ -1283,7 +1283,7 @@ namespace moris
         void
         Geometry_Engine::distribute_advs(
                 mtk::Mesh_Pair                               aMeshPair,
-                moris::Vector< std::shared_ptr< mtk::Field > > aFields,
+                Vector< std::shared_ptr< mtk::Field > > aFields,
                 mtk::EntityRank                              aADVEntityRank )
         {
             // Tracer
@@ -1332,7 +1332,7 @@ namespace moris
                 tNodeIndices( tNodeIndex ) = tNodeIndex;
             }
 
-            moris::Vector< uint > tNumCoeff( tFields.size() );
+            Vector< uint > tNumCoeff( tFields.size() );
             // Loop over all geometries to get number of new ADVs
             sint tOffsetID = tPrimitiveADVIds.length();
             for ( uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++ )
@@ -1871,8 +1871,8 @@ namespace moris
                 tCommTableMap( tCommTable( Ik ) ) = Ik;
             }
 
-            moris::Vector< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
-            moris::Vector< Matrix< IdMat > > tSharedCoeffsijklIdGlobal( tNumCommProcs );
+            Vector< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
+            Vector< Matrix< IdMat > > tSharedCoeffsijklIdGlobal( tNumCommProcs );
 
             // Set Mat to store number of shared coeffs per processor
             Matrix< DDUMat > tNumSharedCoeffsPerProc( tNumCommProcs, 1, 0 );
@@ -1936,8 +1936,8 @@ namespace moris
             }
 
             // receiving list
-            moris::Vector< Matrix< IdMat > > tMatsToReceive;
-            moris::Vector< Matrix< IdMat > > tMatsToReceiveijklID;
+            Vector< Matrix< IdMat > > tMatsToReceive;
+            Vector< Matrix< IdMat > > tMatsToReceiveijklID;
 
             barrier();
 

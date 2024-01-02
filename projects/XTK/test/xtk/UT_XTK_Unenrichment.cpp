@@ -98,7 +98,7 @@ namespace xtk
             tXTKParameters.set( "write_cell_enrichments_levels", false );
 
             // define the sphere such that it is non interacting
-            moris::Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
+            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
             tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( 1.5, 0.5, 1.0, 0.0 );
 
             // define ge engine

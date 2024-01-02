@@ -35,8 +35,8 @@ namespace moris
         Interpolation_Element::Interpolation_Element(
                 const Element_Type                 aElementType,
                 const Vector< const mtk::Cell* >&  aInterpolationCell,
-                const moris::Vector< Node_Base* >& aNodes,
-                Set*                               aSet )
+                const Vector< Node_Base* >& aNodes,
+                Set*                             aSet )
                 : MSI::Equation_Object( aSet )
                 , mSet( aSet )
                 , mElementType( aElementType )

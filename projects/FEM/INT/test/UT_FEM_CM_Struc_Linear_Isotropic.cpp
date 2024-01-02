@@ -50,13 +50,13 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -64,8 +64,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes = tDispDofTypes;
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes = tDispDofTypes;
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
@@ -230,8 +230,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > > tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -258,11 +258,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
                 tCMLeaderStrucLinIso->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // populate the requested leader dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeaderStrucLinIso->get_global_dof_type_list();
 
                 // populate the test leader dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeaderStrucLinIso->get_dof_type_list();
 
                 // loop over requested dof type

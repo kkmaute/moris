@@ -150,7 +150,7 @@ namespace moris
             return mCellClusters( aInterpCellIndex );
         }
 
-        moris::Vector< std::string >
+        Vector< std::string >
         Integration_Mesh_STK::get_block_set_names() const
         {
             return mPrimaryBlockSetNames;
@@ -158,16 +158,16 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Vector< Cluster const * >
+        Vector< Cluster const * >
         Integration_Mesh_STK::get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const
         {
             MORIS_ASSERT( aBlockSetOrdinal < (moris_index)mPrimaryBlockSetNames.size(),
                     "Requested block set ordinal out of bounds." );
 
-            moris::Vector< moris::moris_index > const &tClusterIndsInSet =
+            Vector< moris::moris_index > const &tClusterIndsInSet =
                     mPrimaryBlockSetClusters( aBlockSetOrdinal );
 
-            moris::Vector< Cluster const * > tClusterInSet( tClusterIndsInSet.size() );
+            Vector< Cluster const * > tClusterInSet( tClusterIndsInSet.size() );
 
             for ( moris::uint i = 0; i < tClusterIndsInSet.size(); i++ )
             {
@@ -202,7 +202,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Vector< Cluster const * >
+        Vector< Cluster const * >
         Integration_Mesh_STK::get_side_set_cluster( moris_index aSideSetOrdinal ) const
         {
             MORIS_ASSERT( aSideSetOrdinal < (moris_index)mSideSets.size(),
@@ -210,7 +210,7 @@ namespace moris
 
             moris::uint tNumSideClustersInSet = mSideSets( aSideSetOrdinal ).size();
 
-            moris::Vector< Cluster const * > tSideClustersInSet( tNumSideClustersInSet );
+            Vector< Cluster const * > tSideClustersInSet( tNumSideClustersInSet );
 
             for ( moris::uint i = 0; i < tNumSideClustersInSet; i++ )
             {
@@ -286,7 +286,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Vector< Cluster const * >
+        Vector< Cluster const * >
         Integration_Mesh_STK::get_double_side_set_cluster( moris_index aSideSetOrdinal ) const
         {
             MORIS_ASSERT( aSideSetOrdinal < (moris_index)mDoubleSideSetLabels.size(),
@@ -320,7 +320,7 @@ namespace moris
         void
         Integration_Mesh_STK::setup_blockset_with_cell_clusters_trivial()
         {
-            moris::Vector< std::string > mPrimaryBlockSetNames = this->get_set_names( EntityRank::ELEMENT );
+            Vector< std::string > mPrimaryBlockSetNames = this->get_set_names( EntityRank::ELEMENT );
 
             // iterate and create map
             mListOfBlocks.resize( mPrimaryBlockSetNames.size(), nullptr );
@@ -330,7 +330,7 @@ namespace moris
                 Matrix< IndexMat > tCellIndices =
                         this->get_set_entity_loc_inds( EntityRank::ELEMENT, mPrimaryBlockSetNames( iPrimaryBlockSet ) );
 
-                moris::Vector< Cluster const * > tCellClusters( tCellIndices.numel() );
+                Vector< Cluster const * > tCellClusters( tCellIndices.numel() );
 
                 for ( moris::uint Ii = 0; Ii < tCellIndices.numel(); Ii++ )
                 {
@@ -360,7 +360,7 @@ namespace moris
         {
             enum EntityRank tSideSetRank = this->get_facet_rank();
 
-            moris::Vector< std::string > aSideSetNames = this->get_set_names( tSideSetRank );
+            Vector< std::string > aSideSetNames = this->get_set_names( tSideSetRank );
 
             mSideSets.resize( aSideSetNames.size() );
 
@@ -380,7 +380,7 @@ namespace moris
             for ( moris::uint i = 0; i < aSideSetNames.size(); i++ )
             {
                 // get the cells and side ordinals from the mesh for this side set
-                moris::Vector< mtk::Cell const * > tCellsInSet( 0 );
+                Vector< mtk::Cell const * > tCellsInSet( 0 );
                 moris::Matrix< moris::IndexMat > tSideOrdsInSet( 0, 0 );
                 this->get_sideset_cells_and_ords( aSideSetNames( i ), tCellsInSet, tSideOrdsInSet );
 
@@ -471,8 +471,8 @@ namespace moris
                         mtk::Cell const *tPrimaryCell    = &this->get_mtk_cell( tIntegCellIndex );
                         mCellClusters( i ).add_primary_integration_cell( tPrimaryCell );
 
-                        moris::Vector< moris::mtk::Vertex * >       tVertexIds = tPrimaryCell->get_vertex_pointers();
-                        moris::Vector< moris::mtk::Vertex const * > tConstVertexPtrs( tVertexIds.size() );
+                        Vector< moris::mtk::Vertex * >       tVertexIds = tPrimaryCell->get_vertex_pointers();
+                        Vector< moris::mtk::Vertex const * > tConstVertexPtrs( tVertexIds.size() );
                         for ( moris::uint iV = 0; iV < tVertexIds.size(); iV++ )
                         {
                             tConstVertexPtrs( iV ) = tVertexIds( iV );
@@ -513,8 +513,8 @@ namespace moris
                     mtk::Cell const *tPrimaryCell    = &this->get_mtk_cell( tIntegCellIndex );
                     mCellClusters( i ).add_primary_integration_cell( tPrimaryCell );
 
-                    moris::Vector< moris::mtk::Vertex * >       tVertexIds = tPrimaryCell->get_vertex_pointers();
-                    moris::Vector< moris::mtk::Vertex const * > tConstVertexPtrs( tVertexIds.size() );
+                    Vector< moris::mtk::Vertex * >       tVertexIds = tPrimaryCell->get_vertex_pointers();
+                    Vector< moris::mtk::Vertex const * > tConstVertexPtrs( tVertexIds.size() );
                     for ( moris::uint iV = 0; iV < tVertexIds.size(); iV++ )
                     {
                         tConstVertexPtrs( iV ) = tVertexIds( iV );
@@ -547,7 +547,7 @@ namespace moris
         Integration_Mesh_STK::setup_blockset_with_cell_clusters()
         {
             // construct integration to cell cluster relationship
-            moris::Vector< moris::moris_index > tPrimaryIntegrationCellToClusterIndex(
+            Vector< moris::moris_index > tPrimaryIntegrationCellToClusterIndex(
                     this->get_num_entities( EntityRank::ELEMENT ), MORIS_INDEX_MAX );
 
             // iterate through clusters
@@ -555,7 +555,7 @@ namespace moris
             {
                 Cell_Cluster_STK const &tCellCluster = mCellClusters( i );
 
-                moris::Vector< moris::mtk::Cell const * > const &tPrimaryCells =
+                Vector< moris::mtk::Cell const * > const &tPrimaryCells =
                         tCellCluster.get_primary_cells_in_cluster();
 
                 // iterate through primary cells
@@ -571,12 +571,12 @@ namespace moris
             }
 
             // get all block sets from the mesh
-            moris::Vector< std::string > tBlockSetNames = this->get_set_names( EntityRank::ELEMENT );
+            Vector< std::string > tBlockSetNames = this->get_set_names( EntityRank::ELEMENT );
 
             mPrimaryBlockSetClusters.resize( tBlockSetNames.size() );
             mPrimaryBlockSetNames = tBlockSetNames;
 
-            moris::Vector< uint > tSetsToRemove;
+            Vector< uint > tSetsToRemove;
 
             for ( moris::uint i = 0; i < tBlockSetNames.size(); i++ )
             {
@@ -620,7 +620,7 @@ namespace moris
             // iterate and create map
             mListOfBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
 
-            moris::Vector< std::string > tBSNames = this->get_block_set_names();
+            Vector< std::string > tBSNames = this->get_block_set_names();
 
             moris::moris_index tMaxIpCellIndex = 0;
 
@@ -635,7 +635,7 @@ namespace moris
                 MORIS_ASSERT( mBlockSetLabelToOrd.find( mPrimaryBlockSetNames( iBlockSet ) ) == mBlockSetLabelToOrd.end(),
                         "Duplicate block set in mesh" );
 
-                moris::Vector< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( iBlockSet );
+                Vector< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( iBlockSet );
 
                 for ( uint Ic = 0; Ic < tClusterList.size(); Ic++ )
                 {
@@ -657,7 +657,7 @@ namespace moris
 
             for ( uint iBlockSet = 0; iBlockSet < mListOfBlocks.size(); iBlockSet++ )
             {
-                moris::Vector< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( iBlockSet );
+                Vector< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( iBlockSet );
 
                 for ( uint Ic = 0; Ic < tClusterList.size(); Ic++ )
                 {
@@ -679,7 +679,7 @@ namespace moris
         {
             enum EntityRank tSideSetRank = this->get_facet_rank();
 
-            moris::Vector< std::string > aSideSetNames = this->get_set_names( tSideSetRank );
+            Vector< std::string > aSideSetNames = this->get_set_names( tSideSetRank );
 
             mSideSets.resize( aSideSetNames.size() );
 
@@ -699,7 +699,7 @@ namespace moris
             for ( moris::uint i = 0; i < aSideSetNames.size(); i++ )
             {
                 // get the cells and side ordinals from the mesh for this side set
-                moris::Vector< mtk::Cell const * > tCellsInSet( 0 );
+                Vector< mtk::Cell const * > tCellsInSet( 0 );
                 moris::Matrix< moris::IndexMat > tSideOrdsInSet( 0, 0 );
                 this->get_sideset_cells_and_ords( aSideSetNames( i ), tCellsInSet, tSideOrdsInSet );
 
@@ -770,7 +770,7 @@ namespace moris
                             moris::Matrix< moris::IdMat > const *tCellIdsAndOrds =
                                     tSideSetClusterData.get_integration_cell_ids_and_side_ords( iC );
 
-                            moris::Vector< moris::mtk::Cell const * > tCellPointers =
+                            Vector< moris::mtk::Cell const * > tCellPointers =
                                     this->get_cell_pointers_from_ids( tCellIdsAndOrds->get_column( 0 ) );
 
                             moris::Matrix< moris::IdMat > tSideOrds = tCellIdsAndOrds->get_column( 1 );
@@ -779,7 +779,7 @@ namespace moris
                             moris::Matrix< moris::IdMat > const *tVertexInCluster =
                                     tSideSetClusterData.get_vertex_in_cluster_ids( iC );
 
-                            moris::Vector< moris::mtk::Vertex const * > tVertices =
+                            Vector< moris::mtk::Vertex const * > tVertices =
                                     this->get_vertex_pointers_from_ids( *tVertexInCluster );
 
                             // vertices in cluster
@@ -874,7 +874,7 @@ namespace moris
                 Interpolation_Mesh        &aInterpMesh,
                 Double_Side_Cluster_Input *aDoubleSideClusterInput )
         {
-            moris::Vector< std::string > const &tDoubleSideSetLabels =
+            Vector< std::string > const &tDoubleSideSetLabels =
                     aDoubleSideClusterInput->get_double_side_set_labels();
 
             // copy strings labels
@@ -926,7 +926,7 @@ namespace moris
                         moris::mtk::Cell const *tIntegCell = &this->get_mtk_cell( tCellIndex );
                         moris_index             tSideOrd   = ( *tIntegCellId )( 1 );
 
-                        moris::Vector< moris::mtk::Vertex const * > tVerticesOnSide =
+                        Vector< moris::mtk::Vertex const * > tVerticesOnSide =
                                 tIntegCell->get_vertices_on_side_ordinal( tSideOrd );
 
                         // get the cell info of the interp cell
@@ -975,7 +975,7 @@ namespace moris
 
                         moris::mtk::Cell const *tIntegCell = &this->get_mtk_cell( tCellIndex );
 
-                        moris::Vector< moris::mtk::Vertex const * > tVerticesOnSide =
+                        Vector< moris::mtk::Vertex const * > tVerticesOnSide =
                                 tIntegCell->get_vertices_on_side_ordinal( tSideOrd );
 
                         // get the cell info of the interp cell
@@ -1006,13 +1006,13 @@ namespace moris
 
                     moris::uint tNumVertPairs = tVertexPairing->n_rows();
 
-                    moris::Vector< moris::mtk::Vertex const * > tVertexLeftToRightPair( tNumVertPairs );
+                    Vector< moris::mtk::Vertex const * > tVertexLeftToRightPair( tNumVertPairs );
 
                     // left vertex pointers
-                    moris::Vector< moris::mtk::Vertex const * > tLeftVertPtrs =
+                    Vector< moris::mtk::Vertex const * > tLeftVertPtrs =
                             this->get_vertex_pointers_from_ids( tVertexPairing->get_column( 0 ) );
 
-                    moris::Vector< moris::mtk::Vertex const * > tRightVertPtrs =
+                    Vector< moris::mtk::Vertex const * > tRightVertPtrs =
                             this->get_vertex_pointers_from_ids( tVertexPairing->get_column( 1 ) );
 
                     for ( moris::uint iV = 0; iV < tNumVertPairs; iV++ )
@@ -1138,7 +1138,7 @@ namespace moris
                     uint        tLeftSideBlkIndex = mIpCellToBlockSetOrd( tIpCellIndex );
 
                     // get vertices on left side
-                    moris::Vector< Vertex const * > tLeftVertices = tLeftSideClusters->get_vertices_in_cluster();
+                    Vector< Vertex const * > tLeftVertices = tLeftSideClusters->get_vertices_in_cluster();
 
                     // get number of left vertices
                     uint tNumLeftVertices = tLeftVertices.size();
@@ -1173,7 +1173,7 @@ namespace moris
                         }
 
                         // get vertices on left side
-                        moris::Vector< Vertex const * > tRightVertices = tRightSideClusters->get_vertices_in_cluster();
+                        Vector< Vertex const * > tRightVertices = tRightSideClusters->get_vertices_in_cluster();
 
                         // get number of right vertices
                         uint tNumRightVertices = tRightVertices.size();
@@ -1196,8 +1196,8 @@ namespace moris
                         }
 
                         // build vertex pairing
-                        moris::Vector< moris::mtk::Vertex const * > tVertexLeftToRightPair( tNumRightVertices, nullptr );
-                        moris::Vector< moris::mtk::Vertex const * > tVertexRightToLeftPair( tNumRightVertices, nullptr );
+                        Vector< moris::mtk::Vertex const * > tVertexLeftToRightPair( tNumRightVertices, nullptr );
+                        Vector< moris::mtk::Vertex const * > tVertexRightToLeftPair( tNumRightVertices, nullptr );
 
                         for ( uint Iv = 0; Iv < tNumRightVertices; Iv++ )
                         {
@@ -1235,8 +1235,8 @@ namespace moris
                             MORIS_LOG_INFO( "Created double side sets: %s  and %s", tLeaderLabel.c_str(), tFollowerLabel.c_str() );
 
                             // allocate new cell of clusters for double side set
-                            mDoubleSideSets.push_back( moris::Vector< Cluster const * >() );
-                            mDoubleSideSets.push_back( moris::Vector< Cluster const * >() );
+                            mDoubleSideSets.push_back( Vector< Cluster const * >() );
+                            mDoubleSideSets.push_back( Vector< Cluster const * >() );
 
                             tNumDoubleSideSets += 2;
                         }
@@ -1315,11 +1315,11 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Vector< moris::mtk::Cell const * >
+        Vector< moris::mtk::Cell const * >
         Integration_Mesh_STK::get_cell_pointers_from_ids( moris::Matrix< moris::IdMat > const &aCellIds ) const
         {
 
-            moris::Vector< moris::mtk::Cell const * > tCellPtrs( aCellIds.numel() );
+            Vector< moris::mtk::Cell const * > tCellPtrs( aCellIds.numel() );
 
             for ( moris::uint i = 0; i < aCellIds.numel(); i++ )
             {
@@ -1333,10 +1333,10 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Vector< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Integration_Mesh_STK::get_vertex_pointers_from_ids( moris::Matrix< moris::IdMat > const &aVertexIds ) const
         {
-            moris::Vector< moris::mtk::Vertex const * > tVertexPtrs( aVertexIds.numel() );
+            Vector< moris::mtk::Vertex const * > tVertexPtrs( aVertexIds.numel() );
 
             for ( moris::uint i = 0; i < aVertexIds.numel(); i++ )
             {

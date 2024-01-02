@@ -41,7 +41,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         void
-        Field::set_field_type( const moris::Vector< mtk::Field_Type >& aType )
+        Field::set_field_type( const Vector< mtk::Field_Type >& aType )
         {
             mFieldType = aType;
 

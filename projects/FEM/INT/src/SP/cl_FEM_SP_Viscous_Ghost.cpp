@@ -31,7 +31,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< std::tuple<
+        Vector< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
                 mtk::Leader_Follower > >
@@ -75,7 +75,7 @@ namespace moris
 
         void
         SP_Viscous_Ghost::eval_dSPdLeaderDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get element size cluster measure value
             real tElementSize = mCluster->get_cluster_measure(

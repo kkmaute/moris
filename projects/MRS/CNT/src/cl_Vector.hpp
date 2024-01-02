@@ -65,7 +65,7 @@ namespace moris
          *
          * Vector copy constructor
          */
-        Vector( const moris::Vector< T >& aVector )
+        Vector( const Vector< T >& aVector )
         {
             mVector = aVector.data();
         }
@@ -86,7 +86,7 @@ namespace moris
                 : mVector( aSize, aValue )
         {
             MORIS_CHECK_MEMORY( sizeof( T ) * aSize < MORIS_MAX_CELL_CAPACITY,
-                    "moris::Vector: Maximum allowable capacity exceeded: %f MB.\n",
+                    "Vector: Maximum allowable capacity exceeded: %f MB.\n",
                     sizeof( T ) * aSize / 1e6 );
         }
 
@@ -97,7 +97,7 @@ namespace moris
                 : mVector( aSize )
         {
             MORIS_CHECK_MEMORY( sizeof( T ) * aSize < MORIS_MAX_CELL_CAPACITY,
-                    "moris::Vector: Maximum allowable capacity exceeded: %f MB.\n",
+                    "Vector: Maximum allowable capacity exceeded: %f MB.\n",
                     sizeof( T ) * aSize / 1e6 );
         }
 
@@ -128,8 +128,8 @@ namespace moris
          * @param[in] val Contents to be copied into the container
          */
 
-        const moris::Vector< T >&
-        operator=( moris::Vector< T > const & aCell )
+        const Vector< T >&
+        operator=( Vector< T > const & aCell )
         {
             mVector = aCell.data();
 
@@ -147,7 +147,7 @@ namespace moris
          */
 
         template< typename A >
-        const moris::Vector< T >&
+        const Vector< T >&
         operator=(
                 const A& val )
         {
@@ -459,7 +459,7 @@ namespace moris
 
         void
         append(
-                moris::Vector< T > const & aCell )
+                Vector< T > const & aCell )
         {
             MORIS_CHECK_MEMORY( mVector.size() + aCell.size() > mVector.capacity() ? mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
                     "Cell::append: number of resize calls exceeds limit.\n" );
@@ -891,14 +891,14 @@ namespace moris
 
     //------------------------------------------------------------------
 
-    inline moris::Vector< char >
-    string_to_char( moris::Vector< std::string >& strings );
+    inline Vector< char >
+    string_to_char( Vector< std::string >& strings );
 
     //------------------------------------------------------------------
 
     template< typename T >
     void
-    shrink_to_fit_all( moris::Vector< T >& aCell )
+    shrink_to_fit_all( Vector< T >& aCell )
     {
         aCell.shrink_to_fit();
     }
@@ -907,7 +907,7 @@ namespace moris
 
     template< typename T >
     void
-    shrink_to_fit_all( moris::Vector< moris::Vector< T > >& aCell )
+    shrink_to_fit_all( Vector< Vector< T > >& aCell )
     {
         // trim inner cells
         for ( uint iI = 0; iI < aCell.size(); ++iI )
@@ -943,7 +943,7 @@ namespace moris
     // Since 2024, the name Cell is deprecated and will be removed in the future.
     // It is a relict from the time when MORIS was trying to mimic MATLAB as close as possible.
     template<typename T>
-    using Cell [[deprecated( "moris::Cell is now moris::Vector!" )]] = Vector< T >;
+    using Cell [[deprecated( "moris::Cell is now Vector!" )]] = Vector< T >;
 
 }    // namespace moris
 

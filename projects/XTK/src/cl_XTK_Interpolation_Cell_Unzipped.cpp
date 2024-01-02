@@ -70,12 +70,12 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Vector< mtk::Vertex* >
+    Vector< mtk::Vertex* >
     Interpolation_Cell_Unzipped::get_vertex_pointers() const
     {
 
         uint                        tNumVerts = this->get_number_of_vertices();
-        moris::Vector< mtk::Vertex* > tVerts( tNumVerts );
+        Vector< mtk::Vertex* > tVerts( tNumVerts );
 
         for ( uint i = 0; i < tNumVerts; i++ )
         {
@@ -105,7 +105,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Interpolation_Cell_Unzipped::set_vertices( moris::Vector< xtk::Interpolation_Vertex_Unzipped* > const & aVertexPointers )
+    Interpolation_Cell_Unzipped::set_vertices( Vector< xtk::Interpolation_Vertex_Unzipped* > const & aVertexPointers )
     {
         mVertices = aVertexPointers;
     }
@@ -172,7 +172,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Vector< xtk::Interpolation_Vertex_Unzipped* > const &
+    Vector< xtk::Interpolation_Vertex_Unzipped* > const &
     Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices() const
     {
         return mVertices;
@@ -180,7 +180,7 @@ namespace xtk
     
     //------------------------------------------------------------------------------
 
-    moris::Vector< xtk::Interpolation_Vertex_Unzipped* >&
+    Vector< xtk::Interpolation_Vertex_Unzipped* >&
     Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices()
     {
         return mVertices;

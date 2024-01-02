@@ -179,7 +179,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Pdv_Host_Manager::set_GenMeshMap( moris::Vector< moris_index > aGenMeshMap )
+        Pdv_Host_Manager::set_GenMeshMap( Vector< moris_index > aGenMeshMap )
         {
             mGenMeshMap              = aGenMeshMap;
             mGenMeshMapIsInitialized = true;
@@ -870,7 +870,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Pdv_Host_Manager::communicate_dof_types( moris::Vector< enum PDV_Type >& aPdvTypeList )
+        Pdv_Host_Manager::communicate_dof_types( Vector< enum PDV_Type >& aPdvTypeList )
         {
             // Get processor size
             int tSize = par_size();
@@ -888,7 +888,7 @@ namespace moris
             }
 
             // Create list containing the number of local dof types
-            moris::Vector< moris::sint > tNumLocalDvTypesList( tSize );
+            Vector< moris::sint > tNumLocalDvTypesList( tSize );
 
             // Insert number of local dof types into list containing the number of local dof types
             MPI_Allgather(
@@ -901,7 +901,7 @@ namespace moris
                     MPI_COMM_WORLD );
 
             // Create list containing the offsets of the local dof types in relation to processor 0
-            moris::Vector< moris::sint > tDvTypeOffset( tSize, 0 );
+            Vector< moris::sint > tDvTypeOffset( tSize, 0 );
 
             // Fill the list with the corresponding offsets
             for ( int Ip = 1; Ip < tSize; ++Ip )
@@ -1371,8 +1371,8 @@ namespace moris
             moris::uint tCounter       = 0;
             moris::uint tSharedCounter = 0;
 
-            moris::Vector< Matrix< DDUMat > > tSharedPdvIds( tNumCommProcs );
-            moris::Vector< Matrix< DDUMat > > tSharedPdvPosLocal( tNumCommProcs );
+            Vector< Matrix< DDUMat > > tSharedPdvIds( tNumCommProcs );
+            Vector< Matrix< DDUMat > > tSharedPdvPosLocal( tNumCommProcs );
 
             // Set Mat to store number of shared pdv per processor
             Matrix< DDUMat > tNumSharedPdvsPerProc( tNumCommProcs, 1, 0 );
@@ -1455,7 +1455,7 @@ namespace moris
             }
 
             // receiving list
-            moris::Vector< Matrix< DDUMat > > tMatsToReceive;
+            Vector< Matrix< DDUMat > > tMatsToReceive;
 
             barrier();
 
@@ -1466,7 +1466,7 @@ namespace moris
                     tMatsToReceive );
 
             // Create List of Mats containing the shared node Ids
-            moris::Vector< Matrix< DDUMat > > tSharedPdvIdList( tNumCommProcs );
+            Vector< Matrix< DDUMat > > tSharedPdvIdList( tNumCommProcs );
 
             // Loop over all Mats setting the size
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
@@ -1497,7 +1497,7 @@ namespace moris
                 }
             }
 
-            moris::Vector< Matrix< DDUMat > > tMatsToReceive2;
+            Vector< Matrix< DDUMat > > tMatsToReceive2;
 
             barrier();
 

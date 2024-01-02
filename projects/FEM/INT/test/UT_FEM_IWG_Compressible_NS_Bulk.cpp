@@ -67,7 +67,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
@@ -78,7 +78,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     //         mtk::Interpolation_Order::LINEAR };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -86,12 +86,12 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Vector< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
-    moris::Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
+    Vector< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
+    Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
 
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
+    Vector< Vector< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
+    Vector< Vector< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -395,8 +395,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > > tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > > tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

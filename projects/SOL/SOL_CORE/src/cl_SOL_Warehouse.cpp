@@ -160,7 +160,7 @@ void SOL_Warehouse::create_linear_solver_algorithms()
                 mParameterlist( 0 )( Ik ) );
 
         // get and set nonlinear sub-solvers for staggered methods
-        moris::Vector< uint > tPreconditionerIndices;
+        Vector< uint > tPreconditionerIndices;
         string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners" ),
                 tPreconditionerIndices );
 
@@ -199,7 +199,7 @@ void SOL_Warehouse::create_linear_solvers()
     {
         mLinearSolvers( Ik ) = new dla::Linear_Solver( mParameterlist( 1 )( Ik ) );
 
-        moris::Vector< uint > tLinearSolverAlgorithmIndices;
+        Vector< uint > tLinearSolverAlgorithmIndices;
         string_to_cell( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
                 tLinearSolverAlgorithmIndices );
 
@@ -422,7 +422,7 @@ void SOL_Warehouse::create_time_solvers()
             moris::Matrix< DDSMat > tOutputIndices;
             string_to_mat( tStringOutputInd, tOutputIndices );
 
-            moris::Vector< std::string > tOutputCriteria;
+            Vector< std::string > tOutputCriteria;
             string_to_cell( tStringOutputCriteria, tOutputCriteria );
 
             MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(),
@@ -463,7 +463,7 @@ void SOL_Warehouse::get_default_secondary_dof_types(
     }
     aCellOfCellsSecDofTypes.clear();
 
-    moris::Vector< MSI::Dof_Type > tListOfAllPossibleDofTypes;
+    Vector< MSI::Dof_Type > tListOfAllPossibleDofTypes;
 
     // get all possible used dof types from the time solver parameter list
     for ( uint Ik = 0; Ik < mParameterlist( 5 ).size(); Ik++ )
@@ -495,7 +495,7 @@ void SOL_Warehouse::get_default_secondary_dof_types(
     tListOfAllPossibleDofTypes.resize( pos );
 
     // make list of residual dof types
-    moris::Vector< MSI::Dof_Type > tResDofTypes;
+    Vector< MSI::Dof_Type > tResDofTypes;
     for ( uint Ik = 0; Ik < aCellOfCellDofTypes.size(); Ik++ )
     {
         tResDofTypes.append( aCellOfCellDofTypes( Ik ) );

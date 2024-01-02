@@ -68,7 +68,7 @@ namespace moris
             real tInterfaceArea = 0.0;
 
             // get the clusters in this group
-            moris::Vector< mtk::Cluster const* > const& tMySideClusters = this->get_side_clusters_in_group();
+            Vector< mtk::Cluster const* > const& tMySideClusters = this->get_side_clusters_in_group();
 
             // sum up the interface area/length over all clusters 
             for( uint iCluster = 0; iCluster < tMySideClusters.size(); iCluster++ )

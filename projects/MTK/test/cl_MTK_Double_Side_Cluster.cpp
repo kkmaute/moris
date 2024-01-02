@@ -237,7 +237,7 @@ namespace moris
                 CHECK( tIntegMesh1->get_double_sided_set_label( 0 ).compare( tGhost.mSideSetName ) == 0 );
 
                 // access the double sided cluster
-                moris::Vector< Cluster const * > tGhostDoubleSide = tIntegMesh1->get_double_side_set_cluster( 0 );
+                Vector< Cluster const * > tGhostDoubleSide = tIntegMesh1->get_double_side_set_cluster( 0 );
 
                 CHECK( tGhostDoubleSide.size() == 1 );
 
@@ -259,7 +259,7 @@ namespace moris
                 CHECK( tFollowerCellSideOrds( 0 ) == 4 );
 
                 // iterate through pairs and chekc ids of vertices (should be the same in this case)
-                moris::Vector< moris::mtk::Vertex const * > tLeaderVerts = tGhostDoubleSide( 0 )->get_vertices_in_cluster( mtk::Leader_Follower::LEADER );
+                Vector< moris::mtk::Vertex const * > tLeaderVerts = tGhostDoubleSide( 0 )->get_vertices_in_cluster( mtk::Leader_Follower::LEADER );
                 for ( moris::uint i = 0; i < tLeaderVerts.size(); i++ )
                 {
                     moris::mtk::Vertex const * tFollowerVertex = tGhostDoubleSide( 0 )->get_leader_vertex_pair( tLeaderVerts( i ) );

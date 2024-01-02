@@ -144,7 +144,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager >               aMeshManager,
                 const moris_index                                 &aMeshPairIndex,
-                const moris::Vector< Vector< ParameterList > > &aParameterList,
+                const Vector< Vector< ParameterList > > &aParameterList,
                 std::shared_ptr< Library_IO >                      aLibrary )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )

@@ -1712,7 +1712,7 @@ namespace moris::hmr
         for ( uint e = 0; e < tNumberOfElements; ++e )
         {
             // get Cell of connected vertices
-            moris::Vector< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
+            Vector< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
 
             // unflag these vertices
             for ( mtk::Vertex* tVertex : tVertices )
@@ -1730,7 +1730,7 @@ namespace moris::hmr
         for ( uint e = 0; e < tNumberOfElements; ++e )
         {
             // get Cell of connected vertices
-            moris::Vector< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
+            Vector< mtk::Vertex* > tVertices = tBasis->get_element( e )->get_vertex_pointers();
 
             // unflag these vertices
             for ( mtk::Vertex* tVertex : tVertices )

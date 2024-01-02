@@ -51,7 +51,7 @@ namespace moris
         load_sdf_parameter_list_from_xml(
                 const std::string            & aFilePath,
                 ParameterList                & aGlobalParameters,
-                moris::Vector< ParameterList > & aObjectParameters )
+                Vector< ParameterList > & aObjectParameters )
         {
             // create temporary Parser object
             XML_Parser tParser( aFilePath );

@@ -40,7 +40,7 @@ namespace moris
 
         Pdof_Host::~Pdof_Host()
         {
-            for ( moris::Vector< Pdof* >& tList : mListOfPdofTimePerType )
+            for ( Vector< Pdof* >& tList : mListOfPdofTimePerType )
             {
                 for ( Pdof* tPdof : tList )
                 {
@@ -100,7 +100,7 @@ namespace moris
         void
         Pdof_Host::get_adofs(
                 const Matrix< DDUMat >&              aTimeLevelOffsets,
-                moris::Vector< moris::Vector< Adof* > >& aAdofList,
+                Vector< Vector< Adof* > >& aAdofList,
                 Model_Solver_Interface*              aModelSolverInterface,
                 const bool&                          aUseHMR )
         {
@@ -119,7 +119,7 @@ namespace moris
         void
         Pdof_Host::create_adofs_based_on_Tmatrix(
                 const Matrix< DDUMat >&              aTimeLevelOffsets,
-                moris::Vector< moris::Vector< Adof* > >& aAdofList,
+                Vector< Vector< Adof* > >& aAdofList,
                 Model_Solver_Interface*              aModelSolverInterface )
         {
             // Get number of DoF Types (i.e. number of PDofs created on this node/host per DoF in time direction)
@@ -190,7 +190,7 @@ namespace moris
         void
         Pdof_Host::create_adofs_based_on_pdofs(
                 const Matrix< DDUMat >&              aTimeLevelOffsets,
-                moris::Vector< moris::Vector< Adof* > >& aAdofList )
+                Vector< Vector< Adof* > >& aAdofList )
         {
             //        //Get number of pdof Types in this pdof host
             //        uint tNumPdofTypes = mListOfPdofTimePerType.size();

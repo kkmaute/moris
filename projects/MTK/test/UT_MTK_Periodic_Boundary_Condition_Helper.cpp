@@ -90,7 +90,7 @@ namespace moris
                 Matrix< IndexMat > tSideOrdinal1 = tSideSet1->get_clusters_by_index( 0 )
                                                                    ->get_cell_side_ordinals( mtk::Leader_Follower::LEADER );
                 //get the vertices on the PBC leader side
-                moris::Vector< moris::mtk::Vertex const* > tVertex1 = tSideSet1->get_clusters_by_index( 0 )
+                Vector< moris::mtk::Vertex const* > tVertex1 = tSideSet1->get_clusters_by_index( 0 )
                                                                       ->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER )( 0 )->get_vertices_on_side_ordinal( tSideOrdinal1( 0, 0) );
 
                 //matrix to store IDs of leader side set
@@ -106,7 +106,7 @@ namespace moris
                 Matrix< IndexMat > tSideOrdinal2 = tSideSet1->get_clusters_by_index( 0 )->get_cell_side_ordinals(mtk::Leader_Follower::FOLLOWER);
 
                 //get the vertices on the PBC leader side
-                moris::Vector< moris::mtk::Vertex const* > tVertex2 = tSideSet1->get_clusters_by_index( 0 )
+                Vector< moris::mtk::Vertex const* > tVertex2 = tSideSet1->get_clusters_by_index( 0 )
                                                                                      ->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER )( 0 )->get_vertices_on_side_ordinal( tSideOrdinal2( 0, 0));
 
                 //matrix to store IDs of leader side set

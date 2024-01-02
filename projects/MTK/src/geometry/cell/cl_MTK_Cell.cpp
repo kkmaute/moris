@@ -137,7 +137,7 @@ namespace moris
         Cell::get_vertex_ids() const
         {
             uint                   tNumVertices = this->get_number_of_vertices();
-            moris::Vector< Vertex* > tVertices    = this->get_vertex_pointers();
+            Vector< Vertex* > tVertices    = this->get_vertex_pointers();
 
             Matrix< IdMat > tVertexIds( 1, tNumVertices );
             for ( uint i = 0; i < tNumVertices; i++ )
@@ -153,7 +153,7 @@ namespace moris
         Cell::get_vertex_inds() const
         {
             uint                   tNumVertices = this->get_number_of_vertices();
-            moris::Vector< Vertex* > tVertices    = this->get_vertex_pointers();
+            Vector< Vertex* > tVertices    = this->get_vertex_pointers();
 
             Matrix< IdMat > tVertexInds( 1, tNumVertices );
             for ( uint i = 0; i < tNumVertices; i++ )
@@ -197,7 +197,7 @@ namespace moris
         Cell::get_vertex_owners() const
         {
             uint                   tNumVertices = this->get_number_of_vertices();
-            moris::Vector< Vertex* > tVertices    = this->get_vertex_pointers();
+            Vector< Vertex* > tVertices    = this->get_vertex_pointers();
 
             Matrix< IdMat > tVertexOwners( 1, tNumVertices );
             for ( uint i = 0; i < tNumVertices; i++ )
@@ -209,12 +209,12 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< mtk::Vertex_Interpolation* >
+        Vector< mtk::Vertex_Interpolation* >
         Cell::get_vertex_interpolations( const uint aOrder ) const
         {
             uint                                      tNumVerts       = this->get_number_of_vertices();
-            moris::Vector< mtk::Vertex* >               tVertexPointers = this->get_vertex_pointers();
-            moris::Vector< mtk::Vertex_Interpolation* > tVertexInterp( tNumVerts );
+            Vector< mtk::Vertex* >               tVertexPointers = this->get_vertex_pointers();
+            Vector< mtk::Vertex_Interpolation* > tVertexInterp( tNumVerts );
 
             for ( moris::uint i = 0; i < tNumVerts; i++ )
             {
@@ -226,14 +226,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Cell::get_vertices_on_side_ordinal( moris::moris_index aSideOrdinal ) const
         {
-            moris::Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
 
             moris::Matrix< moris::IndexMat > tNodeOrdsOnSide = this->get_cell_info()->get_node_to_facet_map( aSideOrdinal );
 
-            moris::Vector< moris::mtk::Vertex const * > tVerticesOnSide( tNodeOrdsOnSide.numel() );
+            Vector< moris::mtk::Vertex const * > tVerticesOnSide( tNodeOrdsOnSide.numel() );
             for ( moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++ )
             {
                 tVerticesOnSide( i ) = tVertices( tNodeOrdsOnSide( i ) );
@@ -243,18 +243,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Cell::get_geometric_vertices_on_side_ordinal( moris::moris_index aSideOrdinal ) const
         {
             MORIS_ASSERT( mCellInfo != nullptr, "Cell info null ptr" );
 
-            moris::Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
 
             // get vertex ordinals
             moris::Matrix< moris::IndexMat > tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map( aSideOrdinal );
 
             // allocate cell of vertices
-            moris::Vector< moris::mtk::Vertex const * > tVerticesOnSide( tGeometricVertOrdsOnFacet.numel() );
+            Vector< moris::mtk::Vertex const * > tVerticesOnSide( tGeometricVertOrdsOnFacet.numel() );
 
             for ( moris::uint i = 0; i < tGeometricVertOrdsOnFacet.numel(); i++ )
             {
@@ -272,7 +272,7 @@ namespace moris
             // FIXME: Add assert to check side ordinal
 
             // get the vertex pointers on the side
-            moris::Vector< moris::mtk::Vertex const * > tVerticesOnSide = this->get_vertices_on_side_ordinal( aSideOrdinal );
+            Vector< moris::mtk::Vertex const * > tVerticesOnSide = this->get_vertices_on_side_ordinal( aSideOrdinal );
 
             // allocate output coords (note we do not know the spatial dimension at this time)
             moris::Matrix< moris::DDRMat > tVertexPhysCoords( 0, 0 );
@@ -299,7 +299,7 @@ namespace moris
         moris::Matrix< IndexMat >
         Cell::get_vertices_ind_on_side_ordinal( moris::moris_index aSideOrdinal ) const
         {
-            moris::Vector< moris::mtk::Vertex const * > tVertices = this->get_vertices_on_side_ordinal( aSideOrdinal );
+            Vector< moris::mtk::Vertex const * > tVertices = this->get_vertices_on_side_ordinal( aSideOrdinal );
 
             uint tNumVertices = tVertices.size();
 
@@ -450,7 +450,7 @@ namespace moris
             MORIS_ASSERT( mCellInfo != nullptr, "Cell info null ptr" );
 
             // Get all the vertices of the cell
-            moris::Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+            Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
 
             // Get vertex ordinals on the facet
             moris::Matrix< moris::IndexMat > tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map( aSideOrdinal );
@@ -480,7 +480,7 @@ namespace moris
         Cell::compute_cell_centroid() const
         {
             // get all vertices of cell
-            moris::Vector< Vertex* > tVertices = this->get_vertex_pointers();
+            Vector< Vertex* > tVertices = this->get_vertex_pointers();
 
             // get coordinate of first vertex
             Matrix< DDRMat > tCentroid = tVertices( 0 )->get_coords();

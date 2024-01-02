@@ -390,7 +390,7 @@ Octree_Interface::perform_impl_vertex_requests(
         const Vertex_Ancestry *tVertexAncestry = tCurrentTemplate->get_vertex_ancestry();
 
         // hashes for the current template
-        const moris::Vector< moris_index > *tVertexHashes = tCurrentTemplate->get_vertex_hashes();
+        const Vector< moris_index > *tVertexHashes = tCurrentTemplate->get_vertex_hashes();
 
         Cell_Connectivity const tCellConnectivity = mCutIgMesh->get_background_cell_connectivity( tCell.get_index() );
 
@@ -484,17 +484,17 @@ Octree_Interface::perform_impl_generate_mesh(
     std::shared_ptr< moris::mtk::Cell_Info > tIgCellInfo = tFactory.create_cell_info_sp( this->get_ig_cell_topology() );
 
     // this is going to be the cell infor pointer for all new cells
-    mNewCellCellInfo = moris::Vector< std::shared_ptr< moris::mtk::Cell_Info > >( mNumNewCells, tIgCellInfo );
+    mNewCellCellInfo = Vector< std::shared_ptr< moris::mtk::Cell_Info > >( mNumNewCells, tIgCellInfo );
 
     // number of vertices per cell
     moris::uint tVerticesPerCell = tIgCellInfo->get_num_verts();
 
     // allocate data in the new ig cell data
-    mNewCellToVertexConnectivity = moris::Vector< moris::Vector< moris::moris_index > >( mNumNewCells, tVerticesPerCell );
-    mNewCellChildMeshIndex       = moris::Vector< moris::moris_index >( mNumNewCells );
+    mNewCellToVertexConnectivity = Vector< Vector< moris::moris_index > >( mNumNewCells, tVerticesPerCell );
+    mNewCellChildMeshIndex       = Vector< moris::moris_index >( mNumNewCells );
 
     // for this method we are not going to replace any cells, this is because the cell we would replace corresponds to the background mesh cell
-    mNewCellCellIndexToReplace = moris::Vector< moris::moris_index >( mNumNewCells, MORIS_INDEX_MAX );
+    mNewCellCellIndexToReplace = Vector< moris::moris_index >( mNumNewCells, MORIS_INDEX_MAX );
 
     // populate new cell data
     moris::moris_index tCurrentCellIndex = 0;
@@ -531,13 +531,13 @@ Octree_Interface::perform_impl_generate_mesh(
     }
 }
 // ----------------------------------------------------------------------------------
-moris::Vector< std::shared_ptr< Octree_Template const > >
+Vector< std::shared_ptr< Octree_Template const > >
 Octree_Interface::generate_octree_templates()
 {
     // figure out the lowest and highest octree templates to create
-    moris::Vector< moris_index > const tOctreeBounds = this->determine_octree_bounds();
+    Vector< moris_index > const tOctreeBounds = this->determine_octree_bounds();
 
-    moris::Vector< std::shared_ptr< Octree_Template const > > tTemplate( mOctreeRefinementLevel + 1, nullptr );
+    Vector< std::shared_ptr< Octree_Template const > > tTemplate( mOctreeRefinementLevel + 1, nullptr );
 
     // highest level is used for vertex hashing in other templates
     tTemplate( mOctreeRefinementLevel ) = std::make_shared< Octree_Template const >( mOctreeRefinementLevel );
@@ -556,7 +556,7 @@ Octree_Interface::generate_octree_templates()
     return tTemplate;
 }
 
-moris::Vector< moris_index > const
+Vector< moris_index > const
 Octree_Interface::determine_octree_bounds()
 {
     moris_index tMaxLevel = 0;
@@ -585,11 +585,11 @@ Octree_Interface::get_ig_cell_topology() const
     return mtk::CellTopology::HEX8;
 }
 
-moris::Vector< std::unordered_map< moris_index, moris_index > >
+Vector< std::unordered_map< moris_index, moris_index > >
 Octree_Interface::generate_octree_template_vertex_group_to_ijk_map()
 {
 
-    moris::Vector< std::unordered_map< moris_index, moris_index > > tMaps( mOctreeTemplates.size() );
+    Vector< std::unordered_map< moris_index, moris_index > > tMaps( mOctreeTemplates.size() );
 
     // iterate through templates
     for ( moris::uint iTempl = 0; iTempl < mOctreeTemplates.size(); iTempl++ )

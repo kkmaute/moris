@@ -378,7 +378,7 @@ void Solver_Interface::fill_matrix_and_RHS(
 //---------------------------------------------------------------------------------------------------------
 
 void Solver_Interface::get_adof_ids_based_on_criteria(
-        moris::Vector< moris::Matrix< IdMat > >& aCriteriaIds,
+        Vector< moris::Matrix< IdMat > >& aCriteriaIds,
         const moris::real                        aThreshold )    // FIXME find better name
 {
     // Get number of Sets

@@ -832,11 +832,11 @@ namespace moris::hmr
             }
 
             sint tNumProcs = par_size();
-            moris::Vector< luint > tReciveBuffer(tNumProcs);
-            moris::Vector< moris_id > tReciveBufferOwner(tNumProcs);
+            Vector< luint > tReciveBuffer(tNumProcs);
+            Vector< moris_id > tReciveBufferOwner(tNumProcs);
 
-            moris::Vector< sint > tReciveBufferNumber( tNumProcs, 1 );
-            moris::Vector< sint > tReciveBufferOFFSET( tNumProcs, 0 );
+            Vector< sint > tReciveBufferNumber( tNumProcs, 1 );
+            Vector< sint > tReciveBufferOFFSET( tNumProcs, 0 );
 
             for( int Ii = 0; Ii < tNumProcs; Ii++ )
             {

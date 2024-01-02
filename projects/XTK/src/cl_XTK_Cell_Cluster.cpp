@@ -75,7 +75,7 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    moris::Vector<moris::mtk::Cell const *> const &
+    Vector<moris::mtk::Cell const *> const &
     Cell_Cluster::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mPrimaryIntegrationCells;
@@ -83,7 +83,7 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    moris::Vector<moris::mtk::Cell const *> const &
+    Vector<moris::mtk::Cell const *> const &
     Cell_Cluster::get_void_cells_in_cluster() const
     {
         return mVoidIntegrationCells;
@@ -99,7 +99,7 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    moris::Vector<moris::mtk::Vertex const *>
+    Vector<moris::mtk::Vertex const *>
     Cell_Cluster::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
             return mVerticesInCluster;
@@ -163,7 +163,7 @@ namespace xtk
             moris::mtk::Cell const * tIntegrationCell = this->get_primary_cells_in_cluster()(aPrimaryCellClusterIndex);
 
              // get the vertex pointers on the side - for the bulk this is all vertices on the integration cell
-            moris::Vector<moris::mtk::Vertex *> tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
+            Vector<moris::mtk::Vertex *> tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
 
             // allocate output (n_node x dim_xsi)
             moris::Matrix<moris::DDRMat> tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord());
@@ -227,7 +227,7 @@ namespace xtk
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster::set_primary_integration_cell_groups( moris::Vector< std::shared_ptr< IG_Cell_Group > > aPrimaryIgCells )
+    Cell_Cluster::set_primary_integration_cell_groups( Vector< std::shared_ptr< IG_Cell_Group > > aPrimaryIgCells )
     {
         // store IG cell groups with cell cluster
         mPrimaryIgCellGroup = aPrimaryIgCells;
@@ -259,7 +259,7 @@ namespace xtk
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster::set_void_integration_cell_groups(moris::Vector<std::shared_ptr<IG_Cell_Group>> & aVoidIgCells)
+    Cell_Cluster::set_void_integration_cell_groups(Vector<std::shared_ptr<IG_Cell_Group>> & aVoidIgCells)
     {
         mVoidIgCellGroup = aVoidIgCells;
 

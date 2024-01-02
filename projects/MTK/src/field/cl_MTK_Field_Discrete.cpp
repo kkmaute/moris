@@ -221,7 +221,7 @@ namespace moris
                 tCommTableMap( tCommTable( Ik ) ) = Ik;
             }
 
-            moris::Vector< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
+            Vector< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
 
             // Set Mat to store number of shared coeffs per processor
             Matrix< DDUMat > tNumSharedCoeffsPerProc( tNumCommProcs, 1, 0 );
@@ -278,7 +278,7 @@ namespace moris
             }
 
             // receiving list
-            moris::Vector< Matrix< IdMat > > tMatsToReceive;
+            Vector< Matrix< IdMat > > tMatsToReceive;
 
             barrier();
 

@@ -44,7 +44,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        IWG_Nonlocal_Interface::set_parameters( const moris::Vector< Matrix< DDRMat > >& aParameters )
+        IWG_Nonlocal_Interface::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
         {
             // set parameters
             mParameters = aParameters;

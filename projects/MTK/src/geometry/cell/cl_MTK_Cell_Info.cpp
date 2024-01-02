@@ -60,24 +60,24 @@ namespace moris
             return Matrix< DDRMat >( 0, 0 );
         }
 
-        moris::Vector< moris_index >
+        Vector< moris_index >
         Cell_Info::get_vertex_path_to_entity_rank_and_ordinal(
                 moris_index aVertexOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank ) const
         {
             MORIS_ERROR( 0, "get_vertex_path_to_entity_rank_and_ordinal not implemented." );
-            return moris::Vector< moris_index >( 0, 0 );
+            return Vector< moris_index >( 0, 0 );
         }
 
-        moris::Vector< moris_index >
+        Vector< moris_index >
         Cell_Info::get_edge_path_to_entity_rank_and_ordinal(
                 moris_index aVertexOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank ) const
         {
             MORIS_ERROR( 0, "get_edge_path_to_entity_rank_and_ordinal not implemented." );
-            return moris::Vector< moris_index >( 0, 0 );
+            return Vector< moris_index >( 0, 0 );
         }
 
         bool

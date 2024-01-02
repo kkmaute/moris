@@ -694,7 +694,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dStraindDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // if aDofType is not an active dof type for the CM
@@ -921,7 +921,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dTestStraindDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // if aDofType is not an active dof type for the CM
@@ -994,7 +994,7 @@ namespace moris
         // FIXME consider an implementation similar to the testTraction with jump ?
         void
         CM_Struc_Nonlinear_Isotropic::eval_dLGTestStraindDOF_2d(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1030,7 +1030,7 @@ namespace moris
         // FIXME consider an implementation similar to the testTraction with jump ?
         void
         CM_Struc_Nonlinear_Isotropic::eval_dLGTestStraindDOF_3d(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1071,14 +1071,14 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_2d(
-                const moris::Vector< MSI::Dof_Type >& aDofType )
+                const Vector< MSI::Dof_Type >& aDofType )
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_2d - Not implemented yet." );
         }
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_3d(
-                const moris::Vector< MSI::Dof_Type >& aDofType )
+                const Vector< MSI::Dof_Type >& aDofType )
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_3d - Not implemented yet." );
         }
@@ -1086,7 +1086,7 @@ namespace moris
         // FIXME: set mdDGTestStraindu as an empty matrix of the right size to be consistent with general formulation
         void
         CM_Struc_Nonlinear_Isotropic::eval_dDGTestStraindDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1323,7 +1323,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dFluxdDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // get the dof index
@@ -1455,7 +1455,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dTractiondDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 const Matrix< DDRMat >&             aNormal,
                 enum CM_Function_Type               aCMFunctionType )
         {
@@ -1523,7 +1523,7 @@ namespace moris
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::testTraction(
                 const Matrix< DDRMat >&             aNormal,
-                const moris::Vector< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // get test dof type index
@@ -1589,10 +1589,10 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dTestTractiondDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&             aNormal,
                 const Matrix< DDRMat >&             aJump,
-                const moris::Vector< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // get the test dof index

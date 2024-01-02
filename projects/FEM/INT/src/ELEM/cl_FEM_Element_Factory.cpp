@@ -33,8 +33,8 @@ namespace moris
         //------------------------------------------------------------------------------
         MSI::Equation_Object * Element_Factory::create_interpolation_element(
                 Element_Type                             aElementType,
-                const moris::Vector< const mtk::Cell * > & aInterpolationCell,
-                moris::Vector< Node_Base* >              & aNodes,
+                const Vector< const mtk::Cell * > & aInterpolationCell,
+                Vector< Node_Base* >              & aNodes,
                 Set                                    * aSet )
         {
             return new fem::Interpolation_Element( aElementType, aInterpolationCell, aNodes, aSet );

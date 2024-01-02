@@ -24,10 +24,10 @@ namespace moris
     //------------------------------------------------------------------
 
     inline
-    moris::Vector<char>
-    string_to_char(moris::Vector<std::string>& strings)
+    Vector<char>
+    string_to_char(Vector<std::string>& strings)
     {
-        moris::Vector<char> cstrings;
+        Vector<char> cstrings;
         cstrings.reserve(strings.size());
         for(std::string s: strings)
         {

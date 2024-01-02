@@ -271,7 +271,7 @@ namespace xtk
         mInterfaceElements.push_back(aInterfaceElement);
     }
     // ----------------------------------------------------------------------------------
-    moris::Vector<Interface_Element> &
+    Vector<Interface_Element> &
     Cut_Mesh::get_interface_elements()
     {
         return mInterfaceElements;
@@ -690,7 +690,7 @@ namespace xtk
         return tElementToNodeInds;
     }
     // ----------------------------------------------------------------------------------
-    moris::Vector<moris::Matrix<moris::IdMat>>
+    Vector<moris::Matrix<moris::IdMat>>
     Cut_Mesh::get_full_element_to_node_by_phase_glob_ids(moris::uint aNumPhases,
             moris::mtk::Mesh & aBackgroundMeshData)
     {
@@ -711,8 +711,8 @@ namespace xtk
             MORIS_ERROR(0,"Not implemented");
         }
 
-        moris::Vector<moris::Matrix<moris::IdMat>> tElementToNodeIdsByPhase(aNumPhases , moris::Matrix<moris::IdMat>(tNumElements,tNumNodesPerElem));
-        moris::Vector<moris::size_t> tCount(aNumPhases,0);
+        Vector<moris::Matrix<moris::IdMat>> tElementToNodeIdsByPhase(aNumPhases , moris::Matrix<moris::IdMat>(tNumElements,tNumNodesPerElem));
+        Vector<moris::size_t> tCount(aNumPhases,0);
 
         for(moris::size_t i = 0; i<this->get_num_child_meshes(); i++)
         {
@@ -773,7 +773,7 @@ namespace xtk
         {
             Child_Mesh const & tChildMesh = this->get_child_mesh(iCM);
 
-            moris::Vector<moris::moris_index> const & tCMSubphaseIndices = tChildMesh.get_subphase_indices();
+            Vector<moris::moris_index> const & tCMSubphaseIndices = tChildMesh.get_subphase_indices();
 
             // iterate through subphase on child meshes
             for(moris::uint iSP = 0; iSP < tCMSubphaseIndices.size(); iSP++)
@@ -965,7 +965,7 @@ namespace xtk
         // If the counts aren't up to date then recount them.
         if(!mConsistentCounts)
         {
-            moris::Vector<moris::size_t> tRanks = {0,1,2,3};
+            Vector<moris::size_t> tRanks = {0,1,2,3};
 
             if(mSpatialDim == 2)
             {

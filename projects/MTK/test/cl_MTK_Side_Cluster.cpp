@@ -187,7 +187,7 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
 
         // get the interface side set
         moris_index tSideSetOrd = 0;
-        moris::Vector<Cluster const *> tInterfaceSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
+        Vector<Cluster const *> tInterfaceSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
         CHECK(tInterfaceSideClusters(0)->is_trivial() == false);
         CHECK(tInterfaceSideClusters.size() == 1);
 
@@ -208,7 +208,7 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         CHECK(all_true(tInterfaceParamCoords == tInterfaceLocalCoordinatesWrtInterpCell));
 
         // verify local coords one by one
-        moris::Vector<moris::mtk::Vertex const *> tVerticesInCluster = tInterfaceSideClusters(0)->get_vertices_in_cluster();
+        Vector<moris::mtk::Vertex const *> tVerticesInCluster = tInterfaceSideClusters(0)->get_vertices_in_cluster();
 
         for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
         {
@@ -222,13 +222,13 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
 
         // iterate through integration cells
 
-        moris::Vector<moris::mtk::Cell const *> tCellsInCluster = tInterfaceSideClusters(0)->get_primary_cells_in_cluster();
+        Vector<moris::mtk::Cell const *> tCellsInCluster = tInterfaceSideClusters(0)->get_primary_cells_in_cluster();
 
         for(moris::uint  i = 0; i <tCellsInCluster.size(); i++)
         {
             moris::Matrix<moris::DDRMat> tCellParamCoords = tInterfaceSideClusters(0)->get_cell_local_coords_on_side_wrt_interp_cell(i);
 
-            moris::Vector<moris::mtk::Vertex const *> tVertsOnSide = tCellsInCluster(i)->get_vertices_on_side_ordinal(tInterfaceSideClusters(0)->get_cell_side_ordinal(i));
+            Vector<moris::mtk::Vertex const *> tVertsOnSide = tCellsInCluster(i)->get_vertices_on_side_ordinal(tInterfaceSideClusters(0)->get_cell_side_ordinal(i));
 
             moris::Matrix<moris::DDRMat> tGoldParamCoords(3,3);
             for(moris::uint j = 0; j<tVertsOnSide.size(); j++)
@@ -242,7 +242,7 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
 
         // get the fixed boundary condition
         tSideSetOrd = 1;
-        moris::Vector<Cluster const *> tFixedSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
+        Vector<Cluster const *> tFixedSideClusters =  tIntegMesh1->get_side_set_cluster(tSideSetOrd);
         CHECK(tFixedSideClusters.size() == 1);
         CHECK(tFixedSideClusters(0)->is_trivial() == true);
 

@@ -120,8 +120,8 @@ namespace moris
 
         sol::Dist_Vector*
         MSI_Solver_Interface::get_solution_vector(
-                const moris::Vector< enum MSI::Dof_Type >& aListOfDofTypes,
-                moris::Vector< moris_index > const &       aLocalCoefficientsIndices )
+                const Vector< enum MSI::Dof_Type >& aListOfDofTypes,
+                Vector< moris_index > const &       aLocalCoefficientsIndices )
         {
             // create the factory based on the tpl
             sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
@@ -203,7 +203,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Vector< moris::Matrix< DDRMat > >&
+        const Vector< moris::Matrix< DDRMat > >&
         MSI_Solver_Interface::get_criteria( const moris::uint& aMySetInd )
         {
             return mMSI->get_equation_set( aMySetInd )->get_QI();
@@ -212,7 +212,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        MSI_Solver_Interface::set_requested_IQI_names( const moris::Vector< std::string >& aIQINames )
+        MSI_Solver_Interface::set_requested_IQI_names( const Vector< std::string >& aIQINames )
         {
             mMSI->get_equation_model()->set_requested_IQI_names( aIQINames );
         }
@@ -288,7 +288,7 @@ namespace moris
             Matrix< IdMat > tCommTable = mDofMgn->get_comm_table();
 
             // convert it to a cell
-            moris::Vector< moris_index > tCommCell;
+            Vector< moris_index > tCommCell;
             tCommCell.insert( tCommCell.size(), tCommTable.begin(), tCommTable.end() );
 
             // build a map between neighboring processors and index in the comm table
@@ -304,26 +304,26 @@ namespace moris
             // get the owned and owned/shared adof ids on this processor
             Matrix< DDSMat >      tOwnedAdofIndexToIdMap = this->get_my_local_global_map();
             Matrix< DDSMat >      tAdofIndexToIdMap      = this->get_my_local_global_overlapping_map();
-            moris::Vector< Adof* >& tAdofs                 = mDofMgn->get_adofs();
+            Vector< Adof* >& tAdofs                 = mDofMgn->get_adofs();
 
             // Cache for reassembled entries on owned and shared rows
             // Outer cell is the the row number
             // Inner cell is the list of columns
             // This data will process in process connectivity
-            moris::Vector< moris::Vector< uint > > tOwnedRows( tOwnedAdofIndexToIdMap.numel() );
-            moris::Vector< moris::Vector< uint > > tSharedRows( tOwnedAdofIndexToIdMap.numel() );
+            Vector< Vector< uint > > tOwnedRows( tOwnedAdofIndexToIdMap.numel() );
+            Vector< Vector< uint > > tSharedRows( tOwnedAdofIndexToIdMap.numel() );
 
             // this is for cross-processor coupling
             moris::size_t tNumSharedRows = tAdofs.size() - tOwnedAdofIndexToIdMap.numel();
 
 
             // list of all shared adof ids in this processor
-            moris::Vector< moris::Vector< uint > > tSharedRowsIds( tCommCell.size(), moris::Vector< uint >( tNumSharedRows ) );
+            Vector< Vector< uint > > tSharedRowsIds( tCommCell.size(), Vector< uint >( tNumSharedRows ) );
 
             // initialize the shared rows off processors
             // the outer cell is the processor rank
             // the inner cells are lits of adofs that are created
-            moris::Vector< moris::Vector< moris::Vector< uint > > > tSharedRowsOffProc( tCommCell.size(), moris::Vector< moris::Vector< uint > >( tNumSharedRows ) );
+            Vector< Vector< Vector< uint > > > tSharedRowsOffProc( tCommCell.size(), Vector< Vector< uint > >( tNumSharedRows ) );
 
 
             /* ---------------------------------------------------------------------------------------- */
@@ -445,7 +445,7 @@ namespace moris
                             auto tIndexOwnershipPair = tSharedAofIdToIndexMap.find( tElementTopology( i ) );
 
                             // get the relevant part of the data that will be communictaed based on the ownership and index
-                            moris::Vector< uint >& tConnectedAdofs = tSharedRowsOffProc( tIndexOwnershipPair->second.second )( tIndexOwnershipPair->second.first );
+                            Vector< uint >& tConnectedAdofs = tSharedRowsOffProc( tIndexOwnershipPair->second.second )( tIndexOwnershipPair->second.first );
 
                             // put all the connected adofs without deciding on-off diagonal
                             // this data will be processed by the owning processor of this adof
@@ -459,15 +459,15 @@ namespace moris
             /* Step 4: communicate the shared adof data to the owning processor  */
 
             // outer cell: received from neighbor processor index, inner cells: list of all adofs that are connoted to shared adofs consecutively
-            moris::Vector< moris::Vector< uint > > tAdofConnectivityReceive;
+            Vector< Vector< uint > > tAdofConnectivityReceive;
 
             // outer cell: received from neighbor processor index, inner cells: offset indicating position of the connected adofs
-            moris::Vector< moris::Vector< uint > > tAdofConnectivityOffsetReceive;
+            Vector< Vector< uint > > tAdofConnectivityOffsetReceive;
 
             this->communicate_shared_adof_connectivity( tSharedRowsOffProc, tAdofConnectivityReceive, tAdofConnectivityOffsetReceive, tCommCell );
 
             // communicate shared row ids to all neighboring processors
-            moris::Vector< moris::Vector< uint > > tSharedRowsIdsReceive;
+            Vector< Vector< uint > > tSharedRowsIdsReceive;
             communicate_cells( tCommCell, tSharedRowsIds, tSharedRowsIdsReceive );
 
             /* ---------------------------------------------------------------------------------------- */
@@ -481,7 +481,7 @@ namespace moris
             {
 
                 // get the list of all connected dofs got from this processor
-                moris::Vector< uint >& tAdofConn = tAdofConnectivityReceive( iProc );
+                Vector< uint >& tAdofConn = tAdofConnectivityReceive( iProc );
 
                 // check if there are any connected adofs to this adof
                 if ( iAdofConnOffset.size() < 2 )
@@ -587,13 +587,13 @@ namespace moris
 
         void
         MSI_Solver_Interface::communicate_shared_adof_connectivity(
-                moris::Vector< moris::Vector< moris::Vector< uint > > > const & aSharedAdofConn,
-                moris::Vector< moris::Vector< uint > >&                       aAdofConnectivityReceive,
-                moris::Vector< moris::Vector< uint > >&                       aAdofConnectivityOffsetReceive,
-                moris::Vector< moris_index > const &                        aCommCell )
+                Vector< Vector< Vector< uint > > > const & aSharedAdofConn,
+                Vector< Vector< uint > >&                       aAdofConnectivityReceive,
+                Vector< Vector< uint > >&                       aAdofConnectivityOffsetReceive,
+                Vector< moris_index > const &                        aCommCell )
         {
             // convert 3 times nested cell to 2 cells (data cell + offset cell)
-            moris::Vector< moris::Vector< uint > > tAdofConnectivityOffsetSend( aSharedAdofConn.size() );
+            Vector< Vector< uint > > tAdofConnectivityOffsetSend( aSharedAdofConn.size() );
 
             // convert each cell of cells to one cell with connectivity and count the size of the data cell
             for ( uint iProc = 0; iProc < tAdofConnectivityOffsetSend.size(); iProc++ )
@@ -608,7 +608,7 @@ namespace moris
             }
 
             // prepare the data cell
-            moris::Vector< moris::Vector< uint > > tAdofConnectivitySend( aSharedAdofConn.size() );
+            Vector< Vector< uint > > tAdofConnectivitySend( aSharedAdofConn.size() );
 
             // loop over the data cell sizes
             for ( uint iProc = 0; iProc < tAdofConnectivitySend.size(); iProc++ )

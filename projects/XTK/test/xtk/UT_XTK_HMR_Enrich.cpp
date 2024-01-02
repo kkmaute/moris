@@ -82,7 +82,7 @@ MultiCircle(const moris::Matrix< moris::DDRMat > & aPoint )
 
 }
 
-moris::real MultiCircleGeometry(const moris::Matrix< moris::DDRMat > & aPoint, const moris::Vector<moris::real*>& aParameters)
+moris::real MultiCircleGeometry(const moris::Matrix< moris::DDRMat > & aPoint, const Vector<moris::real*>& aParameters)
 {
     return MultiCircle(aPoint);
 }
@@ -145,7 +145,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+        Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiCircleGeometry));
 
         size_t tModelDimension = 2;
@@ -271,7 +271,7 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
+        Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 
@@ -357,7 +357,7 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
+        Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
         tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
         tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
 

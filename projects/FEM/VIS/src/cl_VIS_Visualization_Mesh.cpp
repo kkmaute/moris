@@ -85,7 +85,7 @@ namespace moris::vis
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< std::string >
+    Vector< std::string >
     Visualization_Mesh::get_set_names( mtk::EntityRank aSetEntityRank ) const
     {
         if ( aSetEntityRank == mtk::EntityRank::ELEMENT )
@@ -133,7 +133,7 @@ namespace moris::vis
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< mtk::Cell const * >
+    Vector< mtk::Cell const * >
     Visualization_Mesh::get_set_cells( std::string aSetName ) const
     {
         // get the set's position in the list of all sets
@@ -149,7 +149,7 @@ namespace moris::vis
 
         // initialize list of cells on set to return
         uint                            tNumCellsOnSet = tSet->get_num_cells_on_set( mOnlyPrimary );
-        moris::Vector< const mtk::Cell* > tCellsOnSet( tNumCellsOnSet );
+        Vector< const mtk::Cell* > tCellsOnSet( tNumCellsOnSet );
 
         // collect cells on set
         uint tCellIndexOnSet = 0;
@@ -183,10 +183,10 @@ namespace moris::vis
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< moris::mtk::Vertex const * >
+    Vector< moris::mtk::Vertex const * >
     Visualization_Mesh::get_all_vertices() const
     {
-        moris::Vector< moris::mtk::Vertex const * > tVerticesCopy( mVertices.size() );
+        Vector< moris::mtk::Vertex const * > tVerticesCopy( mVertices.size() );
         for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
         {
             tVerticesCopy( iVertex ) = mVertices( iVertex );

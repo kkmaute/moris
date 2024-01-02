@@ -211,7 +211,7 @@ namespace moris
 
         void
         IQI_ALM_Dof::compute_dQIdu(
-                moris::Vector< MSI::Dof_Type >& aDofType,
+                Vector< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&             adQIdu )
         {
             // get Lagrange multiplier and penalty factor

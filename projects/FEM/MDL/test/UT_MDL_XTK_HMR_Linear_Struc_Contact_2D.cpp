@@ -77,7 +77,7 @@ namespace moris
 // Functions for Parameters in FEM
 void ConstFunctionVal
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -85,7 +85,7 @@ void ConstFunctionVal
 
 void tMValFunctionContact
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
@@ -263,7 +263,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
-        moris::Vector<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(4);
+        Vector<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(4);
         tGeometryVector(0) = tLeftPlane;
         tGeometryVector(1) = tRightPlane;
         tGeometryVector(2) = tTopPlane;
@@ -504,7 +504,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetInterface3.set_IWGs( { tIWGInterface } );
 
         // create a cell of set info
-        moris::Vector< fem::Set_User_Info > tSetInfo( 20 );
+        Vector< fem::Set_User_Info > tSetInfo( 20 );
         tSetInfo( 0 )  = tSetBulk1;
         tSetInfo( 1 )  = tSetBulk2;
         tSetInfo( 2 )  = tSetBulk3;
@@ -536,7 +536,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        moris::Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
+        Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
         tDofTypesU( 0 ) = MSI::Dof_Type::UX;
         tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 

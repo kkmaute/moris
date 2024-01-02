@@ -219,7 +219,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Power_Dissipation_Bulk::compute_dQIdu(
-                moris::Vector< MSI::Dof_Type > & aDofType,
+                Vector< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
             MORIS_ERROR( false, "IQI_Power_Dissipation_Bulk::compute_dQIdu - Not implemented.");

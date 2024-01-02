@@ -181,7 +181,7 @@ namespace moris
 
                 for ( luint Ij = 0; Ij < tEquationObj.size(); ++Ij )
                 {
-                    const moris::Vector< moris::Vector< Pdof_Host* > >& tPdofHosts = tEquationObj( Ij )->get_pdof_hosts();
+                    const Vector< Vector< Pdof_Host* > >& tPdofHosts = tEquationObj( Ij )->get_pdof_hosts();
 
                     if ( !tNumEquationSysSet )
                     {
@@ -196,7 +196,7 @@ namespace moris
                     {
                         for ( luint Ia = 0; Ia < tPdofHosts( Ii ).size(); ++Ia )
                         {
-                            moris::Vector< moris::Vector< Pdof* > >& tPdofHostPdofList = tPdofHosts( Ii )( Ia )->get_pdof_hosts_pdof_list();
+                            Vector< Vector< Pdof* > >& tPdofHostPdofList = tPdofHosts( Ii )( Ia )->get_pdof_hosts_pdof_list();
 
                             if ( !tNumPdofsOnPdofHostsSet )
                             {

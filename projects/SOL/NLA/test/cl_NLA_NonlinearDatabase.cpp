@@ -102,8 +102,8 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
     {
         if ( par_size() == 1 )
         {
-        moris::Vector< enum MSI::Dof_Type > tDofTypes1( 2 );
-        moris::Vector< enum MSI::Dof_Type > tDofTypes2( 1 );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 2 );
+        Vector< enum MSI::Dof_Type > tDofTypes2( 1 );
 
         tDofTypes1( 0 ) = MSI::Dof_Type::UX;
         tDofTypes1( 1 ) = MSI::Dof_Type::UY;

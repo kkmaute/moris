@@ -137,8 +137,8 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
         mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
 
         // Define two analytic MTK fields
-        moris::Vector< std::shared_ptr< mtk::Field > > tFields( 1, nullptr );
-        moris::Vector< std::shared_ptr< mtk::Field > > tFieldsOut;
+        Vector< std::shared_ptr< mtk::Field > > tFields( 1, nullptr );
+        Vector< std::shared_ptr< mtk::Field > > tFieldsOut;
 
         moris::Matrix< DDRMat > tMat = { { 1.5237 } };
 

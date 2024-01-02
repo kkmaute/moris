@@ -68,7 +68,7 @@ Nonlinear_Solver::Nonlinear_Solver(
 //--------------------------------------------------------------------------------------------------
 
 Nonlinear_Solver::Nonlinear_Solver(
-        moris::Vector< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
+        Vector< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
         const enum NonlinearSolverType                         aNonLinSolverType )
         : mSecondaryDofTypeList( Vector< Vector< enum MSI::Dof_Type > >( 0 ) )
         , mNonLinSolverType( aNonLinSolverType )
@@ -102,7 +102,7 @@ Nonlinear_Solver::free_memory()
 
 void
 Nonlinear_Solver::set_dof_type_list(
-        const moris::Vector< enum MSI::Dof_Type > aStaggeredDofTypeList,
+        const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList,
         const moris::sint                       aLevel )
 {
     mStaggeredDofTypeList.push_back( aStaggeredDofTypeList );
@@ -111,7 +111,7 @@ Nonlinear_Solver::set_dof_type_list(
 //--------------------------------------------------------------------------------------------------
 
 void
-Nonlinear_Solver::set_secondary_dof_type_list( const moris::Vector< enum MSI::Dof_Type > aStaggeredDofTypeList )
+Nonlinear_Solver::set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList )
 {
     if ( mSecondaryDofTypeList.size() == 0 )
     {
@@ -207,7 +207,7 @@ Nonlinear_Solver::set_sub_nonlinear_solver(
 
 //-------------------------------------------------------------------------------------------------------
 
-moris::Vector< enum MSI::Dof_Type >
+Vector< enum MSI::Dof_Type >
 Nonlinear_Solver::get_dof_type_union()
 {
     moris::sint tCounter = 0;
@@ -219,7 +219,7 @@ Nonlinear_Solver::get_dof_type_union()
     }
 
     // Create list of dof types with earlier determines size
-    moris::Vector< enum MSI::Dof_Type > tUnionEnumList( tCounter );
+    Vector< enum MSI::Dof_Type > tUnionEnumList( tCounter );
     tCounter = 0;
 
     // Loop over all dof types. Add them to union list
@@ -236,7 +236,7 @@ Nonlinear_Solver::get_dof_type_union()
 
 //-------------------------------------------------------------------------------------------------------
 
-moris::Vector< enum MSI::Dof_Type >
+Vector< enum MSI::Dof_Type >
 Nonlinear_Solver::get_sec_dof_type_union()
 {
     moris::sint tCounter = 0;
@@ -248,7 +248,7 @@ Nonlinear_Solver::get_sec_dof_type_union()
     }
 
     // Create list of dof types with earlier determines size
-    moris::Vector< enum MSI::Dof_Type > tUnionEnumList( tCounter );
+    Vector< enum MSI::Dof_Type > tUnionEnumList( tCounter );
     tCounter = 0;
 
     // Loop over all dof types. Add them to union list
@@ -301,7 +301,7 @@ Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
 
     mSolverInput = mSolverWarehouse->get_solver_interface();
 
-    moris::Vector< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
+    Vector< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
     mSolverInput->set_requested_dof_types( tDofTypeUnion );
     mSolverInput->set_secondary_dof_types( tDofTypeUnion );

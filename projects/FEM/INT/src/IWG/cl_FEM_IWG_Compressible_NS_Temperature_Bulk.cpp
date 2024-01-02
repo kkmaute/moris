@@ -247,7 +247,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Temperature_Bulk::compute_jacobian_strong_form(
-                moris::Vector< MSI::Dof_Type >   aDofTypes,
+                Vector< MSI::Dof_Type >   aDofTypes,
                 Matrix< DDRMat >             & aJM,
                 Matrix< DDRMat >             & aJC )
         {

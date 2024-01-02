@@ -36,7 +36,7 @@ namespace moris
 
         void
         Property::set_space_der_functions(
-                const moris::Vector< PropertyFunc >& aSpaceDerFunctions )
+                const Vector< PropertyFunc >& aSpaceDerFunctions )
         {
             // get the max order of space derivatives
             uint tMaxOrder = aSpaceDerFunctions.size();
@@ -90,7 +90,7 @@ namespace moris
 
         void
         Property::set_dof_type_list(
-                const moris::Vector< moris::Vector< MSI::Dof_Type > >& aDofTypes )
+                const Vector< Vector< MSI::Dof_Type > >& aDofTypes )
         {
             // set dof type list
             mDofTypes = aDofTypes;
@@ -140,7 +140,7 @@ namespace moris
 
         bool
         Property::check_dof_dependency(
-                const moris::Vector< MSI::Dof_Type >& aDofType )
+                const Vector< MSI::Dof_Type >& aDofType )
         {
             // throw error if property hasn't been initialized
             MORIS_ASSERT( this != nullptr, "cl_FEM_Property - check_dof_dependency(): Property is nullptr." );
@@ -166,7 +166,7 @@ namespace moris
 
         void
         Property::set_dv_type_list(
-                const moris::Vector< moris::Vector< PDV_Type > >& aDvTypes )
+                const Vector< Vector< PDV_Type > >& aDvTypes )
         {
             // set dv type list
             mDvTypes = aDvTypes;
@@ -220,7 +220,7 @@ namespace moris
 
         bool
         Property::check_dv_dependency(
-                const moris::Vector< PDV_Type >& aDvType )
+                const Vector< PDV_Type >& aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -243,7 +243,7 @@ namespace moris
 
         void
         Property::set_field_type_list(
-                const moris::Vector< moris::Vector< mtk::Field_Type > >& aFieldTypes )
+                const Vector< Vector< mtk::Field_Type > >& aFieldTypes )
         {
             // set field type list
             mFieldTypes = aFieldTypes;
@@ -285,7 +285,7 @@ namespace moris
 
         bool
         Property::check_field_dependency(
-                const moris::Vector< mtk::Field_Type >& aFieldType )
+                const Vector< mtk::Field_Type >& aFieldType )
         {
             // set bool for dependency
             bool tFieldDependency = false;
@@ -308,7 +308,7 @@ namespace moris
 
         void
         Property::get_non_unique_dof_types(
-                moris::Vector< MSI::Dof_Type >& aDofTypes )
+                Vector< MSI::Dof_Type >& aDofTypes )
         {
             // init counter
             uint tCounter = 0;
@@ -335,9 +335,9 @@ namespace moris
 
         void
         Property::get_non_unique_dof_dv_and_field_types(
-                moris::Vector< MSI::Dof_Type >&   aDofTypes,
-                moris::Vector< PDV_Type >&        aDvTypes,
-                moris::Vector< mtk::Field_Type >& aFieldTypes )
+                Vector< MSI::Dof_Type >&   aDofTypes,
+                Vector< PDV_Type >&        aDvTypes,
+                Vector< mtk::Field_Type >& aFieldTypes )
         {
             // init counter
             uint tDofCounter   = 0;
@@ -480,7 +480,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         Property::dPropdDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofType )
+                const Vector< MSI::Dof_Type >& aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR( this->check_dof_dependency( aDofType ),
@@ -507,7 +507,7 @@ namespace moris
 
         void
         Property::eval_dPropdDOF(
-                const moris::Vector< MSI::Dof_Type >& aDofType )
+                const Vector< MSI::Dof_Type >& aDofType )
         {
             // get the dof index
             uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -530,7 +530,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         Property::dPropdDV(
-                const moris::Vector< PDV_Type >& aDvType )
+                const Vector< PDV_Type >& aDvType )
         {
             // if aDvType is not an active dv type for the property
             MORIS_ERROR( this->check_dv_dependency( aDvType ),
@@ -557,7 +557,7 @@ namespace moris
 
         void
         Property::eval_dPropdDV(
-                const moris::Vector< PDV_Type >& aDvType )
+                const Vector< PDV_Type >& aDvType )
         {
             // get the dv index
             uint tDvIndex = mDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );

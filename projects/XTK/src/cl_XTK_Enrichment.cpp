@@ -4669,7 +4669,7 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    moris::Vector< Enrichment_Data > const &
+    Vector< Enrichment_Data > const &
     Enrichment::get_enrichment_data() const
     {
         return mEnrichmentData;

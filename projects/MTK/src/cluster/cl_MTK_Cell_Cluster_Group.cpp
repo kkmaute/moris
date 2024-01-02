@@ -34,7 +34,7 @@ namespace moris
             real tVolume = 0.0;
 
             // get the clusters in this group
-            moris::Vector< mtk::Cluster const* > const tMyClusters = this->get_clusters_in_group();
+            Vector< mtk::Cluster const* > const tMyClusters = this->get_clusters_in_group();
 
             // sum up volume over all clusters 
             for( uint iCluster = 0; iCluster < tMyClusters.size(); iCluster++ )

@@ -28,7 +28,7 @@ namespace moris
 
 void tConstValFunction_UTFEMSET
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );

@@ -432,7 +432,7 @@ namespace xtk
     Enriched_Interpolation_Mesh::get_IG_blockset_shape( const std::string& aSetName )
     {
         // get the clusters in the set
-        moris::Vector< mtk::Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+        Vector< mtk::Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
         // init cell shape
         mtk::CellShape tCellShape = mtk::CellShape::EMPTY;
@@ -441,7 +441,7 @@ namespace xtk
         if ( tSetClusters.size() > 0 )
         {
             // get the cells in the first cluster
-            moris::Vector< moris::mtk::Cell const * > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
+            Vector< moris::mtk::Cell const * > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
 
             // compute the cell shape of the first cell
             tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
@@ -453,7 +453,7 @@ namespace xtk
         for ( uint iCluster = 0; iCluster < tSetClusters.size(); iCluster++ )
         {
             // get cell of cells in the cluster
-            moris::Vector< moris::mtk::Cell const * > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
+            Vector< moris::mtk::Cell const * > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
 
             // looping through the cells in the cluster
             for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
@@ -472,7 +472,7 @@ namespace xtk
     Enriched_Interpolation_Mesh::get_IP_blockset_shape( const std::string& aSetName )
     {
         // get the clusters in the set
-        moris::Vector< mtk::Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+        Vector< mtk::Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
         // init cell shape
         mtk::CellShape tCellShape = mtk::CellShape::EMPTY;
@@ -816,7 +816,7 @@ namespace xtk
         moris_index tStartNumVerts = mEnrichedInterpVerts.size();
 
         // collect the vertices
-        moris::Vector< moris::Vector< Interpolation_Vertex_Unzipped* > > tBaseVertexToEnrichedVertex;
+        Vector< Vector< Interpolation_Vertex_Unzipped* > > tBaseVertexToEnrichedVertex;
         this->collect_base_vertex_to_enriched_vertex_connectivity( tBaseVertexToEnrichedVertex );
 
         // new vertex index
@@ -926,7 +926,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Enriched_Interpolation_Mesh::collect_base_vertex_to_enriched_vertex_connectivity( moris::Vector< moris::Vector< Interpolation_Vertex_Unzipped* > >& aBaseVertexToEnrichedVertex )
+    Enriched_Interpolation_Mesh::collect_base_vertex_to_enriched_vertex_connectivity( Vector< Vector< Interpolation_Vertex_Unzipped* > >& aBaseVertexToEnrichedVertex )
     {
         // allocate space in the cell of cell
         aBaseVertexToEnrichedVertex.resize( mXTKModel->get_background_mesh().get_num_nodes() );
@@ -1032,13 +1032,13 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< Interpolation_Cell_Unzipped const * >
+    Vector< Interpolation_Cell_Unzipped const * >
     Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cells(
-            moris::Vector< moris::mtk::Cell const * > const & aBaseCells ) const
+            Vector< moris::mtk::Cell const * > const & aBaseCells ) const
     {
         uint tNumBaseCells = aBaseCells.size();
 
-        moris::Vector< Interpolation_Cell_Unzipped const * > tEnrichedCells;
+        Vector< Interpolation_Cell_Unzipped const * > tEnrichedCells;
 
         for ( uint i = 0; i < tNumBaseCells; i++ )
         {
@@ -1217,7 +1217,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< Interpolation_Cell_Unzipped const * >
+    Vector< Interpolation_Cell_Unzipped const * >
     Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cell( moris::mtk::Cell const * aBaseCells ) const
     {
         moris_index tBaseIndex = aBaseCells->get_index();
@@ -1227,7 +1227,7 @@ namespace xtk
 
         uint tNumEnrichedCells = mBaseCellToEnrichedCell( tBaseIndex ).size();
 
-        moris::Vector< Interpolation_Cell_Unzipped const * > tEnrichedCellPtrs( tNumEnrichedCells );
+        Vector< Interpolation_Cell_Unzipped const * > tEnrichedCellPtrs( tNumEnrichedCells );
 
         for ( uint i = 0; i < tNumEnrichedCells; i++ )
         {
@@ -1437,7 +1437,7 @@ namespace xtk
         for ( uint i = 0; i < this->get_num_entities( mtk::EntityRank::ELEMENT, 0 ); i++ )
         {
             Interpolation_Cell_Unzipped const * tCell     = tEnrIPCells( (moris_index)i );
-            moris::Vector< moris::mtk::Vertex* >  tVertices = tCell->get_vertex_pointers();
+            Vector< moris::mtk::Vertex* >  tVertices = tCell->get_vertex_pointers();
 
             tStringStream << tCell->get_id() << ",";
             tStringStream << tCell->get_index() << ",";
@@ -1745,7 +1745,7 @@ namespace xtk
         moris_index tBulkPhase = tEnrichedIpCell->get_bulkphase_index();
 
         // vertices attached to the interpolation cells
-        moris::Vector< mtk::Vertex* > tVertexPointers = tIpCell.get_vertex_pointers();
+        Vector< mtk::Vertex* > tVertexPointers = tIpCell.get_vertex_pointers();
 
         // iterate through vertex pointers
         for ( uint i = 0; i < tVertexPointers.size(); i++ )
@@ -1849,7 +1849,7 @@ namespace xtk
             moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob( tMeshIndex ).numel();
 
             // allocate interpolation cells in basis support // input: enr. BF index || output: list of UIPCs in the BF's support
-            moris::Vector< moris::Vector< Interpolation_Cell_Unzipped* > > tCellsInEnrSupports( tNumEnrBasis );
+            Vector< Vector< Interpolation_Cell_Unzipped* > > tCellsInEnrSupports( tNumEnrBasis );
 
             Vector< Interpolation_Cell_Unzipped* > const & tEnrIpCells = this->get_enriched_interpolation_cells();
 
@@ -1861,7 +1861,7 @@ namespace xtk
             // collect all UIPCs that a given enriched basis function interpolates into
             for ( moris_index iUIPC = 0; iUIPC < tNumCells; iUIPC++ )
             {
-                moris::Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertices =
+                Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertices =
                         tEnrIpCells( iUIPC )->get_xtk_interpolation_vertices();
 
                 for ( moris::size_t iVert = 0; iVert < tVertices.size(); iVert++ )
@@ -1949,7 +1949,7 @@ namespace xtk
         // create the enriched interpolation basis to interpolation cell interpolation
         for ( moris::moris_index iEnrIpCell = 0; iEnrIpCell < tNumEnrIpCells; iEnrIpCell++ )
         {
-            moris::Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( iEnrIpCell )->get_xtk_interpolation_vertices();
+            Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( iEnrIpCell )->get_xtk_interpolation_vertices();
 
             moris_index const tSubphaseIndex = tEnrIpCells( iEnrIpCell )->get_subphase_index();
             moris_index const tSubphaseId    = mXTKModel->get_cut_integration_mesh()->get_subphase_id( tSubphaseIndex );
@@ -2004,7 +2004,7 @@ namespace xtk
             moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob( tMeshIndex ).numel();
 
             // allocate interpolation cells in basis support
-            moris::Vector< moris::Vector< Interpolation_Cell_Unzipped* > > tCellsInEnrSupports( tNumEnrBasis );
+            Vector< Vector< Interpolation_Cell_Unzipped* > > tCellsInEnrSupports( tNumEnrBasis );
 
             Vector< Interpolation_Cell_Unzipped* > const & tEnrIpCells = this->get_enriched_interpolation_cells();
 
@@ -2016,7 +2016,7 @@ namespace xtk
             // create the enriched interpolation basis to interpolation cell interpolation
             for ( moris::sint iUIPC = 0; iUIPC < tNumCells; iUIPC++ )
             {
-                moris::Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( iUIPC )->get_xtk_interpolation_vertices();
+                Vector< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( iUIPC )->get_xtk_interpolation_vertices();
 
                 for ( moris::size_t iVert = 0; iVert < tVertices.size(); iVert++ )
                 {
@@ -2643,15 +2643,15 @@ namespace xtk
         int tProcRank = par_rank();
         int tProcSize = par_size();
 
-        moris::Vector< moris::moris_id > aGatheredInfo;
-        moris::Vector< moris::moris_id > tFirstId( 1 );
-        moris::Vector< moris::moris_id > tNumIdsRequested( 1 );
+        Vector< moris::moris_id > aGatheredInfo;
+        Vector< moris::moris_id > tFirstId( 1 );
+        Vector< moris::moris_id > tNumIdsRequested( 1 );
 
         tNumIdsRequested( 0 ) = (moris::moris_id)aNumReqs;
 
         moris::gather( tNumIdsRequested, aGatheredInfo );
 
-        moris::Vector< moris::moris_id > tProcFirstID( tProcSize );
+        Vector< moris::moris_id > tProcFirstID( tProcSize );
 
         if ( tProcRank == 0 )
         {
@@ -2869,24 +2869,24 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
-    moris::Vector< std::string >
+    Vector< std::string >
     Enriched_Interpolation_Mesh::get_set_names( mtk::EntityRank aSetEntityRank ) const
     {
         switch ( aSetEntityRank )
         {
             case mtk::EntityRank::NODE:
             {
-                return moris::Vector< std::string >( 0 );
+                return Vector< std::string >( 0 );
                 break;
             }
             case mtk::EntityRank::EDGE:
             {
-                return moris::Vector< std::string >( 0 );
+                return Vector< std::string >( 0 );
                 break;
             }
             case mtk::EntityRank::FACE:
             {
-                return moris::Vector< std::string >( 0 );
+                return Vector< std::string >( 0 );
                 ;
                 break;
             }
@@ -3536,14 +3536,14 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Vector< mtk::Cell const * >
+    Vector< mtk::Cell const * >
     Enriched_Interpolation_Mesh::get_set_cells( std::string aSetLabel ) const
     {
         // get the index of the set
         moris_index tSetIndex = this->get_block_set_index( aSetLabel );
 
         // initailize the output
-        moris::Vector< mtk::Cell const * > tSetCells;
+        Vector< mtk::Cell const * > tSetCells;
         tSetCells.reserve( ( mElementIndicesInBlock( tSetIndex ).size() ) );
 
         // fill out the cell based on indices
@@ -3560,7 +3560,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Interpolation_Mesh::update_communication_table( moris::Vector< moris_id > const & aNewCommunicationTable )
+    Enriched_Interpolation_Mesh::update_communication_table( Vector< moris_id > const & aNewCommunicationTable )
     {
         mXTKModel->get_cut_integration_mesh()->update_communication_table( aNewCommunicationTable );
     }

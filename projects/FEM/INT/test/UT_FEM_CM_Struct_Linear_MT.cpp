@@ -36,7 +36,7 @@ using namespace fem;
 
 void
 tDOFFunction( moris::Matrix< moris::DDRMat >&          aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->val()( 0 );
@@ -44,7 +44,7 @@ tDOFFunction( moris::Matrix< moris::DDRMat >&          aPropMatrix,
 
 void
 tDOFFunctionDer( moris::Matrix< moris::DDRMat >&       aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
 
@@ -68,14 +68,14 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -84,18 +84,18 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDispDofTypes      = { { MSI::Dof_Type::UX } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tDofTypes          = { { MSI::Dof_Type::UX }, { MSI::Dof_Type::PHID } };
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tSecondaryDofTypes = { { MSI::Dof_Type::PHID } };
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes      = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes          = { { MSI::Dof_Type::UX }, { MSI::Dof_Type::PHID } };
+    Vector< Vector< MSI::Dof_Type > > tSecondaryDofTypes = { { MSI::Dof_Type::PHID } };
 
     // create a list of property names used in the MT model
-    moris::Vector< std::string > tPropertyNames = { "YoungsModulusMatrix", "PoissonRatioMatrix", "YoungsModulusFiber", "PoissonRatioFiber", "VolumeFraction", "AspectRatio", "OrientationInPlane", "OrientationOutPlane" };
+    Vector< std::string > tPropertyNames = { "YoungsModulusMatrix", "PoissonRatioMatrix", "YoungsModulusFiber", "PoissonRatioFiber", "VolumeFraction", "AspectRatio", "OrientationInPlane", "OrientationOutPlane" };
 
     // initialize a cell of values for the defined propoetis
-    moris::Vector< real > tValues = { 1.0, 0.2, 2.0, 0.2, 0.1, 10, 1.0, 1.0 };
+    Vector< real > tValues = { 1.0, 0.2, 2.0, 0.2, 0.1, 10, 1.0, 1.0 };
 
     // initialize a propet cell that will be used in the CM later
-    moris::Vector< std::shared_ptr< fem::Property > > tPropertyCell;
+    Vector< std::shared_ptr< fem::Property > > tPropertyCell;
 
     // loop over the property names to create shared pointer properties
     for ( uint iCounter = 0; iCounter < tPropertyNames.size(); iCounter++ )
@@ -289,8 +289,8 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
             tLeaderFIs( 1 )->set_coeff( tUHat0 );
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > >        tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -317,11 +317,11 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
                 tCMLeaderStrucLinIso->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // populate the requested leader dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
                         tCMLeaderStrucLinIso->get_global_dof_type_list();
 
                 // populate the test leader dof type for CM
-                moris::Vector< moris::Vector< MSI::Dof_Type > > tLeaderDofTypes =
+                Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                         tCMLeaderStrucLinIso->get_dof_type_list();
 
                 // loop over requested dof type

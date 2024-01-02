@@ -21,7 +21,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Set_Communicator::Set_Communicator( moris::Vector< mtk::Set* >& aSetsToCommunicate )
+        Set_Communicator::Set_Communicator( Vector< mtk::Set* >& aSetsToCommunicate )
         {
             // get the number of sets to be communicated
             uint tNumSetsToComm = aSetsToCommunicate.size();
@@ -99,7 +99,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool
-        Set_Communicator::check_sets( moris::Vector< mtk::Set* >& aSetsToCommunicate )
+        Set_Communicator::check_sets( Vector< mtk::Set* >& aSetsToCommunicate )
         {
             // get the number of sets to be communicated
             uint tNumSetsToComm = aSetsToCommunicate.size();

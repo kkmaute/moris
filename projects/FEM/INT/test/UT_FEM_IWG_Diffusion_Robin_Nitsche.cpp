@@ -38,7 +38,7 @@
 inline void
 tGeoValFunction_UTIWGDIFFDIR(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
@@ -65,14 +65,14 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Vector< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Vector< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -81,7 +81,7 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Vector< moris::Vector< MSI::Dof_Type > > tTempDofTypes = { { MSI::Dof_Type::TEMP } };
+    Vector< Vector< MSI::Dof_Type > > tTempDofTypes = { { MSI::Dof_Type::TEMP } };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -298,8 +298,8 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
             tIWG->mRequestedLeaderGlobalDofTypes = tTempDofTypes;
 
             // create a field interpolator manager
-            moris::Vector< moris::Vector< enum PDV_Type > >        tDummyDv;
-            moris::Vector< moris::Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum PDV_Type > >        tDummyDv;
+            Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -532,7 +532,7 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
 
     tIWG->mRequestedLeaderGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
 
-    moris::Vector< moris::Vector< enum MSI::Dof_Type > > tDummy;
+    Vector< Vector< enum MSI::Dof_Type > > tDummy;
     Field_Interpolator_Manager                       tFIManager( tDummy, tSet );
 
     // set interpolators to the manager

@@ -84,7 +84,7 @@ namespace moris
 
     void tConstValFunction_MDL_XTK
     ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-            moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -210,7 +210,7 @@ namespace moris
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
+            Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -236,7 +236,7 @@ namespace moris
                     { "IQI_temp" } );
             tModel->set_output_manager( &tOutputData );
 
-            moris::Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+            Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create linear solver and algorithm

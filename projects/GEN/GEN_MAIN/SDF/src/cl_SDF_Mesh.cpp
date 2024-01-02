@@ -162,7 +162,7 @@ namespace moris
             for( Cell * tCell : mCells )
             {
                 // get vertex pointers
-                moris::Vector< Vertex* > tVertices = tCell->get_vertices();
+                Vector< Vertex* > tVertices = tCell->get_vertices();
 
                 // count elements connected to this nodes
                 for( Vertex * tVertex : tVertices )
@@ -181,7 +181,7 @@ namespace moris
             for( Cell * tCell : mCells )
             {
                 // get vertex pointers
-                moris::Vector< Vertex* > tVertices = tCell->get_vertices();
+                Vector< Vertex* > tVertices = tCell->get_vertices();
 
                 // count elements connected to this nodes
                 for( Vertex * tVertex : tVertices )

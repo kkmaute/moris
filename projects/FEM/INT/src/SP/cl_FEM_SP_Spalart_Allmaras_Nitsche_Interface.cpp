@@ -40,8 +40,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Spalart_Allmaras_Nitsche_Interface::set_dof_type_list(
-                moris::Vector< moris::Vector< MSI::Dof_Type > > & aDofTypes,
-                moris::Vector< std::string >                  & aDofStrings,
+                Vector< Vector< MSI::Dof_Type > > & aDofTypes,
+                Vector< std::string >                  & aDofStrings,
                 mtk::Leader_Follower                             aIsLeader )
         {
             Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsLeader );
@@ -49,7 +49,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Vector< std::tuple<
+        Vector< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
         mtk::Leader_Follower > > SP_Spalart_Allmaras_Nitsche_Interface::get_cluster_measure_tuple_list()
@@ -106,7 +106,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Spalart_Allmaras_Nitsche_Interface::eval_dSPdLeaderDOF(
-                const moris::Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get leader volume cluster measure value
             real tLeaderVolume = mCluster->get_cluster_measure(
@@ -173,7 +173,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Spalart_Allmaras_Nitsche_Interface::eval_dSPdFollowerDOF(
-                const moris::Vector< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get leader volume cluster measure value
             real tLeaderVolume = mCluster->get_cluster_measure(

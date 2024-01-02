@@ -93,7 +93,7 @@ namespace moris
 
 void tConstValFunction
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -101,7 +101,7 @@ void tConstValFunction
 
 void tMValFunction
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
@@ -301,7 +301,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
-        moris::Vector< fem::Set_User_Info > tSetInfo( 4 );
+        Vector< fem::Set_User_Info > tSetInfo( 4 );
         tSetInfo( 0 ) = tSetBulk4;
         tSetInfo( 1 ) = tSetDirichletFixed;
         tSetInfo( 2 ) = tSetDirichlet;
@@ -318,7 +318,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        moris::Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
+        Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
         tDofTypesU( 0 ) = MSI::Dof_Type::UX;    tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
         dla::Solver_Factory  tSolFactory;

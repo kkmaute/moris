@@ -41,11 +41,11 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Vector< mtk::Vertex * >
+    Vector< mtk::Vertex * >
     Cell_XTK_CM::get_vertex_pointers() const
     {
         Matrix< IndexMat >           tVertexIndices = this->get_vertex_inds();
-        moris::Vector< mtk::Vertex * > tVertices( tVertexIndices.numel() );
+        Vector< mtk::Vertex * > tVertices( tVertexIndices.numel() );
 
         for ( moris::uint i = 0; i < tVertices.size(); i++ )
         {
