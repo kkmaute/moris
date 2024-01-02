@@ -54,7 +54,7 @@ namespace moris::ge
         Basis_Node& tSecondParentNode = this->get_second_parent_node();
 
         // Compute parent vector
-        Matrix< DDRMat > tParentVector = trans( tFirstParentNode.get_global_coordinates() - tSecondParentNode.get_global_coordinates() );
+        Matrix< DDRMat > tParentVector = trans( tSecondParentNode.get_global_coordinates() - tFirstParentNode.get_global_coordinates() );
 
         // Get sensitivity values from other ancestors
         Matrix< DDRMat > tSensitivitiesToAdd;

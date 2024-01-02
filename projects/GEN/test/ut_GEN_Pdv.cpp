@@ -356,7 +356,6 @@ namespace moris
                 else if ( par_rank() == 1 )
                 {
                     tIpNodeIdsPerSet = { { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 } };
-
                     tIpNodeOwnersPerSet = { { 0 }, { 1 }, { 1 }, { 1 }, { 1 }, { 1 } };
                     tNumOwnedNodes      = 5;
 
@@ -376,17 +375,17 @@ namespace moris
 
                     // Create parent nodes
                     auto tFirstNode = new Base_Node( 0, tFirstParentCoordinates );
-                    Parent_Node tFirstParentNode( tFirstNode, {{}} );
+                    Parent_Node tFirstParentNode( tFirstNode, {{ -1.0 }} );
                     auto tSecondNode = new Base_Node( 0, tSecondParentCoordinates );
-                    Parent_Node tSecondParentNode( tSecondNode, {{}} );
+                    Parent_Node tSecondParentNode( tSecondNode, {{ 1.0 }} );
 
                     // Assign as base nodes
-                    Cell< Node* > tBaseNodes( { tFirstNode, tSecondNode } );
+                    Cell< Node* > tBackgroundNodes( { tFirstNode, tSecondNode } );
 
                     // Create intersection node
                     auto tIntersectionNode = new Intersection_Node_Linear(
                             tNodeIndex,
-                            tBaseNodes,
+                            tBackgroundNodes,
                             tFirstParentNode,
                             tSecondParentNode,
                             mtk::Geometry_Type::LINE,
