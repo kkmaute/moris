@@ -30,9 +30,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Set::Set(
-                fem::FEM_Model*                  aFemModel,
-                moris::mtk::Set*                 aMeshSet,
-                const fem::Set_User_Info&        aSetInfo,
+                fem::FEM_Model*                    aFemModel,
+                moris::mtk::Set*                   aMeshSet,
+                const fem::Set_User_Info&          aSetInfo,
                 const moris::Vector< Node_Base* >& aIPNodes )
                 : mFemModel( aFemModel )
                 , mMeshSet( aMeshSet )
@@ -2105,7 +2105,7 @@ namespace moris
 
             // get the geo dv types requested by the opt
             moris::Vector< enum PDV_Type > tRequestedDvTypes;
-            moris_index                  tMeshSetIndex = mMeshSet->get_set_index();
+            moris_index                    tMeshSetIndex = mMeshSet->get_set_index();
             tDVInterface->get_ig_unique_dv_types_for_set(
                     tMeshSetIndex,
                     tRequestedDvTypes );
@@ -2198,7 +2198,7 @@ namespace moris
 
                 }    // end for: each IG vertex
 
-            }        // end for: each PDV type
+            }    // end for: each PDV type
 
             if ( tActiveGeoPdvCounter > 0 )
             {
@@ -2413,8 +2413,7 @@ namespace moris
             if ( !mJacobianExist )
             {
                 // get the dof types requested by the solver
-                const moris::Vector< enum MSI::Dof_Type >& tRequestedDofTypes =
-                        this->get_requested_dof_types();
+                Vector< enum MSI::Dof_Type > const & tRequestedDofTypes = this->get_requested_dof_types();
 
                 // init dof coefficient counter
                 uint tNumCols = 0;
@@ -2431,7 +2430,9 @@ namespace moris
                     if ( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCols += mLeaderFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                        tNumCols += mLeaderFIManager
+                                            ->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
+                                            ->get_number_of_space_time_coefficients();
                     }
 
                     // get the set index for the follower dof type
@@ -2443,7 +2444,9 @@ namespace moris
                     if ( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCols += mFollowerFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                        tNumCols += mFollowerFIManager
+                                            ->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )
+                                            ->get_number_of_space_time_coefficients();
                     }
                 }
 
@@ -2457,8 +2460,7 @@ namespace moris
                 else
                 {
                     // get the secondary dof types from the solver
-                    moris::Vector< enum MSI::Dof_Type > tSecDofTypes =
-                            this->get_secondary_dof_types();
+                    Vector< enum MSI::Dof_Type > const tSecDofTypes = this->get_secondary_dof_types();
 
                     // init dof coefficient counter for rows
                     uint tNumRows = 0;
@@ -2475,7 +2477,9 @@ namespace moris
                         if ( tDofIndex != -1 )
                         {
                             // update number of dof coefficients
-                            tNumRows += mLeaderFIManager->get_field_interpolators_for_type( tSecDofTypesI )->get_number_of_space_time_coefficients();
+                            tNumRows += mLeaderFIManager
+                                                ->get_field_interpolators_for_type( tSecDofTypesI )
+                                                ->get_number_of_space_time_coefficients();
                         }
 
                         // get the set index for the follower dof type
@@ -2487,7 +2491,9 @@ namespace moris
                         if ( tDofIndex != -1 )
                         {
                             // update number of dof coefficients
-                            tNumRows += mFollowerFIManager->get_field_interpolators_for_type( tSecDofTypesI )->get_number_of_space_time_coefficients();
+                            tNumRows += mFollowerFIManager
+                                                ->get_field_interpolators_for_type( tSecDofTypesI )
+                                                ->get_number_of_space_time_coefficients();
                         }
                     }
 
@@ -3444,14 +3450,14 @@ namespace moris
 
             }    // end for: clusters on (dbl) side set
 
-        }        // end function: fem::Set::construct_facet_assembly_map_for_VIS_set()
+        }    // end function: fem::Set::construct_facet_assembly_map_for_VIS_set()
 
         //------------------------------------------------------------------------------
 
         void
         Set::compute_quantity_of_interest_nodal(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aNodalFieldValues,
+                const uint                          aVisMeshIndex,
+                Matrix< DDRMat >*                   aNodalFieldValues,
                 const moris::Vector< std::string >& aQINames )
         {
             // FEM mesh index is VIS mesh index +1
@@ -3499,8 +3505,8 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_global(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aGlobalFieldValues,
+                const uint                          aVisMeshIndex,
+                Matrix< DDRMat >*                   aGlobalFieldValues,
                 const moris::Vector< std::string >& aQINames )
         {
             // FEM mesh index is VIS mesh index +1
@@ -3548,10 +3554,10 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_elemental(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aElementalFieldValues,
+                const uint                          aVisMeshIndex,
+                Matrix< DDRMat >*                   aElementalFieldValues,
                 const moris::Vector< std::string >& aQINames,
-                const bool                        aOutputAverageValue )
+                const bool                          aOutputAverageValue )
         {
             // FEM mesh index is VIS mesh index +1
             moris_index tFemMeshIndex = aVisMeshIndex + 1;
@@ -3755,7 +3761,7 @@ namespace moris
         void
         Set::get_ip_dv_types_for_set(
                 moris::Vector< moris::Vector< enum PDV_Type > >& aMatPdvType,
-                mtk::Leader_Follower                         aIsLeader )
+                mtk::Leader_Follower                             aIsLeader )
         {
             // choose based on the leader, follower type
             // the output here is gather from fem

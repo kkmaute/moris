@@ -17,8 +17,7 @@ using namespace moris;
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::build_graph( moris::sol::Dist_Matrix* aMat, bool aUseSparsityPattern )
+void Solver_Interface::build_graph( moris::sol::Dist_Matrix* aMat, bool aUseSparsityPattern )
 {
     if ( aUseSparsityPattern )
     {
@@ -54,8 +53,7 @@ Solver_Interface::build_graph( moris::sol::Dist_Matrix* aMat, bool aUseSparsityP
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::fill_matrix_and_RHS(
+void Solver_Interface::fill_matrix_and_RHS(
         moris::sol::Dist_Matrix* aMat,
         moris::sol::Dist_Vector* aVectorRHS,
         moris::sol::Dist_Vector* aFullSolutionVector )
@@ -65,8 +63,8 @@ Solver_Interface::fill_matrix_and_RHS(
     // Get local number of elements
     moris::uint numLocElements = this->get_num_my_elements();
 
-    moris::Matrix< DDSMat >  tElementTopology;
-    Matrix< DDRMat >         tElementMatrix;
+    moris::Matrix< DDSMat >    tElementTopology;
+    Matrix< DDRMat >           tElementMatrix;
     Vector< Matrix< DDRMat > > tElementRHS;
 
     // Loop over all local elements to fill matrix and RHS
@@ -107,8 +105,7 @@ Solver_Interface::fill_matrix_and_RHS(
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::assemble_RHS(
+void Solver_Interface::assemble_RHS(
         moris::sol::Dist_Vector*        aVectorRHS,
         const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag )
 {
@@ -118,7 +115,7 @@ Solver_Interface::assemble_RHS(
     moris::uint tNumRHS = this->get_num_rhs();
 
     Vector< Matrix< DDRMat > > tElementRHS;
-    Matrix< DDSMat >         tElementTopology;
+    Matrix< DDSMat >           tElementTopology;
 
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii = 0; Ii < tNumBlocks; Ii++ )
@@ -162,15 +159,14 @@ Solver_Interface::assemble_RHS(
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::assemble_staggered_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS )
+void Solver_Interface::assemble_staggered_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS )
 {
     // Get local number of elements
     moris::uint tNumBlocks = this->get_num_my_blocks();
 
     moris::uint tNumRHS = this->get_num_rhs();
 
-    Matrix< DDSMat >         tElementTopology;
+    Matrix< DDSMat >           tElementTopology;
     Vector< Matrix< DDRMat > > tElementRHS;
 
     // Loop over all local elements to build matrix graph
@@ -213,15 +209,14 @@ Solver_Interface::assemble_staggered_RHS_contribution( moris::sol::Dist_Vector* 
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS )
+void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS )
 {
     // Get local number of elements
     moris::uint tNumBlocks = this->get_num_my_blocks();
 
     moris::uint tNumRHS = this->get_num_rhs();
 
-    Matrix< DDSMat >         tElementTopology;
+    Matrix< DDSMat >           tElementTopology;
     Vector< Matrix< DDRMat > > tElementRHS;
 
     this->report_beginning_of_assembly();
@@ -271,8 +266,7 @@ Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Ve
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::assemble_jacobian(
+void Solver_Interface::assemble_jacobian(
         moris::sol::Dist_Matrix*        aMat,
         const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag )
 {
@@ -318,33 +312,29 @@ Solver_Interface::assemble_jacobian(
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::fill_matrix_and_RHS(
+void Solver_Interface::fill_matrix_and_RHS(
         moris::sol::Dist_Matrix* aMat,
         moris::sol::Dist_Vector* aVectorRHS )
 {
-    // Get local number of elements
-    moris::uint numBlocks = this->get_num_my_blocks();
-
-    moris::uint tNumRHS = this->get_num_rhs();
-
     this->report_beginning_of_assembly();
 
+    uint const tNumBlocks = this->get_num_my_blocks();
+    uint const tNumRHS    = this->get_num_rhs();
     // Loop over all local elements to build matrix graph
-    for ( moris::uint Ii = 0; Ii < numBlocks; Ii++ )
+    for ( uint iBlock = 0; iBlock < tNumBlocks; iBlock++ )
     {
-        moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
+        this->initialize_set( iBlock );
 
-        this->initialize_set( Ii );
+        uint const tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( iBlock );
 
-        for ( moris::uint Ik = 0; Ik < tNumEquationObjectOnSet; Ik++ )
+        for ( moris::uint iEquationObject = 0; iEquationObject < tNumEquationObjectOnSet; iEquationObject++ )
         {
             Matrix< DDSMat > tElementTopology;
-            this->get_element_topology( Ii, Ik, tElementTopology );
+            this->get_element_topology( iBlock, iEquationObject, tElementTopology );
 
-            Matrix< DDRMat >         tElementMatrix;
+            Matrix< DDRMat >           tElementMatrix;
             Vector< Matrix< DDRMat > > tElementRHS;
-            this->get_equation_object_operator_and_rhs( Ii, Ik, tElementMatrix, tElementRHS );
+            this->get_equation_object_operator_and_rhs( iBlock, iEquationObject, tElementMatrix, tElementRHS );
 
             // Fill element in distributed matrix
             if ( tElementMatrix.numel() > 0 )
@@ -375,7 +365,7 @@ Solver_Interface::fill_matrix_and_RHS(
             }
         }
 
-        this->free_block_memory( Ii );
+        this->free_block_memory( iBlock );
     }
 
     // global assembly to switch entries to the right processor
@@ -387,10 +377,9 @@ Solver_Interface::fill_matrix_and_RHS(
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::get_adof_ids_based_on_criteria(
+void Solver_Interface::get_adof_ids_based_on_criteria(
         moris::Vector< moris::Matrix< IdMat > >& aCriteriaIds,
-        const moris::real                      aThreshold )    // FIXME find better name
+        const moris::real                        aThreshold )    // FIXME find better name
 {
     // Get number of Sets
     moris::uint tNumSets = this->get_num_my_blocks();
@@ -447,8 +436,7 @@ Solver_Interface::get_adof_ids_based_on_criteria(
 
 //---------------------------------------------------------------------------------------------------------
 
-void
-Solver_Interface::set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse )
+void Solver_Interface::set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse )
 {
     MORIS_ERROR( false, "Solver_Interface::set_solver_warehouse(), not implemented for base class" );
 }
