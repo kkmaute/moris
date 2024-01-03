@@ -26,9 +26,8 @@ namespace moris
     bool
     all_true(Matrix< DDBMat > const & aMatrix)
     {
-        bool tAllTrue = false;
-        uint tNumRows = aMatrix.n_rows();
-        uint tNumCols = aMatrix.n_cols();
+        const uint tNumRows = aMatrix.n_rows();
+        const uint tNumCols = aMatrix.n_cols();
 
         for(uint i = 0; i<tNumRows; i++)
         {
@@ -41,8 +40,7 @@ namespace moris
             }
         }
 
-        tAllTrue = true;
-        return tAllTrue;
+        return true;
     }
 
 }
