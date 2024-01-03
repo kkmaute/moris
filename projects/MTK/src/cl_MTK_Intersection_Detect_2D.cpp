@@ -194,7 +194,6 @@ namespace moris
                 // loop over the background cells in order to cut the matching pairs
                 for ( const auto &tIter : tBackgroundCellToSideClusterMap1 )
                 {
-
                     // Find all the side clusters that lie in the left and right pair
                     moris::Cell< moris_index > const &tSideClustersIndices1 = tIter.second;
                     moris::Cell< moris_index > const &tSideClustersIndices2 = tBackgroundCellToSideClusterMap2[ tIter.first ];
