@@ -49,7 +49,7 @@ namespace moris
 
             // Vertex Information
             Vector< Vertex_DataBase > mVertices;
-            Matrix< moris::DDRMat >        mVertexCoordinates;
+            Matrix< moris::DDRMat >   mVertexCoordinates;
 
             // Cell to vertex connectivity
             Vector< mtk::Vertex* > mCellToVertices;
@@ -169,9 +169,11 @@ namespace moris
             uint get_spatial_dim() const override;
 
 
-            void add_nonconformal_side_clusters( Vector< Nonconformal_Side_Cluster > const & aNonconformalSideClusters );
+            void reserve_nonconformal_side_clusters( uint aNumNonconformalSideClusters );
 
-            void add_nonconformal_side_set( Nonconformal_Side_Set* aNonconformalSideSet );
+            void add_nonconformal_side_set( std::string const & aName,
+                    Vector< Nonconformal_Side_Cluster > const & aClusters,
+                    Matrix< IndexMat > const &                  aColors );
 
             void reset_nonconformal_side_set();
 

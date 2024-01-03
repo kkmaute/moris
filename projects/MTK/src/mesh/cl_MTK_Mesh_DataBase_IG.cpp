@@ -20,6 +20,7 @@
 #include "cl_Tracer.hpp"
 
 #include "cl_MTK_Mesh_DataBase_IP.hpp"
+#include <iostream>
 
 namespace moris::mtk
 {
@@ -45,14 +46,31 @@ namespace moris::mtk
         return mVertexCoordinates.n_rows();
     }
 
-    void Integration_Mesh_DataBase_IG::add_nonconformal_side_clusters( Vector< Nonconformal_Side_Cluster > const & aNonconformalSideClusters )
+    void Integration_Mesh_DataBase_IG::reserve_nonconformal_side_clusters( uint aNumNonconformalSideClusters )
     {
-        mNonconformalSideClusters.append( aNonconformalSideClusters );
+        mNonconformalSideClusters.reserve( aNumNonconformalSideClusters );
     }
 
-    void Integration_Mesh_DataBase_IG::add_nonconformal_side_set( Nonconformal_Side_Set* aNonconformalSideSet )
+    void Integration_Mesh_DataBase_IG::add_nonconformal_side_set(
+            std::string const &                         aName,
+            Vector< Nonconformal_Side_Cluster > const & aClusters,
+            Matrix< IndexMat > const &                  aColors )
     {
-        mListOfNonconformalSideSets.push_back( aNonconformalSideSet );
+        size_t tNumClustersBefore = mNonconformalSideClusters.size();
+        mNonconformalSideClusters.append( aClusters );
+
+        // get the new clusters as general pointers...
+        // this is only necessary because sets are not generic w.r.t. the type of clusters they contain
+        // we need to get the pointers of the clusters in the mNonconformalSideClusters vector and not the pointers of the clusters in the aClusters vector (since they have different addresses)
+        Vector< Cluster const * > tClusterPointers;
+        std::transform(
+                mNonconformalSideClusters.begin() + tNumClustersBefore,
+                mNonconformalSideClusters.end(),
+                std::back_inserter( tClusterPointers ),
+                []( auto const & aCluster ) -> Cluster const * { return &aCluster; } );
+
+        // create the nonconformal side set
+        mListOfNonconformalSideSets.push_back( new Nonconformal_Side_Set( aName, tClusterPointers, aColors, this->get_spatial_dim() ) );
         this->collect_all_sets();
     }
 
