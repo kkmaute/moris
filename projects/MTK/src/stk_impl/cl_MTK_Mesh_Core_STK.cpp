@@ -22,6 +22,7 @@
 #include "stk_mesh/base/Field.hpp"                // for coordinates
 #include "stk_mesh/base/GetEntities.hpp"          // for coordinates
 #include "stk_mesh/base/FieldParallel.hpp"        // for handling parallel fields
+#include <stk_mesh/base/MeshBuilder.hpp>
 #include <exodusII.h>
 
 #include "fn_assert.hpp"
@@ -77,6 +78,7 @@ namespace moris
                 const bool   aCreateFacesAndEdges )
         {
             Tracer tTracer( "STK", "Build" );
+
             // make a shared pointer of the stk mesh data
             mSTKMeshData = std::make_shared< Mesh_Data_STK >();
 
@@ -90,22 +92,31 @@ namespace moris
             // Declare MPI communicator
             MPI_Comm aCommunicator = MPI_COMM_WORLD;
 
-            // Generate MetaData and Bulk Data instances (later to be pointed to member variables)
-            stk::mesh::MetaData* meshMeta = new stk::mesh::MetaData;
+            // Create mesh builder object
+            stk::mesh::MeshBuilder tMeshBuilder( aCommunicator );
 
+            // Set aura option
+            tMeshBuilder.set_aura_option( this->get_aura_option() );
+
+            // Create mesh meta data
+            MORIS_LOG( "Construct Meta Data" );
+            std::shared_ptr< stk::mesh::MetaData > tMeshMeta = std::make_shared< stk::mesh::MetaData >();
+
+            // Construct mesh bulk data
             MORIS_LOG( "Construct Bulk Data" );
-            stk::mesh::BulkData* meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, this->get_aura_option() );
+            std::shared_ptr< stk::mesh::BulkData > tMeshBulk = tMeshBuilder.create( tMeshMeta );
 
             // Set member variables as pointers to meta_data and bulk_data
-            mSTKMeshData->mMtkMeshMetaData = ( meshMeta );
-            mSTKMeshData->mMtkMeshBulkData = ( meshBulk );
+            mSTKMeshData->mMtkMeshMetaData = tMeshMeta;
+            mSTKMeshData->mMtkMeshBulkData = tMeshBulk;
 
             // Use STK IO to populate a STK Mesh
             MORIS_LOG( "Mesh Reader Initialize" );
-            mSTKMeshData->mMeshReader = new stk::io::StkMeshIoBroker( aCommunicator );
+            mSTKMeshData->mMeshReader = std::make_shared< stk::io::StkMeshIoBroker >( aCommunicator );
 
             // Create mesh database using the IO broker
-            mSTKMeshData->mMeshReader->set_bulk_data( *meshBulk );
+            mSTKMeshData->mMeshReader->set_bulk_data( *tMeshBulk );
+
             MORIS_LOG( "Read mesh from file" );
             mSTKMeshData->mMeshReader->add_mesh_database( aFileName, stk::io::READ_MESH );
             mSTKMeshData->mMeshReader->create_input_mesh();
@@ -131,8 +142,8 @@ namespace moris
             mSTKMeshData->mMeshReader->populate_bulk_data();
 
             // Determine number of time increments on input database in region
-            Teuchos::RCP< Ioss::Region > tIo_region      = mSTKMeshData->mMeshReader->get_input_io_region();
-            int                          tTimestep_count = tIo_region->get_property( "state_count" ).get_int();
+            std::shared_ptr< Ioss::Region > tIo_region      = mSTKMeshData->mMeshReader->get_input_ioss_region();
+            int                             tTimestep_count = tIo_region->get_property( "state_count" ).get_int();
 
             MORIS_LOG( "Read Input Fields" );
             // Loop over all time increments and get field data
@@ -1782,8 +1793,7 @@ namespace moris
                     uint tNumCellsWithAddShare = tCellsWithAdditionalSharing( tShareProcRank ).size();
 
                     // initialize matrix with a dummy value
-                    tCellsMatsWithAdditionalSharing( iProc ) = Matrix< IdMat >( tNumCellsWithAddShare, tNumCol );
-                    tCellsMatsWithAdditionalSharing( iProc ).fill( MORIS_INDEX_MAX );
+                    tCellsMatsWithAdditionalSharing( iProc ) = Matrix< IdMat >( tNumCellsWithAddShare, tNumCol, MORIS_INDEX_MAX );
 
                     // iterate through and add data to matrix
                     for ( uint iCell = 0; iCell < tNumCellsWithAddShare; iCell++ )
@@ -1791,7 +1801,8 @@ namespace moris
                         // number of sharing (size of matrix)
                         uint tSizeOfMat = tCellsWithAdditionalSharing( tShareProcRank )( iCell ).numel();
 
-                        tCellsMatsWithAdditionalSharing( iProc )( { iCell, iCell }, { 0, tSizeOfMat - 1 } ) = tCellsWithAdditionalSharing( tShareProcRank )( iCell ).get_row( 0 );
+                        tCellsMatsWithAdditionalSharing( iProc )( { iCell, iCell }, { 0, tSizeOfMat - 1 } ) =
+                                tCellsWithAdditionalSharing( tShareProcRank )( iCell ).get_row( 0 );
                     }
                 }
 
@@ -2577,10 +2588,10 @@ namespace moris
             //  can be declared between two parts, and a field definition can be limited to specific parts.
 
             // Declare and initialize Stk mesh
-            stk::mesh::MetaData* meshMeta = new stk::mesh::MetaData( mSTKMeshData->mNumDims );
+            std::shared_ptr< stk::mesh::MetaData > tMeshMeta = std::make_shared< stk::mesh::MetaData >( mSTKMeshData->mNumDims );
 
             // Set member variable as pointer to meta_data
-            mSTKMeshData->mMtkMeshMetaData = meshMeta;
+            mSTKMeshData->mMtkMeshMetaData = tMeshMeta;
 
             // set aura option
             mAutoAuraOption = aMeshData.AutoAuraOptionInSTK;
@@ -2605,15 +2616,21 @@ namespace moris
             // Declare MPI communicator
             stk::ParallelMachine tPM = MPI_COMM_WORLD;
 
+            // Create mesh builder object
+            stk::mesh::MeshBuilder tMeshBuilder( tPM );
+
+            // Set aura option
+            tMeshBuilder.set_aura_option( this->get_aura_option() );
+
             // Create BulkData Object
-            stk::mesh::BulkData* meshBulk = new stk::mesh::BulkData( *mSTKMeshData->mMtkMeshMetaData, tPM, this->get_aura_option() );
+            std::shared_ptr< stk::mesh::BulkData > tMeshBulk = tMeshBuilder.create( tMeshMeta );    // new stk::mesh::BulkData( *mSTKMeshData->mMtkMeshMetaData, tPM, this->get_aura_option() );
 
             // Set member variable as pointer and bulk_data
-            mSTKMeshData->mMtkMeshBulkData = ( meshBulk );
+            mSTKMeshData->mMtkMeshBulkData = tMeshBulk;
 
             // Use STK IO to populate a STK Mesh
             MPI_Comm aCommunicator    = MPI_COMM_WORLD;
-            mSTKMeshData->mMeshReader = new stk::io::StkMeshIoBroker( aCommunicator );
+            mSTKMeshData->mMeshReader = std::make_shared< stk::io::StkMeshIoBroker >( aCommunicator );
 
             // Create mesh database using the IO broker
             mSTKMeshData->mMeshReader->set_bulk_data( *mSTKMeshData->mMtkMeshBulkData );
