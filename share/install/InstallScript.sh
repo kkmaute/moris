@@ -189,7 +189,6 @@ spack create --name snopt --skip-editor
 #------------------------------------------------------------
 
 cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
-cp $WORKSPACE/moris/share/spack/mumps_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/mumps/package.py
 
 cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
 cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
