@@ -27,6 +27,7 @@ namespace moris
             BULK,
             SIDESET,
             DOUBLE_SIDESET,
+            NONCONFORMAL_SIDESET,
             TIME_SIDESET,
             TIME_BOUNDARY,
             END_ELEMENT_TYPE

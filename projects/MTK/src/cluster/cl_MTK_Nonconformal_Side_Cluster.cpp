@@ -3,8 +3,93 @@
 //
 
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
+#include "cl_MTK_Cell.hpp"
+#include "cl_MTK_Double_Side_Cluster.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "cl_MTK_IntegrationPointPairs.hpp"
+#include "cl_Vector.hpp"
+#include "moris_typedefs.hpp"
+
+#include <fn_sum.hpp>
+#include <map>
 
 namespace moris::mtk
 {
+    Vector< mtk::Cell const * >
+    Nonconformal_Side_Cluster::get_nonconforming_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
+    {
+        Vector< moris_index >       tCellMask     = get_integration_pair_indexing_mask( aIsLeader );
+        Vector< mtk::Cell const * > tPrimaryCells = get_primary_cells_in_cluster( aIsLeader );
+        Vector< mtk::Cell const * > tNonconformingPrimaryCells;
+        tNonconformingPrimaryCells.reserve( tCellMask.size() );
+        for ( auto const &tCellIndex : tCellMask )
+        {
+            tNonconformingPrimaryCells.push_back( tPrimaryCells( tCellIndex ) );
+        }
+        return tNonconformingPrimaryCells;
+    }
+
+
+    Matrix< DDRMat > Nonconformal_Side_Cluster::compute_cluster_ig_cell_side_measures( mtk::Primary_Void const aPrimaryOrVoid, mtk::Leader_Follower const aIsLeader ) const
+    {
+        Matrix< DDRMat >      tDSCResult = Double_Side_Cluster::compute_cluster_ig_cell_side_measures( aPrimaryOrVoid, aIsLeader );
+        Vector< moris_index > tCellMask  = get_integration_pair_indexing_mask( aIsLeader );
+        Matrix< DDRMat >      tResult( tCellMask.size(), 1 );
+        for ( size_t iIndex = 0; iIndex < tCellMask.size(); ++iIndex )
+        {
+            tResult( iIndex, 0 ) = tDSCResult( tCellMask( iIndex ), 0 );
+        }
+        return tResult;
+    }
+
+    moris::real Nonconformal_Side_Cluster::compute_cluster_cell_side_measure( mtk::Primary_Void const aPrimaryOrVoid, mtk::Leader_Follower const aIsLeader ) const
+    {
+        Matrix< DDRMat > const tCellSideMeasures = compute_cluster_ig_cell_side_measures( aPrimaryOrVoid, aIsLeader );
+        return sum( tCellSideMeasures );
+    }
+
+    moris::Matrix< moris::IndexMat > Nonconformal_Side_Cluster::get_nonconforming_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const
+    {
+        Vector< moris_index >    tCellMask     = get_integration_pair_indexing_mask( aIsLeader );
+        Matrix< IndexMat > const tSideOrdinals = get_cell_side_ordinals( aIsLeader );
+
+        moris::Matrix< moris::IndexMat > tCellOrdinals( 1, tCellMask.size() );
+        for ( size_t iIndex = 0; iIndex < tCellMask.size(); ++iIndex )
+        {
+            // the tPositionIndex is the index at which the cell is stored in the vector of primary cells, it is not the index of the cell itself!
+            moris_index const tPositionIndex = tCellMask( iIndex );
+            tCellOrdinals( 0, iIndex )       = tSideOrdinals( tPositionIndex );
+        }
+        return tCellOrdinals;
+    }
+
+    Vector< IntegrationPointPairs > const &Nonconformal_Side_Cluster::get_integration_point_pairs() const
+    {
+        return mIntegrationPointPairs;
+    }
+
+    Vector< moris_index > Nonconformal_Side_Cluster::get_integration_pair_indexing_mask( const mtk::Leader_Follower aIsLeader ) const
+    {
+        // this map stores the index of the cell in the cluster to the index of the cell in the vector of primary cells
+        std::map< moris_index, moris_index > tCellIndexToStoringIndex;
+        Vector< mtk::Cell const * >          tPrimaryCells = get_primary_cells_in_cluster( aIsLeader );
+        for ( size_t iStoringIndex = 0; iStoringIndex < tPrimaryCells.size(); ++iStoringIndex )
+        {
+            tCellIndexToStoringIndex[ tPrimaryCells( iStoringIndex )->get_index() ] = iStoringIndex;
+        }
+
+        Vector< moris_index > tCellMask;
+        tCellMask.reserve( mIntegrationPointPairs.size() );
+        for ( auto const &tIntegrationPointPair : mIntegrationPointPairs )
+        {
+            moris_index const tCellIndex =
+                    ( aIsLeader == mtk::Leader_Follower::LEADER )
+                            ? tIntegrationPointPair.get_leader_cell_index()
+                            : tIntegrationPointPair.get_follower_cell_index();
+            tCellMask.push_back( tCellIndexToStoringIndex[ tCellIndex ] );
+        }
+
+        return tCellMask;
+    }
 
 }    // namespace moris::mtk

@@ -103,6 +103,7 @@ namespace moris
                     break;
                 }
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
                     m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material_double;

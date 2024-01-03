@@ -30,9 +30,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Set::Set(
-                fem::FEM_Model*                    aFemModel,
-                moris::mtk::Set*                   aMeshSet,
-                const fem::Set_User_Info&          aSetInfo,
+                fem::FEM_Model*             aFemModel,
+                moris::mtk::Set*            aMeshSet,
+                const fem::Set_User_Info&   aSetInfo,
                 const Vector< Node_Base* >& aIPNodes )
                 : mFemModel( aFemModel )
                 , mMeshSet( aMeshSet )
@@ -99,10 +99,11 @@ namespace moris
                     }
                     // if double sideset
                     case fem::Element_Type::DOUBLE_SIDESET:
+                    case fem::Element_Type::NONCONFORMAL_SIDESET:
                     {
                         tInterpolationCell.resize( 2 );
-                        tInterpolationCell( 0 ) = &tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Leader_Follower::LEADER );
-                        tInterpolationCell( 1 ) = &tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER );
+                        tInterpolationCell( 0 ) = &( tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Leader_Follower::LEADER ) );
+                        tInterpolationCell( 1 ) = &( tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ) );
                         break;
                     }
                     // if none of the above
@@ -233,7 +234,14 @@ namespace moris
                 this->delete_pointers();
 
                 // create integration information
-                this->create_integrator( aModelSolverInterface );
+                if ( mElementType == Element_Type::NONCONFORMAL_SIDESET )
+                {
+                    this->set_custom_integration_rule( aModelSolverInterface );
+                }
+                else
+                {
+                    this->create_integrator( aModelSolverInterface );
+                }
 
                 // create the field interpolators
                 this->create_field_interpolator_managers( aModelSolverInterface );
@@ -355,6 +363,11 @@ namespace moris
 
             // get integration weights
             tIntegrator.get_weights( mIntegWeights );
+        }
+
+        void Set::set_custom_integration_rule( MSI::Model_Solver_Interface* aModelSolverInterface )
+        {
+            MORIS_ERROR( false, "Will be implemented soon... " );
         }
 
         //------------------------------------------------------------------------------
@@ -1262,7 +1275,9 @@ namespace moris
                 tIWG->set_field_interpolator_manager( mLeaderFIManager );
 
                 // if double sideset, set follower
-                if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                if (
+                        ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                        || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
                 {
                     // set IWG follower field interpolator manager
                     tIWG->set_field_interpolator_manager(
@@ -1541,7 +1556,9 @@ namespace moris
                 tIQI->set_field_interpolator_manager( mLeaderFIManager );
 
                 // if double sideset, set follower
-                if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                if (
+                        ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                        || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
                 {
                     // set IQI follower FI manager
                     tIQI->set_field_interpolator_manager(
@@ -2105,7 +2122,7 @@ namespace moris
 
             // get the geo dv types requested by the opt
             moris::Vector< enum PDV_Type > tRequestedDvTypes;
-            moris_index                  tMeshSetIndex = mMeshSet->get_set_index();
+            moris_index                    tMeshSetIndex = mMeshSet->get_set_index();
             tDVInterface->get_ig_unique_dv_types_for_set(
                     tMeshSetIndex,
                     tRequestedDvTypes );
@@ -3458,8 +3475,8 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_nodal(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aNodalFieldValues,
+                const uint                          aVisMeshIndex,
+                Matrix< DDRMat >*                   aNodalFieldValues,
                 const moris::Vector< std::string >& aQINames )
         {
             // FEM mesh index is VIS mesh index +1
@@ -3507,8 +3524,8 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_global(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aGlobalFieldValues,
+                const uint                          aVisMeshIndex,
+                Matrix< DDRMat >*                   aGlobalFieldValues,
                 const moris::Vector< std::string >& aQINames )
         {
             // FEM mesh index is VIS mesh index +1
@@ -3556,10 +3573,10 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_elemental(
-                const uint                        aVisMeshIndex,
-                Matrix< DDRMat >*                 aElementalFieldValues,
+                const uint                          aVisMeshIndex,
+                Matrix< DDRMat >*                   aElementalFieldValues,
                 const moris::Vector< std::string >& aQINames,
-                const bool                        aOutputAverageValue )
+                const bool                          aOutputAverageValue )
         {
             // FEM mesh index is VIS mesh index +1
             moris_index tFemMeshIndex = aVisMeshIndex + 1;
@@ -3725,6 +3742,9 @@ namespace moris
                     mElementType = fem::Element_Type::DOUBLE_SIDESET;
                     break;
 
+                case mtk::SetType::NONCONFORMAL_SIDESET:
+                    mElementType = fem::Element_Type::NONCONFORMAL_SIDESET;
+                    break;
                 default:
                     MORIS_ERROR( false, "Set::determine_set_type() - not defined for this set type. " );
             }
@@ -3763,7 +3783,7 @@ namespace moris
         void
         Set::get_ip_dv_types_for_set(
                 moris::Vector< moris::Vector< enum PDV_Type > >& aMatPdvType,
-                mtk::Leader_Follower                         aIsLeader )
+                mtk::Leader_Follower                             aIsLeader )
         {
             // choose based on the leader, follower type
             // the output here is gather from fem

@@ -20,6 +20,8 @@
 #include "fn_sort.hpp"
 #include "fn_sum.hpp"
 
+#include <cl_MTK_Nonconformal_Side_Cluster.hpp>
+
 namespace moris
 {
     namespace fem
@@ -111,6 +113,37 @@ namespace moris
                                 this,
                                 iIGCell );
                     }
+                    break;
+                }
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
+                {
+                    const auto *tNonconformalSideCluster = dynamic_cast< mtk::Nonconformal_Side_Cluster const * >( aMeshCluster );
+                    auto        tIntegrationPointPairs   = tNonconformalSideCluster->get_integration_point_pairs();
+
+                    // the nonconformal side set provides different cell-pairs (i.e. one follower-cell might be paired with multiple leader-cells)
+                    mElements.resize( tIntegrationPointPairs.size(), nullptr );
+
+                    // fill the follower integration cells
+                    mLeaderIntegrationCells   = tNonconformalSideCluster->get_nonconforming_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
+                    mFollowerIntegrationCells = tNonconformalSideCluster->get_nonconforming_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER );
+
+                    // set the side ordinals for the leader and follower IG cells
+                    mLeaderListOfSideOrdinals   = tNonconformalSideCluster->get_nonconforming_cell_side_ordinals( mtk::Leader_Follower::LEADER );
+                    mFollowerListOfSideOrdinals = tNonconformalSideCluster->get_nonconforming_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
+
+                    // loop over the IG cells
+                    for ( moris::uint iIGCell = 0; iIGCell < mLeaderIntegrationCells.size(); iIGCell++ )
+                    {
+                        // create element
+                        mElements( iIGCell ) = tElementFactory.create_element(
+                                mElementType,
+                                mLeaderIntegrationCells( iIGCell ),
+                                mFollowerIntegrationCells( iIGCell ),
+                                mSet,
+                                this,
+                                iIGCell );
+                    }
+
                     break;
                 }
                 default:
@@ -266,7 +299,10 @@ namespace moris
                 mtk::Leader_Follower aIsLeader )
         {
             // check that side cluster
-            MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
+            MORIS_ASSERT(
+                    ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                            || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+                            || ( mElementType == fem::Element_Type::SIDESET ),
                     "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - not a side or double side cluster." );
 
             // check that the mesh cluster was set
@@ -328,7 +364,9 @@ namespace moris
                 moris::mtk::Vertex const *aLeftVertex )
         {
             // check that a double sided cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
+            MORIS_ASSERT(
+                    ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                            || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ),
                     "Cluster::get_left_vertex_pair - not a double side cluster." );
 
             // check that the mesh cluster was set
@@ -347,7 +385,8 @@ namespace moris
                 moris::mtk::Vertex const *aVertex )
         {
             // check that a double sided cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::DOUBLE_SIDESET,
+            MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+                                  || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ),
                     "Cluster::get_left_vertex_pair - not a double side cluster." );
 
             // check that the mesh cluster was set
@@ -860,6 +899,7 @@ namespace moris
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     tVolume   = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsLeader );
                     tSpaceDim = tSpaceDim - 1;
@@ -929,6 +969,7 @@ namespace moris
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     tVolume      = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsLeader );
                     tDerivatives = this->compute_cluster_cell_side_measure_derivative( aPrimaryOrVoid, aIsLeader );
@@ -1034,6 +1075,7 @@ namespace moris
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     tClusterVolume = mMeshCluster->compute_cluster_cell_side_measure( tPrimaryOrVoid, tIsLeader );
                     break;
@@ -1074,6 +1116,7 @@ namespace moris
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     return mMeshCluster->compute_cluster_ig_cell_side_measures( tPrimaryOrVoid, tIsLeader );
                     break;

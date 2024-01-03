@@ -33,10 +33,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Interpolation_Element::Interpolation_Element(
-                const Element_Type                 aElementType,
-                const Vector< const mtk::Cell* >&  aInterpolationCell,
-                const Vector< Node_Base* >& aNodes,
-                Set*                             aSet )
+                const Element_Type                aElementType,
+                const Vector< const mtk::Cell* >& aInterpolationCell,
+                const Vector< Node_Base* >&       aNodes,
+                Set*                              aSet )
                 : MSI::Equation_Object( aSet )
                 , mSet( aSet )
                 , mElementType( aElementType )
@@ -62,7 +62,8 @@ namespace moris
             }
 
             // if double sided sideset
-            if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            if ( mElementType == fem::Element_Type::DOUBLE_SIDESET
+                    || mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
             {
                 // fill the follower interpolation cell
                 mFollowerInterpolationCell = aInterpolationCell( 1 );
@@ -341,7 +342,7 @@ namespace moris
             tLeaderGeometryInterpolator->set_time_coeff( this->get_time() );
 
             // if double sideset
-            if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            if ( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
             {
                 // set the IP geometry interpolator physical space and time coefficients for the follower
                 Geometry_Interpolator* tFollowerGeometryInterpolator = mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IP_geometry_interpolator();
@@ -418,7 +419,7 @@ namespace moris
             }
 
             // double sided
-            if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
+            if ( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
             {
                 // get follower vertices from cell
                 Matrix< IndexMat > tFollowerVerticesInds =
@@ -1186,7 +1187,8 @@ namespace moris
 
                 // compute the nodal values of the requested QIs
                 // double sided clusters require additional treatment of the follower side and therefore need special consideration
-                if ( tElementType == fem::Element_Type::DOUBLE_SIDESET )
+                if ( ( tElementType == fem::Element_Type::DOUBLE_SIDESET )
+                        || ( tElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
                 {
                     this->compute_nodal_QIs_double_sided( aFemMeshIndex );
                 }
@@ -1311,7 +1313,8 @@ namespace moris
         {
             // make sure this function is only called on double sided side clusters
             MORIS_ASSERT(
-                    mFemCluster( aFemMeshIndex )->get_element_type() == fem::Element_Type::DOUBLE_SIDESET,
+                    ( mFemCluster( aFemMeshIndex )->get_element_type() == fem::Element_Type::DOUBLE_SIDESET )
+                            || ( mFemCluster( aFemMeshIndex )->get_element_type() == fem::Element_Type::NONCONFORMAL_SIDESET ),
                     "Interpolation_Element::compute_nodal_QIs_double_sided() - "
                     "This function can only be called on double sided side clusters." );
 

@@ -171,6 +171,7 @@ namespace moris
                     break;
                 }
                 case fem::Element_Type::DOUBLE_SIDESET:
+                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     m_compute_jacobian_FD      = &IWG::select_jacobian_FD_double;
                     m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material_double;
@@ -447,7 +448,7 @@ namespace moris
         void
         IWG::set_dof_type_list(
                 const Vector< Vector< MSI::Dof_Type > >& aDofTypes,
-                mtk::Leader_Follower                               aIsLeader )
+                mtk::Leader_Follower                     aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -503,7 +504,7 @@ namespace moris
         void
         IWG::set_dv_type_list(
                 const Vector< Vector< PDV_Type > >& aDvTypes,
-                mtk::Leader_Follower                          aIsLeader )
+                mtk::Leader_Follower                aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -559,7 +560,7 @@ namespace moris
         void
         IWG::set_field_type_list(
                 const Vector< Vector< mtk::Field_Type > >& aDofTypes,
-                mtk::Leader_Follower                                 aIsLeader )
+                mtk::Leader_Follower                       aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -2903,10 +2904,10 @@ namespace moris
 
         void
         IWG::select_dRdp_FD_geometry_bulk(
-                moris::real                        aWStar,
-                moris::real                        aPerturbation,
-                fem::FDScheme_Type                 aFDSchemeType,
-                Matrix< DDSMat >&                  aGeoLocalAssembly,
+                moris::real                   aWStar,
+                moris::real                   aPerturbation,
+                fem::FDScheme_Type            aFDSchemeType,
+                Matrix< DDSMat >&             aGeoLocalAssembly,
                 Vector< Matrix< IndexMat > >& aVertexIndices )
         {
             // storage residual value
@@ -3065,10 +3066,10 @@ namespace moris
 
         void
         IWG::select_dRdp_FD_geometry_sideset(
-                moris::real                        aWStar,
-                moris::real                        aPerturbation,
-                fem::FDScheme_Type                 aFDSchemeType,
-                Matrix< DDSMat >&                  aGeoLocalAssembly,
+                moris::real                   aWStar,
+                moris::real                   aPerturbation,
+                fem::FDScheme_Type            aFDSchemeType,
+                Matrix< DDSMat >&             aGeoLocalAssembly,
                 Vector< Matrix< IndexMat > >& aVertexIndices )
         {
             // storage residual value
@@ -3244,10 +3245,10 @@ namespace moris
 
         void
         IWG::select_dRdp_FD_geometry_time_sideset(
-                moris::real                        aWStar,
-                moris::real                        aPerturbation,
-                fem::FDScheme_Type                 aFDSchemeType,
-                Matrix< DDSMat >&                  aGeoLocalAssembly,
+                moris::real                   aWStar,
+                moris::real                   aPerturbation,
+                fem::FDScheme_Type            aFDSchemeType,
+                Matrix< DDSMat >&             aGeoLocalAssembly,
                 Vector< Matrix< IndexMat > >& aVertexIndices )
         {
             // storage residual value
@@ -3430,10 +3431,10 @@ namespace moris
 
         void
         IWG::select_dRdp_FD_geometry_double(
-                moris::real                        aWStar,
-                moris::real                        aPerturbation,
-                fem::FDScheme_Type                 aFDSchemeType,
-                Matrix< DDSMat >&                  aGeoLocalAssembly,
+                moris::real                   aWStar,
+                moris::real                   aPerturbation,
+                fem::FDScheme_Type            aFDSchemeType,
+                Matrix< DDSMat >&             aGeoLocalAssembly,
                 Vector< Matrix< IndexMat > >& aVertexIndices )
         {
             // unpack vertex indices

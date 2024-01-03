@@ -272,6 +272,9 @@ namespace moris
              */
             void create_integrator( MSI::Model_Solver_Interface* aModelSolverInterface );
 
+            void set_custom_integration_rule( MSI::Model_Solver_Interface* aModelSolverInterface );
+
+
             //------------------------------------------------------------------------------
             /**
              * set visualization mesh set

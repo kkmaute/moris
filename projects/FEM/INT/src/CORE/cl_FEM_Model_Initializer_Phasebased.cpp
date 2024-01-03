@@ -544,8 +544,7 @@ namespace moris::fem
                     static_cast< fem::Element_Type >( tIWGParameter.get< uint >( "IWG_bulk_type" ) );
 
             // set flag for leader/follower
-            bool tLeaderFollower = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET );
-
+            bool tLeaderFollower = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET ) || ( tIWGBulkType == fem::Element_Type::NONCONFORMAL_SIDESET );
             // create an IWG pointer
             mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
 
@@ -818,7 +817,7 @@ namespace moris::fem
                     static_cast< fem::Element_Type >( tIQIParameter.get< uint >( "IQI_bulk_type" ) );
 
             // set bool to true if double sideset
-            bool tLeaderFollower = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET );
+            bool tLeaderFollower = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET ) || ( tIQIBulkType == fem::Element_Type::NONCONFORMAL_SIDESET );
 
             // create an IQI pointer
             mIQIs( iIQI ) = tIQIFactory.create_IQI( tIQIType );
@@ -1241,12 +1240,12 @@ namespace moris::fem
 
     void
     Model_Initializer_Phasebased::get_mesh_set_names(
-            fem::Element_Type           aIWGBulkType,
-            const std::string          &aLeaderPhaseName,
-            const std::string          &aFollowerPhaseName,
-            const std::string          &aFollowerPhaseString,
-            const std::string          &aOrdinalString,
-            bool                        aIsGhost,
+            fem::Element_Type      aIWGBulkType,
+            const std::string     &aLeaderPhaseName,
+            const std::string     &aFollowerPhaseName,
+            const std::string     &aFollowerPhaseString,
+            const std::string     &aOrdinalString,
+            bool                   aIsGhost,
             Vector< std::string > &aMeshSetNames )
     {
         // get the leader phase mesh index
