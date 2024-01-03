@@ -800,11 +800,8 @@ namespace moris
             std::vector< int > tSharedProcs;
 
             // get shared processor IDs
-#ifdef MORIS_HAVE_TRILINOS_OLD
-            mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( tEntity ), tSharedProcs );
-#else
             mSTKMeshData->mMtkMeshBulkData->comm_procs( tEntity, tSharedProcs );
-#endif
+
             if ( tSharedProcs.size() == 0 )
             {
                 tSharedProcs.push_back( mSTKMeshData->mMtkMeshBulkData->parallel_owner_rank( tEntity ) );
@@ -1542,11 +1539,8 @@ namespace moris
                     std::vector< int > sharedProcs;
 
                     // Get shared procs Ids
-#ifdef MORIS_HAVE_TRILINOS_OLD
-                    mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( bucket[ j ] ), sharedProcs );
-#else
                     mSTKMeshData->mMtkMeshBulkData->comm_procs( bucket[ j ], sharedProcs );
-#endif
+
                     if ( sharedProcs.size() != 0 )
                     {
 
@@ -1842,11 +1836,8 @@ namespace moris
                 std::vector< int > tSharedProcs;
 
                 // get shared processor IDs
-#ifdef MORIS_HAVE_TRILINOS_OLD
-                mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( tEntity ), tSharedProcs );
-#else
                 mSTKMeshData->mMtkMeshBulkData->comm_procs( tEntity, tSharedProcs );
-#endif
+
                 if ( tSharedProcs.size() > 0 )
                 {
                     // Initialize output

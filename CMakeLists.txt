@@ -200,12 +200,6 @@ option(MORIS_USE_PARDISO
 option(MORIS_USE_MUMPS
     "Build MORIS with MUMPS used in Trilinos and Petsc." ON )
 
-option(MORIS_HAVE_TRILINOS_OLD
-    "Build MORIS with support for old Trilinos version." OFF )
-
-option(MORIS_HAVE_TRILINOS_NEW_CMAKE
-    "Build MORIS with support for old Trilinos version." OFF )
-    
 option(MORIS_HAVE_PETSC
     "Build MORIS with support for PETSC." ON )
 
@@ -556,10 +550,6 @@ endif()
 # Performace check flag for logger
 if(MORIS_PERFORM_CHECK)
         list(APPEND MORIS_DEFINITIONS "-DMORIS_PERFORM_CHECK")
-endif()
-
-if (MORIS_HAVE_TRILINOS_OLD)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DMORIS_HAVE_TRILINOS_OLD ")
 endif()
 
 # Set compiler flags for strict error checking

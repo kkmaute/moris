@@ -85,7 +85,6 @@ class Moris(CMakePackage):
         options.extend(['-DMORIS_HAVE_DEBUG=OFF'])
         options.extend(['-DMORIS_HAVE_SYMBOLIC=OFF'])
         options.extend(['-DMORIS_HAVE_SYMBOLIC_STRONG=OFF'])
-        options.extend(['-DMORIS_HAVE_TRILINOS_NEW_CMAKE=OFF'])
 
         if '+debug' in spec:
             options.extend(['-DMORIS_HAVE_DEBUG=ON'])

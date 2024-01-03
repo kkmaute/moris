@@ -29,11 +29,6 @@
 * without lbfgs:   -DMORIS_HAVE_LBFGS=OFF
 * without snopt:   -DMORIS_HAVE_SNOPT=OFF
 
-* if you have installed a trilinos version that uses modern cmake use the following option when
-* configuring moris
-
-* -DMORIS_HAVE_TRILINOS_NEW_CMAKE=ON
-
 *------------------------------------------------------------
 
 * build moris optimized version and run tests

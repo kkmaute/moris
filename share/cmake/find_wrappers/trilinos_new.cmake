@@ -124,35 +124,6 @@ if(NOT TRILINOS_FOUND_ONCE)
     
     # -------------------------------------------------------------------------
 
-    if (Trilinos_BUILD_SHARED_LIBS)
-        MESSAGE("MORIS_HAVE_TRILINOS_NEW_CMAKE = ${MORIS_HAVE_TRILINOS_NEW_CMAKE}")
-    
-        if (${MORIS_HAVE_TRILINOS_NEW_CMAKE})
-            foreach( lib ${})
-                list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.so")
-            endforeach(lib)
-        else()
-            foreach( lib ${Trilinos_LIBRARIES})
-                list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.so")
-            endforeach(lib)
-        endif()
-    else()
-    
-        MESSAGE("Trilinos_BUILD_STATIC_LIBS")
-
-        if (${MORIS_HAVE_TRILINOS_NEW_CMAKE})
-            foreach( lib ${Trilinos_ALL_PACKAGES_TARGETS})
-                list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.a")
-            endforeach(lib)
-        else()
-            foreach( lib ${Trilinos_LIBRARIES})
-                list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.a")
-            endforeach(lib)
-        endif()
-    endif()
-    
-    # -------------------------------------------------------------------------
-    
     set(MORIS_TRILINOS_LIBS ${MORIS_T_LIBS})
 
     set(MORIS_TRILINOS_INCLUDE_DIRS
