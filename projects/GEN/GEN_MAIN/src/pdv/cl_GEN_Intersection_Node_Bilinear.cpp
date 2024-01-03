@@ -180,6 +180,10 @@ namespace moris
 
             real tParentPhi = dot( tParentBasis, tPhiBCNodes );
 
+            // delete interpolator
+            delete tInterpolation;
+
+            // return difference to threshold
             return tParentPhi - tIsocontourThreshold;
         }
 
@@ -324,8 +328,8 @@ namespace moris
             }
 
             // set Newton parameters
-            const uint tNewtonMaxIter  = 20;     // maximum number of iterations in Newton
-            const uint tCurvMaxIter = 10;     // maximum number of iterations using curvature information
+            const uint tNewtonMaxIter = 20;    // maximum number of iterations in Newton
+            const uint tCurvMaxIter   = 10;    // maximum number of iterations using curvature information
 
             const real tNewRelax  = 1.0;      // relaxation factor for solution update
             const real tNewRelEps = 1e-8;     // required relative residual drop
@@ -509,7 +513,7 @@ namespace moris
 
             return tEdgeCoordinate;
 
-        } // end function: ge::Intersection_Node_Bilinear::compute_intersection()
+        }    // end function: ge::Intersection_Node_Bilinear::compute_intersection()
 
         //--------------------------------------------------------------------------------------------------------------
 
