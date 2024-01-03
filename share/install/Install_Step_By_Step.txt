@@ -255,12 +255,6 @@ spack add openmpi +legacylaunchers +pmi schedulers=slurm fabrics=auto
 
 *------------------------------------------------------------
 
-* add latest version of cmake (needed by recent trilinos versions)
-
-spack add cmake@master
-
-*------------------------------------------------------------
-
 * add doxygen (optional)
 
 spack add doxygen
