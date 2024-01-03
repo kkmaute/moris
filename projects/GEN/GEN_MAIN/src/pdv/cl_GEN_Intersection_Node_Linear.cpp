@@ -141,6 +141,7 @@ namespace moris
             // delete interpolator
             delete tInterpolation;
 
+            // return difference to threshold
             return tParentPhi - tIsocontourThreshold;
         }
 
