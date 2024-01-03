@@ -40,19 +40,19 @@ export F77=`spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{print $2}
 
 export GCCLIB=`spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
 
-export GCMMA_INSTALLED=`spack find gcmma            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export SNOPT_INSTALLED=`spack find snopt            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export LBFGS_INSTALLED=`spack find lbfgs            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export PETSC_INSTALLED=`spack find petsc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export ABLIS_INSTALLED=`spack find amdblis          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export AFLAM_INSTALLED=`spack find amdlibflame      | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export OAMKL_INSTALLED=`spack find intel-oneapi-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export  IMKL_INSTALLED=`spack find intel-mkl        | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export OBLAS_INSTALLED=`spack find openblas         | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export SLEPC_INSTALLED=`spack find slepc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export  DOXY_INSTALLED=`spack find doxygen          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export CLANG_INSTALLED=`spack find llvm             | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export NINJA_INSTALLED=`spack find ninja            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+export GCMMA_INSTALLED=`spack find | grep gcmma            | wc -l`
+export SNOPT_INSTALLED=`spack find | grep snopt            | wc -l`
+export LBFGS_INSTALLED=`spack find | grep lbfgs            | wc -l`
+export PETSC_INSTALLED=`spack find | grep petsc            | wc -l`
+export ABLIS_INSTALLED=`spack find | grep amdblis          | wc -l`
+export AFLAM_INSTALLED=`spack find | grep amdlibflame      | wc -l`
+export OAMKL_INSTALLED=`spack find | grep intel-oneapi-mkl | wc -l`
+export  IMKL_INSTALLED=`spack find | grep intel-mkl        | wc -l`
+export OBLAS_INSTALLED=`spack find | grep openblas         | wc -l`
+export SLEPC_INSTALLED=`spack find | grep slepc            | wc -l`
+export  DOXY_INSTALLED=`spack find | grep doxygen          | wc -l`
+export CLANG_INSTALLED=`spack find | grep llvm             | wc -l`
+export NINJA_INSTALLED=`spack find | grep ninja            | wc -l`
 
 export Trilinos_DIR=`spack location --install-dir trilinos`
 
@@ -82,7 +82,7 @@ echo "setenv SUPERLU_DIR"      `spack location --install-dir superlu`          >
 echo "setenv SuperLU_DIST_DIR" `spack location --install-dir superlu-dist`     >> $HOME/.cshrc_moris
 echo "setenv HDF5_DIR"         `spack location --install-dir hdf5`             >> $HOME/.cshrc_moris
 echo "setenv NETCDF_DIR "      `spack location --install-dir netcdf-c`         >> $HOME/.cshrc_moris
-echo "setenv ZLIB_DIR "        `spack location --install-dir zlib`             >> $HOME/.cshrc_moris
+echo "setenv ZLIB_DIR "        `spack location --install-dir zlib-ng`          >> $HOME/.cshrc_moris
 echo "setenv SSL_DIR  "        `spack location --install-dir openssl`          >> $HOME/.cshrc_moris
 echo "setenv CMAKE_DIR  "      `spack location --install-dir cmake`            >> $HOME/.cshrc_moris
 echo "setenv Trilinos_DIR       $Trilinos_DIR"                                 >> $HOME/.cshrc_moris
@@ -131,7 +131,7 @@ fi
 
 if [ $NINJA_INSTALLED == "1" ];then
 export NINJA_DIR=`spack location --install-dir ninja`
-echo "setenv NINJA_DIR"       $NINJA_DIR                                     >> $HOME/.cshrc_moris
+echo "setenv NINJA_DIR"       $NINJA_DIR                                       >> $HOME/.cshrc_moris
 fi
 
 echo ""                                                                        >> $HOME/.cshrc_moris

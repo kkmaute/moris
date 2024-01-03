@@ -79,7 +79,7 @@ if(NOT TRILINOS_FOUND_ONCE)
     # details.  You may find them useful for building your application
     # that uses Trilinos.
 
-	IF(Trilinos_FOUND)
+    IF(Trilinos_FOUND)
 
         #  # If Trilinos is included, it may use Pardiso.
         #  if (${MORIS_USE_PARDISO})
@@ -122,7 +122,7 @@ if(NOT TRILINOS_FOUND_ONCE)
 
     mark_as_advanced(TRILINOS_DIR Trilinos_DIR TRILINOS_DEBUG_DIR)
     
-	# -------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
 
     if (Trilinos_BUILD_SHARED_LIBS)
         MESSAGE("MORIS_HAVE_TRILINOS_NEW_CMAKE = ${MORIS_HAVE_TRILINOS_NEW_CMAKE}")
@@ -198,5 +198,5 @@ if(NOT TARGET ${MORIS}::trilinos)
     MESSAGE("   Trilinos_ALL_SELECTED_PACKAGES_TARGETS = ${Trilinos_ALL_SELECTED_PACKAGES_TARGETS}")
 
     target_link_libraries(${MORIS}::trilinos INTERFACE  ${MORIS_TRILINOS_TPLS_TARGETS})
-    target_link_libraries(${MORIS}::trilinos INTERFACE  ${Trilinos_ALL_SELECTED_PACKAGES_TARGETS})
+    target_link_libraries(${MORIS}::trilinos INTERFACE  Trilinos::all_libs)
 endif()

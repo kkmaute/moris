@@ -47,8 +47,8 @@ class Moris(CMakePackage):
     variant("examples", default=False, description="Compile with examples")
     variant("debug",    default=False, description="Compile with debug support")
 
-    depends_on('armadillo@9.800.3')
-    depends_on('arpack-ng@3.8.0')
+    depends_on('armadillo')
+    depends_on('arpack-ng')
     depends_on('boost+filesystem+log+serialization+system+thread+timer')
     depends_on('eigen')
     depends_on('hdf5')
@@ -62,16 +62,16 @@ class Moris(CMakePackage):
     depends_on('superlu')
     depends_on('superlu-dist')
    
-    depends_on('trilinos@13.4')
+    depends_on('trilinos@15.0.0')
     depends_on('trilinos+boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2')
     depends_on('trilinos+pardiso', when="+pardiso")
     depends_on('trilinos~pardiso', when="-pardiso")
     depends_on('trilinos+mumps',   when="+mumps")
     depends_on('trilinos~mumps',   when="-mumps")
 
-    depends_on('petsc@3.17.4',                       when="+petsc")
+    depends_on('petsc',                              when="+petsc")
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
-    # depends_on('petsc+mkl-pardiso',                when="+petsc +pardiso")
+    #depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
     depends_on('petsc~mumps',                        when="+petsc -mumps")
 
