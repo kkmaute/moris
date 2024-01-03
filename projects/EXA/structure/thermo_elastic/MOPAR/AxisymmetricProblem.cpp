@@ -43,7 +43,7 @@ namespace moris
     // Input file
     std::string tOutputFileName = "AxisymmetricProblem.exo";
     std::string tRoot           = get_base_moris_dir();
-    std::string tFieldRefPath   = tRoot + "projects/EXA/structure/thermo_elastic/MOPAR/exomesh.e";
+    std::string tFieldRefPath   = tRoot + "projects/EXA/structure/thermo_elastic/MOPAR/traction.e";
 
     bool byGeometry = false;
 

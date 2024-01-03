@@ -40,4 +40,5 @@ export mesh "exomesh.e" dimension 2 overwrite
 
 * run matlab script: mapper.m to generate 
 
+* cp exomesh.e traction.e
 
