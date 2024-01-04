@@ -40,19 +40,19 @@ export F77=`spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{print $2}
 
 export GCCLIB=`spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
 
-export GCMMA_INSTALLED=`spack find | grep gcmma            | wc -l`
-export SNOPT_INSTALLED=`spack find | grep snopt            | wc -l`
-export LBFGS_INSTALLED=`spack find | grep lbfgs            | wc -l`
-export PETSC_INSTALLED=`spack find | grep petsc            | wc -l`
-export ABLIS_INSTALLED=`spack find | grep amdblis          | wc -l`
-export AFLAM_INSTALLED=`spack find | grep amdlibflame      | wc -l`
-export OAMKL_INSTALLED=`spack find | grep intel-oneapi-mkl | wc -l`
-export  IMKL_INSTALLED=`spack find | grep intel-mkl        | wc -l`
-export OBLAS_INSTALLED=`spack find | grep openblas         | wc -l`
-export SLEPC_INSTALLED=`spack find | grep slepc            | wc -l`
-export  DOXY_INSTALLED=`spack find | grep doxygen          | wc -l`
-export CLANG_INSTALLED=`spack find | grep llvm             | wc -l`
-export NINJA_INSTALLED=`spack find | grep ninja            | wc -l`
+export GCMMA_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "gcmma" )           {n=1}}END{print n}'`
+export SNOPT_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "snopt" )           {n=1}}END{print n}'`
+export LBFGS_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "lbfgs" )           {n=1}}END{print n}'`
+export PETSC_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "petsc" )           {n=1}}END{print n}'`
+export ABLIS_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "amdblis" )         {n=1}}END{print n}'`
+export AFLAM_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "amdlibflame" )     {n=1}}END{print n}'`
+export OAMKL_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "intel-oneapi-mkl" ){n=1}}END{print n}'`
+export  IMKL_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "intel-mkl" )       {n=1}}END{print n}'`
+export OBLAS_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "openblas" )        {n=1}}END{print n}'`
+export SLEPC_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "slepc" )           {n=1}}END{print n}'`
+export  DOXY_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "doxygen" )         {n=1}}END{print n}'`
+export CLANG_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "llvm" )            {n=1}}END{print n}'`
+export NINJA_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "ninja" )           {n=1}}END{print n}'`
 
 export Trilinos_DIR=`spack location --install-dir trilinos`
 
