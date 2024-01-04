@@ -8,6 +8,8 @@
 #include "cl_MTK_Double_Side_Cluster.hpp"
 #include "cl_MTK_IntegrationPointPairs.hpp"
 #include "cl_Vector.hpp"
+#include "linalg_typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris::mtk
 {
@@ -15,8 +17,8 @@ namespace moris::mtk
     {
       public:
         Nonconformal_Side_Cluster(
-                Cluster const                         *aFollowerSideCluster,
                 Cluster const                         *aLeaderSideCluster,
+                Cluster const                         *aFollowerSideCluster,
                 Vector< IntegrationPointPairs > const &aIntegrationPointPairs )
                 : Double_Side_Cluster( aLeaderSideCluster, aFollowerSideCluster, {} )
                 , mIntegrationPointPairs( aIntegrationPointPairs ){};
@@ -39,7 +41,6 @@ namespace moris::mtk
         Vector< mtk::Cell const * >
         get_nonconforming_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const;
 
-
         Matrix< DDRMat > compute_cluster_ig_cell_side_measures( mtk::Primary_Void const aPrimaryOrVoid, mtk::Leader_Follower const aIsLeader ) const override;
 
         moris::real compute_cluster_cell_side_measure( mtk::Primary_Void const aPrimaryOrVoid, mtk::Leader_Follower const aIsLeader ) const override;
@@ -56,19 +57,19 @@ namespace moris::mtk
 
         [[nodiscard]] Vector< IntegrationPointPairs > const &get_integration_point_pairs() const;
 
-      private:
-        Vector< IntegrationPointPairs > mIntegrationPointPairs;
-
         /**
          * \brief This utility method returns a mask of indices that are consistent with the integration point pairs.
          * This can be useful to index into the cells of the cluster in the same order as the integration point pairs.
-         * \details I.e. if the leader sides of the integration point pairs are the cells 2, 4, 1 (in this order) and the cells in the cluster are
-         * 1, 2, 3, 4 (i.e cell 3 does not get paired with any other cell), the mask would be [1, 3, 0] (corresponding to the 1st, 3rd and
-         * 0th cell, thus giving the cells with indices 2, 4, 1). This works for both leader and follower (primary) cells.
+         * \details E.g. if the leader/follower sides of the integration point pairs are the cells 2, 4, 1, 1 (in this order) and the cells in the cluster are
+         * 1, 2, 3, 4 (i.e cell 3 does not get paired with any other cell and 1 is paired twice), the mask would be [1, 3, 0, 0] (corresponding to the 1st, 3rd and
+         * 0th cell, thus giving the cells with indices 2, 4, 1 and 1). This works for both leader and follower (primary) cells.
          * \param aIsLeader
          * \return
          */
-        Vector< moris_index > get_integration_pair_indexing_mask( const mtk::Leader_Follower aIsLeader ) const;
+        Vector< moris_index > get_cell_local_indices( const mtk::Leader_Follower aIsLeader ) const;
+
+      private:
+        Vector< IntegrationPointPairs > mIntegrationPointPairs;
     };
 
 

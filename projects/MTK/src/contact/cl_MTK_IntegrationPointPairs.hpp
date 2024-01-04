@@ -12,48 +12,37 @@
 namespace moris::mtk
 {
     /**
-     * \brief This struct stores information about one or multiple integration points that got mapped from the follower side to the leader side.
-     * To uniquely identify the mapping, the information about the follower and leader cell index is stored.
+     * \brief This struct stores information about one or multiple integration points that got mapped from the leader side to the follower side.
+     * To uniquely identify the mapping, the information about the leader and follower cell index is stored.
      * Additional information about
      */
     class IntegrationPointPairs
     {
       public:
         IntegrationPointPairs(
-                moris_index const         &aFollowerCellIndex,
-                Matrix< DDRMat > const    &aFollowerCoordinates,
-                moris_index const         &aLeaderCellIndex,
-                Matrix< DDRMat > const    &aLeaderCoordinates,
-                Vector< real > const &aIntegrationWeights,
-                Matrix< DDRMat > const    &aNormals )
-                : mFollowerCellIndex( aFollowerCellIndex )
-                , mFollowerCoordinates( aFollowerCoordinates )
-                , mLeaderCellIndex( aLeaderCellIndex )
+                moris_index const      &aLeaderCellIndex,
+                Matrix< DDRMat > const &aLeaderCoordinates,
+                moris_index const      &aFollowerCellIndex,
+                Matrix< DDRMat > const &aFollowerCoordinates,
+                Vector< real > const   &aIntegrationWeights,
+                Matrix< DDRMat > const &aNormals )
+                : mLeaderCellIndex( aLeaderCellIndex )
                 , mLeaderCoordinates( aLeaderCoordinates )
+                , mFollowerCellIndex( aFollowerCellIndex )
+                , mFollowerCoordinates( aFollowerCoordinates )
                 , mNormals( aNormals )
                 , mIntegrationWeights( aIntegrationWeights ){};
 
-        [[nodiscard]] moris_index                get_follower_cell_index() const { return mFollowerCellIndex; }
-        [[nodiscard]] const Matrix< DDRMat >    &get_follower_coordinates() const { return mFollowerCoordinates; }
-        [[nodiscard]] moris_index                get_leader_cell_index() const { return mLeaderCellIndex; }
-        [[nodiscard]] const Matrix< DDRMat >    &get_leader_coordinates() const { return mLeaderCoordinates; }
-        [[nodiscard]] const Matrix< DDRMat >    &get_normals() const { return mNormals; }
-        [[nodiscard]] const Vector< real > &get_integration_weights() const { return mIntegrationWeights; }
+        [[nodiscard]] moris_index             get_leader_cell_index() const { return mLeaderCellIndex; }
+        [[nodiscard]] const Matrix< DDRMat > &get_leader_coordinates() const { return mLeaderCoordinates; }
+        [[nodiscard]] moris_index             get_follower_cell_index() const { return mFollowerCellIndex; }
+        [[nodiscard]] const Matrix< DDRMat > &get_follower_coordinates() const { return mFollowerCoordinates; }
+        [[nodiscard]] const Matrix< DDRMat > &get_normals() const { return mNormals; }
+        [[nodiscard]] const Vector< real >   &get_integration_weights() const { return mIntegrationWeights; }
 
       private:
         /**
-         * \brief The cell index of the cell on the follower cell from which the mapping was performed.
-         */
-        moris_index mFollowerCellIndex;
-
-        /**
-         * \brief The parametric coordinates of the integration points on the follower side.
-         * \details A (p x n) matrix, where p is the parametric dimension and n is the number of integration points.
-         */
-        Matrix< DDRMat > mFollowerCoordinates;
-
-        /**
-         * \brief The cell index of the cell on the leader cluster to which the mapping was performed.
+         * \brief The cell index of the cell on the leader cell from which the mapping was performed.
          */
         moris_index mLeaderCellIndex;
 
@@ -64,13 +53,24 @@ namespace moris::mtk
         Matrix< DDRMat > mLeaderCoordinates;
 
         /**
-         * \brief The normal that was used to perform the mapping from the follower side to the leader side.
+         * \brief The cell index of the cell on the follower cluster to which the mapping was performed.
+         */
+        moris_index mFollowerCellIndex;
+
+        /**
+         * \brief The parametric coordinates of the integration points on the follower side.
+         * \details A (p x n) matrix, where p is the parametric dimension and n is the number of integration points.
+         */
+        Matrix< DDRMat > mFollowerCoordinates;
+
+        /**
+         * \brief The normal that was used to perform the mapping from the leader side to the follower side.
          * \details A (d x n) matrix, where d is the physical dimension and n is the number of integration points.
          */
         Matrix< DDRMat > mNormals;
 
         /**
-         * \brief A list of integration points for each of the points in the follower/leader coordinate matrices.
+         * \brief A list of integration points for each of the points in the leader/follower coordinate matrices.
          */
         Vector< real > mIntegrationWeights;
     };
