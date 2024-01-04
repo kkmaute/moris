@@ -165,13 +165,13 @@ namespace moris::ge
         for ( auto iBasisNode : aBasisNodes )
         {
             // Get locator sensitivities
-            Matrix< DDSMat > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
+            Matrix< DDSMat > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() );
 
             // Get current joined ADV ID length
             uint tJoinedADVIDLength = mInterpolatedADVIDs.length();
 
             // Have to do a resize, since each basis node can depend on different number of ADVs
-            mInterpolatedADVIDs.resize( 1, mInterpolatedADVIDs.length() + tBasisNodeADVIDs.length() );
+            mInterpolatedADVIDs.resize( 1, tJoinedADVIDLength + tBasisNodeADVIDs.length() );
 
             // Append to current list
             for ( uint iBasisNodeADV = 0; iBasisNodeADV < tBasisNodeADVIDs.length(); iBasisNodeADV++ )
