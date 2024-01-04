@@ -41,7 +41,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        fem::Element* Element_Factory::create_element(
+        fem::Element* Element_Factory::create_single_sided_element(
                 Element_Type       aElementType,
                 mtk::Cell const *  aCell,
                 Set*               aSet,
@@ -69,14 +69,14 @@ namespace moris
                     break;
 
                 default:
-                    MORIS_ERROR( false, "Element_Factory::create_element - No element type specified" );
+                    MORIS_ERROR( false, "Element_Factory::create_single_sided_element - No element type specified" );
                     break;
             }
             return tElement;
         }
 
         //------------------------------------------------------------------------------
-        fem::Element* Element_Factory::create_element(
+        fem::Element* Element_Factory::create_double_sided_element(
                 Element_Type       aElementType,
                 mtk::Cell const *  aLeftCell,
                 mtk::Cell const *  aRightCell,
@@ -88,13 +88,12 @@ namespace moris
 
             switch ( aElementType )
             {
-                case fem::Element_Type::NONCONFORMAL_SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
                     tElement = new Element_Double_Sideset( aLeftCell, aRightCell, aSet, aCluster, aCellIndexInCluster );
                     break;
 
                 default:
-                    MORIS_ERROR( false, "Element_Factory::create_element - Not a double sideset" );
+                    MORIS_ERROR( false, "Element_Factory::create_double_sided_element - Not a double sideset" );
                     break;
             }
             return tElement;

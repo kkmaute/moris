@@ -65,7 +65,7 @@ namespace moris
                     for ( uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create an element
-                        mElements( iIGCell ) = tElementFactory.create_element(
+                        mElements( iIGCell ) = tElementFactory.create_single_sided_element(
                                 mElementType,
                                 mLeaderIntegrationCells( iIGCell ),
                                 mSet,
@@ -83,7 +83,7 @@ namespace moris
                     for ( uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create an element
-                        mElements( iIGCell ) = tElementFactory.create_element(
+                        mElements( iIGCell ) = tElementFactory.create_single_sided_element(
                                 mElementType,
                                 mLeaderIntegrationCells( iIGCell ),
                                 mSet,
@@ -105,7 +105,7 @@ namespace moris
                     for ( moris::uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create element
-                        mElements( iIGCell ) = tElementFactory.create_element(
+                        mElements( iIGCell ) = tElementFactory.create_double_sided_element(
                                 mElementType,
                                 mLeaderIntegrationCells( iIGCell ),
                                 mFollowerIntegrationCells( iIGCell ),
