@@ -29,7 +29,10 @@ namespace moris::mtk
          */
         Matrix< DDRMat > mSourcePhysicalCoordinate;
 
-
+        /**
+         * @brief The n-th entry is the cell index of the n-th matching point in the mParametricCoordinates matrix.
+         * If the mapping was not successful, the cell index is -1.
+         */
         Vector< moris_index > mSourceCellIndex;
 
         /**
@@ -55,7 +58,6 @@ namespace moris::mtk
 
         /**
          * @brief The parametric coordinates of the point on which the mapping was performed.
-         * @attention The coordinate is only valid if the mapping was successful and a corresponding cell index is not -1!
          */
         Matrix< DDRMat > mTargetParametricCoordinate;
 
@@ -68,7 +70,7 @@ namespace moris::mtk
         /**
          * @brief Contains the normals that were used for the mapping.
          */
-        Matrix< DDRMat > mNormal;
+        Matrix< DDRMat > mNormals;
 
         /**
          * @brief The n-th entry is the distance of the n-th to the mapped point in physical coordinates.

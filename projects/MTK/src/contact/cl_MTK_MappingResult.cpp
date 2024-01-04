@@ -17,7 +17,7 @@ namespace moris::mtk
             , mTargetPhysicalCoordinate( aPhysicalDimension, aNumberOfPoints )
             , mTargetParametricCoordinate( aPhysicalDimension - 1, aNumberOfPoints )
             , mTargetSideSetIndices( aNumberOfPoints, -1 )
-            , mNormal( aPhysicalDimension, aNumberOfPoints )
+            , mNormals( aPhysicalDimension, aNumberOfPoints )
             , mDistances( aNumberOfPoints )
     {
     }
@@ -33,7 +33,7 @@ namespace moris::mtk
             tPoint.add_child( "source_coordinate", moris::to_json( trans( mSourcePhysicalCoordinate.get_column( iPoint ) ) ) );
             tPoint.add_child( "target_coordinate", moris::to_json( trans( mTargetPhysicalCoordinate.get_column( iPoint ) ) ) );
             tPoint.add_child( "target_parametric_coordinate", moris::to_json( trans( mTargetParametricCoordinate.get_column( iPoint ) ) ) );
-            tPoint.add_child( "normal", moris::to_json( trans( mNormal.get_column( iPoint ) ) ) );
+            tPoint.add_child( "normal", moris::to_json( trans( mNormals.get_column( iPoint ) ) ) );
             tPoint.add( "distance", mDistances( iPoint ) );
             tPoint.add( "source_cell_index", iPoint );
             tPoint.add( "target_cell_index", mTargetCellIndices( iPoint ) );

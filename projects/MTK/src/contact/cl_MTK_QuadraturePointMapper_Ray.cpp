@@ -16,7 +16,7 @@
 namespace moris::mtk
 {
     QuadraturePointMapper_Ray::QuadraturePointMapper_Ray(
-            Integration_Mesh                                           *aIGMesh,
+            Integration_Mesh                                      *aIGMesh,
             Vector< Side_Set const * >                            &aSideSets,
             Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs )
             : QuadraturePointMapper( aIGMesh, aSideSets, aCandidatePairs )
@@ -33,7 +33,7 @@ namespace moris::mtk
     }
 
     Vector< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes(
-            Integration_Mesh const                *aIGMesh,
+            Integration_Mesh const           *aIGMesh,
             Vector< Side_Set const * > const &aSideSets )
     {
         Vector< Surface_Mesh > tSurfaceMeshes;
@@ -41,7 +41,7 @@ namespace moris::mtk
         {
             // initialize one surface mesh per side set
             Vector< mtk::Side_Set const * > tSideSetCast{ tSideSet };
-            Surface_Mesh                         tSurfaceMesh( aIGMesh, tSideSetCast );
+            Surface_Mesh                    tSurfaceMesh( aIGMesh, tSideSetCast );
             tSurfaceMeshes.push_back( tSurfaceMesh );
         }
         return tSurfaceMeshes;
@@ -120,7 +120,7 @@ namespace moris::mtk
 
             // map the parametric coordinate to the surface mesh
             aMappingResult.mSourcePhysicalCoordinate.set_column( tStartIndex + iPoint, tVertexCoordinates * trans( aCoordinateInterpolator.NXi() ) );
-            aMappingResult.mNormal.set_column( tStartIndex + iPoint, tVertexNormals * trans( aNormalInterpolator.NXi() ) );
+            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tVertexNormals * trans( aNormalInterpolator.NXi() ) );
         }
     }
 
@@ -231,7 +231,7 @@ namespace moris::mtk
                 // only consider the vertices that are actually closest to the target mesh
                 if ( aSpatialIndexingResult[ tVertex ].mesh_index == tTargetMeshIndex )
                 {
-                    moris_index const          tClosestVertex    = aSpatialIndexingResult[ tVertex ].vertex;
+                    moris_index const     tClosestVertex    = aSpatialIndexingResult[ tVertex ].vertex;
                     Vector< moris_index > tNeighboringCells = tTargetMesh.get_cells_of_vertex( tClosestVertex );
                     tPotentialTargetCells.insert( tNeighboringCells.begin(), tNeighboringCells.end() );
                 }
@@ -316,7 +316,7 @@ namespace moris::mtk
             auto const &[ tHasIntersection, tDistance, tParamCoord, tPhysCoord ] =
                     calculate_ray_line_intersection(
                             aMappingResult.mSourcePhysicalCoordinate.get_column( aResultOffset + iRay ),
-                            aMappingResult.mNormal.get_column( aResultOffset + iRay ),
+                            aMappingResult.mNormals.get_column( aResultOffset + iRay ),
                             tSegmentOrigin,
                             tSegmentDirection );
 
