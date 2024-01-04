@@ -448,6 +448,8 @@ namespace moris
                 Cell< mtk::Cell* >&                                aNewNodeParentCell,
                 const Cell< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates )
         {
+            // This function can't be traced; Right now XTK does not always call it from all processors.
+
             // Get number of new nodes
             uint tNumberOfNewDerivedNodes = aNewNodeIndices.size();
 
@@ -483,8 +485,7 @@ namespace moris
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder )
         {
-            // Tracer
-            Tracer tTracer( "GEN", "Create new child nodes" );
+            // This function can't be traced; Right now XTK does not always call it from all processors.
 
             // Loop over nodes
             for ( uint iNode = 0; iNode < aNewNodeIndices.size(); iNode++ )
