@@ -156,6 +156,8 @@ namespace moris
             void init_ig_geometry_interpolator(
                     uint aLeaderSideOrdinal,
                     uint aFollowerSideOrdinal );
+            void             initialize_leader_follower_ig_interpolator( const mtk::Cell *aCell, uint aSideOrdinal, moris_index aLocalCellIndex, mtk::Leader_Follower aLeaderFollowerType ) const;
+            Matrix< DDSMat > get_local_cluster_assembly_indices( moris_index const aLeaderSideOrdinal, moris_index const aFollowerSideOrdinal ) const;
 
             /**
              * @brief Return the index at which the leader cell is stored in the vector of primary cells in the parent cluster.
@@ -174,19 +176,6 @@ namespace moris
             virtual moris_index get_follower_local_cell_index() const;
 
             //------------------------------------------------------------------------------
-
-            /**
-             * initialize the geometry interpolator for the IG leader and follower element
-             * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
-             * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
-             * @param[ in ] aGeoLocalAssembly  matrix with pdv local assembly indices
-             *                                 for leader element
-             *                                 ( NumVertexIndices x NumPdvTypes )
-             */
-            void init_ig_geometry_interpolator(
-                    uint              aLeaderSideOrdinal,
-                    uint              aFollowerSideOrdinal,
-                    Matrix< DDSMat > &aGeoLocalAssembly );
 
           private:
             Matrix< DDRMat > get_follower_integration_point( uint aGPIndex ) const override;

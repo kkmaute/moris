@@ -14,9 +14,13 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Model.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_Matrix_Arma_Dynamic.hpp"
+#include "cl_Vector.hpp"
+#include "cl_Matrix.hpp"
 #include "fn_FEM_Side_Coordinate_Map.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Model.hpp"
+#include "linalg_typedefs.hpp"
 
 namespace moris
 {
@@ -51,154 +55,49 @@ namespace moris
                 uint aLeaderSideOrdinal,
                 uint aFollowerSideOrdinal )
         {
-            // get leader IG geometry interpolator
-            Geometry_Interpolator* tLeaderIGGI = mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IG_geometry_interpolator();
-
-            // get follower IG geometry interpolator
-            Geometry_Interpolator* tFollowerIGGI = mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IG_geometry_interpolator();
-
-            // get leader physical space and time coordinates for IG element
-            Matrix< DDRMat > tLeaderIGPhysSpaceCoords = mLeaderCell->get_cell_physical_coords_on_side_ordinal( aLeaderSideOrdinal );
-            Matrix< DDRMat > tLeaderIGPhysTimeCoords  = mCluster->mInterpolationElement->get_time();
-
-            // get follower physical space and time coordinates for IG element
-            Matrix< DDRMat > tFollowerIGPhysSpaceCoords = mFollowerCell->get_cell_physical_coords_on_side_ordinal( aFollowerSideOrdinal );
-            Matrix< DDRMat > tFollowerIGPhysTimeCoords  = mCluster->mInterpolationElement->get_time();
-
-            // get leader parametric space and time coordinates for IG element
-            Matrix< DDRMat > tLeaderIGParamSpaceCoords =
-                    mCluster->get_cell_local_coords_on_side_wrt_interp_cell(
-                            get_leader_local_cell_index(),
-                            aLeaderSideOrdinal,
-                            mtk::Leader_Follower::LEADER );
-            // FIXME not true if time is not linear
-            Matrix< DDRMat > tLeaderIGParamTimeCoords = { { -1.0 }, { 1.0 } };
-
-            // get follower parametric space and time coordinates for IG element
-            Matrix< DDRMat > tFollowerIGParamSpaceCoords =
-                    mCluster->get_cell_local_coords_on_side_wrt_interp_cell(
-                            get_follower_local_cell_index(),
-                            aFollowerSideOrdinal,
-                            mtk::Leader_Follower::FOLLOWER );
-            // FIXME not true if time is not linear
-            Matrix< DDRMat > tFollowerIGParamTimeCoords = { { -1.0 }, { 1.0 } };
-
-            // set physical space and time coefficients for leader IG element GI
-            tLeaderIGGI->set_space_coeff( tLeaderIGPhysSpaceCoords );
-            tLeaderIGGI->set_time_coeff( tLeaderIGPhysTimeCoords );
-
-            // set physical space and time coefficients for follower IG element GI
-            tFollowerIGGI->set_space_coeff( tFollowerIGPhysSpaceCoords );
-            tFollowerIGGI->set_time_coeff( tFollowerIGPhysTimeCoords );
-
-            // set parametric space and time coefficients for leader IG element GI
-            tLeaderIGGI->set_space_param_coeff( tLeaderIGParamSpaceCoords );
-            tLeaderIGGI->set_time_param_coeff( tLeaderIGParamTimeCoords );
-
-            // set parametric space and time coefficients for follower IG element GI
-            tFollowerIGGI->set_space_param_coeff( tFollowerIGParamSpaceCoords );
-            tFollowerIGGI->set_time_param_coeff( tFollowerIGParamTimeCoords );
+            initialize_leader_follower_ig_interpolator( mLeaderCell, aLeaderSideOrdinal, get_leader_local_cell_index(), mtk::Leader_Follower::LEADER );
+            initialize_leader_follower_ig_interpolator( mFollowerCell, aFollowerSideOrdinal, get_follower_local_cell_index(), mtk::Leader_Follower::FOLLOWER );
         }
 
-        //------------------------------------------------------------------------------
-
-        void
-        Element_Double_Sideset::init_ig_geometry_interpolator(
-                uint              aLeaderSideOrdinal,
-                uint              aFollowerSideOrdinal,
-                Matrix< DDSMat >& aGeoLocalAssembly )
+        void Element_Double_Sideset::initialize_leader_follower_ig_interpolator( const mtk::Cell* aCell, uint aSideOrdinal, moris_index aLocalCellIndex, mtk::Leader_Follower aLeaderFollowerType ) const
         {
             // get leader IG geometry interpolator
-            Geometry_Interpolator* tLeaderIGGI =
-                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->    //
-                    get_IG_geometry_interpolator();
+            Geometry_Interpolator* tIGInterpolator = mSet->get_field_interpolator_manager( aLeaderFollowerType )->get_IG_geometry_interpolator();
 
-            // get follower IG geometry interpolator
-            Geometry_Interpolator* tFollowerIGGI =
-                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->    //
-                    get_IG_geometry_interpolator();
+            // physical coefficients
+            tIGInterpolator->set_space_coeff( aCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal ) );
+            tIGInterpolator->set_time_coeff( mCluster->mInterpolationElement->get_time() );
 
-            // get leader physical space and time coordinates for IG element
-            Matrix< DDRMat > tLeaderIGPhysSpaceCoords =
-                    mLeaderCell->get_cell_physical_coords_on_side_ordinal( aLeaderSideOrdinal );
+            // parametric coefficients
+            tIGInterpolator->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( aLocalCellIndex, aSideOrdinal, aLeaderFollowerType ) );
+            tIGInterpolator->set_time_param_coeff( { { -1.0 }, { 1.0 } } );    // FIXME not true if time is not linear
+        }
 
-            Matrix< DDRMat > tLeaderIGPhysTimeCoords =
-                    mCluster->mInterpolationElement->get_time();
-
-            // get follower physical space and time coordinates for IG element
-            Matrix< DDRMat > tFollowerIGPhysSpaceCoords =
-                    mFollowerCell->get_cell_physical_coords_on_side_ordinal( aFollowerSideOrdinal );
-
-            Matrix< DDRMat > tFollowerIGPhysTimeCoords =
-                    mCluster->mInterpolationElement->get_time();
-
-            // get leader parametric space and time coordinates for IG element
-            Matrix< DDRMat > tLeaderIGParamSpaceCoords =
-                    mCluster->get_cell_local_coords_on_side_wrt_interp_cell(
-                            get_leader_local_cell_index(),
-                            aLeaderSideOrdinal,
-                            mtk::Leader_Follower::LEADER );
-
-            // FIXME not true if time is not linear
-            Matrix< DDRMat > tLeaderIGParamTimeCoords = { { -1.0 }, { 1.0 } };
-
-            // get follower parametric space and time coordinates for IG element
-            Matrix< DDRMat > tFollowerIGParamSpaceCoords =
-                    mCluster->get_cell_local_coords_on_side_wrt_interp_cell(
-                            get_follower_local_cell_index(),
-                            aFollowerSideOrdinal,
-                            mtk::Leader_Follower::FOLLOWER );
-
-            // FIXME not true if time is not linear
-            Matrix< DDRMat > tFollowerIGParamTimeCoords = { { -1.0 }, { 1.0 } };
-
-            // get the local cluster assembly indices
+        Matrix< DDSMat > Element_Double_Sideset::get_local_cluster_assembly_indices( moris_index const aLeaderSideOrdinal, moris_index const aFollowerSideOrdinal ) const
+        {
+            Matrix< DDSMat > tGeoLocalAssembly;
             if ( mSet->get_geo_pdv_assembly_flag() )
             {
                 // get the vertices indices
-                Matrix< IndexMat > tLeaderVertexIndices =
-                        mLeaderCell->get_vertices_ind_on_side_ordinal( aLeaderSideOrdinal );
-
-                Matrix< IndexMat > tFollowerVertexIndices =
-                        mFollowerCell->get_vertices_ind_on_side_ordinal( aFollowerSideOrdinal );
+                Matrix< IndexMat > const tLeaderVertexIndices   = mLeaderCell->get_vertices_ind_on_side_ordinal( aLeaderSideOrdinal );
+                Matrix< IndexMat > const tFollowerVertexIndices = mFollowerCell->get_vertices_ind_on_side_ordinal( aFollowerSideOrdinal );
 
                 // get the requested geo pdv types
                 Vector< enum PDV_Type > tGeoPdvType;
                 mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
                 // get local assembly indices
-                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
-                        tLeaderVertexIndices,
-                        tGeoPdvType,
-                        aGeoLocalAssembly );
+                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices( tLeaderVertexIndices, tGeoPdvType, tGeoLocalAssembly );
             }
-
-            // set physical space and time coefficients for leader IG element GI
-            tLeaderIGGI->set_space_coeff( tLeaderIGPhysSpaceCoords );
-            tLeaderIGGI->set_time_coeff( tLeaderIGPhysTimeCoords );
-
-            // set physical space and time coefficients for follower IG element GI
-            tFollowerIGGI->set_space_coeff( tFollowerIGPhysSpaceCoords );
-            tFollowerIGGI->set_time_coeff( tFollowerIGPhysTimeCoords );
-
-            // set parametric space and time coefficients for leader IG element GI
-            tLeaderIGGI->set_space_param_coeff( tLeaderIGParamSpaceCoords );
-            tLeaderIGGI->set_time_param_coeff( tLeaderIGParamTimeCoords );
-
-            // set parametric space and time coefficients for follower IG element GI
-            tFollowerIGGI->set_space_param_coeff( tFollowerIGParamSpaceCoords );
-            tFollowerIGGI->set_time_param_coeff( tFollowerIGParamTimeCoords );
+            return tGeoLocalAssembly;
         }
 
         Matrix< DDRMat > Element_Double_Sideset::get_follower_integration_point( uint const aGPIndex ) const
         {
-            uint const tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
-
-            moris::mtk::Vertex const * tFollowerNode =
-                    mCluster->get_left_vertex_pair( mLeaderCell->get_vertices_on_side_ordinal( tLeaderSideOrd )( 0 ) );
-
-            moris_index const tFollowerNodeOrdOnSide =
-                    mCluster->get_right_vertex_ordinal_on_facet( get_follower_local_cell_index(), tFollowerNode );
+            uint const          tLeaderSideOrd         = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
+            mtk::Vertex const * tLeaderVertex          = mLeaderCell->get_vertices_on_side_ordinal( tLeaderSideOrd )( 0 );
+            mtk::Vertex const * tFollowerVertex        = mCluster->get_left_vertex_pair( tLeaderVertex );
+            moris_index const   tFollowerNodeOrdOnSide = mCluster->get_right_vertex_ordinal_on_facet( get_follower_local_cell_index(), tFollowerVertex );
 
             return side_coordinate_map(
                     mSet->get_IG_geometry_type(),
@@ -493,11 +392,9 @@ namespace moris
             uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( get_follower_local_cell_index() );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
-            Matrix< DDSMat > tGeoLocalAssembly;
-            this->init_ig_geometry_interpolator(
-                    tLeaderSideOrd,
-                    tFollowerSideOrd,
-                    tGeoLocalAssembly );
+            this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
+
+            Matrix< DDSMat > tGeoLocalAssembly = get_local_cluster_assembly_indices( tLeaderSideOrd, tFollowerSideOrd );
 
             // get first corresponding node from leader to follower
             moris::mtk::Vertex const * tFollowerNode =
@@ -589,11 +486,9 @@ namespace moris
             uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( get_follower_local_cell_index() );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
-            Matrix< DDSMat > tGeoLocalAssembly;
-            this->init_ig_geometry_interpolator(
-                    tLeaderSideOrd,
-                    tFollowerSideOrd,
-                    tGeoLocalAssembly );
+            this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
+
+            Matrix< DDSMat > tGeoLocalAssembly = get_local_cluster_assembly_indices( tLeaderSideOrd, tFollowerSideOrd );
 
             // get first corresponding node from leader to follower
             moris::mtk::Vertex const * tFollowerNode =
