@@ -205,6 +205,19 @@ spack env activate .
 
 spack compiler find
 
+spack compiler list | grep gcc | grep '@' | awk -v compiler=$COMPILER '{ if ( match($0,compiler) == 0) {cmd="spack compiler rm "$0; system(cmd)}}'
+
+spack compiler list 
+
+ret=`spack compiler list | grep gcc | grep '@' | awk -v compiler=$COMPILER 'BEGIN{n=0}{ if ( match($0,compiler) > 0) {n=n+1}}END{print n}'`
+
+if [ ! $ret = "1" ];then
+    echo "Error - $COMPILER not available"
+    exit
+fi
+    
+#------------------------------------------------------------
+
 echo "  packages:"                      >> spack.yaml
 echo "    all:"                         >> spack.yaml
 echo "      providers:"                 >> spack.yaml
@@ -215,18 +228,18 @@ echo "        mkl: [$mklpro]"           >> spack.yaml
 
 #------------------------------------------------------------
 
-spack add moris$petopt$paropt$mumopt$optopt
+spack add moris$petopt$paropt$mumopt$optopt %"$COMPILER"
 
 spack develop --path $WORKSPACE/moris moris@main
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    spack add doxygen
-    spack add llvm~gold
+    spack add doxygen %"$COMPILER"
+    spack add llvm~gold %"$COMPILER"
 fi
 
-spack add openmpi fabrics=auto 
+spack add openmpi %"$COMPILER" fabrics=auto 
 
-spack add python 
+spack add python %"$COMPILER"
 
 #------------------------------------------------------------
 
@@ -234,7 +247,7 @@ sed -i -e 's/unify: true/unify: when_possible/g' ./spack.yaml
 
 #------------------------------------------------------------
 
-spack concretize -f -U     >> moris_config.log
+spack concretize -f -U >> moris_config.log
 
 #------------------------------------------------------------
 
@@ -250,6 +263,8 @@ fi
 #------------------------------------------------------------
 
 spack install $SOPTION python %"$COMPILER"
+
+#------------------------------------------------------------
 
 isOpenSUSE=`grep NAME /etc/os-release | head -1 | awk -F '=' '{ if ( match($2,"openSUSE") > 1 ) {print 1}else{print 0}}'`
 
