@@ -20,6 +20,7 @@
 #include "fn_sort.hpp"
 #include "fn_sum.hpp"
 
+#include <cl_FEM_Element_Nonconformal_Sideset.hpp>
 #include <cl_MTK_Nonconformal_Side_Cluster.hpp>
 
 namespace moris
@@ -123,25 +124,34 @@ namespace moris
                     // the nonconformal side set provides different cell-pairs (i.e. one follower-cell might be paired with multiple leader-cells)
                     mElements.resize( tIntegrationPointPairs.size(), nullptr );
 
+                    // the same cells might be used multiple times (i.e. they are paired with multiple leader cells)
+                    // This map stores the local indices (i.e. at wich position the cell is stored in the vector of primary cells in the cluster) of the cells
+                    Vector< moris_index > tLeaderCellLocalIndices   = tNonconformalSideCluster->get_cell_local_indices( mtk::Leader_Follower::LEADER );
+                    Vector< moris_index > tFollowerCellLocalIndices = tNonconformalSideCluster->get_cell_local_indices( mtk::Leader_Follower::FOLLOWER );
+
                     // fill the follower integration cells
-                    mLeaderIntegrationCells   = tNonconformalSideCluster->get_nonconforming_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
-                    mFollowerIntegrationCells = tNonconformalSideCluster->get_nonconforming_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER );
+                    mLeaderIntegrationCells   = tNonconformalSideCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
+                    mFollowerIntegrationCells = tNonconformalSideCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER );
 
                     // set the side ordinals for the leader and follower IG cells
-                    mLeaderListOfSideOrdinals   = tNonconformalSideCluster->get_nonconforming_cell_side_ordinals( mtk::Leader_Follower::LEADER );
-                    mFollowerListOfSideOrdinals = tNonconformalSideCluster->get_nonconforming_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
+                    mLeaderListOfSideOrdinals   = tNonconformalSideCluster->get_cell_side_ordinals( mtk::Leader_Follower::LEADER );
+                    mFollowerListOfSideOrdinals = tNonconformalSideCluster->get_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
 
                     // loop over the IG cells
-                    for ( moris::uint iIGCell = 0; iIGCell < mLeaderIntegrationCells.size(); iIGCell++ )
+                    for ( moris::uint iIGCell = 0; iIGCell < tIntegrationPointPairs.size(); iIGCell++ )
                     {
                         // create element
-                        mElements( iIGCell ) = tElementFactory.create_element(
-                                mElementType,
-                                mLeaderIntegrationCells( iIGCell ),
-                                mFollowerIntegrationCells( iIGCell ),
-                                mSet,
+                        moris_index const tLeaderCellLocalIndex   = tLeaderCellLocalIndices( iIGCell );
+                        moris_index const tFollowerCellLocalIndex = tFollowerCellLocalIndices( iIGCell );
+
+                        mElements( iIGCell ) = new Element_Nonconformal_Sideset(
+                                mLeaderIntegrationCells( tLeaderCellLocalIndex ),
+                                mFollowerIntegrationCells( tFollowerCellLocalIndex ),
+                                aSet,
                                 this,
-                                iIGCell );
+                                tLeaderCellLocalIndex,
+                                tFollowerCellLocalIndex,
+                                tIntegrationPointPairs( iIGCell ) );
                     }
 
                     break;

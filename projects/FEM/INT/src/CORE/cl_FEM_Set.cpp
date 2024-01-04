@@ -234,11 +234,7 @@ namespace moris
                 this->delete_pointers();
 
                 // create integration information
-                if ( mElementType == Element_Type::NONCONFORMAL_SIDESET )
-                {
-                    this->set_custom_integration_rule( aModelSolverInterface );
-                }
-                else
+                if ( mElementType != fem::Element_Type::NONCONFORMAL_SIDESET )    // TODO: has no effect for Nonconformal_Sideset?
                 {
                     this->create_integrator( aModelSolverInterface );
                 }
