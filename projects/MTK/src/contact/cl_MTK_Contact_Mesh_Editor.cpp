@@ -69,25 +69,25 @@ namespace moris::mtk
             for ( auto const &[ tCellMap, tResultColumns ] : tCellMaps )
             {
                 Vector< real >   tWeights( tResultColumns.size() );
-                Matrix< DDRMat > tNormals( aMappingResult.mNormal.n_rows(), tResultColumns.size() );
+                Matrix< DDRMat > tNormals( aMappingResult.mNormals.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat > tLeaderParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat > tFollowerParametricCoords( tQPoints.n_rows(), tResultColumns.size(), 0.0 );
 
                 // loop over each index in the mapping result for this pair of cells
                 for ( uint iIndex = 0; iIndex < tResultColumns.size(); ++iIndex )
                 {
+                    /* To get the correct column in the mapping result, we have to index into the list of result columns.
+                     * E.g. for a cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
+                     * mapping results of the first integration point (that got mapped successfully on the other cell) is stored in column 3, the second in column 6 and so on. */
+                    size_t const tMappingResultColumn = tResultColumns( iIndex );
+
                     /* Depending on the index in the mapping result, the correct column in the list of integration points (tQPoints) has to be determined.
                      * Since the integration points are repeated for each cell, the index is the remainder of the division by the number of integration points.
                      * E.g we have 4 integration points per cell and 3 cells. The results in the mapping will refer to the integration points in columns
                      * [ 0, 1, 2, 3, 0, 1, 2, 3, 0, 1 ,2 ,3 ] and so on. */
-                    size_t const tIntegrationPointColumn = iIndex % tNumIntegrationPoints;
+                    size_t const tIntegrationPointColumn = tMappingResultColumn % tNumIntegrationPoints;
                     tWeights( iIndex )                   = tQWeights( tIntegrationPointColumn );
                     tLeaderParametricCoords.set_column( iIndex, tQPoints.get_column( tIntegrationPointColumn ) );
-
-                    /*To get the correct column in the mapping result, we have to index into the list of result columns.
-                     * E.g. for this cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
-                     * mapping results of the first integration point is stored in column 3, the second in column 6 and so on. */
-                    size_t const tMappingResultColumn = tResultColumns( iIndex );
 
                     // Since the integration points have a constant time dimension, we can leave a zero to the parametric coordinates.
                     auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
@@ -95,7 +95,7 @@ namespace moris::mtk
                     {
                         tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
                     }
-                    tNormals.set_column( iIndex, aMappingResult.mNormal.get_column( tMappingResultColumn ) );
+                    tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
                 }
 
                 auto const &[ iLeaderCell, iFollowerCell ] = tCellMap;
@@ -114,8 +114,8 @@ namespace moris::mtk
 
             SetPair const tSetPair = std::make_pair( tSourceMeshIndex, tTargetMeshIndex );
 
-            Cluster const *tLeaderCluster = mSideSets( tSourceMeshIndex )->get_clusters_by_index( tSourceClusterIndex );
-            Cluster const *tFollowerCluster   = mSideSets( tTargetMeshIndex )->get_clusters_by_index( tTargetClusterIndex );
+            Cluster const *tLeaderCluster   = mSideSets( tSourceMeshIndex )->get_clusters_by_index( tSourceClusterIndex );
+            Cluster const *tFollowerCluster = mSideSets( tTargetMeshIndex )->get_clusters_by_index( tTargetClusterIndex );
 
             // append a new nonconformal side cluster
             tNonconformalSideClusters[ tSetPair ].emplace_back( tLeaderCluster, tFollowerCluster, tIntegrationPointPairs );
