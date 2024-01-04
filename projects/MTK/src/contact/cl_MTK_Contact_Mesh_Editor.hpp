@@ -88,14 +88,16 @@ namespace moris::mtk
 
         void update_ig_mesh_database( const Vector< Nonconformal_Side_Cluster > &aNonconformalSideClusters, std::string const &aSetName, const Matrix< IndexMat > &aSetColor ) const;
 
+        std::string get_nonconformal_side_set_name( SetPair const &tSetPair ) const;
+
+        static std::pair< std::string, std::string > get_leaderphase_from_set_name( std::string const &aSideSetName );
+
         Integration_Mesh_DataBase_IG                   *mIGMesh;
         Interpolation_Mesh_DataBase_IP                 *mIPMesh;
         Integrator                                      mIntegrator;
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
         QuadraturePointMapper_Ray                       mPointMapper;
-        std::string                                     get_nonconformal_side_set_name( SetPair const &tSetPair ) const;
-        static std::pair< std::string, std::string >    get_leaderphase_from_set_name( std::string const &aSideSetName );
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP

@@ -45,9 +45,12 @@ namespace moris::mtk
     std::map< Contact_Mesh_Editor::SetPair, Vector< Nonconformal_Side_Cluster > >
     Contact_Mesh_Editor::convert_mapping_result_to_nonconformal_side_clusters( MappingResult const &aMappingResult ) const
     {
-        Matrix< DDRMat > tQWeights             = mIntegrator.get_weights();
-        Matrix< DDRMat > tQPoints              = mIntegrator.get_points().get_row( 0 );    // for some reason, the dimension of the matrix is one too high
-        size_t const     tNumIntegrationPoints = mIntegrator.get_number_of_points();
+        Matrix< DDRMat > tQWeights = mIntegrator.get_weights();
+        Matrix< DDRMat > tQPoints  = mIntegrator.get_points();
+        // Matrix< DDRMat > tQPoints              = tQPointsWithTime.get_row( 0 );
+        size_t const tNumIntegrationPoints = mIntegrator.get_number_of_points();
+
+        MORIS_ASSERT( tQPoints.n_rows() == 2 && sum( tQPoints.get_row( 1 ) ) < MORIS_REAL_EPS, "Currently, only 1D parametric coordinates with a constant time dimension are supported!" );
 
         // extract the cluster pairs and the corresponding cell pairs from the mapping result this will act as a basis to create the nonconformal side clusters
         auto tClusterPairs = extract_cluster_and_cell_pairing( aMappingResult );
@@ -68,7 +71,7 @@ namespace moris::mtk
                 Vector< real >   tWeights( tResultColumns.size() );
                 Matrix< DDRMat > tNormals( aMappingResult.mNormal.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat > tFollowerParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
-                Matrix< DDRMat > tLeaderParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
+                Matrix< DDRMat > tLeaderParametricCoords( tQPoints.n_rows(), tResultColumns.size(), 0.0 );
 
                 // loop over each index in the mapping result for this pair of cells
                 for ( uint iIndex = 0; iIndex < tResultColumns.size(); ++iIndex )
@@ -85,7 +88,13 @@ namespace moris::mtk
                      * E.g. for this cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
                      * mapping results of the first integration point is stored in column 3, the second in column 6 and so on. */
                     size_t const tMappingResultColumn = tResultColumns( iIndex );
-                    tLeaderParametricCoords.set_column( iIndex, aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn ) );
+
+                    // Since the integration points have a constant time dimension, we can leave a zero to the parametric coordinates.
+                    auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
+                    for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
+                    {
+                        tLeaderParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
+                    }
                     tNormals.set_column( iIndex, aMappingResult.mNormal.get_column( tMappingResultColumn ) );
                 }
 
