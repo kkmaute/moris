@@ -21,7 +21,7 @@ namespace moris
         class Set;
         //------------------------------------------------------------------------------
         /**
-         * \brief Element_Double_Sideset class
+         * @brief Element_Double_Sideset class
          */
         class Element_Double_Sideset : public Element
         {
@@ -157,6 +157,22 @@ namespace moris
                     uint aLeaderSideOrdinal,
                     uint aFollowerSideOrdinal );
 
+            /**
+             * @brief Return the index at which the leader cell is stored in the vector of primary cells in the parent cluster.
+             * @details If the cluster contains cells [1, 3, 4, 7] and the cell is 4, then the index is 2.
+             * @return Index of the cell in the vector of primary cells in the parent cluster.
+             */
+            moris_index get_leader_local_cell_index() const;
+
+            /**
+             * @brief Return the index at which the follower cell is stored in the vector of primary cells in the parent cluster.
+             * @attention For the double sideset element, this is the same as the leader cell index.
+             * This is not the case for the nonconformal sideset element which is derived from this class.
+             * @details If the cluster contains cells [1, 3, 4, 7] and the cell is 4, then the index is 2.
+             * @return Index of the cell in the vector of primary cells in the parent cluster.
+             */
+            virtual moris_index get_follower_local_cell_index() const;
+
             //------------------------------------------------------------------------------
 
             /**
@@ -171,6 +187,9 @@ namespace moris
                     uint              aLeaderSideOrdinal,
                     uint              aFollowerSideOrdinal,
                     Matrix< DDSMat > &aGeoLocalAssembly );
+
+          private:
+            Matrix< DDRMat > get_follower_integration_point( uint aGPIndex ) const override;
         };
 
         //------------------------------------------------------------------------------

@@ -28,8 +28,8 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 #include "cl_MTK_Integrator.hpp"                    //MTK/src
 
-#include "cl_FEM_Set.hpp"                           //FEM/INT/src
-#include "cl_FEM_Cluster.hpp"                       //FEM/INT/src
+#include "cl_FEM_Set.hpp"        //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"    //FEM/INT/src
 
 namespace moris
 {
@@ -59,17 +59,17 @@ namespace moris
                     const std::shared_ptr< IWG > &aReqIWG,
                     real                          aWStar ) = nullptr;
             void ( Element::*m_compute_dRdp )(
-                    const std::shared_ptr< IWG >      &aReqIWG,
-                    real                               aWStar,
-                    Matrix< DDSMat >                  &aGeoLocalAssembly,
+                    const std::shared_ptr< IWG > &aReqIWG,
+                    real                          aWStar,
+                    Matrix< DDSMat >             &aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
             void ( Element::*m_compute_dQIdu )(
                     const std::shared_ptr< IQI > &aReqIQI,
                     real                          aWStar ) = nullptr;
             void ( Element::*m_compute_dQIdp )(
-                    const std::shared_ptr< IQI >      &aReqIQI,
-                    real                               aWStar,
-                    Matrix< DDSMat >                  &aGeoLocalAssembly,
+                    const std::shared_ptr< IQI > &aReqIQI,
+                    real                          aWStar,
+                    Matrix< DDSMat >             &aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
 
             // finite difference scheme type for jacobian and dQIdu
@@ -252,9 +252,9 @@ namespace moris
              */
             void
             select_dRdp(
-                    const std::shared_ptr< IWG >      &aReqIWG,
-                    real                               aWStar,
-                    Matrix< DDSMat >                  &aGeoLocalAssembly,
+                    const std::shared_ptr< IWG > &aReqIWG,
+                    real                          aWStar,
+                    Matrix< DDSMat >             &aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > > &aVertexIndices )
             {
                 // compute dRdpMat at evaluation point
@@ -263,9 +263,9 @@ namespace moris
 
             void
             select_dRdp_FD(
-                    const std::shared_ptr< IWG >      &aReqIWG,
-                    real                               aWStar,
-                    Matrix< DDSMat >                  &aGeoLocalAssembly,
+                    const std::shared_ptr< IWG > &aReqIWG,
+                    real                          aWStar,
+                    Matrix< DDSMat >             &aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > > &aVertexIndices )
             {
                 // compute dRdpMat at evaluation point
@@ -295,9 +295,9 @@ namespace moris
              */
             void
             select_dQIdp(
-                    const std::shared_ptr< IQI >      &aReqIQI,
-                    real                               aWStar,
-                    Matrix< DDSMat >                  &aGeoLocalAssembly,
+                    const std::shared_ptr< IQI > &aReqIQI,
+                    real                          aWStar,
+                    Matrix< DDSMat >             &aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > > &aVertexIndices )
             {
                 // compute Jacobian
@@ -306,9 +306,9 @@ namespace moris
 
             void
             select_dQIdp_FD(
-                    const std::shared_ptr< IQI >      &aReqIQI,
-                    real                               aWStar,
-                    Matrix< DDSMat >                  &aGeoLocalAssembly,
+                    const std::shared_ptr< IQI > &aReqIQI,
+                    real                          aWStar,
+                    Matrix< DDSMat >             &aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > > &aVertexIndices )
             {
                 // compute dQIdpMat at evaluation point
@@ -353,6 +353,26 @@ namespace moris
                         MORIS_ERROR( false, "Element::get_mtk_cell - can only be leader or follower." );
                         return mLeaderCell;
                 }
+            }
+
+            virtual uint get_number_of_integration_points() const
+            {
+                return mSet->get_number_of_integration_points();
+            }
+
+            virtual Matrix< DDRMat > get_leader_integration_point( uint const aGPIndex ) const
+            {
+                return mSet->get_integration_points().get_column( aGPIndex );
+            };
+
+            virtual Matrix< DDRMat > get_follower_integration_point( uint const aGPIndex ) const
+            {
+                return mSet->get_integration_points().get_column( aGPIndex );
+            };
+
+            virtual moris::real get_integration_weight( uint const aGPIndex ) const
+            {
+                return mSet->get_integration_weights()( aGPIndex );
             }
 
             //------------------------------------------------------------------------------
@@ -466,10 +486,10 @@ namespace moris
              */
             void
             compute_quantity_of_interest(
-                    Matrix< DDRMat >           &aValues,
+                    Matrix< DDRMat >      &aValues,
                     mtk::Field_Entity_Type aFieldType,
-                    uint                        aIQIIndex,
-                    real                       &aSpaceTimeVolume )
+                    uint                   aIQIIndex,
+                    real                  &aSpaceTimeVolume )
             {
                 switch ( aFieldType )
                 {
