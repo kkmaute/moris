@@ -3,6 +3,14 @@
 //
 
 #include "cl_FEM_Element_Nonconformal_Sideset.hpp"
+#include "cl_FEM_Geometry_Interpolator.hpp"
+#include "cl_FEM_Element_Double_Sideset.hpp"
+#include <iostream>
+#include "cl_MTK_Enums.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Vector.hpp"
+#include "linalg_typedefs.hpp"
 
 namespace moris::fem
 {
@@ -28,6 +36,7 @@ namespace moris::fem
 
     void Element_Nonconformal_Sideset::compute_jacobian_and_residual()
     {
+        // TODO: remove debug output!
         std::cout << "NCS: L: "
                   << mCluster->get_mesh_cluster()->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER )( get_leader_local_cell_index() )->get_index()
                   << " F: "
@@ -45,5 +54,18 @@ namespace moris::fem
     moris_index Element_Nonconformal_Sideset::get_follower_local_cell_index() const
     {
         return mFollowerCellIndexInCluster;
+    }
+
+    void Element_Nonconformal_Sideset::initialize_leader_follower_ig_interpolator(
+            mtk::Cell const           *aCell,
+            moris_index const          aSideOrdinal,
+            moris_index const          aLocalCellIndex,
+            mtk::Leader_Follower const aLeaderFollowerType ) const
+    {
+        Element_Double_Sideset::initialize_leader_follower_ig_interpolator( aCell, aSideOrdinal, aLocalCellIndex, aLeaderFollowerType );
+
+        // the nonconformal sideset element can provide precomputed integration point distances
+        Geometry_Interpolator *tIGInterpolator = mSet->get_field_interpolator_manager( aLeaderFollowerType )->get_IG_geometry_interpolator();
+        tIGInterpolator->set_integration_point_distances( mIntegrationPointDistances );
     }
 }    // namespace moris::fem

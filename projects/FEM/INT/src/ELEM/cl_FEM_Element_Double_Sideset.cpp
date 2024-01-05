@@ -143,9 +143,9 @@ namespace moris::fem
             // set evaluation point for leader and follower interpolators
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
                     ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_current_ig_point_index( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -206,9 +206,9 @@ namespace moris::fem
             // set evaluation point for leader and follower interpolators
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
                     ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_current_ig_point_index( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -346,9 +346,9 @@ namespace moris::fem
             // set evaluation point for leader and follower interpolators
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
                     ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_current_ig_point_index( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -414,9 +414,9 @@ namespace moris::fem
             // set evaluation point for leader and follower interpolators
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
                     ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_current_ig_point_index( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -479,6 +479,7 @@ namespace moris::fem
                     ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_current_ig_point_index( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -572,6 +573,7 @@ namespace moris::fem
                     ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_current_ig_point_index( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -680,9 +682,9 @@ namespace moris::fem
             // set evaluation point for leader and follower interpolators
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
                     ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->set_current_ig_point_index( iGP );
 
             // compute detJ of integration domain
             const real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();

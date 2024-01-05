@@ -25,11 +25,13 @@ namespace moris::mtk
                 moris_index const      &aFollowerCellIndex,
                 Matrix< DDRMat > const &aFollowerCoordinates,
                 Vector< real > const   &aIntegrationWeights,
+                Vector< real > const   &aIntegrationPointDistances,
                 Matrix< DDRMat > const &aNormals )
                 : mLeaderCellIndex( aLeaderCellIndex )
                 , mLeaderCoordinates( aLeaderCoordinates )
                 , mFollowerCellIndex( aFollowerCellIndex )
                 , mFollowerCoordinates( aFollowerCoordinates )
+                , aIntegrationPointDistances( aIntegrationPointDistances )
                 , mNormals( aNormals )
                 , mIntegrationWeights( aIntegrationWeights ){};
 
@@ -38,6 +40,7 @@ namespace moris::mtk
         [[nodiscard]] moris_index             get_follower_cell_index() const { return mFollowerCellIndex; }
         [[nodiscard]] const Matrix< DDRMat > &get_follower_coordinates() const { return mFollowerCoordinates; }
         [[nodiscard]] const Matrix< DDRMat > &get_normals() const { return mNormals; }
+        [[nodiscard]] const Vector< real >   &get_integration_point_distances() const { return aIntegrationPointDistances; }
         [[nodiscard]] const Vector< real >   &get_integration_weights() const { return mIntegrationWeights; }
 
       private:
@@ -62,6 +65,11 @@ namespace moris::mtk
          * \details A (p x n) matrix, where p is the parametric dimension and n is the number of integration points.
          */
         Matrix< DDRMat > mFollowerCoordinates;
+
+        /**
+         * \brief The distances between the integration points on the leader side and the integration points on the follower side.
+         */
+        Vector< real > aIntegrationPointDistances;
 
         /**
          * \brief The normal that was used to perform the mapping from the leader side to the follower side.

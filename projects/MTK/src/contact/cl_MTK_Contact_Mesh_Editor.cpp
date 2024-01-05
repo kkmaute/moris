@@ -69,6 +69,7 @@ namespace moris::mtk
             for ( auto const &[ tCellMap, tResultColumns ] : tCellMaps )
             {
                 Vector< real >   tWeights( tResultColumns.size() );
+                Vector< real >   tDistances( tResultColumns.size() );
                 Matrix< DDRMat > tNormals( aMappingResult.mNormals.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat > tLeaderParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
                 Matrix< DDRMat > tFollowerParametricCoords( tQPoints.n_rows(), tResultColumns.size(), 0.0 );
@@ -87,6 +88,7 @@ namespace moris::mtk
                      * [ 0, 1, 2, 3, 0, 1, 2, 3, 0, 1 ,2 ,3 ] and so on. */
                     size_t const tIntegrationPointColumn = tMappingResultColumn % tNumIntegrationPoints;
                     tWeights( iIndex )                   = tQWeights( tIntegrationPointColumn );
+                    tDistances( iIndex )                 = aMappingResult.mDistances( tMappingResultColumn );
                     tLeaderParametricCoords.set_column( iIndex, tQPoints.get_column( tIntegrationPointColumn ) );
 
                     // Since the integration points have a constant time dimension, we can leave a zero to the parametric coordinates.
@@ -98,13 +100,14 @@ namespace moris::mtk
                     tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
                 }
 
-                auto const &[ iLeaderCell, iFollowerCell ] = tCellMap;
+                auto const &[ tLeaderCellIndex, tFollowerCellIndex ] = tCellMap;
                 tIntegrationPointPairs.emplace_back(
-                        iLeaderCell,
+                        tLeaderCellIndex,
                         tLeaderParametricCoords,
-                        iFollowerCell,
+                        tFollowerCellIndex,
                         tFollowerParametricCoords,
                         tWeights,
+                        tDistances,
                         tNormals );
             }
 

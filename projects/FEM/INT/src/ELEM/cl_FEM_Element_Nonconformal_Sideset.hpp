@@ -26,6 +26,7 @@ namespace moris::fem
                 , mLeaderIntegrationPoints( aIntegrationPointPairs.get_leader_coordinates() )
                 , mFollowerIntegrationPoints( aIntegrationPointPairs.get_follower_coordinates() )
                 , mIntegrationPointWeights( aIntegrationPointPairs.get_integration_weights() )
+                , mIntegrationPointDistances( aIntegrationPointPairs.get_integration_point_distances() )
         {
         }
 
@@ -35,17 +36,23 @@ namespace moris::fem
         Matrix< DDRMat > get_follower_integration_point( uint const aGPIndex ) const override;
         real             get_integration_weight( uint const aGPIndex ) const override;
         uint             get_number_of_integration_points() const override;
-
-        void compute_jacobian_and_residual() override;
+        void             compute_jacobian_and_residual() override;
 
       protected:
         moris_index get_follower_local_cell_index() const override;
+
+        void initialize_leader_follower_ig_interpolator(
+                mtk::Cell const           *aCell,
+                moris_index const          aSideOrdinal,
+                moris_index const          aLocalCellIndex,
+                mtk::Leader_Follower const aLeaderFollowerType ) const override;
 
       private:
         moris_index      mFollowerCellIndexInCluster;
         Matrix< DDRMat > mLeaderIntegrationPoints;
         Matrix< DDRMat > mFollowerIntegrationPoints;
         Vector< real >   mIntegrationPointWeights;
+        Vector< real >   mIntegrationPointDistances;
     };
 }    // namespace moris::fem
 
