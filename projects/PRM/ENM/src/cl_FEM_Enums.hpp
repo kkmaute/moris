@@ -162,6 +162,7 @@ namespace moris
             VOLUME,    // volume
             STRAIN_ENERGY,
             VOLUME_FRACTION,
+            DEBUG,
             DOF,
             EIGEN_VECTOR,
             ALM_DOF,

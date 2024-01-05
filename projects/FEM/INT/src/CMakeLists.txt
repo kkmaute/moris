@@ -226,7 +226,8 @@ set(HEADERS
     IQI/cl_FEM_IQI_Volume.hpp
     IQI/cl_FEM_IQI_Strain_Energy.hpp
     IQI/cl_FEM_IQI_Stress.hpp
-    IQI/cl_FEM_IQI_Dof.hpp
+	IQI/cl_FEM_IQI_Debug.hpp
+	IQI/cl_FEM_IQI_Dof.hpp
     IQI/cl_FEM_IQI_Eigen_Vector.hpp
     IQI/cl_FEM_IQI_ALM_Dof.hpp
     IQI/cl_FEM_IQI_Max_Dof.hpp
@@ -466,7 +467,8 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Volume.cpp
     IQI/cl_FEM_IQI_Strain_Energy.cpp
     IQI/cl_FEM_IQI_Stress.cpp
-    IQI/cl_FEM_IQI_Dof.cpp
+	IQI/cl_FEM_IQI_Debug.cpp
+	IQI/cl_FEM_IQI_Dof.cpp
     IQI/cl_FEM_IQI_Eigen_Vector.cpp
     IQI/cl_FEM_IQI_ALM_Dof.cpp
     IQI/cl_FEM_IQI_Max_Dof.cpp
