@@ -143,6 +143,7 @@ namespace moris
 
             // Determine number of time increments on input database in region
             std::shared_ptr< Ioss::Region > tIo_region      = mSTKMeshData->mMeshReader->get_input_ioss_region();
+//            Teuchos::RCP< Ioss::Region > tIo_region      = mSTKMeshData->mMeshReader->get_input_io_region();
             int                             tTimestep_count = tIo_region->get_property( "state_count" ).get_int();
 
             MORIS_LOG( "Read Input Fields" );

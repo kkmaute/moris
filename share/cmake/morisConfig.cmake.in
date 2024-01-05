@@ -73,6 +73,10 @@ foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
      set(@MORIS@_${COMPONENT}_FOUND TRUE)
      continue()
     endif()
+    if(${COMPONENT_DIR} STREQUAL "EXA")
+     set(@MORIS@_${COMPONENT}_FOUND TRUE)
+     continue()
+    endif()
     message("ADDING COMPONENT = ${COMPONENT_DIR}")
 
     # returns fatal error if component config file not found
