@@ -8,8 +8,11 @@
  *
  */
 
+#include "cl_MTK_Double_Side_Cluster.hpp"
 #include "cl_VIS_Output_Manager.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <set>
 
 #include "cl_VIS_Factory.hpp"
@@ -137,6 +140,7 @@ namespace moris
                         break;
                     }
                     case mtk::SetType::DOUBLE_SIDED_SIDESET:
+                    case mtk::SetType::NONCONFORMAL_SIDESET:
                     {
                         tNumDblSideSets++;
                         mRequestedDoubleSideSetNames.push_back( tSetName );
@@ -157,6 +161,7 @@ namespace moris
             mVisMesh->mBlockSetNames      = mRequestedBlockSetNames;
             mVisMesh->mSideSetNames       = mRequestedSideSetNames;
             mVisMesh->mDoubleSideSetNames = mRequestedDoubleSideSetNames;
+            mVisMesh->mNonConformalSideSetNames = mRequestedNonConformalSideSetNames;
             mVisMesh->mAllSetNames.resize( tNumBlockSets + tNumSideSets + tNumDblSideSets );
 
             // assemble list of all set names and corresponding map
@@ -591,7 +596,7 @@ namespace moris
 
                     // get list of VIS vertex indices for the current cell
                     const Vector< moris_index > tVisVertexIndicesOnCell = mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex );
-                    uint                      tNumVertsOnCell         = tVisVertexIndicesOnCell.size();
+                    uint                        tNumVertsOnCell         = tVisVertexIndicesOnCell.size();
 
                     // Create List of VIS vertex pointers for this cell
                     Vector< mtk::Vertex* > tVisCellVertices( tNumVertsOnCell, nullptr );
@@ -1049,6 +1054,233 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
+        Side_Cluster_Visualization* VIS_Factory::create_visualization_leader_follower_side_clusters( mtk::Cluster const & aFemSideCluster )
+        {
+            // create the VIS side cluster object and populate these below
+            auto* tVisSideCluster = new Side_Cluster_Visualization();
+
+            // mark as non-trivial if old clusters were not trivial
+            if ( !aFemSideCluster.is_trivial() )
+            {
+                tVisSideCluster->mark_as_nontrivial();
+            }
+
+            // get the IG cells the side elements are attached to
+            const Vector< const moris::mtk::Cell* >& tFemCellsInCluster = aFemSideCluster.get_primary_cells_in_cluster();
+
+            MORIS_ASSERT( tFemCellsInCluster.size() > 0,
+                    "VIS_Factory::create_visualization_dbl_side_clusters() - "
+                    "Empty side cluster in FEM mesh. This shouldn't happen." );
+
+            // get the number of facets in the dbl sided side cluster
+            uint const tNumFacetsInSideClusters = tFemCellsInCluster.size();
+
+            // initialize list of VIS IG cells the facets are attached to
+            Vector< mtk::Cell const * > tSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
+
+            // find the corresponding VIS cells constructed from the original mtk/fem cells and collect these in a list for constructing the VIS side cluster
+            for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
+            {
+                // get the FEM IG cells' indices the facet is attached to
+                moris_index const tFemLeaderCellIndex = tFemCellsInCluster( iFacet )->get_index();
+
+                // get the corresponding VIS cells' indices
+                moris_index const tVisLeaderCellIndex = mPrimaryFemCellIndexToVisCellIndex( tFemLeaderCellIndex );
+
+                // make sure the requested VIS cells actually exists
+                MORIS_ERROR(
+                        tVisLeaderCellIndex > -1 && tVisLeaderCellIndex != MORIS_INDEX_MAX,
+                        "VIS_Factory::create_visualization_dbl_side_clusters() - "
+                        "No VIS cell index for the given FEM cell. "
+                        "The current dbl side cluster may be attached to a block set that is not part of the VIS mesh. "
+                        "Make sure to include it." );
+
+                // store the corrsponding VIS cells
+                tSideClusterVisIgCells( iFacet ) = mVisMesh->mCells( tVisLeaderCellIndex );
+            }    // end for: each facet (i.e. for each IG cell)
+
+            // store list of cells on VIS cluster
+            tVisSideCluster->add_primary_integration_cell( tSideClusterVisIgCells );
+
+            // add interpolation cell to vis cluster
+            tVisSideCluster->set_interpolation_cell( &aFemSideCluster.get_interpolation_cell() );
+
+            // get the side ordinals of each IG cell that make up the side cluster
+            tVisSideCluster->add_integration_cell_side_ordinals( aFemSideCluster.get_cell_side_ordinals() );
+
+            return tVisSideCluster;
+        }
+
+        map< moris_index, moris_index > VIS_Factory::get_vertex_index_to_pos_in_fem_cluster_map( mtk::Cluster const & aFemSideCluster )
+        {
+            // get vertices from the mtk/fem cluster
+            Vector< mtk::Vertex const * > tFemVertices = aFemSideCluster.get_vertices_in_cluster();
+
+            // get the number of vertices on the fem cluster for convenient access
+            uint const tNumFemVerticesInCluster = tFemVertices.size();
+
+            // construct map relating fem vertex indices to their respective position in the list of vertices on the clusters
+            // this is needed to later retrieve the local coordinates for the vertices
+            map< moris_index, moris_index > tFemVertexIndexToPosInFemClusterMap;
+            for ( uint iVertInFemCluster = 0; iVertInFemCluster < tNumFemVerticesInCluster; iVertInFemCluster++ )
+            {
+                moris_index const tFemVertexIndex                      = tFemVertices( iVertInFemCluster )->get_index();
+                tFemVertexIndexToPosInFemClusterMap[ tFemVertexIndex ] = iVertInFemCluster;
+            }
+            return tFemVertexIndexToPosInFemClusterMap;
+        }
+
+        std::set< moris_index > VIS_Factory::get_active_vertex_indices_on_vis_cluster( mtk::Cluster const & aFemSideCluster )
+        {
+            // initialize sets that will carry a list of FEM vertex indices that correspond to the VIS vertices
+            // which are attached to the IG cells that carry the respective sides of the dbl side cluster
+            std::set< moris_index > tActiveFemVertexIndicesOnVisCluster;
+
+            // go through the IG cells the leader and follower side clusters are attached to and collect the FEM vertices on these cells
+            const Vector< const moris::mtk::Cell* >& tFemCellsInCluster       = aFemSideCluster.get_primary_cells_in_cluster();
+            uint const                               tNumFacetsInSideClusters = tFemCellsInCluster.size();
+            for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
+            {
+                // access the FEM cells attached to the current facet
+                const moris::mtk::Cell* tFemCell = tFemCellsInCluster( iFacet );
+
+                // get the current FEM cells' vertex indices
+                Matrix< IndexMat > tCellFemVertInds = tFemCell->get_vertex_inds();
+
+                // go through the FEM vertices in the leader cell, and store them in the list
+                for ( uint iVertOnCell = 0; iVertOnCell < tCellFemVertInds.numel(); iVertOnCell++ )
+                {
+                    moris_index const tFemVertexIndex = tCellFemVertInds( iVertOnCell );
+                    tActiveFemVertexIndicesOnVisCluster.insert( tFemVertexIndex );
+                    // NOTE: std::set's make sure that each index will only appear once in the set;
+                    // NOTE: hence, inserting the same vertex index twice does nothing
+                }
+            }    // end for: each facet on the dbl side cluster, collect the the used vertices on each side
+            return tActiveFemVertexIndicesOnVisCluster;
+        }
+
+        map< moris_index, moris_index > VIS_Factory::get_vertex_index_to_pos_in_vis_cluster_map( const std::set< moris_index >& aFemVerticesOnInterface )
+        {
+            /* count number interface nodes and give them a position within the list of FEM vertices on the interface
+             * NOTE: this position map is used for both the leader and follower side clusters to have matching ordering
+             * of the VIS vertices on the interface, such that the vertex pairing is trivial*/
+            moris_index                     tInterfaceVertexCounter = 0;
+            map< moris_index, moris_index > tFemVertexIndexToPosInVisClusterMap;
+            for ( const moris_index& iInterfaceFemVertexIndex : aFemVerticesOnInterface )
+            {
+                tFemVertexIndexToPosInVisClusterMap[ iInterfaceFemVertexIndex ] = tInterfaceVertexCounter;
+                tInterfaceVertexCounter++;
+            }
+            return tFemVertexIndexToPosInVisClusterMap;
+        }
+
+        void VIS_Factory::populate_leader_follower_interface_vertices(
+                mtk::Cluster const &           aFemSideCluster,
+                Side_Cluster_Visualization*    aVisSideCluster,
+                const std::set< moris_index >& aFemVerticesOnInterface )
+        {
+            uint const                         tNumInterfaceVertices = static_cast< uint >( aFemVerticesOnInterface.size() );
+            Vector< mtk::Vertex const * >      tClusterVisVertices( tNumInterfaceVertices, nullptr );
+            Vector< const mtk::Cell* > const & tFemCellsInCluster                  = aFemSideCluster.get_primary_cells_in_cluster();
+            map< moris_index, moris_index >    tFemVertexIndexToPosInVisClusterMap = get_vertex_index_to_pos_in_vis_cluster_map( aFemVerticesOnInterface );
+            map< moris_index, moris_index >    tFemVertexIndexToPosInFemClusterMap = get_vertex_index_to_pos_in_fem_cluster_map( aFemSideCluster );
+
+            // go through the IG cells the side cluster is attached to
+            for ( uint iFacet = 0; iFacet < tFemCellsInCluster.size(); iFacet++ )
+            {
+                // get the current Fem cells' indices
+                moris_index const tFemCellIndex = tFemCellsInCluster( iFacet )->get_index();
+
+                // get the block set index the side cluster is attached to
+                moris_index const tPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemCellIndex );
+
+                // get the VIS vertex indices
+                const Vector< moris_index > tVisVertexIndices = mBlockAndFemCellIndexToVisVertexIndices( tPrimaryBlockSetIndex )( tFemCellIndex );
+
+                // go through the vertices listed in the leader FEM cluster, find the corresponding VIS vertices, and store them if they are interface vertices
+                for ( uint iVertOnCell = 0; iVertOnCell < tVisVertexIndices.size(); iVertOnCell++ )
+                {
+                    // get the VIS vertex's index
+                    moris_index const tVisVertexIndex = tVisVertexIndices( iVertOnCell );
+
+                    // get the VIS vertex
+                    mtk::Vertex const * tVisVertex = mVisMesh->mVertices( tVisVertexIndex );
+
+                    // get the corresponding FEM/MTK vertex's index
+                    moris_index const tFemVertexIndex = tVisVertex->get_base_vertex()->get_index();
+
+                    // check if this vertex is part of the interface
+                    bool const tVertexIsOnInterface = tFemVertexIndexToPosInVisClusterMap.key_exists( tFemVertexIndex );
+
+                    // if vertex does not sit on the interface, skip it
+                    if ( !tVertexIsOnInterface )
+                    {
+                        continue;
+                    }
+
+                    // get the vertex's position within cluster
+                    moris_index const tVertexPosInCluster = tFemVertexIndexToPosInVisClusterMap.find( tFemVertexIndex );
+
+                    // add vertex to the list of VIS vertices in the
+                    tClusterVisVertices( tVertexPosInCluster ) = tVisVertex;
+
+                }    // end for: each active vertex on the leader side cluster
+            }        // end for: each facet in the dbl side cluster
+
+            // store pointer lists of VIS vertices in the VIS cluster being constructed
+            aVisSideCluster->add_vertex_to_cluster( tClusterVisVertices );
+
+            // ------------------------
+            // add vertex coordinates
+
+            // get the coordinates for all vertices in the corresponding FEM clusters
+            Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnCluster = aFemSideCluster.get_vertices_local_coordinates_wrt_interp_cell();
+
+            uint const tNumSpatialDims = tLocalCoordsOfAllFemVertsOnCluster.n_cols();
+
+            // initialize matrices containing all local coords for the vertices in the VIS clusters
+            Matrix< DDRMat > tVisClusterVerticesLocalCoords( tNumInterfaceVertices, tNumSpatialDims, 0.0 );
+
+            // go through the vertices in the VIS leader cluster, find the corresponding FEM vertices, and copy over the local coordinates
+            for ( uint iVertInVisCluster = 0; iVertInVisCluster < tNumInterfaceVertices; iVertInVisCluster++ )
+            {
+                // get the corresponding FEM vertex's index
+                moris_index const tFemVertexIndex = tClusterVisVertices( iVertInVisCluster )->get_base_vertex()->get_index();
+
+                // get the FEM vertex's position in the list of cluster vertices
+                moris_index const tVertInFemCluster = tFemVertexIndexToPosInFemClusterMap.find( tFemVertexIndex );
+
+                // copy over coordinates
+                tVisClusterVerticesLocalCoords.set_row( iVertInVisCluster, tLocalCoordsOfAllFemVertsOnCluster.get_row( tVertInFemCluster ) );
+            }
+
+            // add local coordinates to vis clusters
+            aVisSideCluster->add_vertex_local_coordinates_wrt_interp_cell( tVisClusterVerticesLocalCoords );
+        }
+
+        void VIS_Factory::populate_double_side_interface_vertices(
+                mtk::Cluster const &        aLeaderCluster,
+                Side_Cluster_Visualization* tVisLeaderSideCluster,
+                mtk::Cluster const &        aFollowerCluster,
+                Side_Cluster_Visualization* tVisFollowerSideCluster )
+        {
+            std::set< moris_index > const tActiveFemVertexIndicesOnVisLeaderCluster   = get_active_vertex_indices_on_vis_cluster( aLeaderCluster );
+            std::set< moris_index > const tActiveFemVertexIndicesOnVisFollowerCluster = get_active_vertex_indices_on_vis_cluster( aFollowerCluster );
+
+            // the intersection of the active fem vertices on each side are the shared vertices,
+            // i.e. the interface vertices which we are looking for
+            std::set< moris_index > tFemVerticesOnInterface;
+            std::set_intersection(
+                    tActiveFemVertexIndicesOnVisLeaderCluster.begin(),
+                    tActiveFemVertexIndicesOnVisLeaderCluster.end(),
+                    tActiveFemVertexIndicesOnVisFollowerCluster.begin(),
+                    tActiveFemVertexIndicesOnVisFollowerCluster.end(),
+                    std::inserter( tFemVerticesOnInterface, tFemVerticesOnInterface.begin() ) );
+
+            populate_leader_follower_interface_vertices( aLeaderCluster, tVisLeaderSideCluster, tFemVerticesOnInterface );
+            populate_leader_follower_interface_vertices( aFollowerCluster, tVisFollowerSideCluster, tFemVerticesOnInterface );
+        }
+
         void
         VIS_Factory::create_visualization_double_side_clusters()
         {
@@ -1086,307 +1318,15 @@ namespace moris
                     mtk::Cluster const & tFemLeaderSideCluster   = tFemDblSideCluster->get_leader_side_cluster();
                     mtk::Cluster const & tFemFollowerSideCluster = tFemDblSideCluster->get_follower_side_cluster();
 
-                    // create the VIS side cluster objects and populate these below
-                    vis::Side_Cluster_Visualization* tVisLeaderSideCluster   = new vis::Side_Cluster_Visualization();
-                    vis::Side_Cluster_Visualization* tVisFollowerSideCluster = new vis::Side_Cluster_Visualization();
-
-                    // mark as non-trivial if old clusters were not trivial
-                    if ( !tFemLeaderSideCluster.is_trivial() )
-                    {
-                        tVisLeaderSideCluster->mark_as_nontrivial();
-                    }
-                    if ( !tFemFollowerSideCluster.is_trivial() )
-                    {
-                        tVisFollowerSideCluster->mark_as_nontrivial();
-                    }
-
-                    // ------------------------
-                    // IG cells that the side cluster are attached to
-
-                    // get the IG cells the side elements are attached to
-                    const Vector< const moris::mtk::Cell* >& tFemCellsInLeaderCluster   = tFemLeaderSideCluster.get_primary_cells_in_cluster();
-                    const Vector< const moris::mtk::Cell* >& tFemCellsInFollowerCluster = tFemFollowerSideCluster.get_primary_cells_in_cluster();
-
                     MORIS_ASSERT(
-                            tFemCellsInLeaderCluster.size() == tFemCellsInFollowerCluster.size(),
+                            tFemLeaderSideCluster.get_num_primary_cells() == tFemFollowerSideCluster.get_num_primary_cells(),
                             "VIS_Factory::create_visualization_dbl_side_clusters() - "
                             "Leader and follower side clusters obtained from double side cluster have different number of facets." );
-                    MORIS_ASSERT(
-                            tFemCellsInLeaderCluster.size() > 0,
-                            "VIS_Factory::create_visualization_dbl_side_clusters() - "
-                            "Empty leader side cluster in FEM mesh. This shouldn't happen." );
-                    MORIS_ASSERT(
-                            tFemCellsInFollowerCluster.size() > 0,
-                            "VIS_Factory::create_visualization_dbl_side_clusters() - "
-                            "Empty follower side cluster in FEM mesh. This shouldn't happen." );
 
-                    // get the number of facets in the dbl sided side cluster
-                    uint tNumFacetsInSideClusters = tFemCellsInLeaderCluster.size();
+                    vis::Side_Cluster_Visualization* tVisLeaderSideCluster   = create_visualization_leader_follower_side_clusters( tFemLeaderSideCluster );
+                    vis::Side_Cluster_Visualization* tVisFollowerSideCluster = create_visualization_leader_follower_side_clusters( tFemFollowerSideCluster );
 
-                    // initialize list of VIS IG cells the facets are attached to
-                    Vector< mtk::Cell const * > tLeaderSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
-                    Vector< mtk::Cell const * > tFollowerSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
-
-                    // find the corresponding VIS cells constructed from the original mtk/fem cells and collect these in a list for constructing the VIS side cluster
-                    for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
-                    {
-                        // get the FEM IG cells' indices the facet is attached to
-                        moris_index tFemLeaderCellIndex   = tFemCellsInLeaderCluster( iFacet )->get_index();
-                        moris_index tFemFollowerCellIndex = tFemCellsInFollowerCluster( iFacet )->get_index();
-
-                        // get the corresponding VIS cells' indices
-                        moris_index tVisLeaderCellIndex   = mPrimaryFemCellIndexToVisCellIndex( tFemLeaderCellIndex );
-                        moris_index tVisFollowerCellIndex = mPrimaryFemCellIndexToVisCellIndex( tFemFollowerCellIndex );
-
-                        // make sure the requested VIS cells actually exists
-                        MORIS_ERROR(
-                                tVisLeaderCellIndex > -1 && tVisLeaderCellIndex != MORIS_INDEX_MAX && tVisFollowerCellIndex > -1 && tVisFollowerCellIndex != MORIS_INDEX_MAX,
-                                "VIS_Factory::create_visualization_dbl_side_clusters() - "
-                                "No VIS cell index for the given FEM cell. "
-                                "The current dbl side cluster may be attached to a block set that is not part of the VIS mesh. "
-                                "Make sure to include it." );
-
-                        // store the corrsponding VIS cells
-                        tLeaderSideClusterVisIgCells( iFacet )   = mVisMesh->mCells( tVisLeaderCellIndex );
-                        tFollowerSideClusterVisIgCells( iFacet ) = mVisMesh->mCells( tVisFollowerCellIndex );
-
-                    }    // end for: each facet (i.e. for each IG cell)
-
-                    // store list of cells on VIS cluster
-                    tVisLeaderSideCluster->add_primary_integration_cell( tLeaderSideClusterVisIgCells );
-                    tVisFollowerSideCluster->add_primary_integration_cell( tFollowerSideClusterVisIgCells );
-
-                    // add interpolation cell to vis cluster
-                    tVisLeaderSideCluster->set_interpolation_cell( &tFemLeaderSideCluster.get_interpolation_cell() );
-                    tVisFollowerSideCluster->set_interpolation_cell( &tFemFollowerSideCluster.get_interpolation_cell() );
-
-                    // ------------------------
-                    // side ordinals of the IG cells that the side cluster is attached to
-
-                    // get the side ordinals of each IG cell that make up the side cluster
-                    Matrix< IndexMat > tLeaderSideOrdinals   = tFemLeaderSideCluster.get_cell_side_ordinals();
-                    Matrix< IndexMat > tFollowerSideOrdinals = tFemFollowerSideCluster.get_cell_side_ordinals();
-
-                    // store information in side cluster
-                    tVisLeaderSideCluster->add_integration_cell_side_ordinals( tLeaderSideOrdinals );
-                    tVisFollowerSideCluster->add_integration_cell_side_ordinals( tFollowerSideOrdinals );
-
-                    // ------------------------
-                    // add vertices to cluster
-                    // NOTE: the VIS dbl side clusters will only contain vertices which sit on the interface, as the rest is not needed for visualization purposes
-
-                    // get vertices from the mtk/fem cluster
-                    Vector< mtk::Vertex const * > tFemLeaderVertices   = tFemLeaderSideCluster.get_vertices_in_cluster();
-                    Vector< mtk::Vertex const * > tFemFollowerVertices = tFemFollowerSideCluster.get_vertices_in_cluster();
-
-                    // get the number of vertices on the fem cluster for convenient access
-                    uint tNumFemVerticesInLeaderCluster   = tFemLeaderVertices.size();
-                    uint tNumFemVerticesInFollowerCluster = tFemFollowerVertices.size();
-
-                    // construct map relating fem vertex indices to their respective position in the list of vertices on the clusters
-                    // this is needed to later retrieve the local coordinates for the vertices
-                    map< moris_index, moris_index > tFemVertexIndexToPosInFemLeaderClusterMap;
-                    map< moris_index, moris_index > tFemVertexIndexToPosInFemFollowerClusterMap;
-                    for ( uint iVertInFemLeaderCluster = 0; iVertInFemLeaderCluster < tNumFemVerticesInLeaderCluster; iVertInFemLeaderCluster++ )
-                    {
-                        moris_index tFemLeaderVertexIndex                                  = tFemLeaderVertices( iVertInFemLeaderCluster )->get_index();
-                        tFemVertexIndexToPosInFemLeaderClusterMap[ tFemLeaderVertexIndex ] = iVertInFemLeaderCluster;
-                    }
-                    for ( uint iVertInFemFollowerCluster = 0; iVertInFemFollowerCluster < tNumFemVerticesInFollowerCluster; iVertInFemFollowerCluster++ )
-                    {
-                        moris_index tFemFollowerVertexIndex                                    = tFemFollowerVertices( iVertInFemFollowerCluster )->get_index();
-                        tFemVertexIndexToPosInFemFollowerClusterMap[ tFemFollowerVertexIndex ] = iVertInFemFollowerCluster;
-                    }
-
-                    // initialize sets that will carry a list of FEM vertex indices that correspond to the VIS vertices
-                    // which are attached to the IG cells that carry the respective sides of the dbl side cluster
-                    std::set< moris_index > tActiveFemVertexIndicesOnVisLeaderCluster;
-                    std::set< moris_index > tActiveFemVertexIndicesOnVisFollowerCluster;
-
-                    // go through the IG cells the leader and follower side clusters are attached to and collect the FEM vertices on these cells
-                    for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
-                    {
-                        // access the FEM cells attached to the current facet
-                        const moris::mtk::Cell* tLeaderFemCell   = tFemCellsInLeaderCluster( iFacet );
-                        const moris::mtk::Cell* tFollowerFemCell = tFemCellsInFollowerCluster( iFacet );
-
-                        // get the current FEM cells' vertex indices
-                        Matrix< IndexMat > tLeaderCellFemVertInds   = tLeaderFemCell->get_vertex_inds();
-                        Matrix< IndexMat > tFollowerCellFemVertInds = tFollowerFemCell->get_vertex_inds();
-
-                        // go through the FEM vertices in the leader cell, and store them in the list
-                        for ( uint iVertOnLeaderCell = 0; iVertOnLeaderCell < tLeaderCellFemVertInds.numel(); iVertOnLeaderCell++ )
-                        {
-                            moris_index tFemLeaderVertexIndex = tLeaderCellFemVertInds( iVertOnLeaderCell );
-                            tActiveFemVertexIndicesOnVisLeaderCluster.insert( tFemLeaderVertexIndex );
-                            // NOTE: std::set's make sure that each index will only appear once in the set;
-                            // NOTE: hence, inserting the same vertex index twice does nothing
-                        }
-
-                        // go through the FEM vertices in the follower cell, and store them in the list
-                        for ( uint iVertOnFollowerCell = 0; iVertOnFollowerCell < tFollowerCellFemVertInds.numel(); iVertOnFollowerCell++ )
-                        {
-                            moris_index tFemFollowerVertexIndex = tFollowerCellFemVertInds( iVertOnFollowerCell );
-                            tActiveFemVertexIndicesOnVisFollowerCluster.insert( tFemFollowerVertexIndex );
-                        }
-
-                    }    // end for: each facet on the dbl side cluster, collect the the used vertices on each side
-
-                    // the intersection of the active fem vertices on each side are the shared vertices,
-                    // i.e. the interface vertices which we are looking for
-                    std::set< moris_index > tFemVerticesOnInterface;
-                    std::set_intersection(
-                            tActiveFemVertexIndicesOnVisLeaderCluster.begin(),
-                            tActiveFemVertexIndicesOnVisLeaderCluster.end(),
-                            tActiveFemVertexIndicesOnVisFollowerCluster.begin(),
-                            tActiveFemVertexIndicesOnVisFollowerCluster.end(),
-                            std::inserter( tFemVerticesOnInterface, tFemVerticesOnInterface.begin() ) );
-
-                    /* count number interface nodes and give them a position within the list of FEM vertices on the interface
-                     * NOTE: this position map is used for both the leader and follower side clusters to have matching ordering
-                     * of the VIS vertices on the interface, such that the vertex pairing is trivial*/
-                    moris_index                     tInterfaceVertexCounter = 0;
-                    map< moris_index, moris_index > tFemVertexIndexToPosInVisClusterMap;
-                    for ( const moris_index& iInterfaceFemVertexIndex : tFemVerticesOnInterface )
-                    {
-                        tFemVertexIndexToPosInVisClusterMap[ iInterfaceFemVertexIndex ] = tInterfaceVertexCounter;
-                        tInterfaceVertexCounter++;
-                    }
-
-                    uint tNumInterfaceVertices = (uint)tInterfaceVertexCounter;
-
-                    // initialize list of VIS vertices constructed from the mtk/fem vertices on the interface
-                    Vector< mtk::Vertex const * > tLeaderClusterVisVertices( tNumInterfaceVertices, nullptr );
-                    Vector< mtk::Vertex const * > tFollowerClusterVisVertices( tNumInterfaceVertices, nullptr );
-
-                    // go through the IG cells the side cluster is attached to
-                    for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
-                    {
-                        // get the current Fem cells' indices
-                        moris_index tFemLeaderCellIndex   = tFemCellsInLeaderCluster( iFacet )->get_index();
-                        moris_index tFemFollowerCellIndex = tFemCellsInFollowerCluster( iFacet )->get_index();
-
-                        // get the block set index the side cluster is attached to
-                        moris_index tLeaderPrimaryBlockSetIndex   = mPrimaryFemCellIndexToBlockIndex( tFemLeaderCellIndex );
-                        moris_index tFollowerPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemFollowerCellIndex );
-
-                        // get the VIS vertex indices
-                        const Vector< moris_index > tVisLeaderVertexIndices =
-                                mBlockAndFemCellIndexToVisVertexIndices( tLeaderPrimaryBlockSetIndex )( tFemLeaderCellIndex );
-                        const Vector< moris_index > tVisFollowerVertexIndices =
-                                mBlockAndFemCellIndexToVisVertexIndices( tFollowerPrimaryBlockSetIndex )( tFemFollowerCellIndex );
-
-                        // go through the vertices listed in the leader FEM cluster, find the corresponding VIS vertices, and store them if they are interface vertices
-                        for ( uint iVertOnLeaderCell = 0; iVertOnLeaderCell < tVisLeaderVertexIndices.size(); iVertOnLeaderCell++ )
-                        {
-                            // get the VIS vertex's index
-                            moris_index tLeaderVisVertexIndex = tVisLeaderVertexIndices( iVertOnLeaderCell );
-
-                            // get the VIS vertex
-                            mtk::Vertex const * tLeaderVisVertex = mVisMesh->mVertices( tLeaderVisVertexIndex );
-
-                            // get the corresponding FEM/MTK vertex's index
-                            moris_index tFemLeaderVertexIndex = tLeaderVisVertex->get_base_vertex()->get_index();
-
-                            // check if this vertex is part of the interface
-                            bool tVertexIsOnInterface = tFemVertexIndexToPosInVisClusterMap.key_exists( tFemLeaderVertexIndex );
-
-                            // if vertex does not sit on the interface, skip it
-                            if ( !tVertexIsOnInterface )
-                            {
-                                continue;
-                            }
-
-                            // get the vertex's position within cluster
-                            moris_index tVertexPosInCluster = tFemVertexIndexToPosInVisClusterMap.find( tFemLeaderVertexIndex );
-
-                            // add vertex to the list of VIS vertices in the
-                            tLeaderClusterVisVertices( tVertexPosInCluster ) = tLeaderVisVertex;
-
-                        }    // end for: each active vertex on the leader side cluster
-
-                        // go through the vertices listed in the follower FEM cluster, find the corresponding VIS vertices, and store them if they are interface vertices
-                        for ( uint iVertOnFollowerCell = 0; iVertOnFollowerCell < tVisFollowerVertexIndices.size(); iVertOnFollowerCell++ )
-                        {
-                            // get the VIS vertex's index
-                            moris_index tFollowerVisVertexIndex = tVisFollowerVertexIndices( iVertOnFollowerCell );
-
-                            // get the VIS vertex
-                            mtk::Vertex const * tFollowerVisVertex = mVisMesh->mVertices( tFollowerVisVertexIndex );
-
-                            // get the corresponding FEM/MTK vertex's index
-                            moris_index tFemFollowerVertexIndex = tFollowerVisVertex->get_base_vertex()->get_index();
-
-                            // check if this vertex is part of the interface
-                            bool tVertexIsOnInterface = tFemVertexIndexToPosInVisClusterMap.key_exists( tFemFollowerVertexIndex );
-
-                            // if vertex does not sit on the interface, skip it
-                            if ( !tVertexIsOnInterface )
-                            {
-                                continue;
-                            }
-
-                            // get the vertex's position within cluster
-                            moris_index tVertexPosInCluster = tFemVertexIndexToPosInVisClusterMap.find( tFemFollowerVertexIndex );
-
-                            // add vertex to the list of VIS vertices in the
-                            tFollowerClusterVisVertices( tVertexPosInCluster ) = tFollowerVisVertex;
-
-                        }    // end for: each active vertex on the follower side cluster
-
-                    }    // end for: each facet in the dbl side cluster
-
-                    // store pointer lists of VIS vertices in the VIS cluster being constructed
-                    tVisLeaderSideCluster->add_vertex_to_cluster( tLeaderClusterVisVertices );
-                    tVisFollowerSideCluster->add_vertex_to_cluster( tFollowerClusterVisVertices );
-
-                    // ------------------------
-                    // add vertex coordinates
-
-                    // get the coordinates for all vertices in the corresponding FEM clusters
-                    Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnLeaderCluster   = tFemLeaderSideCluster.get_vertices_local_coordinates_wrt_interp_cell();
-                    Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnFollowerCluster = tFemFollowerSideCluster.get_vertices_local_coordinates_wrt_interp_cell();
-
-                    // deduce number of spatial dimensions from coordinates
-                    uint tNumSpatialDims = tLocalCoordsOfAllFemVertsOnLeaderCluster.n_cols();
-
-                    // initialize matrices containing all local coords for the vertices in the VIS clusters
-                    Matrix< DDRMat > tLeaderVisClusterVerticesLocalCoords( tNumInterfaceVertices, tNumSpatialDims, 0.0 );
-                    Matrix< DDRMat > tFollowerVisClusterVerticesLocalCoords( tNumInterfaceVertices, tNumSpatialDims, 0.0 );
-
-                    // go through the vertices in the VIS leader cluster, find the corresponding FEM vertices, and copy over the local coordinates
-                    for ( uint iVertInVisLeaderCluster = 0; iVertInVisLeaderCluster < tNumInterfaceVertices; iVertInVisLeaderCluster++ )
-                    {
-                        // get the corresponding FEM vertex's index
-                        moris_index tLeaderFemVertexIndex = tLeaderClusterVisVertices( iVertInVisLeaderCluster )->get_base_vertex()->get_index();
-
-                        // get the FEM vertex's position in the list of cluster vertices
-                        moris_index tVertInFemLeaderCluster = tFemVertexIndexToPosInFemLeaderClusterMap.find( tLeaderFemVertexIndex );
-
-                        // copy over coordinates
-                        tLeaderVisClusterVerticesLocalCoords.set_row(
-                                iVertInVisLeaderCluster,
-                                tLocalCoordsOfAllFemVertsOnLeaderCluster.get_row( tVertInFemLeaderCluster ) );
-                    }
-
-                    // go through the vertices in the VIS leader cluster, find the corresponding FEM vertices, and copy over the local coordinates
-                    for ( uint iVertInVisFollowerCluster = 0; iVertInVisFollowerCluster < tNumInterfaceVertices; iVertInVisFollowerCluster++ )
-                    {
-                        // get the corresponding FEM vertex's index
-                        moris_index tFollowerFemVertexIndex = tFollowerClusterVisVertices( iVertInVisFollowerCluster )->get_base_vertex()->get_index();
-
-                        // get the FEM vertex's position in the list of cluster vertices
-                        moris_index tVertInFemFollowerCluster = tFemVertexIndexToPosInFemFollowerClusterMap.find( tFollowerFemVertexIndex );
-
-                        // copy over coordinates
-                        tFollowerVisClusterVerticesLocalCoords.set_row(
-                                iVertInVisFollowerCluster,
-                                tLocalCoordsOfAllFemVertsOnFollowerCluster.get_row( tVertInFemFollowerCluster ) );
-                    }
-
-                    // add local coordinates to vis clusters
-                    tVisLeaderSideCluster->add_vertex_local_coordinates_wrt_interp_cell( tLeaderVisClusterVerticesLocalCoords );
-                    tVisFollowerSideCluster->add_vertex_local_coordinates_wrt_interp_cell( tFollowerVisClusterVerticesLocalCoords );
+                    populate_double_side_interface_vertices( tFemLeaderSideCluster, tVisLeaderSideCluster, tFemFollowerSideCluster, tVisFollowerSideCluster );
 
                     // ------------------------
                     // store away the constructed clusters
@@ -1394,8 +1334,10 @@ namespace moris
                     /* create the VIS dbl side cluster object. the below information will be feed into it
                      * NOTE: Since we use the same ordering of the vertices on the leader and follower side the vertex pairing is trivial
                      * and the list of follower cluster vertices directly corresponds to the leader cluster vertices */
-                    mtk::Double_Side_Cluster* tVisDblSideCluster =
-                            new mtk::Double_Side_Cluster( tVisLeaderSideCluster, tVisFollowerSideCluster, tFollowerClusterVisVertices );
+                    mtk::Double_Side_Cluster const * tVisDblSideCluster = new mtk::Double_Side_Cluster(
+                            tVisLeaderSideCluster,
+                            tVisFollowerSideCluster,
+                            tVisFollowerSideCluster->get_vertices_in_cluster() );
 
                     // store away the dbl sided side cluster
                     mVisMesh->mClustersOnDoubleSideSets( iDblSideSet )( iDblSideClusterOnSet ) = tVisDblSideCluster;
@@ -1403,8 +1345,6 @@ namespace moris
                     // store away the constructed single side clusters
                     mVisMesh->mLeaderSideClusters( iDblSideSet )( iDblSideClusterOnSet )   = tVisLeaderSideCluster;
                     mVisMesh->mFollowerSideClusters( iDblSideSet )( iDblSideClusterOnSet ) = tVisFollowerSideCluster;
-
-
                 }    // end for: each dbl side cluster in set
 
             }    // end for: each double sided side set requested for output

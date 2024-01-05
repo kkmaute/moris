@@ -22,6 +22,9 @@
 #include "cl_VIS_Factory.hpp"
 #include "cl_VIS_Output_Enums.hpp"
 
+
+#include <cl_VIS_Side_Cluster_Visualization.hpp>
+
 namespace moris
 {
     namespace mtk
@@ -32,7 +35,7 @@ namespace moris
         class Vertex;
         class Interpolation_Mesh;
         class Integration_Mesh;
-    }
+    }    // namespace mtk
 
     namespace vis
     {
@@ -53,6 +56,7 @@ namespace moris
             Vector< std::string > mRequestedBlockSetNames;
             Vector< std::string > mRequestedSideSetNames;
             Vector< std::string > mRequestedDoubleSideSetNames;
+            Vector< std::string > mRequestedNonconformalSideSetNames;
 
             /// @brief mtk/fem mesh sets corresponding to the sets listed above
             Vector< moris::mtk::Set* > mFemBlockSets;
@@ -60,26 +64,26 @@ namespace moris
             Vector< moris::mtk::Set* > mFemDoubleSideSets;
 
             /// @brief map relating the FEM/MTK cells in each block to the VIS cells (to be) created
-            // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh 
-            // || output: index of VIS cell created from this FEM/MTK cell 
+            // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh
+            // || output: index of VIS cell created from this FEM/MTK cell
             Vector< Vector< moris_index > > mBlockAndFemCellIndexToVisCellIndex;
 
             /// @brief map relating the FEM/MTK cells in each block to the VIS vertices (to be) created
-            // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh 
+            // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh
             // || output: list of indices of VIS vertices in element local order
             Vector< Vector< Vector< moris_index > > > mBlockAndFemCellIndexToVisVertexIndices;
 
             /// @brief map relating the fem cell index to the vis cell index
-            // || input: index of IG cell from FEM mesh 
+            // || input: index of IG cell from FEM mesh
             // || output: index of the corresponding VIS cell which is primary material
-            // (Note: for overlapping meshes there may be multiple VIS cells created on the same FEM/MTK cell 
+            // (Note: for overlapping meshes there may be multiple VIS cells created on the same FEM/MTK cell
             // but only one is primary wrt. to one of the material phases)
             Vector< moris_index > mPrimaryFemCellIndexToVisCellIndex;
 
             /// @brief map relating the fem cell index to the vis cell index
-            // || input: index of IG cell from FEM mesh 
+            // || input: index of IG cell from FEM mesh
             // || output: index of the VIS block set in which this cell sits
-            // (Note: for overlapping meshes there may be multiple VIS cells created on the same FEM/MTK cell 
+            // (Note: for overlapping meshes there may be multiple VIS cells created on the same FEM/MTK cell
             // but only one is primary wrt. to one of the material phases)
             Vector< moris_index > mPrimaryFemCellIndexToBlockIndex;
 
@@ -90,11 +94,10 @@ namespace moris
             bool mConstructDiscontinuousMesh = false;
 
             /// @brief access to the mtk::mesh
-            mtk::Interpolation_Mesh*             mInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*               mIntegrationMesh   = nullptr;
+            mtk::Interpolation_Mesh* mInterpolationMesh = nullptr;
+            mtk::Integration_Mesh*   mIntegrationMesh   = nullptr;
 
           public:
-
             /**
              * Constructor
              *
@@ -148,6 +151,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------------------
 
+          private:
             /**
              * @brief Generate the vertices on the VIS mesh
              *
@@ -156,7 +160,7 @@ namespace moris
             create_visualization_vertices();
 
             //-----------------------------------------------------------------------------------------------------------
-            
+
             /**
              * @brief Generate the vertices assuming continuous fields within blocks
              */
@@ -164,7 +168,7 @@ namespace moris
             create_visualization_vertices_standard();
 
             //-----------------------------------------------------------------------------------------------------------
-            
+
             /**
              * @brief Generate the vertices such that fields discontinuous between clusters can be computed
              */
@@ -198,7 +202,17 @@ namespace moris
             void
             create_visualization_side_clusters();
 
+            std::set< moris_index >         get_active_vertex_indices_on_vis_cluster( mtk::Cluster const & aFemSideCluster );
+            map< moris_index, moris_index > get_vertex_index_to_pos_in_vis_cluster_map( const std::set< moris_index >& aFemVerticesOnInterface );
+
+            void populate_leader_follower_interface_vertices( mtk::Cluster const & aFemSideCluster, Side_Cluster_Visualization* aVisSideCluster, const std::set< moris_index >& aFemVerticesOnInterface );
             //-----------------------------------------------------------------------------------------------------------
+
+            Side_Cluster_Visualization*     create_visualization_leader_follower_side_clusters( mtk::Cluster const & aCluster );
+            map< moris_index, moris_index > get_vertex_index_to_pos_in_fem_cluster_map( mtk::Cluster const & aFemSideCluster );
+
+            void
+            populate_double_side_interface_vertices( mtk::Cluster const & aLeaderCluster, Side_Cluster_Visualization* tVisLeaderSideCluster, mtk::Cluster const & aFollowerCluster, Side_Cluster_Visualization* tVisFollowerSideCluster );
 
             /**
              * @brief Generate the double sided side clusters in the VIS mesh to interface with FEM for evaluation
