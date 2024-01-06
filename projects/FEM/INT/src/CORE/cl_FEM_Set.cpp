@@ -3264,7 +3264,7 @@ namespace moris
             {
                 this->construct_cell_assembly_map_for_VIS_set( aVisMeshIndex, aVisMeshSet, aOnlyPrimaryCells );
             }
-            else if ( tSetType == mtk::SetType::SIDESET || tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET )
+            else if ( tSetType == mtk::SetType::SIDESET || tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET || tSetType == mtk::SetType::NONCONFORMAL_SIDESET )
             {
                 this->construct_facet_assembly_map_for_VIS_set( aVisMeshIndex, aVisMeshSet );
             }
@@ -3334,9 +3334,9 @@ namespace moris
 
             // make sure this function is only called on (dbl) side sets
             MORIS_ASSERT(
-                    tSetType == mtk::SetType::SIDESET || tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET,
+                    tSetType == mtk::SetType::SIDESET || tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET || tSetType == mtk::SetType::NONCONFORMAL_SIDESET,
                     "fem::Set::construct_facet_assembly_map_for_VIS_set() - "
-                    "Function can only be called for SIDESETs or DOUBLE_SIDED_SIDESETs." );
+                    "Function can only be called for SIDESETs, DOUBLE_SIDED_SIDESETs or NONCONFORMAL_SIDESETs." );
 
             // -------------
             // get initialization data for facet assembly map
@@ -3357,7 +3357,7 @@ namespace moris
 
                 // get the Leader side
                 mtk::Cluster const * tLeaderSideCluster;
-                if ( tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET )
+                if ( tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET || tSetType == mtk::SetType::NONCONFORMAL_SIDESET )
                 {
                     tLeaderSideCluster = &tCluster->get_leader_side_cluster();
                 }
@@ -3369,7 +3369,7 @@ namespace moris
                 {
                     MORIS_ERROR( false,
                             "fem::Set::construct_facet_assembly_map_for_VIS_set() - "
-                            "Function can only be called for SIDESETs or DOUBLE_SIDED_SIDESETs." );
+                            "Function can only be called for SIDESETs, DOUBLE_SIDED_SIDESETs or NONCONFORMAL_SIDESETs." );
                     tLeaderSideCluster = tCluster;
                 }
 
@@ -3427,7 +3427,7 @@ namespace moris
 
                 // get the Leader side
                 mtk::Cluster const * tLeaderSideCluster;
-                if ( tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET )
+                if ( tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET || tSetType == mtk::SetType::NONCONFORMAL_SIDESET )
                 {
                     tLeaderSideCluster = &tCluster->get_leader_side_cluster();
                 }
@@ -3439,7 +3439,7 @@ namespace moris
                 {
                     MORIS_ERROR( false,
                             "fem::Set::construct_facet_assembly_map_for_VIS_set() - "
-                            "Function can only be called for SIDESETs or DOUBLE_SIDED_SIDESETs." );
+                            "Function can only be called for SIDESETs, DOUBLE_SIDED_SIDESETs or NONCONFORMAL_SIDESETs." );
                     tLeaderSideCluster = tCluster;
                 }
 

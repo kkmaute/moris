@@ -100,14 +100,17 @@ namespace moris
             mRequestedBlockSetNames.reserve( tNumRequestedSets );
             mRequestedSideSetNames.reserve( tNumRequestedSets );
             mRequestedDoubleSideSetNames.reserve( tNumRequestedSets );
+            mRequestedNonconformalSideSetNames.reserve( tNumRequestedSets );
             mFemBlockSets.reserve( tNumRequestedSets );
             mFemSideSets.reserve( tNumRequestedSets );
             mFemDoubleSideSets.reserve( tNumRequestedSets );
+            mFemNonconformalSideSets.reserve( tNumRequestedSets );
 
             // figure out which sets are block, side, and dbl-side sets
-            uint tNumBlockSets   = 0;
-            uint tNumSideSets    = 0;
-            uint tNumDblSideSets = 0;
+            uint tNumBlockSets            = 0;
+            uint tNumSideSets             = 0;
+            uint tNumDblSideSets          = 0;
+            uint tNumNonconformalSideSets = 0;
 
             // count number of block sets
             for ( uint iSet = 0; iSet < tNumRequestedSets; iSet++ )
@@ -140,11 +143,17 @@ namespace moris
                         break;
                     }
                     case mtk::SetType::DOUBLE_SIDED_SIDESET:
-                    case mtk::SetType::NONCONFORMAL_SIDESET:
                     {
                         tNumDblSideSets++;
                         mRequestedDoubleSideSetNames.push_back( tSetName );
                         mFemDoubleSideSets.push_back( tMtkMeshSet );
+                        break;
+                    }
+                    case mtk::SetType::NONCONFORMAL_SIDESET:
+                    {
+                        tNumNonconformalSideSets++;
+                        mRequestedNonconformalSideSetNames.push_back( tSetName );
+                        mFemNonconformalSideSets.push_back( tMtkMeshSet );
                         break;
                     }
                     default:
@@ -158,11 +167,11 @@ namespace moris
             }        // end for: each requested set
 
             // copy set names into VIS mesh
-            mVisMesh->mBlockSetNames      = mRequestedBlockSetNames;
-            mVisMesh->mSideSetNames       = mRequestedSideSetNames;
-            mVisMesh->mDoubleSideSetNames = mRequestedDoubleSideSetNames;
-            mVisMesh->mNonConformalSideSetNames = mRequestedNonConformalSideSetNames;
-            mVisMesh->mAllSetNames.resize( tNumBlockSets + tNumSideSets + tNumDblSideSets );
+            mVisMesh->mBlockSetNames            = mRequestedBlockSetNames;
+            mVisMesh->mSideSetNames             = mRequestedSideSetNames;
+            mVisMesh->mDoubleSideSetNames       = mRequestedDoubleSideSetNames;
+            mVisMesh->mNonconformalSideSetNames = mRequestedNonconformalSideSetNames;
+            mVisMesh->mAllSetNames.resize( tNumBlockSets + tNumSideSets + tNumDblSideSets + tNumNonconformalSideSets );
 
             // assemble list of all set names and corresponding map
             moris_index tSetIndex = 0;
@@ -205,18 +214,37 @@ namespace moris
                 mVisMesh->mSetNameToIndexMap[ iDblSideSetName ] = tSetIndex;
                 tSetIndex++;
             }
+            for ( const std::string& iNonconformalSideSetName : mVisMesh->mNonconformalSideSetNames )
+            {
+                // make sure there are no repeated set names
+                MORIS_ERROR( !mVisMesh->mSetNameToIndexMap.key_exists( iNonconformalSideSetName ),
+                        "VIS::Visualization_Mesh::initialize() - "
+                        "Set with name '%s' has been found twice in list of sets in VIS mesh. "
+                        "Make sure that mesh sets are only listed once in the VIS parameter list.",
+                        iNonconformalSideSetName.c_str() );
+
+                mVisMesh->mAllSetNames( tSetIndex )                      = iNonconformalSideSetName;
+                mVisMesh->mSetNameToIndexMap[ iNonconformalSideSetName ] = tSetIndex;
+                tSetIndex++;
+            }
 
             // initialize lists in the VIS mesh
             mVisMesh->mListOfBlocks.resize( tNumBlockSets );
             mVisMesh->mListOfSideSets.resize( tNumSideSets );
             mVisMesh->mListOfDoubleSideSets.resize( tNumDblSideSets );
+            mVisMesh->mListOfNonconformalSideSets.resize( tNumNonconformalSideSets );
             mVisMesh->mListOfAllSets.resize( 0 );    // this will be sized correctly in the finalize step of the VIS mesh
 
             mVisMesh->mClustersOnBlockSets.resize( tNumBlockSets );
             mVisMesh->mClustersOnSideSets.resize( tNumSideSets );
             mVisMesh->mClustersOnDoubleSideSets.resize( tNumDblSideSets );
-            mVisMesh->mLeaderSideClusters.resize( tNumDblSideSets );
-            mVisMesh->mFollowerSideClusters.resize( tNumDblSideSets );
+            mVisMesh->mClustersOnNonconformalSideSets.resize( tNumNonconformalSideSets );
+
+            mVisMesh->mLeaderDblSideClusters.resize( tNumDblSideSets );
+            mVisMesh->mFollowerDblSideClusters.resize( tNumDblSideSets );
+
+            mVisMesh->mLeaderNonconformalSideClusters.resize( tNumNonconformalSideSets );
+            mVisMesh->mFollowerNonconformalSideClusters.resize( tNumNonconformalSideSets );
 
             // initialize  maps
             uint tNumFemCells = mIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT ) + 1;
@@ -249,26 +277,20 @@ namespace moris
             // create the vertex objects
             this->create_visualization_vertices();
 
-            // create the cells
+            // cells
             this->create_visualization_cells();
 
-            // group cells into clusters
+            // clusters
             this->create_visualization_clusters();
-
-            // create side clusters
             this->create_visualization_side_clusters();
-
-            // create the double sided side clusters
             this->create_visualization_double_side_clusters();
+            this->create_visualization_nonconformal_side_clusters();
 
-            // create block sets from the cell clusters
+            // sets
             this->create_visualization_blocks();
-
-            // create side sets from the side clusters
             this->create_visualization_side_sets();
-
-            // create the double sided side sets
             this->create_visualization_double_side_sets();
+            this->create_visualization_nonconformal_side_sets();
 
             // finalize data in the VIS mesh before handing over ownership
             mVisMesh->finalize();
@@ -1130,7 +1152,7 @@ namespace moris
             return tFemVertexIndexToPosInFemClusterMap;
         }
 
-        std::set< moris_index > VIS_Factory::get_active_vertex_indices_on_vis_cluster( mtk::Cluster const & aFemSideCluster )
+        std::set< moris_index > VIS_Factory::get_active_fem_vertex_indices_on_vis_cluster( mtk::Cluster const & aFemSideCluster )
         {
             // initialize sets that will carry a list of FEM vertex indices that correspond to the VIS vertices
             // which are attached to the IG cells that carry the respective sides of the dbl side cluster
@@ -1264,8 +1286,8 @@ namespace moris
                 mtk::Cluster const &        aFollowerCluster,
                 Side_Cluster_Visualization* tVisFollowerSideCluster )
         {
-            std::set< moris_index > const tActiveFemVertexIndicesOnVisLeaderCluster   = get_active_vertex_indices_on_vis_cluster( aLeaderCluster );
-            std::set< moris_index > const tActiveFemVertexIndicesOnVisFollowerCluster = get_active_vertex_indices_on_vis_cluster( aFollowerCluster );
+            std::set< moris_index > const tActiveFemVertexIndicesOnVisLeaderCluster   = get_active_fem_vertex_indices_on_vis_cluster( aLeaderCluster );
+            std::set< moris_index > const tActiveFemVertexIndicesOnVisFollowerCluster = get_active_fem_vertex_indices_on_vis_cluster( aFollowerCluster );
 
             // the intersection of the active fem vertices on each side are the shared vertices,
             // i.e. the interface vertices which we are looking for
@@ -1280,6 +1302,7 @@ namespace moris
             populate_leader_follower_interface_vertices( aLeaderCluster, tVisLeaderSideCluster, tFemVerticesOnInterface );
             populate_leader_follower_interface_vertices( aFollowerCluster, tVisFollowerSideCluster, tFemVerticesOnInterface );
         }
+
 
         void
         VIS_Factory::create_visualization_double_side_clusters()
@@ -1307,8 +1330,8 @@ namespace moris
 
                 // resize list of clusters for this set
                 mVisMesh->mClustersOnDoubleSideSets( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
-                mVisMesh->mLeaderSideClusters( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
-                mVisMesh->mFollowerSideClusters( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
+                mVisMesh->mLeaderDblSideClusters( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
+                mVisMesh->mFollowerDblSideClusters( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
 
                 // loop over clusters in existing fem/mtk set
                 for ( uint iDblSideClusterOnSet = 0; iDblSideClusterOnSet < tDblSideClustersOnFemSet.size(); iDblSideClusterOnSet++ )
@@ -1343,15 +1366,97 @@ namespace moris
                     mVisMesh->mClustersOnDoubleSideSets( iDblSideSet )( iDblSideClusterOnSet ) = tVisDblSideCluster;
 
                     // store away the constructed single side clusters
-                    mVisMesh->mLeaderSideClusters( iDblSideSet )( iDblSideClusterOnSet )   = tVisLeaderSideCluster;
-                    mVisMesh->mFollowerSideClusters( iDblSideSet )( iDblSideClusterOnSet ) = tVisFollowerSideCluster;
+                    mVisMesh->mLeaderDblSideClusters( iDblSideSet )( iDblSideClusterOnSet )   = tVisLeaderSideCluster;
+                    mVisMesh->mFollowerDblSideClusters( iDblSideSet )( iDblSideClusterOnSet ) = tVisFollowerSideCluster;
                 }    // end for: each dbl side cluster in set
 
             }    // end for: each double sided side set requested for output
 
         }    // end function: VIS_Factory::create_visualization_double_side_clusters()
 
+        std::set< moris_index > VIS_Factory::get_active_vertices_on_side_facet(
+                mtk::Cluster const & aCluster )
+        {
+            std::set< moris_index >     tActiveVerticesOnSideFacet;
+            Vector< mtk::Cell const * > tCells = aCluster.get_primary_cells_in_cluster();
+
+            // loop over each cell in the cluster
+            for ( size_t iCell = 0; iCell < tCells.size(); ++iCell )
+            {
+                // get the corresponding side ordinal for the current cell
+                moris_index const tSideOrdinal = aCluster.get_cell_side_ordinal( iCell );
+
+                // loop over all vertices that are on the current side ordinal of the current cell
+                for ( const auto* const tVertex : tCells( iCell )->get_vertices_on_side_ordinal( tSideOrdinal ) )
+                {
+                    // by adding the vertex index to the set, duplicates will be ignored
+                    tActiveVerticesOnSideFacet.insert( tVertex->get_index() );
+                }
+            }
+            return tActiveVerticesOnSideFacet;
+        }
+
         //-----------------------------------------------------------------------------------------------------------
+        void VIS_Factory::create_visualization_nonconformal_side_clusters()
+        {
+            // time and log this function
+            Tracer tTracer( "VIS", "Factory", "Create Nonconformal Side Clusters" );
+
+            // loop over requested sets
+            for ( uint iNcSideSet = 0; iNcSideSet < mRequestedNonconformalSideSetNames.size(); iNcSideSet++ )
+            {
+                // get access to the fem dbl side set
+                mtk::Set* tFemNcSideSet = mFemNonconformalSideSets( iNcSideSet );
+
+                // get number of side clusters on set
+                uint tNumNcSideClustersOnSet = tFemNcSideSet->get_num_clusters_on_set();
+
+                // ignore the subsequent steps for empty sets, and jump to next set
+                if ( tNumNcSideClustersOnSet == 0 )
+                {
+                    continue;
+                }
+
+                // get list of clusters on existing fem/mtk set
+                Vector< mtk::Cluster const * > tNcSideClustersOnFemSet = tFemNcSideSet->get_clusters_on_set();
+
+                // resize list of clusters for this set
+                mVisMesh->mClustersOnNonconformalSideSets( iNcSideSet ).resize( tNumNcSideClustersOnSet, nullptr );
+                mVisMesh->mLeaderNonconformalSideClusters( iNcSideSet ).resize( tNumNcSideClustersOnSet, nullptr );
+                mVisMesh->mFollowerNonconformalSideClusters( iNcSideSet ).resize( tNumNcSideClustersOnSet, nullptr );
+
+                // loop over clusters in existing fem/mtk set
+                for ( uint iNcSideClusterOnSet = 0; iNcSideClusterOnSet < tNcSideClustersOnFemSet.size(); iNcSideClusterOnSet++ )
+                {
+                    // get access to the current fem dbl side cluster and its leader and follower components
+                    auto* tFemNcSideCluster = dynamic_cast< mtk::Nonconformal_Side_Cluster const * >( tNcSideClustersOnFemSet( iNcSideClusterOnSet ) );
+
+                    // leader cluster
+                    mtk::Cluster const &             tFemLeaderSideCluster            = tFemNcSideCluster->get_leader_side_cluster();
+                    vis::Side_Cluster_Visualization* tVisLeaderSideCluster            = create_visualization_leader_follower_side_clusters( tFemLeaderSideCluster );
+                    std::set< moris_index > const    tFemVertexIndicesOnLeaderCluster = get_active_vertices_on_side_facet( tFemLeaderSideCluster );
+                    populate_leader_follower_interface_vertices( tFemLeaderSideCluster, tVisLeaderSideCluster, tFemVertexIndicesOnLeaderCluster );
+
+                    // follower cluster
+                    mtk::Cluster const &             tFemFollowerSideCluster            = tFemNcSideCluster->get_follower_side_cluster();
+                    vis::Side_Cluster_Visualization* tVisFollowerSideCluster            = create_visualization_leader_follower_side_clusters( tFemFollowerSideCluster );
+                    std::set< moris_index > const    tFemVertexIndicesOnFollowerCluster = get_active_vertices_on_side_facet( tFemFollowerSideCluster );
+                    populate_leader_follower_interface_vertices( tFemFollowerSideCluster, tVisFollowerSideCluster, tFemVertexIndicesOnFollowerCluster );
+
+                    mtk::Nonconformal_Side_Cluster const * tVisNcSideCluster = new mtk::Nonconformal_Side_Cluster(
+                            tVisLeaderSideCluster,
+                            tVisFollowerSideCluster,
+                            tFemNcSideCluster->get_integration_point_pairs() );
+
+                    // store away the dbl sided side cluster
+                    mVisMesh->mClustersOnNonconformalSideSets( iNcSideSet )( iNcSideClusterOnSet ) = tVisNcSideCluster;
+
+                    // store away the constructed single side clusters
+                    mVisMesh->mLeaderNonconformalSideClusters( iNcSideSet )( iNcSideClusterOnSet )   = tVisLeaderSideCluster;
+                    mVisMesh->mFollowerNonconformalSideClusters( iNcSideSet )( iNcSideClusterOnSet ) = tVisFollowerSideCluster;
+                }    // end for: each dbl side cluster in set
+            }        // end for: each double sided side set requested for output
+        }
 
         void
         VIS_Factory::create_visualization_blocks()
@@ -1440,6 +1545,33 @@ namespace moris
             // communicate information across all sets
             mtk::Set_Communicator tSetCommunicator( mVisMesh->mListOfDoubleSideSets );
         }
+
+        void VIS_Factory::create_visualization_nonconformal_side_sets()
+        {
+            // log/trace this function
+            Tracer tTracer( "VIS", "Factory", "Create Nonconformal Side Sets" );
+
+            // Go over the sets in the integration mesh. Store the set meta information for later writing the mesh.
+            for ( uint iNCSideSet = 0; iNCSideSet < mVisMesh->mListOfNonconformalSideSets.size(); iNCSideSet++ )
+            {
+                // get access to the FEM set corresponding to the current block set
+                mtk::Set* tFemNCSideSet = mFemNonconformalSideSets( iNCSideSet );
+
+                // create block object to write mesh set information to
+                mVisMesh->mListOfNonconformalSideSets( iNCSideSet ) = new moris::mtk::Nonconformal_Side_Set(
+                        tFemNCSideSet->get_set_name(),
+                        mVisMesh->mClustersOnNonconformalSideSets( iNCSideSet ),
+                        tFemNCSideSet->get_set_colors(),
+                        tFemNCSideSet->get_spatial_dim() );
+
+                // populate the set with meta information
+                mVisMesh->mListOfNonconformalSideSets( iNCSideSet )->set_IG_cell_shape( tFemNCSideSet->get_IG_cell_shape() );
+            }
+
+            // communicate information across all sets
+            mtk::Set_Communicator tSetCommunicator( mVisMesh->mListOfNonconformalSideSets );
+        }
+
 
         //-----------------------------------------------------------------------------------------------------------
 

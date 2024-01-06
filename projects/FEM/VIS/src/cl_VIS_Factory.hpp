@@ -43,11 +43,8 @@ namespace moris
 
         class VIS_Factory
         {
-            //-----------------------------------------------------------------------------------------------------------
 
           private:
-            //-----------------------------------------------------------------------------------------------------------
-
             /// @brief VIS-mesh to be constructed by this factory
             vis::Visualization_Mesh* mVisMesh = nullptr;
 
@@ -62,6 +59,7 @@ namespace moris
             Vector< moris::mtk::Set* > mFemBlockSets;
             Vector< moris::mtk::Set* > mFemSideSets;
             Vector< moris::mtk::Set* > mFemDoubleSideSets;
+            Vector< moris::mtk::Set* > mFemNonconformalSideSets;
 
             /// @brief map relating the FEM/MTK cells in each block to the VIS cells (to be) created
             // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh
@@ -121,7 +119,6 @@ namespace moris
             void
             initialize( moris::vis::Output_Data const & aOutputData );
 
-            //-----------------------------------------------------------------------------------------------------------
 
             vis::Visualization_Mesh*
             hand_off_VIS_mesh()
@@ -144,12 +141,10 @@ namespace moris
                 return tVisMeshPtr;
             }
 
-            //-----------------------------------------------------------------------------------------------------------
 
             mtk::Mesh*
             create_visualization_mesh( moris::vis::Output_Data& aOutputData );
 
-            //-----------------------------------------------------------------------------------------------------------
 
           private:
             /**
@@ -159,7 +154,6 @@ namespace moris
             void
             create_visualization_vertices();
 
-            //-----------------------------------------------------------------------------------------------------------
 
             /**
              * @brief Generate the vertices assuming continuous fields within blocks
@@ -167,15 +161,12 @@ namespace moris
             void
             create_visualization_vertices_standard();
 
-            //-----------------------------------------------------------------------------------------------------------
 
             /**
              * @brief Generate the vertices such that fields discontinuous between clusters can be computed
              */
             void
             create_visualization_vertices_full_discontinuous();
-
-            //-----------------------------------------------------------------------------------------------------------
 
             /**
              * @brief Generated the IG cells on the VIS mesh
@@ -184,8 +175,6 @@ namespace moris
             void
             create_visualization_cells();
 
-            //-----------------------------------------------------------------------------------------------------------
-
             /**
              * @brief Generate the clusters in the VIS mesh to interface with FEM for evaluation
              *
@@ -193,7 +182,6 @@ namespace moris
             void
             create_visualization_clusters();
 
-            //-----------------------------------------------------------------------------------------------------------
 
             /**
              * @brief Generate the side clusters in the VIS mesh to interface with FEM for evaluation
@@ -202,13 +190,14 @@ namespace moris
             void
             create_visualization_side_clusters();
 
-            std::set< moris_index >         get_active_vertex_indices_on_vis_cluster( mtk::Cluster const & aFemSideCluster );
+            std::set< moris_index > get_active_fem_vertex_indices_on_vis_cluster( mtk::Cluster const & aFemSideCluster );
+
             map< moris_index, moris_index > get_vertex_index_to_pos_in_vis_cluster_map( const std::set< moris_index >& aFemVerticesOnInterface );
 
             void populate_leader_follower_interface_vertices( mtk::Cluster const & aFemSideCluster, Side_Cluster_Visualization* aVisSideCluster, const std::set< moris_index >& aFemVerticesOnInterface );
-            //-----------------------------------------------------------------------------------------------------------
 
-            Side_Cluster_Visualization*     create_visualization_leader_follower_side_clusters( mtk::Cluster const & aCluster );
+            Side_Cluster_Visualization* create_visualization_leader_follower_side_clusters( mtk::Cluster const & aCluster );
+
             map< moris_index, moris_index > get_vertex_index_to_pos_in_fem_cluster_map( mtk::Cluster const & aFemSideCluster );
 
             void
@@ -221,7 +210,12 @@ namespace moris
             void
             create_visualization_double_side_clusters();
 
-            //-----------------------------------------------------------------------------------------------------------
+            std::set< moris_index >
+            get_active_vertices_on_side_facet( mtk::Cluster const & aCluster );
+
+
+            void
+            create_visualization_nonconformal_side_clusters();
 
             /**
              * @brief Generate the VIS block sets
@@ -230,16 +224,12 @@ namespace moris
             void
             create_visualization_blocks();
 
-            //-----------------------------------------------------------------------------------------------------------
-
             /**
              * @brief generate the VIS side sets
              *
              */
             void
             create_visualization_side_sets();
-
-            //-----------------------------------------------------------------------------------------------------------
 
             /**
              * @brief generate the VIS double sided side sets
@@ -248,7 +238,9 @@ namespace moris
             void
             create_visualization_double_side_sets();
 
-            //-----------------------------------------------------------------------------------------------------------
+
+            void
+            create_visualization_nonconformal_side_sets();
         };
     }    // namespace vis
 } /* namespace moris */

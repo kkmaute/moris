@@ -1311,10 +1311,24 @@ namespace moris
         void
         Interpolation_Element::compute_nodal_QIs_double_sided( const uint aFemMeshIndex )
         {
+            // get number of active local IQIs
+            uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
+
+            // skip if there are no IQIs to process
+            if ( tNumLocalIQIs == 0 )
+            {
+                return;
+            }
+
+
+            Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
+
             // make sure this function is only called on double sided side clusters
+            MORIS_ASSERT( tElementType != fem::Element_Type::NONCONFORMAL_SIDESET,
+                    "Nodal Evaluation of QIs on Nonconformal Sidesets is not supported yet." );
+
             MORIS_ASSERT(
-                    ( mFemCluster( aFemMeshIndex )->get_element_type() == fem::Element_Type::DOUBLE_SIDESET )
-                            || ( mFemCluster( aFemMeshIndex )->get_element_type() == fem::Element_Type::NONCONFORMAL_SIDESET ),
+                    tElementType == fem::Element_Type::DOUBLE_SIDESET,
                     "Interpolation_Element::compute_nodal_QIs_double_sided() - "
                     "This function can only be called on double sided side clusters." );
 
@@ -1377,9 +1391,6 @@ namespace moris
 
                 // get the current vertex's coordinates
                 moris_index tLeaderVertexIndex = tLeaderVisVertexIndices( iVertex );
-
-                // get number of active local IQIs
-                uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
 
                 // loop over IQI
                 for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
