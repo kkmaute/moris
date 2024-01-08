@@ -237,7 +237,7 @@ check_results(
     tReferenceConstraints.push_back( { { 1.158612227050381e+01 },
             { 2.120790687504071e+01 },
             { 1.023252485864111e+02 } } );
- 
+
     // Read constraints
     load_matrix_from_hdf5_file( tFileID, "constraints eval_1-1", tConstraints, tStatus );
 
