@@ -30,14 +30,12 @@ namespace moris
         void
         IQI_Debug::compute_QI( Matrix< DDRMat >& aQI )
         {
-            moris_index const iGP        = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->get_current_ig_point_index();
-            Vector< real >    tDistances = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->get_integration_point_distances();
+            moris_index const iGP        = mLeaderFIManager->get_IG_geometry_interpolator()->get_current_ig_point_index();
+            Vector< real >    tDistances = mLeaderFIManager->get_IG_geometry_interpolator()->get_integration_point_distances();
 
-            MORIS_ASSERT( !tDistances.empty(), "IQI_Debug::compute_QI( real aWStar ): Integration point distances are empty. Are you using it on a Nonconformal Side Set?" );
+            MORIS_ASSERT( !tDistances.empty(), "IQI_Debug::compute_QI( real aQI ): Integration point distances are empty. Are you using it on a Nonconformal Side Set?" );
 
-            std::cout << "QI (aQI): " << mName << " " << iGP << " "
-                      << " " << tDistances( iGP ) << "\n";
-            aQI = { { tDistances( iGP ) } };
+            aQI = { { tDistances( iGP ) / 2 } };
         }
 
         //------------------------------------------------------------------------------
@@ -45,8 +43,8 @@ namespace moris
         void
         IQI_Debug::compute_QI( real aWStar )
         {
-            moris_index const iGP        = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->get_current_ig_point_index();
-            Vector< real >    tDistances = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->get_integration_point_distances();
+            moris_index const iGP        = mLeaderFIManager->get_IG_geometry_interpolator()->get_current_ig_point_index();
+            Vector< real >    tDistances = mLeaderFIManager->get_IG_geometry_interpolator()->get_integration_point_distances();
 
             MORIS_ASSERT( !tDistances.empty(), "IQI_Debug::compute_QI( real aWStar ): Integration point distances are empty. Are you using it on a Nonconformal Side Set?" );
 
