@@ -203,12 +203,14 @@ namespace moris
             void
             populate_double_side_interface_vertices( mtk::Cluster const & aLeaderCluster, Side_Cluster_Visualization* tVisLeaderSideCluster, mtk::Cluster const & aFollowerCluster, Side_Cluster_Visualization* tVisFollowerSideCluster );
 
+            Vector< mtk::IntegrationPointPairs >
+            populate_integration_point_pairs( mtk::Nonconformal_Side_Cluster const * tFemNcSideCluster ) const;
+
             /**
              * @brief Generate the double sided side clusters in the VIS mesh to interface with FEM for evaluation
              *
              */
-            void
-            create_visualization_double_side_clusters();
+            void create_visualization_double_side_clusters();
 
             std::set< moris_index >
             get_active_vertices_on_side_facet( mtk::Cluster const & aCluster );

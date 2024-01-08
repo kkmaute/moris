@@ -27,6 +27,9 @@
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Set_Communicator.hpp"
 #include "cl_Tracer.hpp"
+#include "cl_MTK_Nonconformal_Side_Cluster.hpp"
+#include "cl_MTK_Nonconformal_Side_Set.hpp"
+#include "cl_MTK_IntegrationPointPairs.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -1396,6 +1399,26 @@ namespace moris
             return tActiveVerticesOnSideFacet;
         }
 
+        Vector< mtk::IntegrationPointPairs > VIS_Factory::populate_integration_point_pairs( mtk::Nonconformal_Side_Cluster const * tFemNcSideCluster ) const
+        {
+            Vector< mtk::IntegrationPointPairs > tFemIntegrationPointPairs = tFemNcSideCluster->get_integration_point_pairs();
+            Vector< mtk::IntegrationPointPairs > tVisIntegrationPointPairs;
+            tVisIntegrationPointPairs.reserve( tFemIntegrationPointPairs.size() );
+
+            for ( auto const & tIPP : tFemIntegrationPointPairs )
+            {
+                auto tVIPP = mtk::IntegrationPointPairs(
+                        mPrimaryFemCellIndexToVisCellIndex( tIPP.get_leader_cell_index() ),
+                        tIPP.get_leader_coordinates(),
+                        mPrimaryFemCellIndexToVisCellIndex( tIPP.get_follower_cell_index() ),
+                        tIPP.get_follower_coordinates(),
+                        tIPP.get_integration_weights(),
+                        tIPP.get_integration_point_distances(),
+                        tIPP.get_normals() );
+                tVisIntegrationPointPairs.push_back( tVIPP );
+            }
+            return tVisIntegrationPointPairs;
+        }
         //-----------------------------------------------------------------------------------------------------------
         void VIS_Factory::create_visualization_nonconformal_side_clusters()
         {
@@ -1443,10 +1466,13 @@ namespace moris
                     std::set< moris_index > const    tFemVertexIndicesOnFollowerCluster = get_active_vertices_on_side_facet( tFemFollowerSideCluster );
                     populate_leader_follower_interface_vertices( tFemFollowerSideCluster, tVisFollowerSideCluster, tFemVertexIndicesOnFollowerCluster );
 
+                    // with the new numbering of cells, the integration point pairs are no longer valid and have to be updated as well
+                    Vector< mtk::IntegrationPointPairs > tVisIntegrationPointPairs = populate_integration_point_pairs( tFemNcSideCluster );
+
                     mtk::Nonconformal_Side_Cluster const * tVisNcSideCluster = new mtk::Nonconformal_Side_Cluster(
                             tVisLeaderSideCluster,
                             tVisFollowerSideCluster,
-                            tFemNcSideCluster->get_integration_point_pairs() );
+                            tVisIntegrationPointPairs );
 
                     // store away the dbl sided side cluster
                     mVisMesh->mClustersOnNonconformalSideSets( iNcSideSet )( iNcSideClusterOnSet ) = tVisNcSideCluster;
