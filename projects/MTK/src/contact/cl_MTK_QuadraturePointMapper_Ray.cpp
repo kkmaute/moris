@@ -49,8 +49,17 @@ namespace moris::mtk
 
     MappingResult QuadraturePointMapper_Ray::map( moris_index const aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates ) const
     {
+        Side_Set const *const tSideSet = mSideSets( aSourceSideSetIndex );
+
+        // skip, if the side set is empty
+        if ( tSideSet->get_num_clusters_on_set() == 0 )
+        {
+            std::cout << "Side set " << tSideSet->get_set_name() << " is empty. Skipping it in Contact Detection" << std::endl;
+            return MappingResult( aSourceSideSetIndex, tSideSet->get_spatial_dim(), 0 );
+        }
+
         Interpolation_Rule const tInterpolationRule(
-                mSideSets( aSourceSideSetIndex )->get_integration_cell_geometry_type(),
+                tSideSet->get_integration_cell_geometry_type(),
                 Interpolation_Type::LAGRANGE,
                 Interpolation_Order::LINEAR,
                 Interpolation_Type::UNDEFINED,
@@ -65,7 +74,7 @@ namespace moris::mtk
 
         // preallocate the MappingResult
         auto const tNumParametricCoordinates = static_cast< moris_index >( aParametricCoordinates.n_cols() );
-        uint const tDim                      = mSideSets( aSourceSideSetIndex )->get_spatial_dim();
+        uint const tDim                      = tSideSet->get_spatial_dim();
         uint const tNumCells                 = tSurfaceMesh.get_number_of_cells();
         uint const tTotalNumPoints           = tNumCells * tNumParametricCoordinates;
 
