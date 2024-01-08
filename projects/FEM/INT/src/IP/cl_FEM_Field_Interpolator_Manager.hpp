@@ -286,6 +286,8 @@ namespace moris
              */
             void set_space_time_from_local_IG_point( const Matrix< DDRMat >& aLocalParamPoint );
 
+            void set_current_ig_index( const moris_index aIGIndex ) const;
+
             //------------------------------------------------------------------------------
             /**
              * set coefficients for field interpolator with specific dof type

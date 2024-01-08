@@ -49,6 +49,6 @@ namespace moris::fem
 
         // the nonconformal sideset element can provide precomputed integration point distances
         Geometry_Interpolator *tIGInterpolator = mSet->get_field_interpolator_manager( aLeaderFollowerType )->get_IG_geometry_interpolator();
-        tIGInterpolator->set_integration_point_distances( mIntegrationPointDistances );
+        tIGInterpolator->set_integration_point_distances( mIntegrationPointDistances );    // TODO: find different way to access ray length in the IWGs/IQIs
     }
 }    // namespace moris::fem
