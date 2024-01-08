@@ -1550,7 +1550,7 @@ namespace moris
             {
                 // set IQI leader FI manager
                 tIQI->set_field_interpolator_manager( mLeaderFIManager );
-
+                tIQI->set_set_pointer( this );
                 // if double sideset, set follower
                 if (
                         ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
