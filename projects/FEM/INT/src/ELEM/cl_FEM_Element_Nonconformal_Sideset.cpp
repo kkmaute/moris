@@ -34,23 +34,6 @@ namespace moris::fem
         return mIntegrationPointWeights.size();
     }
 
-    void Element_Nonconformal_Sideset::compute_jacobian_and_residual()
-    {
-        // TODO: remove debug output!
-        std::cout << "NCS: L: "
-                  << mCluster->get_mesh_cluster()->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER )( get_leader_local_cell_index() )->get_index()
-                  << " F: "
-                  << mCluster->get_mesh_cluster()->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER )( get_follower_local_cell_index() )->get_index();
-
-        for ( auto const &tCoordinate : mLeaderIntegrationPoints.get_row( 0 ) )
-        {
-            std::cout << " " << std::setw( 4 ) << tCoordinate;
-        }
-
-        std::cout << "\n";
-        Element_Double_Sideset::compute_jacobian_and_residual();
-    }
-
     moris_index Element_Nonconformal_Sideset::get_follower_local_cell_index() const
     {
         return mFollowerCellIndexInCluster;

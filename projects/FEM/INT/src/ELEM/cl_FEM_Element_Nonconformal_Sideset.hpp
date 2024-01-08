@@ -36,7 +36,6 @@ namespace moris::fem
         Matrix< DDRMat > get_follower_integration_point( uint const aGPIndex ) const override;
         real             get_integration_weight( uint const aGPIndex ) const override;
         uint             get_number_of_integration_points() const override;
-        void             compute_jacobian_and_residual() override;
 
       protected:
         moris_index get_follower_local_cell_index() const override;
