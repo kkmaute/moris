@@ -517,7 +517,7 @@ else()
     
     check_cxx_compiler_flag(-flto HAVE_LTO_OPTIMISATION)
     if (HAVE_LTO_OPTIMISATION AND MORIS_USE_LTO)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=auto")
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=4")
         # -ffat-lto-objects
     endif()
 endif()
