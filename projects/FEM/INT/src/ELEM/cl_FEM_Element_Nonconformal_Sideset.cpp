@@ -48,17 +48,4 @@ namespace moris::fem
     {
         return mFollowerCellIndexInCluster;
     }
-
-    void Element_Nonconformal_Sideset::initialize_leader_follower_ig_interpolator(
-            mtk::Cell const           *aCell,
-            moris_index const          aSideOrdinal,
-            moris_index const          aLocalCellIndex,
-            mtk::Leader_Follower const aLeaderFollowerType ) const
-    {
-        Element_Double_Sideset::initialize_leader_follower_ig_interpolator( aCell, aSideOrdinal, aLocalCellIndex, aLeaderFollowerType );
-
-        // the nonconformal sideset element can provide precomputed integration point distances
-        Geometry_Interpolator *tIGInterpolator = mSet->get_field_interpolator_manager( aLeaderFollowerType )->get_IG_geometry_interpolator();
-        tIGInterpolator->set_integration_point_distances( mIntegrationPointDistances );    // TODO: find different way to access ray length in the IWGs/IQIs
-    }
 }    // namespace moris::fem

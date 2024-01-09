@@ -102,11 +102,6 @@ namespace moris
 
             Matrix< DDRMat > mMappedPoint;
 
-            // For nonconformal side sets, the integration points get raytraced which
-            // precomputes the distance between the leader and follower integration points.
-            Vector< real > mIntegrationPointDistances;
-            moris_index    mCurrentIGPointIndex = -1;
-
           private:
             // flag for mapping evaluation point
             bool mMapFlag = false;
@@ -283,26 +278,6 @@ namespace moris
             get_space_geometry_type()
             {
                 return mSpaceInterpolator->get_space_geometry_type();
-            }
-
-            [[nodiscard]] Vector< real > const & get_integration_point_distances() const
-            {
-                return mIntegrationPointDistances;
-            }
-
-            void set_integration_point_distances( Vector< real > const & aIntegrationPointDistances )
-            {
-                mIntegrationPointDistances = aIntegrationPointDistances;
-            }
-
-            [[nodiscard]] moris_index get_current_ig_point_index() const
-            {
-                return mCurrentIGPointIndex;
-            }
-
-            void set_current_ig_point_index( moris_index const aCurrentIgPointIndex )
-            {
-                mCurrentIGPointIndex = aCurrentIgPointIndex;
             }
 
             //------------------------------------------------------------------------------

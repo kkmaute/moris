@@ -41,12 +41,6 @@ namespace moris::fem
       protected:
         moris_index get_follower_local_cell_index() const override;
 
-        void initialize_leader_follower_ig_interpolator(
-                mtk::Cell const           *aCell,
-                moris_index const          aSideOrdinal,
-                moris_index const          aLocalCellIndex,
-                mtk::Leader_Follower const aLeaderFollowerType ) const override;
-
       private:
         moris_index      mFollowerCellIndexInCluster;
         Matrix< DDRMat > mLeaderIntegrationPoints;

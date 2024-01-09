@@ -486,11 +486,6 @@ namespace moris
             this->set_space_time( tGlobalParamPoint );
         }
 
-        void Field_Interpolator_Manager::set_current_ig_index( const moris_index aIGIndex ) const
-        {
-            mIGGeometryInterpolator->set_current_ig_point_index( aIGIndex );
-        }
-
         //------------------------------------------------------------------------------
 
         void
