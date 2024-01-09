@@ -12,6 +12,9 @@
 #include "cl_Vector.hpp"
 #include "linalg_typedefs.hpp"
 
+
+#include <cl_FEM_Model.hpp>
+
 namespace moris::fem
 {
     Matrix< DDRMat > Element_Nonconformal_Sideset::get_leader_integration_point( uint const aGPIndex ) const
@@ -32,6 +35,13 @@ namespace moris::fem
     uint Element_Nonconformal_Sideset::get_number_of_integration_points() const
     {
         return mIntegrationPointWeights.size();
+    }
+
+    void Element_Nonconformal_Sideset::compute_jacobian_and_residual()
+    {
+        Element_Double_Sideset::compute_jacobian_and_residual();
+        mSet->mFemModel->mDoubleSidedSideSetsGaussPoints -= get_number_of_integration_points();    // undo the increment from the double sided sideset
+        mSet->mFemModel->mNonconformalSideSetsGaussPoints += get_number_of_integration_points();
     }
 
     moris_index Element_Nonconformal_Sideset::get_follower_local_cell_index() const

@@ -179,12 +179,14 @@ namespace moris
             // enum for perturbation strategy used for FD (FA and SA)
             fem::Perturbation_Type mPerturbationStrategy = fem::Perturbation_Type::RELATIVE;
 
+            // TODO: This is bad practice: C++ classes should not have friends!
             friend class MSI::Equation_Object;
             friend class Cluster;
             friend class Element_Bulk;
             friend class Element_Sideset;
             friend class Element_Time_Sideset;
             friend class Element_Double_Sideset;
+            friend class Element_Nonconformal_Sideset;
             friend class Element_Time_Continuity;
             friend class Element_Time_Boundary;
             friend class Element;

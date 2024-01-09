@@ -142,7 +142,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                     const moris_index                   &aMeshPairIndex,
-                    Vector< fem::Set_User_Info >   &aSetInfo );
+                    Vector< fem::Set_User_Info >        &aSetInfo );
 
             /**
              * @brief constructor
@@ -154,7 +154,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                     const moris_index                   &aMeshPairIndex,
-                    Vector< fem::Set_User_Info >   &aSetInfo,
+                    Vector< fem::Set_User_Info >        &aSetInfo,
                     MSI::Design_Variable_Interface      *aDesignVariableInterface );
 
             /**
@@ -165,10 +165,10 @@ namespace moris
              * @param[ in ] aLibrary       a file path for property functions
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >               aMeshManager,
-                    const moris_index                                 &aMeshPairIndex,
+                    std::shared_ptr< mtk::Mesh_Manager >     aMeshManager,
+                    const moris_index                       &aMeshPairIndex,
                     const Vector< Vector< ParameterList > > &aParameterList,
-                    std::shared_ptr< Library_IO >                      aLibrary );
+                    std::shared_ptr< Library_IO >            aLibrary );
 
             /**
              * @brief constructor with fem input
@@ -179,10 +179,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-                    const moris_index                          &aMeshPairIndex,
-                    Vector< Vector< ParameterList > > aParameterList,
-                    MSI::Design_Variable_Interface             *aDesignVariableInterface );
+                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                    const moris_index                   &aMeshPairIndex,
+                    Vector< Vector< ParameterList > >    aParameterList,
+                    MSI::Design_Variable_Interface      *aDesignVariableInterface );
 
             /**
              * @brief trivial constructor
@@ -232,12 +232,12 @@ namespace moris
                 uint tTotalDoubleSidedSideSetsGaussPoints  = sum_all( mDoubleSidedSideSetsGaussPoints );
                 uint tTotalNonconformalSideSetsGaussPoints = sum_all( mNonconformalSideSetsGaussPoints );
 
-                if ( tTotalBulkGaussPoints + tTotalSideSetsGaussPoints + tTotalDoubleSidedSideSetsGaussPoints > 0 )
+                if ( tTotalBulkGaussPoints + tTotalSideSetsGaussPoints + tTotalDoubleSidedSideSetsGaussPoints + tTotalNonconformalSideSetsGaussPoints > 0 )
                 {
                     MORIS_LOG_SPEC( "Number of Bulk Gauss Points", tTotalBulkGaussPoints );
                     MORIS_LOG_SPEC( "Number of SideSet Gauss Points", tTotalSideSetsGaussPoints );
                     MORIS_LOG_SPEC( "Number of DoubleSidedSideset Gauss Points", tTotalDoubleSidedSideSetsGaussPoints );
-                    MORIS_LOG_SPEC("Number of NonconformalSideSet Gauss Points", tTotalNonconformalSideSetsGaussPoints);
+                    MORIS_LOG_SPEC( "Number of NonconformalSideSet Gauss Points", tTotalNonconformalSideSetsGaussPoints );
                 }
             };
 
@@ -261,9 +261,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_active_flags(
-                    const Matrix< IndexMat >      &aNodeIndices,
+                    const Matrix< IndexMat > &aNodeIndices,
                     const Vector< PDV_Type > &aPdvTypes,
-                    Matrix< DDSMat >              &aIsActiveDv ) override;
+                    Matrix< DDSMat >         &aIsActiveDv ) override;
 
             /**
              * @brief get integration xyz pdv ids
@@ -273,9 +273,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_ids(
-                    const Matrix< IndexMat >      &aNodeIndices,
+                    const Matrix< IndexMat > &aNodeIndices,
                     const Vector< PDV_Type > &aRequestedPdvTypes,
-                    Matrix< DDSMat >              &aXYZPdvIds ) override;
+                    Matrix< DDSMat >         &aXYZPdvIds ) override;
 
             /**
              * @brief get integration xyz pdv ids
@@ -287,10 +287,10 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_active_flags_and_ids(
-                    const Matrix< IndexMat >      &aNodeIndices,
+                    const Matrix< IndexMat > &aNodeIndices,
                     const Vector< PDV_Type > &aRequestedPdvTypes,
-                    Matrix< DDSMat >              &aIsActiveDv,
-                    Matrix< DDSMat >              &aXYZPdvIds ) override;
+                    Matrix< DDSMat >         &aIsActiveDv,
+                    Matrix< DDSMat >         &aXYZPdvIds ) override;
 
             /**
              * @brief get integration xyz pdv local cluster assembly indices
@@ -300,9 +300,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_assembly_indices(
-                    const Matrix< IndexMat >      &aNodeIndices,
+                    const Matrix< IndexMat > &aNodeIndices,
                     const Vector< PDV_Type > &aRequestedPdvTypes,
-                    Matrix< DDSMat >              &aXYZPdvAssemblyIndices ) override;
+                    Matrix< DDSMat >         &aXYZPdvAssemblyIndices ) override;
 
 
             Matrix< DDSMat >
@@ -341,8 +341,8 @@ namespace moris
              * @param[ in ] aSetInfo cell of set user info
              */
             void create_fem_sets(
-                    mtk::Interpolation_Mesh           *aIPMesh,
-                    mtk::Integration_Mesh             *aIGMesh,
+                    mtk::Interpolation_Mesh      *aIPMesh,
+                    mtk::Integration_Mesh        *aIGMesh,
                     Vector< fem::Set_User_Info > &aSetInfo );
 
             /**
@@ -425,7 +425,7 @@ namespace moris
              */
             void get_vertex_xyz_active_flags( moris_index aVeretxIndex,
                     Matrix< DDSMat >                     &aIsActiveDv,
-                    const Vector< enum PDV_Type >   &aPdvTypes );
+                    const Vector< enum PDV_Type >        &aPdvTypes );
 
             /**
              * @brief set vertex active flags (if relevant)  based on the index of the vertex
@@ -433,7 +433,7 @@ namespace moris
              * @param[ out ] aIsActiveDv
              */
             void set_vertex_xyz_active_flags( moris_index aVeretxIndex,
-                    Vector< Matrix< DDSMat > >      &aIsActiveDv );
+                    Vector< Matrix< DDSMat > >           &aIsActiveDv );
 
             /**
              * @brief set vertex active flags (if relevant)  based on the index of the vertex
@@ -441,7 +441,7 @@ namespace moris
              * @param[ in ] aXYZPvIds list of xyz pdv ids
              */
             void set_vertex_xyz_pdv_ids( moris_index aVeretxIndex,
-                    Vector< Matrix< DDSMat > > &aXYZPvIds );
+                    Vector< Matrix< DDSMat > >      &aXYZPvIds );
 
             /**
              * @brief get vertex xyz pdv ids (if relevant)  based on the index of the vertex
@@ -449,9 +449,9 @@ namespace moris
              * @param[ in ] aXYZPdvIds
              * @param[ in ] aIsActiveDv
              */
-            void get_vertex_xyz_pdv_ids( moris_index    aVeretxIndex,
-                    Matrix< DDSMat >                   &aXYZPdvIds,
-                    const Vector< enum PDV_Type > &aPdvTypes );
+            void get_vertex_xyz_pdv_ids( moris_index aVeretxIndex,
+                    Matrix< DDSMat >                &aXYZPdvIds,
+                    const Vector< enum PDV_Type >   &aPdvTypes );
 
             /**
              * @brief get x/y/z pdv local cluster assembly indices  based on the index of the vertex
@@ -461,7 +461,7 @@ namespace moris
              */
             void get_local_xyz_pdv_assembly_indices( moris_index aVeretxIndex,
                     Matrix< DDSMat >                            &aXYZLocalAssemblyIndices,
-                    const Vector< enum PDV_Type >          &aPdvTypes );
+                    const Vector< enum PDV_Type >               &aPdvTypes );
 
             /**
              * @brief Set the dof type to Bspline mesh index map
