@@ -30,12 +30,14 @@ namespace moris
         void
         IQI_Debug::compute_QI( Matrix< DDRMat >& aQI )
         {
-            moris_index const iGP        = mLeaderFIManager->get_IG_geometry_interpolator()->get_current_ig_point_index();
-            Vector< real >    tDistances = mLeaderFIManager->get_IG_geometry_interpolator()->get_integration_point_distances();
+            Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
 
-            MORIS_ASSERT( !tDistances.empty(), "IQI_Debug::compute_QI( real aQI ): Integration point distances are empty. Are you using it on a Nonconformal Side Set?" );
+            // initial gap
+            real tGap = norm( tGIFollower->valx() - tGILeader->valx() );
 
-            aQI = { { tDistances( iGP ) / 2 } };
+
+            aQI = { { tGap / 2 } };
         }
 
         //------------------------------------------------------------------------------
@@ -43,12 +45,13 @@ namespace moris
         void
         IQI_Debug::compute_QI( real aWStar )
         {
-            moris_index const iGP        = mLeaderFIManager->get_IG_geometry_interpolator()->get_current_ig_point_index();
-            Vector< real >    tDistances = mLeaderFIManager->get_IG_geometry_interpolator()->get_integration_point_distances();
+            Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
 
-            MORIS_ASSERT( !tDistances.empty(), "IQI_Debug::compute_QI( real aWStar ): Integration point distances are empty. Are you using it on a Nonconformal Side Set?" );
+            // initial gap
+            real tGap = norm( tGIFollower->valx() - tGILeader->valx() );
 
-            std::cout << "QI (aWStar): " << mName << " " << iGP << " " << aWStar << " " << tDistances( iGP ) << "\n";
+            std::cout << "QI (aWStar): " << mName << " " << aWStar << " " << tGap << "\n";
         }
 
         //------------------------------------------------------------------------------
