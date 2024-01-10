@@ -156,80 +156,6 @@ namespace moris
     moris::real tTSA_Time_Frame = 1.0e0;
 
     /* ------------------------------------------------------------------------ */
-    // Minimum level set value
-    moris::real tMinLevs = 1.0e-8;
-
-    /* ------------------------------------------------------------------------ */
-    // Function for plane
-
-     moris::real Plane(
-            const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< real > & aGeometryParameters )
-    {
-        // coordinates in x and y directions
-        moris::real tX = aCoordinates(0);
-        moris::real tY = aCoordinates(1);
-
-        // get interface position
-        moris::real tXInterface = aGeometryParameters( 0 );
-        moris::real tYInterface = aGeometryParameters( 1 );
-
-        // compute signed-distance field
-        moris::real tVal = ( tX - tXInterface ) + ( tY - tYInterface );
-
-        // clean return value to return non-zero value
-        return std::abs(tVal) < tMinLevs ? tMinLevs : tVal;
-    }
-
-    /* ------------------------------------------------------------------------ */
-     // Derivative function for plane
-
-    void PlaneGrad(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< real >& aGeometryParameters,
-            moris::Matrix< DDRMat >&           aSensitivities)
-    {
-        // create copy of geometry parameter cell
-        moris::Cell<moris::real> tGeometryParameters = aGeometryParameters;
-
-        // define finite difference perturbation size
-        const real tPerturbation = 1.0e-6;
-
-        // set size of sensitivity vector
-        aSensitivities.set_size(1, 2);
-
-        // initialize adv counter
-        uint iv=0;
-
-        // loop over all advs
-        for (uint ip=0;ip<2;++ip)
-        {
-            // extract nominal value used for perturbations
-            real tNominalValue = tGeometryParameters(iv);
-
-            // set pointer to pertubed value
-            tGeometryParameters(iv) = tNominalValue;
-
-            // positive perturbation
-            tNominalValue += tPerturbation;
-            real tPosValue = Plane(aCoordinates, tGeometryParameters);
-
-            // positive perturbation
-            tNominalValue -= 2.0*tPerturbation;
-            real tNegValue = Plane(aCoordinates, tGeometryParameters);
-
-            // restore nominal value
-            tGeometryParameters(iv) = aGeometryParameters(iv);
-
-            // compute sensitivities
-            aSensitivities(iv) = (tPosValue - tNegValue)/(2.0*tPerturbation);
-
-            // increase counter
-            iv++;
-        }
-    }
-
-    /* ------------------------------------------------------------------------ */
 
     bool Output_Criterion( moris::tsa::Time_Solver * aTimeSolver )
     {
@@ -399,9 +325,9 @@ namespace moris
         tParameterList( 0 ).push_back( prm::create_gen_parameter_list() );
         tParameterList( 0 )( 0 ).set( "number_of_phases"    , 2 );
         tParameterList( 0 )( 0 ).set( "phase_function_name" , tGetPhaseIndex );
-        tParameterList( 0 )( 0 ).set( "initial_advs", "0.35,1.0" );
-        tParameterList( 0 )( 0 ).set( "lower_bounds", "0.35,1.0" );
-        tParameterList( 0 )( 0 ).set( "upper_bounds", "0.35,1.0" );
+        tParameterList( 0 )( 0 ).set( "initial_advs", "1.35, 0.0, 1.0, 1.0" );
+        tParameterList( 0 )( 0 ).set( "lower_bounds", "1.35, 0.0, 1.0, 1.0" );
+        tParameterList( 0 )( 0 ).set( "upper_bounds", "1.35, 0.0, 1.0, 1.0" );
         tParameterList( 0 )( 0 ).set( "IQI_types"   ,
                                      "IQIVolumeInterface1,"
                                      "IQIVolumeMat0,IQIVolumeMat1,"
@@ -409,19 +335,17 @@ namespace moris
                                      "IQISidesetLengthMeasure,"
                                      "IQIBulkMeasure,"
                                      "IQIBulkLengthMeasure,"
-                                     "IQIBulkStrainEnergy0,IQIBulkStrainEnergy1" );
-        //tParameterlist( 0 )( 0 ).set("output_mesh_file", tGENOutputFile );
+                                     "IQIBulkStrainEnergy0,"
+                                     "IQIBulkStrainEnergy1" );
 
         // init geometry counter
         uint tGeoCounter = 0;
 
         // interface plane
-        tParameterList( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
-        tParameterList( 1 )( tGeoCounter ).set( "field_function_name",       "Plane" );
-        tParameterList( 1 )( tGeoCounter ).set( "sensitivity_function_name", "PlaneGrad");
-        tParameterList( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
-        tParameterList( 1 )( tGeoCounter ).set( "field_variable_indices",    "0,1");
-        tParameterList( 1 )( tGeoCounter ).set( "adv_indices",               "0,1");
+        tParameterList( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterList( 1 )( tGeoCounter ).set( "field_type","plane" );
+        tParameterList( 1 )( tGeoCounter ).set( "field_variable_indices", "0, 1, 2, 3" );
+        tParameterList( 1 )( tGeoCounter ).set( "adv_indices", "0, 1, 2, 3" );
         tGeoCounter++;
     }
 
