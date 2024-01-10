@@ -192,8 +192,8 @@ namespace moris::ge
             const Cell< Basis_Node >& tParentNodes = aParentNode.get_locator_nodes();
 
             // Geometry values
-            real tDeltaPhi = mField->get_field_value( tParentNodes( 1 ).get_index(), tParentNodes( 1 ).get_global_coordinates() )
-                           - mField->get_field_value( tParentNodes( 0 ).get_index(), tParentNodes( 0 ).get_global_coordinates() );
+            real tDeltaPhi = this->get_field_value( tParentNodes( 1 ).get_index(), tParentNodes( 1 ).get_global_coordinates() )
+                           - this->get_field_value( tParentNodes( 0 ).get_index(), tParentNodes( 0 ).get_global_coordinates() );
 
             // Compute parent vector
             Matrix< DDRMat > tParentVector = tParentNodes( 1 ).get_global_coordinates() - tParentNodes( 0 ).get_global_coordinates();
