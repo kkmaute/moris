@@ -10,8 +10,6 @@
 
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
-#include "cl_MTK_Interpolation_Function_Factory.hpp"
-#include "cl_MTK_Interpolation_Function.hpp"
 
 namespace moris::ge
 {
@@ -56,6 +54,13 @@ namespace moris::ge
     real Basis_Node::get_basis() const
     {
         return mBasis;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Cell< Basis_Node >& Basis_Node::get_locator_nodes() const
+    {
+        return mNode->get_locator_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------

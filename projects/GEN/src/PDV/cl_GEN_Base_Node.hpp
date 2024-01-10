@@ -18,6 +18,7 @@ namespace moris::ge
     {
       private:
         Matrix< DDRMat > mCoordinates;
+        static Cell< Basis_Node > mDummyLocatorNodes;
 
       public:
         /**
@@ -36,5 +37,14 @@ namespace moris::ge
          * @return Node coordinates
          */
         const Matrix< DDRMat >& get_global_coordinates() override;
+
+        /**
+         * Gets the locator nodes of this node.
+         * Locator nodes are the most derived basis nodes that can determine the location of this node.
+         * Background nodes do not have locator nodes.
+         *
+         * @return Locator nodes (empty)
+         */
+        const Cell< Basis_Node >& get_locator_nodes() override;
     };
 }

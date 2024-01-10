@@ -88,23 +88,12 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    // FIXME we can remove this altogether if we refactor from the top level intersection node
     void Field_Discrete_Integration::get_dfield_dcoordinates(
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates,
             Matrix<DDRMat>&       aSensitivities)
     {
-//        if ( mNodeManager->is_base_node( aNodeIndex ) )
-//        {
-//            // Base node, there are no sensitivities
-//            return;
-//        }
-//        else
-//        {
-//            // Get sensitivities from linear intersection node
-//            auto tIntersectionNode = dynamic_cast< Intersection_Node_Linear* >( mNodeManager->get_derived_node( aNodeIndex ) );
-//            tIntersectionNode->get_dfield_dcoordinates( this, aSensitivities );
-//        }
+        MORIS_ERROR( false, "Discrete dfield_dcoordinates is right now only handled by the level set geometry." );
     }
 
     //--------------------------------------------------------------------------------------------------------------

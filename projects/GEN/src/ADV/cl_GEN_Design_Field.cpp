@@ -185,16 +185,6 @@ namespace moris::ge
             }
         }
     }
-    
-    //--------------------------------------------------------------------------------------------------------------
-    
-    void Design_Field::get_dfield_dcoordinates(
-            uint                    aNodeIndex,
-            const Matrix< DDRMat >& aCoordinates,
-            Matrix< DDRMat >&       aSensitivities )
-    {
-        mField->get_dfield_dcoordinates( aNodeIndex, aCoordinates, aSensitivities );
-    }
 
     //--------------------------------------------------------------------------------------------------------------
 

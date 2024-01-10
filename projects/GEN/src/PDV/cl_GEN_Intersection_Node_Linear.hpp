@@ -38,17 +38,6 @@ namespace moris::ge
                 mtk::Interpolation_Order              aBackgroundInterpolationOrder,
                 std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
 
-        /**
-         * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
-         * coordinates.
-         *
-         * @param aField Field pointer, referenced during call from field class
-         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-         */
-        void get_dfield_dcoordinates(
-                Field*            aField,
-                Matrix< DDRMat >& aSensitivities );
-
       private:
 
         /**

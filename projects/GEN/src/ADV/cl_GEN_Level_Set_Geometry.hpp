@@ -133,6 +133,17 @@ namespace moris::ge
                 mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
 
         /**
+         * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
+         * coordinates.
+         *
+         * @param aParentNode Parent node
+         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         */
+        void get_dfield_dcoordinates(
+                const Basis_Node& aParentNode,
+                Matrix< DDRMat >& aSensitivities );
+
+        /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
          *
          * @return MTK field

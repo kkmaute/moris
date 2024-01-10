@@ -46,33 +46,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Intersection_Node_Linear::get_dfield_dcoordinates(
-            Field*            aField,
-            Matrix< DDRMat >& aSensitivities )
-    {
-        // Geometry values
-        real tDeltaPhi = aField->get_field_value( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() )
-                       - aField->get_field_value( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() );
-
-        // Compute parent vector
-        Matrix< DDRMat > tParentVector = this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates();
-
-        // get number of spatial dimensions;
-        uint tNumDim = tParentVector.length();
-
-        // Compute square of length of parent vector
-        real tParentLengthSquared = dot( tParentVector, tParentVector );
-
-        // Sensitivities: dPhi/dx_i  = delta(Phi) / L_i where L_i = PaerentVectorLenth^2 / (ParentVector * e_i)
-        for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumDim; tCoordinateIndex++ )
-        {
-            aSensitivities( tCoordinateIndex ) = tDeltaPhi * tParentVector( tCoordinateIndex ) / ( tParentLengthSquared + MORIS_REAL_EPS );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     const Cell< Basis_Node >& Intersection_Node_Linear::get_field_basis_nodes()
     {
         return this->get_locator_nodes();
@@ -108,8 +81,7 @@ namespace moris::ge
         // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
         Matrix< DDRMat > tCoordinateSensitivities( 1, this->get_global_coordinates().n_cols(), 0.0 );
         tLockedInterfaceGeometry->get_dfield_dcoordinates(
-                this->get_first_parent_node().get_index(),
-                this->get_second_parent_node().get_global_coordinates(),
+                this->get_first_parent_node(),
                 tCoordinateSensitivities );
         return this->get_dxi_dfield_from_ancestor( 0 ) * tCoordinateSensitivities;
     }
@@ -125,8 +97,7 @@ namespace moris::ge
         // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
         Matrix< DDRMat > tCoordinateSensitivities( 1, this->get_global_coordinates().n_cols() );
         tLockedInterfaceGeometry->get_dfield_dcoordinates(
-                this->get_second_parent_node().get_index(),
-                this->get_second_parent_node().get_global_coordinates(),
+                this->get_second_parent_node(),
                 tCoordinateSensitivities );
 
         return this->get_dxi_dfield_from_ancestor( 1 ) * tCoordinateSensitivities;

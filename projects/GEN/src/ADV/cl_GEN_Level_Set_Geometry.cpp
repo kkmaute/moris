@@ -13,6 +13,7 @@
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
+#include "fn_dot.hpp"
 
 namespace moris::ge
 {
@@ -171,6 +172,43 @@ namespace moris::ge
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
                     shared_from_this() );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::get_dfield_dcoordinates(
+            const Basis_Node& aParentNode,
+            Matrix< DDRMat >& aSensitivities )
+    {
+        if ( this->use_multilinear_interpolation() )
+        {
+            // TODO
+            MORIS_ERROR( false, "Multilinear interpolation was detected for an intersection on another intersection. This needs to be implemented." );
+        }
+        else
+        {
+            // Get parents
+            const Cell< Basis_Node >& tParentNodes = aParentNode.get_locator_nodes();
+
+            // Geometry values
+            real tDeltaPhi = mField->get_field_value( tParentNodes( 1 ).get_index(), tParentNodes( 1 ).get_global_coordinates() )
+                           - mField->get_field_value( tParentNodes( 0 ).get_index(), tParentNodes( 0 ).get_global_coordinates() );
+
+            // Compute parent vector
+            Matrix< DDRMat > tParentVector = tParentNodes( 1 ).get_global_coordinates() - tParentNodes( 0 ).get_global_coordinates();
+
+            // get number of spatial dimensions;
+            uint tNumDim = tParentVector.length();
+
+            // Compute square of length of parent vector
+            real tParentLengthSquared = dot( tParentVector, tParentVector );
+
+            // Sensitivities: dPhi/dx_i  = delta(Phi) / L_i where L_i = PaerentVectorLenth^2 / (ParentVector * e_i)
+            for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumDim; tCoordinateIndex++ )
+            {
+                aSensitivities( tCoordinateIndex ) = tDeltaPhi * tParentVector( tCoordinateIndex ) / ( tParentLengthSquared + MORIS_REAL_EPS );
+            }
         }
     }
 

@@ -132,19 +132,6 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates );
 
         /**
-         * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
-         * coordinates.
-         *
-         * @param aNodeIndex Node index
-         * @param aCoordinates Vector of coordinate values
-         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-         */
-        void get_dfield_dcoordinates(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities );
-
-        /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector
          *
          * @tparam Vector_Type Type of vector where ADVs are stored

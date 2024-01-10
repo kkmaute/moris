@@ -76,7 +76,7 @@ namespace moris::ge
          *
          * @return Locator nodes
          */
-        virtual const Cell< Basis_Node >& get_locator_nodes();
+        const Cell< Basis_Node >& get_locator_nodes() override;
 
         /**
          * Gets if this derived node can be determined that it is on a specific interface without any field evaluation.

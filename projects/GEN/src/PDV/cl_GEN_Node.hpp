@@ -14,6 +14,9 @@
 
 namespace moris::ge
 {
+    // Forward declare basis node
+    class Basis_Node;
+
     class Node
     {
       private:
@@ -45,6 +48,14 @@ namespace moris::ge
          * @return Node coordinates
          */
         virtual const Matrix< DDRMat >& get_global_coordinates() = 0;
+
+        /**
+         * Gets the locator nodes of this node.
+         * Locator nodes are the most derived basis nodes that can determine the location of this node.
+         *
+         * @return Locator nodes
+         */
+        virtual const Cell< Basis_Node >& get_locator_nodes() = 0;
 
         /**
          * Gets if this node's position depends on ADVs.

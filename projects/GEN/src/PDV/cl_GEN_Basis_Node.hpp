@@ -66,6 +66,13 @@ namespace moris::ge
         real get_basis() const;
 
         /**
+         * Gets the locator nodes of the underlying node.
+         *
+         * @return Locator nodes
+         */
+        const Cell< Basis_Node >& get_locator_nodes() const;
+
+        /**
          * Gets if the underlying node's position depends on ADVs.
          *
          * @return ADV dependence

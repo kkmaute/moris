@@ -88,14 +88,20 @@ namespace moris::ge
         }
 
         // Add first parent coordinate sensitivities
-        Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
-        Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
-        tFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        if ( tFirstParentNode.depends_on_advs() )
+        {
+            Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
+            tFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        }
 
         // Add second parent coordinate sensitivities
-        tLocCoord = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
-        tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
-        tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        if ( tSecondParentNode.depends_on_advs() )
+        {
+            Matrix< DDRMat > tLocCoord = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
+            tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -122,9 +128,19 @@ namespace moris::ge
             this->join_adv_ids( tAncestorADVIDs );
         }
 
+        // Get parent nodes
+        Basis_Node& tFirstParentNode = this->get_first_parent_node();
+        Basis_Node& tSecondParentNode = this->get_second_parent_node();
+
         // Add parent IDs
-        this->join_adv_ids( this->get_first_parent_node().get_coordinate_determining_adv_ids() );
-        this->join_adv_ids( this->get_second_parent_node().get_coordinate_determining_adv_ids() );
+        if ( tFirstParentNode.depends_on_advs() )
+        {
+            this->join_adv_ids( tFirstParentNode.get_coordinate_determining_adv_ids() );
+        }
+        if ( tSecondParentNode.depends_on_advs() )
+        {
+            this->join_adv_ids( tSecondParentNode.get_coordinate_determining_adv_ids() );
+        }
 
         // Return joined ADV IDs
         return mCoordinateDeterminingADVIDs;
