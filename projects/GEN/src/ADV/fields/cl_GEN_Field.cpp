@@ -214,7 +214,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Field::reset_nodal_data()
+    Field::reset_nodal_data( mtk::Interpolation_Mesh* aMesh )
     {
     }
 

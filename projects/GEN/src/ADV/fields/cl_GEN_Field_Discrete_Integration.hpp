@@ -149,11 +149,6 @@ namespace moris::ge
         void add_child_node( uint aNodeIndex, std::shared_ptr< Child_Node > aChildNode ) override;
 
         /**
-         * Resets all child nodes, called when a new XTK mesh is being created.
-         */
-        void reset_nodal_data() override;
-
-        /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh
          *
          * @return MTK field

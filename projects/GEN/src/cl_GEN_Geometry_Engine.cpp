@@ -1386,11 +1386,11 @@ namespace moris
             mActiveGeometryIndex = 0;
             for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
             {
-                mGeometries( tGeometryIndex )->reset_nodal_data();
+                mGeometries( tGeometryIndex )->reset_nodal_data( aMesh );
             }
             for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
             {
-                mProperties( tPropertyIndex )->reset_nodal_data();
+                mProperties( tPropertyIndex )->reset_nodal_data( aMesh );
             }
         }
 

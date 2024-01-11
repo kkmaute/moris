@@ -62,7 +62,7 @@ namespace moris::ge
         /**
          * Resets all nodal information about field values.
          */
-        void reset_nodal_data();
+        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
     private:
 

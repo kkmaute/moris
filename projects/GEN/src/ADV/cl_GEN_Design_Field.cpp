@@ -212,9 +212,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Design_Field::reset_nodal_data()
+    Design_Field::reset_nodal_data( mtk::Interpolation_Mesh* aMesh )
     {
-        mField->reset_nodal_data();
+        mField->reset_nodal_data( aMesh );
     }
 
     //--------------------------------------------------------------------------------------------------------------

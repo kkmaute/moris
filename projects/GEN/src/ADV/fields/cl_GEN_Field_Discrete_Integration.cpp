@@ -114,13 +114,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field_Discrete_Integration::reset_nodal_data()
-    {
-        mChildNodes.resize( 0 );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     std::shared_ptr< mtk::Field > Field_Discrete_Integration::get_mtk_field()
     {
         return this->create_mtk_field( mMeshPair );

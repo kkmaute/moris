@@ -172,7 +172,7 @@ namespace moris::ge
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
          * created.
          */
-        void reset_nodal_data();
+        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
         /**
          * Gets the name of this design's field

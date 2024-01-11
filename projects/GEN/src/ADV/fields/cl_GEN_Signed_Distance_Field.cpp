@@ -169,10 +169,10 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Signed_Distance_Field::reset_nodal_data()
+    Signed_Distance_Field::reset_nodal_data( mtk::Interpolation_Mesh* aMesh )
     {
-        // Reset child nodes
-        Field_Discrete_Integration::reset_nodal_data();
+        // Create new mesh pair
+        mMeshPair = mtk::Mesh_Pair( aMesh, nullptr );
 
         // Re-evaluate field values
         this->evaluate_nodal_values();

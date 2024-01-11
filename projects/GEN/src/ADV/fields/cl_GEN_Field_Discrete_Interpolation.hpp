@@ -117,7 +117,7 @@ namespace moris::ge
         /**
          * Resets all nodal information. This should be called when a new XTK mesh is being created.
          */
-        void reset_nodal_data();
+        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
       private:
         /**

@@ -52,10 +52,10 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Stored_Field::reset_nodal_data()
+    Stored_Field::reset_nodal_data( mtk::Interpolation_Mesh* aMesh )
     {
         // Reset child nodes
-        Field_Discrete_Integration::reset_nodal_data();
+        Field_Discrete_Integration::reset_nodal_data( nullptr );
 
         // Re-evaluate field values
         this->evaluate_nodal_values();

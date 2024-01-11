@@ -48,7 +48,12 @@ namespace moris::ge
 
         void evaluate_nodal_values();
 
-        void reset_nodal_data();
+        /**
+         * Resets the nodal data for this signed distance field, evaluating the nodal values on the given mesh.
+         *
+         * @param aMesh New interpolation mesh for evaluating nodal values
+         */
+        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
         const Matrix< DDRMat >&
         get_dfield_dadvs( uint aNodeIndex );

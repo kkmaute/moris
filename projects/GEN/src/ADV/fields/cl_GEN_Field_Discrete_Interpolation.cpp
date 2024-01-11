@@ -83,7 +83,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field_Discrete_Interpolation::reset_nodal_data()
+    void Field_Discrete_Interpolation::reset_nodal_data( mtk::Interpolation_Mesh* aMesh )
     {
         get_node_index = &Field_Discrete_Interpolation::return_same_index;
     }
