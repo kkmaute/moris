@@ -33,12 +33,6 @@ namespace moris::mtk
         // methods
         void raycast_cell( moris_index aSourceCellIndex, moris_index aNumberOfRays, MappingResult &aMappingResult, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
 
-        static std::tuple< bool, real, Matrix< DDRMat >, Matrix< DDRMat > > calculate_ray_line_intersection(
-                Matrix< DDRMat > const &aRayOrigin,
-                Matrix< DDRMat > const &aRayDirection,
-                Matrix< DDRMat > const &aSegmentOrigin,
-                Matrix< DDRMat > const &aSegmentDirection );
-
         /**
          * @brief
          * @param aIGMesh

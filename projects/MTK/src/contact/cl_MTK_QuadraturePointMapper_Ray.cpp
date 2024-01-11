@@ -13,6 +13,9 @@
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_Json_Object.hpp"
 
+
+#include <cl_MTK_Ray_Line_Intersection.hpp>
+
 namespace moris::mtk
 {
     QuadraturePointMapper_Ray::QuadraturePointMapper_Ray(
@@ -308,6 +311,9 @@ namespace moris::mtk
          */
         Matrix< DDRMat > const tSegmentOrigin    = tTargetCellCoordinates.get_column( 0 );
         Matrix< DDRMat > const tSegmentDirection = tTargetCellCoordinates.get_column( 1 ) - tSegmentOrigin;
+        Ray_Line_Intersection  tRayLineIntersection( tSegmentOrigin.n_rows() );
+        tRayLineIntersection.set_target_origin( tSegmentOrigin );
+        tRayLineIntersection.set_target_span( tSegmentDirection );
 
         // Keep the initial size of the deque because it might get smaller over time (because rays are removed from the deque if they got mapped)
         // If they are not mapped, they are pushed back into the deque. To prevent an infinite loop, the initial size is stored (i.e. each ray is processed once).
@@ -317,28 +323,20 @@ namespace moris::mtk
             moris_index iRay = aUnprocessedRays.front();
             aUnprocessedRays.pop_front();
 
-            // the next call is the actual ray-casting. The resulting array contains the following information:
-            // 0. bool: true if the ray intersects with the segment, false otherwise
-            // 1. real: the distance between the ray origin and the intersection point
-            // 2. Matrix< DDRMat >: the parametric coordinate of the intersection point
-            // 3. Matrix< DDRMat >: the physical coordinate of the intersection point (mainly for debugging purposes)
-            auto const &[ tHasIntersection, tDistance, tParamCoord, tPhysCoord ] =
-                    calculate_ray_line_intersection(
-                            aMappingResult.mSourcePhysicalCoordinate.get_column( aResultOffset + iRay ),
-                            aMappingResult.mNormals.get_column( aResultOffset + iRay ),
-                            tSegmentOrigin,
-                            tSegmentDirection );
+            tRayLineIntersection.set_ray_origin( aMappingResult.mSourcePhysicalCoordinate.get_column( aResultOffset + iRay ) );
+            tRayLineIntersection.set_ray_direction( aMappingResult.mNormals.get_column( aResultOffset + iRay ) );
+            tRayLineIntersection.perform_raytracing();
 
-            if ( tHasIntersection )
+            if ( tRayLineIntersection.has_intersection() )
             {
                 // it has an intersection: the ray information can be stored in the MappingResult
                 // the results will be inserted relative to the start index of the current cell
                 uint const tInsertIndex = aResultOffset + iRay;
 
-                aMappingResult.mTargetParametricCoordinate.set_column( tInsertIndex, tParamCoord );
-                aMappingResult.mTargetPhysicalCoordinate.set_column( tInsertIndex, tPhysCoord );
+                aMappingResult.mTargetParametricCoordinate.set_column( tInsertIndex, tRayLineIntersection.get_intersection_parametric() );
+                aMappingResult.mTargetPhysicalCoordinate.set_column( tInsertIndex, tRayLineIntersection.get_intersection_physical() );
 
-                aMappingResult.mDistances( tInsertIndex )            = tDistance;
+                aMappingResult.mDistances( tInsertIndex )            = tRayLineIntersection.get_ray_length();
                 aMappingResult.mTargetSideSetIndices( tInsertIndex ) = aTargetMeshIndex;
 
                 aMappingResult.mSourceCellIndex( tInsertIndex )   = tSourceMesh.get_global_cell_index( aSourceCellIndex );
@@ -354,67 +352,4 @@ namespace moris::mtk
             }
         }
     }
-
-    /**
-     * @brief Implementation according to https://stackoverflow.com/a/2932601
-     */
-    std::tuple< bool, real, Matrix< DDRMat >, Matrix< DDRMat > > QuadraturePointMapper_Ray::calculate_ray_line_intersection(
-            Matrix< DDRMat > const &aRayOrigin,
-            Matrix< DDRMat > const &aRayDirection,
-            Matrix< DDRMat > const &aSegmentOrigin,
-            Matrix< DDRMat > const &aSegmentDirection )
-    {
-        // Nomenclature:
-        //     aRayOrigin: r
-        //     aRayDirection: dr
-        //        -> p(u) = r + u * dr
-        //     aSegmentOrigin: s
-        //     aSegmentDirection: ds = e - s (between line segment vertices s and e)
-        //        -> q(v) = s + v * ds
-
-        // distance between origins r and s
-        // dOrigins = s - r
-        Matrix< DDRMat > dOrigins = aSegmentOrigin - aRayOrigin;
-
-        // determinant of the matrix D = [dr, ds]
-        real const detD = aSegmentDirection( 0 ) * aRayDirection( 1 ) - aSegmentDirection( 1 ) * aRayDirection( 0 );
-
-        // For 2D faces (e.g. triangles), the parametric coordinate would be 2x1. We therefore store the result in a matrix and not as a scalar.
-        // TODO: For memory efficiency, this could be changed...
-        Matrix< DDRMat > tParametricCoordinate{ 1, 1 };
-        Matrix< DDRMat > tPhsyicalCoordinate{ 2, 1 };
-        bool             tHasIntersection = false;
-        real             tGap             = 0.0;
-
-        // if detD is zero, the lines are parallel and no calculation is necessary
-        if ( std::abs( detD ) > 1e-16 )
-        {
-            // scaling factor u and v for the ray and the line segment, respectively
-            real u = NAN;
-            real v = NAN;
-
-            // u = (dOrigins_y * ds_x - dOrigins_x * ds_y) / detD
-            u = ( dOrigins( 1 ) * aSegmentDirection( 0 ) - dOrigins( 0 ) * aSegmentDirection( 1 ) ) / detD;
-
-            // v = (dOrigins_y * dr_x - dOrigins_x * dr_y) / detD
-            v = ( dOrigins( 1 ) * aRayDirection( 0 ) - dOrigins( 0 ) * aRayDirection( 1 ) ) / detD;
-
-            // if v is between 0 and 1, the intersection point is on the line segment
-            if ( v >= 0.0 && v <= 1.0 )
-            {
-                tHasIntersection = true;
-                // q(v) = s + v * ds
-
-                // calculate the gap between the ray and the line segment
-                tGap = norm( u * aRayDirection );
-
-                // calculate the physical coordinate of the intersection point
-                tPhsyicalCoordinate = aRayOrigin + u * aRayDirection;
-
-                // the parametric coordinate goes from -1 to 1 and has the center in the middle of the line segment
-                tParametricCoordinate( 0 ) = 2.0 * ( v - 0.5 );
-            }
-        }
-        return { tHasIntersection, tGap, tParametricCoordinate, tPhsyicalCoordinate };
-    }
-} // namespace moris::mtk
+    } // namespace moris::mtk
