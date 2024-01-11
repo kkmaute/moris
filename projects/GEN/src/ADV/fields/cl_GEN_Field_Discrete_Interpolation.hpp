@@ -43,7 +43,7 @@ namespace moris::ge
         {
             try
             {
-                this->add_nodal_data( aMeshPair.get_interpolation_mesh() );
+                this->reset_nodal_data( aMeshPair.get_interpolation_mesh() );
             }
             catch( ... )
             {
@@ -69,7 +69,7 @@ namespace moris::ge
          */
         real get_field_value(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given a node index or coordinate, returns a matrix all sensitivities.
@@ -80,7 +80,7 @@ namespace moris::ge
          */
         const Matrix< DDRMat >& get_dfield_dadvs(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -91,7 +91,7 @@ namespace moris::ge
          */
         Matrix< DDSMat > get_determining_adv_ids(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -104,20 +104,12 @@ namespace moris::ge
         void get_dfield_dcoordinates(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities );
-
-        /**
-         * Uses additional information from the given interpolation mesh to define
-         * potentially new nodes on the field.
-         *
-         * @param aMesh Interpolation mesh with additional nodes
-         */
-        void add_nodal_data( mtk::Interpolation_Mesh* aMesh );
+                Matrix< DDRMat >&       aSensitivities ) override;
 
         /**
          * Resets all nodal information. This should be called when a new XTK mesh is being created.
          */
-        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
+        void reset_nodal_data( mtk::Interpolation_Mesh* aMesh ) override;
 
       private:
         /**

@@ -694,9 +694,6 @@ namespace moris
                     uint tMeshSetIndex = tMeshSetIndices( tSetIndexPosition );
                     tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
                 }
-                
-                // Add nodal data from the interpolation mesh
-                mProperties( tPropertyIndex )->add_nodal_data( tInterpolationMesh );
             }
 
             // Set interpolation PDV types in host manager

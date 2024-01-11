@@ -258,20 +258,10 @@ namespace moris::ge
         virtual void set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields );
 
         /**
-         * In relevant derived classes, uses additional information from the given interpolation mesh to define
-         * potentially new nodes on the field. Implemented for discrete interpolation fields.
-         *
-         * @param aMesh Interpolation mesh with additional nodes
-         */
-        virtual void add_nodal_data( mtk::Interpolation_Mesh* aMesh );
-
-        /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
          * created.
          */
         virtual void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
-
-        void set_num_original_nodes( uint aNumOriginalNodes );
 
         /**
          * Gets the name of this field

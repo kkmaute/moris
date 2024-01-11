@@ -46,7 +46,7 @@ namespace moris::ge
         Node_Manager* mNodeManager;
 
       private:
-        Field_Parameters         mParameters;
+        Field_Parameters mParameters;
 
       public:
         /**
@@ -150,14 +150,6 @@ namespace moris::ge
         void import_advs( sol::Dist_Vector* aOwnedADVs );
 
         /**
-         * In relevant derived classes, uses additional information from the given interpolation mesh to define
-         * potentially new nodes on the field. Implemented for discrete interpolation fields.
-         *
-         * @param aMesh Interpolation mesh with additional nodes
-         */
-        void add_nodal_data( mtk::Interpolation_Mesh* aMesh );
-
-        /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
          * created.
          */
@@ -214,9 +206,6 @@ namespace moris::ge
          * @return Multilinear interpolation flag
          */
         bool use_multilinear_interpolation();
-
-        // TODO where should I really put this stuff?
-        void set_num_original_nodes( uint aNumOriginalNodes );
 
         /**
          * Allows for access to the GEN field

@@ -196,14 +196,6 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Design_Field::add_nodal_data( mtk::Interpolation_Mesh* aMesh )
-    {
-        mField->add_nodal_data( aMesh );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
     Design_Field::reset_nodal_data( mtk::Interpolation_Mesh* aMesh )
     {
         mField->reset_nodal_data( aMesh );
@@ -272,14 +264,6 @@ namespace moris::ge
     bool Design_Field::use_multilinear_interpolation()
     {
         return mParameters.mUseMultilinearInterpolation;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Design_Field::set_num_original_nodes( uint aNumOriginalNodes )
-    {
-        mField->set_num_original_nodes( aNumOriginalNodes );
     }
 
     //--------------------------------------------------------------------------------------------------------------

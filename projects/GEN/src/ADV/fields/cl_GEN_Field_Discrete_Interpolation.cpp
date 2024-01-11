@@ -24,7 +24,7 @@ namespace moris::ge
     {
         if (aMesh)
         {
-            this->add_nodal_data( aMesh );
+            this->reset_nodal_data( aMesh );
         }
     }
 
@@ -68,7 +68,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field_Discrete_Interpolation::add_nodal_data(mtk::Interpolation_Mesh* aMesh)
+    void Field_Discrete_Interpolation::reset_nodal_data(mtk::Interpolation_Mesh* aMesh)
     {
         // Obtain all data needed
         tNodeToBaseIndex.resize(aMesh->get_num_nodes(), 1);
@@ -79,13 +79,6 @@ namespace moris::ge
 
         // Make sure that we get node indices using this data
         get_node_index = &Field_Discrete_Interpolation::get_base_node_index;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Field_Discrete_Interpolation::reset_nodal_data( mtk::Interpolation_Mesh* aMesh )
-    {
-        get_node_index = &Field_Discrete_Interpolation::return_same_index;
     }
 
     //--------------------------------------------------------------------------------------------------------------
