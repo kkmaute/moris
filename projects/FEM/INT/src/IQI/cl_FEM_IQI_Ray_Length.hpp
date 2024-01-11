@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_DEBUG_HPP_
-#define PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_DEBUG_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_RAY_LENGTH_HPP_
+#define PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_RAY_LENGTH_HPP_
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
@@ -24,19 +24,19 @@ namespace moris
     namespace fem
     {
 
-        class IQI_Debug : public IQI
+        class IQI_Ray_Length : public IQI
         {
 
           public:
             /*
              * constructor
              */
-            IQI_Debug();
+            IQI_Ray_Length();
 
             /**
              * trivial destructor
              */
-            ~IQI_Debug(){};
+            ~IQI_Ray_Length(){};
 
           private:
             /**
@@ -67,11 +67,11 @@ namespace moris
                     Matrix< DDRMat >&        adQIdu ) override;
 
 
-        };    // class IQI_Debug
+        };    // class IQI_Ray_Length
 
 
     } /* end namespace fem */
 } /* end namespace moris */
 
 
-#endif /* PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_Traction_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_RAY_LENGTH_HPP_ */

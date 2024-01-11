@@ -4,14 +4,14 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_IQI_Debug.cpp
+ * cl_FEM_IQI_Ray_Length.cpp
  *
  */
 
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
-#include "cl_FEM_IQI_Debug.hpp"
+#include "cl_FEM_IQI_Ray_Length.hpp"
 #include "fn_norm.hpp"
 
 namespace moris
@@ -20,44 +20,41 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        IQI_Debug::IQI_Debug()
+        IQI_Ray_Length::IQI_Ray_Length()
         {
-            mFEMIQIType = fem::IQI_Type::DEBUG;
+            mFEMIQIType = fem::IQI_Type::RAY_LENGTH;
         }
 
         //------------------------------------------------------------------------------
 
         void
-        IQI_Debug::compute_QI( Matrix< DDRMat >& aQI )
-        {
-            Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
-            Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
-
-            // initial gap
-            real tGap = norm( tGIFollower->valx() - tGILeader->valx() );
-
-
-            aQI = { { tGap / 2 } };
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IQI_Debug::compute_QI( real aWStar )
+        IQI_Ray_Length::compute_QI( Matrix< DDRMat >& aQI )
         {
             Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
             Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
 
-            // initial gap
             real tGap = norm( tGIFollower->valx() - tGILeader->valx() );
 
-            std::cout << "QI (aWStar): " << mName << " " << aWStar << " " << tGap << "\n";
+            aQI = { { tGap } };
         }
 
         //------------------------------------------------------------------------------
 
         void
-        IQI_Debug::compute_dQIdu( real aWStar )
+        IQI_Ray_Length::compute_QI( real aWStar )
+        {
+            Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
+
+            real tGap     = norm( tGIFollower->valx() - tGILeader->valx() );
+            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            mSet->get_QI()( tQIIndex ) += aWStar * tGap;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        IQI_Ray_Length::compute_dQIdu( real aWStar )
         {
             MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
         }
@@ -65,7 +62,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        IQI_Debug::compute_dQIdu(
+        IQI_Ray_Length::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&        adQIdu )
         {
