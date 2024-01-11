@@ -13,7 +13,6 @@
 #include <utility>
 #include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Node_Manager.hpp"
-#include "cl_GEN_Child_Node.hpp"
 #include "cl_MTK_Field.hpp"
 
 /**
@@ -257,16 +256,6 @@ namespace moris::ge
          * @param aDependencyFields Other fields that this field depends on.
          */
         virtual void set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields );
-
-        /**
-         * Add a new child node for evaluation, implemented for discrete integration fields.
-         *
-         * @param aNodeIndex Index of the child node
-         * @param aChildNode Contains information about how the child node was created
-         */
-        virtual void add_child_node(
-                uint                          aNodeIndex,
-                std::shared_ptr< Child_Node > aChildNode );
 
         /**
          * In relevant derived classes, uses additional information from the given interpolation mesh to define

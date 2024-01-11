@@ -75,7 +75,6 @@ set(HEADERS
 
 	# PDV
 	PDV/cl_GEN_Pdv_Host_Manager.hpp
-	PDV/cl_GEN_Child_Node.hpp
 	PDV/cl_GEN_Interpolation_Pdv_Host.hpp
 	PDV/cl_GEN_Pdv.hpp
 	PDV/cl_GEN_Pdv_Value.hpp
@@ -143,7 +142,6 @@ set(LIB_SOURCES
 	PDV/cl_GEN_Node.cpp
 	PDV/cl_GEN_Base_Node.cpp
 	PDV/cl_GEN_Derived_Node.cpp
-	PDV/cl_GEN_Child_Node.cpp
 	PDV/cl_GEN_Basis_Node.cpp
 	PDV/cl_GEN_Parent_Node.cpp
 	PDV/cl_GEN_Intersection_Node.cpp

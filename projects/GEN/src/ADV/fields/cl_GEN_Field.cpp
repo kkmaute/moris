@@ -200,13 +200,6 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Field::add_child_node( uint aNodeIndex, std::shared_ptr< Child_Node > aChildNode )
-    {
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
     Field::add_nodal_data( mtk::Interpolation_Mesh* aMesh )
     {
     }

@@ -17,7 +17,6 @@
 #include "cl_GEN_Design_Factory.hpp"
 #include "cl_GEN_Base_Node.hpp"
 #include "cl_GEN_Derived_Node.hpp"
-#include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
 // MTK

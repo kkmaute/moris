@@ -12,7 +12,6 @@
 
 #include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Field.hpp"
-#include "cl_GEN_Child_Node.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
@@ -149,16 +148,6 @@ namespace moris::ge
          * @param aOwnedADVs Full owned distributed ADV vector
          */
         void import_advs( sol::Dist_Vector* aOwnedADVs );
-
-        /**
-         * Add a new child node for evaluation, implemented for discrete integration fields.
-         *
-         * @param aNodeIndex Index of the child node
-         * @param aChildNode Contains information about how the child node was created
-         */
-        void add_child_node(
-                uint                          aNodeIndex,
-                std::shared_ptr< Child_Node > aChildNode );
 
         /**
          * In relevant derived classes, uses additional information from the given interpolation mesh to define

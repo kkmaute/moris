@@ -20,9 +20,6 @@ namespace moris::ge
       protected:
         mtk::Mesh_Pair mMeshPair;
 
-      private:
-        Cell< std::shared_ptr< Child_Node > > mChildNodes;
-
       public:
 
         /**
@@ -139,14 +136,6 @@ namespace moris::ge
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities ) override;
-
-        /**
-         * Add a new child node for evaluation.
-         *
-         * @param aNodeIndex Index of the child node
-         * @param aChildNode Contains information about how the child node was created
-         */
-        void add_child_node( uint aNodeIndex, std::shared_ptr< Child_Node > aChildNode ) override;
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh

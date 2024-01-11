@@ -105,15 +105,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field_Discrete_Integration::add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode)
-    {
-        MORIS_ASSERT(aNodeIndex == mNumOriginalNodes + mChildNodes.size(),
-                "Child nodes must be added to a level set field in order by node index.");
-        mChildNodes.push_back(aChildNode);
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     std::shared_ptr< mtk::Field > Field_Discrete_Integration::get_mtk_field()
     {
         return this->create_mtk_field( mMeshPair );
