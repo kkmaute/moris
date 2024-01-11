@@ -92,6 +92,7 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp"
 // Ghost
 #include "cl_FEM_IWG_Ghost_Normal_Field.hpp"
 #include "cl_FEM_IWG_Struc_Stress.hpp"
@@ -237,6 +238,12 @@ namespace moris
 
                 case IWG_Type::STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche >( 1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_GAP_SYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased >( -1 );
+
+                case IWG_Type::STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE_UNBIASED:
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased >( 1 );
 
                 case IWG_Type::STRUC_LINEAR_CONTACT_PENALTY:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Contact_Penalty >();
