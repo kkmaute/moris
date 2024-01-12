@@ -39,7 +39,7 @@ namespace moris::ge
          * @param aBaseNodes Base nodes
          * @param aParametricCoordinates Parametric coordinates inside the background element
          * @param aGeometryType Geometry type of the background element
-         * @param aInterpolationOrder Interpolation order of the background element
+         * @param aInterpolationOrder Interpolation order of the background element. Note: currently unused.
          */
         Derived_Node(
                 uint                     aIndex,

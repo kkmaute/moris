@@ -193,7 +193,6 @@ namespace moris::ge
 
         // build interpolator
         mtk::Interpolation_Function_Factory tFactory;
-
         mtk::Interpolation_Function_Base* tInterpolation;
 
         // create interpolation function based on spatial dimension of problem

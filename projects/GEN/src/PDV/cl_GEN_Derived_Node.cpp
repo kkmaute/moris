@@ -35,22 +35,25 @@ namespace moris::ge
         mtk::Interpolation_Function_Base* tInterpolation = tInterpolationFactory.create_interpolation_function(
                 aGeometryType,
                 mtk::Interpolation_Type::LAGRANGE,
-                aInterpolationOrder );
+                mtk::Interpolation_Order::LINEAR );
 
         // Perform interpolation using parametric coordinates
         Matrix< DDRMat > tBasis;
         tInterpolation->eval_N( mParametricCoordinates, tBasis );
-        delete tInterpolation;
 
-        // Create locators
-        mBackgroundNodes.reserve( aBaseNodes.size() );
-        for ( uint iBasisIndex = 0; iBasisIndex < aBaseNodes.size(); iBasisIndex++ )
+        // Get number of bases
+        uint tNumberOfBases = tInterpolation->get_number_of_bases();
+
+        // Create background nodes
+        mBackgroundNodes.reserve( tNumberOfBases );
+        for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
         {
             mBackgroundNodes.emplace_back( aBaseNodes( iBasisIndex ), tBasis( iBasisIndex ) );
         }
 
         // Size global coordinates based on first locator
-        mGlobalCoordinates = Matrix< DDRMat >( 1, mBackgroundNodes( 0 ).get_global_coordinates().length(), 0.0 );
+        mGlobalCoordinates = Matrix< DDRMat >( 1, tInterpolation->get_number_of_dimensions(), 0.0 );
+        delete tInterpolation;
 
         // Add contributions from all locators
         for ( auto iBasisNode : mBackgroundNodes )
