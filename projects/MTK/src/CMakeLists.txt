@@ -172,6 +172,8 @@ set(HEADERS
 
         intersection/cl_MTK_Intersection_Detect.hpp
         intersection/cl_MTK_Intersection_Detect_2D.hpp
+        intersection/cl_MTK_Ray_Intersection.hpp
+        intersection/cl_MTK_Ray_Line_Intersection.hpp
 
         io/cl_MTK_Exodus_IO_Helper.hpp
         io/cl_MTK_Reader_Exodus.hpp
@@ -278,6 +280,7 @@ set(LIB_SOURCES
 
         intersection/cl_MTK_Intersection_Detect.cpp
         intersection/cl_MTK_Intersection_Detect_2D.cpp
+        intersection/cl_MTK_Ray_Line_Intersection.cpp
 
         io/cl_MTK_Exodus_IO_Helper.cpp
         io/cl_MTK_Reader_Exodus.cpp
