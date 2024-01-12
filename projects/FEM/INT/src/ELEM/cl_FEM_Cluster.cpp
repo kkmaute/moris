@@ -19,7 +19,7 @@
 #include "fn_norm.hpp"
 #include "fn_sort.hpp"
 #include "fn_sum.hpp"
-
+#include <algorithm>
 #include <cl_FEM_Element_Nonconformal_Sideset.hpp>
 #include <cl_MTK_Nonconformal_Side_Cluster.hpp>
 
@@ -276,7 +276,7 @@ namespace moris
             {
                 // for bulk and single-sided elements, get the leader vertices, for double-sided both leader and follower
                 mtk::Leader_Follower tLeaderFollower = mtk::Leader_Follower::LEADER;
-                if ( this->get_element_type() == Element_Type::DOUBLE_SIDESET )
+                if ( this->get_element_type() == Element_Type::DOUBLE_SIDESET || this->get_element_type() == Element_Type::NONCONFORMAL_SIDESET )
                 {
                     tLeaderFollower = mtk::Leader_Follower::UNDEFINED;
                 }
@@ -1170,13 +1170,27 @@ namespace moris
             return tClusterVolume;
         }
 
+        std::map< mtk::Cell const *, Vector< moris_index > > Cluster::get_cell_to_element_map( mtk::Leader_Follower aLeaderFollowerType ) const
+        {
+            std::map< mtk::Cell const *, Vector< moris_index > > tUniqueElements;
+            for ( size_t iElement = 0; iElement < mElements.size(); ++iElement )
+            {
+                fem::Element    *tElement = mElements( iElement );
+                mtk::Cell const *tCell    = tElement->get_mtk_cell( aLeaderFollowerType );
+                tUniqueElements[ tCell ].push_back( iElement );
+            }
+            return tUniqueElements;
+        }
+
         //------------------------------------------------------------------------------
 
         Matrix< DDRMat >
         Cluster::compute_relative_volume()
         {
-            // number of elements in cluster
-            uint tNumberOfElements = mElements.size();
+            // get (unique) cells in cluster
+            Vector< mtk::Cell const * > const tUniqueCells = mMeshCluster->get_primary_cells_in_cluster();
+
+            uint const tNumberOfCells = tUniqueCells.size();
 
             // initialize cluster volume
             real tClusterVolume = 0.0;
@@ -1185,17 +1199,17 @@ namespace moris
             Matrix< DDRMat > tRelativeVolume = this->compute_element_volumes();
 
             // check for correct number of IG cells
-            MORIS_ERROR( tRelativeVolume.numel() == tNumberOfElements,
+            MORIS_ERROR( tRelativeVolume.numel() == tNumberOfCells,
                     "Cluster::compute_relative_volume - inconsistent number of IG cells.\n" );
 
-            // loop over the IG elements and drop zero elements
-            for ( uint iElem = 0; iElem < tNumberOfElements; iElem++ )
+            // loop over the IG cells and drop zero elements
+            for ( uint iCell = 0; iCell < tNumberOfCells; iCell++ )
             {
                 // if it smaller than zero; set it to zero
-                tRelativeVolume( iElem ) = std::max( tRelativeVolume( iElem ), 0.0 );
+                tRelativeVolume( iCell ) = std::max( tRelativeVolume( iCell ), 0.0 );
 
                 // add volume contribution for the IG element
-                tClusterVolume += tRelativeVolume( iElem );
+                tClusterVolume += tRelativeVolume( iCell );
             }
 
             // check for consistent cluster volume computation
@@ -1229,46 +1243,58 @@ namespace moris
         void
         Cluster::determine_elements_for_residual_and_iqi_computation()
         {
-            // number of elements in cluster
-            uint const tNumberOfElements = mElements.size();
+            // get (unique) cells in cluster
+            // we need to use cells instead of elements because elements can be repeated (e.g. in a nonconformal setting)
+            Vector< mtk::Cell const * > const tCells = mMeshCluster->get_primary_cells_in_cluster();
+
+            uint const tNumberOfCells = tCells.size();
 
             // initialize flags for computing residuals and IQIs (default: on)
-            mComputeResidualAndIQI.resize( tNumberOfElements, true );
+            // this is done per element, not per cell
+            mComputeResidualAndIQI.resize( mElements.size(), true );
 
             // skip remainder if there is only one element
-            if ( tNumberOfElements == 1 )
+            if ( tNumberOfCells == 1 )
             {
                 return;
             }
 
             // determine whether IG element should be used for computation of residual and and jacobian
-            Matrix< DDRMat > tRelativeElementVolume = this->compute_relative_volume();
+            Matrix< DDRMat > tRelativeCellVolume = this->compute_relative_volume();
 
             // check for degenerated element, i.e. all components of tRelativeElementVolume are negative
-            if ( tRelativeElementVolume( 0 ) < 0.0 )
+            if ( tRelativeCellVolume( 0 ) < 0.0 )    // if first element is negative, all elements are negative
             {
-                for ( size_t iElem = 0; iElem < mComputeResidualAndIQI.size(); ++iElem )
+                for ( size_t iElement = 0; iElement < mElements.size(); ++iElement )
                 {
-                    mComputeResidualAndIQI( iElem ) = false;
+                    mComputeResidualAndIQI( iElement ) = false;
                 }
                 return;
             }
 
             // get drop tolerance
-            real const tElementDropTolerance = this->compute_volume_drop_threshold( tRelativeElementVolume, mVolumeError );
+            real const tCellDropTolerance = this->compute_volume_drop_threshold( tRelativeCellVolume, mVolumeError );
 
             // check that drop tolerance is positive
-            MORIS_ASSERT( tElementDropTolerance > -MORIS_REAL_MIN,
+            MORIS_ASSERT( tCellDropTolerance > -MORIS_REAL_MIN,
                     "Cluster::determine_elements_for_residual_and_iqi_computation - %s",
                     "drop tolerance is negative.\n" );
 
-            // loop over the IG elements
-            for ( uint iElem = 0; iElem < tNumberOfElements; iElem++ )
+
+            std::map< mtk::Cell const *, Vector< int > > tCellToElementMap = this->get_cell_to_element_map();
+
+            // loop over cells and deactivate all element that use this cell if necessary
+            for ( size_t iCell = 0; iCell < tCells.size(); ++iCell )
             {
-                // set flag to false (0) if element volume is smaller than threshold
-                if ( tRelativeElementVolume( iElem ) < tElementDropTolerance )
+                if ( tRelativeCellVolume( iCell ) < tCellDropTolerance )
                 {
-                    mComputeResidualAndIQI( iElem ) = false;
+                    // if cell volume is smaller than threshold
+                    // set flag for computing residual and IQI to false
+                    // for all elements that use this cell
+                    for ( auto const &iElement : tCellToElementMap[ tCells( iCell ) ] )
+                    {
+                        mComputeResidualAndIQI( iElement ) = false;
+                    }
                 }
             }
         }
@@ -1277,30 +1303,30 @@ namespace moris
 
         real
         Cluster::compute_volume_drop_threshold(
-                const Matrix< DDRMat > &tRelativeElementVolume,
+                const Matrix< DDRMat > &tRelativeCellVolume,
                 const real             &tVolumeError )
         {
-            // create copy of vector of relative element volumes
-            Matrix< DDRMat > tSortedVolumes = tRelativeElementVolume;
+            // create copy of vector of relative cell volumes
+            Matrix< DDRMat > tSortedVolumes = tRelativeCellVolume;
 
             // sort volumes
-            sort( tRelativeElementVolume, tSortedVolumes, "descend", 0 );
+            sort( tRelativeCellVolume, tSortedVolumes, "descend", 0 );
 
             // initialize sum of relative volumes
             real tSum = 0;
 
             // find threshold
-            for ( uint iElem = 0; iElem < tRelativeElementVolume.numel(); ++iElem )
+            for ( uint iCell = 0; iCell < tRelativeCellVolume.numel(); ++iCell )
             {
                 // check if error criterion is satisfied and if so
-                // return current relative element volume as threshold
+                // return current relative cell volume as threshold
                 if ( 1.0 - tSum < tVolumeError )
                 {
-                    return tSortedVolumes( iElem );
+                    return tSortedVolumes( iCell );
                 }
 
                 // add to sum of relative element volumes
-                tSum += tSortedVolumes( iElem );
+                tSum += tSortedVolumes( iCell );
             }
 
             // if all elements are needed return 0

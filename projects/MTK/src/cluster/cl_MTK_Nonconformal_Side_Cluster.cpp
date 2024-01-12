@@ -29,25 +29,6 @@ namespace moris::mtk
         return tNonconformingPrimaryCells;
     }
 
-
-    Matrix< DDRMat > Nonconformal_Side_Cluster::compute_cluster_ig_cell_side_measures( mtk::Primary_Void const aPrimaryOrVoid, mtk::Leader_Follower const aIsLeader ) const
-    {
-        Matrix< DDRMat >      tDSCResult = Double_Side_Cluster::compute_cluster_ig_cell_side_measures( aPrimaryOrVoid, aIsLeader );
-        Vector< moris_index > tCellMask  = get_cell_local_indices( aIsLeader );
-        Matrix< DDRMat >      tResult( tCellMask.size(), 1 );
-        for ( size_t iIndex = 0; iIndex < tCellMask.size(); ++iIndex )
-        {
-            tResult( iIndex, 0 ) = tDSCResult( tCellMask( iIndex ), 0 );
-        }
-        return tResult;
-    }
-
-    moris::real Nonconformal_Side_Cluster::compute_cluster_cell_side_measure( mtk::Primary_Void const aPrimaryOrVoid, mtk::Leader_Follower const aIsLeader ) const
-    {
-        Matrix< DDRMat > const tCellSideMeasures = compute_cluster_ig_cell_side_measures( aPrimaryOrVoid, aIsLeader );
-        return sum( tCellSideMeasures );
-    }
-
     moris::Matrix< moris::IndexMat > Nonconformal_Side_Cluster::get_nonconforming_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const
     {
         Vector< moris_index >    tCellMask     = get_cell_local_indices( aIsLeader );
@@ -58,7 +39,7 @@ namespace moris::mtk
         {
             // the tCellLocalIndex is the index at which the cell is stored in the vector of primary cells in this cluster, it is not the index of the cell itself!
             moris_index const tCellLocalIndex = tCellMask( iIndex );
-            tCellOrdinals( 0, iIndex )       = tSideOrdinals( tCellLocalIndex );
+            tCellOrdinals( 0, iIndex )        = tSideOrdinals( tCellLocalIndex );
         }
         return tCellOrdinals;
     }

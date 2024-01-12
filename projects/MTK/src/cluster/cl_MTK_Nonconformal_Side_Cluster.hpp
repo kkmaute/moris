@@ -41,10 +41,6 @@ namespace moris::mtk
         Vector< mtk::Cell const * >
         get_nonconforming_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const;
 
-        Matrix< DDRMat > compute_cluster_ig_cell_side_measures( mtk::Primary_Void const aPrimaryOrVoid, mtk::Leader_Follower const aIsLeader ) const override;
-
-        moris::real compute_cluster_cell_side_measure( mtk::Primary_Void const aPrimaryOrVoid, mtk::Leader_Follower const aIsLeader ) const override;
-
         /**
          * \brief Similar to the function get_nonconforming_primary_cells_in_cluster(), this function returns cell side ordinals while
          * being consistent with the integration point pairs. I.e. a cell side ordinal might be returned multiple times if it is part of
