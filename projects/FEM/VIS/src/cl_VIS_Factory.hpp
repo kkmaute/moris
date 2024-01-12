@@ -11,9 +11,12 @@
 #ifndef SRC_FEM_CL_VIS_FACTORY_HPP_
 #define SRC_FEM_CL_VIS_FACTORY_HPP_
 
+#include <set>
 #include "cl_Vector.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
+#include "cl_MTK_IntegrationPointPairs.hpp"
+#include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 
 #include "cl_VIS_Vertex_Visualization.hpp"
 #include "cl_VIS_Cell_Visualization.hpp"
