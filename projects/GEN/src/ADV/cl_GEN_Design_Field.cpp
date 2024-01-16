@@ -41,7 +41,14 @@ namespace moris::ge
             , mNodeManager( &aNodeManager )
             , mParameters( std::move( aParameters ) )
     {
+        // Check for a provided field
         MORIS_ERROR( mField, "A design must be provided a field for computing values." );
+
+        // Override linear interpolation if multilinear intersections will be used
+        if ( mParameters.mUseMultilinearInterpolation )
+        {
+            Derived_Node::set_override_linear_interpolation();
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

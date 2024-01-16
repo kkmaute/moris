@@ -30,12 +30,18 @@ namespace moris::ge
         // Check that at least one base node was given
         MORIS_ASSERT( aBaseNodes.size() > 0, "A derived GEN node must have at least one basis node." );
 
+        // Override linear interpolation if desired
+        if ( gOverrideLinearInterpolation )
+        {
+            aInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+        }
+
         // Create interpolator
         mtk::Interpolation_Function_Factory tInterpolationFactory;
         mtk::Interpolation_Function_Base* tInterpolation = tInterpolationFactory.create_interpolation_function(
                 aGeometryType,
                 mtk::Interpolation_Type::LAGRANGE,
-                mtk::Interpolation_Order::LINEAR );
+                aInterpolationOrder );
 
         // Perform interpolation using parametric coordinates
         Matrix< DDRMat > tBasis;
@@ -95,6 +101,13 @@ namespace moris::ge
     bool Derived_Node::is_on_interface( Geometry* aGeometry )
     {
         return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Derived_Node::set_override_linear_interpolation()
+    {
+        gOverrideLinearInterpolation = true;
     }
 
     //--------------------------------------------------------------------------------------------------------------

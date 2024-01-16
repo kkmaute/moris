@@ -30,6 +30,7 @@ namespace moris::ge
         Cell< Basis_Node > mBackgroundNodes;
         Matrix< DDRMat > mGlobalCoordinates;
         Matrix< DDRMat > mParametricCoordinates;
+        static inline bool gOverrideLinearInterpolation = false;
 
       public:
         /**
@@ -39,7 +40,7 @@ namespace moris::ge
          * @param aBaseNodes Base nodes
          * @param aParametricCoordinates Parametric coordinates inside the background element
          * @param aGeometryType Geometry type of the background element
-         * @param aInterpolationOrder Interpolation order of the background element. Note: currently unused.
+         * @param aInterpolationOrder Interpolation order of the background element.
          */
         Derived_Node(
                 uint                     aIndex,
@@ -85,5 +86,10 @@ namespace moris::ge
          * @return If this node is on the requested interface
          */
         virtual bool is_on_interface( Geometry* aGeometry );
+
+        /**
+         * Sets the flag for overriding linear interpolation, for when multilinear intersections are being used.
+         */
+        static void set_override_linear_interpolation();
     };
 }
