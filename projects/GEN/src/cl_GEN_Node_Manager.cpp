@@ -72,7 +72,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Node_Manager::is_base_node( uint aNodeIndex )
+    bool Node_Manager::is_base_node( uint aNodeIndex ) const
     {
         return aNodeIndex < mBaseNodes.size() or not mMeshGiven;
     }
@@ -95,7 +95,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Derived_Node* Node_Manager::get_derived_node( uint aDerivedNodeIndex )
+    Derived_Node* Node_Manager::get_derived_node( uint aDerivedNodeIndex ) const
     {
         MORIS_ASSERT( aDerivedNodeIndex >= mBaseNodes.size(),
                 "A derived node was requested from the GEN node manager, but the index provided corresponds to a base node." );

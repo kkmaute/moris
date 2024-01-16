@@ -94,7 +94,9 @@ namespace moris::ge
          * @param aDerivedNode Derived node
          * @return Field value
          */
-        real get_field_value( Derived_Node* aDerivedNode ) override
+        real get_field_value(
+                Derived_Node*       aDerivedNode,
+                const Node_Manager& aNodeManager ) override
         {
             return this->get_field_value( aDerivedNode->get_global_coordinates() );
         }
@@ -127,9 +129,12 @@ namespace moris::ge
          * @param aDerivedNode Derived node
          * @return d(field value)/d(ADV_j)
          */
-        const Matrix< DDRMat >& get_dfield_dadvs( Derived_Node* aDerivedNode ) override
+        void get_dfield_dadvs(
+                Matrix< DDRMat >&   aSensitivities,
+                Derived_Node*       aDerivedNode,
+                const Node_Manager& aNodeManager ) override
         {
-            return this->get_dfield_dadvs( aDerivedNode->get_global_coordinates() );
+            aSensitivities = this->get_dfield_dadvs( aDerivedNode->get_global_coordinates() );
         }
 
         /**
@@ -153,7 +158,7 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities ) override
         {
-            return this->get_dfield_dcoordinates( aCoordinates, aSensitivities );
+            this->get_dfield_dcoordinates( aCoordinates, aSensitivities );
         }
 
         /**

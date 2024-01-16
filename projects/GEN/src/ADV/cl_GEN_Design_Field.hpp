@@ -47,6 +47,8 @@ namespace moris::ge
 
       private:
         Field_Parameters mParameters;
+        Matrix< DDRMat > mInterpolatedSensitivities;
+        Matrix< DDSMat > mInterpolatedADVIDs;
 
       public:
         /**

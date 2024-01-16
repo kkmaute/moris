@@ -60,7 +60,9 @@ namespace moris::ge
          * @param aDerivedNode Derived node
          * @return Field value
          */
-        real get_field_value( Derived_Node* aDerivedNode ) final;
+        real get_field_value(
+                Derived_Node*       aDerivedNode,
+                const Node_Manager& aNodeManager ) final;
 
         /**
          * Given a node index, returns the field value
@@ -87,7 +89,10 @@ namespace moris::ge
          * @param aDerivedNode Derived node
          * @return d(field value)/d(ADV_j)
          */
-        const Matrix< DDRMat >& get_dfield_dadvs( Derived_Node* aDerivedNode ) final;
+        void get_dfield_dadvs(
+                Matrix< DDRMat >&   aSensitivities,
+                Derived_Node*       aDerivedNode,
+                const Node_Manager& aNodeManager ) final;
 
         /**
          * Given a node index, returns a vector of the field derivatives with respect to its ADVs.
@@ -114,7 +119,10 @@ namespace moris::ge
          * @param aDerivedNode Derived node
          * @return Determining ADV IDs at this node
          */
-        Matrix< DDSMat > get_determining_adv_ids( Derived_Node* aDerivedNode ) final;
+        void get_determining_adv_ids(
+                Matrix< DDSMat >&   aDeterminingADVIDs,
+                Derived_Node*       aDerivedNode,
+                const Node_Manager& aNodeManager ) final;
 
         /**
          * Gets the IDs of ADVs which this field depends on for evaluations for non-child nodes.

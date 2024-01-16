@@ -11,6 +11,7 @@
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::ge
 {
@@ -49,9 +50,12 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Field_Discrete_Integration::get_field_value( Derived_Node* aDerivedNode )
+    real Field_Discrete_Integration::get_field_value( Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
     {
-        return this->get_interpolated_field_value( aDerivedNode->get_background_nodes() );
+        // Return result
+        return this->get_interpolated_field_value(
+                aDerivedNode->get_locator_nodes(),
+                aNodeManager );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -65,9 +69,15 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Field_Discrete_Integration::get_dfield_dadvs( Derived_Node* aDerivedNode )
+    void Field_Discrete_Integration::get_dfield_dadvs(
+            Matrix< DDRMat >&   aSensitivities,
+            Derived_Node*       aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
-        return this->get_interpolated_dfield_dadvs( aDerivedNode->get_background_nodes() );
+        this->append_interpolated_dfield_dadvs(
+                aSensitivities,
+                aDerivedNode->get_locator_nodes(),
+                aNodeManager );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -81,9 +91,15 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Field_Discrete_Integration::get_determining_adv_ids( Derived_Node* aDerivedNode )
+    void Field_Discrete_Integration::get_determining_adv_ids(
+            Matrix< DDSMat >&   aDeterminingADVIDs,
+            Derived_Node*       aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
-        return this->get_interpolated_determining_adv_ids( aDerivedNode->get_background_nodes() );
+        this->append_interpolated_determining_adv_ids(
+                aDeterminingADVIDs,
+                aDerivedNode->get_locator_nodes(),
+                aNodeManager );
     }
 
     //--------------------------------------------------------------------------------------------------------------

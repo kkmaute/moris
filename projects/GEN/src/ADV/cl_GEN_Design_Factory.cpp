@@ -80,7 +80,6 @@ namespace moris::ge
                 // Check if a field is required
                 if ( iParameterList.exists( "field_type" ) )
                 {
-                    std::cout << "field type found, is " << iParameterList.get< std::string >( "field_type" ) << std::endl;
                     // Get field dependency names
                     Cell< std::string > tDependencyNames =
                             string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );

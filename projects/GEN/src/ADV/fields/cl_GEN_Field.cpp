@@ -93,7 +93,9 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Field::get_interpolated_field_value( const Cell< Basis_Node >& aBasisNodes )
+    real Field::get_interpolated_field_value(
+            const Cell< Basis_Node >& aBasisNodes,
+            const Node_Manager&       aNodeManager )
     {
         // Initialize field value
         real tFieldValue = 0.0;
@@ -101,7 +103,17 @@ namespace moris::ge
         // Add contributions from each basis node
         for ( auto iBasisNode : aBasisNodes )
         {
-            tFieldValue += this->get_field_value( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
+            // Check if we have a background node
+            if ( aNodeManager.is_base_node( iBasisNode.get_index() ) )
+            {
+                // Background node, we can directly add its contribution
+                tFieldValue += this->get_field_value( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
+            }
+            else
+            {
+                // Not a background node, add contribution from its locators
+                tFieldValue += this->get_interpolated_field_value( iBasisNode.get_locator_nodes(), aNodeManager ) * iBasisNode.get_basis();
+            }
         }
 
         // Return result
@@ -110,32 +122,43 @@ namespace moris::ge
     
     //--------------------------------------------------------------------------------------------------------------
     
-    const Matrix< DDRMat >& Field::get_interpolated_dfield_dadvs( const Cell< Basis_Node >& aBasisNodes )
+    void Field::append_interpolated_dfield_dadvs(
+            Matrix< DDRMat >&         aInterpolatedSensitivities,
+            const Cell< Basis_Node >& aBasisNodes,
+            const Node_Manager&       aNodeManager,
+            real                      aBasisFactor )
     {
-        // Clear interpolated sensitivities
-        mInterpolatedSensitivities.set_size( 0, 0 );
-
         // Add contributions from each basis node
         for ( auto iBasisNode : aBasisNodes )
         {
-            // Get locator sensitivities
-            Matrix< DDRMat > tBasisNodeSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
-
-            // Get current joined sensitivity length
-            uint tJoinedSensitivityLength = mInterpolatedSensitivities.length();
-
-            // Have to do a resize, since each basis node can depend on different number of ADVs
-            mInterpolatedSensitivities.resize( 1, mInterpolatedSensitivities.length() + tBasisNodeSensitivities.length() );
-
-            // Append to current list
-            for ( uint iBasisNodeSensitivity = 0; iBasisNodeSensitivity < tBasisNodeSensitivities.length(); iBasisNodeSensitivity++ )
+            // Check if we have a background node
+            if ( aNodeManager.is_base_node( iBasisNode.get_index() ) )
             {
-                mInterpolatedSensitivities( tJoinedSensitivityLength + iBasisNodeSensitivity ) = tBasisNodeSensitivities( iBasisNodeSensitivity );
+                // Get locator sensitivities
+                Matrix< DDRMat > tBasisNodeSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis() * aBasisFactor;
+
+                // Get current joined sensitivity length
+                uint tJoinedSensitivityLength = aInterpolatedSensitivities.length();
+
+                // Have to do a resize, since each basis node can depend on different number of ADVs
+                aInterpolatedSensitivities.resize( 1, aInterpolatedSensitivities.length() + tBasisNodeSensitivities.length() );
+
+                // Append to current list
+                for ( uint iBasisNodeSensitivity = 0; iBasisNodeSensitivity < tBasisNodeSensitivities.length(); iBasisNodeSensitivity++ )
+                {
+                    aInterpolatedSensitivities( tJoinedSensitivityLength + iBasisNodeSensitivity ) = tBasisNodeSensitivities( iBasisNodeSensitivity );
+                }
+            }
+            else
+            {
+                // Not a background node, so we add contribution from its locators
+                this->append_interpolated_dfield_dadvs(
+                        aInterpolatedSensitivities,
+                        iBasisNode.get_locator_nodes(),
+                        aNodeManager,
+                        iBasisNode.get_basis() * aBasisFactor );
             }
         }
-
-        // Return result
-        return mInterpolatedSensitivities;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -149,39 +172,48 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Field::get_determining_adv_ids( Derived_Node* aDerivedNode )
+    void Field::get_determining_adv_ids( Matrix< DDSMat >& aDeterminingADVIDs, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
     {
-        return this->get_determining_adv_ids( aDerivedNode->get_index(), aDerivedNode->get_global_coordinates() );
+        aDeterminingADVIDs = this->get_determining_adv_ids( aDerivedNode->get_index(), aDerivedNode->get_global_coordinates() );
     }
     
     //--------------------------------------------------------------------------------------------------------------
     
-    Matrix< DDSMat > Field::get_interpolated_determining_adv_ids( const Cell< Basis_Node >& aBasisNodes )
+    void Field::append_interpolated_determining_adv_ids(
+            Matrix< DDSMat >&         aInterpolatedADVIDs,
+            const Cell< Basis_Node >& aBasisNodes,
+            const Node_Manager&       aNodeManager )
     {
-        // Clear interpolated ADV IDs
-        mInterpolatedADVIDs.set_size( 0, 0 );
-
         // Add contributions from each basis node
         for ( auto iBasisNode : aBasisNodes )
         {
-            // Get locator sensitivities
-            Matrix< DDSMat > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() );
-
-            // Get current joined ADV ID length
-            uint tJoinedADVIDLength = mInterpolatedADVIDs.length();
-
-            // Have to do a resize, since each basis node can depend on different number of ADVs
-            mInterpolatedADVIDs.resize( 1, tJoinedADVIDLength + tBasisNodeADVIDs.length() );
-
-            // Append to current list
-            for ( uint iBasisNodeADV = 0; iBasisNodeADV < tBasisNodeADVIDs.length(); iBasisNodeADV++ )
+            // Check if we have a background node
+            if ( aNodeManager.is_base_node( iBasisNode.get_index() ) )
             {
-                mInterpolatedADVIDs( tJoinedADVIDLength + iBasisNodeADV ) = tBasisNodeADVIDs( iBasisNodeADV );
+                // Get locator sensitivities
+                Matrix< DDSMat > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() );
+
+                // Get current joined ADV ID length
+                uint tJoinedADVIDLength = aInterpolatedADVIDs.length();
+
+                // Have to do a resize, since each basis node can depend on different number of ADVs
+                aInterpolatedADVIDs.resize( 1, tJoinedADVIDLength + tBasisNodeADVIDs.length() );
+
+                // Append to current list
+                for ( uint iBasisNodeADV = 0; iBasisNodeADV < tBasisNodeADVIDs.length(); iBasisNodeADV++ )
+                {
+                    aInterpolatedADVIDs( tJoinedADVIDLength + iBasisNodeADV ) = tBasisNodeADVIDs( iBasisNodeADV );
+                }
+            }
+            else
+            {
+                // Not a background node, so we add contribution from its locators
+                this->append_interpolated_determining_adv_ids(
+                        aInterpolatedADVIDs,
+                        iBasisNode.get_locator_nodes(),
+                        aNodeManager );
             }
         }
-
-        // Return result
-        return mInterpolatedADVIDs;
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -69,7 +69,7 @@ namespace moris::ge
          *
          * @return If node is a base node.
          */
-        bool is_base_node( uint aNodeIndex );
+        bool is_base_node( uint aNodeIndex ) const;
 
         /**
          * Gets a base node stored in this manager.
@@ -92,7 +92,7 @@ namespace moris::ge
          * @param aDerivedNodeIndex Node index (this must be the index of a derived node, or an error will be thrown)
          * @return Derived node
          */
-        Derived_Node* get_derived_node( uint aDerivedNodeIndex );
+        Derived_Node* get_derived_node( uint aDerivedNodeIndex ) const;
 
         /**
          * Gets a trivial node manager. This is useful for allowing geometry construction before
