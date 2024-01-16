@@ -13,6 +13,8 @@
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Library_IO.hpp"
 #include "fn_GEN_create_field.hpp"
+#include "cl_GEN_Voxel_Input.hpp"
+#include "cl_GEN_Voxel_Geometry.hpp"
 
 namespace moris::ge
 {
@@ -78,6 +80,7 @@ namespace moris::ge
                 // Check if a field is required
                 if ( iParameterList.exists( "field_type" ) )
                 {
+                    std::cout << "field type found, is " << iParameterList.get< std::string >( "field_type" ) << std::endl;
                     // Get field dependency names
                     Cell< std::string > tDependencyNames =
                             string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );
@@ -137,16 +140,42 @@ namespace moris::ge
                     // Geometry
                     if ( tDesignType == "geometry" )
                     {
-                        // Base pointer
-                        std::shared_ptr< Level_Set_Geometry > tGeometry;
-
                         // Get geometry type
                         std::string tGeometryType = iParameterList.get< std::string >( "geometry_type" );
 
                         // Level-set field
                         if ( tGeometryType == "level_set" )
                         {
-                            tGeometry = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ), aNodeManager );
+                            mGeometries( tGeometryIndex++ ) = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ), aNodeManager );
+                        }
+                        else if ( tGeometryType == "voxel" )
+                        {
+                            // Get voxel-specific info
+                            std::string      tVoxelFieldName    = iParameterList.get< std::string >( "voxel_field_file" );
+                            Matrix< DDRMat > tDomainDimensions  = string_to_mat< DDRMat >( iParameterList.get< std::string >( "domain_dimensions" ) );
+                            Matrix< DDRMat > tDomainOffset      = string_to_mat< DDRMat >( iParameterList.get< std::string >( "domain_offset" ) );
+                            Matrix< DDRMat > tGrainIdToValueMap = string_to_mat< DDRMat >( iParameterList.get< std::string >( "grain_id_value_map" ) );
+
+                            // Create voxel input
+                            auto tVoxelInput = std::make_shared< Voxel_Input >(
+                                    tVoxelFieldName,
+                                    tDomainDimensions,
+                                    tDomainOffset,
+                                    tGrainIdToValueMap );
+
+                            // Get number of voxel IDs
+                            uint tNumberOfVoxelIDs = tVoxelInput->get_num_voxel_IDs();
+
+                            // Resize geometries
+                            mGeometries.resize( mGeometries.size() + tNumberOfVoxelIDs );
+
+                            // Create each single voxel geometry
+                            for ( uint iVoxelIndex = 0; iVoxelIndex < tNumberOfVoxelIDs; iVoxelIndex++ )
+                            {
+                                // TODO: this can be uncommented and tested once the below fixme is resolved.
+                                // mGeometries( tGeometryIndex++ ) = std::make_shared< Voxel_Geometry >( tVoxelInput, iVoxelIndex );
+                            }
+                            MORIS_ERROR( false, "Voxel geometry is not yet working." );
                         }
                         else if( tGeometryType == "surface_mesh" )
                         {
@@ -157,9 +186,6 @@ namespace moris::ge
                         {
                             MORIS_ERROR( false, "GEN does not recognize geometry type: %s", tGeometryType.c_str() );
                         }
-
-                        // Assign new geometry
-                        mGeometries( tGeometryIndex++ ) = tGeometry;
                     }
 
                     // Property

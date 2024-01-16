@@ -46,6 +46,8 @@ set(HEADERS
 	ADV/cl_GEN_Design_Field.hpp
 	ADV/cl_GEN_Geometry.hpp
 	ADV/cl_GEN_Level_Set_Geometry.hpp
+	ADV/cl_GEN_Voxel_Input.hpp
+	ADV/cl_GEN_Voxel_Geometry.hpp
 	ADV/cl_GEN_Surface_Mesh_Geometry.hpp
 	ADV/cl_GEN_Property.hpp
 
@@ -63,8 +65,6 @@ set(HEADERS
 	ADV/fields/cl_GEN_Superellipsoid.hpp
 	ADV/fields/cl_GEN_Plane.hpp
 	ADV/fields/cl_GEN_Mesh_Field.hpp
-	ADV/fields/cl_GEN_Voxel_Input.hpp
-	ADV/fields/cl_GEN_Single_Grain.hpp
 	ADV/fields/cl_GEN_Stored_Field.hpp
 	ADV/fields/cl_GEN_Signed_Distance_Field.hpp
 	ADV/fields/cl_GEN_Image_Signed_Distance_Field.hpp
@@ -107,6 +107,8 @@ set(LIB_SOURCES
 	ADV/cl_GEN_Design_Field.cpp
 	ADV/cl_GEN_Geometry.cpp
 	ADV/cl_GEN_Level_Set_Geometry.cpp
+	ADV/cl_GEN_Voxel_Input.cpp
+	ADV/cl_GEN_Voxel_Geometry.cpp
 	ADV/cl_GEN_Surface_Mesh_Geometry.cpp
 	ADV/cl_GEN_Property.cpp
 
@@ -123,8 +125,6 @@ set(LIB_SOURCES
 	ADV/fields/cl_GEN_Superellipsoid.cpp
 	ADV/fields/cl_GEN_Plane.cpp
 	ADV/fields/cl_GEN_Mesh_Field.cpp
-	ADV/fields/cl_GEN_Voxel_Input.cpp
-	ADV/fields/cl_GEN_Single_Grain.cpp
 	ADV/fields/cl_GEN_Stored_Field.cpp
 	ADV/fields/cl_GEN_Signed_Distance_Field.cpp
 	ADV/fields/cl_GEN_Image_Signed_Distance_Field.cpp

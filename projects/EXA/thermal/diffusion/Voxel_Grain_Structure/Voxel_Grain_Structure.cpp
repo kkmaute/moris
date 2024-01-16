@@ -286,7 +286,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", "Voxel_Grain_Structure_Gen.exo" );
 
         // Geometry parameter lists
-        tParameterlist( 1 )( 0 ) = prm::create_voxel_field_parameter_list();
+        tParameterlist( 1 )( 0 ) = prm::create_voxel_geometry_parameter_list();
 
         std::string tMORISROOT = moris::get_base_moris_dir();
         std::string tPath      = tMORISROOT + "projects/EXA/thermal/diffusion/Voxel_Grain_Structure/Voxel_file";
@@ -294,10 +294,6 @@ namespace moris
         tParameterlist( 1 )( 0 ).set( "voxel_field_file", tPath );
         tParameterlist( 1 )( 0 ).set( "domain_dimensions", "4.0,4.0,4.0" );
         tParameterlist( 1 )( 0 ).set( "domain_offset", "-2.0,-2.0,-2.0" );
-        tParameterlist( 1 )( 0 ).set( "intersection_mode", "LEVEL_SET" );
-        tParameterlist( 1 )( 0 ).set( "number_of_refinements", "0" );
-        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0" );
-        tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1 );
     }
 
     void

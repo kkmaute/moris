@@ -24,8 +24,7 @@ namespace moris::ge
             Matrix< DDRMat >          aDomainDimensions,
             Matrix< DDRMat >          aDomainOffset,
             Matrix< DDRMat >          aGrainIdToValueMap )
-            : Field_Analytic< 0 >( {{}} )
-            , mDomainDimensions( aDomainDimensions )
+            : mDomainDimensions( aDomainDimensions )
             , mDomainOffset( aDomainOffset )
             , mGrainIdToValueMap( aGrainIdToValueMap )
     {
@@ -34,24 +33,22 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Voxel_Input::get_field_value( const Matrix< DDRMat >& aCoordinates )
+    uint Voxel_Input::get_voxel_ID( const Matrix< DDRMat >& aCoordinates )
     {
         // set pointer to correct field value function
         if ( mDomainDimensions.numel() == 3 )
         {
-            return get_field_value_3d( aCoordinates );
+            return get_voxel_ID_3d( aCoordinates );
         }
         else
         {
-            return get_field_value_2d( aCoordinates );
+            return get_voxel_ID_2d( aCoordinates );
         }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Voxel_Input::get_field_value_3d( const Matrix< DDRMat >& aCoordinates )
+    uint Voxel_Input::get_voxel_ID_3d( const Matrix< DDRMat >& aCoordinates )
     {
         moris::real tVoxelSizeX = mDomainDimensions( 0 ) / mVoxelsInX;
         moris::real tVoxelSizeY = mDomainDimensions( 1 ) / mVoxelsInY;
@@ -61,7 +58,7 @@ namespace moris::ge
                 aCoordinates( 0 ) - mDomainOffset( 0 ) >= 0.0               //
                         && aCoordinates( 1 ) - mDomainOffset( 1 ) >= 0.0    //
                         && aCoordinates( 1 ) - mDomainOffset( 2 ) >= 0.0,
-                "Voxel_Input::get_field_value_3d() - invalid domain dimensions; check offset.\n" );
+                "Voxel_Input::get_voxel_ID_3d() - invalid domain dimensions; check offset.\n" );
 
         moris::uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );    // K
         moris::uint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / tVoxelSizeY );
@@ -82,17 +79,16 @@ namespace moris::ge
             tK = mVoxelsInZ - 1;    // I
         }
 
-        // mVoxelField columns are ordered - VoxelIndex - GainsId - I - J - K
+        // mVoxelInput columns are ordered - VoxelIndex - GainsId - I - J - K
         moris::uint tRow =
                 tI * mVoxelsInY * mVoxelsInZ + tJ * mVoxelsInZ + tK;
 
-        return (moris::real)mVoxelField( tRow, 1 );
+        return mVoxelField( tRow, 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Voxel_Input::get_field_value_2d( const Matrix< DDRMat >& aCoordinates )
+    uint Voxel_Input::get_voxel_ID_2d( const Matrix< DDRMat >& aCoordinates )
     {
         int tGrainID;
 
@@ -119,7 +115,7 @@ namespace moris::ge
                 tJ = mVoxelsInY - 1;
             }
 
-            // mVoxelField columns are ordered - VoxelIndex - GainsId - I - J
+            // mVoxelInput columns are ordered - VoxelIndex - GainsId - I - J
             moris::uint tRow = tI * mVoxelsInY + tJ;
 
             tGrainID = mVoxelField( tRow, 1 );
@@ -136,26 +132,6 @@ namespace moris::ge
         }
 
         return tGrainID;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const Matrix< DDRMat >&
-    Voxel_Input::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
-    {
-        MORIS_ERROR( false,
-                "Voxel_Input::get_dfield_dadvs(), Sensitivities cannot be calculated for Voxel field." );
-        return mSensitivities;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Voxel_Input::get_dfield_dcoordinates(
-            const Matrix< DDRMat >& aCoordinates,
-            Matrix< DDRMat >&       aSensitivities )
-    {
-        MORIS_ERROR( false, "get_dfield_dcoordinates not implemented for voxel input field." );
     }
 
     //--------------------------------------------------------------------------------------------------------------

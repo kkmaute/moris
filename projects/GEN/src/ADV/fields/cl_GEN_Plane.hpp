@@ -109,12 +109,12 @@ namespace moris::ge
     private:
 
         /**
-         * 2D evaluation for get_field_value
+         * 2D evaluation for get_voxel_id
          */
         real eval_field_2d(const Matrix<DDRMat>& aCoordinates);
 
         /**
-         * 3D evaluation for get_field_value
+         * 3D evaluation for get_voxel_id
          */
         real eval_field_3d(const Matrix<DDRMat>& aCoordinates);
 

@@ -129,8 +129,8 @@ namespace moris::prm
     static ParameterList create_geometry_parameter_list()
     {
         ParameterList tParameterList;
-        tParameterList.insert( "design_type", "geometry" );       // Set the design type to a geometry
-        tParameterList.insert( "geometry_type", "level_set" );    // Set the geometry type to level set as default
+        tParameterList.insert( "design_type", "geometry" ); // Set the design type to a geometry
+        tParameterList.insert( "geometry_type", "" );       // Insert the geometry type parameter
 
         return tParameterList;
     }
@@ -149,6 +149,7 @@ namespace moris::prm
     {
         ParameterList tParameterList = create_geometry_parameter_list();   // Inserts all geometry parameters
         insert_design_field_parameters( tParameterList, aIncludeField );   // Inserts all design parameters
+        tParameterList.set( "geometry_type", "level_set" );                // Sets the geometry type to level set
         tParameterList.insert( "intersection_mode", "LEVEL_SET" );         // Deprecated
         tParameterList.insert( "isocontour_threshold", 0.0 );              // Level set isocontour level
         tParameterList.insert( "isocontour_tolerance", 1e-12 );            // Interface tolerance based on geometry value
@@ -201,11 +202,11 @@ namespace moris::prm
      * @return Voxel geometry parameterlist
      */
     inline ParameterList
-    create_voxel_field_parameter_list()
+    create_voxel_geometry_parameter_list()
     {
-        ParameterList tParameterList = create_level_set_geometry_parameter_list();
+        ParameterList tParameterList = create_geometry_parameter_list();
 
-        tParameterList.set( "field_type", "voxel" );          // Voxel field type
+        tParameterList.set( "geometry_type", "voxel" );       // Set the geometry type to a voxel geometry
         tParameterList.insert( "voxel_field_file", "" );      // voxel file
         tParameterList.insert( "domain_dimensions", "" );     // domain size
         tParameterList.insert( "domain_offset", "" );         // domain offset

@@ -39,7 +39,7 @@ namespace moris::ge
     Signed_Distance_Field::get_field_value( uint aNodeIndex )
     {
         MORIS_ASSERT( mValues.numel() > aNodeIndex,
-                "Signed_Distance_Field::get_field_value() - "
+                "Signed_Distance_Field::get_voxel_id() - "
                 "Node index out of bounds, mValues numel: %zu , aNodeIndex %i",
                 mValues.numel(),
                 aNodeIndex );

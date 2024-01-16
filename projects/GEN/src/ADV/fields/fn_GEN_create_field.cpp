@@ -19,8 +19,6 @@
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
 #include "cl_GEN_User_Defined_Field.hpp"
-#include "cl_GEN_Voxel_Input.hpp"
-#include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_Combined_Fields.hpp"
 #include "cl_GEN_Field_Array_Factory.hpp"
 #include "cl_GEN_Mesh_Field.hpp"
@@ -184,7 +182,7 @@ namespace moris::ge
         }
         else if ( tFieldType == "image_sdf" )
         {
-            // Get voxel-specific info
+            // Get SDF-specific info
             std::string      tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
             Matrix< DDRMat > tDomainDimensions = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_dimensions" ) );
             Matrix< DDRMat > tDomainOffset     = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "image_offset" ) );
@@ -222,26 +220,6 @@ namespace moris::ge
                     tADVIndices,
                     tConstants,
                     tName );
-        }
-        else if ( tFieldType == "voxel" and aFieldDependencies( 0 ) )
-        {
-            tField = std::make_shared< Single_Grain >(
-                    aFieldDependencies( 0 ),
-                    aIndex );
-        }
-        else if ( tFieldType == "voxel" )
-        {
-            // Get voxel-specific info
-            std::string      tVoxelFieldName    = aFieldParameterList.get< std::string >( "voxel_field_file" );
-            Matrix< DDRMat > tDomainDimensions  = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "domain_dimensions" ) );
-            Matrix< DDRMat > tDomainOffset      = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "domain_offset" ) );
-            Matrix< DDRMat > tGrainIdToValueMap = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "grain_id_value_map" ) );
-
-            tField = std::make_shared< Voxel_Input >(
-                    tVoxelFieldName,
-                    tDomainDimensions,
-                    tDomainOffset,
-                    tGrainIdToValueMap );
         }
         else
         {
