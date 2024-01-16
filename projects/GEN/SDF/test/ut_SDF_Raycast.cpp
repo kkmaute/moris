@@ -136,8 +136,9 @@ namespace moris::sdf
                 tSecondIntersectedFacetExpected = tObject.get_facet( 2 );
 
                 REQUIRE( tIntersectedTriangles.size() == 2 );
-                CHECK( tIntersectedTriangles( 0 ) == &tFirstIntersectedFacetExpected );
-                CHECK( tIntersectedTriangles( 1 ) == &tSecondIntersectedFacetExpected );
+                CHECK( *( t            //-------------------------------------------------------------------------------
+ ) == tFirstIntersectedFacetExpected );
+                CHECK( *( tIntersectedTriangles( 1 ) ) == tSecondIntersectedFacetExpected );
 
                 // although two facets are intersected, one of them should produce an error and be removed
                 tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
@@ -213,7 +214,7 @@ namespace moris::sdf
 
                 REQUIRE( tCandidateLines.size() == 1 );
                 REQUIRE( tIntersectedLines.size() == 0 );
-                CHECK( tCandidateLines( 0 ) == &tCandidateLinesExpected );
+                CHECK( *tCandidateLines( 0 ) == tCandidateLinesExpected );
 
                 tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 1 );
                 tIntersectionCoordinateExpected = 0.25;

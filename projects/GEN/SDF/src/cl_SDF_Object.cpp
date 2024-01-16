@@ -505,5 +505,8 @@ namespace moris
 
             return mFacets( aFacetIndex )->get_max_coord( aAxis );
         }
+
+        //-------------------------------------------------------------------------------
+        
     } /* namespace sdf */
 } /* namespace moris */

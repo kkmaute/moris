@@ -18,6 +18,8 @@
 #include "op_times.hpp"
 #include "SDF_Tools.hpp"
 #include "fn_stringify_matrix.hpp"
+#include "op_equal_equal.hpp"
+#include "fn_all_true.hpp"
 
 namespace moris
 {
@@ -285,6 +287,18 @@ namespace moris
                     }
                 }
             }
+        }
+    
+        bool
+        Facet::operator==( const Facet& aRHS ) const
+        {
+            if ( mVertices.size() != aRHS.get_number_of_vertices() )
+            {
+                return false;
+            }
+
+            return all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() ) && all_true( mNormal == aRHS.get_normal() ) && std::abs( mHesse - aRHS.get_hesse() ) < gSDFepsilon;
+
         }
     } /* namespace sdf */
 } /* namespace moris */

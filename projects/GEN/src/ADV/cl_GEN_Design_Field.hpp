@@ -65,13 +65,6 @@ namespace moris::ge
                 Node_Manager&            aNodeManager );
 
         /**
-         * Gets if this field is to be used for seeding a B-spline field.
-         *
-         * @return Logic for B-spline creation
-         */
-        bool intended_discretization();
-
-        /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
          *
          * @param aMeshPair The mesh pair where the discretization information can be obtained
@@ -191,46 +184,6 @@ namespace moris::ge
 
         std::string get_name();
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        // /**          BRENDAN DELETE?
-        //  * This function will return true when called less than the number of refinements set for this field,
-        //  * and false otherwise. This is to determine for a given refinement call if this field needs refinement.
-        //  *
-        //  * @return if to perform an additional refinement with this field
-        //  */
-        // const Cell< uint >& get_num_refinements();
-
-        // const Cell< uint >& get_refinement_mesh_indices();
-
-        // /**
-        //  * Gets the index of a user-defined refinement function used within HMR.
-        //  *
-        //  * @return User-defined refinement function index
-        //  */
-        // sint get_refinement_function_index();
-
-        // /**
-        //  * Gets a discretization mesh index for a discretized field.
-        //  *
-        //  * @return Mesh index
-        //  */
-        // moris_index get_discretization_mesh_index() const;
-
-        // /**
-        //  * Gets the lower bound for a discretized field.
-        //  *
-        //  * @return Lower bound
-        //  */
-        // real get_discretization_lower_bound();
-
-        // /**
-        //  * Get the upper bound for a discretized field.
-        //  *
-        //  * @return Upper bound
-        //  */
-        // real get_discretization_upper_bound();
-
         /**
          * Gets whether this field will be using multilinear interpolation to get derived node field values.
          *
@@ -240,16 +193,6 @@ namespace moris::ge
 
         // TODO where should I really put this stuff?
         void set_num_original_nodes( uint aNumOriginalNodes );
-
-        // /**
-        //  * Allows for access to the GEN field
-        //  *
-        //  * @return Underlying field
-        //  */
-        // std::shared_ptr< Field > get_field()
-        // {
-        //     return mField;
-        // }
 
         /**
          * Gets an MTK field, if this design field uses one that needs to be remapped to a new mesh
