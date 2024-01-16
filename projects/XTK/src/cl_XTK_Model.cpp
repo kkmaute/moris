@@ -664,15 +664,8 @@ namespace xtk
         // log/trace the mesh decomposition
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
 
-        // get the geometries for each level-set field in GEN
-        moris::Matrix< moris::IndexMat > tActiveGeometries( 1, mGeometryEngine->get_num_geometries() );
-        for ( moris::uint i = 0; i < mGeometryEngine->get_num_geometries(); i++ )
-        {
-            tActiveGeometries( i ) = (moris_index)i;
-        }
-
         // initialize IMG object for performing decomposition
-        Integration_Mesh_Generator tIntegrationGenerator( this, aMethods, tActiveGeometries );
+        Integration_Mesh_Generator tIntegrationGenerator( this, aMethods );
 
         // perform decomposition
         mCutIntegrationMesh = tIntegrationGenerator.perform();

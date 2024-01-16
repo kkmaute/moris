@@ -112,17 +112,20 @@ namespace moris::ge
     
     const Matrix< DDRMat >& Field::get_interpolated_dfield_dadvs( const Cell< Basis_Node >& aBasisNodes )
     {
+        // Clear interpolated sensitivities
+        mInterpolatedSensitivities.set_size( 0, 0 );
+
         // Add contributions from each basis node
         for ( auto iBasisNode : aBasisNodes )
         {
             // Get locator sensitivities
             Matrix< DDRMat > tBasisNodeSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
-            
-            // Have to do a resize, since each basis node can depend on different number of ADVs
-            mInterpolatedSensitivities.resize( 1, mInterpolatedSensitivities.length() + tBasisNodeSensitivities.length() );
 
             // Get current joined sensitivity length
             uint tJoinedSensitivityLength = mInterpolatedSensitivities.length();
+
+            // Have to do a resize, since each basis node can depend on different number of ADVs
+            mInterpolatedSensitivities.resize( 1, mInterpolatedSensitivities.length() + tBasisNodeSensitivities.length() );
 
             // Append to current list
             for ( uint iBasisNodeSensitivity = 0; iBasisNodeSensitivity < tBasisNodeSensitivities.length(); iBasisNodeSensitivity++ )
@@ -155,17 +158,20 @@ namespace moris::ge
     
     Matrix< DDSMat > Field::get_interpolated_determining_adv_ids( const Cell< Basis_Node >& aBasisNodes )
     {
+        // Clear interpolated ADV IDs
+        mInterpolatedADVIDs.set_size( 0, 0 );
+
         // Add contributions from each basis node
         for ( auto iBasisNode : aBasisNodes )
         {
             // Get locator sensitivities
             Matrix< DDSMat > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
-            
-            // Have to do a resize, since each basis node can depend on different number of ADVs
-            mInterpolatedADVIDs.resize( 1, mInterpolatedADVIDs.length() + tBasisNodeADVIDs.length() );
 
             // Get current joined ADV ID length
             uint tJoinedADVIDLength = mInterpolatedADVIDs.length();
+
+            // Have to do a resize, since each basis node can depend on different number of ADVs
+            mInterpolatedADVIDs.resize( 1, mInterpolatedADVIDs.length() + tBasisNodeADVIDs.length() );
 
             // Append to current list
             for ( uint iBasisNodeADV = 0; iBasisNodeADV < tBasisNodeADVIDs.length(); iBasisNodeADV++ )

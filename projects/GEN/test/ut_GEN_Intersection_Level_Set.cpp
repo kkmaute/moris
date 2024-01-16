@@ -213,7 +213,7 @@ namespace moris::ge
                     }
 
                     // Check with solution
-                    bool tIsIntersected = tGeometryEngine.is_intersected( tSignedNodeIndices, tNodeCoordinates );
+                    bool tIsIntersected = tGeometryEngine.is_intersected( tGeometryIndex, tSignedNodeIndices, tNodeCoordinates );
                     CHECK( tIsIntersected == tIsElementIntersected( tGeometryIndex )( tElementIndex ) );
                 }
 
@@ -511,7 +511,7 @@ namespace moris::ge
                     }
 
                     // Check with solution
-                    CHECK( tGeometryEngine.is_intersected( tSignedNodeIndices, tNodeCoordinates ) == tIsElementIntersected( tGeometryIndex )( tElementIndex ) );
+                    CHECK( tGeometryEngine.is_intersected( tGeometryIndex, tSignedNodeIndices, tNodeCoordinates ) == tIsElementIntersected( tGeometryIndex )( tElementIndex ) );
                 }
 
                 // Advance geometry index
@@ -614,7 +614,7 @@ namespace moris::ge
             moris::mtk::Cell& tCell = tMeshData->get_mtk_cell( 0 );
 
             // verify that it says that the cell is intersected
-            bool tIsIntersected = tGeometryEngine.is_intersected( tCell.get_vertex_inds(), tCell.get_vertex_coords() );
+            bool tIsIntersected = tGeometryEngine.is_intersected( 0, tCell.get_vertex_inds(), tCell.get_vertex_coords() );
 
             CHECK( tIsIntersected );
 

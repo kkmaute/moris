@@ -31,11 +31,9 @@ namespace xtk
 
     Integration_Mesh_Generator::Integration_Mesh_Generator(
             xtk::Model*                      aXTKModelPtr,
-            Cell< enum Subdivision_Method >  aMethods,
-            moris::Matrix< moris::IndexMat > aActiveGeometries )
+            Cell< enum Subdivision_Method >  aMethods )
             : mXTKModel( aXTKModelPtr )
             , mGeometryEngine( mXTKModel->get_geom_engine() )
-            , mActiveGeometries( aActiveGeometries )
             , mSubdivisionMethods( aMethods )
     {
         if ( mXTKModel->mParameterList.get< bool >( "has_parameter_list" ) )
@@ -298,14 +296,6 @@ namespace xtk
         return tCutIntegrationMesh;
     }
 
-    // ----------------------------------------------------------------------------------
-
-    moris::Matrix< moris::IndexMat > const *
-    Integration_Mesh_Generator::get_active_geometries()
-    {
-        return &mActiveGeometries;
-    }
-
     moris::ge::Geometry_Engine*
     Integration_Mesh_Generator::get_geom_engine()
     {
@@ -451,7 +441,7 @@ namespace xtk
             moris::mtk::Mesh*                 aBackgroundMesh )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells", mXTKModel->mVerboseLevel, 1 );
-        uint   tNumGeometries = mActiveGeometries.numel();
+        uint   tNumGeometries = this->get_geom_engine()->get_number_of_geometries();
 
         uint tNumCells = aBackgroundMesh->get_num_elems();
 
@@ -487,13 +477,7 @@ namespace xtk
             // iterate through all geometries for current cell
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
-                // current index for this geometry
-                moris_index tGeometryIndex = mActiveGeometries( iGeom );
-
-                // tell the query which geometric index we are working on
-                tGeometricQuery.set_geometric_index( tGeometryIndex );
-
-                if ( mXTKModel->get_geom_engine()->is_intersected( tGeometricQuery.get_query_entity_to_vertex_connectivity(), tGeometricQuery.get_query_indexed_coordinates() ) )
+                if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity(), tGeometricQuery.get_query_indexed_coordinates() ) )
                 {
                     // add background cell to the list for iGEOM
                     aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
@@ -527,7 +511,7 @@ namespace xtk
             moris::mtk::Mesh*                 aBackgroundMesh )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells", mXTKModel->mVerboseLevel, 1 );
-        uint   tNumGeometries = mActiveGeometries.numel();
+        uint   tNumGeometries = this->get_geom_engine()->get_number_of_geometries();
 
         // get number of Lagrange elements
         uint tNumCells = aBackgroundMesh->get_num_elems();
@@ -559,14 +543,9 @@ namespace xtk
             // iterate through all geometries for current cell and check if it gets cut by any of the geometries
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
-                // current index for this geometry
-                moris_index tGeometryIndex = mActiveGeometries( iGeom );
-
-                // tell the query which geometric index we are working on
-                tGeometricQuery.set_geometric_index( tGeometryIndex );
-
                 // set to true if cell is cut by current or any previous geometry
                 tCellIsCut = tCellIsCut || mXTKModel->get_geom_engine()->is_intersected(
+                                     iGeom,
                                      tGeometricQuery.get_query_entity_to_vertex_connectivity(),
                                      tGeometricQuery.get_query_indexed_coordinates() );
             }
@@ -705,7 +684,7 @@ namespace xtk
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Compute IG cell bulk phases", mXTKModel->mVerboseLevel, 1 );
 
         // get an estimate how many IG cells will have issues with vertex-based phase assignment
-        uint tNumGeometries                   = mGeometryEngine->get_num_geometries();
+        uint tNumGeometries                   = mGeometryEngine->get_number_of_geometries();
         uint tNumIgCells                      = aCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
         uint tExpectedNumNotAssignableIgCells = tNumGeometries * ( tNumIgCells / 1000 ) + 1;
 
@@ -817,7 +796,7 @@ namespace xtk
     {
         // cell vertices
         moris::Cell< moris::mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
-        moris::size_t                      tNumGeom  = mGeometryEngine->get_num_geometries();
+        moris::size_t                      tNumGeom  = mGeometryEngine->get_number_of_geometries();
 
         // allocate phase on or off value (either 0 or 1)
         Matrix< IndexMat > tPhaseVotes( 1, 2 );
@@ -874,7 +853,7 @@ namespace xtk
     {
         // cell vertices
         moris::Cell< moris::mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
-        moris::size_t                      tNumGeom  = mGeometryEngine->get_num_geometries();
+        moris::size_t                      tNumGeom  = mGeometryEngine->get_number_of_geometries();
 
         // allocate phase on or off value (either 0 or 1)
         Matrix< IndexMat > tPhaseVotes( 1, 2 );
@@ -2622,7 +2601,7 @@ namespace xtk
             moris_index aBulkPhaseIndex0,
             moris_index aBulkPhaseIndex1 )
     {
-        MORIS_ASSERT( aGeomIndex < (moris_index)mGeometryEngine->get_num_geometries(), "Geometry index out of bounds" );
+        MORIS_ASSERT( aGeomIndex < (moris_index)mGeometryEngine->get_number_of_geometries(), "Geometry index out of bounds" );
         MORIS_ASSERT( aBulkPhaseIndex0 < (moris_index)mGeometryEngine->get_num_bulk_phase(), "Bulk phase index 0 out of bounds" );
         MORIS_ASSERT( aBulkPhaseIndex1 < (moris_index)mGeometryEngine->get_num_bulk_phase(), "Bulk phase index 1 out of bounds" );
 

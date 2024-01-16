@@ -206,19 +206,28 @@ namespace moris
             MSI::Design_Variable_Interface* get_design_variable_interface();
             
             /**
-             * Determines if the element consisting of the given node coordinates is intersected.
+             * Returns if the element consisting of provided node indices and coordinates is intersected by the given geometry.
              *
+             * @param aGeometryIndex Geometry index
              * @param aNodeIndices Node indices
              * @param aNodeCoordinates Node coordinates
              * @return If the element is intersected
              */
             bool is_intersected(
+                    uint                      aGeometryIndex,
                     const Matrix< IndexMat >& aNodeIndices,
                     const Matrix< DDRMat >&   aNodeCoordinates );
 
-            //-------------------------------------------------------------------------------
-            
+            /**
+             * Returns if the element consisting of provided node indices and coordinates is intersected by the given geometry.
+             *
+             * @param aGeometryIndex Geometry index
+             * @param aNodeIndices Node indices
+             * @param aNodeCoordinates Node coordinates
+             * @return If the element is intersected
+             */
             bool is_intersected(
+                    uint                                         aGeometryIndex,
                     const Matrix< IndexMat >&                    aNodeIndices,
                     Cell< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
             
@@ -366,7 +375,7 @@ namespace moris
             /**
              * @brief Returns the number of geometries
              */
-            size_t get_num_geometries();
+            size_t get_number_of_geometries();
 
             //-------------------------------------------------------------------------------
             

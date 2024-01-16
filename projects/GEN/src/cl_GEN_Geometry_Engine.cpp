@@ -288,6 +288,7 @@ namespace moris
 
         bool
         Geometry_Engine::is_intersected(
+                uint                      aGeometryIndex,
                 const Matrix< IndexMat >& aNodeIndices,
                 const Matrix< DDRMat >&   aNodeCoordinates )
         {
@@ -301,24 +302,29 @@ namespace moris
             }
 
             // Return result
-            return is_intersected( aNodeIndices, &tNodeCoordinates );
+            return is_intersected( aGeometryIndex, aNodeIndices, &tNodeCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         bool
         Geometry_Engine::is_intersected(
+                uint                                                              aGeometryIndex,
                 const Matrix< IndexMat >&                                         aNodeIndices,
                 moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates )
         {
             // Get first geometric region
-            Geometric_Region tFirstNodeGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
+            Geometric_Region tFirstNodeGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region(
+                    aNodeIndices( 0 ),
+                    *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
 
             // Test nodes for other geometric regions
             for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
             {
                 // Get test geometric region
-                Geometric_Region tTestGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), *( *aNodeCoordinates )( aNodeIndices( iNodeInEntityIndex ) ) );
+                Geometric_Region tTestGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region(
+                        aNodeIndices( iNodeInEntityIndex ),
+                        *( *aNodeCoordinates )( aNodeIndices( iNodeInEntityIndex ) ) );
 
                 // Test if it is different from the first region. If so, the entity is intersected
                 if ( tTestGeometricRegion != tFirstNodeGeometricRegion )
@@ -556,7 +562,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         size_t
-        Geometry_Engine::get_num_geometries()
+        Geometry_Engine::get_number_of_geometries()
         {
             return mGeometries.size();
         }
@@ -740,14 +746,14 @@ namespace moris
                 tStringStream << "Coords_" + std::to_string( iHeader ) << ",";
             }
 
-            for ( moris::uint iHeader = 0; iHeader < this->get_num_geometries(); iHeader++ )
+            for ( moris::uint iHeader = 0; iHeader < this->get_number_of_geometries(); iHeader++ )
             {
                 tStringStream << "gval_" + std::to_string( iHeader ) << ",";
             }
-            for ( moris::uint iHeader = 0; iHeader < this->get_num_geometries(); iHeader++ )
+            for ( moris::uint iHeader = 0; iHeader < this->get_number_of_geometries(); iHeader++ )
             {
                 tStringStream << "gprox_" + std::to_string( iHeader );
-                if ( iHeader != this->get_num_geometries() - 1 )
+                if ( iHeader != this->get_number_of_geometries() - 1 )
                 {
                     tStringStream << ",";
                 }
@@ -767,7 +773,7 @@ namespace moris
                 {
                     tStringStream << std::scientific << tCoords( iSp ) << ",";
                 }
-                for ( moris::uint iGeom = 0; iGeom < this->get_num_geometries(); iGeom++ )
+                for ( moris::uint iGeom = 0; iGeom < this->get_number_of_geometries(); iGeom++ )
                 {
                     // BRENDAN is this okay?
                     Cell< real > tGeometryInfo;
@@ -778,7 +784,7 @@ namespace moris
                         tStringStream << tGeometryInfo( iGeomFields ) << ",";
                     }
                 }
-                for ( moris::uint iGeom = 0; iGeom < this->get_num_geometries(); iGeom++ )
+                for ( moris::uint iGeom = 0; iGeom < this->get_number_of_geometries(); iGeom++ )
                 {
                     // Get geometric region
                     Geometric_Region tGeometricRegion = mGeometries( iGeom )->get_geometric_region( tVertex.get_index(), tVertex.get_coords() );
@@ -796,7 +802,7 @@ namespace moris
                     {
                         tStringStream << "+";
                     }
-                    if ( iGeom != this->get_num_geometries() - 1 )
+                    if ( iGeom != this->get_number_of_geometries() - 1 )
                     {
                         tStringStream << ",";
                     }
