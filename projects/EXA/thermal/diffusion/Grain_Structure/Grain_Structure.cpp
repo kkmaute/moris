@@ -189,43 +189,32 @@ namespace moris
 
         // Geometry parameter lists
         tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "field_function_name", "Colors_1");
-        tParameterlist( 1 )( 0 ).set( "number_of_refinements", "2");
-        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0");
-        tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1);
-        tParameterlist( 1 )( 0 ).set( "isocontour_tolerance", 1E-12);
-        tParameterlist( 1 )( 0 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 0 ).set( "use_multilinear_interpolation", false);
+        tParameterlist( 1 )( 0 ).set( "field_function_name", "Colors_1" );
+        tParameterlist( 1 )( 0 ).set( "number_of_refinements", "2" );
+        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1 );
+        tParameterlist( 1 )( 0 ).set( "isocontour_tolerance", 1E-12 );
 
-                // Geometry parameter lists
         tParameterlist( 1 )( 1 ) = prm::create_user_defined_geometry_parameter_list();
-        tParameterlist( 1 )( 1 ).set( "field_function_name", "Colors_2");
-        tParameterlist( 1 )( 1 ).set( "number_of_refinements", "2");
-        tParameterlist( 1 )( 1 ).set( "refinement_mesh_index", "0");
-        tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", -1);
-        tParameterlist( 1 )( 1 ).set( "isocontour_tolerance", 1E-12);
-        tParameterlist( 1 )( 1 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 1 ).set( "use_multilinear_interpolation", false);
+        tParameterlist( 1 )( 1 ).set( "field_function_name", "Colors_2" );
+        tParameterlist( 1 )( 1 ).set( "number_of_refinements", "2" );
+        tParameterlist( 1 )( 1 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", -1 );
+        tParameterlist( 1 )( 1 ).set( "isocontour_tolerance", 1E-12 );
 
-                // Geometry parameter lists
         tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
-        tParameterlist( 1 )( 2 ).set( "field_function_name", "Colors_3");
-        tParameterlist( 1 )( 2 ).set( "number_of_refinements", "2");
-        tParameterlist( 1 )( 2 ).set( "refinement_mesh_index", "0");
-        tParameterlist( 1 )( 2 ).set( "discretization_mesh_index", -1);
-        tParameterlist( 1 )( 2 ).set( "isocontour_tolerance", 1E-12);
-        tParameterlist( 1 )( 2 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 2 ).set( "use_multilinear_interpolation", false);
+        tParameterlist( 1 )( 2 ).set( "field_function_name", "Colors_3" );
+        tParameterlist( 1 )( 2 ).set( "number_of_refinements", "2" );
+        tParameterlist( 1 )( 2 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 2 ).set( "discretization_mesh_index", -1 );
+        tParameterlist( 1 )( 2 ).set( "isocontour_tolerance", 1E-12 );
 
-                // Geometry parameter lists
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
-        tParameterlist( 1 )( 3 ).set( "field_function_name", "Colors_4");
-        tParameterlist( 1 )( 3 ).set( "number_of_refinements", "2");
-        tParameterlist( 1 )( 3 ).set( "refinement_mesh_index", "0");
-        tParameterlist( 1 )( 3 ).set( "discretization_mesh_index", -1);
-        tParameterlist( 1 )( 3 ).set( "isocontour_tolerance", 1E-12);
-        tParameterlist( 1 )( 3 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 3 ).set( "use_multilinear_interpolation", false);
+        tParameterlist( 1 )( 3 ).set( "field_function_name", "Colors_4" );
+        tParameterlist( 1 )( 3 ).set( "number_of_refinements", "2" );
+        tParameterlist( 1 )( 3 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 3 ).set( "discretization_mesh_index", -1 );
+        tParameterlist( 1 )( 3 ).set( "isocontour_tolerance", 1E-12 );
 
     }
 
