@@ -83,7 +83,7 @@ namespace xtk
 
             // define the sphere such that it is non interacting
             auto tCircle = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
-            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
 
             // define ge engine
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -204,7 +204,7 @@ namespace xtk
 
             // define the sphere such that it is non interacting
             auto tCircle = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
-            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
 
             // define ge engine
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

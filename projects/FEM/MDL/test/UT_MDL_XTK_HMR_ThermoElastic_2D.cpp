@@ -219,7 +219,7 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             auto tPlane = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
             //------------------------------------------------------------------------------
@@ -693,7 +693,7 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             auto tPlane = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
 

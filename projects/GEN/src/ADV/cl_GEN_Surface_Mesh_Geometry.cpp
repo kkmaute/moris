@@ -8,6 +8,8 @@
  *
  */
 
+#include <string>
+
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 
@@ -17,7 +19,8 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Parameters::Surface_Mesh_Parameters( const ParameterList& aParameterList )
-            : mFilePath( aParameterList.get< std::string >( "file_path" ) )
+            : Field_Parameters( aParameterList )
+            , mFilePath( aParameterList.get< std::string >( "file_path" ) )
     {
         string_to_mat( aParameterList.get< std::string >( "offset" ), mOffsets );
     }
@@ -25,9 +28,11 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters )
-            : Object( aParameters.mFilePath, aParameters.mOffsets )
+            : Geometry( aParameters )
+            , Object( aParameters.mFilePath, aParameters.mOffsets )
             , mParameters( aParameters )
     {
+        mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -67,7 +72,7 @@ namespace moris::ge
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
             mtk::Interpolation_Order aBackgroundInterpolationOrder )
-    {   
+    {
         // Create linear intersection node
         return new Intersection_Node_Surface_Mesh(
                 aNodeIndex,
@@ -89,4 +94,56 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void
+    Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
+    {
+        // TODO BRENDAN
+        return;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Surface_Mesh_Geometry::reset_nodal_data()
+    {
+        // TODO BRENDAN
+        return;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Surface_Mesh_Geometry::discretize(
+            mtk::Mesh_Pair          aMeshPair,
+            sol::Dist_Vector*       aOwnedADVs,
+            const Matrix< DDSMat >& aSharedADVIds,
+            uint                    aADVOffsetID )
+    {
+        // TODO BRENDAN
+        return;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Surface_Mesh_Geometry::discretize(
+            std::shared_ptr< mtk::Field > aMTKField,
+            mtk::Mesh_Pair                aMeshPair,
+            sol::Dist_Vector*             aOwnedADVs,
+            const Matrix< DDSMat >&       aSharedADVIds,
+            uint                          aADVOffsetID )
+    {
+        // TODO BRENDAN
+        return;
+    }
+
+    void
+    Surface_Mesh_Geometry::get_design_info(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates,
+            Cell< real >& aOutputDesignInfo )
+    {
+        // TODO BRENDAN
+        aOutputDesignInfo.resize( 0 );
+    }
 }    // namespace moris::ge

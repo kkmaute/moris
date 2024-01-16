@@ -13,6 +13,7 @@
 #include "cl_Cell.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
+#include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
 #include "cl_Param_List.hpp"
 
@@ -32,7 +33,7 @@ namespace moris::ge
     {
       private:
         Cell< std::shared_ptr< Field > > mFields;
-        Cell< std::shared_ptr< Level_Set_Geometry > > mGeometries;
+        Cell< std::shared_ptr< Geometry > > mGeometries;
         Cell< std::shared_ptr< Property > > mProperties;
 
       public:
@@ -57,7 +58,7 @@ namespace moris::ge
          *
          * @return vector of geometries
          */
-        Cell< std::shared_ptr< Level_Set_Geometry > > get_geometries();
+        Cell< std::shared_ptr< Geometry > > get_geometries();
 
         /**
          * Gets the properties that the factory has created.

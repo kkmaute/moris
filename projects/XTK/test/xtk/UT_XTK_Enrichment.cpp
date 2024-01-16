@@ -89,7 +89,7 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         tMeshData->create_output_mesh( tMeshOutputFile2 );
 
         auto tField = std::make_shared< moris::ge::Mesh_Field >( tMeshData, tLSFName );
-        Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
+        Cell< std::shared_ptr< ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;
@@ -195,7 +195,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         tMeshData->create_output_mesh( tMeshOutputFile2 );
 
         auto tField = std::make_shared< moris::ge::Mesh_Field >( tMeshData, tLSFName );
-        Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
+        Cell< std::shared_ptr< ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;

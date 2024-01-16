@@ -387,7 +387,7 @@ namespace moris
 
         //    for( uint k=0; k<tNumRef; ++k )
         //    {
-        //        Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry( 2 );
+        //        Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
         //        tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
         //        tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
         //
@@ -426,7 +426,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry0( 2 );
+        Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
         tGeometry0( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
         tGeometry0( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
 

@@ -20,11 +20,11 @@ namespace moris::ge
      */
     struct Property_Parameters : public Field_Parameters
     {
-        Cell< std::string > mDependencyNames; //! Names of the dependencies of this property
-        PDV_Type mPDVType;                    //! The type of PDV that this property will be assigned to
-        bool mInterpolationPDV;               //! If the PDV is defined on the interpolation mesh (always true for now)
-        Cell< uint > mPDVMeshSetIndices;      //! Mesh set indices for assigning PDVs
-        Cell< std::string > mPDVMeshSetNames; //! Mesh set names for assigning PDVs
+        Cell< std::string > mDependencyNames;      //! Names of the dependencies of this property
+        PDV_Type            mPDVType;              //! The type of PDV that this property will be assigned to
+        bool                mInterpolationPDV;     //! If the PDV is defined on the interpolation mesh (always true for now)
+        Cell< uint >        mPDVMeshSetIndices;    //! Mesh set indices for assigning PDVs
+        Cell< std::string > mPDVMeshSetNames;      //! Mesh set names for assigning PDVs
 
         /**
          * Constructor with a given parameter list
@@ -35,12 +35,12 @@ namespace moris::ge
     };
 
     class Property : public Design_Field
+            , public Design
     {
-    private:
+      private:
         Property_Parameters mParameters;
 
-    public:
-
+      public:
         /**
          * Constructor taking in a field pointer and a set of parameters.
          *
@@ -49,9 +49,9 @@ namespace moris::ge
          * @param aNodeManager Node manager from the geometry engine, if available
          */
         explicit Property(
-              std::shared_ptr< Field > aField,
-              Property_Parameters      aParameters = Property_Parameters(),
-              Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
+                std::shared_ptr< Field > aField,
+                Property_Parameters      aParameters  = Property_Parameters(),
+                Node_Manager&            aNodeManager = Node_Manager::get_trivial_instance() );
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this property)
@@ -66,7 +66,7 @@ namespace moris::ge
          *
          * @param aAllUpdatedFields All fields (this property will take the ones it needs)
          */
-        void update_dependencies( Cell< std::shared_ptr< Design_Field > > aAllUpdatedFields );
+        void update_dependencies( Cell< std::shared_ptr< Design > > aAllUpdatedFields );
 
         /**
          * Gets the PDV type that this property defines.
@@ -90,5 +90,50 @@ namespace moris::ge
          */
         Cell< uint > get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh );
 
+        /**
+         * Used for writing to mtk meshes and printing for debug info
+         * 
+         * @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
+         * @param aCoordinates The field location to get the value from.
+         * @return the value of the property field at the requested location
+         */
+        void get_design_info(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Cell< real >& aOutputDesignInfo ) override;
+
+        /**
+         * gets the number of fields the property has
+        */
+        uint get_num_fields() override
+        {
+                return 1;
+        }
+
+        /**
+         * Allows for access to the GEN field
+         *
+         * @return Underlying field
+         */
+        std::shared_ptr< Field > get_field()
+        {
+            return Design_Field::mField;
+        }
+
+        /**
+         * Gets the name of the geometry
+         *
+         */
+        std::string get_name() override;
+
+        /**
+         * Sets the ADVs and grabs the field variables needed from the ADV vector
+         *
+         * @param aADVs ADVs
+         */
+        void set_advs( sol::Dist_Vector* aADVs ) override
+        {
+            Design_Field::mField->set_advs( aADVs );
+        }
     };
-}
+}    // namespace moris::ge

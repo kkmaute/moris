@@ -13,19 +13,22 @@
 #include <memory>
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Node_Manager.hpp"
+#include "cl_GEN_Design.hpp"
+#include "cl_MTK_Mesh_Pair.hpp"
 
-#include "cl_Cell.hpp" // TODO remove
+#include "cl_Cell.hpp"    // TODO remove
 
 // Forward declarations
 namespace moris
 {
-    template< typename T > class Cell;
+    template< typename T >
+    class Cell;
     namespace mtk
     {
         class Field;
         enum class Geometry_Type;
-    }
-}
+    }    // namespace mtk
+}    // namespace moris
 
 namespace moris::ge
 {
@@ -36,19 +39,18 @@ namespace moris::ge
     // Geometric location, for determining where a node is relative to a specific geometry
     enum class Geometric_Region : signed char
     {
-        NEGATIVE = -1,
+        NEGATIVE  = -1,
         INTERFACE = 0,
-        POSITIVE = 1
+        POSITIVE  = 1
     };
 
-    class Geometry
+    class Geometry : public Design
     {
       public:
-
         /**
          * Constructor
          */
-        Geometry();
+        Geometry( Field_Parameters aParameters );
 
         /**
          * Default destructor
@@ -108,5 +110,85 @@ namespace moris::ge
          * @return Cell of MTK fields for remeshing
          */
         virtual Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() = 0;
+
+        /**
+         * Gets the name of the geometry
+         *
+         */
+        virtual std::string get_name() = 0;
+
+        /**
+         * Imports the local ADVs required from the full owned ADV distributed vector.
+         *
+         * @param aOwnedADVs Full owned distributed ADV vector
+         */
+        virtual void import_advs( sol::Dist_Vector* aOwnedADVs ) = 0;
+
+        /**
+         * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
+         * created.
+         */
+        virtual void reset_nodal_data() = 0;
+
+        /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
+         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
+         */
+        virtual void discretize(
+                mtk::Mesh_Pair          aMeshPair,
+                sol::Dist_Vector*       aOwnedADVs,
+                const Matrix< DDSMat >& aSharedADVIds,
+                uint                    aADVOffsetID ) = 0;
+
+        /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMTKField Input MTK field to map based on
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
+         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
+         */
+        virtual void discretize(
+                std::shared_ptr< mtk::Field > aMTKField,
+                mtk::Mesh_Pair                aMeshPair,
+                sol::Dist_Vector*             aOwnedADVs,
+                const Matrix< DDSMat >&       aSharedADVIds,
+                uint                          aADVOffsetID ) = 0;
+        /**
+         * Used to print geometry information to exodus files and print debug information.
+         * 
+         *  @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
+         * @param aCoordinates The field location to get the value from.
+         * @return the value of the property field at the requested location
+         */
+        virtual void get_design_info(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Cell< real >& aOutputDesignInfo ) = 0;
+
+        /**
+         * Gets the number of fields the geometry has
+         * 
+         * number of fields the geometry depends on
+         */
+        virtual uint get_num_fields() = 0;
+
+        /**
+         * Allows for access to the GEN field
+         *
+         * @return Underlying field
+         */
+        virtual std::shared_ptr< Field > get_field() = 0;
+
+        /**
+         * Sets the ADVs and grabs the field variables needed from the ADV vector
+         *
+         * @param aADVs ADVs
+         */
+        virtual void set_advs( sol::Dist_Vector* aADVs ) = 0;
     };
-}
+}    // namespace moris::ge

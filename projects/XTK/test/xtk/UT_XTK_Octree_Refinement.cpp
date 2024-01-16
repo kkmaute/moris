@@ -123,7 +123,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6130,7 +6130,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6190,7 +6190,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6250,7 +6250,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6310,7 +6310,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6369,7 +6369,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
 //     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
@@ -6428,7 +6428,7 @@
 
 //     // GEN
 //     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 3 );
+//     moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 3 );
 //     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryVector( 1 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom2 ) );
 //     tGeometryVector( 2 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom3 ) );

@@ -39,7 +39,7 @@ namespace moris
              * @param aGeometryIndex Geometry index
              * @return Geometry
              */
-            std::shared_ptr< Level_Set_Geometry > get_geometry(uint aGeometryIndex);
+            std::shared_ptr< Geometry > get_geometry(uint aGeometryIndex);
 
             /**
              * Gets a property

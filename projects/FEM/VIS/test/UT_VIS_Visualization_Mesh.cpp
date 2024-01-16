@@ -122,7 +122,7 @@ namespace moris
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
                 auto tField = std::make_shared< moris::ge::Plane >( 0.11, 0.11, 1.0, 0.0 );
-                Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
+                Cell< std::shared_ptr< ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
 
                 size_t                                tModelDimension = 2;
                 moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

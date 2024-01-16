@@ -21,7 +21,7 @@ namespace moris::ge
     /**
      * This is a struct used to simplify \ref moris::ge::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Surface_Mesh_Parameters
+    struct Surface_Mesh_Parameters : public Field_Parameters
     {
         Matrix< DDRMat > mOffsets;
         std::string      mFilePath;
@@ -34,12 +34,14 @@ namespace moris::ge
         explicit Surface_Mesh_Parameters( const ParameterList& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
-    class Surface_Mesh_Geometry : public sdf::Object
-            , public Geometry
+    class Surface_Mesh_Geometry : public Geometry
+            , public sdf::Object
             , public std::enable_shared_from_this< Surface_Mesh_Geometry >    // TODO make it so we don't need enable_shared_from_this, should be possible in intersection node
     {
       private:
         Surface_Mesh_Parameters mParameters;
+
+        std::string mName;
 
       public:
         /**
@@ -100,5 +102,95 @@ namespace moris::ge
          * @return MTK field
          */
         Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+
+        /**
+         * Imports the local ADVs required from the full owned ADV distributed vector.
+         *
+         * @param aOwnedADVs Full owned distributed ADV vector
+         */
+        void import_advs( sol::Dist_Vector* aOwnedADVs ) override;
+
+        std::string
+        get_name() override
+        {
+            return mName;
+        }
+
+        /**
+         * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
+         * created.
+         */
+        virtual void reset_nodal_data() override;
+
+        /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
+         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
+         */
+        void discretize(
+                mtk::Mesh_Pair          aMeshPair,
+                sol::Dist_Vector*       aOwnedADVs,
+                const Matrix< DDSMat >& aSharedADVIds,
+                uint                    aADVOffsetID ) override;
+
+        /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMTKField Input MTK field to map based on
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
+         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
+         */
+        void discretize(
+                std::shared_ptr< mtk::Field > aMTKField,
+                mtk::Mesh_Pair                aMeshPair,
+                sol::Dist_Vector*             aOwnedADVs,
+                const Matrix< DDSMat >&       aSharedADVIds,
+                uint                          aADVOffsetID ) override;
+
+        /**
+         * Used to print geometry information to exodus files and print debug information.
+         *
+         *  @param aNodeIndex decides the point at which the surface mesh displacement is printed. If the node is a derived node, the value is interpolated from the parents.
+         * @param aCoordinates The field location to get the value from.
+         * @return the value of the surface mesh displacement at the requested location
+         */
+        void get_design_info(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Cell< real >&           aOutputDesignInfo ) override;
+
+        /**
+         * Gets the number of fields the surface mesh has
+         */
+        uint get_num_fields() override
+        {
+            return get_dimension();
+        }
+
+        /**
+         * Allows for access to the GEN field
+         *
+         * @return Underlying field
+         */
+        std::shared_ptr< Field > get_field()
+        {
+            // TODO BRENDAN
+            return nullptr;
+        }
+
+        /**
+         * Sets the ADVs and grabs the field variables needed from the ADV vector
+         *
+         * @param aADVs ADVs
+         */
+        void set_advs( sol::Dist_Vector* aAVS ) override
+        {
+            // TODO BRENDAN
+            return;
+        }
     };
 }    // namespace moris::ge

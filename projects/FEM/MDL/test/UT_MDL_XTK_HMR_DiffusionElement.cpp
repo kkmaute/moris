@@ -242,7 +242,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
             auto tPlane = std::make_shared< moris::ge::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
             tGeometryVector( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tPlane );
 
@@ -489,7 +489,7 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
             auto tPlane = std::make_shared< moris::ge::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
             tGeometryVector( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tPlane );
 
@@ -780,7 +780,7 @@ namespace moris
             // start timer
             tic tTimer_XTK;
 
-            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
             auto tUserDefinedField = std::make_shared< moris::ge::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
             tGeometryVector( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tUserDefinedField );
 
@@ -1069,7 +1069,7 @@ namespace moris
             // start timer
             tic tTimer_XTK;
 
-            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 1 );
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
             auto tUserDefinedField = std::make_shared< moris::ge::User_Defined_Field >( LevelSetSphereCylinderGeometry );
             tGeometryVector( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tUserDefinedField );
 

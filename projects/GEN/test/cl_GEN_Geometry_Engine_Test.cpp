@@ -26,7 +26,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr< Level_Set_Geometry > Geometry_Engine_Test::get_geometry(uint aGeometryIndex)
+        std::shared_ptr< Geometry > Geometry_Engine_Test::get_geometry(uint aGeometryIndex)
         {
             return mGeometries(aGeometryIndex);
         }

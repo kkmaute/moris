@@ -8,6 +8,8 @@
  *
  */
 
+#include <memory>
+
 #include "catch.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_trans.hpp"
@@ -64,7 +66,7 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris
 
 namespace moris::ge
 {
@@ -199,8 +201,8 @@ namespace moris::ge
 
             // Create circles
             Design_Factory tDesignFactory( { tCircle1ParameterList, tCircle2ParameterList }, tADVs );
-            tCircle1 = tDesignFactory.get_geometries()( 0 );
-            tCircle2 = tDesignFactory.get_geometries()( 1 );
+            tCircle1 = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
+            tCircle2 = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 1 ) );
 
             // Set distributed ADVs
             if ( tDistributed )
@@ -249,12 +251,12 @@ namespace moris::ge
             CHECK( tCircle2->get_field_value( 0, tCoordinates2 ) == Approx( 0.0 ) );
 
             // Check sensitivity values
-            CHECK_EQUAL( tCircle1->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >({ { 0.0, 1.0, -1.0 } }) ,);
-            CHECK_EQUAL( tCircle2->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >({ { 0.0, 1.0, -1.0 } }) ,);
-            CHECK_EQUAL( tCircle1->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >({ { -1.0, 0.0, -1.0 } }) ,);
-            CHECK_EQUAL( tCircle2->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >({ { -2.0 / sqrt( 5.0 ), 1.0 / sqrt( 5.0 ), -1.0 } }) ,);
-            CHECK_EQUAL( tCircle1->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >({ { -3.0 / sqrt( 10.0 ), -1.0 / sqrt( 10.0 ), -1.0 } }) ,);
-            CHECK_EQUAL( tCircle2->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >({ { -1.0, 0.0, -1.0 } }) ,);
+            CHECK_EQUAL( tCircle1->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ), );
+            CHECK_EQUAL( tCircle2->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ), );
+            CHECK_EQUAL( tCircle1->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ), );
+            CHECK_EQUAL( tCircle2->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -2.0 / sqrt( 5.0 ), 1.0 / sqrt( 5.0 ), -1.0 } } ), );
+            CHECK_EQUAL( tCircle1->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -3.0 / sqrt( 10.0 ), -1.0 / sqrt( 10.0 ), -1.0 } } ), );
+            CHECK_EQUAL( tCircle2->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ), );
         }
 
         // Clean up
@@ -272,9 +274,9 @@ namespace moris::ge
         tSuperellipseParameterList.set( "adv_indices", "all" );
 
         // Create circles
-        Matrix< DDRMat > tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
-        Design_Factory tDesignFactory( { tSuperellipseParameterList }, tADVs );
-        std::shared_ptr< Level_Set_Geometry > tSuperellipse = tDesignFactory.get_geometries()( 0 );
+        Matrix< DDRMat >                      tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
+        Design_Factory                        tDesignFactory( { tSuperellipseParameterList }, tADVs );
+        std::shared_ptr< Level_Set_Geometry > tSuperellipse = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
         Matrix< DDRMat > tCoordinates0 = { { 2.0, 2.0 } };
@@ -299,7 +301,7 @@ namespace moris::ge
                         MORIS_REAL_MAX } } ), );
 
         CHECK_EQUAL( tSuperellipse->get_dfield_dadvs( 0, tCoordinates1 ),
-                     Matrix< DDRMat >( { { //
+                Matrix< DDRMat >( { { //
                         -0.000000000000000e+00,
                         5.000000000000000e-01,
                         -0.000000000000000e+00,
@@ -333,7 +335,7 @@ namespace moris::ge
 
         // Check sensitivity values
         CHECK_EQUAL( tSuperellipse->get_dfield_dadvs( 0, tCoordinates0 ),
-                Matrix< DDRMat >({ { //
+                Matrix< DDRMat >( { { //
                         0.25,
                         0.0,
                         -0.25,
@@ -344,7 +346,7 @@ namespace moris::ge
                         MORIS_REAL_MAX } } ), );
 
         CHECK_EQUAL( tSuperellipse->get_dfield_dadvs( 0, tCoordinates1 ),
-                Matrix< DDRMat >({ { //
+                Matrix< DDRMat >( { { //
                         pow( 2.0, 0.25 ) / 8.0,
                         -pow( 2.0, -0.75 ) / 3.0,
                         -pow( 2.0, -0.75 ) / 8.0,
@@ -377,9 +379,9 @@ namespace moris::ge
         tSphereParameterList.set( "adv_indices", "all" );
 
         // Create sphere
-        Matrix< DDRMat > tADVs = { { -1.0, 0.0, 1.0, 2.0 } };
-        Design_Factory tDesignFactory( { tSphereParameterList }, tADVs );
-        std::shared_ptr< Level_Set_Geometry > tSphere = tDesignFactory.get_geometries()( 0 );
+        Matrix< DDRMat >                      tADVs = { { -1.0, 0.0, 1.0, 2.0 } };
+        Design_Factory                        tDesignFactory( { tSphereParameterList }, tADVs );
+        std::shared_ptr< Level_Set_Geometry > tSphere = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
         Matrix< DDRMat > tCoordinates0 = { { 0.0, 0.0, 0.0 } };
@@ -423,9 +425,9 @@ namespace moris::ge
         tSuperellipsoidParameterList.set( "adv_indices", "all" );
 
         // Create superellipsoid
-        Matrix< DDRMat > tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 2.0 } };
-        Design_Factory tDesignFactory( { tSuperellipsoidParameterList }, tADVs );
-        std::shared_ptr< Level_Set_Geometry > tSuperellipsoid = tDesignFactory.get_geometries()( 0 );
+        Matrix< DDRMat >                      tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 2.0 } };
+        Design_Factory                        tDesignFactory( { tSuperellipsoidParameterList }, tADVs );
+        std::shared_ptr< Level_Set_Geometry > tSuperellipsoid = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Set coordinates for checking
         Matrix< DDRMat > tCoordinates0 = { { 2.0, 2.0, 5.0 } };
@@ -516,8 +518,8 @@ namespace moris::ge
     TEST_CASE( "User-defined Geometry", "[gen], [geometry], [user-defined geometry]" )
     {
         // Create user-defined geometry
-        Matrix< DDRMat > tADVs = { { -1.0, 0.5 } };
-        auto tUserDefinedGeometry = std::make_shared< User_Defined_Field >(
+        Matrix< DDRMat > tADVs                = { { -1.0, 0.5 } };
+        auto             tUserDefinedGeometry = std::make_shared< User_Defined_Field >(
                 &user_defined_geometry_field,
                 &user_defined_geometry_sensitivity,
                 tADVs,
@@ -559,7 +561,7 @@ namespace moris::ge
         // Set up 2 B-spline geometries
         Matrix< DDRMat >                    tADVs( 0, 0 );
         Matrix< DDRMat >                    tRadii = { { 0.5, 0.25 } };
-        Cell< std::shared_ptr< Level_Set_Geometry > > tBSplineGeometries( 2 );
+        Cell< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
 
         // Loop over possible cases
         for ( uint tBSplineOrder = 1; tBSplineOrder < 3; tBSplineOrder++ )
@@ -579,13 +581,13 @@ namespace moris::ge
                         tCircleParameterList.set( "discretization_upper_bound", 1.0 );
 
                         // Set up geometry
-                        Design_Factory tDesignFactory( {tCircleParameterList }, tADVs );
+                        Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
                         tBSplineGeometries( tGeometryIndex ) = tDesignFactory.get_geometries()( 0 );
                     }
 
                     // Create mesh
-                    uint tNumElementsPerDimension = 10;
-                    mtk::Interpolation_Mesh* tMesh = create_simple_mesh(
+                    uint                     tNumElementsPerDimension = 10;
+                    mtk::Interpolation_Mesh* tMesh                    = create_simple_mesh(
                             tNumElementsPerDimension,
                             tNumElementsPerDimension,
                             tLagrangeOrder,
@@ -638,7 +640,7 @@ namespace moris::ge
                         for ( uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++ )
                         {
                             // Get geometry back
-                            std::shared_ptr< Level_Set_Geometry > tBSplineGeometry = tGeometryEngine.get_geometry( tGeometryIndex );
+                            std::shared_ptr< Level_Set_Geometry > tBSplineGeometry = std::dynamic_pointer_cast< Level_Set_Geometry >( tGeometryEngine.get_geometry( tGeometryIndex ) );
 
                             // Get ID Offset
                             uint tOffset = tGeometryIndex * tMesh->get_max_entity_id( mtk::EntityRank::BSPLINE, 0 );
@@ -665,8 +667,8 @@ namespace moris::ge
                                     Matrix< DDRMat > tMatrix = trans( tMesh->get_t_matrix_of_node_loc_ind( tNodeIndex, 0 ) );
                                     Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) )
                                                           + tOffset;
-                                    CHECK_EQUAL( tBSplineGeometry->get_dfield_dadvs( tNodeIndex, { {} } ), tMatrix ,);
-                                    CHECK_EQUAL( tBSplineGeometry->get_determining_adv_ids( tNodeIndex, { {} } ), tIDs ,);
+                                    CHECK_EQUAL( tBSplineGeometry->get_dfield_dadvs( tNodeIndex, { {} } ), tMatrix, );
+                                    CHECK_EQUAL( tBSplineGeometry->get_determining_adv_ids( tNodeIndex, { {} } ), tIDs, );
                                 }
                             }
 
@@ -718,9 +720,9 @@ namespace moris::ge
         tCircleParameterList.set( "discretization_mesh_index", -1 );
 
         // Set up geometry
-        Matrix< DDRMat > tADVs   = { { 0.0, 0.0, 0.5 } };
-        Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
-        std::shared_ptr< Level_Set_Geometry > tCircle = tDesignFactory.get_geometries()( 0 );
+        Matrix< DDRMat >                      tADVs = { { 0.0, 0.0, 0.5 } };
+        Design_Factory                        tDesignFactory( { tCircleParameterList }, tADVs );
+        std::shared_ptr< Level_Set_Geometry > tCircle = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
         // Create geometry engine
         Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -728,7 +730,7 @@ namespace moris::ge
         Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
         // Get geometry back
-        std::shared_ptr< Level_Set_Geometry > tStoredCircle = tGeometryEngine.get_geometry( 0 );
+        std::shared_ptr< Level_Set_Geometry > tStoredCircle = std::dynamic_pointer_cast< Level_Set_Geometry >( tGeometryEngine.get_geometry( 0 ) );
 
         // Check field values at all nodes
         for ( uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++ )
@@ -765,7 +767,7 @@ namespace moris::ge
                     Approx( tCircle->get_field_value( tNodeIndex, tNodeCoordinates ) ) );
 
             // Check sensitivities
-            Matrix< DDRMat > tDummyCoordinates = {{}};
+            Matrix< DDRMat > tDummyCoordinates = { {} };
             CHECK_EQUAL(
                     tStoredCircle->get_dfield_dadvs( tNodeIndex, tDummyCoordinates ),
                     tCircle->get_dfield_dadvs( tNodeIndex, tNodeCoordinates ), );
@@ -807,13 +809,13 @@ namespace moris::ge
         tParameterLists( 2 ).set( "dependencies", "Circle 1, Circle 2" );
 
         // Create multigeometry
-        Matrix< DDRMat > tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
-        Design_Factory tDesignFactory( tParameterLists, tADVs );
-        Cell< std::shared_ptr< Level_Set_Geometry > > tGeometries = tDesignFactory.get_geometries();
+        Matrix< DDRMat >                    tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
+        Design_Factory                      tDesignFactory( tParameterLists, tADVs );
+        Cell< std::shared_ptr< Geometry > > tGeometries = tDesignFactory.get_geometries();
 
         // Should be only one total geometry
         REQUIRE( tGeometries.size() == 1 );
-        std::shared_ptr< Level_Set_Geometry > tCombinedField = tGeometries( 0 );
+        std::shared_ptr< Level_Set_Geometry > tCombinedField = std::dynamic_pointer_cast< Level_Set_Geometry >( tGeometries( 0 ) );
 
         // Set coordinates for checking
         Matrix< DDRMat > tCoordinates0 = { { 0.0, 0.0 } };
@@ -826,9 +828,9 @@ namespace moris::ge
         CHECK( tCombinedField->get_field_value( 0, tCoordinates2 ) == Approx( 0.0 ) );
 
         // Check sensitivity values TODO determining IDs
-        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ) ,);
-        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -sqrt( 2.0 ) / 2.0, sqrt( 2.0 ) / 2.0, -1.0 } } ) ,);
-        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ) ,);
+        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ), );
+        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -sqrt( 2.0 ) / 2.0, sqrt( 2.0 ) / 2.0, -1.0 } } ), );
+        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ), );
 
         // Change ADVs and coordinates
         tADVs( 0 )         = 1.0;
@@ -847,9 +849,9 @@ namespace moris::ge
         CHECK( tCombinedField->get_field_value( 0, tCoordinates2 ) == Approx( 0.0 ) );
 
         // Check sensitivity values
-        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ) ,);
-        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -2.0 / sqrt( 5.0 ), 1.0 / sqrt( 5.0 ), -1.0 } } ) ,);
-        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ) ,);
+        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ), );
+        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -2.0 / sqrt( 5.0 ), 1.0 / sqrt( 5.0 ), -1.0 } } ), );
+        CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ), );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -882,9 +884,9 @@ namespace moris::ge
                 }
 
                 // Create swiss cheese
-                Matrix< DDRMat > tADVs = {{ 0.1 }};
-                Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, tADVs );
-                auto             tSwissCheese = tDesignFactory.get_geometries()( 0 );
+                Matrix< DDRMat >                      tADVs = { { 0.1 } };
+                Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
+                std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
                 // Radii to check
                 Cell< real > tRadii;
@@ -946,9 +948,9 @@ namespace moris::ge
             tSwissCheeseParameterList.set( "constant_parameters", "0.0, 0.0, 4.0, 1.0, 0.0, 0.0" );
 
             // Create swiss cheese
-            Matrix< DDRMat > tADVs = {{ 0.3, 1.0 }};
-            Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, tADVs );
-            auto             tSwissCheese = tDesignFactory.get_geometries()( 0 );
+            Matrix< DDRMat >                      tADVs = { { 0.3, 1.0 } };
+            Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
+            std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
             // Check holes
             for ( real tSemiDX : { 0.2, 0.3 } )
@@ -1003,9 +1005,9 @@ namespace moris::ge
             tSwissCheeseParameterList.set( "offset_per_row_z", -0.1 );
 
             // Create swiss cheese
-            Matrix< DDRMat > tADVs = {{ 0.3, 1.0 }};
-            Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, tADVs );
-            auto             tSwissCheese = tDesignFactory.get_geometries()( 0 );
+            Matrix< DDRMat >                      tADVs = { { 0.3, 1.0 } };
+            Design_Factory                        tDesignFactory( { tSwissCheeseParameterList }, tADVs );
+            std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
             // Check holes
             for ( real iZOffset : { 0.0, -0.1 } )
@@ -1045,11 +1047,11 @@ namespace moris::ge
     void
     check_swiss_cheese(
             std::shared_ptr< Level_Set_Geometry > aSwissCheese,
-            real                        aXCenter,
-            real                        aYCenter,
-            real                        aXSemidiameter,
-            real                        aYSemidiameter,
-            bool                        aCheck )
+            real                                  aXCenter,
+            real                                  aYCenter,
+            real                                  aXSemidiameter,
+            real                                  aYSemidiameter,
+            bool                                  aCheck )
     {
         if ( aCheck )
         {
@@ -1072,13 +1074,13 @@ namespace moris::ge
     void
     check_swiss_cheese(
             std::shared_ptr< Level_Set_Geometry > aSwissCheese,
-            real                        aXCenter,
-            real                        aYCenter,
-            real                        aZCenter,
-            real                        aXSemidiameter,
-            real                        aYSemidiameter,
-            real                        aZSemidiameter,
-            bool                        aCheck )
+            real                                  aXCenter,
+            real                                  aYCenter,
+            real                                  aZCenter,
+            real                                  aXSemidiameter,
+            real                                  aYSemidiameter,
+            real                                  aZSemidiameter,
+            bool                                  aCheck )
     {
         if ( aCheck )
         {
@@ -1101,4 +1103,4 @@ namespace moris::ge
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris::ge

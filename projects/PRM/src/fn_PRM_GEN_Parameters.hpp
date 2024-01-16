@@ -166,9 +166,10 @@ namespace moris::prm
      * @return Geometry parameter list
      */
     inline ParameterList
-    create_surface_mesh_geometry_parameter_list()
+    create_surface_mesh_geometry_parameter_list( bool aIncludeField = true)
     {
         ParameterList tParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
+        insert_design_field_parameters( tParameterList, aIncludeField );   // Inserts all design parameters
         tParameterList.insert( "offset", "0;0;0" );                         // offset all points in the geometry by this much
         tParameterList.insert( "file_path", "" );                           // path to .obj file
         tParameterList.set( "geometry_type", "surface_mesh" );              // set the geometry type to surface mesh
