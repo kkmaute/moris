@@ -58,7 +58,7 @@ namespace moris::ge
         }
 
         // Size global coordinates based on first locator
-        mGlobalCoordinates = Matrix< DDRMat >( 1, tInterpolation->get_number_of_dimensions(), 0.0 );
+        mGlobalCoordinates = Matrix< DDRMat >( 1, mBackgroundNodes( 0 ).get_global_coordinates().length(), 0.0 );
         delete tInterpolation;
 
         // Add contributions from all locators
