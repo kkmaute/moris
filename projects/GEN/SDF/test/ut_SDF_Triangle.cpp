@@ -28,11 +28,11 @@ TEST_CASE(
 {
     // example coordinartes for the triangle
     // create list of vertices
-    moris::Cell< Facet_Vertex * > tVertices;
+    moris::Cell< std::shared_ptr< Facet_Vertex > > tVertices;
     tVertices.resize( 3, nullptr );
-    tVertices( 0 ) = new Facet_Vertex( 0, { { 1.050229216800883 }, { 1.417028287272334 }, { 1.334891429874816 } } );
-    tVertices( 1 ) = new Facet_Vertex( 1, { { 0.649117827347835 }, { 1.192051358390624 }, { 0.076610713185436 } } );
-    tVertices( 2 ) = new Facet_Vertex( 2, { { 1.088464523227452 }, { -0.179967737969674 }, { 0.309230566913958 } } );
+    tVertices( 0 ) = std::make_shared< Facet_Vertex >( 0, Matrix< DDRMat >( { { 1.050229216800883 }, { 1.417028287272334 }, { 1.334891429874816 } } ) );
+    tVertices( 1 ) = std::make_shared< Facet_Vertex >( 1, Matrix< DDRMat >( { { 0.649117827347835 }, { 1.192051358390624 }, { 0.076610713185436 } } ) );
+    tVertices( 2 ) = std::make_shared< Facet_Vertex >( 2, Matrix< DDRMat >( { { 1.088464523227452 }, { -0.179967737969674 }, { 0.309230566913958 } } ) );
 
     // create single triangle
     Triangle tTriangle( 0, tVertices );
@@ -271,9 +271,4 @@ TEST_CASE(
     }
 
     //-------------------------------------------------------------------------------
-    // tidy up memory
-    for ( auto tVertex : tVertices )
-    {
-        delete tVertex;
-    }
 }
