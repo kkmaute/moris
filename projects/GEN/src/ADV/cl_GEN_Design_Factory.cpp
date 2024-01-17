@@ -1,11 +1,11 @@
 /*
-* Copyright (c) 2022 University of Colorado
-* Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-*
-*------------------------------------------------------------------------------------
-*
-* cl_GEN_Design_Factory.cpp
-*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Design_Factory.cpp
+ *
  */
 
 #include "cl_GEN_Design_Factory.hpp"
@@ -28,7 +28,7 @@ namespace moris::ge
         // Count maximum number of possible designs
         uint tGeometryIndex = 0;
         uint tPropertyIndex = 0;
-        uint tFieldIndex = 0;
+        uint tFieldIndex    = 0;
         for ( const ParameterList& iParameterList : aParameterLists )
         {
             // Count up the type of design
@@ -54,7 +54,7 @@ namespace moris::ge
                 tFieldIndex++;
             }
         }
-        
+
         // Perform resizes
         mFields.resize( tFieldIndex );
         mGeometries.resize( tGeometryIndex );
@@ -64,17 +64,20 @@ namespace moris::ge
         // Re-initialize counters
         tGeometryIndex = 0;
         tPropertyIndex = 0;
-        tFieldIndex = 0;
+        tFieldIndex    = 0;
 
         // Loop until all designs are built
         while ( tNumberOfDesignsLeft > 0 )
         {
             // Track if at least one field was found in this loop that can be built, based on its dependencies
-            bool tFieldBuilt = false;
+            bool tSomethingHasBeenBuilt = false;
 
             // Loop over all designs
             for ( ParameterList& iParameterList : aParameterLists )
             {
+                // If we can build this field or not
+                bool tCanBuild = true;
+
                 // Check if a field is required
                 if ( iParameterList.exists( "field_type" ) )
                 {
@@ -84,9 +87,6 @@ namespace moris::ge
 
                     // Cell of field dependencies
                     Cell< std::shared_ptr< Field > > tDependencyFields( tDependencyNames.size() );
-
-                    // If we can build this field or not
-                    bool tCanBuild = true;
 
                     // Loop over dependencies
                     for ( uint iDependencyIndex = 0; iDependencyIndex < tDependencyNames.size(); iDependencyIndex++ )
@@ -102,7 +102,7 @@ namespace moris::ge
                             {
                                 // Set dependency
                                 tDependencyFields( iDependencyIndex ) = iField;
-                                tCanBuild = true;
+                                tCanBuild                             = true;
                                 break;
                             }
                         }
@@ -124,7 +124,7 @@ namespace moris::ge
                         iParameterList.erase( "field_type" );
 
                         // Set that a field has been built, so it is fine if another outer loop is needed
-                        tFieldBuilt = true;
+                        tSomethingHasBeenBuilt = true;
                     }
                 }
 
@@ -144,13 +144,14 @@ namespace moris::ge
                         std::string tGeometryType = iParameterList.get< std::string >( "geometry_type" );
 
                         // Level-set field
-                        if ( tGeometryType == "level_set" )
+                        if ( tGeometryType == "level_set" and tCanBuild )
                         {
                             tGeometry = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ), aNodeManager );
                         }
-                        else if( tGeometryType == "surface_mesh" )
+                        else if ( tGeometryType == "surface_mesh" )
                         {
-                            tGeometry = std::make_shared< Surface_Mesh_Geometry >( Surface_Mesh_Parameters( iParameterList ) );
+                            tGeometry              = std::make_shared< Surface_Mesh_Geometry >( Surface_Mesh_Parameters( iParameterList ) );
+                            tSomethingHasBeenBuilt = true;
                         }
                         else
                         {
@@ -184,7 +185,7 @@ namespace moris::ge
             }
 
             // Increment and check loop counter
-            MORIS_ERROR( tFieldBuilt, "While creating GEN fields, a field dependency was not found or a circular dependency was detected. Exiting." );
+            MORIS_ERROR( tSomethingHasBeenBuilt, "While creating GEN fields, a field dependency was not found or a circular dependency was detected. Exiting." );
         }
 
         // Resize final containers
@@ -209,4 +210,4 @@ namespace moris::ge
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris::ge
