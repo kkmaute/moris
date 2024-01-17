@@ -136,8 +136,7 @@ namespace moris::sdf
                 tSecondIntersectedFacetExpected = tObject.get_facet( 2 );
 
                 REQUIRE( tIntersectedTriangles.size() == 2 );
-                CHECK( *( t            //-------------------------------------------------------------------------------
- ) == tFirstIntersectedFacetExpected );
+                CHECK( *( tIntersectedTriangles( 0 ) ) == tFirstIntersectedFacetExpected );
                 CHECK( *( tIntersectedTriangles( 1 ) ) == tSecondIntersectedFacetExpected );
 
                 // although two facets are intersected, one of them should produce an error and be removed
