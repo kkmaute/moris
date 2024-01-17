@@ -25,7 +25,7 @@ namespace moris::ge
     /**
      * This is a struct used to simplify \ref moris::ge::Level_Set_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Level_Set_Parameters : public Field_Parameters
+    struct Level_Set_Parameters : public Field_Parameters, public Design_Parameters
     {
         real mIsocontourThreshold;      // Level set isocontour level
         real mIsocontourTolerance;      // Interface tolerance based on geometry value
@@ -236,5 +236,33 @@ namespace moris::ge
         {
             Design_Field::mField->set_advs( aADVs );
         }
+
+                /**
+         * Gets if this field is to be used for seeding a B-spline field.
+         *
+         * @return Logic for B-spline creation
+         */
+        bool intended_discretization() override;
+
+        /**
+         * Gets a discretization mesh index for a discretized field.
+         *
+         * @return Mesh index
+         */
+        virtual moris_index get_discretization_mesh_index() const override;
+
+        /**
+         * Gets the lower bound for a discretized field.
+         *
+         * @return Lower bound
+         */
+        virtual real get_discretization_lower_bound() override;
+
+        /**
+         * Get the upper bound for a discretized field.
+         *
+         * @return Upper bound
+         */
+        virtual real get_discretization_upper_bound() override;
     };
 }    // namespace moris::ge

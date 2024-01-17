@@ -12,13 +12,14 @@
 
 #include "cl_GEN_Design_Field.hpp"
 #include "GEN_Data_Types.hpp"
+#include "cl_GEN_Design.hpp"
 
 namespace moris::ge
 {
     /**
      * This struct contains additional parameters that are used by properties.
      */
-    struct Property_Parameters : public Field_Parameters
+    struct Property_Parameters : public Field_Parameters, public Design_Parameters
     {
         Cell< std::string > mDependencyNames;      //! Names of the dependencies of this property
         PDV_Type            mPDVType;              //! The type of PDV that this property will be assigned to
@@ -135,5 +136,33 @@ namespace moris::ge
         {
             Design_Field::mField->set_advs( aADVs );
         }
+
+        /**
+         * Gets if this field is to be used for seeding a B-spline field.
+         *
+         * @return Logic for B-spline creation
+         */
+        bool intended_discretization() override;
+
+        /**
+         * Gets a discretization mesh index for a discretized field.
+         *
+         * @return Mesh index
+         */
+        virtual moris_index get_discretization_mesh_index() const override;
+
+        /**
+         * Gets the lower bound for a discretized field.
+         *
+         * @return Lower bound
+         */
+        virtual real get_discretization_lower_bound() override;
+
+        /**
+         * Get the upper bound for a discretized field.
+         *
+         * @return Upper bound
+         */
+        virtual real get_discretization_upper_bound() override;
     };
 }    // namespace moris::ge

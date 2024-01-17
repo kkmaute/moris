@@ -40,8 +40,8 @@ namespace moris::ge
             // create surface mesh geometry
             ParameterList tParameters = prm::create_surface_mesh_geometry_parameter_list();
             tParameters.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/SDF/test/data/rhombus.obj" );
-            Surface_Mesh_Parameters tSurfaceMeshParameters( tParameters );
-            Surface_Mesh_Geometry   tSurfaceMesh( tSurfaceMeshParameters );
+            Surface_Mesh_Parameters                  tSurfaceMeshParameters( tParameters );
+            Surface_Mesh_Geometry                    tSurfaceMesh( tSurfaceMeshParameters );
             std::shared_ptr< Surface_Mesh_Geometry > tSurfaceMeshPointer = std::make_shared< Surface_Mesh_Geometry >( tSurfaceMeshParameters );
 
             // initialize counter for nodes
@@ -83,6 +83,31 @@ namespace moris::ge
         }
     }
 
+    TEST_CASE( "Engine Surface Mesh Intersections", "[gen], [pdv], [intersection], [surface mesh geometry]," )
+    {
+        if ( par_size() == 1 )
+        {
+            // get root from environment
+            std::string tMorisRoot = moris::get_base_moris_dir();
+
+            // Create mesh
+            mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
+
+            // Set up geometry
+            Matrix< DDRMat > tADVs = { {} };
+
+            // surface mesh
+            ParameterList tRhombusParameterList = prm::create_surface_mesh_geometry_parameter_list();
+            tRhombusParameterList.set( "file_path", tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj" );
+
+            // Create geometry engine
+            Geometry_Engine_Parameters tGeometryEngineParameters;
+            tGeometryEngineParameters.mADVs = tADVs;
+            Design_Factory tDesignFactory( { tRhombusParameterList }, tADVs );
+            tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
+            Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
+        }
+    }
     //--------------------------------------------------------------------------------------------------------------
 
 }    // namespace moris::ge

@@ -50,7 +50,7 @@ namespace moris::ge
         /**
          * Constructor
          */
-        Geometry( Field_Parameters aParameters );
+        Geometry( Design_Parameters aParameters );
 
         /**
          * Default destructor
@@ -190,5 +190,33 @@ namespace moris::ge
          * @param aADVs ADVs
          */
         virtual void set_advs( sol::Dist_Vector* aADVs ) = 0;
+
+        /**
+         * Gets if this field is to be used for seeding a B-spline field.
+         *
+         * @return Logic for B-spline creation
+         */
+        virtual bool intended_discretization() = 0;
+
+        /**
+         * Gets a discretization mesh index for a discretized field.
+         *
+         * @return Mesh index
+         */
+        virtual moris_index get_discretization_mesh_index() const = 0;
+
+        /**
+         * Gets the lower bound for a discretized field.
+         *
+         * @return Lower bound
+         */
+        virtual real get_discretization_lower_bound() = 0;
+
+        /**
+         * Get the upper bound for a discretized field.
+         *
+         * @return Upper bound
+         */
+        virtual real get_discretization_upper_bound() = 0;
     };
 }    // namespace moris::ge

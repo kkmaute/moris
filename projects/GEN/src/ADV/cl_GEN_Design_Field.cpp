@@ -20,16 +20,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    // Field_Parameters::Field_Parameters( const ParameterList& aParameterList ) BRENDAN DELETE?
-    //         : mNumberOfRefinements( aParameterList.get_cell< uint >( "number_of_refinements" ) )
-    //         , mRefinementMeshIndices( aParameterList.get_cell< uint >( "refinement_mesh_index" ) )
-    //         , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )
-    //         , mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
-    //         , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
-    //         , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
-    //         , mUseMultilinearInterpolation( aParameterList.get< bool >( "use_multilinear_interpolation" ) )
-    // {
-    // }
+    Field_Parameters::Field_Parameters( const ParameterList& aParameterList )
+            : mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
+            , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
+            , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
+            , mUseMultilinearInterpolation( aParameterList.get< bool >( "use_multilinear_interpolation" ) )
+    {
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -43,13 +40,6 @@ namespace moris::ge
     {
         MORIS_ERROR( mField, "A design must be provided a field for computing values." );
     }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    // bool Design_Field::intended_discretization()
-    // {
-    //     return ( mParameters.mDiscretizationIndex >= 0 );
-    // }
 
     //--------------------------------------------------------------------------------------------------------------
 
