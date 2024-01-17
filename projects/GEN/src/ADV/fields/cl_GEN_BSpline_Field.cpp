@@ -264,7 +264,7 @@ namespace moris::ge
     std::shared_ptr< mtk::Field > BSpline_Field::get_mtk_field()
     {
         // Output field
-        auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair );
+        auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair, mDiscretizationIndex );
 
         // Set coefficient vector TODO vector instead of matrix, like above
         uint tNumberOfCoefficients = mADVManager.get_determining_adv_ids().length();
