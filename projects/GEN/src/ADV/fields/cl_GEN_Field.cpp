@@ -248,7 +248,7 @@ namespace moris::ge
     std::shared_ptr< mtk::Field > Field::create_mtk_field( const mtk::Mesh_Pair& aMeshPair )
     {
         // Output field
-        auto tMTKField = std::make_shared< mtk::Field_Discrete >( aMeshPair );
+        auto tMTKField = std::make_shared< mtk::Field_Discrete >( aMeshPair, gDiscretizationIndex );
 
         // Get interpolation mesh
         mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();

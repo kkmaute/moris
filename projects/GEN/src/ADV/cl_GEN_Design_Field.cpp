@@ -76,6 +76,9 @@ namespace moris::ge
                     aADVOffsetID,
                     mParameters.mDiscretizationIndex,
                     mField );
+
+            // Set analytic field index, for now
+            Field::gDiscretizationIndex = mParameters.mDiscretizationIndex;
         }
         else if ( mParameters.mDiscretizationIndex == -1 )
         {
