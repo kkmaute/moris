@@ -2337,7 +2337,7 @@ namespace moris
                             Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
 
-                            tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
 
                             Matrix< DDRMat > tParamCoeffPert     = tParamCoeff;
                             tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
@@ -2503,7 +2503,7 @@ namespace moris
                             Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
 
-                            tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+                            tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
 
                             Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
 

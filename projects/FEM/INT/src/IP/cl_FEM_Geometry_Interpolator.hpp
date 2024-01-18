@@ -639,9 +639,9 @@ namespace moris
              * @param[ in ] aPhysCoordinates  coords in physical space
              * @param[ in ] aParamCoordinates coords in parametric space
              */
-            void update_local_coordinates(
-                    Matrix< DDRMat >& aPhysCoordinates,
-                    Matrix< DDRMat >& aParamCoordinates );
+            void update_parametric_coordinates(
+                    Matrix< DDRMat > const & aPhysCoordinates,
+                    Matrix< DDRMat >&        aParamCoordinates ) const;
 
             //------------------------------------------------------------------------------
             /**

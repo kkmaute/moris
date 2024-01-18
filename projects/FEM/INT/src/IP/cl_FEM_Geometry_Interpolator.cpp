@@ -807,12 +807,12 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Geometry_Interpolator::update_local_coordinates(
-                Matrix< DDRMat >& aPhysCoordinates,
-                Matrix< DDRMat >& aParamCoordinates )
+        Geometry_Interpolator::update_parametric_coordinates(
+                Matrix< DDRMat > const & aPhysCoordinates,
+                Matrix< DDRMat >&        aParamCoordinates ) const
         {
             // call space interpolator
-            mSpaceInterpolator->update_local_coordinates( aPhysCoordinates, aParamCoordinates );
+            mSpaceInterpolator->update_parametric_coordinates( aPhysCoordinates, aParamCoordinates );
         }
 
         //------------------------------------------------------------------------------

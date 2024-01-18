@@ -55,7 +55,7 @@ namespace moris
             // update local coordinates
             Matrix< DDRMat > tPhysCoordinates  = {{ 0.75, 0.25 }};
             Matrix< DDRMat > tParamCoordinates = {{ -0.1,  0.34  }};
-            tGI.update_local_coordinates(
+            tGI.update_parametric_coordinates(
                     tPhysCoordinates,
                     tParamCoordinates );
 
