@@ -21,10 +21,12 @@ namespace moris::ge
     /**
      * This is a struct used to simplify \ref moris::ge::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Surface_Mesh_Parameters : public Field_Parameters, public Design_Parameters
+    struct Surface_Mesh_Parameters : public Field_Parameters
+            , public Design_Parameters
     {
-        Matrix< DDRMat > mOffsets;
-        std::string      mFilePath;
+        Cell< real > mOffsets;
+        Cell< real > mScale;
+        std::string  mFilePath;
 
         /**
          * Constructor with a given parameter list
@@ -168,7 +170,7 @@ namespace moris::ge
          */
         uint get_num_fields() override
         {
-            return 0; //BRENDAN todo: can be any number 0-3, probably based on some member data
+            return 0;    // BRENDAN todo: can be any number 0-3, probably based on some member data
         }
 
         /**
@@ -193,7 +195,7 @@ namespace moris::ge
             return;
         }
 
-                /**
+        /**
          * Gets if this field is to be used for seeding a B-spline field.
          *
          * @return Logic for B-spline creation

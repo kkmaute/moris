@@ -18,14 +18,14 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Signed_Distance_Field::Signed_Distance_Field(
-            std::string               aObjectPath,
-            Matrix< DDRMat >          aObjectOffset,
-            real                      aSDFShift )
+            std::string  aObjectPath,
+            Cell< real > aObjectOffset,
+            real         aSDFShift )
             : Field_Discrete_Integration( Matrix< DDRMat >( 1, 1, 0.0 ), 0 )
     {
         mObjectPath = aObjectPath;
 
-        if ( aObjectOffset.numel() == 3 )
+        if ( aObjectOffset.size() == 3 )
         {
             mObjectOffset = aObjectOffset;
         }
@@ -48,7 +48,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>& Signed_Distance_Field::get_dfield_dadvs(uint aNodeIndex)
+    const Matrix< DDRMat >& Signed_Distance_Field::get_dfield_dadvs( uint aNodeIndex )
     {
         MORIS_ERROR( false, "get_dfield_dadvs function is not implemented for a signed distance field." );
         return mSensitivities;
@@ -180,4 +180,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::ge

@@ -23,14 +23,15 @@ namespace moris::ge
             , Design_Parameters( aParameterList )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
     {
-        string_to_mat( aParameterList.get< std::string >( "offset" ), mOffsets );
+        string_to_cell( aParameterList.get< std::string >( "offset" ), mOffsets );
+        string_to_cell( aParameterList.get< std::string >( "scale" ), mScale );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters )
             : Geometry( aParameters )
-            , Object( aParameters.mFilePath, aParameters.mOffsets )
+            , Object( aParameters.mFilePath, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
     {
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );

@@ -55,7 +55,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet::scale( const Matrix< DDRMat >& aScaling )
+        Facet::scale( const moris::Cell< real >& aScaling )
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
@@ -69,7 +69,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet::shift( const Matrix< DDRMat >& aShift )
+        Facet::shift( const moris::Cell< real >& aShift )
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
@@ -135,7 +135,7 @@ namespace moris
         }
 
 
-        Cell< mtk::Vertex* >
+        moris::Cell< mtk::Vertex* >
         Facet::get_vertex_pointers() const
         {
             uint                        tDimension = get_number_of_vertices();

@@ -102,7 +102,7 @@ namespace moris
              * @param aScaling factor to scale in each coordinate direction
              */
             void
-            scale( const Matrix< DDRMat >& aScaling );
+            scale( const moris::Cell< real >& aScaling );
 
             //-------------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ namespace moris
              * @param aShift shift in each coordinate direction that is added to the objects coordinates.
              */
             void
-            shift( const Matrix< DDRMat >& aShift );
+            shift( const moris::Cell< real >& aShift );
 
             //-------------------------------------------------------------------------------
 

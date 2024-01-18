@@ -44,7 +44,7 @@ public:
                            const bool aVerboseFlag = true );
 
             SDF_Generator( const std::string & aObjectPath,
-                           Matrix< DDRMat >&   aObjectOffset,
+                           moris::Cell< real >&   aObjectOffset,
                            const bool aVerboseFlag = true );
 
 //-------------------------------------------------------------------------------
