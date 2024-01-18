@@ -84,7 +84,7 @@ namespace moris
 
             // leader and follower field interpolator managers
             Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
-            Field_Interpolator_Manager* mFollowerFIManager          = nullptr;
+            Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
             Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
 
             // leader and follower dv type lists
@@ -172,10 +172,10 @@ namespace moris
                     real               aPerturbation,
                     fem::FDScheme_Type aFDSchemeType ) = nullptr;
             void ( IWG::*m_compute_dRdp_FD_geometry )(
-                    real                               aWStar,
-                    real                               aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    real                          aWStar,
+                    real                          aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices ) = nullptr;
 
             // function pointer for building the perturbation size for FD
@@ -307,7 +307,7 @@ namespace moris
              * param[ in ] aIsLeader  an enum for leader or follower
              */
             void set_phase_name(
-                    std::string       aPhaseName,
+                    std::string          aPhaseName,
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -374,7 +374,7 @@ namespace moris
              */
             void set_field_interpolator_manager(
                     Field_Interpolator_Manager* aFieldInterpolatorManager,
-                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower        aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /*
@@ -384,7 +384,7 @@ namespace moris
              */
             void set_field_interpolator_manager_previous_time(
                     Field_Interpolator_Manager* aFieldInterpolatorManager,
-                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower        aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /*
@@ -499,7 +499,7 @@ namespace moris
              */
             void set_dof_type_list(
                     const Vector< Vector< MSI::Dof_Type > >& aDofTypes,
-                    mtk::Leader_Follower                                  aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower                     aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -518,7 +518,7 @@ namespace moris
              */
             void set_dv_type_list(
                     const Vector< Vector< PDV_Type > >& aDvTypes,
-                    mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower                aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -546,7 +546,7 @@ namespace moris
              */
             void set_field_type_list(
                     const Vector< Vector< mtk::Field_Type > >& aDvTypes,
-                    mtk::Leader_Follower                                    aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower                       aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -566,7 +566,7 @@ namespace moris
             void set_property(
                     std::shared_ptr< Property > aProperty,
                     std::string                 aPropertyString,
-                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower        aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -587,7 +587,7 @@ namespace moris
             void set_material_model(
                     std::shared_ptr< Material_Model > aMaterialModel,
                     std::string                       aMaterialModelString,
-                    mtk::Leader_Follower                 aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower              aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -608,7 +608,7 @@ namespace moris
             void set_constitutive_model(
                     std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                     std::string                           aConstitutiveString,
-                    mtk::Leader_Follower                     aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower                  aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -830,10 +830,10 @@ namespace moris
              */
             void
             compute_dRdp_FD_geometry(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices )
             {
                 // compute jacobian by FD
@@ -846,34 +846,53 @@ namespace moris
             }
 
             void select_dRdp_FD_geometry_bulk(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices );
 
             void select_dRdp_FD_geometry_sideset(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices );
 
             void select_dRdp_FD_geometry_time_sideset(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices );
 
             void select_dRdp_FD_geometry_double(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices );
 
             //------------------------------------------------------------------------------
+
+            /**
+             * \brief Applies the given perturbation amount on the coefficients of either follower or leader side and updates the geometry interpolators.
+             * \param aPerturbationAmount
+             * \param aCoefficients
+             * \param aParametricCoefficients
+             * \param aEvaluationPoint
+             * \param aNodeIndex
+             * \param aSpatialDirIndex
+             * \param aLeaderFollowerType
+             */
+            void perturb_and_update_geometry_interpolators(
+                    real const                 aPerturbationAmount,
+                    Matrix< DDRMat > const &   aCoefficients,
+                    Matrix< DDRMat > const &   aParametricCoefficients,
+                    uint const                 aNodeIndex,
+                    uint const                 aSpatialDirIndex,
+                    mtk::Leader_Follower const aLeaderFollowerType ) const;
+
             /**
              * add the contribution of the cluster measure derivatives to the derivative of
              * the quantity of interest wrt to geometry dv by finite difference
