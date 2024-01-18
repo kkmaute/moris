@@ -896,37 +896,10 @@ namespace moris
             // Tracer
             Tracer tTracer( "GEN", "Distribute ADVs" );
 
-            // Gather all fields
-            uint tGeometryFields = 0;
-            uint tPropertyFields = 0;
-            for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
-            {
-                tGeometryFields += mGeometries( iGeometryIndex )->get_num_fields();
-            }
-            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
-            {
-                tPropertyFields += mProperties( iPropertyIndex )->get_num_fields();
-            }
-            Cell< std::shared_ptr< Design > > tFields( tGeometryFields + tPropertyFields );
-            uint                              iFieldIndex = 0;
-            for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
-            {
-                for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( iGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
-                {
-                    // FIXME: BRENDAN copy each field instead of the same field every time (basically mGeometries( iGeometryIndex )->get_field( iGeometryFieldIndex ) )
-                    tFields( iFieldIndex ) = mGeometries( iGeometryIndex );
-                    iFieldIndex++;
-                }
-            }
-            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
-            {
-                for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( iPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
-                {
-                    // FIXME: BRENDAN copy each field instead of the same field every time (basically mProperties( iPropertyIndex )->get_field( iPropertyFieldIndex ) )
-                    tFields( iFieldIndex ) = mProperties( iPropertyIndex );
-                    iFieldIndex++;
-                }
-            }
+            // Gather all designs
+            Cell< std::shared_ptr< Design > > tDesigns( mGeometries.size() + mProperties.size() );
+            std::copy( mGeometries.begin(), mGeometries.end(), tDesigns.begin() );
+            std::copy( mProperties.begin(), mProperties.end(), tDesigns.begin() + mGeometries.size() );
 
             // Get interpolation mesh
             mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
@@ -954,19 +927,19 @@ namespace moris
             mOwnedijklIds.set_size( tPrimitiveADVIds.numel(), 1, gNoID );
 
             // Owned and shared ADVs per field
-            Cell< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
-            Matrix< DDUMat >         tAllOffsetIDs( tFields.size(), 1 );
+            Cell< Matrix< DDSMat > > tSharedADVIds( tDesigns.size() );
+            Matrix< DDUMat >         tAllOffsetIDs( tDesigns.size(), 1 );
 
-            moris::Cell< uint > tNumCoeff( tFields.size() );
+            moris::Cell< uint > tNumCoeff( tDesigns.size() );
             // Loop over all geometries to get number of new ADVs
             sint tOffsetID = tPrimitiveADVIds.length();
-            for ( uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++ )
+            for ( uint tDesignIndex = 0; tDesignIndex < tDesigns.size(); tDesignIndex++ )
             {
                 // Determine if level set will be created
-                if ( tFields( tFieldIndex )->intended_discretization() )
+                if ( tDesigns( tDesignIndex )->intended_discretization() )
                 {
                     // Get discretization mesh index
-                    uint tDiscretizationMeshIndex = tFields( tFieldIndex )->get_discretization_mesh_index();
+                    uint tDiscretizationMeshIndex = tDesigns( tDesignIndex )->get_discretization_mesh_index();
 
                     uint tMaxNumberOfCoefficients = tMesh->get_max_num_coeffs_on_proc( tDiscretizationMeshIndex );
 
@@ -1022,7 +995,7 @@ namespace moris
                                 if ( tAllCoefIds( tCurrentIndex ) == -1 )
                                 {
                                     // increase field coefficient count
-                                    tNumCoeff( tFieldIndex )++;
+                                    tNumCoeff( tDesignIndex )++;
 
                                     // populate mesh index to mesh coefficient id map
                                     tAllCoefIds( tCurrentIndex ) = tCoefIds( tCoefIndex );
@@ -1052,7 +1025,7 @@ namespace moris
                                 tAllCoefOwners,
                                 tAllCoefijklIDs,
                                 tNumCoeff,
-                                tFieldIndex,
+                                tDesignIndex,
                                 tDiscretizationMeshIndex,
                                 tMesh->get_mesh_type() );
                     }
@@ -1089,7 +1062,7 @@ namespace moris
                     mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mOwnedijklIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                    tSharedADVIds( tFieldIndex ).resize( tAllCoefIds.length(), 1 );
+                    tSharedADVIds( tDesignIndex ).resize( tAllCoefIds.length(), 1 );
 
                     // Add owned coefficients to lists
                     for ( uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++ )
@@ -1104,8 +1077,8 @@ namespace moris
                         MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( tOwnedCoefficient ) ), "check if this is a problem" );
 
                         tOwnedADVIds( tNumOwnedADVs + tOwnedCoefficient ) = tADVId;
-                        mLowerBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_lower_bound();
-                        mUpperBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_upper_bound();
+                        mLowerBounds( tNumOwnedADVs + tOwnedCoefficient ) = tDesigns( tDesignIndex )->get_discretization_lower_bound();
+                        mUpperBounds( tNumOwnedADVs + tOwnedCoefficient ) = tDesigns( tDesignIndex )->get_discretization_upper_bound();
 
                         if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                         {
@@ -1117,11 +1090,11 @@ namespace moris
                     for ( uint iSharedCoefficientIndex = 0; iSharedCoefficientIndex < tAllCoefIds.length(); iSharedCoefficientIndex++ )
                     {
                         // Set the ADV ID as the offset plus the entity ID
-                        tSharedADVIds( tFieldIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
+                        tSharedADVIds( tDesignIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
                     }
 
                     // Update offset based on maximum ID
-                    tAllOffsetIDs( tFieldIndex ) = tOffsetID;
+                    tAllOffsetIDs( tDesignIndex ) = tOffsetID;
                     tOffsetID += tMesh->get_max_entity_id( aADVEntityRank, tDiscretizationMeshIndex );
                 }
             }
@@ -1162,9 +1135,9 @@ namespace moris
             // Set field ADVs using distributed vector
             if ( mInitialPrimitiveADVs.length() > 0 )
             {
-                for ( uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++ )
+                for ( uint tDesignIndex = 0; tDesignIndex < tDesigns.size(); tDesignIndex++ )
                 {
-                    tFields( tFieldIndex )->set_advs( mPrimitiveADVs );
+                    tDesigns( tDesignIndex )->set_advs( mPrimitiveADVs );
                 }
             }
 
@@ -1185,29 +1158,26 @@ namespace moris
             // Loop to discretize geometries when requested
             for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
             {
-                if ( mGeometries( iGeometryIndex )->intended_discretization() )    // BRENDAN this if statement was added, remove if geometries are not being discretized properly
+                // Loop over MTK fields to find a match
+                bool tUseMTKField = false;
+                for ( const auto& iMTKField : aFields )
                 {
-                    // Loop over MTK fields to find a match
-                    bool tUseMTKField = false;
-                    for ( const auto& iMTKField : aFields )
+                    if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
                     {
-                        if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
-                        {
-                            mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
-                            tUseMTKField = true;
-                            break;
-                        }
+                        mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
+                        tUseMTKField = true;
+                        break;
                     }
-
-                    // Otherwise discretize with original field
-                    if ( not tUseMTKField )
-                    {
-                        mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
-                    }
-
-                    // Shape sensitivities logic}
-                    mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
                 }
+
+                // Otherwise discretize with original field
+                if ( not tUseMTKField )
+                {
+                    mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
+                }
+
+                // Shape sensitivities logic}
+                mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
             }
 
             // Loop to discretize properties when requested
@@ -1246,13 +1216,13 @@ namespace moris
             }
 
             // Update dependencies
-            if ( tFields.size() > 0 )
+            if ( tDesigns.size() > 0 )
             {
-                std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
-                std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
+                std::copy( mGeometries.begin(), mGeometries.end(), tDesigns.begin() );
+                std::copy( mProperties.begin(), mProperties.end(), tDesigns.begin() + mGeometries.size() );
                 for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
                 {
-                    mProperties( tPropertyIndex )->update_dependencies( tFields );
+                    mProperties( tPropertyIndex )->update_dependencies( tDesigns );
                 }
             }
 

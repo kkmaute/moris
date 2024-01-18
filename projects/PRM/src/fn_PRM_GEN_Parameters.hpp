@@ -170,8 +170,8 @@ namespace moris::prm
     {
         ParameterList tParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
         insert_design_field_parameters( tParameterList, aIncludeField );   // Inserts all design parameters
-        tParameterList.insert( "offset", "0;0;0" );                         // offset all points in the geometry by this much
-        tParameterList.insert( "scale", "1.0;1.0;1.0" );                            // scaling factor for all points in the geometry
+        tParameterList.insert( "offset", "0,0,0" );                         // offset all points in the geometry by this much
+        tParameterList.insert( "scale", "1.0,1.0,1.0" );                            // scaling factor for all points in the geometry
         tParameterList.insert( "file_path", "" );                           // path to .obj file
         tParameterList.set( "geometry_type", "surface_mesh" );              // set the geometry type to surface mesh
         tParameterList.erase( "field_type" );
