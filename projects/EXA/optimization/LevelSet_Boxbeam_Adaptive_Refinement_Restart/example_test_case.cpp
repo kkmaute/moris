@@ -52,32 +52,15 @@ check_results(
         return;
     }
 
-    // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2 };
-    Cell< uint > tReferenceNumNodes = { 3957 };
-    Cell< uint > tReferenceNumElems = { 3642 };
+    // Reference nodal values to check
+    Cell< uint > tNodeIDs = { 0, 100, 200, 300, 400, 500, 600, 700, 800 };
+    Cell< real > tLevelSetValues = { -0.000135399, 7.40848, 14.3591, 15.4603, 0.861916, -0.499474, -7.59165, -13.1653, -15.2731 };
 
-    // check dimension, number of nodes and number of elements
-    uint tNumDims  = tExoIO.get_number_of_dimensions();
-    uint tNumNodes = tExoIO.get_number_of_nodes();
-    uint tNumElems = tExoIO.get_number_of_elements();
-
-    MORIS_LOG_INFO( "Check number of dimensions: reference %12d, actual %12d, percent  error %12.5e.",
-            tReferenceNumDims( aTestCaseIndex ),
-            tNumDims,
-            std::abs( ( tNumDims - tReferenceNumDims( aTestCaseIndex ) ) / tReferenceNumDims( aTestCaseIndex ) * 100.0 ) );
-    MORIS_LOG_INFO( "Check number of nodes:      reference %12d, actual %12d, percent  error %12.5e.",
-            tReferenceNumNodes( aTestCaseIndex ),
-            tNumNodes,
-            std::abs( ( tNumNodes - tReferenceNumNodes( aTestCaseIndex ) ) / tReferenceNumNodes( aTestCaseIndex ) * 100.0 ) );
-    MORIS_LOG_INFO( "Check number of elements:   reference %12d, actual %12d, percent  error %12.5e.",
-            tReferenceNumElems( aTestCaseIndex ),
-            tNumElems,
-            std::abs( ( tNumElems - tReferenceNumElems( aTestCaseIndex ) ) / tReferenceNumElems( aTestCaseIndex ) * 100.0 ) );
-
-    REQUIRE( tNumDims == tReferenceNumDims( aTestCaseIndex ) );
-    REQUIRE( tNumNodes == tReferenceNumNodes( aTestCaseIndex ) );
-    REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
+    // Check field values
+    for ( uint iCheckNode = 0; iCheckNode < 9; iCheckNode++ )
+    {
+        CHECK( tExoIO.get_nodal_field_value( tNodeIDs( iCheckNode ), 2, 0 ) == Approx( tLevelSetValues( iCheckNode ) ) );
+    }
 }
 
 //---------------------------------------------------------------
@@ -131,5 +114,5 @@ TEST_CASE( "Leveset Boxbeam Restart",
     uint tTestCaseIndex = 0;
 
     // perform check for Test Case 0
-    check_results( "HMRLagrangeMesh.exo", tTestCaseIndex );
+    check_results( "Levelset_Boxbeam_Restart.exo.e-s.0016", tTestCaseIndex );
 }
