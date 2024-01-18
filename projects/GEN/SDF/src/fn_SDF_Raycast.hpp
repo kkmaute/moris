@@ -62,7 +62,7 @@ namespace moris::sdf
 
     /**
      * Performs a raycast in the aAxis direction and determines whether the point is inside or outside.
-     * Only to be used for 2D object files.
+     * Can be used for 2D or 3D geometries
      *
      * @param aObject water tight collection of facets to cast on to
      * @param aFacetMinCoords minimum bounding coordinates of aObject
@@ -72,26 +72,7 @@ namespace moris::sdf
      * @return whether the point is inside aObject or not. 0 = outside, 1 = inside, 2 = unsure
      */
     Object_Region
-    voxelize_2D(
-            Object&           aObject,
-            Matrix< DDRMat >& aPoint,
-            uint              aAxis );
-
-    //-------------------------------------------------------------------------------
-
-    /**
-     * Performs a raycast in the aAxis direction and determines whether the point is inside or outside.
-     * Only to be used for 3D object files.
-     *
-     * @param aObject water tight collection of facets to cast on to
-     * @param aFacetMinCoords minimum bounding coordinates of aObject
-     * @param aFacetMaxCoords maximum bounding coordinates of aObject
-     * @param aPoint Point in space that lies within the bounding plane of the candidate triangles
-     * @param aAxis direction in which the ray is cast
-     * @return whether the point is inside aObject or not. 0 = outside, 1 = inside, 2 = unsure
-     */
-    Object_Region
-    voxelize_3D(
+    voxelize(
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
             uint              aAxis );
@@ -119,7 +100,7 @@ namespace moris::sdf
     //-------------------------------------------------------------------------------
 
     /**
-     * @brief
+     *
      *
      * @param aObject water tight collection of facets to cast on to
      * @param aFacetMinCoords minimum bounding coordinates of aObject
@@ -128,8 +109,9 @@ namespace moris::sdf
      * @param aAxis direction in which the ray is cast
      * @param aIntersectedFacets return variable, facets which are for sure intersected by the ray
      * @param aCandidateFacets return variable, facets which aPoint lies in the bounding box of, and intersection coordinates need to be computed to determine intersection
+     * @return true if the preselection did not find any facets whose vertex would be hit by cast, false otherwise
      */
-    void
+    bool
     preselect_lines(
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
