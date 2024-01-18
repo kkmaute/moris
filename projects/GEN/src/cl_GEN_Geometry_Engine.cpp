@@ -314,17 +314,13 @@ namespace moris
                 moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates )
         {
             // Get first geometric region
-            Geometric_Region tFirstNodeGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region(
-                    aNodeIndices( 0 ),
-                    *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
+            Geometric_Region tFirstNodeGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
 
             // Test nodes for other geometric regions
             for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
             {
                 // Get test geometric region
-                Geometric_Region tTestGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region(
-                        aNodeIndices( iNodeInEntityIndex ),
-                        *( *aNodeCoordinates )( aNodeIndices( iNodeInEntityIndex ) ) );
+                Geometric_Region tTestGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), *( *aNodeCoordinates )( aNodeIndices( iNodeInEntityIndex ) ) );
 
                 // Test if it is different from the first region. If so, the entity is intersected
                 if ( tTestGeometricRegion != tFirstNodeGeometricRegion )
@@ -1189,47 +1185,53 @@ namespace moris
             // Loop to discretize geometries when requested
             for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
             {
-                // Loop over MTK fields to find a match
-                bool tUseMTKField = false;
-                for ( const auto& iMTKField : aFields )
+                if ( mGeometries( iGeometryIndex )->intended_discretization() )    // BRENDAN this if statement was added, remove if geometries are not being discretized properly
                 {
-                    if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
+                    // Loop over MTK fields to find a match
+                    bool tUseMTKField = false;
+                    for ( const auto& iMTKField : aFields )
                     {
-                        mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
-                        tUseMTKField = true;
-                        break;
+                        if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
+                        {
+                            mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
+                            tUseMTKField = true;
+                            break;
+                        }
                     }
-                }
 
-                // Otherwise discretize with original field
-                if ( not tUseMTKField )
-                {
-                    mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
-                }
+                    // Otherwise discretize with original field
+                    if ( not tUseMTKField )
+                    {
+                        mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
+                    }
 
-                // Shape sensitivities logic
-                mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
+                    // Shape sensitivities logic}
+                    mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
+                }
             }
 
             // Loop to discretize properties when requested
             for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
             {
-                // Loop over MTK fields to find a match
-                bool tUseMTKField = false;
-                for ( const auto& iMTKField : aFields )
+                if ( mProperties( iPropertyIndex )->intended_discretization() )    // BRENDAN this if statement was added, remove if geometries are not being discretized properly
                 {
-                    if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
+                    // Loop over MTK fields to find a match
+                    bool tUseMTKField = false;
+                    for ( const auto& iMTKField : aFields )
                     {
-                        mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
-                        tUseMTKField = true;
-                        break;
+                        if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
+                        {
+                            mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                            tUseMTKField = true;
+                            break;
+                        }
                     }
-                }
 
-                // Otherwise discretize with original field
-                if ( not tUseMTKField )
-                {
-                    mProperties( iPropertyIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                    // Otherwise discretize with original field
+                    if ( not tUseMTKField )
+                    {
+                        mProperties( iPropertyIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                    }
                 }
             }
 
@@ -1244,11 +1246,14 @@ namespace moris
             }
 
             // Update dependencies
-            std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
-            std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
-            for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
+            if ( tFields.size() > 0 )
             {
-                mProperties( tPropertyIndex )->update_dependencies( tFields );
+                std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
+                std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
+                for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
+                {
+                    mProperties( tPropertyIndex )->update_dependencies( tFields );
+                }
             }
 
             // Save new owned ADVs

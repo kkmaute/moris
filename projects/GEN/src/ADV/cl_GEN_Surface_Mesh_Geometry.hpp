@@ -168,7 +168,7 @@ namespace moris::ge
          */
         uint get_num_fields() override
         {
-            return get_dimension();
+            return 0; //BRENDAN todo: can be any number 0-3, probably based on some member data
         }
 
         /**
