@@ -16,7 +16,7 @@
 
 namespace moris::ge
 {
-    class Voxel_Geometry : public Geometry
+    class Voxel_Geometry : public Geometry, public std::enable_shared_from_this< Voxel_Geometry >
     {
       private:
         std::shared_ptr< Voxel_Input > mVoxelInput;
@@ -27,7 +27,7 @@ namespace moris::ge
          * Constructor
          */
         Voxel_Geometry(
-                std::shared_ptr< Voxel_Input > aVoxelField,
+                std::shared_ptr< Voxel_Input > aVoxelInput,
                 uint                           aIndex );
 
         /**

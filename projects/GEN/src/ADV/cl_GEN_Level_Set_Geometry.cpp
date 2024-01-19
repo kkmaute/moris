@@ -272,9 +272,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Level_Set_Geometry::reset_nodal_data()
+    Level_Set_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
     {
-        Design_Field::reset_nodal_data();
+        Design_Field::reset_nodal_data( aInterpolationMesh );
     }
 
     //--------------------------------------------------------------------------------------------------------------

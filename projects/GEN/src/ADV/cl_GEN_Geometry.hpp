@@ -121,8 +121,10 @@ namespace moris::ge
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
          * created.
+         *
+         * @param aInterpolationMesh Interpolation mesh containing new nodal data
          */
-        virtual void reset_nodal_data() = 0;
+        virtual void reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh ) = 0;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.

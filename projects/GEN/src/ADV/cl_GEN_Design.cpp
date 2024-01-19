@@ -12,12 +12,26 @@
 
 namespace moris::ge
 {
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Design_Parameters::Design_Parameters( const ParameterList& aParameterList )
             : mNumberOfRefinements( aParameterList.get_cell< uint >( "number_of_refinements" ) )
             , mRefinementMeshIndices( aParameterList.get_cell< uint >( "refinement_mesh_index" ) )
             , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )
     {
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Design_Parameters::Design_Parameters()
+            : mNumberOfRefinements( {} )
+            , mRefinementMeshIndices( {} )
+            , mRefinementFunctionIndex( -1 )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     Design::Design( Design_Parameters aParameters )
             : mParameters( std::move( aParameters ) )
@@ -46,4 +60,7 @@ namespace moris::ge
     {
         return mParameters.mRefinementFunctionIndex;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }    // namespace moris::ge

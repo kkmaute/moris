@@ -54,6 +54,6 @@ namespace moris::ge
         static real get_local_coordinate(
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
-                std::shared_ptr< Voxel_Geometry > aInterfaceGeometry )
+                std::shared_ptr< Voxel_Geometry > aInterfaceGeometry );
     };
 }

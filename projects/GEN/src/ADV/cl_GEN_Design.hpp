@@ -31,6 +31,11 @@ namespace moris::ge
          * @param aParameterList Design field parameter list
          */
         explicit Design_Parameters( const ParameterList& aParameterList );
+
+        /**
+         * Default constructor
+         */
+        Design_Parameters();
     };
 
     class Design
@@ -39,7 +44,7 @@ namespace moris::ge
         Design_Parameters mParameters;
 
       public:
-        Design( Design_Parameters aParameters );
+        explicit Design( Design_Parameters aParameters );
 
         /**
          * This function will return true when called less than the number of refinements set for this field,

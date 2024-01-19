@@ -772,7 +772,7 @@ namespace moris
                     Cell< real > tGeometryInfo;
                     mGeometries( iGeom )->get_design_info( tVertex.get_index(), tCoords, tGeometryInfo );
 
-                    for ( moris::uint iGeomFields; iGeomFields < mGeometries( iGeom )->get_num_fields(); iGeomFields++ )
+                    for ( uint iGeomFields = 0; iGeomFields < mGeometries( iGeom )->get_num_fields(); iGeomFields++ )
                     {
                         tStringStream << tGeometryInfo( iGeomFields ) << ",";
                     }
@@ -1577,7 +1577,7 @@ namespace moris
                 {
                     tNumGeometryFields += mGeometries( iGeom )->get_num_fields();
                 }
-                for ( uint iProperty; iProperty < mProperties.size(); iProperty++ )
+                for ( uint iProperty = 0; iProperty < mProperties.size(); iProperty++ )
                 {
                     tNumPropertyFields += mProperties( iProperty )->get_num_fields();
                 }

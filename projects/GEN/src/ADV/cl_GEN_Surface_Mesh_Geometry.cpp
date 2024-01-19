@@ -106,7 +106,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Surface_Mesh_Geometry::reset_nodal_data()
+    Surface_Mesh_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
     {
         // TODO BRENDAN
         return;
