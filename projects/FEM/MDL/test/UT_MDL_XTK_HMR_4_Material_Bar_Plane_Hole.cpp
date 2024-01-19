@@ -286,7 +286,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometryVector( 2 );
+        moris::Cell< std::shared_ptr< ge::Geometry > > tGeometryVector( 2 );
         auto tCircle = std::make_shared< ge::Circle >( 0.01, 0.01, 0.47334 );
         auto tPlane = std::make_shared< ge::Plane >( 0.1, 0.1, 1.0, 0.0 );
         tGeometryVector( 0 ) = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
@@ -705,7 +705,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometryVector( 2 );
+        moris::Cell< std::shared_ptr< ge::Geometry > > tGeometryVector( 2 );
         auto tUserDefinedField = std::make_shared< ge::User_Defined_Field >( &( MultiMat3dCylGeometry ) );
         auto tPlane = std::make_shared< ge::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
         tGeometryVector( 0 ) = { std::make_shared< ge::Level_Set_Geometry >( tUserDefinedField ) };

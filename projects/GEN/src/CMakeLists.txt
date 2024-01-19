@@ -44,6 +44,7 @@ set(HEADERS
     ADV/cl_GEN_ADV_Manager.hpp
 	ADV/cl_GEN_Design_Factory.hpp
 	ADV/cl_GEN_Design_Field.hpp
+	ADV/cl_GEN_Design.hpp
 	ADV/cl_GEN_Geometry.hpp
 	ADV/cl_GEN_Level_Set_Geometry.hpp
 	ADV/cl_GEN_Voxel_Input.hpp
@@ -105,6 +106,7 @@ set(LIB_SOURCES
 	ADV/cl_GEN_ADV_Manager.cpp
 	ADV/cl_GEN_Design_Factory.cpp
 	ADV/cl_GEN_Design_Field.cpp
+	ADV/cl_GEN_Design.cpp
 	ADV/cl_GEN_Geometry.cpp
 	ADV/cl_GEN_Level_Set_Geometry.cpp
 	ADV/cl_GEN_Voxel_Input.cpp

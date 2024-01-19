@@ -204,7 +204,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry( 4 );
+            Cell< std::shared_ptr< ge::Geometry > > tGeometry( 4 );
             auto tBottomPlane = std::make_shared< ge::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
             auto tTopPlane = std::make_shared< ge::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
             auto tLeftPlane = std::make_shared< ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
@@ -569,7 +569,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry( 4 );
+            Cell< std::shared_ptr< ge::Geometry > > tGeometry( 4 );
             auto tBottomPlane = std::make_shared< ge::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
             auto tTopPlane = std::make_shared< ge::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
             auto tLeftPlane = std::make_shared< ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
@@ -2261,7 +2261,7 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry( 2 );
+            Cell< std::shared_ptr< ge::Geometry > > tGeometry( 2 );
             auto tOuterCircle = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROut );
             auto tInnerCircle = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRIn );
             tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tOuterCircle );

@@ -29,10 +29,10 @@ namespace moris::sdf
 
         // example coordinartes for the line
         // create list of vertices
-        moris::Cell< Facet_Vertex* > tVertices;
+        moris::Cell< std::shared_ptr< Facet_Vertex > > tVertices;
         tVertices.resize( 2, nullptr );
-        tVertices( 0 ) = new Facet_Vertex( 0, { { 2.0 }, { 2.0 } } );
-        tVertices( 1 ) = new Facet_Vertex( 1, { { -2.0 }, { -1.0 } } );
+        tVertices( 0 ) = std::make_shared< Facet_Vertex >( 0, Matrix< DDRMat >( { { 2.0 }, { 2.0 } } ) );
+        tVertices( 1 ) = std::make_shared< Facet_Vertex >( 1, Matrix< DDRMat >( { { -2.0 }, { -1.0 } } ) );
 
         // Create the line with the given vertices
         Line tLine( 0, tVertices );
@@ -113,7 +113,7 @@ namespace moris::sdf
             tError = true;
 
             // Check intersection for a point that is above the line
-            // NOTE: the computed intersection lies on the infite line created by the two points, ie. not within the Line object
+            // NOTE: the computed intersection lies on the infinite line created by the two points, ie. not within the Line object
             // There is no check to guarantee the intersection lies in between the two points
             tPoint        = { { 6.0 }, { 3.5 } };
             tIntersection = 4.0;
@@ -122,10 +122,10 @@ namespace moris::sdf
             CHECK( abs( tComputedIntersection - tIntersection ) < tEpsilon );
 
             // Check to ensure proper error for a horizontal line
-            moris::Cell< Facet_Vertex* > tHorizontalVertices;
+            moris::Cell< std::shared_ptr< Facet_Vertex > > tHorizontalVertices;
             tHorizontalVertices.resize( 2, nullptr );
-            tHorizontalVertices( 0 ) = new Facet_Vertex( 2, { { -4.0 }, { 2.0 } } );
-            tHorizontalVertices( 1 ) = new Facet_Vertex( 3, { { 4.0 }, { 2.0 } } );
+            tHorizontalVertices( 0 ) = std::make_shared< Facet_Vertex >( 2, Matrix< DDRMat >( { { -4.0 }, { 2.0 } } ) );
+            tHorizontalVertices( 1 ) = std::make_shared< Facet_Vertex >( 3, Matrix< DDRMat >( { { 4.0 }, { 2.0 } } ) );
             Line tHorizontalLine( 2, tHorizontalVertices );
 
             tHorizontalLine.intersect_with_coordinate_axis( tPoint, 0, tComputedIntersection, tError );
@@ -180,10 +180,10 @@ namespace moris::sdf
             tError = false;
 
             // Check to ensure proper error for a vertical line
-            moris::Cell< Facet_Vertex* > tVerticalVertices;
+            moris::Cell< std::shared_ptr< Facet_Vertex > > tVerticalVertices;
             tVerticalVertices.resize( 2, nullptr );
-            tVerticalVertices( 0 ) = new Facet_Vertex( 2, { { 2.0 }, { 2.0 } } );
-            tVerticalVertices( 1 ) = new Facet_Vertex( 3, { { 2.0 }, { 6.0 } } );
+            tVerticalVertices( 0 ) = std::make_shared< Facet_Vertex >( 2, Matrix< DDRMat >( { { 2.0 }, { 2.0 } } ) );
+            tVerticalVertices( 1 ) = std::make_shared< Facet_Vertex >( 3, Matrix< DDRMat >( { { 2.0 }, { 6.0 } } ) );
             Line tVerticalLine( 3, tVerticalVertices );
 
             tVerticalLine.intersect_with_coordinate_axis( tPoint, 1, tComputedIntersection, tError );

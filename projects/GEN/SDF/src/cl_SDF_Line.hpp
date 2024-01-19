@@ -38,7 +38,7 @@ namespace moris::sdf
 
         Line(
                 moris_index                   aIndex,
-                moris::Cell< Facet_Vertex* >& aVertices );
+                moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices );
 
         //-------------------------------------------------------------------------------
 

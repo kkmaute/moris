@@ -33,6 +33,7 @@ namespace moris::ge
             Property_Parameters      aParameters,
             Node_Manager&            aNodeManager )
             : Design_Field( aField, aParameters, aNodeManager )
+            , Design( aParameters )
             , mParameters( aParameters )
     {
     }
@@ -46,10 +47,10 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Property::update_dependencies( Cell< std::shared_ptr< Design_Field > > aAllUpdatedFields )
+    void Property::update_dependencies( Cell< std::shared_ptr< Design > > aAllUpdatedFields )
     {
         // Set up dependency fields
-        uint tNumDependencies = mParameters.mDependencyNames.size();
+        uint                             tNumDependencies = mParameters.mDependencyNames.size();
         Cell< std::shared_ptr< Field > > tDependencyFields( tNumDependencies );
 
         // Grab dependencies
@@ -107,4 +108,18 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+    void Property::get_design_info(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates,
+            Cell< real >& aOutputDesignInfo )
+    {
+        aOutputDesignInfo.resize( 1 );
+        aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
+    }
+
+    std::string
+    Property::get_name()
+    {
+        return Design_Field::get_name();
+    }
+}    // namespace moris::ge

@@ -26,9 +26,9 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         Facet::Facet(
-                moris_index                   aIndex,
-                moris::Cell< Facet_Vertex* >& aVertices,
-                uint                          aDimension )
+                moris_index                                     aIndex,
+                moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
+                uint                                            aDimension )
                 : mIndex( aIndex )
                 , mVertices( aVertices )
                 , mCenter( aDimension, 1 )
@@ -36,6 +36,68 @@ namespace moris
                 , mMinCoord( aDimension, 1 )
                 , mMaxCoord( aDimension, 1 )
         {
+        }
+
+        void
+        Facet::rotate( const Matrix< DDRMat >& aRotationMatrix )
+        {
+            for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
+            {
+                if ( not mVertices( iVertex )->is_transformed() )
+                {
+                    mVertices( iVertex )->rotate_node_coords( aRotationMatrix );
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Facet::scale( const Matrix< DDRMat >& aScaling )
+        {
+            for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
+            {
+                if ( not mVertices( iVertex )->is_transformed() )
+                {
+                    mVertices( iVertex )->scale_node_coords( aScaling );
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Facet::shift( const Matrix< DDRMat >& aShift )
+        {
+            for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
+            {
+                if ( not mVertices( iVertex )->is_transformed() )
+                {
+                    mVertices( iVertex )->shift_node_coords( aShift );
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Facet::reset_vertex_transformed_flags()
+        {
+            for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
+            {
+                mVertices( iVertex )->reset_transformed_flag();
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void
+        Facet::reset_coordinates()
+        {
+            for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
+            {
+                mVertices( iVertex )->reset_node_coords();
+            }
         }
 
         //-------------------------------------------------------------------------------
@@ -79,7 +141,7 @@ namespace moris
 
             for ( uint k = 0; k < tDimension; ++k )
             {
-                tVertices( k ) = mVertices( k );
+                tVertices( k ) = mVertices( k ).get();
             }
             return tVertices;
         }

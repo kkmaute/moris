@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Field.hpp
+ * cl_GEN_Design_Field.hpp
  *
  */
 
@@ -15,35 +15,15 @@
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
+#include "cl_GEN_Design.hpp"    // BRENDAN DELETE MAYBE
+
 namespace moris::ge
 {
-    /**
-     * This is a struct used to simplify \ref moris::ge::Design_Field constructors. It contains additional parameters that
-     * are used by all fields, with given defaults.
-     */
-    struct Field_Parameters
-    {
-        Cell< uint > mNumberOfRefinements;         // The number of refinement steps to use for this field
-        Cell< uint > mRefinementMeshIndices;       // Indices of meshes to perform refinement on
-        sint         mRefinementFunctionIndex;     // Index of a user-defined refinement function (-1 = default)
-        sint         mDiscretizationIndex;         // Index of a mesh for discretization (-2 = none, -1 = store nodal values)
-        real         mDiscretizationLowerBound;    // Lower bound for the B-spline coefficients in this field
-        real         mDiscretizationUpperBound;    // Upper bound for the B-spline coefficients in this field
-        bool         mUseMultilinearInterpolation; // Whether to use multilinear interpolation for all derived node field values
-
-        /**
-         * Constructor with a given parameter list
-         *
-         * @param aParameterList Design field parameter list
-         */
-        explicit Field_Parameters( const ParameterList& aParameterList );
-    };
-
     class Design_Field
     {
       protected:
         std::shared_ptr< Field > mField;
-        Node_Manager* mNodeManager;
+        Node_Manager*            mNodeManager;
 
       private:
         Field_Parameters mParameters;
@@ -79,10 +59,10 @@ namespace moris::ge
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
-                mtk::Mesh_Pair        aMeshPair,
-                sol::Dist_Vector*     aOwnedADVs,
-                const Matrix<DDSMat>& aSharedADVIds,
-                uint                  aADVOffsetID );
+                mtk::Mesh_Pair          aMeshPair,
+                sol::Dist_Vector*       aOwnedADVs,
+                const Matrix< DDSMat >& aSharedADVIds,
+                uint                    aADVOffsetID );
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -96,7 +76,7 @@ namespace moris::ge
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
-                const Matrix<DDSMat>&         aSharedADVIds,
+                const Matrix< DDSMat >&       aSharedADVIds,
                 uint                          aADVOffsetID );
 
         /**
@@ -157,50 +137,47 @@ namespace moris::ge
          */
         void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
-        /**
-         * Gets the name of this design's field
-         *
-         * @return Name
-         */
         std::string get_name();
 
-        /**
-         * This function will return true when called less than the number of refinements set for this field,
-         * and false otherwise. This is to determine for a given refinement call if this field needs refinement.
-         *
-         * @return if to perform an additional refinement with this field
-         */
-        const Cell< uint >& get_num_refinements();
+        //--------------------------------------------------------------------------------------------------------------
 
-        const Cell< uint >& get_refinement_mesh_indices();
+        // /**          BRENDAN DELETE?
+        //  * This function will return true when called less than the number of refinements set for this field,
+        //  * and false otherwise. This is to determine for a given refinement call if this field needs refinement.
+        //  *
+        //  * @return if to perform an additional refinement with this field
+        //  */
+        // const Cell< uint >& get_num_refinements();
 
-        /**
-         * Gets the index of a user-defined refinement function used within HMR.
-         *
-         * @return User-defined refinement function index
-         */
-        sint get_refinement_function_index();
+        // const Cell< uint >& get_refinement_mesh_indices();
 
-        /**
-         * Gets a discretization mesh index for a discretized field.
-         *
-         * @return Mesh index
-         */
-        moris_index get_discretization_mesh_index() const;
+        // /**
+        //  * Gets the index of a user-defined refinement function used within HMR.
+        //  *
+        //  * @return User-defined refinement function index
+        //  */
+        // sint get_refinement_function_index();
 
-        /**
-         * Gets the lower bound for a discretized field.
-         *
-         * @return Lower bound
-         */
-        real get_discretization_lower_bound();
+        // /**
+        //  * Gets a discretization mesh index for a discretized field.
+        //  *
+        //  * @return Mesh index
+        //  */
+        // moris_index get_discretization_mesh_index() const;
 
-        /**
-         * Get the upper bound for a discretized field.
-         *
-         * @return Upper bound
-         */
-        real get_discretization_upper_bound();
+        // /**
+        //  * Gets the lower bound for a discretized field.
+        //  *
+        //  * @return Lower bound
+        //  */
+        // real get_discretization_lower_bound();
+
+        // /**
+        //  * Get the upper bound for a discretized field.
+        //  *
+        //  * @return Upper bound
+        //  */
+        // real get_discretization_upper_bound();
 
         /**
          * Gets whether this field will be using multilinear interpolation to get derived node field values.
@@ -210,21 +187,10 @@ namespace moris::ge
         bool use_multilinear_interpolation();
 
         /**
-         * Allows for access to the GEN field
-         *
-         * @return Underlying field
-         */
-        std::shared_ptr< Field > get_field()
-        {
-            return mField;
-        }
-
-        /**
          * Gets an MTK field, if this design field uses one that needs to be remapped to a new mesh
          *
          * @return
          */
         std::shared_ptr< mtk::Field > get_mtk_field();
-
     };
-}
+}    // namespace moris::ge

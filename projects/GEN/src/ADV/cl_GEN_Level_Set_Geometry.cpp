@@ -34,7 +34,8 @@ namespace moris::ge
             std::shared_ptr< Field > aField,
             Level_Set_Parameters     aParameters,
             Node_Manager&            aNodeManager )
-            : Design_Field( aField, aParameters, aNodeManager )
+            : Geometry( aParameters )
+            , Design_Field( aField, aParameters, aNodeManager )
             , mParameters( aParameters )
     {
     }
@@ -253,4 +254,62 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+    std::string
+    Level_Set_Geometry::get_name()
+    {
+        return Design_Field::get_name();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Level_Set_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
+    {
+        return Design_Field::import_advs( aOwnedADVs );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Level_Set_Geometry::reset_nodal_data()
+    {
+        Design_Field::reset_nodal_data();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Level_Set_Geometry::discretize(
+            mtk::Mesh_Pair          aMeshPair,
+            sol::Dist_Vector*       aOwnedADVs,
+            const Matrix< DDSMat >& aSharedADVIds,
+            uint                    aADVOffsetID )
+    {
+        Design_Field::discretize( aMeshPair, aOwnedADVs, aSharedADVIds, aADVOffsetID );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Level_Set_Geometry::discretize(
+            std::shared_ptr< mtk::Field > aMTKField,
+            mtk::Mesh_Pair                aMeshPair,
+            sol::Dist_Vector*             aOwnedADVs,
+            const Matrix< DDSMat >&       aSharedADVIds,
+            uint                          aADVOffsetID )
+    {
+        Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, aSharedADVIds, aADVOffsetID );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::get_design_info(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates,
+            Cell< real >& aOutputDesignInfo )
+    {
+        aOutputDesignInfo.resize( 1 );
+        aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
+    }
+
+}    // namespace moris::ge

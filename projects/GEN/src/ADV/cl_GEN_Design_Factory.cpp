@@ -178,8 +178,7 @@ namespace moris::ge
                         }
                         else if( tGeometryType == "surface_mesh" )
                         {
-                            // FIXME BRENDAN: this won't work. tGeometry needs to be a pointer to a Geometry, not specifically level set. requires engine changes.
-                            // tGeometry = std::make_shared< Surface_Mesh_Geometry >( Surface_Mesh_Parameters( iParameterList ) );
+                            mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >( Surface_Mesh_Parameters( iParameterList ) );
                         }
                         else
                         {
@@ -222,7 +221,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< std::shared_ptr< Level_Set_Geometry > > Design_Factory::get_geometries()
+    Cell< std::shared_ptr< Geometry > > Design_Factory::get_geometries()
     {
         return mGeometries;
     }

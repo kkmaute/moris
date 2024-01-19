@@ -14,6 +14,7 @@
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
+#include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
 #include "GEN_Data_Types.hpp"
 
@@ -35,7 +36,7 @@ namespace moris
              * @var mTimeOffset Time offset for writing sequential meshes
              */
             Matrix<DDRMat>                  mADVs = {{}};
-            Cell<std::shared_ptr< Level_Set_Geometry > > mGeometries = {};
+            Cell<std::shared_ptr< Geometry > > mGeometries = {};
             Cell<std::shared_ptr<Property>> mProperties = {};
             Matrix<DDUMat>                  mBulkPhases = {{}};
             Cell<std::string>               mRequestedIQIs = {};

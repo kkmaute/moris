@@ -24,10 +24,12 @@ namespace moris
         class Triangle;
 
         //-------------------------------------------------------------------------------
-        class Facet_Vertex : public mtk::Vertex
+        class Facet_Vertex : public mtk::Vertex, std::enable_shared_from_this< Facet_Vertex >
         {
 
             const moris_index mIndex;
+
+            bool mIsTransformed = false;
 
             //-------------------------------------------------------------------------------
 
@@ -63,6 +65,7 @@ namespace moris
                 {
                     mNodeCoords( iAxis ) *= aScaling( iAxis );
                 }
+                mIsTransformed = true;
             }
 
             //-------------------------------------------------------------------------------
@@ -74,12 +77,29 @@ namespace moris
                 {
                     mNodeCoords( iAxis ) += aShift( iAxis );
                 }
+                mIsTransformed = true;
             }
 
             //-------------------------------------------------------------------------------
 
             void
             reset_node_coords();
+
+            //-------------------------------------------------------------------------------
+
+            void
+            reset_transformed_flag()
+            {
+                mIsTransformed = false;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            bool
+            is_transformed()
+            {
+                return mIsTransformed;
+            }
 
             //-------------------------------------------------------------------------------
             // MTK API functions

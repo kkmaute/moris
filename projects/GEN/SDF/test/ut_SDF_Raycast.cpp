@@ -87,13 +87,12 @@ namespace moris::sdf
 
                 // check for intersection with facets and ensure they are correct
                 Cell< Facet* > tIntersectedTriangles = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 2 );
-                Cell< Facet* > tIntersectedFacetsExpected( 2 );
-                tIntersectedFacetsExpected( 0 ) = tObject.get_facet( 0 );
-                tIntersectedFacetsExpected( 1 ) = tObject.get_facet( 3 );
+                Facet& tFirstIntersectedFacetExpected = tObject.get_facet( 0 );
+                Facet& tSecondIntersectedFacetExpected = tObject.get_facet( 3 );
 
                 REQUIRE( tIntersectedTriangles.size() == 2 );
-                CHECK( tIntersectedFacetsExpected( 0 ) == tIntersectedTriangles( 0 ) );
-                CHECK( tIntersectedFacetsExpected( 1 ) == tIntersectedTriangles( 1 ) );
+                CHECK( &tFirstIntersectedFacetExpected == tIntersectedTriangles( 0 ) );
+                CHECK( &tSecondIntersectedFacetExpected == tIntersectedTriangles( 1 ) );
 
                 // compute the intersection locations and ensure they are correct
                 Cell< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055620439 };
@@ -133,12 +132,12 @@ namespace moris::sdf
                 CHECK( tCandidateTriangles( 2 ) == tCandidatesExpected( 2 ) );
 
                 tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 0 );
-                tIntersectedFacetsExpected( 0 ) = tObject.get_facet( 1 );
-                tIntersectedFacetsExpected( 1 ) = tObject.get_facet( 2 );
+                tFirstIntersectedFacetExpected = tObject.get_facet( 1 );
+                tSecondIntersectedFacetExpected = tObject.get_facet( 2 );
 
                 REQUIRE( tIntersectedTriangles.size() == 2 );
-                CHECK( tIntersectedTriangles( 0 ) == tIntersectedFacetsExpected( 0 ) );
-                CHECK( tIntersectedTriangles( 1 ) == tIntersectedFacetsExpected( 1 ) );
+                CHECK( tIntersectedTriangles( 0 ) == &tFirstIntersectedFacetExpected );
+                CHECK( tIntersectedTriangles( 1 ) == &tSecondIntersectedFacetExpected );
 
                 // although two facets are intersected, one of them should produce an error and be removed
                 tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
@@ -172,12 +171,12 @@ namespace moris::sdf
                 Cell< Facet* > tCandidateLines;
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
                 uint   tIntersectedLinesExpected = 1;
-                Facet* tCandidateLinesExpected   = tObject.get_facet( 2 );
+                Facet& tCandidateLinesExpected   = tObject.get_facet( 2 );
 
                 REQUIRE( tIntersectedLines.size() == 1 );
                 REQUIRE( tCandidateLines.size() == 1 );
                 CHECK( tIntersectedLines( 0 ) == tIntersectedLinesExpected );
-                CHECK( tCandidateLines( 0 ) == tCandidateLinesExpected );
+                CHECK( tCandidateLines( 0 ) == &tCandidateLinesExpected );
 
                 // preselect in x direction and ensure the candidates and intersected facets are marked
                 preselect_lines( tObject, tTestPoint, 0, tIntersectedLines, tCandidateLines );
@@ -186,7 +185,7 @@ namespace moris::sdf
                 REQUIRE( tIntersectedLines.size() == 1 );
                 REQUIRE( tCandidateLines.size() == 1 );
                 CHECK( tIntersectedLines( 0 ) == tIntersectedLinesExpected );
-                CHECK( tCandidateLines( 0 ) == tCandidateLinesExpected );
+                CHECK( tCandidateLines( 0 ) == &tCandidateLinesExpected );
 
                 // intersect the candidate facets and determine the intersection location
                 Cell< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 0 );
@@ -214,7 +213,7 @@ namespace moris::sdf
 
                 REQUIRE( tCandidateLines.size() == 1 );
                 REQUIRE( tIntersectedLines.size() == 0 );
-                CHECK( tCandidateLines( 0 ) == tCandidateLinesExpected );
+                CHECK( tCandidateLines( 0 ) == &tCandidateLinesExpected );
 
                 tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 1 );
                 tIntersectionCoordinateExpected = 0.25;

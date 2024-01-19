@@ -43,14 +43,14 @@ namespace moris::sdf
         // rotate the object by 45 degrees and get the first facet
         Matrix< DDRMat > tRotationMatrix = { { 0.7071067812, -0.7071067812 }, { 0.7071067812, 0.7071067812 } };
         tObject.rotate( tRotationMatrix );
-        Matrix< DDRMat > tFacetCoords = tObject.get_facet( 0 )->get_vertex_coords();
+        Matrix< DDRMat > tFacetCoords = tObject.get_facet( 0 ).get_vertex_coords();
 
         // check rotation
         CHECK( all_true( abs( tFacetCoords - tRotationCoordsExpected ) < tEpsilon ) );
 
         // reset and get first facet coordinates
         tObject.reset_coordinates();
-        tFacetCoords = tObject.get_facet( 0 )->get_vertex_coords();
+        tFacetCoords = tObject.get_facet( 0 ).get_vertex_coords();
 
         // check reset
         CHECK( all_true( abs( tFacetCoords - tResetCoordsExpected ) < tEpsilon ) );
@@ -58,7 +58,7 @@ namespace moris::sdf
         // shift the object and get the second facet
         Matrix< DDRMat > tShift = { { -0.25, 0.25 } };
         tObject.shift( tShift );
-        tFacetCoords = tObject.get_facet( 1 )->get_vertex_coords();
+        tFacetCoords = tObject.get_facet( 1 ).get_vertex_coords();
 
         // check shift
         CHECK( all_true( abs( tFacetCoords - tShiftCoordsExpected ) < tEpsilon ) );
@@ -69,7 +69,7 @@ namespace moris::sdf
         // scale the object and get the third facet
         Matrix< DDRMat > tScale = { { 2.0, 0.5 } };
         tObject.scale( tScale );
-        tFacetCoords = tObject.get_facet( 2 )->get_vertex_coords();
+        tFacetCoords = tObject.get_facet( 2 ).get_vertex_coords();
 
         // check scale
         CHECK( all_true( abs( tFacetCoords - tScaleCoordsExpected ) < tEpsilon ) );

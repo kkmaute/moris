@@ -16,7 +16,8 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Geometry::Geometry()
+    Geometry::Geometry( Field_Parameters aParameters )
+    : Design( aParameters )
     {
     }
 

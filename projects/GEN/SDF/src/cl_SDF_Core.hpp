@@ -147,7 +147,7 @@ namespace moris::sdf
 
         void
         get_nodes_withing_bounding_box_of_triangle(
-                Facet*                  aFacet,
+                Facet&                  aFacet,
                 moris::Cell< Vertex* >& aNodes,
                 moris::Cell< Vertex* >& aCandList );
 

@@ -223,7 +223,7 @@ namespace moris
             for ( uint k = 0; k < tNumberOfFacets; ++k )
             {
                 // get pointer to triangle
-                Facet* tFacet = mObject.get_facet( k );
+                Facet& tFacet = mObject.get_facet( k );
 
                 // get nodes within triangle
                 moris::Cell< Vertex* > tNodes;
@@ -425,7 +425,7 @@ namespace moris
 
         void
         Core::get_nodes_withing_bounding_box_of_triangle(
-                Facet*                  aFacet,
+                Facet&                  aFacet,
                 moris::Cell< Vertex* >& aNodes,
                 moris::Cell< Vertex* >& aCandList )    //===========================================
         {
@@ -436,8 +436,8 @@ namespace moris
 
             for ( uint i = 0; i < 3; ++i )
             {
-                tMinCoord( i ) = aFacet->get_min_coord( i ) - mBufferDiagonal;
-                tMaxCoord( i ) = aFacet->get_max_coord( i ) + mBufferDiagonal;
+                tMinCoord( i ) = aFacet.get_min_coord( i ) - mBufferDiagonal;
+                tMaxCoord( i ) = aFacet.get_max_coord( i ) + mBufferDiagonal;
             }
 
             // why is this necessary?

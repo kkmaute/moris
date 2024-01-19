@@ -363,13 +363,7 @@ namespace moris
             Parent_Node tSecondParentNode( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
 
             // Have the active geometry create a new intersection node
-            mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node(
-                    mNodeManager.get_total_number_of_nodes(),
-                    tBaseNodes,
-                    tFirstParentNode,
-                    tSecondParentNode,
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder );
+            mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node( mNodeManager.get_total_number_of_nodes(), tBaseNodes, tFirstParentNode, tSecondParentNode, aBackgroundGeometryType, aBackgroundInterpolationOrder );
 
             // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();
@@ -454,10 +448,10 @@ namespace moris
 
             // Get vertex indices from parent cell and change parametric coordinate type
             Cell< Matrix< IndexMat > > tVertexIndices( tNumberOfNewDerivedNodes );
-            Cell< Matrix< DDRMat > > tParametricCoordinates( tNumberOfNewDerivedNodes );
+            Cell< Matrix< DDRMat > >   tParametricCoordinates( tNumberOfNewDerivedNodes );
             for ( uint iCellIndex = 0; iCellIndex < tNumberOfNewDerivedNodes; iCellIndex++ )
             {
-                tVertexIndices( iCellIndex ) = aNewNodeParentCell( iCellIndex )->get_vertex_inds();
+                tVertexIndices( iCellIndex )         = aNewNodeParentCell( iCellIndex )->get_vertex_inds();
                 tParametricCoordinates( iCellIndex ) = *aParametricCoordinates( iCellIndex );
             }
 
@@ -778,7 +772,14 @@ namespace moris
                 }
                 for ( moris::uint iGeom = 0; iGeom < this->get_number_of_geometries(); iGeom++ )
                 {
-                    tStringStream << mGeometries( iGeom )->get_field_value( tVertex.get_index(), tCoords ) << ",";
+                    // BRENDAN is this okay?
+                    Cell< real > tGeometryInfo;
+                    mGeometries( iGeom )->get_design_info( tVertex.get_index(), tCoords, tGeometryInfo );
+
+                    for ( moris::uint iGeomFields; iGeomFields < mGeometries( iGeom )->get_num_fields(); iGeomFields++ )
+                    {
+                        tStringStream << tGeometryInfo( iGeomFields ) << ",";
+                    }
                 }
                 for ( moris::uint iGeom = 0; iGeom < this->get_number_of_geometries(); iGeom++ )
                 {
@@ -897,9 +898,36 @@ namespace moris
             Tracer tTracer( "GEN", "Distribute ADVs" );
 
             // Gather all fields
-            Cell< std::shared_ptr< Design_Field > > tFields( mGeometries.size() + mProperties.size() );
-            std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
-            std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
+            uint tGeometryFields = 0;
+            uint tPropertyFields = 0;
+            for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
+            {
+                tGeometryFields += mGeometries( iGeometryIndex )->get_num_fields();
+            }
+            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
+            {
+                tPropertyFields += mProperties( iPropertyIndex )->get_num_fields();
+            }
+            Cell< std::shared_ptr< Design > > tFields( tGeometryFields + tPropertyFields );
+            uint                              iFieldIndex = 0;
+            for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
+            {
+                for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( iGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
+                {
+                    // FIXME: BRENDAN copy each field instead of the same field every time (basically mGeometries( iGeometryIndex )->get_field( iGeometryFieldIndex ) )
+                    tFields( iFieldIndex ) = mGeometries( iGeometryIndex );
+                    iFieldIndex++;
+                }
+            }
+            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
+            {
+                for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( iPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
+                {
+                    // FIXME: BRENDAN copy each field instead of the same field every time (basically mProperties( iPropertyIndex )->get_field( iPropertyFieldIndex ) )
+                    tFields( iFieldIndex ) = mProperties( iPropertyIndex );
+                    iFieldIndex++;
+                }
+            }
 
             // Get interpolation mesh
             mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
@@ -1031,7 +1059,7 @@ namespace moris
                     }
 
                     // Count number of owned coefficients
-                    uint tOwnedCounter  = 0;
+                    uint tOwnedCounter = 0;
                     for ( uint iCoefficientIndex = 0; iCoefficientIndex < tAllCoefIds.numel(); iCoefficientIndex++ )
                     {
                         if ( tAllCoefIds( iCoefficientIndex ) != gNoID && tAllCoefOwners( iCoefficientIndex ) == par_rank() )
@@ -1044,7 +1072,7 @@ namespace moris
                     Matrix< DDUMat > tOwnedCoefficients( tOwnedCounter, 1 );
 
                     // Set owned coefficients
-                    tOwnedCounter  = 0;
+                    tOwnedCounter = 0;
                     for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
                     {
                         if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
@@ -1054,8 +1082,8 @@ namespace moris
                     }
 
                     // Sizes of ID vectors
-                    uint tNumOwnedADVs          = tOwnedADVIds.length();
-                    uint tNumOwnedCoefficients  = tOwnedCoefficients.numel();
+                    uint tNumOwnedADVs         = tOwnedADVIds.length();
+                    uint tNumOwnedCoefficients = tOwnedCoefficients.numel();
 
                     // Resize ID lists and bounds
                     tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
@@ -1147,7 +1175,7 @@ namespace moris
             // Convert to B-spline fields             //
             //----------------------------------------//
 
-            clock_t tStart_Convert_to_Bspline_Fields = clock();
+            clock_t                         tStart_Convert_to_Bspline_Fields = clock();
             moris::map< std::string, uint > tFieldNameToIndexMap;
             for ( uint Ik = 0; Ik < aFields.size(); Ik++ )
             {
@@ -1164,12 +1192,7 @@ namespace moris
                 {
                     if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
                     {
-                        mGeometries( iGeometryIndex )->discretize(
-                                iMTKField,
-                                aMeshPair,
-                                tNewOwnedADVs,
-                                tSharedADVIds( iGeometryIndex ),
-                                tAllOffsetIDs( iGeometryIndex ) );
+                        mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
                         tUseMTKField = true;
                         break;
                     }
@@ -1178,11 +1201,7 @@ namespace moris
                 // Otherwise discretize with original field
                 if ( not tUseMTKField )
                 {
-                    mGeometries( iGeometryIndex )->discretize(
-                            aMeshPair,
-                            tNewOwnedADVs,
-                            tSharedADVIds( iGeometryIndex ),
-                            tAllOffsetIDs( iGeometryIndex ) );
+                    mGeometries( iGeometryIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( iGeometryIndex ), tAllOffsetIDs( iGeometryIndex ) );
                 }
 
                 // Shape sensitivities logic
@@ -1198,12 +1217,7 @@ namespace moris
                 {
                     if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
                     {
-                        mProperties( iPropertyIndex )->discretize(
-                                iMTKField,
-                                aMeshPair,
-                                tNewOwnedADVs,
-                                tSharedADVIds( mGeometries.size() + iPropertyIndex ),
-                                tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                        mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
                         tUseMTKField = true;
                         break;
                     }
@@ -1212,11 +1226,7 @@ namespace moris
                 // Otherwise discretize with original field
                 if ( not tUseMTKField )
                 {
-                    mProperties( iPropertyIndex )->discretize(
-                            aMeshPair,
-                            tNewOwnedADVs,
-                            tSharedADVIds( mGeometries.size() + iPropertyIndex ),
-                            tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                    mProperties( iPropertyIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
                 }
             }
 
@@ -1586,27 +1596,45 @@ namespace moris
                 tWriter.write_mesh( "./", aExodusFileName, "./", "gen_temp.exo" );
 
                 // Setup field names
-                uint                tNumGeometries = mGeometries.size();
-                uint                tNumProperties = mProperties.size();
-                Cell< std::string > tFieldNames( tNumGeometries + tNumProperties );
+                uint tNumGeometryFields = 0;
+                uint tNumPropertyFields = 0;
+                for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
+                {
+                    tNumGeometryFields += mGeometries( iGeom )->get_num_fields();
+                }
+                for ( uint iProperty; iProperty < mProperties.size(); iProperty++ )
+                {
+                    tNumPropertyFields += mProperties( iProperty )->get_num_fields();
+                }
+                Cell< std::string > tFieldNames( tNumGeometryFields + tNumPropertyFields );
 
                 // Geometry field names
-                for ( uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++ )
+                uint iFieldIndex = 0;
+                for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
                 {
-                    tFieldNames( tGeometryIndex ) = mGeometries( tGeometryIndex )->get_name();
-                    if ( tFieldNames( tGeometryIndex ) == "" )
+                    for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
                     {
-                        tFieldNames( tGeometryIndex ) = "Geometry " + std::to_string( tGeometryIndex );
+                        tFieldNames( iFieldIndex ) = mGeometries( tGeometryIndex )->get_name();
+                        if ( tFieldNames( tGeometryIndex ) == "" )
+                        {
+                            tFieldNames( tGeometryIndex ) = "Geometry " + std::to_string( tGeometryIndex ) + "Field " + std::to_string( iGeometryFieldIndex );
+                        }
+                        iFieldIndex++;
                     }
                 }
 
+                MORIS_ASSERT( iFieldIndex == tNumGeometryFields, "GEN - Geometry_Engine::output_fields_on_mesh() Number of output fields does not equal total number of geometry fields." );
+
                 // Property field names
-                for ( uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++ )
+                for ( uint tPropertyIndex = 0; tPropertyIndex < tNumPropertyFields; tPropertyIndex++ )
                 {
-                    tFieldNames( tNumGeometries + tPropertyIndex ) = mProperties( tPropertyIndex )->get_name();
-                    if ( tFieldNames( tNumGeometries + tPropertyIndex ) == "" )
+                    for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
                     {
-                        tFieldNames( tNumGeometries + tPropertyIndex ) = "Property " + std::to_string( tPropertyIndex );
+                        tFieldNames( tNumGeometryFields + tPropertyIndex ) = mProperties( tPropertyIndex )->get_name();
+                        if ( tFieldNames( tNumGeometryFields + tPropertyIndex ) == "" )
+                        {
+                            tFieldNames( tNumGeometryFields + tPropertyIndex ) = "Property " + std::to_string( tPropertyIndex ) + "Field " + std::to_string( iPropertyFieldIndex );
+                        }
                     }
                 }
 
@@ -1624,35 +1652,46 @@ namespace moris
                 }
 
                 // Loop over geometries
-                for ( uint tGeometryIndex = 0; tGeometryIndex < tNumGeometries; tGeometryIndex++ )
+                for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
                 {
-                    // Create field vector
-                    Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
-
-                    // Assign field to vector
                     for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                     {
-                        tFieldData( tNodeIndex ) = mGeometries( tGeometryIndex )->get_field_value( tNodeIndex, tNodeCoordinates( tNodeIndex ) );
-                    }
+                        Cell< real > tGeometryInfo;
+                        mGeometries( tGeometryIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tGeometryInfo );
 
-                    // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( tGeometryIndex ), tFieldData );
+                        for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
+                        {
+                            // Create field vector
+                            Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
+
+                            // Assign field to vector
+                            tFieldData( tNodeIndex ) = tGeometryInfo( iGeometryFieldIndex );
+
+                            // Create field on mesh
+                            tWriter.write_nodal_field( tFieldNames( tGeometryIndex ), tFieldData );
+                        }
+                    }
                 }
 
                 // Loop over properties
-                for ( uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++ )
+                for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
                 {
-                    // Create field vector
-                    Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
-
-                    // Assign field to vector
                     for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                     {
-                        tFieldData( tNodeIndex ) = mProperties( tPropertyIndex )->get_field_value( tNodeIndex, tNodeCoordinates( tNodeIndex ) );
-                    }
+                        Cell< real > tPropertyInfo;
+                        mProperties( tPropertyIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tPropertyInfo );
+                        for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
+                        {
+                            // Create field vector
+                            Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
 
-                    // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( tNumGeometries + tPropertyIndex ), tFieldData );
+                            // Assign field to vector
+                            tFieldData( tNodeIndex ) = tPropertyInfo( iPropertyFieldIndex );
+
+                            // Create field on mesh
+                            tWriter.write_nodal_field( tFieldNames( tNumGeometryFields + tPropertyIndex ), tFieldData );
+                        }
+                    }
                 }
 
                 // Finalize
@@ -1679,30 +1718,44 @@ namespace moris
                 // Loop over geometries
                 for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
                 {
-                    // Create file
-                    std::ofstream tOutFile( aBaseFileName + "_" + std::to_string( tGeometryIndex ) + ".txt" );
+                    // Loop over fields for this geometry
+                    Cell< std::ofstream > tOutFiles( mGeometries( tGeometryIndex )->get_num_fields() );
+                    for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
+                    {
+                        // Create file
+                        tOutFiles( iGeometryFieldIndex ).open( aBaseFileName + "_" + std::to_string( tGeometryIndex ) + "field_" + std::to_string( iGeometryFieldIndex ) + ".txt" );
+                    }
 
                     // Write to file
                     for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                     {
-                        // Coordinates
-                        for ( uint tDimension = 0; tDimension < mNumSpatialDimensions; tDimension++ )
-                        {
-                            tOutFile << tNodeCoordinates( tNodeIndex )( tDimension ) << ", ";
-                        }
+                        Cell< real > tGeometryInfo;
+                        mGeometries( tGeometryIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tGeometryInfo );
 
-                        // Fill unused dimensions with zeros
-                        for ( uint tDimension = mNumSpatialDimensions; tDimension < 3; tDimension++ )
+                        for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
                         {
-                            tOutFile << 0.0 << ", ";
-                        }
+                            // Coordinates
+                            for ( uint tDimension = 0; tDimension < mNumSpatialDimensions; tDimension++ )
+                            {
+                                tOutFiles( iGeometryFieldIndex ) << tNodeCoordinates( tNodeIndex )( tDimension ) << ", ";
+                            }
 
-                        // Level-set field
-                        tOutFile << mGeometries( tGeometryIndex )->get_field_value( tNodeIndex, tNodeCoordinates( tNodeIndex ) ) << std::endl;
+                            // Fill unused dimensions with zeros
+                            for ( uint tDimension = mNumSpatialDimensions; tDimension < 3; tDimension++ )
+                            {
+                                tOutFiles( iGeometryFieldIndex ) << 0.0 << ", ";
+                            }
+
+                            // Level-set field
+                            tOutFiles( iGeometryFieldIndex ) << tGeometryInfo( iGeometryFieldIndex ) << std::endl;
+                        }
                     }
 
-                    // Close file
-                    tOutFile.close();
+                    // Close files
+                    for ( uint iOutFile = 0; iOutFile < tOutFiles.size(); iOutFile++ )
+                    {
+                        tOutFiles( iOutFile ).close();
+                    }
                 }
             }
         }
@@ -1723,13 +1776,13 @@ namespace moris
             uint tNumSets = aPdvTypes.size();
 
             // Size node information cells
-            Cell< Cell< uint > > tNodeIndicesPerSet( tNumSets );
-            Cell< Cell< sint > > tNodeIdsPerSet( tNumSets );
-            Cell< Cell< uint > > tNodeOwnersPerSet( tNumSets );
+            Cell< Cell< uint > >     tNodeIndicesPerSet( tNumSets );
+            Cell< Cell< sint > >     tNodeIdsPerSet( tNumSets );
+            Cell< Cell< uint > >     tNodeOwnersPerSet( tNumSets );
             Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
 
             // Get communication table and map
-            Matrix< IdMat > tCommTable = aInterpolationMesh->get_communication_table();
+            Matrix< IdMat >  tCommTable             = aInterpolationMesh->get_communication_table();
             Cell< moris_id > tCommunicationTableMap = build_communication_table_map( tCommTable );
 
             // TODO change over to just use a cell to begin with
@@ -1770,7 +1823,7 @@ namespace moris
                         for ( mtk::Leader_Follower iLeaderFollower : tSetSides )
                         {
                             // Get node indices in cluster
-                            mtk::Cell const *  tBaseCell = tCluster->get_interpolation_cell( iLeaderFollower ).get_base_cell();
+                            mtk::Cell const *  tBaseCell            = tCluster->get_interpolation_cell( iLeaderFollower ).get_base_cell();
                             Matrix< IndexMat > tNodeOwnersInCluster = tBaseCell->get_vertex_owners();
 
                             // Add to the number of base nodes on this set
@@ -1871,8 +1924,7 @@ namespace moris
                                 uint tCommunicationProcIndex = tCommunicationTableMap( tNodeOwner );
 
                                 // Add node ID to communication list
-                                tSharedNodeIdsOnSet( tCommunicationProcIndex )( tNumSharedNodesPerProc( tCommunicationProcIndex )++ )
-                                        = tNodeIdsPerSet( iMeshSetIndex )( iNodeInSet );
+                                tSharedNodeIdsOnSet( tCommunicationProcIndex )( tNumSharedNodesPerProc( tCommunicationProcIndex )++ ) = tNodeIdsPerSet( iMeshSetIndex )( iNodeInSet );
                             }
                         }
 
@@ -1929,7 +1981,7 @@ namespace moris
                         "Assignment of PDVs is only supported with an interpolation mesh right now." );
 
                 // Get PDV type and all mesh set indices for this property
-                PDV_Type tPdvType = iProperty->get_pdv_type();
+                PDV_Type     tPdvType        = iProperty->get_pdv_type();
                 Cell< uint > tMeshSetIndices = iProperty->get_pdv_mesh_set_indices( aIntegrationMesh );
 
                 // Loop through nodes in these sets
