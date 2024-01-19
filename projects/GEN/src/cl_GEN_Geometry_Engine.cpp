@@ -1629,43 +1629,47 @@ namespace moris
                 // Loop over geometries
                 for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
                 {
-                    for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
+                    for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
                     {
-                        Cell< real > tGeometryInfo;
-                        mGeometries( tGeometryIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tGeometryInfo );
+                        // Create field vector
+                        Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
 
-                        for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
+                        for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                         {
-                            // Create field vector
-                            Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
+                            // Get design info from the geometry
+                            Cell< real > tGeometryInfo;
+                            mGeometries( tGeometryIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tGeometryInfo );
 
                             // Assign field to vector
                             tFieldData( tNodeIndex ) = tGeometryInfo( iGeometryFieldIndex );
-
-                            // Create field on mesh
-                            tWriter.write_nodal_field( tFieldNames( tGeometryIndex ), tFieldData );
                         }
+
+                        // Create field on mesh
+                        tWriter.write_nodal_field( tFieldNames( tGeometryIndex ), tFieldData );
                     }
                 }
 
                 // Loop over properties
                 for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
                 {
-                    for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
+                    for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
                     {
-                        Cell< real > tPropertyInfo;
-                        mProperties( tPropertyIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tPropertyInfo );
-                        for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
+                        // Create field vector
+                        Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
+
+                        // Loop over all nodes on the mesh
+                        for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                         {
-                            // Create field vector
-                            Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
+                            // Get design info from the property
+                            Cell< real > tPropertyInfo;
+                            mProperties( tPropertyIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tPropertyInfo );
 
                             // Assign field to vector
                             tFieldData( tNodeIndex ) = tPropertyInfo( iPropertyFieldIndex );
-
-                            // Create field on mesh
-                            tWriter.write_nodal_field( tFieldNames( tNumGeometryFields + tPropertyIndex ), tFieldData );
                         }
+
+                        // Create field on mesh
+                        tWriter.write_nodal_field( tFieldNames( tNumGeometryFields + tPropertyIndex ), tFieldData );
                     }
                 }
 
