@@ -238,8 +238,8 @@ namespace moris
             sol::Dist_Map* tMapCurrent  = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
             sol::Dist_Map* tMapPrevious = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
 
-            mFullCurrentSolution  = tMatFactory.create_vector( mSolverInterface, tMapCurrent, tNumRHMS );
-            mFullPreviousSolution = tMatFactory.create_vector( mSolverInterface, tMapPrevious, tNumRHMS );
+            mFullCurrentSolution  = tMatFactory.create_vector( mSolverInterface, tMapCurrent, tNumRHMS, false, true );
+            mFullPreviousSolution = tMatFactory.create_vector( mSolverInterface, tMapPrevious, tNumRHMS, false, true );
 
             // set flag to compute static residual
             aNonLinSolverManager->set_compute_static_residual_flag( true );
