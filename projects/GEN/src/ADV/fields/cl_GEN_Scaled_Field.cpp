@@ -85,7 +85,9 @@ namespace moris::ge
 
     std::shared_ptr< mtk::Field > Scaled_Field::get_mtk_field()
     {
-        return mField->get_mtk_field();
+        // Note: the assumption here is that the reference field being scaled will be used for remeshing/refinement, so this
+        // field does not need an MTK field to be returned. This will eventually be a refinement interface object anyway.
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------------------------------------------
