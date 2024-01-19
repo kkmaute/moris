@@ -15,10 +15,27 @@
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
-#include "cl_GEN_Design.hpp"    // BRENDAN DELETE MAYBE
-
 namespace moris::ge
 {
+    /**
+     * This is a struct used to simplify \ref moris::ge::Design_Field constructors. It contains additional parameters that
+     * are used by all fields, with given defaults.
+     */
+    struct Field_Parameters
+    {
+        sint         mDiscretizationIndex;         // Index of a mesh for discretization (-2 = none, -1 = store nodal values)
+        real         mDiscretizationLowerBound;    // Lower bound for the B-spline coefficients in this field
+        real         mDiscretizationUpperBound;    // Upper bound for the B-spline coefficients in this field
+        bool         mUseMultilinearInterpolation; // Whether to use multilinear interpolation for all derived node field values
+
+        /**
+         * Constructor with a given parameter list
+         *
+         * @param aParameterList Design field parameter list
+         */
+        explicit Field_Parameters( const ParameterList& aParameterList );
+    };
+
     class Design_Field
     {
       protected:
@@ -42,13 +59,6 @@ namespace moris::ge
                 std::shared_ptr< Field > aField,
                 Field_Parameters         aParameters,
                 Node_Manager&            aNodeManager );
-
-        /**
-         * Gets if this field is to be used for seeding a B-spline field.
-         *
-         * @return Logic for B-spline creation
-         */
-        bool intended_discretization();
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -137,47 +147,12 @@ namespace moris::ge
          */
         void reset_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
+        /**
+         * Gets the name of this design field.
+         *
+         * @return Name
+         */
         std::string get_name();
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        // /**          BRENDAN DELETE?
-        //  * This function will return true when called less than the number of refinements set for this field,
-        //  * and false otherwise. This is to determine for a given refinement call if this field needs refinement.
-        //  *
-        //  * @return if to perform an additional refinement with this field
-        //  */
-        // const Cell< uint >& get_num_refinements();
-
-        // const Cell< uint >& get_refinement_mesh_indices();
-
-        // /**
-        //  * Gets the index of a user-defined refinement function used within HMR.
-        //  *
-        //  * @return User-defined refinement function index
-        //  */
-        // sint get_refinement_function_index();
-
-        // /**
-        //  * Gets a discretization mesh index for a discretized field.
-        //  *
-        //  * @return Mesh index
-        //  */
-        // moris_index get_discretization_mesh_index() const;
-
-        // /**
-        //  * Gets the lower bound for a discretized field.
-        //  *
-        //  * @return Lower bound
-        //  */
-        // real get_discretization_lower_bound();
-
-        // /**
-        //  * Get the upper bound for a discretized field.
-        //  *
-        //  * @return Upper bound
-        //  */
-        // real get_discretization_upper_bound();
 
         /**
          * Gets whether this field will be using multilinear interpolation to get derived node field values.

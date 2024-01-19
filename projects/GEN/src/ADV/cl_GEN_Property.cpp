@@ -18,6 +18,7 @@ namespace moris::ge
 
     Property_Parameters::Property_Parameters( const ParameterList& aParameterList )
             : Field_Parameters( aParameterList )
+            , Design_Parameters( aParameterList )
             , mDependencyNames( aParameterList.get_cell< std::string >( "dependencies" ) )
             , mPDVType( get_pdv_type_map()[ aParameterList.get< std::string >( "pdv_type" ) ] )
             , mInterpolationPDV( aParameterList.get< std::string >( "pdv_mesh_type" ) == "interpolation" )
@@ -121,5 +122,37 @@ namespace moris::ge
     Property::get_name()
     {
         return Design_Field::get_name();
+    }
+
+        bool Property::intended_discretization()
+    {
+        return ( mParameters.mDiscretizationIndex >= 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris_index
+    Property::get_discretization_mesh_index() const
+    {
+        MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
+                "A discretization is not intended for this field. Check this with intended_discretization() first." );
+
+        return mParameters.mDiscretizationIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Property::get_discretization_lower_bound()
+    {
+        return mParameters.mDiscretizationLowerBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Property::get_discretization_upper_bound()
+    {
+        return mParameters.mDiscretizationUpperBound;
     }
 }    // namespace moris::ge

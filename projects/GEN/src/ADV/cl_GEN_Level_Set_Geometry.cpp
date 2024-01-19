@@ -22,6 +22,7 @@ namespace moris::ge
 
     Level_Set_Parameters::Level_Set_Parameters( const ParameterList& aParameterList )
             : Field_Parameters( aParameterList )
+            , Design_Parameters( aParameterList )
             , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )
             , mIsocontourTolerance( aParameterList.get< real >( "isocontour_tolerance" ) )
             , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
@@ -306,10 +307,42 @@ namespace moris::ge
     void Level_Set_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Cell< real >& aOutputDesignInfo )
+            Cell< real >&           aOutputDesignInfo )
     {
         aOutputDesignInfo.resize( 1 );
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
+    }
+
+    bool Level_Set_Geometry::intended_discretization()
+    {
+        return ( mParameters.mDiscretizationIndex >= 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris_index
+    Level_Set_Geometry::get_discretization_mesh_index() const
+    {
+        MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
+                "A discretization is not intended for this field. Check this with intended_discretization() first." );
+
+        return mParameters.mDiscretizationIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Level_Set_Geometry::get_discretization_lower_bound()
+    {
+        return mParameters.mDiscretizationLowerBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Level_Set_Geometry::get_discretization_upper_bound()
+    {
+        return mParameters.mDiscretizationUpperBound;
     }
 
 }    // namespace moris::ge

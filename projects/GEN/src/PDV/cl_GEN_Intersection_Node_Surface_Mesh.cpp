@@ -48,7 +48,14 @@ namespace moris::ge
             uint&                                    aRotationAxis )
     {
         // step 1: shift the object so the first parent is at the origin
-        aInterfaceGeometry->shift( -1.0 * trans( aFirstParentNode.get_global_coordinates() ) );
+        Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
+        Cell< real > tShift( aInterfaceGeometry->get_dimension() );
+        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size() , "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
+        for( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
+        {
+            tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
+        }
+        aInterfaceGeometry->shift( tShift );
 
         // step 2: rotate the object
         // get unit axis to rotate to
@@ -101,8 +108,7 @@ namespace moris::ge
         aInterfaceGeometry->rotate( tTransformationMatrix );
 
         // step 3: scale the object
-        Matrix< DDRMat > tScaling( aInterfaceGeometry->get_dimension(), 1 );
-        tScaling.fill( 2.0 / tParentVectorNorm );
+        Cell< real > tScaling( aInterfaceGeometry->get_dimension(), 2.0 / tParentVectorNorm );
         aInterfaceGeometry->scale( tScaling );
 
     }

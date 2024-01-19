@@ -32,7 +32,7 @@ namespace moris
         class Facet : public mtk::Cell, std::enable_shared_from_this< Facet >
         {
           protected:
-            // index of this triangle
+            // index of this facet
             moris_index mIndex;
 
             // cells with vertex pointers
@@ -102,7 +102,7 @@ namespace moris
              * @param aScaling factor to scale in each coordinate direction
              */
             void
-            scale( const Matrix< DDRMat >& aScaling );
+            scale( const moris::Cell< real >& aScaling );
 
             //-------------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ namespace moris
              * @param aShift shift in each coordinate direction that is added to the objects coordinates.
              */
             void
-            shift( const Matrix< DDRMat >& aShift );
+            shift( const moris::Cell< real >& aShift );
 
             //-------------------------------------------------------------------------------
 
@@ -143,7 +143,6 @@ namespace moris
              * @param[in] aDimension   0: x-coordinate
              *                         1: y-coordinate
              *                         2: z-coordinate
-             *
              */
             real
             get_min_coord( uint aDimension ) const
@@ -186,7 +185,7 @@ namespace moris
              * @return Normal vector, mNormal set by child class
              */
             const Matrix< DDRMat >&
-            get_normal()
+            get_normal() const
             {
                 return mNormal;
             }
@@ -196,8 +195,8 @@ namespace moris
              *
              * @return const real
              */
-            const real
-            get_hesse()
+            real
+            get_hesse() const
             {
                 return mHesse;
             }
@@ -338,6 +337,11 @@ namespace moris
             {
                 return mFlag;
             }
+
+            //-------------------------------------------------------------------------------
+
+            bool
+            operator==( const Facet& aRHS ) const;
 
             //-------------------------------------------------------------------------------
 

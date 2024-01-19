@@ -12,18 +12,14 @@
 
 namespace moris::ge
 {
-    Field_Parameters::Field_Parameters( const ParameterList& aParameterList )
+    Design_Parameters::Design_Parameters( const ParameterList& aParameterList )
             : mNumberOfRefinements( aParameterList.get_cell< uint >( "number_of_refinements" ) )
             , mRefinementMeshIndices( aParameterList.get_cell< uint >( "refinement_mesh_index" ) )
             , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )
-            , mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
-            , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
-            , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
-            , mUseMultilinearInterpolation( aParameterList.get< bool >( "use_multilinear_interpolation" ) )
     {
     }
 
-    Design::Design( Field_Parameters aParameters )
+    Design::Design( Design_Parameters aParameters )
             : mParameters( std::move( aParameters ) )
     {
     }
@@ -38,7 +34,8 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     const Cell< uint >&
-    Design::get_refinement_mesh_indices(){
+    Design::get_refinement_mesh_indices()
+    {
         return mParameters.mRefinementMeshIndices;
     }
 
@@ -48,39 +45,5 @@ namespace moris::ge
     Design::get_refinement_function_index()
     {
         return mParameters.mRefinementFunctionIndex;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    bool Design::intended_discretization()
-    {
-        return ( mParameters.mDiscretizationIndex >= 0 );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-    
-    moris_index
-    Design::get_discretization_mesh_index() const
-    {
-        MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
-                "A discretization is not intended for this field. Check this with intended_discretization() first." );
-
-        return mParameters.mDiscretizationIndex;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real
-    Design::get_discretization_lower_bound()
-    {
-        return mParameters.mDiscretizationLowerBound;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real
-    Design::get_discretization_upper_bound()
-    {
-        return mParameters.mDiscretizationUpperBound;
     }
 }    // namespace moris::ge

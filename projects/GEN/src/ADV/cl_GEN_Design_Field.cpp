@@ -20,6 +20,16 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Field_Parameters::Field_Parameters( const ParameterList& aParameterList )
+            : mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
+            , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
+            , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
+            , mUseMultilinearInterpolation( aParameterList.get< bool >( "use_multilinear_interpolation" ) )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Design_Field::Design_Field(
             std::shared_ptr< Field > aField,
             Field_Parameters         aParameters,

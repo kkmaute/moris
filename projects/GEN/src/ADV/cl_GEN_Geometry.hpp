@@ -50,7 +50,7 @@ namespace moris::ge
         /**
          * Constructor
          */
-        explicit Geometry( Field_Parameters aParameters );
+        explicit Geometry( Design_Parameters aParameters );
 
         /**
          * Default destructor
@@ -152,5 +152,17 @@ namespace moris::ge
                 sol::Dist_Vector*             aOwnedADVs,
                 const Matrix< DDSMat >&       aSharedADVIds,
                 uint                          aADVOffsetID ) = 0;
+
+        /**
+         * Used to print geometry information to exodus files and print debug information.
+         *
+         *  @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
+         * @param aCoordinates The field location to get the value from.
+         * @return the value of the property field at the requested location
+         */
+        virtual void get_design_info(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Cell< real >& aOutputDesignInfo ) = 0;
     };
 }    // namespace moris::ge

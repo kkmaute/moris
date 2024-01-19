@@ -80,7 +80,7 @@ namespace moris::ge
                 for ( uint tIndex = 0; tIndex < tNumADVs; tIndex++ )
                 {
                     tVariableIndices( tIndex ) = tIndex;
-                    tADVIndices( tIndex )              = tIndex;
+                    tADVIndices( tIndex )      = tIndex;
                 }
             }
             else if ( tFillVariables )
@@ -106,7 +106,7 @@ namespace moris::ge
 
         // Name of the field
         std::string tName = aFieldParameterList.get< std::string >( "name" );
-        
+
         // Shared pointer to field
         std::shared_ptr< Field > tField;
 
@@ -171,9 +171,9 @@ namespace moris::ge
         }
         else if ( tFieldType == "sdf_field" )
         {
-            std::string      tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
-            Matrix< DDRMat > tObjectOffset = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
-            real             tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
+            std::string  tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
+            Cell< real > tObjectOffset = string_to_cell< real >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
+            real         tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
 
             tField = std::make_shared< ge::Signed_Distance_Field >(
                     tObjectPath,
@@ -207,7 +207,7 @@ namespace moris::ge
             MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined field." );
 
             // Get sensitivity function if needed
-            std::string tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
+            std::string          tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
             Sensitivity_Function tSensitivityFunction =
                     ( tSensitivityFunctionName.empty() ? nullptr : aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName ) );
 
@@ -245,4 +245,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::ge

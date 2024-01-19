@@ -20,16 +20,18 @@ namespace moris::ge
 
     Surface_Mesh_Parameters::Surface_Mesh_Parameters( const ParameterList& aParameterList )
             : Field_Parameters( aParameterList )
+            , Design_Parameters( aParameterList )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
     {
-        string_to_mat( aParameterList.get< std::string >( "offset" ), mOffsets );
+        string_to_cell( aParameterList.get< std::string >( "offset" ), mOffsets );
+        string_to_cell( aParameterList.get< std::string >( "scale" ), mScale );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters )
             : Geometry( aParameters )
-            , Object( aParameters.mFilePath, aParameters.mOffsets )
+            , Object( aParameters.mFilePath, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
     {
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );
@@ -145,5 +147,37 @@ namespace moris::ge
     {
         // TODO BRENDAN
         aOutputDesignInfo.resize( 0 );
+    }
+
+        bool Surface_Mesh_Geometry::intended_discretization()
+    {
+        return ( mParameters.mDiscretizationIndex >= 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris_index
+    Surface_Mesh_Geometry::get_discretization_mesh_index() const
+    {
+        MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
+                "A discretization is not intended for this field. Check this with intended_discretization() first." );
+
+        return mParameters.mDiscretizationIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Surface_Mesh_Geometry::get_discretization_lower_bound()
+    {
+        return mParameters.mDiscretizationLowerBound;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Surface_Mesh_Geometry::get_discretization_upper_bound()
+    {
+        return mParameters.mDiscretizationUpperBound;
     }
 }    // namespace moris::ge

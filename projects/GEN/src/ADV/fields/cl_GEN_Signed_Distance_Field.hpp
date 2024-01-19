@@ -21,9 +21,9 @@ namespace moris::ge
     {
 
       private:
-        std::string      mObjectPath;
-        Matrix< DDRMat > mObjectOffset = { { 0, 0, 0 } };
-        real             mShift        = 0;
+        std::string  mObjectPath;
+        Cell< real > mObjectOffset = { 0, 0, 0 };
+        real         mShift        = 0;
 
         Matrix< DDRMat > mValues;
 
@@ -34,9 +34,9 @@ namespace moris::ge
          * @param aMesh Mesh with the level set fields
          * @param aFieldNames Names of the fields
          */
-        Signed_Distance_Field( std::string         aObjectPath,
-                Matrix< DDRMat >          aObjectOffset,
-                real                      aSDFShift   = 0 );
+        Signed_Distance_Field( std::string aObjectPath,
+                Cell< real >               aObjectOffset,
+                real                       aSDFShift = 0 );
 
         /**
          * Given a node index, returns the field value.
@@ -72,7 +72,7 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates )
         {
             MORIS_ERROR( false, "get_base_dfield_dadvs(), not implemented for a signed distance field" );
-            return mObjectOffset;
+            return mValues;
         }
     };
-}
+}    // namespace moris::ge

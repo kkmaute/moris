@@ -18,6 +18,8 @@
 #include "op_times.hpp"
 #include "SDF_Tools.hpp"
 #include "fn_stringify_matrix.hpp"
+#include "op_equal_equal.hpp"
+#include "fn_all_true.hpp"
 
 namespace moris
 {
@@ -53,7 +55,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet::scale( const Matrix< DDRMat >& aScaling )
+        Facet::scale( const moris::Cell< real >& aScaling )
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
@@ -67,7 +69,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet::shift( const Matrix< DDRMat >& aShift )
+        Facet::shift( const moris::Cell< real >& aShift )
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
@@ -133,7 +135,7 @@ namespace moris
         }
 
 
-        Cell< mtk::Vertex* >
+        moris::Cell< mtk::Vertex* >
         Facet::get_vertex_pointers() const
         {
             uint                        tDimension = get_number_of_vertices();
@@ -285,6 +287,18 @@ namespace moris
                     }
                 }
             }
+        }
+    
+        bool
+        Facet::operator==( const Facet& aRHS ) const
+        {
+            if ( mVertices.size() != aRHS.get_number_of_vertices() )
+            {
+                return false;
+            }
+
+            return all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() ) && all_true( mNormal == aRHS.get_normal() ) && std::abs( mHesse - aRHS.get_hesse() ) < gSDFepsilon;
+
         }
     } /* namespace sdf */
 } /* namespace moris */

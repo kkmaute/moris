@@ -100,13 +100,13 @@ namespace moris::prm
         {
             aDesignParameterList.insert( "assigned_field", "" );
         }
-        aDesignParameterList.insert( "number_of_refinements", "" );            // Number of refinement steps using HMR
-        aDesignParameterList.insert( "refinement_mesh_index", "" );            // Refinement pattern
-        aDesignParameterList.insert( "refinement_function_index", -1 );        // Index of user-defined refinement function (-1 = default)
-        aDesignParameterList.insert( "discretization_mesh_index", -2 );        // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
-        aDesignParameterList.insert( "discretization_lower_bound", -1.0 );     // Lower bound of level set field (if bspline_mesh_index >= 0)
-        aDesignParameterList.insert( "discretization_upper_bound", 1.0 );      // Upper bound of level set field (if bspline_mesh_index >= 0)
-        aDesignParameterList.insert( "use_multilinear_interpolation", false ); // Whether to use multilinear interpolation for derived node field values
+        aDesignParameterList.insert( "number_of_refinements", "" );               // Number of refinement steps using HMR
+        aDesignParameterList.insert( "refinement_mesh_index", "" );               // Refinement pattern
+        aDesignParameterList.insert( "refinement_function_index", -1 );           // Index of user-defined refinement function (-1 = default)
+        aDesignParameterList.insert( "discretization_mesh_index", -2 );           // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
+        aDesignParameterList.insert( "discretization_lower_bound", -1.0 );        // Lower bound of level set field (if bspline_mesh_index >= 0)
+        aDesignParameterList.insert( "discretization_upper_bound", 1.0 );         // Upper bound of level set field (if bspline_mesh_index >= 0)
+        aDesignParameterList.insert( "use_multilinear_interpolation", false );    // Whether to use multilinear interpolation for derived node field values
     }
 
     /**
@@ -167,13 +167,15 @@ namespace moris::prm
      * @return Geometry parameter list
      */
     inline ParameterList
-    create_surface_mesh_geometry_parameter_list( bool aIncludeField = true)
+    create_surface_mesh_geometry_parameter_list( bool aIncludeField = false )
     {
         ParameterList tParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
-        insert_design_field_parameters( tParameterList, aIncludeField );   // Inserts all design parameters
-        tParameterList.insert( "offset", "0;0;0" );                         // offset all points in the geometry by this much
+        insert_design_field_parameters( tParameterList, aIncludeField );    // Inserts all design parameters
+        tParameterList.insert( "offset", "0,0,0" );                         // offset all points in the geometry by this much
+        tParameterList.insert( "scale", "1.0,1.0,1.0" );                    // scaling factor for all points in the geometry
         tParameterList.insert( "file_path", "" );                           // path to .obj file
         tParameterList.set( "geometry_type", "surface_mesh" );              // set the geometry type to surface mesh
+        tParameterList.erase( "field_type" );
 
         return tParameterList;
     }

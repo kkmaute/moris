@@ -28,17 +28,18 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         Object::Object( const std::string& aFilePath,
-                const Matrix< DDRMat >&    aOffsets )
+                const Cell< real >&        aOffsets,
+                const Cell< real >&        aScale )
                 : mNumberOfFacets( 0 )
         {
-            MORIS_ERROR( aOffsets.numel() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
+            MORIS_ERROR( aOffsets.size() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
 
             // check the file extension
             auto tFileExt = aFilePath.substr( aFilePath.find_last_of( "." ) + 1, aFilePath.length() );
 
             if ( tFileExt == "obj" )
             {
-                this->load_from_object_file( aFilePath, aOffsets );
+                this->load_from_object_file( aFilePath, aOffsets, aScale );
             }
             else if ( tFileExt == "stl" )
             {
@@ -54,7 +55,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::load_from_object_file( const std::string& aFilePath, const Matrix< DDRMat >& aOffsets )
+        Object::load_from_object_file( const std::string& aFilePath, const moris::Cell< real >& aOffsets, const moris::Cell< real >& aScale )
         {
             // copy file into buffer
             moris::Cell< std::string > tBuffer;
@@ -119,10 +120,7 @@ namespace moris
                     if ( mDimension == 3 )
                     {
                         // read ascii data into coordinates
-                        std::sscanf( tBuffer( k ).substr(
-                                                         2,
-                                                         tBuffer( k ).length() )
-                                             .c_str(),
+                        std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
                                 "%f %f %f",
                                 &tX[ 0 ],
                                 &tX[ 1 ],
@@ -131,10 +129,7 @@ namespace moris
                     else if ( mDimension == 2 )
                     {
                         // read ascii data into coordinates
-                        std::sscanf( tBuffer( k ).substr(
-                                                         2,
-                                                         tBuffer( k ).length() )
-                                             .c_str(),
+                        std::sscanf( tBuffer( k ).substr( 2, tBuffer( k ).length() ).c_str(),
                                 "%f %f",
                                 &tX[ 0 ],
                                 &tX[ 1 ] );
@@ -149,7 +144,7 @@ namespace moris
                     {
                         if ( std::abs( tX[ i ] ) > mMeshHighPass )
                         {
-                            tNodeCoords( i ) = tX[ i ] + aOffsets( i );
+                            tNodeCoords( i ) = tX[ i ] * aScale( i ) + aOffsets( i );
                         }
                         else
                         {
@@ -183,7 +178,7 @@ namespace moris
                 if ( tBuffer( k ).substr( 0, 2 ) == "f " )
                 {
                     // temporary container for vertices
-                    Cell< std::shared_ptr< Facet_Vertex > > tNodes( mDimension, nullptr );
+                    moris::Cell< std::shared_ptr< Facet_Vertex > > tNodes( mDimension, nullptr );
                     Matrix< DDUMat >                        tNodeIndices( 3, 1 );
                     // read facet topology
                     if ( mDimension == 3 )
@@ -222,7 +217,7 @@ namespace moris
                     {
                         case 2:
                         {
-                            mFacets( tCount ) = std::make_shared< Line >( tCount, tNodes ); 
+                            mFacets( tCount ) = std::make_shared< Line >( tCount, tNodes );
                             mNumberOfFacets++;
                             break;
                         }
@@ -338,7 +333,7 @@ namespace moris
             for ( uint k = 0; k < tBufferLength; ++k )
             {
                 // extract first word from string
-                Cell< std::string > tWords = string_to_words( tBuffer( k ) );
+                moris::Cell< std::string > tWords = string_to_words( tBuffer( k ) );
 
                 if ( tWords.size() > 0 )
                 {
@@ -372,7 +367,7 @@ namespace moris
             tTriangleCount = 0;
 
             // temporary container for vertices
-            Cell< std::shared_ptr< Facet_Vertex > > tNodes( 3, nullptr );
+            moris::Cell< std::shared_ptr< Facet_Vertex > > tNodes( 3, nullptr );
 
             // create triangles
             for ( uint iTriangle = 0; iTriangle < tNumberOfTriangles; ++iTriangle )
@@ -411,7 +406,7 @@ namespace moris
             }
 
             // reset the transformed flags for all the vertices
-            for( uint iFacet = 0; iFacet< mFacets.size(); iFacet++ )
+            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
             {
                 mFacets( iFacet )->reset_vertex_transformed_flags();
             }
@@ -420,9 +415,9 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::scale( const Matrix< DDRMat >& aScaling )
+        Object::scale( const moris::Cell< real >& aScaling )
         {
-            MORIS_ASSERT( aScaling.numel() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
+            MORIS_ASSERT( aScaling.size() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
 
             // go through each facet and scale its vertices
             for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
@@ -434,7 +429,7 @@ namespace moris
             }
 
             // reset the transformed flags for all the vertices
-            for( uint iFacet = 0; iFacet< mFacets.size(); iFacet++ )
+            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
             {
                 mFacets( iFacet )->reset_vertex_transformed_flags();
             }
@@ -443,9 +438,9 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::shift( const Matrix< DDRMat >& aShift )
+        Object::shift( const moris::Cell< real >& aShift )
         {
-            MORIS_ASSERT( aShift.numel() == mDimension, "SDF_Object::shift_object() - Shift must be equal to object dimension." );
+            MORIS_ASSERT( aShift.size() == mDimension, "SDF_Object::shift_object() - Shift must be equal to object dimension." );
 
             // go through each facet and shift its vertices
             for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
@@ -455,9 +450,9 @@ namespace moris
                 // recompute information about the facet (normal, center, etc.)
                 mFacets( iFacet )->update_data();
             }
-            
+
             // reset the transformed flags for all the vertices
-            for( uint iFacet = 0; iFacet< mFacets.size(); iFacet++ )
+            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
             {
                 mFacets( iFacet )->reset_vertex_transformed_flags();
             }
@@ -505,5 +500,8 @@ namespace moris
 
             return mFacets( aFacetIndex )->get_max_coord( aAxis );
         }
+
+        //-------------------------------------------------------------------------------
+
     } /* namespace sdf */
 } /* namespace moris */
