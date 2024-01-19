@@ -4,14 +4,13 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Single_Grain.cpp
+ * cl_GEN_Voxel_Geometry.cpp
  *
  */
 
 #include "cl_GEN_Voxel_Geometry.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
-
-#include "cl_Ascii.hpp"
+#include "cl_GEN_Intersection_Node_Voxel.hpp"
 
 namespace moris::ge
 {
@@ -58,9 +57,14 @@ namespace moris::ge
             mtk::Geometry_Type       aBackgroundGeometryType,
             mtk::Interpolation_Order aBackgroundInterpolationOrder )
     {
-        // TODO
-        MORIS_ERROR( false, "A voxel geometry currently cannot create intersection nodes." );
-        return nullptr;
+        return new Intersection_Node_Voxel(
+                aNodeIndex,
+                aBaseNodes,
+                aFirstParentNode,
+                aSecondParentNode,
+                aBackgroundGeometryType,
+                aBackgroundInterpolationOrder,
+                shared_from_this() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
