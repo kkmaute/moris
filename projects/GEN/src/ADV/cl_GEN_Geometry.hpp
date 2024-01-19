@@ -50,7 +50,7 @@ namespace moris::ge
         /**
          * Constructor
          */
-        Geometry( Field_Parameters aParameters );
+        explicit Geometry( Field_Parameters aParameters );
 
         /**
          * Default destructor
@@ -112,12 +112,6 @@ namespace moris::ge
         virtual Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() = 0;
 
         /**
-         * Gets the name of the geometry
-         *
-         */
-        virtual std::string get_name() = 0;
-
-        /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
          *
          * @param aOwnedADVs Full owned distributed ADV vector
@@ -158,37 +152,5 @@ namespace moris::ge
                 sol::Dist_Vector*             aOwnedADVs,
                 const Matrix< DDSMat >&       aSharedADVIds,
                 uint                          aADVOffsetID ) = 0;
-        /**
-         * Used to print geometry information to exodus files and print debug information.
-         * 
-         *  @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
-         * @param aCoordinates The field location to get the value from.
-         * @return the value of the property field at the requested location
-         */
-        virtual void get_design_info(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates,
-                Cell< real >& aOutputDesignInfo ) = 0;
-
-        /**
-         * Gets the number of fields the geometry has
-         * 
-         * number of fields the geometry depends on
-         */
-        virtual uint get_num_fields() = 0;
-
-        /**
-         * Allows for access to the GEN field
-         *
-         * @return Underlying field
-         */
-        virtual std::shared_ptr< Field > get_field() = 0;
-
-        /**
-         * Sets the ADVs and grabs the field variables needed from the ADV vector
-         *
-         * @param aADVs ADVs
-         */
-        virtual void set_advs( sol::Dist_Vector* aADVs ) = 0;
     };
 }    // namespace moris::ge

@@ -107,7 +107,7 @@ namespace moris::ge
         */
         uint get_num_fields() override
         {
-                return 1;
+            return 1;
         }
 
         /**
@@ -115,7 +115,7 @@ namespace moris::ge
          *
          * @return Underlying field
          */
-        std::shared_ptr< Field > get_field()
+        std::shared_ptr< Field > get_field() override
         {
             return Design_Field::mField;
         }
