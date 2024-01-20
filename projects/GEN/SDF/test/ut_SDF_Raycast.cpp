@@ -169,12 +169,11 @@ namespace moris::sdf
                 Cell< Facet* > tCandidateLines;
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
                 uint   tIntersectedLinesExpected = 1;
-                Facet& tCandidateLinesExpected   = tObject.get_facet( 2 );
 
                 REQUIRE( tIntersectedLines.size() == 1 );
                 REQUIRE( tCandidateLines.size() == 1 );
                 CHECK( tIntersectedLines( 0 ) == tIntersectedLinesExpected );
-                CHECK( tCandidateLines( 0 ) == &tCandidateLinesExpected );
+                CHECK( tCandidateLines( 0 ) == &tObject.get_facet( 2 ) );
 
                 // preselect in x direction and ensure the candidates and intersected facets are marked
                 preselect_lines( tObject, tTestPoint, 0, tIntersectedLines, tCandidateLines );
@@ -183,7 +182,7 @@ namespace moris::sdf
                 REQUIRE( tIntersectedLines.size() == 1 );
                 REQUIRE( tCandidateLines.size() == 1 );
                 CHECK( tIntersectedLines( 0 ) == tIntersectedLinesExpected );
-                CHECK( tCandidateLines( 0 ) == &tCandidateLinesExpected );
+                CHECK( tCandidateLines( 0 ) == &tObject.get_facet( 2 ) );
 
                 // intersect the candidate facets and determine the intersection location
                 Cell< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 0 );
@@ -206,11 +205,10 @@ namespace moris::sdf
                 tTestPoint = { { -.25 }, { 0.2 } };
 
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
-                tCandidateLinesExpected = tObject.get_facet( 1 );
 
                 REQUIRE( tCandidateLines.size() == 1 );
                 REQUIRE( tIntersectedLines.size() == 0 );
-                CHECK( *tCandidateLines( 0 ) == tCandidateLinesExpected );
+                CHECK( *tCandidateLines( 0 ) == tObject.get_facet( 1 ) );
 
                 tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 1 );
                 tIntersectionCoordinateExpected = 0.25;
