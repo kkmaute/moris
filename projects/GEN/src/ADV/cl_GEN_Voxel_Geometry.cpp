@@ -80,14 +80,18 @@ namespace moris::ge
                     // Get geometric region
                     Geometric_Region tLocatorRegion = this->get_geometric_region( iLocator.get_index(), iLocator.get_global_coordinates() );
 
-                    // Register geometric region vote
-                    if ( tLocatorRegion == Geometric_Region::NEGATIVE )
+                    // Votes only matter if basis is nonzero
+                    if ( iLocator.get_basis() > 1E-8 )
                     {
-                        tNegativeVotes++;
-                    }
-                    else if ( tLocatorRegion == Geometric_Region::POSITIVE )
-                    {
-                        tPositiveVotes++;
+                        // Register geometric region vote
+                        if ( tLocatorRegion == Geometric_Region::NEGATIVE )
+                        {
+                            tNegativeVotes++;
+                        }
+                        else if ( tLocatorRegion == Geometric_Region::POSITIVE )
+                        {
+                            tPositiveVotes++;
+                        }
                     }
                 }
 
