@@ -29,7 +29,7 @@ namespace moris::ge
     {
         real mIsocontourThreshold;      // Level set isocontour level
         real mIsocontourTolerance;      // Interface tolerance based on geometry value
-        real mIntersectionTolerance;    // Interface tolerance based on intersecction distance
+        real mIntersectionTolerance;    // Interface tolerance based on intersection distance
 
         /**
          * Constructor with a given parameter list

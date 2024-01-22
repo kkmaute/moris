@@ -22,6 +22,7 @@ namespace moris::ge
             : Field_Parameters( aParameterList )
             , Design_Parameters( aParameterList )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )
+            , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
     {
         string_to_cell( aParameterList.get< std::string >( "offset" ), mOffsets );
         string_to_cell( aParameterList.get< std::string >( "scale" ), mScale );
@@ -31,7 +32,7 @@ namespace moris::ge
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters )
             : Geometry( aParameters )
-            , Object( aParameters.mFilePath, aParameters.mOffsets, aParameters.mScale )
+            , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
     {
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );

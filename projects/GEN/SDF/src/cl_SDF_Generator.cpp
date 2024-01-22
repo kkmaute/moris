@@ -34,7 +34,7 @@ namespace moris
                 const std::string& aObjectPath,
                 moris::Cell< real >&      aObjectOffset,
                 const bool         aVerboseFlag )
-                : mObject( aObjectPath, aObjectOffset )
+                : mObject( aObjectPath, 1e-8, aObjectOffset )
                 , mVerboseFlag( aVerboseFlag )
         {
         }

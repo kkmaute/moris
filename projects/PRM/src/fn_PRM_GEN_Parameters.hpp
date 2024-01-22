@@ -127,10 +127,10 @@ namespace moris::prm
     {
         ParameterList tDesignParameterList;
 
-        tDesignParameterList.insert( "design_type", "" );               // Insert the design type parameter
-        tDesignParameterList.insert( "number_of_refinements", "" );     // Number of refinement steps using HMR
-        tDesignParameterList.insert( "refinement_mesh_index", "" );     // Refinement pattern
-        tDesignParameterList.insert( "refinement_function_index", -1 ); // Index of user-defined refinement function (-1 = default)
+        tDesignParameterList.insert( "design_type", "" );                  // Insert the design type parameter
+        tDesignParameterList.insert( "number_of_refinements", "" );        // Number of refinement steps using HMR
+        tDesignParameterList.insert( "refinement_mesh_index", "" );        // Refinement pattern
+        tDesignParameterList.insert( "refinement_function_index", -1 );    // Index of user-defined refinement function (-1 = default)
 
         return tDesignParameterList;
     }
@@ -143,8 +143,9 @@ namespace moris::prm
     static ParameterList create_geometry_parameter_list()
     {
         ParameterList tGeometryParameterList = create_design_parameter_list();
-        tGeometryParameterList.set( "design_type", "geometry" ); // Set the design type to a geometry
-        tGeometryParameterList.insert( "geometry_type", "" );    // Insert the geometry type parameter
+        tGeometryParameterList.set( "design_type", "geometry" );             // Set the design type to a geometry
+        tGeometryParameterList.insert( "geometry_type", "" );                // Insert the geometry type parameter
+        tGeometryParameterList.insert( "intersection_tolerance", 1e-12 );    // Interface tolerance based on intersection distance
 
         return tGeometryParameterList;
     }
@@ -161,13 +162,12 @@ namespace moris::prm
     inline ParameterList
     create_level_set_geometry_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tLevelSetParameterList = create_geometry_parameter_list();   // Inserts all geometry parameters
-        insert_design_field_parameters( tLevelSetParameterList, aIncludeField );   // Inserts all design parameters
-        tLevelSetParameterList.set( "geometry_type", "level_set" );                // Sets the geometry type to level set
-        tLevelSetParameterList.insert( "intersection_mode", "LEVEL_SET" );         // Deprecated
-        tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );              // Level set isocontour level
-        tLevelSetParameterList.insert( "isocontour_tolerance", 1e-12 );            // Interface tolerance based on geometry value
-        tLevelSetParameterList.insert( "intersection_tolerance", 1e-12 );          // Interface tolerance based on intersection distance
+        ParameterList tLevelSetParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
+        insert_design_field_parameters( tLevelSetParameterList, aIncludeField );    // Inserts all design parameters
+        tLevelSetParameterList.set( "geometry_type", "level_set" );                 // Sets the geometry type to level set
+        tLevelSetParameterList.insert( "intersection_mode", "LEVEL_SET" );          // Deprecated
+        tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );               // Level set isocontour level
+        tLevelSetParameterList.insert( "isocontour_tolerance", 1e-12 );             // Interface tolerance based on geometry value
 
         return tLevelSetParameterList;
     }
@@ -189,6 +189,7 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert( "scale", "1.0,1.0,1.0" );                    // scaling factor for all points in the geometry
         tSurfaceMeshParameterList.insert( "file_path", "" );                           // path to .obj file
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );              // set the geometry type to surface mesh
+        tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-8 );             // interface tolerance for raycast computations
         tSurfaceMeshParameterList.erase( "field_type" );
 
         return tSurfaceMeshParameterList;
@@ -351,13 +352,13 @@ namespace moris::prm
     inline ParameterList
     create_gen_property_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tPropertyParameterList = create_design_parameter_list();   // Create a design parameter list
-        tPropertyParameterList.set( "design_type", "property" );                 // Set the design type to a property
-        insert_design_field_parameters( tPropertyParameterList, aIncludeField ); // Inserts all design field parameters
-        tPropertyParameterList.insert( "pdv_type", "" );                         // The type of PDV that this property will be assigned to
-        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );       // Mesh type for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_names", "" );               // Mesh set names for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_indices", "" );             // Mesh set indices for assigning PDVs
+        ParameterList tPropertyParameterList = create_design_parameter_list();      // Create a design parameter list
+        tPropertyParameterList.set( "design_type", "property" );                    // Set the design type to a property
+        insert_design_field_parameters( tPropertyParameterList, aIncludeField );    // Inserts all design field parameters
+        tPropertyParameterList.insert( "pdv_type", "" );                            // The type of PDV that this property will be assigned to
+        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );          // Mesh type for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_names", "" );                  // Mesh set names for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_indices", "" );                // Mesh set indices for assigning PDVs
 
         return tPropertyParameterList;
     }

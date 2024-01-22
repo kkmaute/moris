@@ -98,8 +98,8 @@ namespace moris::sdf
                 Cell< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055620439 };
                 Cell< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 2 );
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
-                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < gSDFepsilon );
-                CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < gSDFepsilon );
+                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
 
                 // check if the point is inside and compare it to expectations
                 Object_Region tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 2 );
@@ -144,8 +144,8 @@ namespace moris::sdf
 
 
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
-                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < gSDFepsilon );
-                CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < gSDFepsilon );
+                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
 
                 tPointIsInside = check_if_node_is_inside_triangles( tIntersectionCoordinates, tTestPoint, 0 );
 
@@ -189,7 +189,7 @@ namespace moris::sdf
                 real         tIntersectionCoordinateExpected = -0.2;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
-                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < gSDFepsilon );
+                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < tObject.get_intersection_tolerance() );
 
                 // determine if the point is inside/outside and check expectation
                 Object_Region tRegion = check_if_node_is_inside_lines( tIntersectionCoordinates, tIntersectedLines, tTestPoint, 0 );
@@ -214,7 +214,7 @@ namespace moris::sdf
                 tIntersectionCoordinateExpected = 0.25;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
-                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < gSDFepsilon );
+                CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < tObject.get_intersection_tolerance() );
 
                 tRegion = check_if_node_is_inside_lines( tIntersectionCoordinates, tIntersectedLines, tTestPoint, 1 );
 
@@ -257,9 +257,9 @@ namespace moris::sdf
                 REQUIRE( tLineDistanceX.size() == 1 );
                 REQUIRE( tLineDistanceY.size() == 1 );
                 REQUIRE( tLineDistanceZ.size() == 1 );
-                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected ) < gSDFepsilon );
-                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected ) < gSDFepsilon );
-                CHECK( std::abs( tLineDistanceZ( 0 ) - tLineDistanceZExpected ) < gSDFepsilon );
+                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tLineDistanceZ( 0 ) - tLineDistanceZExpected ) < tObject.get_intersection_tolerance() );
             }
             SECTION( "SDF: Compute distance to facets test - 2D" )
             {
@@ -281,10 +281,10 @@ namespace moris::sdf
                 // compare
                 REQUIRE( tLineDistanceX.size() == 2 );
                 REQUIRE( tLineDistanceY.size() == 2 );
-                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected( 0 ) ) < gSDFepsilon );
-                CHECK( std::abs( tLineDistanceX( 1 ) - tLineDistanceXExpected( 1 ) ) < gSDFepsilon );
-                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected( 0 ) ) < gSDFepsilon );
-                CHECK( std::abs( tLineDistanceY( 1 ) - tLineDistanceYExpected( 1 ) ) < gSDFepsilon );
+                CHECK( std::abs( tLineDistanceX( 0 ) - tLineDistanceXExpected( 0 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tLineDistanceX( 1 ) - tLineDistanceXExpected( 1 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tLineDistanceY( 0 ) - tLineDistanceYExpected( 0 ) ) < tObject.get_intersection_tolerance() );
+                CHECK( std::abs( tLineDistanceY( 1 ) - tLineDistanceYExpected( 1 ) ) < tObject.get_intersection_tolerance() );
             }
         }
     }

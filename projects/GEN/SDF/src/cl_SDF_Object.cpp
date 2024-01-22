@@ -28,6 +28,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         Object::Object( const std::string& aFilePath,
+                real                       aIntersectionTolerance,
                 const Cell< real >&        aOffsets,
                 const Cell< real >&        aScale )
                 : mNumberOfFacets( 0 )
@@ -179,7 +180,7 @@ namespace moris
                 {
                     // temporary container for vertices
                     moris::Cell< std::shared_ptr< Facet_Vertex > > tNodes( mDimension, nullptr );
-                    Matrix< DDUMat >                        tNodeIndices( 3, 1 );
+                    Matrix< DDUMat >                               tNodeIndices( 3, 1 );
                     // read facet topology
                     if ( mDimension == 3 )
                     {

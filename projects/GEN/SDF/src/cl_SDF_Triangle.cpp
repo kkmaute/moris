@@ -125,11 +125,11 @@ namespace moris
             }
 
             // enlarge triangle
-            mBarycentric.mLocalNodeCoordsInPlane( 0, 0 ) -= gSDFepsilon;
-            mBarycentric.mLocalNodeCoordsInPlane( 1, 0 ) -= gSDFepsilon;
-            mBarycentric.mLocalNodeCoordsInPlane( 0, 1 ) += gSDFepsilon;
-            mBarycentric.mLocalNodeCoordsInPlane( 1, 1 ) -= gSDFepsilon;
-            mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) += gSDFepsilon;
+            mBarycentric.mLocalNodeCoordsInPlane( 0, 0 ) -= mIntersectionTolerance;
+            mBarycentric.mLocalNodeCoordsInPlane( 1, 0 ) -= mIntersectionTolerance;
+            mBarycentric.mLocalNodeCoordsInPlane( 0, 1 ) += mIntersectionTolerance;
+            mBarycentric.mLocalNodeCoordsInPlane( 1, 1 ) -= mIntersectionTolerance;
+            mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) += mIntersectionTolerance;
 
             // twice the area
             mBarycentric.mTwiceArea = ( mBarycentric.mLocalNodeCoordsInPlane( 0, 0 )
@@ -143,7 +143,7 @@ namespace moris
 
             
             // warn if the the triangle has a volume close to zero
-            if( mBarycentric.mTwiceArea <= 2 * gSDFepsilon )
+            if( mBarycentric.mTwiceArea <= 2 * mIntersectionTolerance )
             {
                 MORIS_LOG_WARNING( 
                         "TRI/TET with ID %i is potentially degenerate and has a volume of V = %e. ",
@@ -202,12 +202,12 @@ namespace moris
                 {
                     TrianglePermutation( r, p, q );
                     real tDelta = mVertices( p )->get_coord( i ) - mVertices( q )->get_coord( i );
-                    if ( std::abs( tDelta ) < gSDFepsilon )
+                    if ( std::abs( tDelta ) < mIntersectionTolerance )
                     {
                         if ( tDelta < 0 )
-                            tDelta = -gSDFepsilon;
+                            tDelta = -mIntersectionTolerance;
                         else
-                            tDelta = gSDFepsilon;
+                            tDelta = mIntersectionTolerance;
                     }
 
                     mPredictYRA( r, k ) = ( mVertices( p )->get_coord( j ) - mVertices( q )->get_coord( j ) ) / tDelta;
@@ -246,12 +246,12 @@ namespace moris
 
             // check if point is within all three projected edges
             return ( ( mPredictY( aEdge, aAxis ) > mVertices( aEdge )->get_coord( tJ ) )
-                           && ( tPredictYR + gSDFepsilon > aPoint( tJ ) ) )
+                           && ( tPredictYR + mIntersectionTolerance > aPoint( tJ ) ) )
                 || ( ( mPredictY( aEdge, aAxis ) < mVertices( aEdge)->get_coord( tJ ) )
-                        && ( tPredictYR - gSDFepsilon < aPoint( tJ ) ) )
+                        && ( tPredictYR - mIntersectionTolerance < aPoint( tJ ) ) )
                 || ( std::abs( ( mVertices( tP )->get_coord( tJ ) - mVertices( tQ )->get_coord( tJ ) )
                                * ( mVertices( tP )->get_coord( tI ) - aPoint( tI ) ) )
-                        < gSDFepsilon );
+                        < mIntersectionTolerance );
         }
 
         //-------------------------------------------------------------------------------
@@ -318,13 +318,13 @@ namespace moris
 
             Matrix< F31RMat > aDirection( 3, 1 );
 
-            if ( tParam < gSDFepsilon )
+            if ( tParam < mIntersectionTolerance )
             {
                 // snap to point i and set tParam = 0.0;
                 aDirection( 0 ) = aLocalPoint( 0 ) - mBarycentric.mLocalNodeCoordsInPlane( 0, i );
                 aDirection( 1 ) = aLocalPoint( 1 ) - mBarycentric.mLocalNodeCoordsInPlane( 1, i );
             }
-            else if ( tParam > 1.0 - gSDFepsilon )
+            else if ( tParam > 1.0 - mIntersectionTolerance )
             {
                 // snap to point j and set tParam = 1.0;
                 aDirection( 0 ) = aLocalPoint( 0 ) - mBarycentric.mLocalNodeCoordsInPlane( 0, j );
@@ -380,9 +380,9 @@ namespace moris
             Matrix< F31RMat > tXi = this->get_barycentric_from_local_cartesian( tLocalPointCoords );
 
             // step 3: check if we are inside the triangle
-            if ( ( tXi( 0 ) >= -gSDFepsilon )
-                    && ( tXi( 1 ) >= -gSDFepsilon )
-                    && ( tXi( 2 ) >= -gSDFepsilon ) )
+            if ( ( tXi( 0 ) >= -mIntersectionTolerance )
+                    && ( tXi( 1 ) >= -mIntersectionTolerance )
+                    && ( tXi( 2 ) >= -mIntersectionTolerance ) )
             {
                 // the absolute value of the local z-coordinate is the distance
                 return std::abs( tLocalPointCoords( 2 ) );

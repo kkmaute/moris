@@ -25,20 +25,23 @@ namespace moris
         //-------------------------------------------------------------------------------
         class Object
         {
-            const real mMeshHighPass = 1e-9;
+            const real                              mMeshHighPass = 1e-9;
             moris::Cell< std::shared_ptr< Facet > > mFacets;
 
             uint mDimension;
             uint mNumberOfFacets;
+
+            real mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object
 
             //-------------------------------------------------------------------------------
 
           public:
             //-------------------------------------------------------------------------------
 
-            Object( const std::string&      aFilePath,
-                    const moris::Cell< real >& aOffsets = { 0, 0, 0 },
-                    const moris::Cell< real>& aScale = { 1.0, 1.0, 1.0 } );
+            Object( const std::string&         aFilePath,
+                    real                       aIntersectionTolerance = 1e-8,
+                    const moris::Cell< real >& aOffsets               = { 0, 0, 0 },
+                    const moris::Cell< real >& aScale                 = { 1.0, 1.0, 1.0 } );
 
 
             //-------------------------------------------------------------------------------
@@ -107,6 +110,12 @@ namespace moris
             get_dimension()
             {
                 return mDimension;
+            }
+
+            real
+            get_intersection_tolerance()
+            {
+                return mIntersectionTolerance;
             }
 
             //-------------------------------------------------------------------------------

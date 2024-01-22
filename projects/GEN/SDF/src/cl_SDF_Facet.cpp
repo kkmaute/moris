@@ -30,13 +30,15 @@ namespace moris
         Facet::Facet(
                 moris_index                                     aIndex,
                 moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
-                uint                                            aDimension )
+                uint                                            aDimension,
+                real aIntersectionTolerance  )
                 : mIndex( aIndex )
                 , mVertices( aVertices )
                 , mCenter( aDimension, 1 )
                 , mNormal( aDimension, 1 )
                 , mMinCoord( aDimension, 1 )
                 , mMaxCoord( aDimension, 1 )
+                , mIntersectionTolerance( aIntersectionTolerance )
         {
         }
 
@@ -113,7 +115,7 @@ namespace moris
                 real&                   aCoordinate,
                 bool&                   aError )
         {
-            if ( std::abs( mNormal( aAxis ) ) < gSDFepsilon )
+            if ( std::abs( mNormal( aAxis ) ) < mIntersectionTolerance )
             {
                 aCoordinate = 0;
                 aError      = true;
@@ -297,8 +299,7 @@ namespace moris
                 return false;
             }
 
-            return all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() ) && all_true( mNormal == aRHS.get_normal() ) && std::abs( mHesse - aRHS.get_hesse() ) < gSDFepsilon;
-
+            return all_true( this->get_vertex_ids() == aRHS.get_vertex_ids() ) && all_true( mNormal == aRHS.get_normal() ) && std::abs( mHesse - aRHS.get_hesse() ) < mIntersectionTolerance;
         }
     } /* namespace sdf */
 } /* namespace moris */

@@ -51,6 +51,8 @@ namespace moris
 
             bool mFlag = false;
 
+            real mIntersectionTolerance;
+
             //-------------------------------------------------------------------------------
 
           public:
@@ -59,7 +61,8 @@ namespace moris
             Facet(
                     moris_index                                     aIndex,
                     moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
-                    uint                                            aDimension );
+                    uint                                            aDimension,
+                    real aIntersectionTolerance = 1e-8 );
 
             //-------------------------------------------------------------------------------
 

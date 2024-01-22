@@ -321,7 +321,7 @@ namespace moris::sdf
             real tMinCoordOffAxisDifference = aObject.get_facet_min_coord( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis );
 
             // if the cast point is close to either vertex, return an error for preselection
-            if ( std::abs( tMaxCoordOffAxisDifference ) < gSDFepsilon or std::abs( tMinCoordOffAxisDifference ) < gSDFepsilon )
+            if ( std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance() or std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance() )
             {
                 aObject.get_facet( iLineIndex ).flag();
                 tPreselectionSuccessful = false;

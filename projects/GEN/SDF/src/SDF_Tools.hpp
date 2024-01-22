@@ -30,7 +30,6 @@ namespace moris
 {
     namespace sdf
     {
-        const real gSDFepsilon = 1e-8;
 
         //-------------------------------------------------------------------------------
 

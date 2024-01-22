@@ -93,7 +93,7 @@ namespace moris::ge
 
         // build interpolator
         mtk::Interpolation_Function_Factory tFactory;
-        mtk::Interpolation_Function_Base* tInterpolation;
+        mtk::Interpolation_Function_Base*   tInterpolation;
 
         // create interpolation function based on spatial dimension  of problem
         switch ( tNumBases )
@@ -193,7 +193,7 @@ namespace moris::ge
 
         // build interpolator
         mtk::Interpolation_Function_Factory tFactory;
-        mtk::Interpolation_Function_Base* tInterpolation;
+        mtk::Interpolation_Function_Base*   tInterpolation;
 
         // create interpolation function based on spatial dimension of problem
         switch ( tNumDims )
@@ -238,7 +238,7 @@ namespace moris::ge
 
         // Scale element level set field such that norm equals 1.0
         real tPhiScaling = 1.0 / norm( tPhiBCNodes );
-        tPhiBCNodes = tPhiScaling * tPhiBCNodes;
+        tPhiBCNodes      = tPhiScaling * tPhiBCNodes;
         tIsocontourThreshold *= tPhiScaling;
 
         // Get scaled parent level set values
@@ -420,20 +420,6 @@ namespace moris::ge
             }
         }
 
-        // print debug information
-        // for ( uint in = 0; in < tNumBases; ++in )
-        // {
-        //     std::string tStrg = "Anchestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
-        //     print( aAncestorNodeCoordinates( in ), tStrg );
-        // }
-
-        // print( tPhiBCNodes, "tPhiBCNodes" );
-
-        // fprintf( stderr, "tFirstParentPhi =%e   tSecondParentPhi = %e\n", tFirstParentPhi, tSecondParentPhi );
-
-        // print( aFirstParentNodeLocalCoordinates, "aFirstParentNodeLocalCoordinates" );
-        // print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
-
         MORIS_ERROR( false,
                 "Intersection_Node_Bilinear::compute_intersection - Newton did not converge: %s %e %s %e %s %e",
                 "Reference residual",
@@ -450,4 +436,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::ge

@@ -24,9 +24,10 @@ namespace moris::ge
     struct Surface_Mesh_Parameters : public Field_Parameters
             , public Design_Parameters
     {
-        Cell< real > mOffsets;
-        Cell< real > mScale;
-        std::string  mFilePath;
+        Cell< real > mOffsets;          // Initial shift of surface mesh coordinates
+        Cell< real > mScale;            // Option to scale each axis of the surface mesh
+        std::string  mFilePath;         // Surface mesh file path
+        real mIntersectionTolerance;    // Interface tolerance based on intersection distance FIXME BRENDAN: move this to a geometry parameter struct
 
         /**
          * Constructor with a given parameter list

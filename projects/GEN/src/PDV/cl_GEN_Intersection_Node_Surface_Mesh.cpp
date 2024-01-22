@@ -136,14 +136,16 @@ namespace moris::ge
         // reset the object
         aInterfaceGeometry->reset_coordinates();
 
+        // return not intersected if raycast found no facets
         if ( tLocalCoordinate.size() == 0 )
         {
             return MORIS_REAL_MAX;
         }
-        // FIXME: the case where 3 or more intersections occur between the two parents needs to be carefully considered
-        else if ( tLocalCoordinate.size() > 2 )
+        // FIXME: need logic for 3 intersections between parent edges
+        // FIXME: write descriptive error message
+        else if( tLocalCoordinate.size() > 2 )
         {
-            MORIS_ERROR( tLocalCoordinate( 2 ) <= 1.0, "GEN - Intersection Node Surface Mesh: Parent nodes are in different geometric regions, and multiple intersections detected along parent edge." );
+            MORIS_ERROR( false, "bad" );
         }
 
         return tLocalCoordinate( 0 );
