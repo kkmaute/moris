@@ -75,12 +75,15 @@ namespace moris::ge
 
         /**
          * Gets the number of fields that the design has
+         *
+         * @return Number of fields
          */
         virtual uint get_num_fields() = 0;
 
         /**
-         * Gets the name of the geometry
+         * Gets the name of the design
          *
+         * @return Design name
          */
         virtual std::string get_name() = 0;
 

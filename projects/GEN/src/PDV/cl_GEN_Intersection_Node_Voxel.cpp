@@ -39,7 +39,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real get_local_coordinate(
+    real Intersection_Node_Voxel::get_local_coordinate(
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode,
             std::shared_ptr< Voxel_Geometry > aInterfaceGeometry )
@@ -48,14 +48,26 @@ namespace moris::ge
         Geometric_Region tFirstParentGeometricRegion = aInterfaceGeometry->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
         Geometric_Region tSecondParentGeometricRegion = aInterfaceGeometry->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
 
-        // Test to make sure geometric regions are not the same
-        if ( tFirstParentGeometricRegion not_eq tSecondParentGeometricRegion )
+        // Return local coordinate based on geometric regions of the parent nodes
+        if ( tFirstParentGeometricRegion == tSecondParentGeometricRegion and tFirstParentGeometricRegion not_eq Geometric_Region::INTERFACE )
         {
-            return 0.0;
+            // Geometric regions are the same; no intersection
+            return MORIS_REAL_MAX;
+        }
+        else if ( tFirstParentGeometricRegion == Geometric_Region::INTERFACE )
+        {
+            // First parent on interface
+            return -1.0;
+        }
+        else if ( tSecondParentGeometricRegion == Geometric_Region::INTERFACE )
+        {
+            // Second parent on interface
+            return 1.0;
         }
         else
         {
-            return MORIS_REAL_MAX;
+            // Interface is midway between the parent nodes
+            return 0.0;
         }
     }
 

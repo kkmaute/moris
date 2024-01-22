@@ -90,6 +90,7 @@ set(HEADERS
 	PDV/cl_GEN_Intersection_Node_Linear.hpp
 	PDV/cl_GEN_Intersection_Node_Bilinear.hpp
 	PDV/cl_GEN_Intersection_Node_Surface_Mesh.hpp
+	PDV/cl_GEN_Intersection_Node_Voxel.hpp
     )
 
 # List library source files
@@ -151,6 +152,7 @@ set(LIB_SOURCES
 	PDV/cl_GEN_Intersection_Node_Linear.cpp
 	PDV/cl_GEN_Intersection_Node_Bilinear.cpp
 	PDV/cl_GEN_Intersection_Node_Surface_Mesh.cpp
+	PDV/cl_GEN_Intersection_Node_Voxel.cpp
     )
 
 # List library dependencies
