@@ -209,7 +209,7 @@ namespace moris::ge
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() const override;
+        virtual moris_index get_discretization_mesh_index() override;
 
         /**
          * Gets the lower bound for a discretized field.

@@ -44,7 +44,17 @@ namespace moris::ge
         Design_Parameters mParameters;
 
       public:
+        /**
+         * Constructor
+         *
+         * @param aParameters Parameters relevant to all designs
+         */
         explicit Design( Design_Parameters aParameters );
+
+        /**
+         * Default destructor
+         */
+        virtual ~Design() = default;
 
         /**
          * This function will return true when called less than the number of refinements set for this field,
@@ -99,7 +109,7 @@ namespace moris::ge
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() const = 0;
+        virtual moris_index get_discretization_mesh_index() = 0;
 
         /**
          * Gets the lower bound for a discretized field.

@@ -162,7 +162,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
     
-    moris_index Voxel_Geometry::get_discretization_mesh_index() const
+    moris_index Voxel_Geometry::get_discretization_mesh_index()
     {
         return -1;
     }

@@ -313,7 +313,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Level_Set_Geometry::get_discretization_mesh_index() const
+    Level_Set_Geometry::get_discretization_mesh_index()
     {
         MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
                 "A discretization is not intended for this field. Check this with intended_discretization() first." );
