@@ -23,7 +23,7 @@ namespace moris::ge
         /**
          * Constructor
          *
-         * @param aNodeIndex This node's index on the processor
+         * @param aNodeIndex This node's index on the processor if it is admitted
          * @param aBaseNodes Background nodes of the element where this node resides
          * @param aFirstParentNode First parent node information
          * @param aSecondParentNode Second parent node information

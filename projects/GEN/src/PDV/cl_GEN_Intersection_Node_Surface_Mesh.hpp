@@ -30,12 +30,13 @@ namespace moris::ge
         /**
          * Constructor
          *
-         * @param aNodeIndex the index assigned to this node
-         * @param aBaseNodes the background nodes that correspond to this intersection node
-         * @param aFirstParentNode the first node that this intersection node lies between
-         * @param aSecondParentNode the other node that this intersection node lies between
-         * @param aBaseGeometryType type of collection of base nodes. QUAD for 2D and HEX for 3D
-         * @param aInterfaceGeometry geometry that intersects the parents to create this intersection node
+         * @param aNodeIndex This node's index on the processor if it is admitted
+         * @param aBaseNodes Background nodes of the element where this node resides
+         * @param aFirstParentNode First parent node information
+         * @param aSecondParentNode Second parent node information
+         * @param aBackgroundGeometryType Background element geometry type
+         * @param aBackgroundInterpolationOrder Background element interpolation order
+         * @param aInterfaceGeometry Interface geometry (surface mesh)
          */
         Intersection_Node_Surface_Mesh(
                 uint                                     aNodeIndex,

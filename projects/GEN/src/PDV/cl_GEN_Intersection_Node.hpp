@@ -37,16 +37,13 @@ namespace moris::ge
         /**
          * Constructor
          *
-         * @param aLocalCoordinate Local coordinate inside of parent edge
-         * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
-         * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
-         * @param aFirstParentNodeIndex Index of the first parent of this node
-         * @param aSecondParentNodeIndex Index of the second parent of this node
-         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent of this node
-         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent of this node
-         * @param aAncestorNodeIndices Node indices of the ancestors of this intersection node
-         * @param aAncestorNodeCoordinates Coordinates of the ancestors of this intersection node
-         * @param aAncestorBasisFunction Basis function of the ancestor topology
+         * @param aNodeIndex This node's index on the processor if it is admitted
+         * @param aBaseNodes Background nodes of the element where this node resides
+         * @param aFirstParentNode First parent node information
+         * @param aSecondParentNode Second parent node information
+         * @param aBackgroundGeometryType Background element geometry type
+         * @param aBackgroundInterpolationOrder Background element interpolation order
+         * @param aInterfaceGeometry Interface geometry
          */
         Intersection_Node(
                 uint                        aNodeIndex,
