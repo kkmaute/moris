@@ -27,9 +27,9 @@ namespace moris::ge
 
       public:
         /**
-         * Constructor for a parent node given a base node and parametric coordinates
+         * Constructor for a parent node given a node and parametric coordinates
          *
-         * @param aNode Base node
+         * @param aNode GEN node
          * @param aParametricCoordinates Parametric coordinates
          */
         Parent_Node(

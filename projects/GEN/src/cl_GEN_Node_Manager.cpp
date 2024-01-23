@@ -18,7 +18,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Node_Manager::Node_Manager( mtk::Mesh* aMesh )
-            : mBaseNodes( 0 )
+            : mBackgroundNodes( 0 )
     {
         this->reset_base_nodes( aMesh );
     }
@@ -41,10 +41,10 @@ namespace moris::ge
         if ( aMesh )
         {
             mMeshGiven = true;
-            mBaseNodes.resize( aMesh->get_num_nodes() );
-            for ( uint iNodeIndex = 0; iNodeIndex < mBaseNodes.size(); iNodeIndex++ )
+            mBackgroundNodes.resize( aMesh->get_num_nodes() );
+            for ( uint iNodeIndex = 0; iNodeIndex < mBackgroundNodes.size(); iNodeIndex++ )
             {
-                mBaseNodes( iNodeIndex ) = new Base_Node( iNodeIndex, aMesh->get_node_coordinate( iNodeIndex ) );
+                mBackgroundNodes( iNodeIndex ) = new Background_Node( iNodeIndex, aMesh->get_node_coordinate( iNodeIndex ) );
             }
         }
     }
@@ -53,16 +53,16 @@ namespace moris::ge
 
     uint Node_Manager::get_total_number_of_nodes()
     {
-        return mBaseNodes.size() + mDerivedNodes.size();
+        return mBackgroundNodes.size() + mDerivedNodes.size();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Node* Node_Manager::get_node( uint aNodeIndex )
     {
-        if ( this->is_base_node( aNodeIndex ) )
+        if ( this->is_background_node( aNodeIndex ) )
         {
-            return this->get_base_node( aNodeIndex );
+            return this->get_background_node( aNodeIndex );
         }
         else
         {
@@ -72,16 +72,16 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Node_Manager::is_base_node( uint aNodeIndex ) const
+    bool Node_Manager::is_background_node( uint aNodeIndex ) const
     {
-        return aNodeIndex < mBaseNodes.size() or not mMeshGiven;
+        return aNodeIndex < mBackgroundNodes.size() or not mMeshGiven;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Base_Node* Node_Manager::get_base_node( uint aBaseNodeIndex )
+    Background_Node* Node_Manager::get_background_node( uint aBackgroundNodeIndex )
     {
-        return mBaseNodes( aBaseNodeIndex );
+        return mBackgroundNodes( aBackgroundNodeIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -97,9 +97,9 @@ namespace moris::ge
 
     Derived_Node* Node_Manager::get_derived_node( uint aDerivedNodeIndex ) const
     {
-        MORIS_ASSERT( aDerivedNodeIndex >= mBaseNodes.size(),
-                "A derived node was requested from the GEN node manager, but the index provided corresponds to a base node." );
-        return mDerivedNodes( aDerivedNodeIndex - mBaseNodes.size() );
+        MORIS_ASSERT( aDerivedNodeIndex >= mBackgroundNodes.size(),
+                "A derived node was requested from the GEN node manager, but the index provided corresponds to a background node." );
+        return mDerivedNodes( aDerivedNodeIndex - mBackgroundNodes.size() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -114,12 +114,12 @@ namespace moris::ge
 
     void Node_Manager::delete_all_nodes()
     {
-        // Delete base nodes
-        for ( Base_Node* iBaseNode : mBaseNodes )
+        // Delete background nodes
+        for ( Background_Node* iBaseNode : mBackgroundNodes )
         {
             delete iBaseNode;
         }
-        mBaseNodes.clear();
+        mBackgroundNodes.clear();
 
         // Delete derived nodes
         for ( Derived_Node* iDerivedNode : mDerivedNodes )

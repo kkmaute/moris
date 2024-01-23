@@ -15,7 +15,7 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "GEN_Data_Types.hpp"
 #include "cl_GEN_Design_Factory.hpp"
-#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
@@ -347,11 +347,11 @@ namespace moris
             // If previous intersection node was not admitted, this will delete it
             delete mQueuedIntersectionNode;
 
-            // Get base nodes
-            Cell< Node* > tBaseNodes( aBackgroundElementNodeIndices.length() );
-            for ( uint iNode = 0; iNode < tBaseNodes.size(); iNode++ )
+            // Get background nodes
+            Cell< Node* > tBackgroundNodes( aBackgroundElementNodeIndices.length() );
+            for ( uint iNode = 0; iNode < tBackgroundNodes.size(); iNode++ )
             {
-                tBaseNodes( iNode ) = mNodeManager.get_base_node( aBackgroundElementNodeIndices( iNode ) );
+                tBackgroundNodes( iNode ) = mNodeManager.get_background_node( aBackgroundElementNodeIndices( iNode ) );
             }
 
             // Create parent nodes
@@ -359,7 +359,7 @@ namespace moris
             Parent_Node tSecondParentNode( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
 
             // Have the active geometry create a new intersection node
-            mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node( mNodeManager.get_total_number_of_nodes(), tBaseNodes, tFirstParentNode, tSecondParentNode, aBackgroundGeometryType, aBackgroundInterpolationOrder );
+            mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node( mNodeManager.get_total_number_of_nodes(), tBackgroundNodes, tFirstParentNode, tSecondParentNode, aBackgroundGeometryType, aBackgroundInterpolationOrder );
 
             // Return if queued intersected node is on the parent edge
             return mQueuedIntersectionNode->parent_edge_is_intersected();
@@ -480,16 +480,16 @@ namespace moris
             for ( uint iNode = 0; iNode < aNewNodeIndices.size(); iNode++ )
             {
                 // Create basis nodes
-                Cell< Node* > tBaseNodes( tVertexIndices( iNode ).length() );
+                Cell< Node* > tBackgroundNodes( tVertexIndices( iNode ).length() );
                 for ( uint iBaseNode = 0; iBaseNode < tVertexIndices( iNode ).length(); iBaseNode++ )
                 {
-                    tBaseNodes( iBaseNode ) = mNodeManager.get_base_node( tVertexIndices( iNode )( iBaseNode ) );
+                    tBackgroundNodes( iBaseNode ) = mNodeManager.get_background_node( tVertexIndices( iNode )( iBaseNode ) );
                 }
 
                 // Create new derived node
                 mNodeManager.add_derived_node( new Derived_Node(
                         aNewNodeIndices( iNode ),
-                        tBaseNodes,
+                        tBackgroundNodes,
                         aParametricCoordinates( iNode ),
                         aBackgroundGeometryType,
                         aBackgroundInterpolationOrder ) );

@@ -24,7 +24,7 @@
 
 #include "fn_PRM_GEN_Parameters.hpp"
 
-#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
 namespace moris::ge
@@ -51,18 +51,18 @@ namespace moris::ge
             Matrix< DDRMat > tFirstParentGlobalCoordinates  = { { 0.2, 0.35 } };
             Matrix< DDRMat > tSecondParentGlobalCoordinates = { { 0.3, 0.15 } };
 
-            Base_Node            tFirstBase( tNodeIndex++, tFirstParentGlobalCoordinates );
-            Base_Node            tSecondBase( tNodeIndex++, tSecondParentGlobalCoordinates );
-            Base_Node            tThirdBase( tNodeIndex++, { { 0.25, 0.15 } } );
-            Base_Node            tFourthBase( tNodeIndex++, { { 0.1, 0.2 } } );
+            Background_Node            tFirstBase( tNodeIndex++, tFirstParentGlobalCoordinates );
+            Background_Node            tSecondBase( tNodeIndex++, tSecondParentGlobalCoordinates );
+            Background_Node            tThirdBase( tNodeIndex++, { { 0.25, 0.15 } } );
+            Background_Node            tFourthBase( tNodeIndex++, { { 0.1, 0.2 } } );
             moris::Cell< Node* > tBaseNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
 
 
             Matrix< DDRMat > tFirstParentParametricCoordinates  = { { -1.0, 1.0 } };
             Matrix< DDRMat > tSecondParentParametricCoordinates = { { 1.0, 1.0 } };
 
-            Base_Node tBaseFirstParent( tNodeIndex++, tFirstParentGlobalCoordinates );
-            Base_Node tBaseSecondParent( tNodeIndex++, tSecondParentGlobalCoordinates );
+            Background_Node tBaseFirstParent( tNodeIndex++, tFirstParentGlobalCoordinates );
+            Background_Node tBaseSecondParent( tNodeIndex++, tSecondParentGlobalCoordinates );
 
             Parent_Node tFirstParentNode( &tBaseFirstParent, tFirstParentParametricCoordinates );
             Parent_Node tSecondParentNode( &tBaseSecondParent, tSecondParentParametricCoordinates );

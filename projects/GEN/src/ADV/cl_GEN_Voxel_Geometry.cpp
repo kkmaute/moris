@@ -43,7 +43,7 @@ namespace moris::ge
         const Node_Manager& tNodeManager = mVoxelInput->get_node_manager();
 
         // Test for background node
-        if ( mVoxelInput->get_node_manager().is_base_node( aNodeIndex ) )
+        if ( mVoxelInput->get_node_manager().is_background_node( aNodeIndex ) )
         {
             // Background node, so we can check the voxel ID from the voxel input
             if ( mVoxelInput->get_voxel_ID( aNodeCoordinates ) == mIndex )
@@ -116,7 +116,7 @@ namespace moris::ge
 
     Intersection_Node* Voxel_Geometry::create_intersection_node(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -124,7 +124,7 @@ namespace moris::ge
     {
         return new Intersection_Node_Voxel(
                 aNodeIndex,
-                aBaseNodes,
+                aBackgroundNodes,
                 aFirstParentNode,
                 aSecondParentNode,
                 aBackgroundGeometryType,

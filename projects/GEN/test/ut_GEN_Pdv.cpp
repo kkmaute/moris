@@ -17,7 +17,7 @@
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
-#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
 #define protected public
@@ -374,9 +374,9 @@ namespace moris
                     Matrix< DDRMat > tSecondParentCoordinates = { { 1.5 * cos( tRadians ), 1.5 * sin( tRadians ) } };
 
                     // Create parent nodes
-                    auto tFirstNode = new Base_Node( 0, tFirstParentCoordinates );
+                    auto tFirstNode = new Background_Node( 0, tFirstParentCoordinates );
                     Parent_Node tFirstParentNode( tFirstNode, {{ -1.0 }} );
-                    auto tSecondNode = new Base_Node( 0, tSecondParentCoordinates );
+                    auto tSecondNode = new Background_Node( 0, tSecondParentCoordinates );
                     Parent_Node tSecondParentNode( tSecondNode, {{ 1.0 }} );
 
                     // Assign as base nodes

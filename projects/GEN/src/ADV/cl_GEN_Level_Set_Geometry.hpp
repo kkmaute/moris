@@ -105,7 +105,7 @@ namespace moris::ge
          * requested from the created intersection node.
          *
          * @param aNodeIndex Node index of the new intersection node
-         * @param aBaseNodes Base nodes of the element where the intersection lies
+         * @param aBackgroundNodes Background nodes of the element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
          * @param aBackgroundGeometryType Geometry type of the background element
@@ -114,7 +114,7 @@ namespace moris::ge
          */
         Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBaseNodes,
+                const Cell< Node* >&     aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,

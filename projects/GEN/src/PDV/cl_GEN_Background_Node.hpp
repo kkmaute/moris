@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Base_Node.hpp
+ * cl_GEN_Background_Node.hpp
  *
  */
 
@@ -14,7 +14,7 @@
 
 namespace moris::ge
 {
-    class Base_Node : public Node
+    class Background_Node : public Node
     {
       private:
         Matrix< DDRMat > mCoordinates;
@@ -22,12 +22,12 @@ namespace moris::ge
 
       public:
         /**
-         * Base node constructor. Requires a node index as well as coordinates.
+         * Background node constructor. Requires a node index as well as coordinates.
          *
          * @param aIndex Node index
          * @param aCoordinates Node coordinates
          */
-        Base_Node(
+        Background_Node(
                 uint                    aIndex,
                 const Matrix< DDRMat >& aCoordinates );
 

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "cl_Cell.hpp"
-#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 
 // Forward declare mtk mesh
@@ -25,7 +25,7 @@ namespace moris::ge
     class Node_Manager
     {
       private:
-        Cell< Base_Node* > mBaseNodes;
+        Cell< Background_Node* > mBackgroundNodes;
         Cell< Derived_Node* > mDerivedNodes;
         bool mMeshGiven = false;
 
@@ -33,7 +33,7 @@ namespace moris::ge
         /**
          * Constructor with a given mesh
          *
-         * @param aMesh Mesh pointer for creating base nodes
+         * @param aMesh Mesh pointer for creating background nodes
          */
         explicit Node_Manager( mtk::Mesh* aMesh );
 
@@ -43,9 +43,9 @@ namespace moris::ge
         ~Node_Manager();
 
         /**
-         * Resets the stored base node information with a given MTK mesh.
+         * Resets the stored background node information with a given MTK mesh.
          *
-         * @param aMesh Input mesh with base nodes
+         * @param aMesh Input mesh with background nodes
          */
         void reset_base_nodes( mtk::Mesh* aMesh );
 
@@ -65,19 +65,19 @@ namespace moris::ge
         Node* get_node( uint aNodeIndex );
 
         /**
-         * Gets if the given node index refers to a base node.
+         * Gets if the given node index refers to a background node.
          *
-         * @return If node is a base node.
+         * @return If node is a background node.
          */
-        bool is_base_node( uint aNodeIndex ) const;
+        bool is_background_node( uint aNodeIndex ) const;
 
         /**
-         * Gets a base node stored in this manager.
+         * Gets a background node stored in this manager.
          *
-         * @param aBaseNodeIndex Base node index
+         * @param aBackgroundNodeIndex background node index
          * @return Node pointer
          */
-        Base_Node* get_base_node( uint aBaseNodeIndex );
+        Background_Node* get_background_node( uint aBackgroundNodeIndex );
 
         /**
          * Adds a derived node to this manager.

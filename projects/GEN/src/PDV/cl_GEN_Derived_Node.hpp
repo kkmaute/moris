@@ -37,14 +37,14 @@ namespace moris::ge
          * Derived node constructor, using other nodal information with background nodes.
          *
          * @param aIndex Node index
-         * @param aBaseNodes Base nodes
+         * @param aBackgroundNodes Background nodes
          * @param aParametricCoordinates Parametric coordinates inside the background element
          * @param aGeometryType Geometry type of the background element
          * @param aInterpolationOrder Interpolation order of the background element.
          */
         Derived_Node(
                 uint                     aIndex,
-                const Cell< Node* >&     aBaseNodes,
+                const Cell< Node* >&     aBackgroundNodes,
                 const Matrix< DDRMat >&  aParametricCoordinates,
                 mtk::Geometry_Type       aGeometryType,
                 mtk::Interpolation_Order aInterpolationOrder );

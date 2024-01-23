@@ -69,7 +69,7 @@ namespace moris::ge
 
     Intersection_Node* Surface_Mesh_Geometry::create_intersection_node(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -78,7 +78,7 @@ namespace moris::ge
         // Create linear intersection node
         return new Intersection_Node_Surface_Mesh(
                 aNodeIndex,
-                aBaseNodes,
+                aBackgroundNodes,
                 aFirstParentNode,
                 aSecondParentNode,
                 aBackgroundGeometryType,

@@ -85,8 +85,8 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        // If it's a base node, can get geometric region from field value
-        if ( mNodeManager->is_base_node( aNodeIndex ) )
+        // If it's a background node, can get geometric region from field value
+        if ( mNodeManager->is_background_node( aNodeIndex ) )
         {
             return this->determine_geometric_region( this->get_field_value( aNodeIndex, aNodeCoordinates ) );
         }
@@ -137,7 +137,7 @@ namespace moris::ge
 
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -148,7 +148,7 @@ namespace moris::ge
             // Create multilinear intersection node
             return new Intersection_Node_Bilinear(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
                     aBackgroundGeometryType,
@@ -160,7 +160,7 @@ namespace moris::ge
             // Create linear intersection node
             return new Intersection_Node_Linear(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
                     aBackgroundGeometryType,

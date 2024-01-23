@@ -20,15 +20,15 @@ namespace moris::ge
 
     Derived_Node::Derived_Node(
             uint                     aIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Matrix< DDRMat >&  aParametricCoordinates,
             mtk::Geometry_Type       aGeometryType,
             mtk::Interpolation_Order aInterpolationOrder )
             : Node( aIndex )
             , mParametricCoordinates( aParametricCoordinates )
     {
-        // Check that at least one base node was given
-        MORIS_ASSERT( aBaseNodes.size() > 0, "A derived GEN node must have at least one basis node." );
+        // Check that at least one background node was given
+        MORIS_ASSERT( aBackgroundNodes.size() > 0, "A derived GEN node must have at least one basis node." );
 
         // Override linear interpolation if desired
         if ( gOverrideLinearInterpolation )
@@ -54,7 +54,7 @@ namespace moris::ge
         mBackgroundNodes.reserve( tNumberOfBases );
         for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
         {
-            mBackgroundNodes.emplace_back( aBaseNodes( iBasisIndex ), tBasis( iBasisIndex ) );
+            mBackgroundNodes.emplace_back( aBackgroundNodes( iBasisIndex ), tBasis( iBasisIndex ) );
         }
 
         // Size global coordinates based on first locator

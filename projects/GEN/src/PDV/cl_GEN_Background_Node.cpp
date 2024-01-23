@@ -4,11 +4,11 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Base_Node.cpp
+ * cl_GEN_Background_Node.cpp
  *
  */
 
-#include "cl_GEN_Base_Node.hpp"
+#include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::ge
@@ -16,7 +16,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Base_Node::Base_Node(
+    Background_Node::Background_Node(
             uint                    aIndex,
             const Matrix< DDRMat >& aCoordinates )
             : Node( aIndex )
@@ -26,7 +26,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Base_Node::get_global_coordinates()
+    const Matrix< DDRMat >& Background_Node::get_global_coordinates()
     {
         return mCoordinates;
     }
@@ -34,8 +34,8 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< Basis_Node > Base_Node::mDummyLocatorNodes = {};
-    const Cell< Basis_Node >& Base_Node::get_locator_nodes()
+    Cell< Basis_Node >        Background_Node::mDummyLocatorNodes = {};
+    const Cell< Basis_Node >& Background_Node::get_locator_nodes()
     {
         return mDummyLocatorNodes;
     }
