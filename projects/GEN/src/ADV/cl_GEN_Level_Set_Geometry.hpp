@@ -16,12 +16,6 @@
 
 namespace moris::ge
 {
-    enum class Int_Interpolation
-    {
-        LINEAR,
-        MULTILINEAR
-    };
-
     /**
      * This is a struct used to simplify \ref moris::ge::Level_Set_Geometry constructors. It contains all field and level-set parameters.
      */
@@ -65,13 +59,6 @@ namespace moris::ge
          * @param aNodeManager Geometry engine node manager
          */
         void set_node_manager( Node_Manager& aNodeManager ) override;
-
-        /**
-         * Gets the mode of intersection used for this geometry
-         *
-         * @return Intersection_Mode enum
-         */
-        Intersection_Mode get_intersection_mode();
 
         /**
          * Accesses the isocontour level that determines the interface for this geometry

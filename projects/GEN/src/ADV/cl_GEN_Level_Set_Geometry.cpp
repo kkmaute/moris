@@ -50,14 +50,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Intersection_Mode
-    Level_Set_Geometry::get_intersection_mode()
-    {
-        return Intersection_Mode::LEVEL_SET;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     real
     Level_Set_Geometry::get_isocontour_threshold()
     {
