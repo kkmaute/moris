@@ -172,9 +172,12 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field::get_determining_adv_ids( Matrix< DDSMat >& aDeterminingADVIDs, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    void Field::get_determining_adv_ids(
+            Matrix< DDSMat >& aDeterminingADVIDs,
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
-        aDeterminingADVIDs = this->get_determining_adv_ids( aDerivedNode->get_index(), aDerivedNode->get_global_coordinates() );
+        aDeterminingADVIDs = this->get_determining_adv_ids( aDerivedNode.get_index(), aDerivedNode.get_global_coordinates() );
     }
     
     //--------------------------------------------------------------------------------------------------------------

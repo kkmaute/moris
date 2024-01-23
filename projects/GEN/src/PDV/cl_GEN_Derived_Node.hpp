@@ -40,7 +40,7 @@ namespace moris::ge
          * @param aBackgroundNodes Background nodes
          * @param aParametricCoordinates Parametric coordinates inside the background element
          * @param aGeometryType Geometry type of the background element
-         * @param aInterpolationOrder Interpolation order of the background element.
+         * @param aInterpolationOrder Interpolation order of the background element
          */
         Derived_Node(
                 uint                     aIndex,
@@ -54,21 +54,21 @@ namespace moris::ge
          *
          * @return Node coordinates
          */
-        const Matrix< DDRMat >& get_global_coordinates() override;
+        const Matrix< DDRMat >& get_global_coordinates() const override;
 
         /**
          * Gets the parametric coordinates of this derived node relative to its locators
          *
          * @return Parametric coordinates
          */
-        const Matrix< DDRMat >& get_parametric_coordinates();
+        const Matrix< DDRMat >& get_parametric_coordinates() const;
 
         /**
          * Gets the basis nodes of this derived node
          *
          * @return Basis nodes
          */
-        const Cell< Basis_Node >& get_background_nodes();
+        const Cell< Basis_Node >& get_background_nodes() const;
 
         /**
          * Gets the locator nodes of this derived node.
@@ -77,7 +77,7 @@ namespace moris::ge
          *
          * @return Locator nodes
          */
-        const Cell< Basis_Node >& get_locator_nodes() override;
+        const Cell< Basis_Node >& get_locator_nodes() const override;
 
         /**
          * Gets if this derived node can be determined that it is on a specific interface without any field evaluation.
@@ -85,7 +85,7 @@ namespace moris::ge
          * @param aGeometry Potential interface geometry
          * @return If this node is on the requested interface
          */
-        virtual bool is_on_interface( Geometry* aGeometry );
+        virtual bool is_on_interface( Geometry* aGeometry ) const;
 
         /**
          * Sets the flag for overriding linear interpolation, for when multilinear intersections are being used.

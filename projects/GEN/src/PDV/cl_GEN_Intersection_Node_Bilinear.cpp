@@ -41,12 +41,14 @@ namespace moris::ge
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
                     aInterfaceGeometry )
+            , mFirstParentNodeParametricCoordinates( aFirstParentNode.get_parametric_coordinates() )
+            , mSecondParentNodeParametricCoordinates( aSecondParentNode.get_parametric_coordinates() )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Intersection_Node_Bilinear::get_field_basis_nodes()
+    const Cell< Basis_Node >& Intersection_Node_Bilinear::get_field_basis_nodes() const
     {
         return this->get_background_nodes();
     }
@@ -54,7 +56,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
+    Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const
     {
         // number of nodes to be used for interpolation
         uint tNumBases;
@@ -158,7 +160,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent()
+    Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent() const
     {
         MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
         return { {} };
@@ -167,7 +169,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent()
+    Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent() const
     {
         MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
         return { {} };

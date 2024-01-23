@@ -44,14 +44,14 @@ namespace moris::ge
     void
     Intersection_Node_Level_Set::append_dcoordinate_dadv(
             Matrix< DDRMat >&       aCoordinateSensitivities,
-            const Matrix< DDRMat >& aSensitivityFactor )
+            const Matrix< DDRMat >& aSensitivityFactor ) const
     {
         // Locked interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
         // Get parent nodes
-        Basis_Node& tFirstParentNode = this->get_first_parent_node();
-        Basis_Node& tSecondParentNode = this->get_second_parent_node();
+        const Basis_Node& tFirstParentNode = this->get_first_parent_node();
+        const Basis_Node& tSecondParentNode = this->get_second_parent_node();
 
         // Compute parent vector
         Matrix< DDRMat > tParentVector = trans( tSecondParentNode.get_global_coordinates() - tFirstParentNode.get_global_coordinates() );
@@ -107,10 +107,10 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDSMat >
-    Intersection_Node_Level_Set::get_coordinate_determining_adv_ids()
+    Intersection_Node_Level_Set::get_coordinate_determining_adv_ids() const
     {
-        // Set size
-        mCoordinateDeterminingADVIDs.set_size( 0, 0 );
+        // Initialize ADV IDs
+        Matrix< DDSMat > tCoordinateDeterminingADVIDs;
 
         // Locked interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
@@ -125,25 +125,25 @@ namespace moris::ge
                     tLocatorNodes( iLocatorNode ).get_global_coordinates() );
 
             // Join IDs
-            this->join_adv_ids( tAncestorADVIDs );
+            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tAncestorADVIDs );
         }
 
         // Get parent nodes
-        Basis_Node& tFirstParentNode = this->get_first_parent_node();
-        Basis_Node& tSecondParentNode = this->get_second_parent_node();
+        const Basis_Node& tFirstParentNode = this->get_first_parent_node();
+        const Basis_Node& tSecondParentNode = this->get_second_parent_node();
 
         // Add parent IDs
         if ( tFirstParentNode.depends_on_advs() )
         {
-            this->join_adv_ids( tFirstParentNode.get_coordinate_determining_adv_ids() );
+            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tFirstParentNode.get_coordinate_determining_adv_ids() );
         }
         if ( tSecondParentNode.depends_on_advs() )
         {
-            this->join_adv_ids( tSecondParentNode.get_coordinate_determining_adv_ids() );
+            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tSecondParentNode.get_coordinate_determining_adv_ids() );
         }
 
         // Return joined ADV IDs
-        return mCoordinateDeterminingADVIDs;
+        return tCoordinateDeterminingADVIDs;
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -487,12 +487,11 @@ namespace moris
                 }
 
                 // Create new derived node
-                mNodeManager.add_derived_node( new Derived_Node(
-                        aNewNodeIndices( iNode ),
+                mNodeManager.create_derived_node(
                         tBackgroundNodes,
                         aParametricCoordinates( iNode ),
                         aBackgroundGeometryType,
-                        aBackgroundInterpolationOrder ) );
+                        aBackgroundInterpolationOrder );
             }
 
             // Set max node index

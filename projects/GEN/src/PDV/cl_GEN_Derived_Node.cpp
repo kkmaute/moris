@@ -54,7 +54,7 @@ namespace moris::ge
         mBackgroundNodes.reserve( tNumberOfBases );
         for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
         {
-            mBackgroundNodes.emplace_back( aBackgroundNodes( iBasisIndex ), tBasis( iBasisIndex ) );
+            mBackgroundNodes.emplace_back( *aBackgroundNodes( iBasisIndex ), tBasis( iBasisIndex ) );
         }
 
         // Size global coordinates based on first locator
@@ -70,35 +70,35 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Derived_Node::get_global_coordinates()
+    const Matrix< DDRMat >& Derived_Node::get_global_coordinates() const
     {
         return mGlobalCoordinates;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Derived_Node::get_parametric_coordinates()
+    const Matrix< DDRMat >& Derived_Node::get_parametric_coordinates() const
     {
         return mParametricCoordinates;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_background_nodes()
+    const Cell< Basis_Node >& Derived_Node::get_background_nodes() const
     {
         return mBackgroundNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_locator_nodes()
+    const Cell< Basis_Node >& Derived_Node::get_locator_nodes() const
     {
         return mBackgroundNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Derived_Node::is_on_interface( Geometry* aGeometry )
+    bool Derived_Node::is_on_interface( Geometry* aGeometry ) const
     {
         return false;
     }

@@ -22,14 +22,14 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Node::get_index()
+    uint Node::get_index() const
     {
         return mIndex;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Node::depends_on_advs()
+    bool Node::depends_on_advs() const
     {
         return false;
     }
@@ -38,13 +38,13 @@ namespace moris::ge
 
     void Node::append_dcoordinate_dadv(
             Matrix< DDRMat >&       aCoordinateSensitivities,
-            const Matrix< DDRMat >& aSensitivityFactor )
+            const Matrix< DDRMat >& aSensitivityFactor ) const
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Node::get_coordinate_determining_adv_ids()
+    Matrix< DDSMat > Node::get_coordinate_determining_adv_ids() const
     {
         return {};
     }

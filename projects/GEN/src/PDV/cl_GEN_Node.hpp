@@ -40,14 +40,14 @@ namespace moris::ge
          *
          * @return Stored node index
          */
-        uint get_index();
+        uint get_index() const;
 
         /**
          * Gets the coordinates of this node
          *
          * @return Node coordinates
          */
-        virtual const Matrix< DDRMat >& get_global_coordinates() = 0;
+        virtual const Matrix< DDRMat >& get_global_coordinates() const = 0;
 
         /**
          * Gets the locator nodes of this node.
@@ -55,14 +55,14 @@ namespace moris::ge
          *
          * @return Locator nodes
          */
-        virtual const Cell< Basis_Node >& get_locator_nodes() = 0;
+        virtual const Cell< Basis_Node >& get_locator_nodes() const = 0;
 
         /**
          * Gets if this node's position depends on ADVs.
          *
          * @return ADV dependence (default false)
          */
-        virtual bool depends_on_advs();
+        virtual bool depends_on_advs() const;
 
         /**
          * Appends the sensitivities of this node's global coordinates with respect to ADVs. By default, does nothing.
@@ -72,13 +72,13 @@ namespace moris::ge
          */
         virtual void append_dcoordinate_dadv(
                 Matrix< DDRMat >&       aCoordinateSensitivities,
-                const Matrix< DDRMat >& aSensitivityFactor );
+                const Matrix< DDRMat >& aSensitivityFactor ) const;
 
         /**
          * Gets the ADV IDs that determine the coordinates of this node. By default, returns an empty vector.
          *
          * @return ADV ID vector
          */
-        virtual Matrix< DDSMat > get_coordinate_determining_adv_ids();
+        virtual Matrix< DDSMat > get_coordinate_determining_adv_ids() const;
     };
 }

@@ -17,12 +17,11 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Basis_Node::Basis_Node(
-            Node* aNode,
-            real  aBasis )
+            const Node& aNode,
+            real        aBasis )
             : mNode( aNode )
             , mBasis( aBasis )
     {
-        MORIS_ASSERT( aNode, "A GEN Basis_Node must be created with a valid node." );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -39,14 +38,14 @@ namespace moris::ge
 
     uint Basis_Node::get_index() const
     {
-        return mNode->get_index();
+        return mNode.get_index();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     const Matrix< DDRMat >& Basis_Node::get_global_coordinates() const
     {
-        return mNode->get_global_coordinates();
+        return mNode.get_global_coordinates();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -60,30 +59,30 @@ namespace moris::ge
 
     const Cell< Basis_Node >& Basis_Node::get_locator_nodes() const
     {
-        return mNode->get_locator_nodes();
+        return mNode.get_locator_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Basis_Node::depends_on_advs()
+    bool Basis_Node::depends_on_advs() const
     {
-        return mNode->depends_on_advs();
+        return mNode.depends_on_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Basis_Node::append_dcoordinate_dadv(
             Matrix< DDRMat >&       aCoordinateSensitivities,
-            const Matrix< DDRMat >& aSensitivityFactor )
+            const Matrix< DDRMat >& aSensitivityFactor ) const
     {
-        mNode->append_dcoordinate_dadv( aCoordinateSensitivities, aSensitivityFactor );
+        mNode.append_dcoordinate_dadv( aCoordinateSensitivities, aSensitivityFactor );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Basis_Node::get_coordinate_determining_adv_ids()
+    Matrix< DDSMat > Basis_Node::get_coordinate_determining_adv_ids() const
     {
-        return mNode->get_coordinate_determining_adv_ids();
+        return mNode.get_coordinate_determining_adv_ids();
     }
 
     //--------------------------------------------------------------------------------------------------------------

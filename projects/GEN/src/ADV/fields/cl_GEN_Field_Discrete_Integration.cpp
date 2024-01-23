@@ -50,11 +50,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Field_Discrete_Integration::get_field_value( Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    real Field_Discrete_Integration::get_field_value(
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
         // Return result
         return this->get_interpolated_field_value(
-                aDerivedNode->get_locator_nodes(),
+                aDerivedNode.get_locator_nodes(),
                 aNodeManager );
     }
 
@@ -71,12 +73,12 @@ namespace moris::ge
 
     void Field_Discrete_Integration::get_dfield_dadvs(
             Matrix< DDRMat >&   aSensitivities,
-            Derived_Node*       aDerivedNode,
+            const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
         this->append_interpolated_dfield_dadvs(
                 aSensitivities,
-                aDerivedNode->get_locator_nodes(),
+                aDerivedNode.get_locator_nodes(),
                 aNodeManager );
     }
 
@@ -93,12 +95,12 @@ namespace moris::ge
 
     void Field_Discrete_Integration::get_determining_adv_ids(
             Matrix< DDSMat >&   aDeterminingADVIDs,
-            Derived_Node*       aDerivedNode,
+            const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
         this->append_interpolated_determining_adv_ids(
                 aDeterminingADVIDs,
-                aDerivedNode->get_locator_nodes(),
+                aDerivedNode.get_locator_nodes(),
                 aNodeManager );
     }
 

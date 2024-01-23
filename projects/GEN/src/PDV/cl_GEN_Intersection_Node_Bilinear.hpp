@@ -49,7 +49,7 @@ namespace moris::ge
          *
          * @return Basis nodes for interpolating sensitivities
          */
-        const Cell< Basis_Node >& get_field_basis_nodes() override;
+        const Cell< Basis_Node >& get_field_basis_nodes() const override;
 
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -57,7 +57,7 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) override;
+        real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const override;
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -65,7 +65,7 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() override;
+        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const override;
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -73,7 +73,7 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() override;
+        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
 
         /**
          * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.

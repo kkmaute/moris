@@ -64,8 +64,8 @@ namespace moris::ge
             Background_Node tBaseFirstParent( tNodeIndex++, tFirstParentGlobalCoordinates );
             Background_Node tBaseSecondParent( tNodeIndex++, tSecondParentGlobalCoordinates );
 
-            Parent_Node tFirstParentNode( &tBaseFirstParent, tFirstParentParametricCoordinates );
-            Parent_Node tSecondParentNode( &tBaseSecondParent, tSecondParentParametricCoordinates );
+            Parent_Node tFirstParentNode( tBaseFirstParent, tFirstParentParametricCoordinates );
+            Parent_Node tSecondParentNode( tBaseSecondParent, tSecondParentParametricCoordinates );
 
             // create the intersection node
             Intersection_Node* tIntersectionNode = tSurfaceMeshPointer->create_intersection_node(

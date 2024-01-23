@@ -36,7 +36,7 @@ namespace moris::ge
          *
          * @return Node coordinates
          */
-        const Matrix< DDRMat >& get_global_coordinates() override;
+        const Matrix< DDRMat >& get_global_coordinates() const override;
 
         /**
          * Gets the locator nodes of this node.
@@ -45,6 +45,6 @@ namespace moris::ge
          *
          * @return Locator nodes (empty)
          */
-        const Cell< Basis_Node >& get_locator_nodes() override;
+        const Cell< Basis_Node >& get_locator_nodes() const override;
     };
 }

@@ -43,7 +43,9 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Combined_Fields::get_field_value( Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    real Combined_Fields::get_field_value(
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
         real tResult = mScale * mFields( 0 )->get_field_value( aDerivedNode, aNodeManager );
         for ( const auto& iField : mFields )
@@ -78,7 +80,10 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Combined_Fields::get_dfield_dadvs( Matrix< DDRMat >& aSensitivities, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    void Combined_Fields::get_dfield_dadvs(
+            Matrix< DDRMat >&   aSensitivities,
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
         // Find which field is the minimum
         real tMin = mScale * mFields( 0 )->get_field_value( aDerivedNode, aNodeManager );
@@ -122,7 +127,10 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Combined_Fields::get_determining_adv_ids( Matrix< DDSMat >& aDeterminingADVIDs, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    void Combined_Fields::get_determining_adv_ids(
+            Matrix< DDSMat >&   aDeterminingADVIDs,
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
         // Find which field is the minimum
         real tMin = mScale * mFields( 0 )->get_field_value( aDerivedNode, aNodeManager );

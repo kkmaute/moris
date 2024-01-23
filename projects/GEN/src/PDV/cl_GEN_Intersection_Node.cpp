@@ -41,35 +41,35 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Basis_Node& Intersection_Node::get_first_parent_node()
+    const Basis_Node& Intersection_Node::get_first_parent_node() const
     {
         return mParentNodes( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Basis_Node& Intersection_Node::get_second_parent_node()
+    const Basis_Node& Intersection_Node::get_second_parent_node() const
     {
         return mParentNodes( 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Intersection_Node::depends_on_advs()
+    bool Intersection_Node::depends_on_advs() const
     {
-        return mInterfaceGeometry->depends_on_advs() or this->get_first_parent_node().depends_on_advs() or this->get_second_parent_node().depends_on_advs();
+        return mInterfaceGeometry->depends_on_advs() or mParentNodes( 0 ).depends_on_advs() or mParentNodes( 1 ).depends_on_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Intersection_Node::get_locator_nodes()
+    const Cell< Basis_Node >& Intersection_Node::get_locator_nodes() const
     {
         return mParentNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Intersection_Node::is_on_interface( Geometry* aGeometry )
+    bool Intersection_Node::is_on_interface( Geometry* aGeometry ) const
     {
         return aGeometry == mInterfaceGeometry.get();
     }
@@ -100,8 +100,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Intersection_Node::get_local_coordinate()
+    real Intersection_Node::get_local_coordinate() const
     {
         return 1.0 - 2.0 * this->get_first_parent_node().get_basis();
     }
@@ -174,17 +173,18 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Intersection_Node::join_adv_ids( const Matrix< DDSMat >& aIDsToAdd )
+    void Intersection_Node::join_adv_ids(
+            Matrix< DDSMat >&       aCombinedIDs, 
+            const Matrix< DDSMat >& aIDsToAdd )
     {
         // Resize IDs
-        uint tJoinedSensitivityLength = mCoordinateDeterminingADVIDs.n_cols();
-        mCoordinateDeterminingADVIDs.resize( 1, tJoinedSensitivityLength + aIDsToAdd.length() );
+        uint tJoinedSensitivityLength = aCombinedIDs.n_cols();
+        aCombinedIDs.resize( 1, tJoinedSensitivityLength + aIDsToAdd.length() );
 
         // Join IDs
         for ( uint tAddedSensitivity = 0; tAddedSensitivity < aIDsToAdd.length(); tAddedSensitivity++ )
         {
-            mCoordinateDeterminingADVIDs( tJoinedSensitivityLength + tAddedSensitivity ) = aIDsToAdd( tAddedSensitivity );
+            aCombinedIDs( tJoinedSensitivityLength + tAddedSensitivity ) = aIDsToAdd( tAddedSensitivity );
         }
     }
 

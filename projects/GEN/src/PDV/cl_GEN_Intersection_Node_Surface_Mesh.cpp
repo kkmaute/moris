@@ -149,7 +149,7 @@ namespace moris::ge
         return tLocalCoordinate( 0 );
     }
 
-    void Intersection_Node_Surface_Mesh::append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor )
+    void Intersection_Node_Surface_Mesh::append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) const
     {
         // TODO
         MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dcoordinate_dadv() not implemented yet." );
@@ -158,7 +158,7 @@ namespace moris::ge
     };
 
     Matrix< DDSMat >
-    Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids()
+    Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids() const
     {
         // TODO
         MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_coordinate_determining_adv_ids() not implemented yet." );

@@ -93,17 +93,17 @@ namespace moris::ge
         else
         {
             // Get derived node
-            Derived_Node* tDerivedNode = mNodeManager->get_derived_node( aNodeIndex );
+            const Derived_Node& tDerivedNode = mNodeManager->get_derived_node( aNodeIndex );
 
             // If derived node knows it is on this interface, can return interface
-            if ( tDerivedNode->is_on_interface( this ) )
+            if ( tDerivedNode.is_on_interface( this ) )
             {
                 return Geometric_Region::INTERFACE;
             }
             else
             {
                 // Get locators
-                const Cell< Basis_Node >& tLocators = tDerivedNode->get_locator_nodes();
+                const Cell< Basis_Node >& tLocators = tDerivedNode.get_locator_nodes();
 
                 // If we only have 2 locators, can use special logic if at least one node is on the interface
                 if ( tLocators.size() == 2 )

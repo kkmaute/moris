@@ -366,6 +366,7 @@ namespace moris
                 }
 
                 // Loop over all node indices
+                Cell< Background_Node* > tTemporaryBackgroundNodes;
                 for ( uint tNodeIndex = 0; tNodeIndex < tIpNodeIdsPerSet.length(); tNodeIndex++ )
                 {
                     // Go around a circle to create parent coordinates
@@ -375,9 +376,13 @@ namespace moris
 
                     // Create parent nodes
                     auto tFirstNode = new Background_Node( 0, tFirstParentCoordinates );
-                    Parent_Node tFirstParentNode( tFirstNode, {{ -1.0 }} );
+                    Parent_Node tFirstParentNode( *tFirstNode, {{ -1.0 }} );
                     auto tSecondNode = new Background_Node( 0, tSecondParentCoordinates );
-                    Parent_Node tSecondParentNode( tSecondNode, {{ 1.0 }} );
+                    Parent_Node tSecondParentNode( *tSecondNode, {{ 1.0 }} );
+
+                    // Background nodes need to be deleted later
+                    tTemporaryBackgroundNodes.push_back( tFirstNode );
+                    tTemporaryBackgroundNodes.push_back( tSecondNode );
 
                     // Assign as base nodes
                     Cell< Node* > tBackgroundNodes( { tFirstNode, tSecondNode } );
@@ -471,6 +476,12 @@ namespace moris
                 if ( par_rank() == 0 )
                 {
                     CHECK_EQUAL( tdIQIdADV, Matrix< DDRMat>({ { 4.0, 4.0, 0.0 }, { 24.0, 36.0, -16.0 } }), 1.0E6, );
+                }
+
+                // Clean up temporary background nodes
+                for ( auto iBackgroundNode : tTemporaryBackgroundNodes )
+                {
+                    delete iBackgroundNode;
                 }
             }
         }

@@ -48,9 +48,12 @@ namespace moris::ge
          * Gets a field value of a derived node.
          *
          * @param aDerivedNode Derived node
+         * @param aNodeManager Node manager
          * @return Field value
          */
-        real get_field_value( Derived_Node* aDerivedNode, const Node_Manager& aNodeManager ) override;
+        real get_field_value(
+                const Derived_Node& aDerivedNode,
+                const Node_Manager& aNodeManager ) override;
 
         /**
          * Given a node index or coordinate, returns a vector of the field derivatives with respect to its ADVs.
@@ -66,10 +69,14 @@ namespace moris::ge
         /**
          * Gets a vector of the field derivatives with respect to ADVs of a derived node.
          *
+         * @param aSensitivities Sensitivities to fill for the given derived node
          * @param aDerivedNode Derived node
-         * @return d(field value)/d(ADV_j)
+         * @param aNodeManager Node manager
          */
-        void get_dfield_dadvs( Matrix< DDRMat >& aSensitivities, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager ) override;
+        void get_dfield_dadvs(
+                Matrix< DDRMat >&   aSensitivities,
+                const Derived_Node& aDerivedNode,
+                const Node_Manager& aNodeManager ) override;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -98,10 +105,14 @@ namespace moris::ge
         /**
          * Gets the IDs of ADVs that this field depends on for evaluations at a derived node.
          *
+         * @param aDeterminingADVIDs Determining ADV IDs to fill for the given derived node
          * @param aDerivedNode Derived node
-         * @return Determining ADV IDs at this node
+         * @param aNodeManager Node manager
          */
-        void get_determining_adv_ids( Matrix< DDSMat >& aDeterminingADVIDs, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager ) override;
+        void get_determining_adv_ids(
+                Matrix< DDSMat >&   aDeterminingADVIDs,
+                const Derived_Node& aDerivedNode,
+                const Node_Manager& aNodeManager ) override;
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh

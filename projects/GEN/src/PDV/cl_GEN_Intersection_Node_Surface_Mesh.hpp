@@ -90,7 +90,7 @@ namespace moris::ge
          * @param aSensitivityFactor Matrix factor to scale this node's sensitivities based on a calling child's position and orientation.
          * This should be set to identity matrix of number of dimensions for any calls to this function outside of another intersection node.
          */
-        void append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) override;
+        void append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) const override;
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ namespace moris::ge
          *
          * @return ADV IDs
          */
-        Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
+        Matrix< DDSMat > get_coordinate_determining_adv_ids() const override;
 
         //--------------------------------------------------------------------------------------------------------------
     };

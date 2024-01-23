@@ -46,7 +46,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Intersection_Node_Linear::get_field_basis_nodes()
+    const Cell< Basis_Node >& Intersection_Node_Linear::get_field_basis_nodes() const
     {
         return this->get_locator_nodes();
     }
@@ -54,7 +54,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Intersection_Node_Linear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
+    Intersection_Node_Linear::get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const
     {
         // Locked interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
@@ -73,7 +73,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Intersection_Node_Linear::get_dxi_dcoordinate_first_parent()
+    Intersection_Node_Linear::get_dxi_dcoordinate_first_parent() const
     {
         // Locked interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
@@ -89,7 +89,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Intersection_Node_Linear::get_dxi_dcoordinate_second_parent()
+    Intersection_Node_Linear::get_dxi_dcoordinate_second_parent() const
     {
         // Locked interface geometry
         std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();

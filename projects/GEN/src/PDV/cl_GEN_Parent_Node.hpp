@@ -22,7 +22,7 @@ namespace moris::ge
         friend Basis_Node::Basis_Node( const Parent_Node& aParentNode, real aBasis );
 
       private:
-        Node*            mNode;
+        const Node&      mNode;
         Matrix< DDRMat > mParametricCoordinates;
 
       public:
@@ -33,7 +33,7 @@ namespace moris::ge
          * @param aParametricCoordinates Parametric coordinates
          */
         Parent_Node(
-                Node*                   aNode,
+                const Node&             aNode,
                 const Matrix< DDRMat >& aParametricCoordinates );
 
         /**

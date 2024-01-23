@@ -26,7 +26,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Background_Node::get_global_coordinates()
+    const Matrix< DDRMat >& Background_Node::get_global_coordinates() const
     {
         return mCoordinates;
     }
@@ -35,7 +35,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Cell< Basis_Node >        Background_Node::mDummyLocatorNodes = {};
-    const Cell< Basis_Node >& Background_Node::get_locator_nodes()
+    const Cell< Basis_Node >& Background_Node::get_locator_nodes() const
     {
         return mDummyLocatorNodes;
     }

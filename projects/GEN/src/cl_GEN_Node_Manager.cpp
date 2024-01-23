@@ -65,11 +65,11 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Node* Node_Manager::get_node( uint aNodeIndex )
+    const Node& Node_Manager::get_node( uint aNodeIndex )
     {
         if ( this->is_background_node( aNodeIndex ) )
         {
-            return &( this->get_background_node( aNodeIndex ) );
+            return this->get_background_node( aNodeIndex );
         }
         else
         {
@@ -93,6 +93,23 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Node_Manager::create_derived_node(
+            const Cell< Node* >&     aBackgroundNodes,
+            const Matrix< DDRMat >&  aParametricCoordinates,
+            mtk::Geometry_Type       aGeometryType,
+            mtk::Interpolation_Order aInterpolationOrder )
+    {
+        mDerivedNodes.push_back(
+                new Derived_Node(
+                        this->get_total_number_of_nodes(),
+                        aBackgroundNodes,
+                        aParametricCoordinates,
+                        aGeometryType,
+                        aInterpolationOrder ) );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Node_Manager::add_derived_node( Derived_Node* aDerivedNode )
     {
         MORIS_ASSERT( aDerivedNode->get_index() == this->get_total_number_of_nodes(),
@@ -102,11 +119,11 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Derived_Node* Node_Manager::get_derived_node( uint aDerivedNodeIndex ) const
+    const Derived_Node& Node_Manager::get_derived_node( uint aDerivedNodeIndex ) const
     {
         MORIS_ASSERT( aDerivedNodeIndex >= mBackgroundNodes.size(),
                 "A derived node was requested from the GEN node manager, but the index provided corresponds to a background node." );
-        return mDerivedNodes( aDerivedNodeIndex - mBackgroundNodes.size() );
+        return *mDerivedNodes( aDerivedNodeIndex - mBackgroundNodes.size() );
     }
 
     //--------------------------------------------------------------------------------------------------------------

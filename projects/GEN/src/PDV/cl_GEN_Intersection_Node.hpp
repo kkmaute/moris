@@ -21,9 +21,6 @@ namespace moris::ge
 
     class Intersection_Node : public Derived_Node
     {
-      protected:
-        Matrix< DDSMat > mCoordinateDeterminingADVIDs;
-
       private:
         Cell< Basis_Node > mParentNodes;
         std::shared_ptr< Geometry > mInterfaceGeometry;
@@ -60,7 +57,7 @@ namespace moris::ge
          *
          * @return ADV dependence
          */
-        bool depends_on_advs() override;
+        bool depends_on_advs() const override;
 
         /**
          * Gets the locator nodes of this derived node.
@@ -68,7 +65,7 @@ namespace moris::ge
          *
          * @return Locator nodes
          */
-        const Cell< Basis_Node >& get_locator_nodes() override;
+        const Cell< Basis_Node >& get_locator_nodes() const override;
 
         /**
          * Gets if this intersection node can be determined that it is on a specific interface without any field evaluation.
@@ -76,7 +73,7 @@ namespace moris::ge
          * @param aGeometry Potential interface geometry
          * @return If this node is on the requested interface
          */
-        bool is_on_interface( Geometry* aGeometry ) override;
+        bool is_on_interface( Geometry* aGeometry ) const override;
 
         /**
          * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
@@ -105,7 +102,7 @@ namespace moris::ge
          *
          * @return Local coordinate
          */
-        real get_local_coordinate();
+        real get_local_coordinate() const;
 
         /**
          * Get the value of a coordinate of this node
@@ -171,20 +168,23 @@ namespace moris::ge
          *
          * @return First parent node
          */
-        Basis_Node& get_first_parent_node();
+        const Basis_Node& get_first_parent_node() const;
 
         /**
          * Gets the second parent node of this intersection node.
          *
          * @return Second parent node
          */
-        Basis_Node& get_second_parent_node();
+        const Basis_Node& get_second_parent_node() const;
 
         /**
          * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
          *
+         * @param aCombinedIDs Combined IDs
          * @param aIDsToAdd IDs to add
          */
-        void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
+        static void join_adv_ids(
+                Matrix< DDSMat >&       aCombinedIDs,
+                const Matrix< DDSMat >& aIDsToAdd );
     };
 }

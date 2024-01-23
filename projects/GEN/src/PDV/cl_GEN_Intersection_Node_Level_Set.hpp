@@ -54,14 +54,14 @@ namespace moris::ge
          */
         void append_dcoordinate_dadv(
                 Matrix< DDRMat >&       aCoordinateSensitivities,
-                const Matrix< DDRMat >& aSensitivityFactor ) override;
+                const Matrix< DDRMat >& aSensitivityFactor ) const override;
 
         /**
          * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
          *
          * @return ADV IDs
          */
-        Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
+        Matrix< DDSMat > get_coordinate_determining_adv_ids() const override;
 
       private:
 
@@ -71,7 +71,7 @@ namespace moris::ge
          *
          * @return Basis nodes for interpolating sensitivities
          */
-        virtual const Cell< Basis_Node >& get_field_basis_nodes() = 0;
+        virtual const Cell< Basis_Node >& get_field_basis_nodes() const = 0;
 
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -80,7 +80,7 @@ namespace moris::ge
          * @param aAncestorIndex Ancestor index
          * @return Local coordinate sensitivity
          */
-        virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) = 0;
+        virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const = 0;
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -88,7 +88,7 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() = 0;
+        virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const = 0;
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -96,6 +96,6 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() = 0;
+        virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const = 0;
     };
 }

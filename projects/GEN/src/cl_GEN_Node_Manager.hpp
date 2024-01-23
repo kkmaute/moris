@@ -62,7 +62,7 @@ namespace moris::ge
          * @param aNodeIndex Node index
          * @return Node pointer
          */
-        Node* get_node( uint aNodeIndex );
+        const Node& get_node( uint aNodeIndex );
 
         /**
          * Gets if the given node index refers to a background node.
@@ -80,6 +80,20 @@ namespace moris::ge
         Background_Node& get_background_node( uint aBackgroundNodeIndex );
 
         /**
+         * Creates a new derived node and adds it to this manager with the given parameters.
+         *
+         * @param aBackgroundNodes Background nodes
+         * @param aParametricCoordinates Parametric coordinates inside the background element
+         * @param aGeometryType Geometry type of the background element
+         * @param aInterpolationOrder Interpolation order of the background element
+         */
+        void create_derived_node(
+                const Cell< Node* >&     aBackgroundNodes,
+                const Matrix< DDRMat >&  aParametricCoordinates,
+                mtk::Geometry_Type       aGeometryType,
+                mtk::Interpolation_Order aInterpolationOrder );
+
+        /**
          * Adds a derived node to this manager.
          *
          * @param aDerivedNode New derived node
@@ -92,7 +106,7 @@ namespace moris::ge
          * @param aDerivedNodeIndex Node index (this must be the index of a derived node, or an error will be thrown)
          * @return Derived node
          */
-        Derived_Node* get_derived_node( uint aDerivedNodeIndex ) const;
+        const Derived_Node& get_derived_node( uint aDerivedNodeIndex ) const;
 
         /**
          * Gets a trivial node manager. This is useful for allowing geometry construction before

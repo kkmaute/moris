@@ -58,17 +58,17 @@ namespace moris::ge
         else
         {
             // Get derived node
-            Derived_Node* tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
+            const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
 
             // If derived node knows it is on this interface, can return interface
-            if ( tDerivedNode->is_on_interface( this ) )
+            if ( tDerivedNode.is_on_interface( this ) )
             {
                 return Geometric_Region::INTERFACE;
             }
             else
             {
                 // Get locators
-                const Cell< Basis_Node >& tLocators = tDerivedNode->get_locator_nodes();
+                const Cell< Basis_Node >& tLocators = tDerivedNode.get_locator_nodes();
 
                 // Start voting
                 uint tNegativeVotes = 0;

@@ -125,7 +125,7 @@ namespace moris::ge
             {
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 return mField->get_interpolated_field_value(
-                        mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes(),
+                        mNodeManager->get_derived_node( aNodeIndex ).get_background_nodes(),
                         *mNodeManager );
             }
             else
@@ -160,7 +160,7 @@ namespace moris::ge
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 mField->append_interpolated_dfield_dadvs(
                         mInterpolatedSensitivities,
-                        mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes(),
+                        mNodeManager->get_derived_node( aNodeIndex ).get_background_nodes(),
                         *mNodeManager );
             }
             else
@@ -199,7 +199,7 @@ namespace moris::ge
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 mField->append_interpolated_determining_adv_ids(
                         mInterpolatedADVIDs,
-                        mNodeManager->get_derived_node( aNodeIndex )->get_background_nodes(),
+                        mNodeManager->get_derived_node( aNodeIndex ).get_background_nodes(),
                         *mNodeManager );
             }
             else

@@ -20,7 +20,7 @@ namespace moris::ge
     class Basis_Node
     {
       private:
-        Node* mNode;
+        const Node& mNode;
         real mBasis;
 
       public:
@@ -31,8 +31,8 @@ namespace moris::ge
          * @param aBasis Basis value for locating a derived node
          */
         Basis_Node(
-                Node* aNode,
-                real  aBasis );
+                const Node& aNode,
+                real        aBasis );
 
         /**
          * Constructor with a parent node and basis value.
@@ -77,7 +77,7 @@ namespace moris::ge
          *
          * @return ADV dependence
          */
-        bool depends_on_advs();
+        bool depends_on_advs() const;
 
         /**
          * Appends the sensitivities of the underlying node's global coordinates with respect to ADVs.
@@ -87,13 +87,13 @@ namespace moris::ge
          */
         void append_dcoordinate_dadv(
                 Matrix< DDRMat >&       aCoordinateSensitivities,
-                const Matrix< DDRMat >& aSensitivityFactor );
+                const Matrix< DDRMat >& aSensitivityFactor ) const;
 
         /**
          * Gets the coordinate determining ADV IDs for the underlying node.
          *
          * @return ADV ID vector
          */
-        Matrix< DDSMat > get_coordinate_determining_adv_ids();
+        Matrix< DDSMat > get_coordinate_determining_adv_ids() const;
     };
 }
