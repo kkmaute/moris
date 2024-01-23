@@ -29,7 +29,6 @@ set(HEADERS
     cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp
     cl_DLA_Preconditioner.hpp
     cl_DLA_Preconditioner_Trilinos.hpp
-    cl_DLA_Preconditioner_PETSc.hpp
     cl_DLA_Geometric_Multigrid.hpp
     fn_convert_epetra_operator_to_matrix.hpp)
 
@@ -60,7 +59,6 @@ set(LIB_SOURCES
     cl_DLA_Solver_Interface.cpp
     cl_DLA_Preconditioner.cpp
     cl_DLA_Preconditioner_Trilinos.cpp
-    cl_DLA_Preconditioner_PETSc.cpp
     cl_DLA_Solver_Factory.cpp)
 
 if(${MORIS_HAVE_PETSC})
