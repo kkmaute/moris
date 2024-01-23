@@ -31,7 +31,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters )
-            : Geometry( aParameters )
+            : Geometry( aParameters, aParameters.mIntersectionTolerance )
             , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
     {
@@ -42,7 +42,7 @@ namespace moris::ge
 
     Geometric_Region Surface_Mesh_Geometry::get_geometric_region(
             uint                    aNodeIndex,
-            const Matrix< DDRMat >& aNodeCoordinates )
+1            const Matrix< DDRMat >& aNodeCoordinates )
     {
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 

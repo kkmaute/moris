@@ -25,7 +25,6 @@ namespace moris::ge
             , Design_Parameters( aParameterList )
             , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )
             , mIsocontourTolerance( aParameterList.get< real >( "isocontour_tolerance" ) )
-            , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
     {
     }
 
@@ -35,7 +34,7 @@ namespace moris::ge
             std::shared_ptr< Field > aField,
             Level_Set_Parameters     aParameters,
             Node_Manager&            aNodeManager )
-            : Geometry( aParameters )
+            : Geometry( aParameters, aParameters.mIntersectionTolerance )
             , Design_Field( aField, aParameters, aNodeManager )
             , mParameters( aParameters )
     {

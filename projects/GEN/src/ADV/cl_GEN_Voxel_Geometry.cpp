@@ -19,7 +19,7 @@ namespace moris::ge
     Voxel_Geometry::Voxel_Geometry(
             std::shared_ptr< Voxel_Input > aVoxelInput,
             uint                           aIndex )
-            : Geometry( Design_Parameters() )
+            : Geometry( Design_Parameters(), 1e-12 )
             , mVoxelInput( aVoxelInput )
             , mIndex( aIndex )
     {

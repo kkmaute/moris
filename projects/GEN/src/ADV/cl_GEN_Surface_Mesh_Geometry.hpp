@@ -21,8 +21,7 @@ namespace moris::ge
     /**
      * This is a struct used to simplify \ref moris::ge::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Surface_Mesh_Parameters : public Field_Parameters
-            , public Design_Parameters
+    struct Surface_Mesh_Parameters : public Field_Parameters, public Design_Parameters
     {
         Cell< real > mOffsets;          // Initial shift of surface mesh coordinates
         Cell< real > mScale;            // Option to scale each axis of the surface mesh

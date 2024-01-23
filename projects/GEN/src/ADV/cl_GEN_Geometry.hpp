@@ -46,11 +46,14 @@ namespace moris::ge
 
     class Geometry : public Design
     {
+      private:
+        real mIntersectionTolerance;
+
       public:
         /**
          * Constructor
          */
-        explicit Geometry( Design_Parameters aParameters );
+        explicit Geometry( Design_Parameters aParameters, real aIntersectionTolerance );
 
         /**
          * Default destructor
@@ -165,6 +168,16 @@ namespace moris::ge
         virtual void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Cell< real >& aOutputDesignInfo ) = 0;
+                Cell< real >&           aOutputDesignInfo ) = 0;
+
+        /**
+         * Gets the intersection tolerance for this geometry
+         * 
+         * @return tolerance for creating intersection nodes
+         */
+        real get_intersection_tolerance()
+        {
+            return mIntersectionTolerance;
+        }
     };
 }    // namespace moris::ge

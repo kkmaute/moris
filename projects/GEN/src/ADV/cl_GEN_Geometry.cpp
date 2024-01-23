@@ -13,11 +13,11 @@
 
 namespace moris::ge
 {
-
     //--------------------------------------------------------------------------------------------------------------
 
-    Geometry::Geometry( Design_Parameters aParameters )
-    : Design( aParameters )
+    Geometry::Geometry( Design_Parameters aParameters, real aIntersectionTolerance )
+            : Design( aParameters )
+            , mIntersectionTolerance( aIntersectionTolerance )
     {
     }
 
@@ -29,4 +29,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::ge

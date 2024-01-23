@@ -49,9 +49,9 @@ namespace moris::ge
     {
         // step 1: shift the object so the first parent is at the origin
         Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
-        Cell< real > tShift( aInterfaceGeometry->get_dimension() );
-        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size() , "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
-        for( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
+        Cell< real >     tShift( aInterfaceGeometry->get_dimension() );
+        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(), "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
+        for ( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
         {
             tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
         }
@@ -110,7 +110,6 @@ namespace moris::ge
         // step 3: scale the object
         Cell< real > tScaling( aInterfaceGeometry->get_dimension(), 2.0 / tParentVectorNorm );
         aInterfaceGeometry->scale( tScaling );
-
     }
 
     real Intersection_Node_Surface_Mesh::compute_local_coordinate(
@@ -141,20 +140,29 @@ namespace moris::ge
         {
             return MORIS_REAL_MAX;
         }
-        // FIXME: need logic for 3 intersections between parent edges
-        // FIXME: write descriptive error message
-        else if( tLocalCoordinate.size() > 2 )
+        // FIXME: need logic for odd number of intersections between parent edges
+        else if ( tLocalCoordinate.size() > 2
+                  && tLocalCoordinate.size() % 2
+                  && std::all_of( tLocalCoordinate.begin(), tLocalCoordinate.end(), []( real tCoord ) { return not( tCoord < -1 ) and not( tCoord > 1 ); } ) )
         {
-            MORIS_ERROR( false, "bad" );
+            MORIS_ERROR( false,
+                    "Intersection_Node_Surface_Mesh::compute_local_coordinate() Parent nodes in different regions, and 3 or more facet intersections detected." );
         }
 
-        return tLocalCoordinate( 0 );
+        // real tEdgeCoordinate = std::abs( tLocalCoordinate( 0 ) + 1 ) <  aInterfaceGeometry->get_intersection_tolerance() ? -1
+        //                      : std::abs( tLocalCoordinate( 0 ) - 1 ) <  aInterfaceGeometry->get_intersection_tolerance() ? 1
+        //                                                                                                                        : tLocalCoordinate( 0 );
+        real tEdgeCoordinate = std::abs( tLocalCoordinate( 0 ) + 1 ) < 0.75 ? -1
+                             : std::abs( tLocalCoordinate( 0 ) - 1 ) < 0.75 ? 1
+                                                                            : tLocalCoordinate( 0 );
+        std::cout << "Local Coordinate: " << tEdgeCoordinate << std::endl;
+        return tEdgeCoordinate;
     }
 
     void Intersection_Node_Surface_Mesh::append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor )
     {
         // TODO
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dcoordinate_dadv() not implemented yet." );
+        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh::get_dcoordinate_dadv() not implemented yet." );
 
         return;
     };
