@@ -25,7 +25,7 @@ namespace moris::ge
     class Node_Manager
     {
       private:
-        Cell< Background_Node* > mBackgroundNodes;
+        Cell< Background_Node > mBackgroundNodes;
         Cell< Derived_Node* > mDerivedNodes;
         bool mMeshGiven = false;
 
@@ -77,7 +77,7 @@ namespace moris::ge
          * @param aBackgroundNodeIndex background node index
          * @return Node pointer
          */
-        Background_Node* get_background_node( uint aBackgroundNodeIndex );
+        Background_Node& get_background_node( uint aBackgroundNodeIndex );
 
         /**
          * Adds a derived node to this manager.

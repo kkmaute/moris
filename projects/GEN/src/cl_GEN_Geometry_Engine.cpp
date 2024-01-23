@@ -351,7 +351,7 @@ namespace moris
             Cell< Node* > tBackgroundNodes( aBackgroundElementNodeIndices.length() );
             for ( uint iNode = 0; iNode < tBackgroundNodes.size(); iNode++ )
             {
-                tBackgroundNodes( iNode ) = mNodeManager.get_background_node( aBackgroundElementNodeIndices( iNode ) );
+                tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( aBackgroundElementNodeIndices( iNode ) ) );
             }
 
             // Create parent nodes
@@ -483,7 +483,7 @@ namespace moris
                 Cell< Node* > tBackgroundNodes( tVertexIndices( iNode ).length() );
                 for ( uint iBaseNode = 0; iBaseNode < tVertexIndices( iNode ).length(); iBaseNode++ )
                 {
-                    tBackgroundNodes( iBaseNode ) = mNodeManager.get_background_node( tVertexIndices( iNode )( iBaseNode ) );
+                    tBackgroundNodes( iBaseNode ) = &( mNodeManager.get_background_node( tVertexIndices( iNode )( iBaseNode ) ) );
                 }
 
                 // Create new derived node

@@ -18,7 +18,6 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Node_Manager::Node_Manager( mtk::Mesh* aMesh )
-            : mBackgroundNodes( 0 )
     {
         this->reset_base_nodes( aMesh );
     }
@@ -40,11 +39,19 @@ namespace moris::ge
         // Create new base GEN nodes if a mesh is given
         if ( aMesh )
         {
+            // Set that a mesh was given
             mMeshGiven = true;
-            mBackgroundNodes.resize( aMesh->get_num_nodes() );
-            for ( uint iNodeIndex = 0; iNodeIndex < mBackgroundNodes.size(); iNodeIndex++ )
+
+            // Get number of nodes from the mesh
+            uint tNumberOfBackgroundNodes = aMesh->get_num_nodes();
+
+            // Reserve space
+            mBackgroundNodes.reserve( tNumberOfBackgroundNodes );
+
+            // Populate vector
+            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfBackgroundNodes; iNodeIndex++ )
             {
-                mBackgroundNodes( iNodeIndex ) = new Background_Node( iNodeIndex, aMesh->get_node_coordinate( iNodeIndex ) );
+                mBackgroundNodes.emplace_back( iNodeIndex, aMesh->get_node_coordinate( iNodeIndex ) );
             }
         }
     }
@@ -62,7 +69,7 @@ namespace moris::ge
     {
         if ( this->is_background_node( aNodeIndex ) )
         {
-            return this->get_background_node( aNodeIndex );
+            return &( this->get_background_node( aNodeIndex ) );
         }
         else
         {
@@ -79,7 +86,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Background_Node* Node_Manager::get_background_node( uint aBackgroundNodeIndex )
+    Background_Node& Node_Manager::get_background_node( uint aBackgroundNodeIndex )
     {
         return mBackgroundNodes( aBackgroundNodeIndex );
     }
@@ -114,11 +121,7 @@ namespace moris::ge
 
     void Node_Manager::delete_all_nodes()
     {
-        // Delete background nodes
-        for ( Background_Node* iBaseNode : mBackgroundNodes )
-        {
-            delete iBaseNode;
-        }
+        // Clear background nodes
         mBackgroundNodes.clear();
 
         // Delete derived nodes
