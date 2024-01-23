@@ -21,7 +21,6 @@
 #include "cl_GEN_Phase_Table.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_Geometric_Query_Interface.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Core.hpp"

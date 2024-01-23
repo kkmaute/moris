@@ -16,7 +16,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
-#include "cl_GEN_Geometric_Query_Interface.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Cell_Info.hpp"
@@ -59,12 +58,9 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    class Geometric_Query_XTK : public moris::ge::Geometric_Query_Interface
+    class Geometric_Query
     {
       private:
-        // tell the geometry engine what you are interested
-        enum moris::ge::Query_Type mQueryType = moris::ge::Query_Type::INVALID;
-
         // associated with a given child mesh
         mtk::EntityRank mQueryEntityRank = mtk::EntityRank::INVALID;
 
@@ -92,19 +88,13 @@ namespace xtk
         moris_index mGeometricIndex;
 
       public:
-        Geometric_Query_XTK()
+        Geometric_Query()
                 : mQueryParentCell( nullptr )
                 , mParentCell( nullptr )
                 , mGeometricIndex( MORIS_INDEX_MAX )
         {
         }
-        ~Geometric_Query_XTK() {}
-
-        void
-        set_query_type( enum moris::ge::Query_Type aQueryType )
-        {
-            mQueryType = aQueryType;
-        }
+        ~Geometric_Query() {}
 
         void
         set_query_entity_rank( mtk::EntityRank aEntityRank )
@@ -182,12 +172,6 @@ namespace xtk
             mGeometricIndex = aGeometricIndex;
         }
 
-        enum moris::ge::Query_Type
-        get_query_type() const
-        {
-            return mQueryType;
-        }
-
         moris_index
         get_geometric_index() const
         {
@@ -259,7 +243,7 @@ namespace xtk
             return mParentCell->get_interpolation_order();
         }
 
-    };    // struct Geometric_Query_XTK
+    };    // struct Geometric_Query
 
     // ----------------------------------------------------------------------------------
 

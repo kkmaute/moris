@@ -178,10 +178,9 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     // Initialize geometric query
     // (object which holds/collects all information needed to determine an intersection
     // (e.g. data of an edge and its relation to its Child Mesh and BG Cell))
-    Geometric_Query_XTK tGeometricQuery;
+    Geometric_Query tGeometricQuery;
 
     // setup the query data (fixed parts for this function)
-    tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_LOCATION );
     tGeometricQuery.set_coordinates_matrix( mCutIntegrationMesh->get_all_vertex_coordinates_loc_inds() );
     tGeometricQuery.set_cut_integration_mesh( mCutIntegrationMesh );
     tGeometricQuery.set_query_entity_rank( mtk::EntityRank::EDGE );
