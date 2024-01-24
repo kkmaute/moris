@@ -58,22 +58,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Level_Set_Geometry::get_isocontour_tolerance()
-    {
-        return mParameters.mIsocontourTolerance;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real
-    Level_Set_Geometry::get_intersection_tolerance()
-    {
-        return mParameters.mIntersectionTolerance;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     bool Level_Set_Geometry::depends_on_advs() const
     {
         return mField->has_advs();

@@ -66,20 +66,6 @@ namespace moris::ge
         real get_isocontour_threshold() const;
 
         /**
-         * Acccesses the isocontour tolerance for this geometry
-         *
-         * @return isocontour tolerance
-         */
-        real get_isocontour_tolerance();
-
-        /**
-         * Accesses the intersection tolerance for this geometry
-         *
-         * @return The real value of the intersection tolerance
-         */
-        real get_intersection_tolerance();
-
-        /**
          * Gets if this geometry depends on ADVs.
          *
          * @return ADV dependence
