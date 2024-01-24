@@ -18,13 +18,13 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Voxel::Intersection_Node_Voxel(
-            uint                              aNodeIndex,
-            const Cell< Node* >&              aBaseNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder,
-            std::shared_ptr< Voxel_Geometry > aInterfaceGeometry )
+            uint                     aNodeIndex,
+            const Cell< Node* >&     aBaseNodes,
+            const Parent_Node&       aFirstParentNode,
+            const Parent_Node&       aSecondParentNode,
+            mtk::Geometry_Type       aBackgroundGeometryType,
+            mtk::Interpolation_Order aBackgroundInterpolationOrder,
+            Voxel_Geometry&          aInterfaceGeometry )
             : Intersection_Node(
                     aNodeIndex,
                     aBaseNodes,
@@ -32,21 +32,35 @@ namespace moris::ge
                     aSecondParentNode,
                     Intersection_Node_Voxel::get_local_coordinate( aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),
                     aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
-                    aInterfaceGeometry )
+                    aBackgroundInterpolationOrder )
+            , mInterfaceGeometry( aInterfaceGeometry )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Geometry& Intersection_Node_Voxel::get_interface_geometry()
+    {
+        return mInterfaceGeometry;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Geometry& Intersection_Node_Voxel::get_interface_geometry() const
+    {
+        return mInterfaceGeometry;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Intersection_Node_Voxel::get_local_coordinate(
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            std::shared_ptr< Voxel_Geometry > aInterfaceGeometry )
+            const Parent_Node& aFirstParentNode,
+            const Parent_Node& aSecondParentNode,
+            Voxel_Geometry&    aInterfaceGeometry )
     {
         // Get parent geometric regions
-        Geometric_Region tFirstParentGeometricRegion = aInterfaceGeometry->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
-        Geometric_Region tSecondParentGeometricRegion = aInterfaceGeometry->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+        Geometric_Region tFirstParentGeometricRegion = aInterfaceGeometry.get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+        Geometric_Region tSecondParentGeometricRegion = aInterfaceGeometry.get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
 
         // Return local coordinate based on geometric regions of the parent nodes
         if ( tFirstParentGeometricRegion == tSecondParentGeometricRegion and tFirstParentGeometricRegion not_eq Geometric_Region::INTERFACE )

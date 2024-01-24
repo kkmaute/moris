@@ -50,17 +50,14 @@ namespace moris::ge
             case sdf::Object_Region::INSIDE:
             {
                 return Geometric_Region::NEGATIVE;
-                break;
             }
             case sdf::Object_Region::OUTSIDE:
             {
                 return Geometric_Region::POSITIVE;
-                break;
             }
             default:
             {
                 return Geometric_Region::INTERFACE;
-                break;
             }
         }
     }
@@ -83,7 +80,7 @@ namespace moris::ge
                 aSecondParentNode,
                 aBackgroundGeometryType,
                 aBackgroundInterpolationOrder,
-                shared_from_this() );
+                *this );
     }
 
     //--------------------------------------------------------------------------------------------------------------

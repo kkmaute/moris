@@ -85,7 +85,7 @@ namespace moris::ge
          * @param aGeometry Potential interface geometry
          * @return If this node is on the requested interface
          */
-        virtual bool is_on_interface( Geometry* aGeometry ) const;
+        virtual bool is_on_interface( const Geometry& aGeometry ) const;
 
         /**
          * Sets the flag for overriding linear interpolation, for when multilinear intersections are being used.

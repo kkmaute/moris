@@ -20,13 +20,13 @@
 namespace moris::ge
 {
     Intersection_Node_Surface_Mesh::Intersection_Node_Surface_Mesh(
-            uint                                     aNodeIndex,
-            const Cell< Node* >&                     aBaseNodes,
-            const Parent_Node&                       aFirstParentNode,
-            const Parent_Node&                       aSecondParentNode,
-            mtk::Geometry_Type                       aBackgroundGeometryType,
-            mtk::Interpolation_Order                 aBackgroundInterpolationOrder,
-            std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry )
+            uint                     aNodeIndex,
+            const Cell< Node* >&     aBaseNodes,
+            const Parent_Node&       aFirstParentNode,
+            const Parent_Node&       aSecondParentNode,
+            mtk::Geometry_Type       aBackgroundGeometryType,
+            mtk::Interpolation_Order aBackgroundInterpolationOrder,
+            Surface_Mesh_Geometry&   aInterfaceGeometry )
             : Intersection_Node(
                     aNodeIndex,
                     aBaseNodes,
@@ -34,28 +34,43 @@ namespace moris::ge
                     aSecondParentNode,
                     Intersection_Node_Surface_Mesh::compute_local_coordinate( aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),
                     aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
-                    aInterfaceGeometry )
+                    aBackgroundInterpolationOrder )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    Geometry& Intersection_Node_Surface_Mesh::get_interface_geometry()
+    {
+        return mInterfaceGeometry;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Geometry& Intersection_Node_Surface_Mesh::get_interface_geometry() const
+    {
+        return mInterfaceGeometry;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     Intersection_Node_Surface_Mesh::transform_surface_mesh_to_local_coordinate(
-            const Parent_Node&                       aFirstParentNode,
-            const Parent_Node&                       aSecondParentNode,
-            std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry,
-            uint&                                    aRotationAxis )
+            const Parent_Node&     aFirstParentNode,
+            const Parent_Node&     aSecondParentNode,
+            Surface_Mesh_Geometry& aInterfaceGeometry,
+            uint&                  aRotationAxis )
     {
         // step 1: shift the object so the first parent is at the origin
         Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
-        Cell< real > tShift( aInterfaceGeometry->get_dimension() );
+        Cell< real > tShift( aInterfaceGeometry.get_dimension() );
         MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size() , "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
         for( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
         {
             tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
         }
-        aInterfaceGeometry->shift( tShift );
+        aInterfaceGeometry.shift( tShift );
 
         // step 2: rotate the object
         // get unit axis to rotate to
@@ -99,33 +114,35 @@ namespace moris::ge
         tTransformationMatrix.set_column( 0, tParentVector );
 
         // trim the transformation matrix if 2D
-        if ( aInterfaceGeometry->get_dimension() == 2 )
+        if ( aInterfaceGeometry.get_dimension() == 2 )
         {
             tTransformationMatrix.resize( 2, 2 );
         }
 
         // rotate the object
-        aInterfaceGeometry->rotate( tTransformationMatrix );
+        aInterfaceGeometry.rotate( tTransformationMatrix );
 
         // step 3: scale the object
-        Cell< real > tScaling( aInterfaceGeometry->get_dimension(), 2.0 / tParentVectorNorm );
-        aInterfaceGeometry->scale( tScaling );
+        Cell< real > tScaling( aInterfaceGeometry.get_dimension(), 2.0 / tParentVectorNorm );
+        aInterfaceGeometry.scale( tScaling );
 
     }
+    
+    //--------------------------------------------------------------------------------------------------------------
 
     real Intersection_Node_Surface_Mesh::compute_local_coordinate(
-            const Parent_Node&                       aFirstParentNode,
-            const Parent_Node&                       aSecondParentNode,
-            std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry )
+            const Parent_Node&     aFirstParentNode,
+            const Parent_Node&     aSecondParentNode,
+            Surface_Mesh_Geometry& aInterfaceGeometry )
     {
         // transform the interface geometry to local coordinates
         uint tRotatedAxis;
         transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode, aInterfaceGeometry, tRotatedAxis );
 
         // Compute the distance to the facets
-        Matrix< DDRMat > tCastPoint( aInterfaceGeometry->get_dimension(), 1 );
+        Matrix< DDRMat > tCastPoint( aInterfaceGeometry.get_dimension(), 1 );
         tCastPoint.fill( 0.0 );
-        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *aInterfaceGeometry, tCastPoint, tRotatedAxis );
+        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( aInterfaceGeometry, tCastPoint, tRotatedAxis );
 
         // shift local coordinate to be between -1 and 1
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
@@ -134,7 +151,7 @@ namespace moris::ge
         }
 
         // reset the object
-        aInterfaceGeometry->reset_coordinates();
+        aInterfaceGeometry.reset_coordinates();
 
         if ( tLocalCoordinate.size() == 0 )
         {
@@ -148,14 +165,16 @@ namespace moris::ge
 
         return tLocalCoordinate( 0 );
     }
+    
+    //--------------------------------------------------------------------------------------------------------------
 
     void Intersection_Node_Surface_Mesh::append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) const
     {
         // TODO
         MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_dcoordinate_dadv() not implemented yet." );
-
-        return;
-    };
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDSMat >
     Intersection_Node_Surface_Mesh::get_coordinate_determining_adv_ids() const
@@ -164,4 +183,7 @@ namespace moris::ge
         MORIS_ERROR( false, "Intersection_Node_Surface_Mesh - get_coordinate_determining_adv_ids() not implemented yet." );
         return { { -1 } };
     }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
 }    // namespace moris::ge

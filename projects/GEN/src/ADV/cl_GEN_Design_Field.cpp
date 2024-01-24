@@ -112,7 +112,7 @@ namespace moris::ge
 
     real Design_Field::get_field_value(
             uint                    aNodeIndex,
-            const Matrix< DDRMat >& aCoordinates )
+            const Matrix< DDRMat >& aCoordinates ) const
     {
         if ( mNodeManager->is_background_node( aNodeIndex ) )
         {
@@ -241,7 +241,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Design_Field::use_multilinear_interpolation()
+    bool Design_Field::use_multilinear_interpolation() const
     {
         return mParameters.mUseMultilinearInterpolation;
     }

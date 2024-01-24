@@ -19,6 +19,9 @@ namespace moris::ge
 
     class Intersection_Node_Voxel : public Intersection_Node
     {
+      private:
+        Voxel_Geometry& mInterfaceGeometry;
+
       public:
         /**
          * Constructor
@@ -32,13 +35,29 @@ namespace moris::ge
          * @param aInterfaceGeometry Interface geometry (voxel)
          */
         Intersection_Node_Voxel(
-                uint                              aNodeIndex,
-                const Cell< Node* >&              aBaseNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder,
-                std::shared_ptr< Voxel_Geometry > aInterfaceGeometry );
+                uint                     aNodeIndex,
+                const Cell< Node* >&     aBaseNodes,
+                const Parent_Node&       aFirstParentNode,
+                const Parent_Node&       aSecondParentNode,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder,
+                Voxel_Geometry&          aInterfaceGeometry );
+
+      protected:
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface.
+         *
+         * @return Geometry shared pointer
+         */
+        Geometry& get_interface_geometry() override;
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface (const version)
+         *
+         * @return Const geometry reference
+         */
+        virtual const Geometry& get_interface_geometry() const override;
 
       private:
 
@@ -52,8 +71,8 @@ namespace moris::ge
          * @return Local coordinate along the parent edge
          */
         static real get_local_coordinate(
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                std::shared_ptr< Voxel_Geometry > aInterfaceGeometry );
+                const Parent_Node& aFirstParentNode,
+                const Parent_Node& aSecondParentNode,
+                Voxel_Geometry&    aInterfaceGeometry );
     };
 }

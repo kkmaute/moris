@@ -16,7 +16,7 @@
 
 namespace moris::ge
 {
-    class Voxel_Geometry : public Geometry, public std::enable_shared_from_this< Voxel_Geometry >
+    class Voxel_Geometry : public Geometry
     {
       private:
         std::shared_ptr< Voxel_Input > mVoxelInput;
@@ -35,7 +35,7 @@ namespace moris::ge
          *
          * @return false
          */
-        bool depends_on_advs() override;
+        bool depends_on_advs() const override;
 
         /**
          * Gets the geometric region of a node, based on this geometry. For a voxel geometry, the region is only positive

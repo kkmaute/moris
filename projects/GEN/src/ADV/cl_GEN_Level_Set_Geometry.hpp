@@ -33,9 +33,7 @@ namespace moris::ge
         explicit Level_Set_Parameters( const ParameterList& aParameterList = prm::create_level_set_geometry_parameter_list() );
     };
 
-    class Level_Set_Geometry : public Geometry
-            , public Design_Field
-            , public std::enable_shared_from_this< Level_Set_Geometry >    // TODO make it so we don't need enable_shared_from_this, should be possible in intersection node
+    class Level_Set_Geometry : public Geometry, public Design_Field
     {
       private:
         Level_Set_Parameters mParameters;
@@ -65,7 +63,7 @@ namespace moris::ge
          *
          * @return the isocontour level that determines the geometry interface
          */
-        real get_isocontour_threshold();
+        real get_isocontour_threshold() const;
 
         /**
          * Acccesses the isocontour tolerance for this geometry
@@ -86,7 +84,7 @@ namespace moris::ge
          *
          * @return ADV dependence
          */
-        bool depends_on_advs() override;
+        bool depends_on_advs() const override;
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -129,7 +127,7 @@ namespace moris::ge
          */
         void get_dfield_dcoordinates(
                 const Basis_Node& aParentNode,
-                Matrix< DDRMat >& aSensitivities );
+                Matrix< DDRMat >& aSensitivities ) const;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
@@ -137,14 +135,6 @@ namespace moris::ge
          * @return MTK field
          */
         Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
-
-        /**
-         * Determines the geometric region of a point based on a level set value
-         *
-         * @param aLevelSetValue Value of the level set function
-         * @return Geometric region enum
-         */
-        Geometric_Region determine_geometric_region( real aLevelSetValue );
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -190,7 +180,7 @@ namespace moris::ge
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
-        virtual void discretize(
+        void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
@@ -222,7 +212,7 @@ namespace moris::ge
          *
          * @return Underlying field
          */
-        std::shared_ptr< Field > get_field()
+        std::shared_ptr< Field > get_field() override
         {
             return Design_Field::mField;
         }
@@ -249,20 +239,29 @@ namespace moris::ge
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() override;
+        moris_index get_discretization_mesh_index() override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        virtual real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        virtual real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() override;
+
+      private:
+        /**
+         * Determines the geometric region of a point based on a level set value
+         *
+         * @param aLevelSetValue Value of the level set function
+         * @return Geometric region enum
+         */
+        Geometric_Region determine_geometric_region( real aLevelSetValue ) const;
     };
 }    // namespace moris::ge

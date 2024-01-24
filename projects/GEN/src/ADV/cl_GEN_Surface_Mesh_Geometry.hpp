@@ -36,13 +36,10 @@ namespace moris::ge
         explicit Surface_Mesh_Parameters( const ParameterList& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
-    class Surface_Mesh_Geometry : public Geometry
-            , public sdf::Object
-            , public std::enable_shared_from_this< Surface_Mesh_Geometry >    // TODO make it so we don't need enable_shared_from_this, should be possible in intersection node
+    class Surface_Mesh_Geometry : public Geometry, public sdf::Object
     {
       private:
         Surface_Mesh_Parameters mParameters;
-
         std::string mName;
 
       public:
@@ -92,7 +89,7 @@ namespace moris::ge
          *
          */
         bool
-        depends_on_advs()
+        depends_on_advs() const
         {
             // BRENDAN TODO
             return false;

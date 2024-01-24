@@ -18,14 +18,14 @@
 namespace moris::ge
 {
     Intersection_Node_Level_Set::Intersection_Node_Level_Set(
-            uint                                  aNodeIndex,
-            const Cell< Node* >&                  aBaseNodes,
-            const Parent_Node&                    aFirstParentNode,
-            const Parent_Node&                    aSecondParentNode,
-            real                                  aLocalCoordinate,
-            mtk::Geometry_Type                    aBackgroundGeometryType,
-            mtk::Interpolation_Order              aBackgroundInterpolationOrder,
-            std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
+            uint                     aNodeIndex,
+            const Cell< Node* >&     aBaseNodes,
+            const Parent_Node&       aFirstParentNode,
+            const Parent_Node&       aSecondParentNode,
+            real                     aLocalCoordinate,
+            mtk::Geometry_Type       aBackgroundGeometryType,
+            mtk::Interpolation_Order aBackgroundInterpolationOrder,
+            Level_Set_Geometry&      aInterfaceGeometry )
             : Intersection_Node(
                     aNodeIndex,
                     aBaseNodes,
@@ -33,8 +33,7 @@ namespace moris::ge
                     aSecondParentNode,
                     aLocalCoordinate,
                     aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
-                    aInterfaceGeometry )
+                    aBackgroundInterpolationOrder )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
     }
@@ -46,9 +45,6 @@ namespace moris::ge
             Matrix< DDRMat >&       aCoordinateSensitivities,
             const Matrix< DDRMat >& aSensitivityFactor ) const
     {
-        // Locked interface geometry
-        std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
-
         // Get parent nodes
         const Basis_Node& tFirstParentNode = this->get_first_parent_node();
         const Basis_Node& tSecondParentNode = this->get_second_parent_node();
@@ -63,7 +59,7 @@ namespace moris::ge
         for ( uint iLocatorNode = 0; iLocatorNode < tFieldBasisNodes.size(); iLocatorNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
-            const Matrix< DDRMat >& tFieldSensitivities = tLockedInterfaceGeometry->get_dfield_dadvs(
+            const Matrix< DDRMat >& tFieldSensitivities = mInterfaceGeometry.get_dfield_dadvs(
                     tFieldBasisNodes( iLocatorNode ).get_index(),
                     tFieldBasisNodes( iLocatorNode ).get_global_coordinates() );
 
@@ -112,15 +108,12 @@ namespace moris::ge
         // Initialize ADV IDs
         Matrix< DDSMat > tCoordinateDeterminingADVIDs;
 
-        // Locked interface geometry
-        std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
-
         // Get sensitivity values from other ancestors
         const Cell< Basis_Node >& tLocatorNodes = this->get_locator_nodes();
         for ( uint iLocatorNode = 0; iLocatorNode < tLocatorNodes.size(); iLocatorNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
-            const Matrix< DDSMat >& tAncestorADVIDs = tLockedInterfaceGeometry->get_determining_adv_ids(
+            const Matrix< DDSMat >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
                     tLocatorNodes( iLocatorNode ).get_index(),
                     tLocatorNodes( iLocatorNode ).get_global_coordinates() );
 
@@ -144,6 +137,20 @@ namespace moris::ge
 
         // Return joined ADV IDs
         return tCoordinateDeterminingADVIDs;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Geometry& Intersection_Node_Level_Set::get_interface_geometry()
+    {
+        return mInterfaceGeometry;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Geometry& Intersection_Node_Level_Set::get_interface_geometry() const
+    {
+        return mInterfaceGeometry;
     }
 
     //--------------------------------------------------------------------------------------------------------------

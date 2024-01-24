@@ -70,7 +70,7 @@ namespace moris::ge
          *
          * @return ADV dependence
          */
-        virtual bool depends_on_advs() = 0;
+        virtual bool depends_on_advs() const = 0;
 
         /**
          * Gets the geometric region of a node, based on this geometry.

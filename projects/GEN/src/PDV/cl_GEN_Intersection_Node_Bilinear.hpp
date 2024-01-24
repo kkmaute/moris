@@ -33,13 +33,13 @@ namespace moris::ge
          * @param aInterfaceGeometry Interface geometry (level set)
          */
         Intersection_Node_Bilinear(
-                uint                                  aNodeIndex,
-                const Cell< Node* >&                  aBaseNodes,
-                const Parent_Node&                    aFirstParentNode,
-                const Parent_Node&                    aSecondParentNode,
-                mtk::Geometry_Type                    aBackgroundGeometryType,
-                mtk::Interpolation_Order              aBackgroundInterpolationOrder,
-                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
+                uint                     aNodeIndex,
+                const Cell< Node* >&     aBaseNodes,
+                const Parent_Node&       aFirstParentNode,
+                const Parent_Node&       aSecondParentNode,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder,
+                Level_Set_Geometry&      aInterfaceGeometry );
 
       private:
 
@@ -88,9 +88,9 @@ namespace moris::ge
          * @return Local coordinates
          */
         static real compute_local_coordinate(
-                const Cell< Node* >&                  aBaseNodes,
-                const Parent_Node&                    aFirstParentNode,
-                const Parent_Node&                    aSecondParentNode,
-                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
+                const Cell< Node* >&      aBaseNodes,
+                const Parent_Node&        aFirstParentNode,
+                const Parent_Node&        aSecondParentNode,
+                const Level_Set_Geometry& aInterfaceGeometry );
     };
 }

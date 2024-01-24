@@ -98,7 +98,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Derived_Node::is_on_interface( Geometry* aGeometry ) const
+    bool Derived_Node::is_on_interface( const Geometry& aGeometry ) const
     {
         return false;
     }

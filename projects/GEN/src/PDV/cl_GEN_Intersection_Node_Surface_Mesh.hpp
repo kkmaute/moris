@@ -21,10 +21,7 @@ namespace moris::ge
     class Intersection_Node_Surface_Mesh : public Intersection_Node
     {
       protected:
-        std::weak_ptr< Surface_Mesh_Geometry > mInterfaceGeometry;
-
-      private:
-        // functions
+        Surface_Mesh_Geometry& mInterfaceGeometry;
 
       public:
         /**
@@ -39,15 +36,29 @@ namespace moris::ge
          * @param aInterfaceGeometry Interface geometry (surface mesh)
          */
         Intersection_Node_Surface_Mesh(
-                uint                                     aNodeIndex,
-                const Cell< Node* >&                     aBaseNodes,
-                const Parent_Node&                       aFirstParentNode,
-                const Parent_Node&                       aSecondParentNode,
-                mtk::Geometry_Type                       aBackgroundGeometryType,
-                mtk::Interpolation_Order                 aBackgroundInterpolationOrder,
-                std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry );
+                uint                     aNodeIndex,
+                const Cell< Node* >&     aBaseNodes,
+                const Parent_Node&       aFirstParentNode,
+                const Parent_Node&       aSecondParentNode,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder,
+                Surface_Mesh_Geometry&   aInterfaceGeometry );
 
       protected:
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface.
+         *
+         * @return Geometry shared pointer
+         */
+        Geometry& get_interface_geometry() override;
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface (const version)
+         *
+         * @return Const geometry reference
+         */
+        virtual const Geometry& get_interface_geometry() const override;
 
       private:
 
@@ -60,11 +71,10 @@ namespace moris::ge
          * @return Matrix< DDRMat > direction cosine matrix used to rotate the coordinate frame for raycast
          */
         void transform_surface_mesh_to_local_coordinate(
-                const Parent_Node&                       aFirstParentNode,
-                const Parent_Node&                       aSecondParentNode,
-                std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry,
-                uint&                                    aRotationAxis );
-        //--------------------------------------------------------------------------------------------------------------
+                const Parent_Node&     aFirstParentNode,
+                const Parent_Node&     aSecondParentNode,
+                Surface_Mesh_Geometry& aInterfaceGeometry,
+                uint&                  aRotationAxis );
 
         /**
          * Interpolate and return the local coordinates of this intersection node by raycasting in a transformed coordinate axis z direction.
@@ -76,9 +86,9 @@ namespace moris::ge
          * @return Local coordinate of the intersection with respect to the first parent node
          */
         real compute_local_coordinate(
-                const Parent_Node&                       aFirstParentNode,
-                const Parent_Node&                       aSecondParentNode,
-                std::shared_ptr< Surface_Mesh_Geometry > aInterfaceGeometry );
+                const Parent_Node&     aFirstParentNode,
+                const Parent_Node&     aSecondParentNode,
+                Surface_Mesh_Geometry& aInterfaceGeometry );
 
         //--------------------------------------------------------------------------------------------------------------
 

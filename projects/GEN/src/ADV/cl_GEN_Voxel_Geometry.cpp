@@ -28,7 +28,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Voxel_Geometry::depends_on_advs()
+    bool Voxel_Geometry::depends_on_advs() const
     {
         return false;
     }
@@ -61,7 +61,7 @@ namespace moris::ge
             const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
 
             // If derived node knows it is on this interface, can return interface
-            if ( tDerivedNode.is_on_interface( this ) )
+            if ( tDerivedNode.is_on_interface( *this ) )
             {
                 return Geometric_Region::INTERFACE;
             }
@@ -129,7 +129,7 @@ namespace moris::ge
                 aSecondParentNode,
                 aBackgroundGeometryType,
                 aBackgroundInterpolationOrder,
-                shared_from_this() );
+                *this );
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -51,7 +51,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Level_Set_Geometry::get_isocontour_threshold()
+    Level_Set_Geometry::get_isocontour_threshold() const
     {
         return mParameters.mIsocontourThreshold;
     }
@@ -74,7 +74,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Level_Set_Geometry::depends_on_advs()
+    bool Level_Set_Geometry::depends_on_advs() const
     {
         return mField->has_advs();
     }
@@ -96,7 +96,7 @@ namespace moris::ge
             const Derived_Node& tDerivedNode = mNodeManager->get_derived_node( aNodeIndex );
 
             // If derived node knows it is on this interface, can return interface
-            if ( tDerivedNode.is_on_interface( this ) )
+            if ( tDerivedNode.is_on_interface( *this ) )
             {
                 return Geometric_Region::INTERFACE;
             }
@@ -153,7 +153,7 @@ namespace moris::ge
                     aSecondParentNode,
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
-                    shared_from_this() );
+                    *this );
         }
         else
         {
@@ -165,7 +165,7 @@ namespace moris::ge
                     aSecondParentNode,
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
-                    shared_from_this() );
+                    *this );
         }
     }
 
@@ -173,7 +173,7 @@ namespace moris::ge
 
     void Level_Set_Geometry::get_dfield_dcoordinates(
             const Basis_Node& aParentNode,
-            Matrix< DDRMat >& aSensitivities )
+            Matrix< DDRMat >& aSensitivities ) const
     {
         if ( this->use_multilinear_interpolation() )
         {
@@ -226,7 +226,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Geometric_Region Level_Set_Geometry::determine_geometric_region( real aLevelSetValue )
+    Geometric_Region Level_Set_Geometry::determine_geometric_region( real aLevelSetValue ) const
     {
         // Determine if value indicates that this point is on the interface
         if ( std::abs( aLevelSetValue - mParameters.mIsocontourThreshold ) <= mParameters.mIsocontourTolerance )

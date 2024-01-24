@@ -25,13 +25,13 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Bilinear::Intersection_Node_Bilinear(
-            uint                                  aNodeIndex,
-            const Cell< Node* >&                  aBaseNodes,
-            const Parent_Node&                    aFirstParentNode,
-            const Parent_Node&                    aSecondParentNode,
-            mtk::Geometry_Type                    aBackgroundGeometryType,
-            mtk::Interpolation_Order              aBackgroundInterpolationOrder,
-            std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
+            uint                     aNodeIndex,
+            const Cell< Node* >&     aBaseNodes,
+            const Parent_Node&       aFirstParentNode,
+            const Parent_Node&       aSecondParentNode,
+            mtk::Geometry_Type       aBackgroundGeometryType,
+            mtk::Interpolation_Order aBackgroundInterpolationOrder,
+            Level_Set_Geometry&      aInterfaceGeometry )
             : Intersection_Node_Level_Set(
                     aNodeIndex,
                     aBaseNodes,
@@ -90,9 +90,6 @@ namespace moris::ge
             return 0.0;
         }
 
-        // Locked interface geometry
-        std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
-
         // build interpolator
         mtk::Interpolation_Function_Factory tFactory;
         mtk::Interpolation_Function_Base* tInterpolation;
@@ -130,7 +127,7 @@ namespace moris::ge
         const Cell< Basis_Node >& tBackgroundNodes = this->get_background_nodes();
         for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
-            tPhiBCNodes( iBackgroundNodeIndex ) = tLockedInterfaceGeometry->get_field_value(
+            tPhiBCNodes( iBackgroundNodeIndex ) = mInterfaceGeometry.get_field_value(
                     tBackgroundNodes( iBackgroundNodeIndex ).get_index(),
                     tBackgroundNodes( iBackgroundNodeIndex ).get_global_coordinates() );
         }
@@ -179,13 +176,13 @@ namespace moris::ge
 
     real
     Intersection_Node_Bilinear::compute_local_coordinate(
-            const Cell< Node* >&                  aBaseNodes,
-            const Parent_Node&                    aFirstParentNode,
-            const Parent_Node&                    aSecondParentNode,
-            std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
+            const Cell< Node* >&      aBaseNodes,
+            const Parent_Node&        aFirstParentNode,
+            const Parent_Node&        aSecondParentNode,
+            const Level_Set_Geometry& aInterfaceGeometry )
     {
         // get isocontour threshold from geometry
-        real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
+        real tIsocontourThreshold = aInterfaceGeometry.get_isocontour_threshold();
 
         // spatial dimension
         uint tNumDims = aFirstParentNode.get_global_coordinates().length();
@@ -233,7 +230,7 @@ namespace moris::ge
         // get level set values of corner nodes
         for ( uint iBaseNode = 0; iBaseNode < tNumBases; ++iBaseNode )
         {
-            tPhiBCNodes( iBaseNode ) = aInterfaceGeometry->get_field_value(
+            tPhiBCNodes( iBaseNode ) = aInterfaceGeometry.get_field_value(
                     aBaseNodes( iBaseNode )->get_index(),
                     aBaseNodes( iBaseNode )->get_global_coordinates() );
         }
@@ -244,8 +241,8 @@ namespace moris::ge
         tIsocontourThreshold *= tPhiScaling;
 
         // Get scaled parent level set values
-        real tFirstParentPhi  = tPhiScaling * aInterfaceGeometry->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
-        real tSecondParentPhi = tPhiScaling * aInterfaceGeometry->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+        real tFirstParentPhi  = tPhiScaling * aInterfaceGeometry.get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+        real tSecondParentPhi = tPhiScaling * aInterfaceGeometry.get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
 
         // check that line is intersected
         if ( ( tFirstParentPhi - tIsocontourThreshold ) * ( tSecondParentPhi - tIsocontourThreshold ) > 0 )

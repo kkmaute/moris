@@ -23,7 +23,6 @@ namespace moris::ge
     {
       private:
         Cell< Basis_Node > mParentNodes;
-        std::shared_ptr< Geometry > mInterfaceGeometry;
         moris_id mPDVStartingID;
         bool     mPDVStartingIDSet = false;
 
@@ -49,8 +48,7 @@ namespace moris::ge
                 const Parent_Node&          aSecondParentNode,
                 real                        aLocalCoordinate,
                 mtk::Geometry_Type          aBackgroundGeometryType,
-                mtk::Interpolation_Order    aBackgroundInterpolationOrder,
-                std::shared_ptr< Geometry > aInterfaceGeometry );
+                mtk::Interpolation_Order    aBackgroundInterpolationOrder );
 
         /**
          * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.
@@ -73,7 +71,7 @@ namespace moris::ge
          * @param aGeometry Potential interface geometry
          * @return If this node is on the requested interface
          */
-        bool is_on_interface( Geometry* aGeometry ) const override;
+        bool is_on_interface( const Geometry& aGeometry ) const override;
 
         /**
          * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
@@ -162,6 +160,20 @@ namespace moris::ge
         moris_index get_owner();
 
       protected:
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface.
+         *
+         * @return Geometry reference
+         */
+        virtual Geometry& get_interface_geometry() = 0;
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface (const version)
+         *
+         * @return Const geometry reference
+         */
+        virtual const Geometry& get_interface_geometry() const = 0;
 
         /**
          * Gets the first parent node of this intersection node.

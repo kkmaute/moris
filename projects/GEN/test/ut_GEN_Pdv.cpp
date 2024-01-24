@@ -395,7 +395,7 @@ namespace moris
                             tSecondParentNode,
                             mtk::Geometry_Type::LINE,
                             mtk::Interpolation_Order::LINEAR,
-                            tCircleGeometry );
+                            *tCircleGeometry );
 
                     // Add to node manager
                     tNodeManager.add_derived_node( tIntersectionNode );

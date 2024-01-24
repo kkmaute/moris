@@ -19,7 +19,7 @@ namespace moris::ge
     class Intersection_Node_Level_Set : public Intersection_Node
     {
       protected:
-        std::weak_ptr< Level_Set_Geometry > mInterfaceGeometry;
+        Level_Set_Geometry& mInterfaceGeometry;
 
       public:
         /**
@@ -35,14 +35,14 @@ namespace moris::ge
          * @param aInterfaceGeometry Interface geometry (level set)
          */
         Intersection_Node_Level_Set(
-                uint                                  aNodeIndex,
-                const Cell< Node* >&                  aBaseNodes,
-                const Parent_Node&                    aFirstParentNode,
-                const Parent_Node&                    aSecondParentNode,
-                real                                  aLocalCoordinate,
-                mtk::Geometry_Type                    aBackgroundGeometryType,
-                mtk::Interpolation_Order              aBackgroundInterpolationOrder,
-                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
+                uint                     aNodeIndex,
+                const Cell< Node* >&     aBaseNodes,
+                const Parent_Node&       aFirstParentNode,
+                const Parent_Node&       aSecondParentNode,
+                real                     aLocalCoordinate,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder,
+                Level_Set_Geometry&      aInterfaceGeometry );
 
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
@@ -62,6 +62,22 @@ namespace moris::ge
          * @return ADV IDs
          */
         Matrix< DDSMat > get_coordinate_determining_adv_ids() const override;
+
+      protected:
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface.
+         *
+         * @return Geometry shared pointer
+         */
+        Geometry& get_interface_geometry() override;
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface (const version)
+         *
+         * @return Const geometry reference
+         */
+        virtual const Geometry& get_interface_geometry() const override;
 
       private:
 

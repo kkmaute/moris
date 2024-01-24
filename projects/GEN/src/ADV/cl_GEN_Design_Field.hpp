@@ -98,7 +98,7 @@ namespace moris::ge
          */
         real get_field_value(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) const;
 
         /**
          * Gets the IDs of ADVs which this design component depends on for evaluations.
@@ -159,7 +159,7 @@ namespace moris::ge
          *
          * @return Multilinear interpolation flag
          */
-        bool use_multilinear_interpolation();
+        bool use_multilinear_interpolation() const;
 
         /**
          * Gets an MTK field, if this design field uses one that needs to be remapped to a new mesh
