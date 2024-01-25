@@ -57,22 +57,6 @@ namespace moris::ge
          *
          * @return Const geometry reference
          */
-        virtual const Geometry& get_interface_geometry() const override;
-
-      private:
-
-        /**
-         * Gets the local coordinate of this intersection node based on the voxel geometry and
-         * given parent node information.
-         *
-         * @param aFirstParentNode First parent node information
-         * @param aSecondParentNode Second parent node information
-         * @param aInterfaceGeometry Voxel geometry
-         * @return Local coordinate along the parent edge
-         */
-        static real get_local_coordinate(
-                const Parent_Node& aFirstParentNode,
-                const Parent_Node& aSecondParentNode,
-                Voxel_Geometry&    aInterfaceGeometry );
+        const Geometry& get_interface_geometry() const override;
     };
 }

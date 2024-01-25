@@ -73,23 +73,5 @@ namespace moris::ge
          * @return Local coordinate sensitivity
          */
         Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
-
-        /**
-         * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
-         *
-         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node with respect to
-         * the given ancestors
-         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
-         * the given ancestors
-         * @param aAncestorNodeIndices Ancestor node indices
-         * @param aAncestorNodeCoordinates Ancestor node coordinates
-         * @param aInterfaceGeometry Geometry that intersects the parent to create this child
-         * @return Local coordinates
-         */
-        static real compute_local_coordinate(
-                const Cell< Node* >&      aBackgroundNodes,
-                const Parent_Node&        aFirstParentNode,
-                const Parent_Node&        aSecondParentNode,
-                const Level_Set_Geometry& aInterfaceGeometry );
     };
 }

@@ -58,39 +58,9 @@ namespace moris::ge
          *
          * @return Const geometry reference
          */
-        virtual const Geometry& get_interface_geometry() const override;
+        const Geometry& get_interface_geometry() const override;
 
       private:
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Computes the coordinate rotation matrix to move the x axis to point from the first parent node to the second parent node.
-         * Used to raycast to determine local coordinate of intersection node.
-         *
-         * @return Matrix< DDRMat > direction cosine matrix used to rotate the coordinate frame for raycast
-         */
-        void transform_surface_mesh_to_local_coordinate(
-                const Parent_Node&     aFirstParentNode,
-                const Parent_Node&     aSecondParentNode,
-                Surface_Mesh_Geometry& aInterfaceGeometry,
-                uint&                  aRotationAxis );
-
-        /**
-         * Interpolate and return the local coordinates of this intersection node by raycasting in a transformed coordinate axis z direction.
-         * Used to clean up constructor.
-         *
-         * @param aFirstNodeCoordinates Global coordinates of the first parent of this node
-         * @param aSecondNodeCoordinates Global coordinates of the second parent of this node
-         * @param aAncestorNodeCoordinates Global coordinates of surface mesh nodes
-         * @return Local coordinate of the intersection with respect to the first parent node
-         */
-        real compute_local_coordinate(
-                const Parent_Node&     aFirstParentNode,
-                const Parent_Node&     aSecondParentNode,
-                Surface_Mesh_Geometry& aInterfaceGeometry );
-
-        //--------------------------------------------------------------------------------------------------------------
 
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the

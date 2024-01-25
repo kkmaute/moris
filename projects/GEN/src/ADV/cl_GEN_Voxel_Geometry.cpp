@@ -11,6 +11,7 @@
 #include "cl_GEN_Voxel_Geometry.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Intersection_Node_Voxel.hpp"
+#include "cl_GEN_Parent_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::ge
@@ -130,6 +131,40 @@ namespace moris::ge
                 aBackgroundGeometryType,
                 aBackgroundInterpolationOrder,
                 *this );
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    real Voxel_Geometry::compute_intersection_local_coordinate(
+            const Cell< Node* >& aBackgroundNodes,
+            const Parent_Node&   aFirstParentNode,
+            const Parent_Node&   aSecondParentNode )
+    {
+        // Get parent geometric regions
+        Geometric_Region tFirstParentGeometricRegion = this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+        Geometric_Region tSecondParentGeometricRegion = this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+        
+        // Return local coordinate based on geometric regions of the parent nodes
+        if ( tFirstParentGeometricRegion == tSecondParentGeometricRegion and tFirstParentGeometricRegion not_eq Geometric_Region::INTERFACE )
+        {
+            // Geometric regions are the same; no intersection
+            return MORIS_REAL_MAX;
+        }
+        else if ( tFirstParentGeometricRegion == Geometric_Region::INTERFACE )
+        {
+            // First parent on interface
+            return -1.0;
+        }
+        else if ( tSecondParentGeometricRegion == Geometric_Region::INTERFACE )
+        {
+            // Second parent on interface
+            return 1.0;
+        }
+        else
+        {
+            // Interface is midway between the parent nodes
+            return 0.0;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

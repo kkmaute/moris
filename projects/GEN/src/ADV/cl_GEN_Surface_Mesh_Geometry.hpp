@@ -21,8 +21,7 @@ namespace moris::ge
     /**
      * This is a struct used to simplify \ref moris::ge::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Surface_Mesh_Parameters : public Field_Parameters
-            , public Design_Parameters
+    struct Surface_Mesh_Parameters : public Field_Parameters, public Design_Parameters
     {
         Cell< real > mOffsets;
         Cell< real > mScale;
@@ -82,6 +81,19 @@ namespace moris::ge
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
                 mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
+
+        /**
+         * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
+         *
+         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aFirstParentNode Node marking the starting point of the intersection edge
+         * @param aSecondParentNode Node marking the ending point of the intersection edge
+         * @return Parent edge local coordinate, between -1 and 1
+         */
+        virtual real compute_intersection_local_coordinate(
+                const Cell< Node* >& aBackgroundNodes,
+                const Parent_Node&   aFirstParentNode,
+                const Parent_Node&   aSecondParentNode ) override;
 
         /**
          *
@@ -221,5 +233,18 @@ namespace moris::ge
          * @return Upper bound
          */
         virtual real get_discretization_upper_bound() override;
+
+      private:
+
+        /**
+         * Transforms a surface mesh to the local coordinate frame of an intersection node
+         *
+         * @param aFirstParentNode First parent node information
+         * @param aSecondParentNode Second parent node information
+         * @return Rotation axis
+         */
+        uint transform_surface_mesh_to_local_coordinate(
+                const Parent_Node& aFirstParentNode,
+                const Parent_Node& aSecondParentNode );
     };
 }    // namespace moris::ge

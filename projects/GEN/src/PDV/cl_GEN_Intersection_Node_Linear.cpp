@@ -9,15 +9,8 @@
  */
 
 #include "cl_GEN_Intersection_Node_Linear.hpp"
-#include "cl_GEN_Parent_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
-#include "cl_GEN_Interpolation.hpp"
-
-#include "cl_MTK_Interpolation_Function_Base.hpp"
-#include "cl_MTK_Interpolation_Function_Factory.hpp"
-#include "cl_MTK_Enums.hpp"
-
-#include "fn_dot.hpp"
 
 namespace moris::ge
 {
@@ -37,7 +30,7 @@ namespace moris::ge
                     aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    Intersection_Node_Linear::compute_local_coordinate( aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),
+                    aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode ),
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
                     aInterfaceGeometry )
@@ -92,27 +85,6 @@ namespace moris::ge
                 tCoordinateSensitivities );
 
         return this->get_dxi_dfield_from_ancestor( 1 ) * tCoordinateSensitivities;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real
-    Intersection_Node_Linear::compute_local_coordinate(
-            const Parent_Node&        aFirstParentNode,
-            const Parent_Node&        aSecondParentNode,
-            const Level_Set_Geometry& aInterfaceGeometry )
-    {
-        // Interface geometry values
-        Matrix< DDRMat > tInterfaceGeometryValues = { { aInterfaceGeometry.get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) },
-            { aInterfaceGeometry.get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) } };
-
-        // Get isocontour threshold
-        real tIsocontourThreshold = aInterfaceGeometry.get_isocontour_threshold();
-
-        // Interpolate
-        Matrix< DDRMat > tLocalCoordinates = Interpolation::linear_interpolation_value( tInterfaceGeometryValues, tIsocontourThreshold );
-
-        return tLocalCoordinates( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

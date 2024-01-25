@@ -77,7 +77,7 @@ namespace moris::ge
          *
          * @return Const geometry reference
          */
-        virtual const Geometry& get_interface_geometry() const override;
+        const Geometry& get_interface_geometry() const override;
 
       private:
 
