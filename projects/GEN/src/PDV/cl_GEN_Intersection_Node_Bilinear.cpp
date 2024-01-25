@@ -41,8 +41,7 @@ namespace moris::ge
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
                     aInterfaceGeometry )
-            , mFirstParentNodeParametricCoordinates( aFirstParentNode.get_parametric_coordinates() )
-            , mSecondParentNodeParametricCoordinates( aSecondParentNode.get_parametric_coordinates() )
+            , mParametricParentVector( aSecondParentNode.get_parametric_coordinates() - aFirstParentNode.get_parametric_coordinates() )
     {
     }
 
@@ -145,7 +144,7 @@ namespace moris::ge
         // compute Jacobian
         Matrix< DDRMat > tDBasisDxi;
         tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
-        Matrix< DDRMat > tJac = 0.5 * trans( mSecondParentNodeParametricCoordinates - mFirstParentNodeParametricCoordinates ) * tDBasisDxi * tPhiBCNodes;
+        Matrix< DDRMat > tJac = 0.5 * mParametricParentVector * tDBasisDxi * tPhiBCNodes;
 
         // delete interpolator
         delete tInterpolation;

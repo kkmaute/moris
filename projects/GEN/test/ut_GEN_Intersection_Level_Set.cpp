@@ -297,7 +297,7 @@ namespace moris::ge
             CHECK( tGeometryEngine.get_geometric_region( 0, 26, { {} } ) == Geometric_Region::POSITIVE );
             CHECK( tGeometryEngine.get_geometric_region( 0, 28, { {} } ) == Geometric_Region::POSITIVE );
 
-            // Get the PDV host manager and set the number of total nodes
+            // Get the PDV host manager
             auto tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
 
             // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
@@ -535,6 +535,208 @@ namespace moris::ge
         }
     }
 
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    TEST_CASE( "Bilinear Intersections", "[gen], [pdv], [intersection], [bilinear intersection]" )
+    {
+        if ( par_size() == 1 )
+        {
+            // Create mesh
+            mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
+
+            // Set up circle
+            ParameterList tCircleParameterList = prm::create_level_set_geometry_parameter_list();
+            tCircleParameterList.set( "field_type", "circle" );
+            tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );
+            tCircleParameterList.set( "discretization_mesh_index", 0 );
+            tCircleParameterList.set( "use_multilinear_interpolation", true );
+            Matrix< DDRMat > tADVs( 0, 0 );
+
+            // Create geometry engine
+            Geometry_Engine_Parameters tGeometryEngineParameters;
+            Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
+            tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
+            Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
+
+            // Solution for is_intersected() per geometry and per element
+            Cell< bool > tIsElementIntersected = { true, true, true, true };
+
+            // Per element, per edge
+            Cell< Cell< bool > > tIsEdgeIntersected = {
+                { false, true, true, false },  // Element 0
+                { false, false, true, true },  // Element 1
+                { true, true, false, false },  // Element 2
+                { true, false, false, true }}; // Element 3
+
+            // Intersection coordinates
+            real tFrac = 2.0 / ( 3.0 + sqrt( 17.0 ) );
+
+            Matrix< DDRMat > tIntersectionLocalCoordinates = {
+                { -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5 }
+            };
+
+            Cell< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
+                { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
+                { { -1.0, 0.0 } },
+                { { 0.5, 0.0 } },
+                { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
+                { { -1.0, 0.0 } },
+                { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
+                { { 0.5, 0.0 } },
+                { { 0.0, 0.5 + ( tFrac / 2.0 ) } }
+            };
+
+            // Get the PDV host manager
+            auto tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
+
+            // Initialize sensitivity variables
+            real tEpsilon = 1E-12;
+            Matrix< DDRMat > tHostADVSensitivities;
+            Matrix< DDRMat > tI;
+            eye( 2, 2, tI );
+
+            // Check element intersections
+            uint tIntersectionCount = 0;
+            for ( uint tElementIndex = 0; tElementIndex < 4; tElementIndex++ )
+            {
+                // Get element info
+                Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( tElementIndex );
+                Matrix< DDUMat >   tNodeIndices( 4, 1 );
+                for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
+                {
+                    tNodeIndices( tNodeNumber )     = tSignedNodeIndices( tNodeNumber );
+                }
+
+                // Check edges for properly queued intersections
+                for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
+                {
+                    // Queue intersection
+                    bool tIntersectionQueued = tGeometryEngine.queue_intersection(
+                            tNodeIndices( tNodeNumber ),
+                            tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
+                            get_quad_local_coordinates( tNodeNumber ),
+                            get_quad_local_coordinates( ( tNodeNumber + 1 ) % 4 ),
+                            tNodeIndices,
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Order::LINEAR );
+                    REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tElementIndex )( tNodeNumber ) );
+
+                    // Check queued intersection
+                    if ( tIntersectionQueued )
+                    {
+                        // Check parents
+                        CHECK( not tGeometryEngine.queued_intersection_first_parent_on_interface() );
+                        CHECK( not tGeometryEngine.queued_intersection_second_parent_on_interface() );
+
+                        // Check local coordinates
+                        CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() ==
+                                Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
+
+                        // Check global coordinates
+                        CHECK_EQUAL( tGeometryEngine.get_queued_intersection_global_coordinates(), tIntersectionGlobalCoordinates( tIntersectionCount ), );
+
+                        // Admit intersection
+                        tGeometryEngine.admit_queued_intersection();
+
+                        // Check sensitivities
+                        tHostADVSensitivities.set_size( 0.0, 0.0 );
+                        tPDVHostManager->get_intersection_node( 9 + tIntersectionCount )->append_dcoordinate_dadv( tHostADVSensitivities, tI );
+                        Matrix< DDSMat > tADVIDs = tPDVHostManager->get_intersection_node( 9 + tIntersectionCount )->get_coordinate_determining_adv_ids();
+
+                        // Finite difference sensitivities by queueing dummy nodes
+                        Matrix< DDRMat > tFDSensitivities( tHostADVSensitivities.n_rows(), tHostADVSensitivities.n_cols(), 0.0 );
+                        tADVs = tGeometryEngine.get_advs();
+                        for ( uint iADVIndex = 0; iADVIndex < tADVIDs.length(); iADVIndex++ )
+                        {
+                            // Get ADV ID
+                            sint tADVID = tADVIDs( iADVIndex );
+
+                            // Positive perturbation
+                            tADVs( tADVID - 1 ) += tEpsilon;
+                            tGeometryEngine.set_advs( tADVs );
+                            tGeometryEngine.queue_intersection(
+                                    tNodeIndices( tNodeNumber ),
+                                    tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
+                                    get_quad_local_coordinates( tNodeNumber ),
+                                    get_quad_local_coordinates( ( tNodeNumber + 1 ) % 4 ),
+                                    tNodeIndices,
+                                    mtk::Geometry_Type::QUAD,
+                                    mtk::Interpolation_Order::LINEAR );
+                            Matrix< DDRMat > tPositiveGlobalCoordinates = tGeometryEngine.get_queued_intersection_global_coordinates();
+
+                            // Negative perturbation
+                            tADVs( tADVID - 1 ) -= 2.0 * tEpsilon;
+                            tGeometryEngine.set_advs( tADVs );
+                            tGeometryEngine.queue_intersection(
+                                    tNodeIndices( tNodeNumber ),
+                                    tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
+                                    get_quad_local_coordinates( tNodeNumber ),
+                                    get_quad_local_coordinates( ( tNodeNumber + 1 ) % 4 ),
+                                    tNodeIndices,
+                                    mtk::Geometry_Type::QUAD,
+                                    mtk::Interpolation_Order::LINEAR );
+                            Matrix< DDRMat > tNegativeGlobalCoordinates = tGeometryEngine.get_queued_intersection_global_coordinates();
+
+                            // Reset
+                            tADVs( tADVID - 1 ) += tEpsilon;
+                            tGeometryEngine.set_advs( tADVs );
+                            tFDSensitivities( 0, iADVIndex ) = ( tPositiveGlobalCoordinates( 0 ) - tNegativeGlobalCoordinates( 0 ) ) / ( 2.0 * tEpsilon );
+                            tFDSensitivities( 1, iADVIndex ) = ( tPositiveGlobalCoordinates( 1 ) - tNegativeGlobalCoordinates( 1 ) ) / ( 2.0 * tEpsilon );
+                        }
+
+                        // Check sensitivities, needs a generous error factor
+                        CHECK_EQUAL( tHostADVSensitivities, tFDSensitivities, 1E12, );
+
+                        // Increment intersection count
+                        tIntersectionCount++;
+                    }
+                }
+            }
+
+            // Check total number of intersections
+            CHECK( tIntersectionCount == 8 );
+
+            // Test the new child nodes on the level set field
+            CHECK( tGeometryEngine.get_geometric_region( 0, 9, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 10, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 11, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 12, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 13, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 14, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 15, { {} } ) == Geometric_Region::INTERFACE );
+            CHECK( tGeometryEngine.get_geometric_region( 0, 16, { {} } ) == Geometric_Region::INTERFACE );
+
+            // Get full element info for element 0
+            Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );
+            Matrix< DDUMat >   tNodeIndices( 4, 1 );
+            Cell< Matrix< DDRMat > > tNodeCoordinates( 4 );
+            for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
+            {
+                tNodeIndices( tNodeNumber )     = tSignedNodeIndices( tNodeNumber );
+                tNodeCoordinates( tNodeNumber ) = tMesh->get_node_coordinate( tNodeIndices( tNodeNumber ) );
+            }
+
+            // Queue custom intersection 1 and check for bilinear intersection
+            bool tIntersectionQueued = tGeometryEngine.queue_intersection(
+                    0, 2, { { -1.0, -1.0 } }, { { 1.0, 1.0 } }, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
+            REQUIRE( tIntersectionQueued );
+
+            // Queue custom intersection 2 and check for no bilinear intersection
+            tIntersectionQueued = tGeometryEngine.queue_intersection(
+                    1, 3, { { 1.0, -1.0 } }, { { -1.0, 1.0 } }, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
+            REQUIRE( not tIntersectionQueued );
+
+            // Queue custom intersection 3 and check for bilinear intersection
+            tIntersectionQueued = tGeometryEngine.queue_intersection(
+                    9, 10, {{ 1.0, tFrac }}, {{ -1.0, 1.0 }}, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
+            REQUIRE( tIntersectionQueued );
+
+            // Clean up
+            delete tMesh;
+        }
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     TEST_CASE( "Bilinear Intersections with Nonzero Threshold", "[gen], [pdv], [intersection], [bilinear intersection], [nonzero_bilinear_threshold]" )
@@ -766,153 +968,6 @@ namespace moris::ge
                     mtk::Geometry_Type::QUAD,
                     mtk::Interpolation_Order::LINEAR );
             CHECK( !tIntersectionQueued );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    TEST_CASE( "Bilinear Intersections", "[gen], [pdv], [intersection], [bilinear intersection]" )
-    {
-        if ( par_size() == 1 )
-        {
-            // Create mesh
-            mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
-
-            // Set up circle
-            ParameterList tCircleParameterList = prm::create_level_set_geometry_parameter_list();
-            tCircleParameterList.set( "field_type", "circle" );
-            tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );
-            tCircleParameterList.set( "discretization_mesh_index", 0 );
-            tCircleParameterList.set( "use_multilinear_interpolation", true );
-            Matrix< DDRMat > tADVs( 0, 0 );
-
-            // Create geometry engine
-            Geometry_Engine_Parameters tGeometryEngineParameters;
-            Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
-            tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
-            Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
-
-            // Solution for is_intersected() per geometry and per element
-            Cell< bool > tIsElementIntersected = { true, true, true, true };
-
-            // Per element, per edge
-            Cell< Cell< bool > > tIsEdgeIntersected = {
-                { false, true, true, false },  // Element 0
-                { false, false, true, true },  // Element 1
-                { true, true, false, false },  // Element 2
-                { true, false, false, true }}; // Element 3
-
-            // Intersection coordinates
-            real tFrac = 2.0 / ( 3.0 + sqrt( 17.0 ) );
-
-            Matrix< DDRMat > tIntersectionLocalCoordinates = {
-                { -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5 }
-            };
-
-            Cell< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
-                { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
-                { { -1.0, 0.0 } },
-                { { 0.5, 0.0 } },
-                { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
-                { { -1.0, 0.0 } },
-                { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
-                { { 0.5, 0.0 } },
-                { { 0.0, 0.5 + ( tFrac / 2.0 ) } }
-            };
-
-            // Check element intersections
-            uint tIntersectionCount = 0;
-            for ( uint tElementIndex = 0; tElementIndex < 4; tElementIndex++ )
-            {
-                // Get element info
-                Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( tElementIndex );
-                Matrix< DDUMat >   tNodeIndices( 4, 1 );
-
-                Cell< Matrix< DDRMat > > tNodeCoordinates( 4 );
-
-                for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
-                {
-                    tNodeIndices( tNodeNumber )     = tSignedNodeIndices( tNodeNumber );
-                    tNodeCoordinates( tNodeNumber ) = tMesh->get_node_coordinate( tNodeIndices( tNodeNumber ) );
-                }
-
-                // Check edges for properly queued intersections
-                for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
-                {
-                    // Queue intersection
-                    bool tIntersectionQueued = tGeometryEngine.queue_intersection(
-                            tNodeIndices( tNodeNumber ),
-                            tNodeIndices( ( tNodeNumber + 1 ) % 4 ),
-                            get_quad_local_coordinates( tNodeNumber ),
-                            get_quad_local_coordinates( ( tNodeNumber + 1 ) % 4 ),
-                            tNodeIndices,
-                            mtk::Geometry_Type::QUAD,
-                            mtk::Interpolation_Order::LINEAR );
-                    REQUIRE( tIntersectionQueued == tIsEdgeIntersected( tElementIndex )( tNodeNumber ) );
-
-                    // Check queued intersection
-                    if ( tIntersectionQueued )
-                    {
-                        // Check parents
-                        CHECK( not tGeometryEngine.queued_intersection_first_parent_on_interface() );
-                        CHECK( not tGeometryEngine.queued_intersection_second_parent_on_interface() );
-
-                        // Check local coordinates
-                        CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() ==
-                                Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
-
-                        // Check global coordinates
-                        CHECK_EQUAL( tGeometryEngine.get_queued_intersection_global_coordinates(), tIntersectionGlobalCoordinates( tIntersectionCount ), );
-
-                        // Admit intersection
-                        tGeometryEngine.admit_queued_intersection();
-
-                        // Increment intersection count
-                        tIntersectionCount++;
-                    }
-                }
-            }
-
-            // Check total number of intersections
-            CHECK( tIntersectionCount == 8 );
-
-            // Test the new child nodes on the level set field
-            CHECK( tGeometryEngine.get_geometric_region( 0, 9, { {} } ) == Geometric_Region::INTERFACE );
-            CHECK( tGeometryEngine.get_geometric_region( 0, 10, { {} } ) == Geometric_Region::INTERFACE );
-            CHECK( tGeometryEngine.get_geometric_region( 0, 11, { {} } ) == Geometric_Region::INTERFACE );
-            CHECK( tGeometryEngine.get_geometric_region( 0, 12, { {} } ) == Geometric_Region::INTERFACE );
-            CHECK( tGeometryEngine.get_geometric_region( 0, 13, { {} } ) == Geometric_Region::INTERFACE );
-            CHECK( tGeometryEngine.get_geometric_region( 0, 14, { {} } ) == Geometric_Region::INTERFACE );
-            CHECK( tGeometryEngine.get_geometric_region( 0, 15, { {} } ) == Geometric_Region::INTERFACE );
-            CHECK( tGeometryEngine.get_geometric_region( 0, 16, { {} } ) == Geometric_Region::INTERFACE );
-
-            // Get full element info for element 0
-            Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );
-            Matrix< DDUMat >   tNodeIndices( 4, 1 );
-            Cell< Matrix< DDRMat > > tNodeCoordinates( 4 );
-            for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
-            {
-                tNodeIndices( tNodeNumber )     = tSignedNodeIndices( tNodeNumber );
-                tNodeCoordinates( tNodeNumber ) = tMesh->get_node_coordinate( tNodeIndices( tNodeNumber ) );
-            }
-
-            // Queue custom intersection 1 and check for bilinear intersection
-            bool tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    0, 2, { { -1.0, -1.0 } }, { { 1.0, 1.0 } }, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
-            REQUIRE( tIntersectionQueued );
-
-            // Queue custom intersection 2 and check for no bilinear intersection
-            tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    1, 3, { { 1.0, -1.0 } }, { { -1.0, 1.0 } }, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
-            REQUIRE( not tIntersectionQueued );
-
-            // Queue custom intersection 3 and check for bilinear intersection
-            tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    9, 10, {{ 1.0, tFrac }}, {{ -1.0, 1.0 }}, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
-            REQUIRE( tIntersectionQueued );
-
-            // Clean up
-            delete tMesh;
         }
     }
 

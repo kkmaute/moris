@@ -55,17 +55,16 @@ namespace moris::ge
         // Get sensitivity values from other ancestors
         Matrix< DDRMat > tSensitivitiesToAdd;
         const Cell< Basis_Node >& tFieldBasisNodes = this->get_field_basis_nodes();
-        real tConstant = 1.0 / tFieldBasisNodes.size();
-        for ( uint iLocatorNode = 0; iLocatorNode < tFieldBasisNodes.size(); iLocatorNode++ )
+        for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
             const Matrix< DDRMat >& tFieldSensitivities = mInterfaceGeometry.get_dfield_dadvs(
-                    tFieldBasisNodes( iLocatorNode ).get_index(),
-                    tFieldBasisNodes( iLocatorNode ).get_global_coordinates() );
+                    tFieldBasisNodes( iFieldBasisNode ).get_index(),
+                    tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
 
             // Ancestor sensitivities
             tSensitivitiesToAdd =
-                    tConstant * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( iLocatorNode ) * tParentVector * tFieldSensitivities;
+                    0.5 * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( iFieldBasisNode ) * tParentVector * tFieldSensitivities;
 
             // Resize sensitivities
             uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
@@ -109,13 +108,13 @@ namespace moris::ge
         Matrix< DDSMat > tCoordinateDeterminingADVIDs;
 
         // Get sensitivity values from other ancestors
-        const Cell< Basis_Node >& tLocatorNodes = this->get_locator_nodes();
-        for ( uint iLocatorNode = 0; iLocatorNode < tLocatorNodes.size(); iLocatorNode++ )
+        const Cell< Basis_Node >& tFieldBasisNodes = this->get_field_basis_nodes();
+        for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
             const Matrix< DDSMat >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
-                    tLocatorNodes( iLocatorNode ).get_index(),
-                    tLocatorNodes( iLocatorNode ).get_global_coordinates() );
+                    tFieldBasisNodes( iFieldBasisNode ).get_index(),
+                    tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
 
             // Join IDs
             Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tAncestorADVIDs );

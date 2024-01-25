@@ -17,8 +17,7 @@ namespace moris::ge
     class Intersection_Node_Bilinear : public Intersection_Node_Level_Set
     {
       private:
-        Matrix< DDRMat > mFirstParentNodeParametricCoordinates;
-        Matrix< DDRMat > mSecondParentNodeParametricCoordinates;
+        Matrix< DDRMat > mParametricParentVector;
 
       public:
         /**
