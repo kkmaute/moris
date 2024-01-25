@@ -26,7 +26,7 @@ namespace moris::ge
 
     Intersection_Node_Bilinear::Intersection_Node_Bilinear(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -34,10 +34,10 @@ namespace moris::ge
             Level_Set_Geometry&      aInterfaceGeometry )
             : Intersection_Node_Level_Set(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    Intersection_Node_Bilinear::compute_local_coordinate( aBaseNodes, aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),
+                    Intersection_Node_Bilinear::compute_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
                     aInterfaceGeometry )
@@ -175,7 +175,7 @@ namespace moris::ge
 
     real
     Intersection_Node_Bilinear::compute_local_coordinate(
-            const Cell< Node* >&      aBaseNodes,
+            const Cell< Node* >&      aBackgroundNodes,
             const Parent_Node&        aFirstParentNode,
             const Parent_Node&        aSecondParentNode,
             const Level_Set_Geometry& aInterfaceGeometry )
@@ -227,11 +227,11 @@ namespace moris::ge
         Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
         // get level set values of corner nodes
-        for ( uint iBaseNode = 0; iBaseNode < tNumBases; ++iBaseNode )
+        for ( uint iBackgroundNode = 0; iBackgroundNode < tNumBases; ++iBackgroundNode )
         {
-            tPhiBCNodes( iBaseNode ) = aInterfaceGeometry.get_field_value(
-                    aBaseNodes( iBaseNode )->get_index(),
-                    aBaseNodes( iBaseNode )->get_global_coordinates() );
+            tPhiBCNodes( iBackgroundNode ) = aInterfaceGeometry.get_field_value(
+                    aBackgroundNodes( iBackgroundNode )->get_index(),
+                    aBackgroundNodes( iBackgroundNode )->get_global_coordinates() );
         }
 
         // Scale element level set field such that norm equals 1.0

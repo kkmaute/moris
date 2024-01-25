@@ -21,7 +21,7 @@ namespace moris::ge
 
     Intersection_Node::Intersection_Node(
             uint                        aNodeIndex,
-            const Cell< Node* >&        aBaseNodes,
+            const Cell< Node* >&        aBackgroundNodes,
             const Parent_Node&          aFirstParentNode,
             const Parent_Node&          aSecondParentNode,
             real                        aLocalCoordinate,
@@ -29,7 +29,7 @@ namespace moris::ge
             mtk::Interpolation_Order    aBackgroundInterpolationOrder )
             : Derived_Node(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates(),
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder )

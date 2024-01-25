@@ -19,7 +19,7 @@ namespace moris::ge
 
     Intersection_Node_Voxel::Intersection_Node_Voxel(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -27,7 +27,7 @@ namespace moris::ge
             Voxel_Geometry&          aInterfaceGeometry )
             : Intersection_Node(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
                     Intersection_Node_Voxel::get_local_coordinate( aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),

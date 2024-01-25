@@ -21,7 +21,7 @@ namespace moris::ge
 {
     Intersection_Node_Surface_Mesh::Intersection_Node_Surface_Mesh(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -29,7 +29,7 @@ namespace moris::ge
             Surface_Mesh_Geometry&   aInterfaceGeometry )
             : Intersection_Node(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
                     Intersection_Node_Surface_Mesh::compute_local_coordinate( aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),

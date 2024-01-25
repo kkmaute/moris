@@ -19,7 +19,7 @@ namespace moris::ge
 {
     Intersection_Node_Level_Set::Intersection_Node_Level_Set(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             real                     aLocalCoordinate,
@@ -28,7 +28,7 @@ namespace moris::ge
             Level_Set_Geometry&      aInterfaceGeometry )
             : Intersection_Node(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
                     aLocalCoordinate,

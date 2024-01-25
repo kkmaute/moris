@@ -28,7 +28,7 @@ namespace moris::ge
          * Constructor
          *
          * @param aNodeIndex This node's index on the processor if it is admitted
-         * @param aBaseNodes Background nodes of the element where this node resides
+         * @param aBackgroundNodes Background nodes of the element where this node resides
          * @param aFirstParentNode First parent node information
          * @param aSecondParentNode Second parent node information
          * @param aBackgroundGeometryType Background element geometry type
@@ -37,7 +37,7 @@ namespace moris::ge
          */
         Intersection_Node_Surface_Mesh(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBaseNodes,
+                const Cell< Node* >&     aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
