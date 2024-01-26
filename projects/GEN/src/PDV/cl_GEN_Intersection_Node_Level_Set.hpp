@@ -39,7 +39,6 @@ namespace moris::ge
                 const Cell< Node* >&     aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
-                real                     aLocalCoordinate,
                 mtk::Geometry_Type       aBackgroundGeometryType,
                 mtk::Interpolation_Order aBackgroundInterpolationOrder,
                 Level_Set_Geometry&      aInterfaceGeometry );

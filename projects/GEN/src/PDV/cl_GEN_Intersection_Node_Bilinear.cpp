@@ -34,7 +34,6 @@ namespace moris::ge
                     aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode ),
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
                     aInterfaceGeometry )

@@ -22,7 +22,6 @@ namespace moris::ge
             const Cell< Node* >&     aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
-            real                     aLocalCoordinate,
             mtk::Geometry_Type       aBackgroundGeometryType,
             mtk::Interpolation_Order aBackgroundInterpolationOrder,
             Level_Set_Geometry&      aInterfaceGeometry )
@@ -31,7 +30,7 @@ namespace moris::ge
                     aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aLocalCoordinate,
+                    aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode ),
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder )
             , mInterfaceGeometry( aInterfaceGeometry )
