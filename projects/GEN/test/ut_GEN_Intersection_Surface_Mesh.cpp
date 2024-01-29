@@ -99,6 +99,7 @@ namespace moris::ge
             // surface mesh
             ParameterList tRhombusParameterList = prm::create_surface_mesh_geometry_parameter_list();
             tRhombusParameterList.set( "file_path", tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj" );
+            tRhombusParameterList.set( "intersection_tolerance", 1e-9 );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;

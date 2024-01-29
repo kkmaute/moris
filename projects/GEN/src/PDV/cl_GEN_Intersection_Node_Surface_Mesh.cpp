@@ -16,6 +16,7 @@
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
 #include "fn_cross.hpp"
+#include "fn_eye.hpp"
 
 namespace moris::ge
 {
@@ -59,8 +60,6 @@ namespace moris::ge
 
         // step 2: rotate the object
         // get unit axis to rotate to
-        Matrix< DDRMat > tTransformationMatrix( 3, 3 );
-
         Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
 
         // augment with zero if 2D
@@ -74,38 +73,39 @@ namespace moris::ge
 
         tParentVector = tParentVector / tParentVectorNorm;
 
-        // create vector orthogonal to parent vector and coordinate axis
+        // create vector orthogonal to parent vector and cast axis
         // in 2D, this vector is the z axis
-        tTransformationMatrix.set_column( 2, cross( tParentVector, { { 1.0, 0.0, 0.0 } } ) );
-        aRotationAxis = 0;
-        if ( norm( tTransformationMatrix.get_column( 2 ) ) < MORIS_REAL_EPS )
+        Matrix< DDRMat > tRotationMatrix( 3, 1 );
+        Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
+
+        if ( norm( tParentVector + tCastAxis ) < aInterfaceGeometry->get_intersection_tolerance() )
         {
-            tTransformationMatrix.set_column( 2, cross( tParentVector, { { 0.0, 1.0, 0.0 } } ) );
-            aRotationAxis = 1;
-
-            // rotate along z axis only if basis is 3D
-            if ( norm( tTransformationMatrix.get_column( 2 ) ) < MORIS_REAL_EPS && aFirstParentNode.get_global_coordinates().numel() > 2 )
-            {
-                tTransformationMatrix.set_column( 2, cross( tParentVector, { { 0.0, 0.0, 1.0 } } ) );
-                aRotationAxis = 2;
-            }
+            tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
         }
-        tTransformationMatrix.set_column( 2, tTransformationMatrix.get_column( 2 ) / norm( tTransformationMatrix.get_column( 2 ) ) );
+        else
+        {
+            Matrix< DDRMat > tAntisymmetricCrossProduct = { { 0, tParentVector( 1 ), tParentVector( 2 ) },
+                { -tParentVector( 1 ), 0.0, 0.0 },
+                { -tParentVector( 2 ), 0.0, 0.0 } };
 
-        // create a second vector orthogonal to parent vector and first basis
-        tTransformationMatrix.set_column( 1, cross( tParentVector, tTransformationMatrix.get_column( 2 ) ) );
+            Matrix< DDRMat > tAntisymmetricCrossProductSquared = { { -std::pow( tParentVector( 1 ), 2 ) - std::pow( tParentVector( 2 ), 2 ), 0.0, 0.0 },
+                { 0.0, -std::pow( tParentVector( 1 ), 2 ), -tParentVector( 1 ) * tParentVector( 2 ) },
+                { 0.0, -tParentVector( 1 ) * tParentVector( 2 ), -std::pow( tParentVector( 2 ), 2 ) } };
 
-        // the third vector of the transformation matrix is the parent vector
-        tTransformationMatrix.set_column( 0, tParentVector );
+            tRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
+        }
+
+        // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
+        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < aInterfaceGeometry->get_intersection_tolerance(), "Rotation matrix should rotate the parent vector to the x axis." );
 
         // trim the transformation matrix if 2D
         if ( aInterfaceGeometry->get_dimension() == 2 )
         {
-            tTransformationMatrix.resize( 2, 2 );
+            tRotationMatrix.resize( 2, 2 );
         }
 
         // rotate the object
-        aInterfaceGeometry->rotate( tTransformationMatrix );
+        aInterfaceGeometry->rotate( tRotationMatrix );
 
         // step 3: scale the object
         Cell< real > tScaling( aInterfaceGeometry->get_dimension(), 2.0 / tParentVectorNorm );
@@ -121,10 +121,10 @@ namespace moris::ge
         uint tRotatedAxis;
         transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode, aInterfaceGeometry, tRotatedAxis );
 
-        // Compute the distance to the facets
+        // Compute the distance from the first parent edge to each facet in the local coordinate frame
         Matrix< DDRMat > tCastPoint( aInterfaceGeometry->get_dimension(), 1 );
         tCastPoint.fill( 0.0 );
-        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *aInterfaceGeometry, tCastPoint, tRotatedAxis );
+        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *aInterfaceGeometry, tCastPoint, 0 );
 
         // shift local coordinate to be between -1 and 1
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
@@ -149,13 +149,9 @@ namespace moris::ge
                     "Intersection_Node_Surface_Mesh::compute_local_coordinate() Parent nodes in different regions, and 3 or more facet intersections detected." );
         }
 
-        // real tEdgeCoordinate = std::abs( tLocalCoordinate( 0 ) + 1 ) <  aInterfaceGeometry->get_intersection_tolerance() ? -1
-        //                      : std::abs( tLocalCoordinate( 0 ) - 1 ) <  aInterfaceGeometry->get_intersection_tolerance() ? 1
-        //                                                                                                                        : tLocalCoordinate( 0 );
-        real tEdgeCoordinate = std::abs( tLocalCoordinate( 0 ) + 1 ) < 0.75 ? -1
-                             : std::abs( tLocalCoordinate( 0 ) - 1 ) < 0.75 ? 1
-                                                                            : tLocalCoordinate( 0 );
-        std::cout << "Local Coordinate: " << tEdgeCoordinate << std::endl;
+        real tEdgeCoordinate = std::abs( tLocalCoordinate( 0 ) + 1 ) <  aInterfaceGeometry->get_intersection_tolerance() ? -1
+                             : std::abs( tLocalCoordinate( 0 ) - 1 ) <  aInterfaceGeometry->get_intersection_tolerance() ? 1
+                                                                                                                               : tLocalCoordinate( 0 );
         return tEdgeCoordinate;
     }
 
