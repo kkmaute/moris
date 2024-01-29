@@ -19,6 +19,7 @@
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
+#include "SDF_Tools.hpp"
 
 namespace moris
 {
@@ -29,7 +30,8 @@ namespace moris
         /**
          * the facet class for the sdf generator
          */
-        class Facet : public mtk::Cell, std::enable_shared_from_this< Facet >
+        class Facet : public mtk::Cell
+                , std::enable_shared_from_this< Facet >
         {
           protected:
             // index of this facet
@@ -62,7 +64,7 @@ namespace moris
                     moris_index                                     aIndex,
                     moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
                     uint                                            aDimension,
-                    real aIntersectionTolerance = 1e-8 );
+                    real                                            aIntersectionTolerance = 1e-8 );
 
             //-------------------------------------------------------------------------------
 
@@ -122,7 +124,7 @@ namespace moris
 
             /**
              * Resets all the transformed flags for each vertex of the facet
-            */
+             */
             void
             reset_vertex_transformed_flags();
 

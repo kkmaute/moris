@@ -31,6 +31,16 @@ namespace moris
     namespace sdf
     {
 
+        /**
+         * Enum for raycast result
+         */
+        enum Object_Region
+        {
+            OUTSIDE,
+            INSIDE,
+            UNSURE
+        };
+
         //-------------------------------------------------------------------------------
 
         inline void

@@ -22,16 +22,6 @@
 namespace moris::sdf
 {
     /**
-     * Enum for raycast result
-     */
-    enum Object_Region
-    {
-        OUTSIDE,
-        INSIDE,
-        UNSURE
-    };
-
-    /**
      * Conducts a raycast to determine if aPoint is inside or outside of the object. Casts rays in each coordinate direction until the point is resolved.
      * Also determines intersection locations along the coordinate axes of aPoint with each facet.
      *
@@ -100,7 +90,7 @@ namespace moris::sdf
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * Determines which lines are definitely pierced by the ray and which lines could be pierced by the ray. Returns true only if all preselection was successful
      *
      * @param aObject water tight collection of facets to cast on to
      * @param aFacetMinCoords minimum bounding coordinates of aObject
@@ -142,7 +132,7 @@ namespace moris::sdf
 
     /**
      * Takes all of potential facets (in aIntersectedFacets) and computes the coordinate axis intersection location
-     * with the ray originating from aPoint
+     * with the ray originating from aPoint. Does not handle cases where the ray intersects with the vertex
      *
      * @param aIntersectedFacets facets which are for sure intersected by the ray, but the intersection coordinate is not known
      * @param aPoint spatial location of the origin of the ray
@@ -151,9 +141,9 @@ namespace moris::sdf
      */
     moris::Cell< real >
     intersect_ray_with_facets(
-            moris::Cell< Facet* >&  aIntersectedFacets,
-            const Matrix< DDRMat >& aPoint,
-            uint                    aAxis );
+            moris::Cell< Facet* >&              aIntersectedFacets,
+            const Matrix< DDRMat >&             aPoint,
+            uint                                aAxis );
 
     //-------------------------------------------------------------------------------
 

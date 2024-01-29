@@ -168,7 +168,7 @@ namespace moris::sdf
                 Cell< uint >   tIntersectedLines;
                 Cell< Facet* > tCandidateLines;
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
-                uint   tIntersectedLinesExpected = 1;
+                uint tIntersectedLinesExpected = 1;
 
                 REQUIRE( tIntersectedLines.size() == 1 );
                 REQUIRE( tCandidateLines.size() == 1 );

@@ -77,21 +77,17 @@ namespace moris::sdf
                 aObject.get_dimension(),
                 aPoint.numel() );
 
+        moris::Cell< Facet* > tFacetsToIntersect;
+
         switch ( aObject.get_dimension() )
         {
             case 2:
             {
                 // preselect lines in the aAxis direction
-                moris::Cell< uint >   tIntersectedFacets;
-                moris::Cell< Facet* > tCandidateFacets;
-                bool                  tPreselectionSuccessful = preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tCandidateFacets );
+                moris::Cell< uint > tIntersectedFacets;
+                preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tFacetsToIntersect );
 
-                if( tPreselectionSuccessful )
-                {
-                        
-                }
-
-                // get pointers to the facets from the candidates
+                // get pointers to all facets in tIntersectedFacets to compute intersection location
                 moris::Cell< Facet* > tFacetsFromCandidates( tIntersectedFacets.size() );
                 for ( uint iCandidate = 0; iCandidate < tIntersectedFacets.size(); iCandidate++ )
                 {
@@ -99,10 +95,9 @@ namespace moris::sdf
                 }
 
                 // append the candidates to the intersected facets to compute intersection
-                tCandidateFacets.insert( tCandidateFacets.size(), tFacetsFromCandidates.begin(), tFacetsFromCandidates.end() );
+                tFacetsToIntersect.insert( tFacetsToIntersect.size(), tFacetsFromCandidates.begin(), tFacetsFromCandidates.end() );
 
-                // compute intersection for all preselected facets
-                return intersect_ray_with_facets( tCandidateFacets, aPoint, aAxis );
+                break;
             }
             case 3:
             {
@@ -119,22 +114,9 @@ namespace moris::sdf
                     }
                 }
 
-                // from the candidate triangles, perform intersection
-                moris::Cell< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
-
-                // compute intersection locations
-                moris::Cell< real > tIntersectionCoordinates = intersect_ray_with_facets( tIntersectedFacets, aPoint, aAxis );
-
-                // remove intersection locations that are behind the point
-                for ( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
-                {
-                    if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
-                    {
-                        tIntersectionCoordinates.erase( iIntersection );
-                    }
-                }
-
-                return tIntersectionCoordinates;
+                // from the candidate triangles, see which triangles will actually be intersected
+                tFacetsToIntersect = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
+                break;
             }
             default:
             {
@@ -142,6 +124,20 @@ namespace moris::sdf
                 return {};
             }
         }
+        
+        // compute intersection locations
+        moris::Cell< real > tIntersectionCoordinates = intersect_ray_with_facets( tFacetsToIntersect, aPoint, aAxis );
+
+        // remove intersection locations that are behind the point
+        for ( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
+        {
+            if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
+            {
+                tIntersectionCoordinates.erase( iIntersection );
+            }
+        }
+
+        return tIntersectionCoordinates;
     }
 
 
@@ -320,20 +316,32 @@ namespace moris::sdf
             real tMaxCoordOffAxisDifference = aObject.get_facet_max_coord( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis );
             real tMinCoordOffAxisDifference = aObject.get_facet_min_coord( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis );
 
-            // if the cast point is close to either vertex, return an error for preselection
-            if ( std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance() or std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance() )
+            // get the difference of the cast point and the facet min and max coords in the aAxis direction
+            real tMaxCoordAxisDifference = aObject.get_facet_max_coord( iLineIndex, aAxis ) - aPoint( aAxis );
+            real tMinCoordAxisDifference = aObject.get_facet_min_coord( iLineIndex, aAxis ) - aPoint( aAxis );
+
+
+            // the cast point is very close to a vertex
+            if ( ( std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance()
+                         or std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance() )
+                    and ( std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance()
+                            or std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance() ) )
             {
-                aObject.get_facet( iLineIndex ).flag();
+                // FIXME: this is a hack needed to make the point inside. refactor needed to fix.
+                aIntersectedFacets( tIntersectedFacetCount ) = iLineIndex;
+                aIntersectedFacets.resize( 1 );
+                aCandidateFacets.resize( 0 );
+                return true;
+            }
+            // the ray will hit a vertex, but the cast point is not on a vertex
+            else if ( std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance() or std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance() )
+            {
                 tPreselectionSuccessful = false;
             }
 
             // check bounding box of the line against the point (point is above min coord and below max coord)
             if ( tMaxCoordOffAxisDifference * tMinCoordOffAxisDifference < MORIS_REAL_EPS )
             {
-                // get the difference of the cast point and the facet min and max coords in the aAxis direction
-                real tMaxCoordAxisDifference = aObject.get_facet_max_coord( iLineIndex, aAxis ) - aPoint( aAxis );
-                real tMinCoordAxisDifference = aObject.get_facet_min_coord( iLineIndex, aAxis ) - aPoint( aAxis );
-
                 // check if the point's !aAxis component is less the facet's minimum aAxis component. If so, the facet is intersected
                 // NOTE: this makes the 2D raycast only cast in the positive axis direction
                 if ( tMinCoordAxisDifference > MORIS_REAL_EPS )
@@ -444,7 +452,6 @@ namespace moris::sdf
         // loop over all intersected triangles and find intersection point
         for ( uint iFacetIndex = 0; iFacetIndex < tNumberOfFacets; ++iFacetIndex )
         {
-
             real tCoordK;
 
             // calculate intersection coordinate
@@ -503,6 +510,7 @@ namespace moris::sdf
     }
 
     //-------------------------------------------------------------------------------
+
 
     Object_Region
     check_if_node_is_inside_triangles(

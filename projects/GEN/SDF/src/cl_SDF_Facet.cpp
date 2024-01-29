@@ -16,7 +16,6 @@
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
 #include "op_times.hpp"
-#include "SDF_Tools.hpp"
 #include "fn_stringify_matrix.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
@@ -31,7 +30,7 @@ namespace moris
                 moris_index                                     aIndex,
                 moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
                 uint                                            aDimension,
-                real aIntersectionTolerance  )
+                real                                            aIntersectionTolerance )
                 : mIndex( aIndex )
                 , mVertices( aVertices )
                 , mCenter( aDimension, 1 )
@@ -290,7 +289,7 @@ namespace moris
                 }
             }
         }
-    
+
         bool
         Facet::operator==( const Facet& aRHS ) const
         {
