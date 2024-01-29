@@ -224,5 +224,14 @@ namespace moris::ge
          * @return Upper bound
          */
         virtual real get_discretization_upper_bound() override;
+
+        /**
+         * Gets the intersection tolerance for creating intersection nodes
+         * 
+         */
+        real get_intersection_tolerance() override
+        {
+            return this->Geometry::get_intersection_tolerance();
+        }
     };
 }    // namespace moris::ge

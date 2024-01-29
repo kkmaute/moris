@@ -175,7 +175,7 @@ namespace moris::ge
          * 
          * @return tolerance for creating intersection nodes
          */
-        real get_intersection_tolerance()
+        virtual real get_intersection_tolerance()
         {
             return mIntersectionTolerance;
         }

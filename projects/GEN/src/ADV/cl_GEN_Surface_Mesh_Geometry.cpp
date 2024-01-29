@@ -42,7 +42,7 @@ namespace moris::ge
 
     Geometric_Region Surface_Mesh_Geometry::get_geometric_region(
             uint                    aNodeIndex,
-1            const Matrix< DDRMat >& aNodeCoordinates )
+            const Matrix< DDRMat >& aNodeCoordinates )
     {
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
@@ -144,13 +144,13 @@ namespace moris::ge
     Surface_Mesh_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Cell< real >& aOutputDesignInfo )
+            Cell< real >&           aOutputDesignInfo )
     {
         // TODO BRENDAN
         aOutputDesignInfo.resize( 0 );
     }
 
-        bool Surface_Mesh_Geometry::intended_discretization()
+    bool Surface_Mesh_Geometry::intended_discretization()
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
     }
