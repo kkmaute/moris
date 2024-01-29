@@ -1180,8 +1180,6 @@ namespace moris
             // Loop to discretize properties when requested
             for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
             {
-                if ( mProperties( iPropertyIndex )->intended_discretization() )    // BRENDAN this if statement was added, remove if geometries are not being discretized properly
-                {
                     // Loop over MTK fields to find a match
                     bool tUseMTKField = false;
                     for ( const auto& iMTKField : aFields )
@@ -1199,7 +1197,6 @@ namespace moris
                     {
                         mProperties( iPropertyIndex )->discretize( aMeshPair, tNewOwnedADVs, tSharedADVIds( mGeometries.size() + iPropertyIndex ), tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
                     }
-                }
             }
 
             // Register node manager with each geometry/property TODO figure out a better way to do this; have node manager automatically copy over when discretizing?
