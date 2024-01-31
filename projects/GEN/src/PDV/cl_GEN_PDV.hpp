@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Pdv.hpp
+ * cl_GEN_PDV.hpp
  *
  */
 
@@ -17,7 +17,7 @@ namespace moris
 {
     namespace ge
     {
-        class Pdv
+        class PDV
         {
           public:
             bool     mIsActive = true;
@@ -27,16 +27,16 @@ namespace moris
             /**
              * constructor
              */
-            Pdv();
+            PDV();
 
           public:
             /**
              * trivial destructor
              */
-            virtual ~Pdv();
+            virtual ~PDV();
 
             /**
-             * set Pdv IDr
+             * set PDV IDr
              */
             void
             set_id( const moris_id& tId )
@@ -45,7 +45,7 @@ namespace moris
             };
 
             /**
-             * get Pdv IDr
+             * get PDV ID
              */
             moris_id
             get_id()
@@ -65,7 +65,7 @@ namespace moris
             virtual void
             set_value( const moris::real& aValue )
             {
-                MORIS_ERROR( false, "Pdv::set_value(), not implemented for this pdv type" );
+                MORIS_ERROR( false, "PDV::set_value(), not implemented for this pdv type" );
             }
 
             /**

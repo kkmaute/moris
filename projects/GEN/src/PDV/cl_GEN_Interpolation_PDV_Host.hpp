@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Interpolation_Pdv_Host.hpp
+ * cl_GEN_Interpolation_PDV_Host.hpp
  *
  */
 
@@ -12,19 +12,19 @@
 #define MORIS_CL_GEN_INTERPOLATION_PDV_Type_HOST_HPP_
 
 #include "GEN_Data_Types.hpp"
-#include "cl_GEN_Pdv.hpp"
+#include "cl_GEN_PDV.hpp"
 
 namespace moris
 {
     namespace ge
     {
         class Property;
-        class Pdv_Host_Manager;
+        class PDV_Host_Manager;
 
-        class Interpolation_Pdv_Host
+        class Interpolation_PDV_Host
         {
           private:
-            Pdv_Host_Manager* mPdvHostManager = nullptr;
+            PDV_Host_Manager* mPDVHostManager = nullptr;
 
             // Identifies the host node
             moris_index mNodeIndex;
@@ -34,7 +34,7 @@ namespace moris
             Matrix< DDRMat > mCoordinates;
 
             // Information about the contained PDVs
-            Cell< std::shared_ptr< Pdv > > mPDVs;
+            Cell< std::shared_ptr< PDV > > mPDVs;
 
           public:
             /**
@@ -43,8 +43,8 @@ namespace moris
              * @param aPDVTypes PDV types for this host
              * @param aStartingGlobalIndex Global index to start assigning new PDV types
              */
-            Interpolation_Pdv_Host(
-                    Pdv_Host_Manager*       aPdvHostManager,
+            Interpolation_PDV_Host(
+                    PDV_Host_Manager*       aPDVHostManager,
                     const moris_index&      aNodeIndex,
                     const moris_id&         aNodeId,
                     const moris_index&      aNodeOwner,
@@ -53,7 +53,7 @@ namespace moris
             /**
              * destructor
              */
-            ~Interpolation_Pdv_Host();
+            ~Interpolation_PDV_Host();
 
             /**
              * Gets the number of PDVs on this PDV host.
@@ -112,9 +112,9 @@ namespace moris
              * Create PDV with real value.
              *
              * @param aPDVType PDV type
-             * @param aPdvVal PDV value
+             * @param aPDVVal PDV value
              */
-            void create_pdv( PDV_Type aPDVType, moris::real aPdvVal );
+            void create_pdv( PDV_Type aPDVType, moris::real aPDVVal );
 
             /**
              * Create PDV with GEN property.
@@ -151,7 +151,7 @@ namespace moris
             /**
              * Get all of the global PDV indices on this host.
              *
-             * @param aGlobalPdvIndices matrix of indices to be returned
+             * @param aGlobalPDVIndices matrix of indices to be returned
              */
             Matrix< DDSMat > get_all_global_indices();
 

@@ -4,21 +4,21 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Pdv_Property.hpp
+ * cl_GEN_PDV_Property.hpp
  *
  */
 
 #ifndef MORIS_CL_GEN_PDV_PROPERTY_HPP
 #define MORIS_CL_GEN_PDV_PROPERTY_HPP
 
-#include "cl_GEN_Pdv.hpp"
+#include "cl_GEN_PDV.hpp"
 #include "cl_GEN_Property.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Pdv_Property : public Pdv
+        class PDV_Property : public PDV
         {
 
           private:
@@ -30,12 +30,12 @@ namespace moris
              *
              * @param aPropertyPointer a GEN property pointer
              */
-            Pdv_Property( std::shared_ptr< Property > aPropertyPointer );
+            PDV_Property( std::shared_ptr< Property > aPropertyPointer );
 
             /**
              * Destructor
              */
-            ~Pdv_Property();
+            ~PDV_Property();
 
             /**
              * Get the PDV value

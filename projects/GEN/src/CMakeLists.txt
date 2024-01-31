@@ -73,11 +73,11 @@ set(HEADERS
 	ADV/fields/cl_GEN_Field_Array_Factory.hpp
 
 	# PDV
-	PDV/cl_GEN_Pdv_Host_Manager.hpp
-	PDV/cl_GEN_Interpolation_Pdv_Host.hpp
-	PDV/cl_GEN_Pdv.hpp
-	PDV/cl_GEN_Pdv_Value.hpp
-	PDV/cl_GEN_Pdv_Property.hpp
+	PDV/cl_GEN_PDV_Host_Manager.hpp
+	PDV/cl_GEN_Interpolation_PDV_Host.hpp
+	PDV/cl_GEN_PDV.hpp
+	PDV/cl_GEN_PDV_Value.hpp
+	PDV/cl_GEN_PDV_Property.hpp
 	PDV/cl_GEN_Node.hpp
 	PDV/cl_GEN_Background_Node.hpp
 	PDV/cl_GEN_Derived_Node.hpp
@@ -134,11 +134,11 @@ set(LIB_SOURCES
 	ADV/fields/cl_GEN_Field_Array_Factory.cpp
 
 	# PDV
-	PDV/cl_GEN_Pdv_Host_Manager.cpp
-	PDV/cl_GEN_Interpolation_Pdv_Host.cpp
-	PDV/cl_GEN_Pdv.cpp
-	PDV/cl_GEN_Pdv_Value.cpp
-	PDV/cl_GEN_Pdv_Property.cpp
+	PDV/cl_GEN_PDV_Host_Manager.cpp
+	PDV/cl_GEN_Interpolation_PDV_Host.cpp
+	PDV/cl_GEN_PDV.cpp
+	PDV/cl_GEN_PDV_Value.cpp
+	PDV/cl_GEN_PDV_Property.cpp
 	PDV/cl_GEN_Node.cpp
 	PDV/cl_GEN_Background_Node.cpp
 	PDV/cl_GEN_Derived_Node.cpp

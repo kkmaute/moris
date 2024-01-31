@@ -20,7 +20,7 @@
 #include "st_GEN_Geometry_Engine_Parameters.hpp"
 #include "cl_GEN_Phase_Table.hpp"
 #include "cl_GEN_Node_Manager.hpp"
-#include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_PDV_Host_Manager.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Core.hpp"
@@ -86,7 +86,7 @@ namespace moris
             real        mTimeOffset;
 
             // PDVs
-            Pdv_Host_Manager                     mPDVHostManager;
+            PDV_Host_Manager                     mPDVHostManager;
             Intersection_Node* mQueuedIntersectionNode = nullptr;
 
             // diagnostic information
@@ -127,7 +127,7 @@ namespace moris
              * Returns pdv host manager.
              *
              */
-            moris::ge::Pdv_Host_Manager* get_pdv_host_manager();
+            moris::ge::PDV_Host_Manager* get_pdv_host_manager();
             
             /**
              * Sets new ADVs for the geometry engine.
@@ -521,13 +521,13 @@ namespace moris
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
              *
-             * @param aPdvTypes PDV_Type types; set->group->individual
+             * @param aPDVTypes PDV_Type types; set->group->individual
              * @param aMeshIndex Interpolation mesh index
              */
             void create_interpolation_pdvs(
                     mtk::Interpolation_Mesh*         aInterpolationMesh,
                     mtk::Integration_Mesh*           aIntegrationMesh,
-                    Cell< Cell< Cell< PDV_Type > > > aPdvTypes );
+                    Cell< Cell< Cell< PDV_Type > > > aPDVTypes );
             
             /**
              * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh

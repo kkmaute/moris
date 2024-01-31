@@ -4,20 +4,20 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Pdv_Value.hpp
+ * cl_GEN_PDV_Value.hpp
  *
  */
 
 #ifndef MORIS_CL_GEN_PDV_VALUE_HPP
 #define MORIS_CL_GEN_PDV_VALUE_HPP
 
-#include "cl_GEN_Pdv.hpp"
+#include "cl_GEN_PDV.hpp"
 
 namespace moris
 {
     namespace ge
     {
-        class Pdv_Value : public Pdv
+        class PDV_Value : public PDV
         {
 
         private:
@@ -30,7 +30,7 @@ namespace moris
              *
              * @param aValue Constant value for this PDV
              */
-            Pdv_Value(real aValue);
+            PDV_Value(real aValue);
 
             /**
              * Get the PDV value.

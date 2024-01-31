@@ -14,7 +14,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine_Test.hpp"
-#include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_PDV_Host_Manager.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_check_equal.hpp"
@@ -298,15 +298,15 @@ namespace moris::ge
             CHECK( tGeometryEngine.get_geometric_region( 0, 28, { {} } ) == Geometric_Region::POSITIVE );
 
             // Get the PDV host manager
-            auto tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
+            auto tPDVHostManager = dynamic_cast< PDV_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
 
             // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
-            Cell< Matrix< DDRMat > > tPdvValues( 0 );
+            Cell< Matrix< DDRMat > > tPDVValues( 0 );
             Cell< Cell< bool > > tIsActive( 0 );
             tPDVHostManager->get_ig_pdv_value(
                     { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 } },
                     { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE },
-                    tPdvValues,
+                    tPDVValues,
                     tIsActive );
 
             // Background nodes
@@ -325,8 +325,8 @@ namespace moris::ge
                 CHECK( tIsActive( 1 )( tNodeIndex ) == true );
 
                 // Check for node coordinates as PDV values
-                CHECK( tPdvValues( 0 )( tNodeIndex ) == Approx( tIntersectionGlobalCoordinates( tNodeIndex - 9 )( 0 ) ) );
-                CHECK( tPdvValues( 1 )( tNodeIndex ) == Approx( tIntersectionGlobalCoordinates( tNodeIndex - 9 )( 1 ) ) );
+                CHECK( tPDVValues( 0 )( tNodeIndex ) == Approx( tIntersectionGlobalCoordinates( tNodeIndex - 9 )( 0 ) ) );
+                CHECK( tPDVValues( 1 )( tNodeIndex ) == Approx( tIntersectionGlobalCoordinates( tNodeIndex - 9 )( 1 ) ) );
             }
 
             // Nodes on the second plane interface (inactive)

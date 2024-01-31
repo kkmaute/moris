@@ -97,16 +97,16 @@ namespace moris
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_Data_Types.hpp" );
 
             // Set requested PDVs
-            Cell< std::string > tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
-            Cell< PDV_Type >    tRequestedPdvTypes( tRequestedPdvNames.size() );
+            Cell< std::string > tRequestedPDVNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
+            Cell< PDV_Type >    tRequestedPDVTypes( tRequestedPDVNames.size() );
 
-            map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+            map< std::string, PDV_Type > tPDVTypeMap = get_pdv_type_map();
 
-            for ( uint tPdvTypeIndex = 0; tPdvTypeIndex < tRequestedPdvTypes.size(); tPdvTypeIndex++ )
+            for ( uint tPDVTypeIndex = 0; tPDVTypeIndex < tRequestedPDVTypes.size(); tPDVTypeIndex++ )
             {
-                tRequestedPdvTypes( tPdvTypeIndex ) = tPdvTypeMap[ tRequestedPdvNames( tPdvTypeIndex ) ];
+                tRequestedPDVTypes( tPDVTypeIndex ) = tPDVTypeMap[ tRequestedPDVNames( tPDVTypeIndex ) ];
             }
-            mPDVHostManager.set_requested_interpolation_pdv_types( tRequestedPdvTypes );
+            mPDVHostManager.set_requested_interpolation_pdv_types( tRequestedPDVTypes );
 
             // Initialize PDV type list
             this->initialize_pdv_type_list();
@@ -156,7 +156,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Pdv_Host_Manager*
+        PDV_Host_Manager*
         Geometry_Engine::get_pdv_host_manager()
         {
             return &mPDVHostManager;
@@ -650,7 +650,7 @@ namespace moris
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
 
             // Initialize PDV type groups and mesh set info from integration mesh
-            Cell< Cell< Cell< PDV_Type > > > tPdvTypes( tIntegrationMesh->get_num_sets() );
+            Cell< Cell< Cell< PDV_Type > > > tPDVTypes( tIntegrationMesh->get_num_sets() );
             Cell< PDV_Type >                 tPDVTypeGroup( 1 );
 
             // Loop over properties to create PDVs
@@ -666,12 +666,12 @@ namespace moris
                 for ( uint tSetIndexPosition = 0; tSetIndexPosition < tMeshSetIndices.size(); tSetIndexPosition++ )
                 {
                     uint tMeshSetIndex = tMeshSetIndices( tSetIndexPosition );
-                    tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
+                    tPDVTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
                 }
             }
 
             // Set interpolation PDV types in host manager
-            mPDVHostManager.set_interpolation_pdv_types( tPdvTypes );
+            mPDVHostManager.set_interpolation_pdv_types( tPDVTypes );
 
             // Get and save communication map from IP mesh
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
@@ -690,7 +690,7 @@ namespace moris
             this->create_interpolation_pdvs(
                     tInterpolationMesh,
                     tIntegrationMesh,
-                    tPdvTypes );
+                    tPDVTypes );
 
             // Set integration PDV types
             if ( mShapeSensitivities )
@@ -832,35 +832,35 @@ namespace moris
         Geometry_Engine::initialize_pdv_type_list()
         {
             // Reserve of temporary pdv type list
-            Cell< enum PDV_Type > tTemporaryPdvTypeList;
+            Cell< enum PDV_Type > tTemporaryPDVTypeList;
 
-            tTemporaryPdvTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
+            tTemporaryPDVTypeList.reserve( static_cast< int >( PDV_Type::UNDEFINED ) + 1 );
 
             Matrix< DDUMat > tListToCheckIfEnumExist( ( static_cast< int >( PDV_Type::UNDEFINED ) + 1 ), 1, 0 );
 
             // PDV type map
-            map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+            map< std::string, PDV_Type > tPDVTypeMap = get_pdv_type_map();
 
             // Loop over properties to build parallel consistent pdv list
             for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
             {
                 // PDV type and mesh set names/indices from parameter list
-                PDV_Type tPdvType = mProperties( tPropertyIndex )->get_pdv_type();
+                PDV_Type tPDVType = mProperties( tPropertyIndex )->get_pdv_type();
 
-                if ( tListToCheckIfEnumExist( static_cast< int >( tPdvType ), 0 ) == 0 )
+                if ( tListToCheckIfEnumExist( static_cast< int >( tPDVType ), 0 ) == 0 )
                 {
                     // Set 1 at position of the enum value
-                    tListToCheckIfEnumExist( static_cast< int >( tPdvType ), 0 ) = 1;
+                    tListToCheckIfEnumExist( static_cast< int >( tPDVType ), 0 ) = 1;
 
-                    tTemporaryPdvTypeList.push_back( tPdvType );
+                    tTemporaryPDVTypeList.push_back( tPDVType );
                 }
             }
 
             // Shrink pdv type list to fit
-            tTemporaryPdvTypeList.shrink_to_fit();
+            tTemporaryPDVTypeList.shrink_to_fit();
 
             // Communicate dof types so that all processors have the same unique list
-            mPDVHostManager.communicate_dof_types( tTemporaryPdvTypeList );
+            mPDVHostManager.communicate_dof_types( tTemporaryPDVTypeList );
 
             // Create a map
             mPDVHostManager.create_dv_type_map();
@@ -1729,13 +1729,13 @@ namespace moris
         Geometry_Engine::create_interpolation_pdvs(
                 mtk::Interpolation_Mesh*         aInterpolationMesh,
                 mtk::Integration_Mesh*           aIntegrationMesh,
-                Cell< Cell< Cell< PDV_Type > > > aPdvTypes )
+                Cell< Cell< Cell< PDV_Type > > > aPDVTypes )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create interpolation PDV hosts" );
 
             // Get information from integration mesh
-            uint tNumSets = aPdvTypes.size();
+            uint tNumSets = aPDVTypes.size();
 
             // Size node information cells
             Cell< Cell< uint > >     tNodeIndicesPerSet( tNumSets );
@@ -1758,7 +1758,7 @@ namespace moris
             for ( uint iMeshSetIndex = 0; iMeshSetIndex < tNumSets; iMeshSetIndex++ )
             {
                 // Determine number of nodes if there are PDVs on this set
-                if ( aPdvTypes( iMeshSetIndex ).size() > 0 )
+                if ( aPDVTypes( iMeshSetIndex ).size() > 0 )
                 {
                     // Get set pointer
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index( iMeshSetIndex );
@@ -1943,7 +1943,7 @@ namespace moris
                         "Assignment of PDVs is only supported with an interpolation mesh right now." );
 
                 // Get PDV type and all mesh set indices for this property
-                PDV_Type     tPdvType        = iProperty->get_pdv_type();
+                PDV_Type     tPDVType        = iProperty->get_pdv_type();
                 Cell< uint > tMeshSetIndices = iProperty->get_pdv_mesh_set_indices( aIntegrationMesh );
 
                 // Loop through nodes in these sets
@@ -1952,7 +1952,7 @@ namespace moris
                     for ( uint iNodeInSet = 0; iNodeInSet < tNodeIndicesPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
                     {
                         // Create interpolation PDV
-                        mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPdvType, iProperty );
+                        mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPDVType, iProperty );
                     }
                 }
             }
@@ -1970,21 +1970,21 @@ namespace moris
             uint tNumSets = aIntegrationMesh->get_num_sets();
 
             // Cell of IG PDV_Type types
-            Cell< PDV_Type > tCoordinatePdvs( mNumSpatialDimensions );
+            Cell< PDV_Type > tCoordinatePDVs( mNumSpatialDimensions );
 
             switch ( mNumSpatialDimensions )
             {
                 case 2:
                 {
-                    tCoordinatePdvs( 0 ) = PDV_Type::X_COORDINATE;
-                    tCoordinatePdvs( 1 ) = PDV_Type::Y_COORDINATE;
+                    tCoordinatePDVs( 0 ) = PDV_Type::X_COORDINATE;
+                    tCoordinatePDVs( 1 ) = PDV_Type::Y_COORDINATE;
                     break;
                 }
                 case 3:
                 {
-                    tCoordinatePdvs( 0 ) = PDV_Type::X_COORDINATE;
-                    tCoordinatePdvs( 1 ) = PDV_Type::Y_COORDINATE;
-                    tCoordinatePdvs( 2 ) = PDV_Type::Z_COORDINATE;
+                    tCoordinatePDVs( 0 ) = PDV_Type::X_COORDINATE;
+                    tCoordinatePDVs( 1 ) = PDV_Type::Y_COORDINATE;
+                    tCoordinatePDVs( 2 ) = PDV_Type::Z_COORDINATE;
                     break;
                 }
                 default:
@@ -1994,17 +1994,17 @@ namespace moris
             }
 
             // Loop through sets
-            Cell< Cell< Cell< PDV_Type > > > tPdvTypes( tNumSets );
+            Cell< Cell< Cell< PDV_Type > > > tPDVTypes( tNumSets );
             for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
             {
                 // PDV_Type types per set
-                tPdvTypes( tMeshSetIndex ).resize( 1 );
-                tPdvTypes( tMeshSetIndex )( 0 ) = tCoordinatePdvs;
+                tPDVTypes( tMeshSetIndex ).resize( 1 );
+                tPDVTypes( tMeshSetIndex )( 0 ) = tCoordinatePDVs;
             }
 
             // Set PDV types
-            mPDVHostManager.set_integration_pdv_types( tPdvTypes );
-            mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePdvs );
+            mPDVHostManager.set_integration_pdv_types( tPDVTypes );
+            mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePDVs );
         }
 
         //--------------------------------------------------------------------------------------------------------------

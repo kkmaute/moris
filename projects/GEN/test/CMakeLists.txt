@@ -11,8 +11,8 @@
 # List source files
 set(TEST_SOURCES
 	test_main.cpp
-	ut_GEN_Pdv.cpp
-	ut_GEN_Geometry.cpp
+	ut_GEN_PDV.cpp
+	ut_GEN_Field.cpp
 	ut_GEN_Property.cpp
 	ut_GEN_Intersection_Level_Set.cpp
 	ut_GEN_Intersection_Surface_Mesh.cpp
