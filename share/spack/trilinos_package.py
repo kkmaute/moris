@@ -1,4 +1,4 @@
-# Copyright 2013-2023 Lawrence Livermore National Security, LLC and other
+# Copyright 2013-2024 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -444,7 +444,7 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("swig", when="@:14 +python")
     depends_on("zlib-api", when="+zoltan")
     depends_on("mkl", when="+pardiso")
-    
+
     # Trilinos' Tribits config system is limited which makes it very tricky to
     # link Amesos with static MUMPS, see
     # https://trilinos.org/docs/dev/packages/amesos2/doc/html/classAmesos2_1_1MUMPS.html
@@ -491,6 +491,11 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
     # workaround an NVCC bug with c++14 (https://github.com/trilinos/Trilinos/issues/6954)
     # avoid calling deprecated functions with CUDA-11
     patch("fix_cxx14_cuda11.patch", when="@13.0.0:13.0.1 cxxstd=14 ^cuda@11:")
+    patch(
+        "0001-use-the-gcnArchName-inplace-of-gcnArch-as-gcnArch-is.patch",
+        when="@15.0.0 ^hip@6.0.0 +rocm",
+    )
+
     # Allow building with +teko gotype=long
     patch(
         "https://github.com/trilinos/Trilinos/commit/b17f20a0b91e0b9fc5b1b0af3c8a34e2a4874f3f.patch?full_index=1",
@@ -646,9 +651,11 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
             options.append(
                 define(
                     "Trilinos_CXX11_FLAGS",
-                    self.compiler.cxx14_flag
-                    if spec.variants["cxxstd"].value == "14"
-                    else self.compiler.cxx11_flag,
+                    (
+                        self.compiler.cxx14_flag
+                        if spec.variants["cxxstd"].value == "14"
+                        else self.compiler.cxx11_flag
+                    ),
                 )
             )
 
@@ -811,6 +818,7 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
             ("HYPRE", "hypre", "hypre"),
             ("MUMPS", "mumps", "mumps"),
             ("PARDISO_MKL", "pardiso", "mkl"),
+            ("AMD", "suite-sparse", "suite-sparse"),
             ("UMFPACK", "suite-sparse", "suite-sparse"),
             ("SuperLU", "superlu", "superlu"),
             ("SuperLUDist", "superlu-dist", "superlu-dist"),
