@@ -1426,7 +1426,7 @@ namespace moris
                 mtk::Set* tFemBlockSet = mFemBlockSets( iBlockSet );
 
                 // create block object to write mesh set information to
-                mVisMesh->mListOfBlocks( iBlockSet ) = new moris::mtk::Block(
+                mVisMesh->mListOfBlocks( iBlockSet ) = new moris::mtk::Block_Set(
                         tFemBlockSet->get_set_name(),
                         mVisMesh->mClustersOnBlockSets( iBlockSet ),
                         tFemBlockSet->get_set_colors(),

@@ -12,7 +12,7 @@
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Map.hpp" //CNT/srcf
 #include "cl_Matrix.hpp" //LINALG/src
 #include "linalg_typedefs.hpp"

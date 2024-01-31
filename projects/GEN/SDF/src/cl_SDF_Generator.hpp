@@ -14,7 +14,7 @@
 #include <string>
 #include <memory>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

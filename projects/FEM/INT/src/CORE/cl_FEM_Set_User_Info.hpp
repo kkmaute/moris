@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_FEM_SET_USER_INFO_HPP_
 #define SRC_FEM_CL_FEM_SET_USER_INFO_HPP_
 
-#include "typedefs.hpp"                     //MRS/COR/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CNT/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
 #include "cl_FEM_IWG.hpp"                 //FEM/MSI/src

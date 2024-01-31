@@ -12,7 +12,7 @@
 #define SRC_HMR_CL_HMR_DOMAIN_HPP_
 
 #include "HMR_Globals.hpp" //HMR/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 
 namespace moris::hmr

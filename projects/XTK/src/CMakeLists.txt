@@ -67,7 +67,7 @@ set(HEADERS
     cl_XTK_Mesh_Cleanup.hpp
     cl_XTK_Multigrid.hpp
     cl_XTK_Model.hpp
-#    cl_XTK_Node.hpp
+    #cl_XTK_Node.hpp
     cl_XTK_Output_Options.hpp
     cl_XTK_Paramfile.hpp
     cl_XTK_Pending_Node.hpp
@@ -99,6 +99,7 @@ set(HEADERS
     fn_XTK_match_normal_to_side_ordinal.hpp 
     cl_XTK_Basis_Processor.hpp
     cl_XTK_HMR_Helper.hpp
+    cl_XTK_Proximity.hpp
     )                                                                                                                                                                                                                                                                   
 
 
@@ -124,55 +125,47 @@ include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 # List source files
 set(LIB_SOURCES
 
-cl_XTK_Model.cpp
-
-cl_XTK_Cell_CM.cpp
-cl_XTK_Cell_No_CM.cpp
-cl_XTK_Interpolation_Cell.cpp
-cl_XTK_Cell_Cluster.cpp
-cl_XTK_Side_Cluster.cpp
-#cl_XTK_Cluster_Group.cpp
-cl_XTK_Cell_Cluster_Group.cpp
-cl_XTK_Side_Cluster_Group.cpp
-
-cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
-cl_MTK_Vertex_XTK_Impl.cpp
-
-cl_XTK_Background_Mesh.cpp
-cl_XTK_Child_Mesh.cpp
-cl_XTK_Cut_Mesh.cpp
-cl_XTK_Cut_Integration_Mesh.cpp
-cl_XTK_Enriched_Interpolation_Mesh.cpp
-cl_XTK_Enriched_Integration_Mesh.cpp
-cl_XTK_Mesh_Cleanup.cpp
-
-cl_XTK_Enrichment.cpp
-cl_XTK_Vertex_Enrichment.cpp
-cl_XTK_Field.cpp
-cl_XTK_Ghost_Stabilization.cpp
-cl_XTK_Hole_Seeder.cpp
-
-cl_XTK_Multigrid.cpp
-cl_XTK_Paramfile.cpp
-
-cl_XTK_Interpolation_Vertex_Unzipped.cpp
-cl_XTK_Interpolation_Cell_Unzipped.cpp
-
-cl_XTK_Integration_Mesh_Generator.cpp
-cl_XTK_Decomposition_Algorithm.cpp
-cl_XTK_Decomposition_Algorithm_Factory.cpp
-cl_XTK_Regular_Subdivision_Interface.cpp
-cl_XTK_Node_Hierarchy_Interface.cpp
-cl_XTK_Node_Hierarchy_Template_Library.cpp
-cl_XTK_Elevate_Order_Interface.cpp
-cl_XTK_Octree_Interface.cpp
-
-cl_XTK_Diagnostics.cpp
-
-cl_XTK_Integration_Mesh_Cleanup.cpp 
-
-cl_XTK_Basis_Processor.cpp
-cl_XTK_HMR_Helper.cpp)
+    cl_XTK_Model.cpp
+    cl_XTK_Cell_CM.cpp
+    cl_XTK_Cell_No_CM.cpp
+    cl_XTK_Interpolation_Cell.cpp
+    cl_XTK_Cell_Cluster.cpp
+    cl_XTK_Side_Cluster.cpp
+    #cl_XTK_Cluster_Group.cpp
+    cl_XTK_Cell_Cluster_Group.cpp
+    cl_XTK_Side_Cluster_Group.cpp
+    cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
+    cl_MTK_Vertex_XTK_Impl.cpp
+    cl_XTK_Background_Mesh.cpp
+    cl_XTK_Child_Mesh.cpp
+    cl_XTK_Cut_Mesh.cpp
+    cl_XTK_Cut_Integration_Mesh.cpp
+    cl_XTK_Enriched_Interpolation_Mesh.cpp
+    cl_XTK_Enriched_Integration_Mesh.cpp
+    cl_XTK_Mesh_Cleanup.cpp
+    cl_XTK_Enrichment.cpp
+    cl_XTK_Vertex_Enrichment.cpp
+    cl_XTK_Field.cpp
+    cl_XTK_Ghost_Stabilization.cpp
+    cl_XTK_Hole_Seeder.cpp
+    cl_XTK_Multigrid.cpp
+    cl_XTK_Paramfile.cpp
+    cl_XTK_Interpolation_Vertex_Unzipped.cpp
+    cl_XTK_Interpolation_Cell_Unzipped.cpp
+    cl_XTK_Integration_Mesh_Generator.cpp
+    cl_XTK_Decomposition_Algorithm.cpp
+    cl_XTK_Decomposition_Algorithm_Factory.cpp
+    cl_XTK_Regular_Subdivision_Interface.cpp
+    cl_XTK_Node_Hierarchy_Interface.cpp
+    cl_XTK_Node_Hierarchy_Template_Library.cpp
+    cl_XTK_Elevate_Order_Interface.cpp
+    cl_XTK_Octree_Interface.cpp
+    cl_XTK_Diagnostics.cpp
+    cl_XTK_Integration_Mesh_Cleanup.cpp 
+    cl_XTK_Basis_Processor.cpp
+    cl_XTK_HMR_Helper.cpp
+    cl_XTK_Proximity.cpp 
+    )
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

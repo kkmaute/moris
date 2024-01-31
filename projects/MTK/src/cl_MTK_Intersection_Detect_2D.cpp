@@ -14,7 +14,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 
 #include "cl_MTK_Side_Cluster.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "fn_unique.hpp"
 #include <unordered_map>
@@ -194,7 +194,6 @@ namespace moris
                 // loop over the background cells in order to cut the matching pairs
                 for ( const auto &tIter : tBackgroundCellToSideClusterMap1 )
                 {
-
                     // Find all the side clusters that lie in the left and right pair
                     moris::Cell< moris_index > const &tSideClustersIndices1 = tIter.second;
                     moris::Cell< moris_index > const &tSideClustersIndices2 = tBackgroundCellToSideClusterMap2[ tIter.first ];
@@ -717,7 +716,7 @@ namespace moris
                         moris::Matrix< moris::IndexMat > tColors = { { 0 } };
 
                         // Construct the double side set
-                        moris::mtk::Set *tDblSideSet = new moris::mtk::Double_Side_Set( tDoubleSideSetName, tDoubleSideSets( tPhaseToPhaseIndex ), tColors, tSpatialDim );
+                        auto *tDblSideSet = new moris::mtk::Double_Side_Set( tDoubleSideSetName, tDoubleSideSets( tPhaseToPhaseIndex ), tColors, tSpatialDim );
 
                         // add double sided periodic boundary condition to the integration mesh
                         tIntegMesh->add_double_side_set( tDblSideSet );

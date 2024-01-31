@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_FIELD_INTERPOLATOR_HPP_
 
 // MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 // LNA/src

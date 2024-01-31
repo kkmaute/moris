@@ -14,7 +14,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_Param_List.hpp"
 #include "cl_MTK_Vertex.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "cl_XTK_Field.hpp"
@@ -85,8 +85,8 @@ namespace xtk
         std::unordered_map< std::string, moris_index >                            mDoubleSideSetLabelToOrd;
         moris::Cell< std::string >                                                mDoubleSideSetLabels;
         moris::Cell< moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > > mDoubleSideSets;    // outer cell: index of the dbl-side set || inner cell: all dbl-side clusters that live on this dbl-side set
-        moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsLeaderIndex;
-        moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsFollowerIndex;
+        moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsLeaderIndex; // outer cell: index of the dbl-side set || inner cell: indices of the leader of side clusters that live on this dbl-side set
+        moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsFollowerIndex;// outer cell: index of the dbl-side set || inner cell: indices of all the follower of side clusters that live on this dbl-side set
         moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > >                mDoubleSideClusters;
         moris::Cell< std::shared_ptr< xtk::Side_Cluster > >                       mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
         Matrix< IndexMat >                                                        mBulkPhaseToDblSideIndex;
@@ -231,16 +231,18 @@ namespace xtk
         /**
          * @brief Creates a double sided interface between the two bulk phases.
          * This function creates additional dbl sided interfaces. By default,
-         * the enriched integration mesh creates only the low-leader high-follower
-         * dbl sided interfaces. This functions allows creation of  low-follower high-leader
+         * the enriched integration mesh creates only the low-leader to high-follower
+         * dbl-sided interfaces. This functions allows creation of low-follower to high-leader
          * interfaces.
-         * @param[in] aLeaderBulkPhaseIndex Leader bulk phase index
-         * @param[in] aFollowerBulkPhaseIndex Follower bulk phase index
+         * The creation is done in groups as the finalization of side-sets is computationally expensive, but can be done in bulk. 
+         * Hence, avoid using this function in loops with a large number of iterations.
+         * @param[in] aLeaderBulkPhaseIndex List of leader bulk phase indices
+         * @param[in] aFollowerBulkPhaseIndex List of follower bulk phase indices
          */
         void
-        create_dbl_sided_interface_set(
-                moris_index aLeaderBulkPhaseIndex,
-                moris_index aFollowerBulkPhaseIndex );
+        create_dbl_sided_interface_sets(
+                Cell< moris_index > aLeaderBulkPhaseIndex,
+                Cell< moris_index > aFollowerBulkPhaseIndex );
 
 
         //------------------------------------------------------------------------------

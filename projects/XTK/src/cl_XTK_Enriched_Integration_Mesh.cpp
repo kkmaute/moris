@@ -29,6 +29,7 @@
 #include <memory>
 #include "cl_Logger.hpp"
 #include "fn_XTK_match_normal_to_side_ordinal.hpp"
+#include "fn_stringify_matrix.hpp"
 
 namespace xtk
 {
@@ -693,57 +694,100 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Integration_Mesh::create_dbl_sided_interface_set(
-            moris_index aLeaderBulkPhaseIndex,
-            moris_index aFollowerBulkPhaseIndex )
+    Enriched_Integration_Mesh::create_dbl_sided_interface_sets(
+            Cell< moris_index > aLeaderBulkPhaseIndices,
+            Cell< moris_index > aFollowerBulkPhaseIndices )
     {
-        MORIS_ERROR( aLeaderBulkPhaseIndex > aFollowerBulkPhaseIndex,
+        // get the number sets to be created
+        uint tNumDblSideSets = aLeaderBulkPhaseIndices.size();
+
+        // check that the input is valid
+        MORIS_ERROR( tNumDblSideSets == aFollowerBulkPhaseIndices.size(),
                 "Enriched_Integration_Mesh::create_dbl_sided_interface_set() - "
-                "The leader bulk phase needs to be lower than the follower bulk phase." );
+                "List of Leader and Follower bulk phases are of different length." );
 
-        // get the name of this side set
-        std::string tInterfaceDblSideName = this->get_dbl_interface_side_set_name( aLeaderBulkPhaseIndex, aFollowerBulkPhaseIndex );
+        // initialize list of double sided side set names
+        Cell< std::string > tDblSideSetNames( tNumDblSideSets );
 
-        // register it with the mesh
-        Cell< moris_index > tDblSideSetOrds = this->register_double_side_set_names( { tInterfaceDblSideName } );
-
-        // get the other
-        moris_index tOtherInterfaceIndex = this->get_dbl_side_set_index( aFollowerBulkPhaseIndex, aLeaderBulkPhaseIndex );
-
-        // set the colors
-        Matrix< IndexMat > tLeaderColor   = { { aLeaderBulkPhaseIndex } };
-        Matrix< IndexMat > tFollowerColor = { { aFollowerBulkPhaseIndex } };
-        this->set_double_side_set_colors( tDblSideSetOrds( 0 ), tLeaderColor, tFollowerColor );
-
-        // resize member data
-        uint tNumPairsInSet = mDoubleSideSetsLeaderIndex( tOtherInterfaceIndex ).size();
-        mDoubleSideSetsLeaderIndex( tDblSideSetOrds( 0 ) ).resize( tNumPairsInSet );
-        mDoubleSideSetsFollowerIndex( tDblSideSetOrds( 0 ) ).resize( tNumPairsInSet );
-
-        for ( uint i = 0; i < tNumPairsInSet; i++ )
+        // get the names for all dbl side sets to be created
+        for ( uint iDblSideSet = 0; iDblSideSet < tNumDblSideSets; iDblSideSet++ )
         {
-            // leader is follower follower is leader
-            mDoubleSideSetsLeaderIndex( tDblSideSetOrds( 0 ) )( i )   = mDoubleSideSetsFollowerIndex( tOtherInterfaceIndex )( i );
-            mDoubleSideSetsFollowerIndex( tDblSideSetOrds( 0 ) )( i ) = mDoubleSideSetsLeaderIndex( tOtherInterfaceIndex )( i );
+            // get the leader and follower bulk phase indices
+            moris_index tLeaderBulkPhaseIndex   = aLeaderBulkPhaseIndices( iDblSideSet );
+            moris_index tFollowerBulkPhaseIndex = aFollowerBulkPhaseIndices( iDblSideSet );
 
-            // get leader ans follower clusters
-            Side_Cluster *tLeaderSideCluster   = mDoubleSideSingleSideClusters( mDoubleSideSetsLeaderIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
-            Side_Cluster *tFollowerSideCluster = mDoubleSideSingleSideClusters( mDoubleSideSetsFollowerIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
-
-            // create double side set
-            std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = std::make_shared< mtk::Double_Side_Cluster >(
-                    tLeaderSideCluster,
-                    tFollowerSideCluster,
-                    tLeaderSideCluster->get_vertices_in_cluster() );
-
-            mDoubleSideClusters.push_back( tDblSideCluster );
-            mDoubleSideSets( tDblSideSetOrds( 0 ) ).push_back( tDblSideCluster );
+            // get the name of this side set's name
+            tDblSideSetNames( iDblSideSet ) = this->get_dbl_interface_side_set_name( tLeaderBulkPhaseIndex, tFollowerBulkPhaseIndex );
         }
 
+        // register the double sided side set names and get the sets' ordinals
+        Cell< moris_index > tDblSideSetOrds = this->register_double_side_set_names( tDblSideSetNames );
+
+        // 
+        for ( uint iDblSideSet = 0; iDblSideSet < tNumDblSideSets; iDblSideSet++ )
+        {
+            // get the leader and follower bulk phase indices
+            moris_index tLeaderBulkPhaseIndex   = aLeaderBulkPhaseIndices( iDblSideSet );
+            moris_index tFollowerBulkPhaseIndex = aFollowerBulkPhaseIndices( iDblSideSet );
+
+            // get the set ordinal
+            moris_index tDblSideSetOrd = tDblSideSetOrds( iDblSideSet );
+
+            // get the side set colors
+            Matrix< IndexMat > tLeaderColor   = { { tLeaderBulkPhaseIndex } };
+            Matrix< IndexMat > tFollowerColor = { { tFollowerBulkPhaseIndex } };
+            this->set_double_side_set_colors( tDblSideSetOrd, tLeaderColor, tFollowerColor );
+
+            // get the other interface index
+            moris_index tOtherInterfaceIndex = this->get_dbl_side_set_index( tFollowerBulkPhaseIndex, tLeaderBulkPhaseIndex );
+
+            // appropriately resize member data
+            uint tNumClusters = mDoubleSideSetsLeaderIndex( tOtherInterfaceIndex ).size();
+            mDoubleSideSetsLeaderIndex( tDblSideSetOrd ).resize( tNumClusters );
+            mDoubleSideSetsFollowerIndex( tDblSideSetOrd ).resize( tNumClusters );
+
+            // create double sided side clusters
+            for ( uint iCluster = 0; iCluster < tNumClusters; iCluster++ )
+            {
+                // leader is follower, follower is leader
+                mDoubleSideSetsLeaderIndex( tDblSideSetOrd )( iCluster )   = mDoubleSideSetsFollowerIndex( tOtherInterfaceIndex )( iCluster );
+                mDoubleSideSetsFollowerIndex( tDblSideSetOrd )( iCluster ) = mDoubleSideSetsLeaderIndex( tOtherInterfaceIndex )( iCluster );
+
+                // get leader and follower clusters
+                Side_Cluster *tLeaderSideCluster   = mDoubleSideSingleSideClusters( mDoubleSideSetsLeaderIndex( tDblSideSetOrd )( iCluster ) ).get();
+                Side_Cluster *tFollowerSideCluster = mDoubleSideSingleSideClusters( mDoubleSideSetsFollowerIndex( tDblSideSetOrd )( iCluster ) ).get();
+
+                // create double side cluster
+                std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = 
+                        std::make_shared< mtk::Double_Side_Cluster >(
+                                tLeaderSideCluster,
+                                tFollowerSideCluster,
+                                tLeaderSideCluster->get_vertices_in_cluster() );
+
+                // store dbl sided cluster on list of all clusters (globally and per set)
+                mDoubleSideClusters.push_back( tDblSideCluster );
+                mDoubleSideSets( tDblSideSetOrd ).push_back( tDblSideCluster );
+            }
+
+        } // end for: loop over double sided side sets to be created
+
+        // finalize the set coloring
         this->setup_color_to_set();
-        this->commit_double_side_set( tDblSideSetOrds( 0 ) );
+
+        // commit the created double sided side sets to the mesh
+        for ( uint iDblSideSet = 0; iDblSideSet < tNumDblSideSets; iDblSideSet++ )
+        {
+            moris_index tDblSideSetOrd = tDblSideSetOrds( iDblSideSet );
+            this->commit_double_side_set( tDblSideSetOrd );
+        }
+
+        // finalize the list of double sided side sets
         this->collect_all_sets();
-    }
+
+        // communicate the double sided side sets after new ones have been added
+        this->communicate_sets_of_type( mtk::SetType::DOUBLE_SIDED_SIDESET );
+
+    } // end function: Enriched_Integration_Mesh::create_dbl_sided_interface_sets()
 
     //------------------------------------------------------------------------------
 
@@ -2593,9 +2637,6 @@ namespace xtk
     {
         mListOfSideSets.resize( mListOfSideSets.size() + aSideSetIndexList.size(), nullptr );
 
-        MORIS_ERROR( aSideSetIndexList.size() < 1000,
-                "Enriched_Integration_Mesh::commit_side_set - excessive number of side sets (>1000) - check phase assignment" );
-
         for ( uint iI = 0; iI < aSideSetIndexList.size(); ++iI )
         {
             const moris_index tSideSetIndex = aSideSetIndexList( iI );
@@ -2626,7 +2667,7 @@ namespace xtk
         mListOfBlocks.resize( mListOfBlocks.size() + 1, nullptr );
 
         mListOfBlocks( aBlockSetIndex ) =
-                new moris::mtk::Block(
+                new moris::mtk::Block_Set(
                         mBlockSetNames( aBlockSetIndex ),
                         this->get_cell_clusters_in_set( aBlockSetIndex ),
                         this->get_block_set_colors( aBlockSetIndex ),
@@ -3213,6 +3254,9 @@ namespace xtk
     void
     Enriched_Integration_Mesh::setup_cluster_groups()
     {
+        // Trace this function
+        Tracer tTracer( "XTK", "Enriched Integration Mesh", "Setup cluster groups" );
+
         this->setup_cell_cluster_groups();
         this->setup_dbl_side_cluster_groups();
         this->setup_side_cluster_groups();
@@ -3415,9 +3459,11 @@ namespace xtk
                         // match the outward normal to a global side ordinal direction
                         moris_index tGlobalSideOrdinal = xtk::match_normal_to_side_ordinal( tNormal );
 
-                        MORIS_ERROR( tGlobalSideOrdinal != MORIS_INDEX_MAX,
-                                "Enriched_Integration_Mesh::setup_side_cluster_groups() - "
-                                "Facet of side cluster only connected to single element but not an ordinal of the global mesh block." );
+                        // MORIS_ERROR( tGlobalSideOrdinal != MORIS_INDEX_MAX,
+                        //         "Enriched_Integration_Mesh::setup_side_cluster_groups() - "
+                        //         "Facet of side cluster is only connected to single IG-Cell #%i but not an ordinal of the global mesh block. Normal = %s",
+                        //         tCellIndex,
+                        //         ios::stringify_log( tNormal ).c_str() );
 
                         // store away this information
                         tSideClustersAttachedToSpg( tSpgIndex ).push_back( tSideCluster );
@@ -4178,9 +4224,14 @@ namespace xtk
             moris_index aPhase0,
             moris_index aPhase1 )
     {
-        MORIS_ASSERT( aPhase0 < aPhase1, "Double side sets are defined from low phase index to high" );
+        MORIS_ASSERT( 
+                aPhase0 < aPhase1, 
+                "Enriched_Integration_Mesh::get_dbl_side_set_index() - "
+                "Double side sets are defined from low phase index to high." );
 
-        MORIS_ASSERT( mDoubleSideSetLabels( mBulkPhaseToDblSideIndex( aPhase0, aPhase1 ) ) == this->get_dbl_interface_side_set_name( aPhase0, aPhase1 ),
+        MORIS_ASSERT( 
+                mDoubleSideSetLabels( mBulkPhaseToDblSideIndex( aPhase0, aPhase1 ) ) == this->get_dbl_interface_side_set_name( aPhase0, aPhase1 ),
+                "Enriched_Integration_Mesh::get_dbl_side_set_index() - "
                 "Interface double side set not showing up in correct index" );
 
         return mBulkPhaseToDblSideIndex( aPhase0, aPhase1 );

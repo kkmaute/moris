@@ -23,7 +23,7 @@
 #include "cl_Map.hpp"
 #include "cl_HMR_Factory.hpp"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Tracer.hpp"

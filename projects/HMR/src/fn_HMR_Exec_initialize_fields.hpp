@@ -21,7 +21,7 @@
 #include "HMR_Globals.hpp"
 #include "HMR_Tools.hpp"
 #include "cl_Cell.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris::hmr
 {

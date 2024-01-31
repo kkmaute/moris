@@ -16,7 +16,7 @@
 # will be included.
 
 if(@MORIS@_CONFIGURED)
-	return()
+    return()
 endif()
 
 set(@MORIS@_CONFIGURED TRUE)
@@ -51,38 +51,50 @@ set(MORIS_COMPONENT_DIRS "@MORIS_SOURCE_DIRS@")
 
 # if no subpackages were specified, find all built subpackages
 if(NOT @MORIS@_FIND_COMPONENTS)
-	string(REGEX REPLACE "([^\\/;]*)\\/" "" COMPONENTS "${MORIS_COMPONENT_DIRS}")
-	set(@MORIS@_FIND_COMPONENTS "${COMPONENTS}")
-	
-	# if @MORIS@ is required, so are all built subpackages
-	if(@MORIS@_FIND_REQUIRED)
-		foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
-			set(@MORIS@_FIND_REQUIRED_${COMPONENT} TRUE)
-		endforeach()
-	endif()
+    string(REGEX REPLACE "([^\\/;]*)\\/" "" COMPONENTS "${MORIS_COMPONENT_DIRS}")
+    set(@MORIS@_FIND_COMPONENTS "${COMPONENTS}")
+
+    # if @MORIS@ is required, so are all built subpackages
+    if(@MORIS@_FIND_REQUIRED)
+        foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
+            set(@MORIS@_FIND_REQUIRED_${COMPONENT} TRUE)
+        endforeach()
+    endif()
 endif()
 
 
 foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
-	string(REGEX MATCH "([^;]+\\/${COMPONENT}|${COMPONENT})" COMPONENT_DIR "${MORIS_COMPONENT_DIRS}")
-	if(${COMPONENT_DIR} STREQUAL "")
-		message(FATAL_ERROR "${COMPONENT} is not a @MORIS@ component. Check documentation to see which components are available.")
-	endif()
-	
-	# returns fatal error if component config file not found
-	set_and_check(COMP_INCLUDE "@PACKAGE_CONFIG_INSTALL_DIR@/${COMPONENT_DIR}/${COMPONENT}Config.cmake")
-	
-	set(@MORIS@_${COMPONENT}_FOUND TRUE)
-	
-	include(${COMP_INCLUDE})
-	
-	list(APPEND @MORIS@_INCLUDE_DIRS ${${COMPONENT}_INCLUDE_DIRS})
-	list(APPEND @MORIS@_LIBRARY_DIRS ${${COMPONENT}_LIBRARY_DIRS})
-	list(APPEND @MORIS@_LIBRARIES ${${COMPONENT}_LIBRARIES})
-	list(APPEND @MORIS@_DEFINITIONS ${${COMPONENT}_DEFINITIONS})
-	
-	add_library(@MORIS@::${COMPONENT} INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(@MORIS@::${COMPONENT} INTERFACE ${${COMPONENT}_LIBRARIES})
+    string(REGEX MATCH "([^;]+\\/${COMPONENT}|${COMPONENT})" COMPONENT_DIR "${MORIS_COMPONENT_DIRS}")
+    if(${COMPONENT_DIR} STREQUAL "")
+        message(FATAL_ERROR "${COMPONENT} is not a @MORIS@ component. Check documentation to see which components are available.")
+    endif()
+
+    if(${COMPONENT_DIR} STREQUAL "mains")
+     set(@MORIS@_${COMPONENT}_FOUND TRUE)
+     continue()
+    endif()
+    
+    if(${COMPONENT_DIR} STREQUAL "EXA")
+     set(@MORIS@_${COMPONENT}_FOUND TRUE)
+     continue()
+    endif()
+    
+    message("ADDING COMPONENT = ${COMPONENT_DIR}")
+
+    # returns fatal error if component config file not found
+    set_and_check(COMP_INCLUDE "@PACKAGE_CONFIG_INSTALL_DIR@/${COMPONENT_DIR}/${COMPONENT}Config.cmake")
+
+    set(@MORIS@_${COMPONENT}_FOUND TRUE)
+
+    include(${COMP_INCLUDE})
+
+    list(APPEND @MORIS@_INCLUDE_DIRS ${${COMPONENT}_INCLUDE_DIRS})
+    list(APPEND @MORIS@_LIBRARY_DIRS ${${COMPONENT}_LIBRARY_DIRS})
+    list(APPEND @MORIS@_LIBRARIES ${${COMPONENT}_LIBRARIES})
+    list(APPEND @MORIS@_DEFINITIONS ${${COMPONENT}_DEFINITIONS})
+
+    add_library(@MORIS@::${COMPONENT} INTERFACE IMPORTED GLOBAL)
+    target_link_libraries(@MORIS@::${COMPONENT} INTERFACE ${${COMPONENT}_LIBRARIES})
 endforeach()
 set(@MORIS@_FOUND TRUE)
 

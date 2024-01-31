@@ -18,7 +18,7 @@
 #include "cl_HMR_Parameters.hpp"                 //HMR/src
 #include "fn_HMR_calculate_basis_identifier.hpp"
 #include "HMR_Globals.hpp"                       //HMR/src
-#include "typedefs.hpp"                          //COR/src
+#include "moris_typedefs.hpp"                          //COR/src
 #include "cl_Stopwatch.hpp"                      //CHR/src
 
 namespace moris::hmr

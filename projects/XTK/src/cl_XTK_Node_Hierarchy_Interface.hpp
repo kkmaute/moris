@@ -41,10 +41,10 @@ struct Node_Hierarchy_Template
     moris::Matrix< moris::IndexMat > mCellToNodeOrdinal;
 };
 
-class Node_Hierachy_Template_Library
+class Node_Hierarchy_Template_Library
 {
     public:
-    Node_Hierachy_Template_Library()
+    Node_Hierarchy_Template_Library()
     {
 
     }

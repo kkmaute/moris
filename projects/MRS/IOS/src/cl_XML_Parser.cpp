@@ -21,7 +21,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "fn_assert.hpp"
 

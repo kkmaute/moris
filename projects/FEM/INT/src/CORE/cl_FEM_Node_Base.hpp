@@ -11,7 +11,7 @@
 #ifndef PROJECTS_FEM_SRC_CL_FEM_NODE_BASE_HPP_
 #define PROJECTS_FEM_SRC_CL_FEM_NODE_BASE_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src

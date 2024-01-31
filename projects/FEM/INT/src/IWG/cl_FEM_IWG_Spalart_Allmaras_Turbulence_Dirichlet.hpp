@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_DIRICHLET_HPP_
 //MRS/COR/src
 #include <map>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 //LINALG/src
 #include "cl_Matrix.hpp"

@@ -16,7 +16,7 @@
 #include <string>
 #include <cstring>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "IO_Tools.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"

@@ -77,16 +77,15 @@ SOL_Warehouse::~SOL_Warehouse()
     }
 #endif
 
-    for ( auto & iPreconditioner: mPreconditioners )
+    for ( auto& iPreconditioner : mPreconditioners )
     {
-        delete iPreconditioner; 
+        delete iPreconditioner;
     }
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::initialize()
+void SOL_Warehouse::initialize()
 {
     // Load parameters from parameterlist
     mTPLType = static_cast< moris::sol::MapType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "SOL_TPL_Type" ) );
@@ -128,8 +127,7 @@ SOL_Warehouse::initialize()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_preconditioner_algorithms()
+void SOL_Warehouse::create_preconditioner_algorithms()
 {
     uint tNumLinAlgorithms = mParameterlist( 7 ).size();
 
@@ -139,7 +137,6 @@ SOL_Warehouse::create_preconditioner_algorithms()
 
     for ( uint Ik = 0; Ik < tNumLinAlgorithms; Ik++ )
     {
-        std::cout << mParameterlist( 7 )( Ik ).get< moris::uint >( "Preconditioner_Implementation" ) << std::endl;
         mPreconditioners( Ik ) = tSolFactory.create_preconditioner(
                 static_cast< moris::sol::PreconditionerType >( mParameterlist( 7 )( Ik ).get< moris::uint >( "Preconditioner_Implementation" ) ),
                 mParameterlist( 7 )( Ik ) );
@@ -148,8 +145,7 @@ SOL_Warehouse::create_preconditioner_algorithms()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_linear_solver_algorithms()
+void SOL_Warehouse::create_linear_solver_algorithms()
 {
     uint tNumLinAlgorithms = mParameterlist( 0 ).size();
 
@@ -190,8 +186,7 @@ SOL_Warehouse::create_linear_solver_algorithms()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_linear_solvers()
+void SOL_Warehouse::create_linear_solvers()
 {
     uint tNumLinSolvers = mParameterlist( 1 ).size();
 
@@ -220,8 +215,7 @@ SOL_Warehouse::create_linear_solvers()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_nonlinear_solver_algorithms()
+void SOL_Warehouse::create_nonlinear_solver_algorithms()
 {
     uint tNumNonLinAlgorithms = mParameterlist( 2 ).size();
 
@@ -253,8 +247,7 @@ SOL_Warehouse::create_nonlinear_solver_algorithms()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_nonlinear_solvers()
+void SOL_Warehouse::create_nonlinear_solvers()
 {
     // get number of nonlinear solvers
     uint tNumNonLinSolvers = mParameterlist( 3 ).size();
@@ -347,8 +340,7 @@ SOL_Warehouse::create_nonlinear_solvers()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_time_solver_algorithms()
+void SOL_Warehouse::create_time_solver_algorithms()
 {
     uint tNumTimeAlgorithms = mParameterlist( 4 ).size();
 
@@ -380,8 +372,7 @@ SOL_Warehouse::create_time_solver_algorithms()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_time_solvers()
+void SOL_Warehouse::create_time_solvers()
 {
     // get number if time solvers
     uint tNumTimeSolvers = mParameterlist( 5 ).size();
@@ -461,8 +452,7 @@ SOL_Warehouse::create_time_solvers()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::get_default_secondary_dof_types(
+void SOL_Warehouse::get_default_secondary_dof_types(
         Cell< Cell< MSI::Dof_Type > >&        aCellOfCellsSecDofTypes,
         Cell< Cell< MSI::Dof_Type > > const & aCellOfCellDofTypes )
 {

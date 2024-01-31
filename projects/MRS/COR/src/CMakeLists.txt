@@ -13,7 +13,7 @@ set(HEADERS
     core.hpp
     banner.hpp
     common.hpp
-    typedefs.hpp )
+    moris_typedefs.hpp )
     
 configure_file( paths.hpp.in ${CMAKE_BINARY_DIR}/generated/paths.hpp )
 include_directories( ${CMAKE_BINARY_DIR}/generated/ ) # Make sure it can be included...

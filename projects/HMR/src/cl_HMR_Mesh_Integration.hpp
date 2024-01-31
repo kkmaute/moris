@@ -353,7 +353,7 @@ namespace moris::hmr
 
             for ( uint iBlockSet = 0; iBlockSet < mListOfBlocks.size(); iBlockSet++ )
             {
-                mListOfBlocks( iBlockSet ) = new moris::mtk::Block(
+                mListOfBlocks( iBlockSet ) = new moris::mtk::Block_Set(
                         tBlockSetNames( iBlockSet ),
                         this->get_cell_clusters_in_set( iBlockSet ),
                         { { 0 } },

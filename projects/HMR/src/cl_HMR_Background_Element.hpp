@@ -14,7 +14,7 @@
 #include "cl_HMR_Background_Edge.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Background_Facet.hpp"
-#include "typedefs.hpp"           //COR/src
+#include "moris_typedefs.hpp"           //COR/src
 #include "cl_Cell.hpp"            //CNT/src
 #include "cl_Bitset.hpp"          //CNT/src
 #include "cl_Matrix.hpp"          //LINALG/src

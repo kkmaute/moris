@@ -1182,7 +1182,7 @@ namespace moris
                         moris::Matrix< moris::IndexMat > tColors = { { 0 } };
 
                         // Construct the double side set
-                        moris::mtk::Set *tDblSideSet = new moris::mtk::Double_Side_Set( tDoubleSideSetName, mDoubleSideSets( tPhaseToPhaseIndex ), tColors, tSpatialDim );
+                        auto *tDblSideSet = new moris::mtk::Double_Side_Set( tDoubleSideSetName, mDoubleSideSets( tPhaseToPhaseIndex ), tColors, tSpatialDim );
 
                         // add double sided periodic boundary condition to the integration mesh
                         tIntegMesh->add_double_side_set( tDblSideSet );

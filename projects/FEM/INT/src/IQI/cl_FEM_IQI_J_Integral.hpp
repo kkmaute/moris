@@ -11,7 +11,7 @@
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_J_INTEGRAL_HPP_
 #define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_J_INTEGRAL_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

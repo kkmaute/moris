@@ -12,7 +12,7 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_
 #include "cl_HMR_Basis.hpp"
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 
 namespace moris::hmr

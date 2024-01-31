@@ -11,7 +11,7 @@
 #ifndef SRC_cl_MIG_Mesh_Editor
 #define SRC_cl_MIG_Mesh_Editor
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include <memory>
 #include "cl_MTK_Integration_Mesh_Editor.hpp"
 

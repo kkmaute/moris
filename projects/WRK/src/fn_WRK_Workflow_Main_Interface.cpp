@@ -27,7 +27,7 @@
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src
-#include "typedefs.hpp"                    // COR/src
+#include "moris_typedefs.hpp"                    // COR/src
 // other header files
 // #include <catch.hpp>
 // #include "fn_equal_to.hpp" //ALG

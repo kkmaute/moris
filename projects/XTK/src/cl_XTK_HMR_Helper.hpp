@@ -11,7 +11,7 @@
 #pragma once
 
 // includes from MORIS
-#include "typedefs.hpp"    // COR/src
+#include "moris_typedefs.hpp"    // COR/src
 #include "cl_Cell.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 

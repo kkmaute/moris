@@ -41,8 +41,8 @@ namespace xtk
         // number of child meshes
         moris_index mNumChildMeshes = 0;
 
-        // outer cell geometry index (if the geometry is inactive the cell is empty)
-        // inner cell active child mesh index by cut mesh index
+        // outer cell: geometry index (if the geometry is inactive the cell is empty)
+        // inner cell: active child mesh index by cut mesh index
         moris::Cell< moris::Cell< moris_index > > mIntersectedBackgroundCellIndex;
 
         // All intersected background cells (uniques removed from the concatenated version of mIntersectedBackgroundCellIndex)

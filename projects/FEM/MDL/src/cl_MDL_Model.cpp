@@ -13,11 +13,6 @@
 #endif
 
 #include "cl_Map.hpp"
-#include "fn_unique.hpp"
-#include "fn_sum.hpp"    // for check
-#include "fn_iscol.hpp"
-#include "fn_trans.hpp"
-#include "op_equal_equal.hpp"
 
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"           //MTK/src

@@ -16,7 +16,7 @@
 #include "cl_HMR.hpp"
 #include "cl_HMR_Arguments.hpp"
 #include "assert.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris::hmr
 {

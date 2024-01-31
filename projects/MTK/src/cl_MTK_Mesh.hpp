@@ -12,7 +12,7 @@
 #define SRC_MESH_CL_MTK_MESH_HPP_
 
 #include <memory>
-#include "typedefs.hpp" //MRS/COR/src
+#include "moris_typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Enums.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Side_Cluster.hpp"

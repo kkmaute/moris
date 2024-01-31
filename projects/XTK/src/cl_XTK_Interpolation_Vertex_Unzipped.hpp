@@ -11,7 +11,7 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_VERTEX_UNZIPPED_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_VERTEX_UNZIPPED_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"
 
 #include "cl_XTK_Vertex_Enrichment.hpp"

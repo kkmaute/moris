@@ -17,7 +17,7 @@
 #include <iterator>
 
 // MORIS library header files.
-#include "typedefs.hpp"    // COR/src
+#include "moris_typedefs.hpp"    // COR/src
 #include "assert.hpp"
 
 namespace moris

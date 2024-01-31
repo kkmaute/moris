@@ -149,8 +149,8 @@ namespace moris::vis
          * @param aSetIndex
          * @return MTK set at the given index
          */
-        moris::mtk::Set*
-        get_set_by_index( moris::uint aSetIndex ) const override;
+        mtk::Set*
+        get_set_by_index( moris_index aSetIndex ) const override;
 
         /**
          * Get the set pointer for set with a given name

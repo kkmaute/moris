@@ -79,6 +79,9 @@ namespace moris
             /// maximum number of time steps
             uint mMaxNumTimeSteps = 1;
 
+            // number of initial iterations without time step size control
+            uint mInitialIterations = 1;
+
             // relative static residual norm for switching to steady state computation
             real mSteadyStateRelRes = -1.0;
 
@@ -133,7 +136,8 @@ namespace moris
                     sol::Dist_Vector* aCurrentSolution,
                     real&             aTimeStep,
                     real&             aTotalTime,
-                    real&             aRelResNorm );
+                    real&             aRelResNorm,
+                    const uint        aIterationId );
         };
     }    // namespace NLA
 }    // namespace moris

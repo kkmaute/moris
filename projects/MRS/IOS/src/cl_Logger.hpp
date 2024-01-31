@@ -16,7 +16,7 @@
 #include <string>
 #include <cstring>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "IO_Tools.hpp"
 
 // for the global clock

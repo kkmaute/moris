@@ -13,11 +13,11 @@
 
 #include <string>
 
-#include "typedefs.hpp"                  //MRS/COR/src
-#include "fn_unique.hpp"                 //MRS/COR/src
+#include "moris_typedefs.hpp"     //MRS/COR/src
+#include "fn_unique.hpp"    //MRS/COR/src
 #include "cl_Map.hpp"
-#include "cl_MTK_Vertex.hpp"             //MTK/src
-#include "cl_MTK_Cell.hpp"               //MTK/src
+#include "cl_MTK_Vertex.hpp"    //MTK/src
+#include "cl_MTK_Cell.hpp"      //MTK/src
 
 #include "cl_MTK_Cell_Cluster.hpp"       //MTK/src
 #include "cl_MTK_Side_Cluster.hpp"       //MTK/src
@@ -293,19 +293,19 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual uint get_num_vertices_on_set( const bool aOnlyPrimary ) = 0;
+            virtual uint get_num_vertices_on_set( bool aOnlyPrimary ) = 0;
 
             //------------------------------------------------------------------------------
 
-            virtual moris::Matrix< DDSMat > get_ig_vertices_inds_on_block( const bool aOnlyPrimary ) = 0;
+            virtual moris::Matrix< DDSMat > get_ig_vertices_inds_on_block( bool aOnlyPrimary ) = 0;
 
             //------------------------------------------------------------------------------
 
-            virtual uint get_num_cells_on_set( const bool aOnlyPrimary ) = 0;
+            virtual uint get_num_cells_on_set( bool aOnlyPrimary ) = 0;
 
             //------------------------------------------------------------------------------
 
-            virtual moris::Matrix< DDSMat > get_cell_inds_on_block( const bool aOnlyPrimary ) = 0;
+            virtual moris::Matrix< DDSMat > get_cell_inds_on_block( bool aOnlyPrimary ) = 0;
 
             //------------------------------------------------------------------------------
             virtual moris::uint
@@ -465,7 +465,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
-            size_t
+            virtual size_t
             capacity()
             {
                 size_t tTotalSize = 0;
@@ -560,10 +560,6 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual void
-            init_ig_geometry_type() = 0;
-
-            //------------------------------------------------------------------------------
 
             // FIXME should be user-defined in FEM
             void

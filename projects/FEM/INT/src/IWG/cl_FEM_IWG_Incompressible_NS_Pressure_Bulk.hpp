@@ -12,7 +12,7 @@
 #define PROJECTS_FEM_INT_SRC_CL_FEM_IWG_INCOMPRESSIBLE_NS_PRESSURE_BULK_HPP_
 
 #include <map>
-#include "typedefs.hpp"                     //MRS/COR/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src

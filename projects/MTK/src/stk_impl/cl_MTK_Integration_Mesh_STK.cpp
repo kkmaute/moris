@@ -16,7 +16,7 @@
 #include "cl_MTK_Side_Cluster_Input.hpp"
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
 #include "cl_MTK_Set_Communicator.hpp"
-#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Block_Set.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Cell_Info.hpp"
@@ -337,7 +337,7 @@ namespace moris
                     tCellClusters( Ii ) = &mCellClusters( tCellIndices( Ii ) );
                 }
 
-                mListOfBlocks( iPrimaryBlockSet ) = new moris::mtk::Block(
+                mListOfBlocks( iPrimaryBlockSet ) = new moris::mtk::Block_Set(
                         mPrimaryBlockSetNames( iPrimaryBlockSet ),
                         tCellClusters,
                         { { 0 } },
@@ -626,7 +626,7 @@ namespace moris
 
             for ( uint iBlockSet = 0; iBlockSet < mListOfBlocks.size(); iBlockSet++ )
             {
-                mListOfBlocks( iBlockSet ) = new moris::mtk::Block(
+                mListOfBlocks( iBlockSet ) = new moris::mtk::Block_Set(
                         tBSNames( iBlockSet ),
                         this->get_cell_clusters_in_set( iBlockSet ),
                         { { 0 } },

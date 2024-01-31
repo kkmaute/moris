@@ -213,8 +213,8 @@ namespace moris::vis
 
     // ----------------------------------------------------------------------------
 
-    moris::mtk::Set*
-    Visualization_Mesh::get_set_by_index( moris::uint aSetIndex ) const
+    mtk::Set*
+    Visualization_Mesh::get_set_by_index( moris_index aSetIndex ) const
     {
         MORIS_ASSERT( (uint)aSetIndex < mListOfAllSets.size(), "VIS::Visualization_Mesh::get_set_by_index() - Set index out of bounds" );
         return mListOfAllSets( aSetIndex );

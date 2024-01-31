@@ -193,7 +193,7 @@ namespace xtk
         Tracer tTracer( "XTK", "Overall", "Run" );
 
         mVerbose      = mParameterList.get< bool >( "verbose" );
-        mVerboseLevel = mParameterList.get< moris::uint >( "verbose_level" );
+        mVerboseLevel = mParameterList.get< uint >( "verbose_level" );
 
         if ( !mInitializeCalled )
         {
@@ -223,7 +223,7 @@ namespace xtk
             mTriangulateAll       = mParameterList.get< bool >( "triangulate_all" );
             mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
             mOnlyGenerateXtkTemp  = mParameterList.get< bool >( "only_generate_xtk_temp" );
-            mIgElementOrder       = mParameterList.get< moris::uint >( "ig_element_order" );
+            mIgElementOrder       = mParameterList.get< uint >( "ig_element_order" );
 
             // get and store indices of B-spline meshes wrt. which information needs to be constructed
             moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
@@ -291,21 +291,45 @@ namespace xtk
             if ( mParameterList.get< bool >( "high_to_low_dbl_side_sets" ) )
             {
                 // log this operation
-                Tracer tTracer( "XTK", "Enrichment", "Create high to low double side sets" );
+                Tracer tTracer( "XTK", "Create high to low double side sets" );
 
-                for ( moris::uint i = 0; i < mGeometryEngine->get_num_bulk_phase(); i++ )
+                // ----------------------------------------------------
+                // collect all the double sided side sets to be created
+
+                // get the number of bulk-phases that exist
+                uint tNumBulkPhases = mGeometryEngine->get_num_bulk_phase();
+
+                // initialize the lists of double sided side sets to be created
+                // Note: the number of side set combinations is ( n^2 - n ) where n is the number of bulk phases - we're only looking at the lower triangular part, so divide by 2
+                uint tNumDblSideSetsToCreate = tNumBulkPhases * ( tNumBulkPhases - 1 ) / 2;
+                Cell< moris_index > tLeaderPhaseIndices( tNumDblSideSetsToCreate, MORIS_INDEX_MAX );
+                Cell< moris_index > tFollowerPhaseIndices( tNumDblSideSetsToCreate, MORIS_INDEX_MAX );
+
+                // count number of double side sets to be created
+                uint tNumDblSideSetsCreated = 0;
+
+                // loop over all possible combinations of bulk phases and collect the combinations to be created
+                for ( uint iLeaderPhaseIndex = 0; iLeaderPhaseIndex < tNumBulkPhases; iLeaderPhaseIndex++ )
                 {
-                    for ( moris::uint j = 0; j < mGeometryEngine->get_num_bulk_phase(); j++ )
+                    for ( uint iFollowerPhaseIndex = 0; iFollowerPhaseIndex < tNumBulkPhases; iFollowerPhaseIndex++ )
                     {
-                        if ( i > j )
+                        if ( iLeaderPhaseIndex > iFollowerPhaseIndex )
                         {
-                            mEnrichedIntegMesh( 0 )->create_dbl_sided_interface_set( i, j );
+                            tLeaderPhaseIndices( tNumDblSideSetsCreated )   = (moris_index)iLeaderPhaseIndex;
+                            tFollowerPhaseIndices( tNumDblSideSetsCreated ) = (moris_index)iFollowerPhaseIndex;
+                            tNumDblSideSetsCreated ++;
                         }
                     }
                 }
 
-                // communicate the double sided side sets after new ones have been added
-                mEnrichedIntegMesh( 0 )->communicate_sets_of_type( mtk::SetType::DOUBLE_SIDED_SIDESET );
+                // check that the number of double sided side sets to be created is correct
+                MORIS_ASSERT(
+                        tNumDblSideSetsCreated == tNumDblSideSetsToCreate,
+                        "xtk::Model::perform_enrichment() - "
+                        "Number of high-to-low double sided side sets created is incorrect." );
+
+                // create the double sided side sets
+                mEnrichedIntegMesh( 0 )->create_dbl_sided_interface_sets( tLeaderPhaseIndices, tFollowerPhaseIndices );
             }
 
             // get index of B-spline meshes indices that will be unenriched later
@@ -382,7 +406,7 @@ namespace xtk
             MORIS_ERROR( tUnionBlockCells.size() == tNewBlockNames.size(), "Dimension Mismatch in number of union operations for block" );
             MORIS_ERROR( tUnionBlockCells.size() == tUnionBlockColors.n_rows(), "Dimension Mismatch in number of union operations for block" );
 
-            for ( moris::uint iUnion = 0; iUnion < tUnionBlockCells.size(); iUnion++ )
+            for ( uint iUnion = 0; iUnion < tUnionBlockCells.size(); iUnion++ )
             {
                 this->get_enriched_integ_mesh( 0 ).create_union_block( tUnionBlockCells( iUnion ), tNewBlockNames( iUnion )( 0 ), tUnionBlockColors.get_row( iUnion ) );
             }
@@ -408,7 +432,7 @@ namespace xtk
             MORIS_ERROR( tUnionSideSetCells.size() == tNewSideSetNames.size(), "Dimension Mismatch in number of union operations for side set" );
             MORIS_ERROR( tUnionSideSetCells.size() == tUnionSideSetColors.n_rows(), "Dimension Mismatch in number of union operations for side set" );
 
-            for ( moris::uint iUnion = 0; iUnion < tUnionSideSetCells.size(); iUnion++ )
+            for ( uint iUnion = 0; iUnion < tUnionSideSetCells.size(); iUnion++ )
             {
                 this->get_enriched_integ_mesh( 0 ).create_union_side_set( tUnionSideSetCells( iUnion ), tNewSideSetNames( iUnion )( 0 ), tUnionSideSetColors.get_row( iUnion ) );
             }
@@ -585,7 +609,7 @@ namespace xtk
 
         moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
 
-        moris::uint        tSpatialDimension = this->get_spatial_dim();
+        uint               tSpatialDimension = this->get_spatial_dim();
         mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
         std::string        tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
         moris::lint        tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
@@ -700,7 +724,7 @@ namespace xtk
     Model::verify_successful_node_assignment( Decomposition_Data &aDecompData )
     {
         uint tNumUnsuccessful = 0;
-        for ( moris::uint i = 0; i < aDecompData.tNewNodeId.size(); i++ )
+        for ( uint i = 0; i < aDecompData.tNewNodeId.size(); i++ )
         {
             if ( aDecompData.tNewNodeId( i ) == MORIS_INDEX_MAX )
             {
@@ -850,7 +874,7 @@ namespace xtk
         // MORIS_ERROR( mEnriched, "Mesh needs to be enriched prior to identifying hanging nodes" );
 
         // // iterate through child meshes
-        // for ( moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++ )
+        // for ( uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++ )
         // {
         //     // active child mesh
         //     Child_Mesh &tChildMesh = mCutMesh.get_child_mesh( iCM );
@@ -861,7 +885,7 @@ namespace xtk
         //     moris::Cell< moris_index > tTransitionFacets;
 
         //     // iterate through neighbor
-        //     for ( moris::uint iN = 0; iN < tElementNeighbors.n_cols(); iN++ )
+        //     for ( uint iN = 0; iN < tElementNeighbors.n_cols(); iN++ )
         //     {
         //         moris_index tNeighborCellIndex = tElementNeighbors( 0, iN );
 
@@ -882,7 +906,7 @@ namespace xtk
     {
         Tracer tTracer( "XTK", "BG Cell Probe" );
 
-        for ( moris::uint i = 0; i < tBGCellIds.numel(); i++ )
+        for ( uint i = 0; i < tBGCellIds.numel(); i++ )
         {
             Tracer tTracer( "XTK", "BG Cell Probe", "Cell Id " + std::to_string( tBGCellIds( i ) ) );
 

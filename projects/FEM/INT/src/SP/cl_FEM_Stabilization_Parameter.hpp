@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_STABILIZATION_PARAMETER_HPP_
 
 //MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 //#include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 //LNA/src

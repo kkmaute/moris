@@ -17,7 +17,7 @@
 #include "cl_MTK_Double_Side_Cluster.hpp"
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Block_Set.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Cell_Info.cpp"
@@ -795,14 +795,14 @@ namespace moris
                             MORIS_ERROR( tIter != tBsplineIdToLocalIndexMap.end(),
                                     "Integration_Mesh::get_IG_to_BS_nodal_T_matrices() - "
                                     "B-spline ID not found in IG cell local map." );
-                            uint tLocalIndex = tIter->second;
+                            // uint tLocalIndex = tIter->second;
 
                             // grab the part of the elemental T-matrix which the weights should be written into
-                            auto tCopyWeightsIntoThis = tCurrentIgCellToBSWeights( { 0, tNumNodesOnIgElem - 1 }, { tLocalIndex, tLocalIndex } );
-                            auto tCopyWeightsFromThis = tBspWeights( { 0, tNumNodesOnIgElem - 1 }, { iBspBf, iBspBf } );
+                            //auto tCopyWeightsIntoThis = tCurrentIgCellToBSWeights( { 0, tNumNodesOnIgElem - 1 }, { tLocalIndex, tLocalIndex } );
+                            //auto tCopyWeightsFromThis = tBspWeights( { 0, tNumNodesOnIgElem - 1 }, { iBspBf, iBspBf } );
 
                             // copy the weights into this
-                            tCopyWeightsIntoThis += tCopyWeightsFromThis;
+                            // tCopyWeightsIntoThis += tCopyWeightsFromThis;
 
                         }    // end for: B-spline basis functions interpolating into Lagrange basis function
                     }        // end for: Lagrange basis functions interpolating into IG element
