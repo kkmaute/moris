@@ -302,15 +302,13 @@ namespace moris
             /**
              * Creates and registers new derived nodes based on the given information.
              *
-             * @param aNewNodeIndices New node indices
-             * @param tVertexIndices Indices of the parent cell
+             * @param aVertexIndices Indices of the parent cell
              * @param aParametricCoordinates Parametric coordinates of each new derived node to create
              * @param aBackgroundGeometryType Geometry type of the background element
              * @param aBackgroundInterpolationOrder Interpolation order of the background element
              */
             void create_new_derived_nodes(
-                    const Cell< moris_index >&        aNewNodeIndices,
-                    const Cell< Matrix< IndexMat > >& tVertexIndices,
+                    const Cell< Matrix< IndexMat > >& aVertexIndices,
                     const Cell< Matrix< DDRMat > >&   aParametricCoordinates,
                     mtk::Geometry_Type                aBackgroundGeometryType,
                     mtk::Interpolation_Order          aBackgroundInterpolationOrder );
@@ -318,12 +316,10 @@ namespace moris
             /**
              * Overloaded version of creating derived nodes. Calls other version internally.
              *
-             * @param aNewNodeIndices New node indices
              * @param aNewNodeParentCell MTK cells
              * @param aParametricCoordinates Parametric coordinates for creating the derived node
              */
             void create_new_derived_nodes(
-                    const Cell< moris_index >&                         aNewNodeIndices,
                     Cell< mtk::Cell* >&                                aNewNodeParentCell,
                     const Cell< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates );
             

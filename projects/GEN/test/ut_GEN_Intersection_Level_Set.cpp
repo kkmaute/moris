@@ -828,10 +828,7 @@ namespace moris::ge
 
             tLocalCoords( 0 ) = { { +0.000000000000000e+00, +0.000000000000000e+00 } };
 
-            Cell< moris_index > tNewNodeIndices = { 4 };
-
             tGeometryEngine.create_new_derived_nodes(
-                    tNewNodeIndices,
                     tVertexIndices,
                     tLocalCoords,
                     mtk::Geometry_Type::QUAD,

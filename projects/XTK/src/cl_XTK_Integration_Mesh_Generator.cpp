@@ -3726,7 +3726,6 @@ namespace xtk
         {
             // pass the data in decomposition data to the geometry engine so it can keep track of these newly constructed vertices
             mGeometryEngine->create_new_derived_nodes(
-                    aDecompositionData->tNewNodeIndex,
                     aDecompositionData->mNewNodeParentCells,
                     aDecompositionData->mNewVertexLocalCoordWRTParentCell );
         }

@@ -424,14 +424,13 @@ namespace moris
 
         void
         Geometry_Engine::create_new_derived_nodes(
-                const Cell< moris_index >&                         aNewNodeIndices,
                 Cell< mtk::Cell* >&                                aNewNodeParentCell,
                 const Cell< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates )
         {
             // This function can't be traced; Right now XTK does not always call it from all processors.
 
             // Get number of new nodes
-            uint tNumberOfNewDerivedNodes = aNewNodeIndices.size();
+            uint tNumberOfNewDerivedNodes = aNewNodeParentCell.size();
 
             // Get vertex indices from parent cell and change parametric coordinate type
             Cell< Matrix< IndexMat > > tVertexIndices( tNumberOfNewDerivedNodes );
@@ -446,7 +445,6 @@ namespace moris
             if ( tNumberOfNewDerivedNodes > 0 )
             {
                 this->create_new_derived_nodes(
-                        aNewNodeIndices,
                         tVertexIndices,
                         tParametricCoordinates,
                         aNewNodeParentCell( 0 )->get_geometry_type(),
@@ -459,8 +457,7 @@ namespace moris
         // FIXME don't need new node indices
         void
         Geometry_Engine::create_new_derived_nodes(
-                const Cell< moris_index >&        aNewNodeIndices,
-                const Cell< Matrix< IndexMat > >& tVertexIndices,
+                const Cell< Matrix< IndexMat > >& aVertexIndices,
                 const Cell< Matrix< DDRMat > >&   aParametricCoordinates,
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder )
@@ -468,13 +465,13 @@ namespace moris
             // This function can't be traced; Right now XTK does not always call it from all processors.
 
             // Loop over nodes
-            for ( uint iNode = 0; iNode < aNewNodeIndices.size(); iNode++ )
+            for ( uint iNode = 0; iNode < aVertexIndices.size(); iNode++ )
             {
                 // Create basis nodes
-                Cell< Background_Node* > tBackgroundNodes( tVertexIndices( iNode ).length() );
-                for ( uint iBaseNode = 0; iBaseNode < tVertexIndices( iNode ).length(); iBaseNode++ )
+                Cell< Background_Node* > tBackgroundNodes( aVertexIndices( iNode ).length() );
+                for ( uint iBaseNode = 0; iBaseNode < aVertexIndices( iNode ).length(); iBaseNode++ )
                 {
-                    tBackgroundNodes( iBaseNode ) = &( mNodeManager.get_background_node( tVertexIndices( iNode )( iBaseNode ) ) );
+                    tBackgroundNodes( iBaseNode ) = &( mNodeManager.get_background_node( aVertexIndices( iNode )( iBaseNode ) ) );
                 }
 
                 // Create new derived node
