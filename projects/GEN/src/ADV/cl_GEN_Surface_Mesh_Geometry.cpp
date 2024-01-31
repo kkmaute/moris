@@ -44,7 +44,12 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
+        // BRENDAN DELETE PRINTS
+        PRINT( aNodeCoordinates );
+
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
+
+        std::cout << "geometric region: " << tRegion << std::endl;
 
         switch ( tRegion )
         {
@@ -58,8 +63,14 @@ namespace moris::ge
                 return Geometric_Region::POSITIVE;
                 break;
             }
+            case sdf::Object_Region::INTERFACE:
+            {
+                return Geometric_Region::INTERFACE;
+                break;
+            }
             default:
             {
+                MORIS_ERROR( false, "Unexpected sdf::Object_Region of %d returned from raycast.", tRegion );
                 return Geometric_Region::INTERFACE;
                 break;
             }

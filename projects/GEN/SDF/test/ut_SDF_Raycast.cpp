@@ -96,7 +96,7 @@ namespace moris::sdf
 
                 // compute the intersection locations and ensure they are correct
                 Cell< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055620439 };
-                Cell< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 2 );
+                Cell< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, Preselection_Result::SUCCESS, 2 );
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
                 CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
@@ -140,7 +140,7 @@ namespace moris::sdf
 
                 // although two facets are intersected, one of them should produce an error and be removed
                 tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
-                tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, 0 );
+                tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, Preselection_Result::SUCCESS, 0 );
 
 
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
@@ -185,14 +185,14 @@ namespace moris::sdf
                 CHECK( tCandidateLines( 0 ) == &tObject.get_facet( 2 ) );
 
                 // intersect the candidate facets and determine the intersection location
-                Cell< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 0 );
+                Cell< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, Preselection_Result::SUCCESS, 0 );
                 real         tIntersectionCoordinateExpected = -0.2;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < tObject.get_intersection_tolerance() );
 
                 // determine if the point is inside/outside and check expectation
-                Object_Region tRegion = check_if_node_is_inside_lines( tIntersectionCoordinates, tIntersectedLines, tTestPoint, 0 );
+                Object_Region tRegion = check_if_node_is_inside_lines( tObject, tIntersectionCoordinates, tIntersectedLines, tTestPoint, 0 );
 
                 CHECK( tRegion == OUTSIDE );
 
@@ -210,13 +210,13 @@ namespace moris::sdf
                 REQUIRE( tIntersectedLines.size() == 0 );
                 CHECK( *tCandidateLines( 0 ) == tObject.get_facet( 1 ) );
 
-                tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, 1 );
+                tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, Preselection_Result::SUCCESS, 1 );
                 tIntersectionCoordinateExpected = 0.25;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < tObject.get_intersection_tolerance() );
 
-                tRegion = check_if_node_is_inside_lines( tIntersectionCoordinates, tIntersectedLines, tTestPoint, 1 );
+                tRegion = check_if_node_is_inside_lines( tObject, tIntersectionCoordinates, tIntersectedLines, tTestPoint, 1 );
 
                 CHECK( tRegion == INSIDE );
 
@@ -229,7 +229,7 @@ namespace moris::sdf
 
                 tRegion = raycast_point( tObject, tTestPoint );
 
-                CHECK( tRegion == INSIDE );
+                CHECK( tRegion == INTERFACE );
             }
             SECTION( "SDF: Compute distance to facets test - 3D" )
             {

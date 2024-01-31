@@ -38,7 +38,18 @@ namespace moris
         {
             OUTSIDE,
             INSIDE,
+            INTERFACE,
             UNSURE
+        };
+
+        /**
+         * Enum for preselection result
+         */
+        enum Preselection_Result
+        {
+            SUCCESS,
+            FAIL_ON_VERTEX,
+            FAIL_CAST_TO_VERTEX
         };
 
         //-------------------------------------------------------------------------------

@@ -165,9 +165,18 @@ namespace moris
                             mMesh.get_vertex( iNodeIndex )->flag();
                             break;
                         }
+                        case INTERFACE:
+                        {
+                            // FIXME: Treating all interface nodes as inside
+                            // SDF::mesh needs additional functionality to handle interface conditions properly
+                            mMesh.get_vertex( iNodeIndex )->set_inside_flag();
+                            mMesh.get_vertex( iNodeIndex )->unflag();
+                            break;
+                        }
+
                         default:
                         {
-                            MORIS_ERROR( false, "SDF_Core - raycast_mesh(): Unexpected inside condition returned from Raycast class. Inside condition = %u, should be [0,2]", tPointRegion );
+                            MORIS_ERROR( false, "SDF_Core - raycast_mesh(): Unexpected inside condition returned from Raycast . Inside condition = %u, should be [0,2]", tPointRegion );
                         }
                     }
                 }

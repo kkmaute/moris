@@ -101,7 +101,7 @@ namespace moris::sdf
      * @param aCandidateFacets return variable, facets which aPoint lies in the bounding box of, and intersection coordinates need to be computed to determine intersection
      * @return true if the preselection did not find any facets whose vertex would be hit by cast, false otherwise
      */
-    bool
+    Preselection_Result
     preselect_lines(
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
@@ -141,9 +141,10 @@ namespace moris::sdf
      */
     moris::Cell< real >
     intersect_ray_with_facets(
-            moris::Cell< Facet* >&              aIntersectedFacets,
-            const Matrix< DDRMat >&             aPoint,
-            uint                                aAxis );
+            moris::Cell< Facet* >&  aIntersectedFacets,
+            const Matrix< DDRMat >& aPoint,
+            Preselection_Result     aRayOnVertex,
+            uint                    aAxis );
 
     //-------------------------------------------------------------------------------
 
@@ -177,6 +178,7 @@ namespace moris::sdf
      */
     Object_Region
     check_if_node_is_inside_lines(
+            Object&                    aObject,
             const moris::Cell< real >& aIntersectionCoords,
             const moris::Cell< uint >& aCandidateFacets,
             const Matrix< DDRMat >&    aPoint,
