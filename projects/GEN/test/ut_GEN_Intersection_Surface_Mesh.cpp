@@ -15,12 +15,9 @@
 
 #include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
-#include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Design_Factory.hpp"
-#include "fn_check_equal.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
-#include "cl_GEN_Mesh_Field.hpp"
-#include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_GEN_Intersection_Node.hpp"
 
 #include "fn_PRM_GEN_Parameters.hpp"
 

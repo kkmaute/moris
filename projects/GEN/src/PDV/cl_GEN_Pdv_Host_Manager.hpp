@@ -13,6 +13,7 @@
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_GEN_Interpolation_Pdv_Host.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Node_Manager.hpp"
 #include "GEN_Data_Types.hpp"
 
 #include "cl_Matrix.hpp"
@@ -24,6 +25,9 @@ namespace moris::ge
     class Pdv_Host_Manager : public MSI::Design_Variable_Interface
     {
       private:
+        // Node manager
+        Node_Manager& mNodeManager;
+
         // GEN-MESH map
         moris::Cell< moris_index > mGenMeshMap;
         bool                       mGenMeshMapIsInitialized = false;
@@ -31,9 +35,6 @@ namespace moris::ge
         // ADV IDs
         Matrix< DDSMat > mOwnedADVIds;
         bool             mADVIdsSet = false;
-
-        // Static nodes set
-        bool mNumBackgroundNodesSet = false;
 
         // PDV type map
         moris::Cell< PDV_Type > mPdvTypeList;    // List containing all used unique dv types.
@@ -73,13 +74,15 @@ namespace moris::ge
       public:
         /**
          * Constructor
+         *
+         * @param aNodeManager Node manager from the geometry engine
          */
-        Pdv_Host_Manager();
+        explicit Pdv_Host_Manager( Node_Manager& aNodeManager );
 
         /**
          * Destructor
          */
-        ~Pdv_Host_Manager();
+        ~Pdv_Host_Manager() override = default;
 
         //-------------------------------------------------------------------------------
 
@@ -105,14 +108,6 @@ namespace moris::ge
          * @param aOwnedADVIds Owned ADV IDs
          */
         void set_owned_adv_ids( Matrix< DDSMat > aOwnedADVIds );
-
-        /**
-         * Sets the number of nodes.
-         *
-         * @param aNumNodes Number of nodes
-         */
-        void
-        set_num_background_nodes( uint aNumNodes );
 
         //-------------------------------------------------------------------------------
 
@@ -205,34 +200,6 @@ namespace moris::ge
          *
          * @param aNodeIndices list of node indices
          * @param aPdvTypes    list of dv types
-         * @param aDvValues    list of returned dv values (DvType)(vertexIndex)
-         * @param aIsActive    list of if design variable is active (vertexIndex)(DvType)
-         */
-        void
-        get_ip_pdv_value(
-                const Matrix< IndexMat >& aNodeIndices,
-                const Cell< PDV_Type >&   aPdvTypes,
-                Cell< Matrix< DDRMat > >& aDvValues,
-                Cell< Matrix< DDSMat > >& aIsActiveDv );
-
-        /**
-         * Get pdv values for requested vertex indices and dv types
-         *
-         * @param aNodeIndices list of node indices
-         * @param aPdvTypes    list of dv types
-         * @param aDvValues    list of dv values (DvType)(vertexIndex)
-         */
-        void
-        get_ig_pdv_value(
-                const Matrix< IndexMat >& aNodeIndices,
-                const Cell< PDV_Type >&   aPdvTypes,
-                Cell< Matrix< DDRMat > >& aDvValues );
-
-        /**
-         * Get pdv values for requested vertex indices and dv types
-         *
-         * @param aNodeIndices list of node indices
-         * @param aPdvTypes    list of dv types
          * @param aDvValues    list of dv values (DvType)(vertexIndex)
          * @param aIsActive    list of active design variables (vertexIndex)(DvType)
          */
@@ -241,7 +208,7 @@ namespace moris::ge
                 const Matrix< IndexMat >& aNodeIndices,
                 const Cell< PDV_Type >&   aPdvTypes,
                 Cell< Matrix< DDRMat > >& aDvValues,
-                Cell< Matrix< DDSMat > >& aIsActiveDv );
+                Cell< Cell< bool > >&     aIsActiveDv );
 
         /**
          * Get the local to global pdv type map
@@ -330,34 +297,6 @@ namespace moris::ge
          * @param aPdvTypes The PDV types per set, grouped
          */
         void set_integration_pdv_types( Cell< Cell< Cell< PDV_Type > > > aPdvTypes );
-
-        /**
-         * Set an intersection at a node index and assign its starting PDV index for later.
-         *
-         * @param aIntersectionNode Intersection node admitted by the geometry engine
-         */
-        void set_intersection_node( Intersection_Node* aIntersectionNode );
-
-        /**
-         * Gets an intersection node from the PDV host manager, used so the geometry engine can create new
-         * intersection nodes.
-         *
-         * @param aNodeIndex Node index
-         * @return Intersection node already been set
-         */
-        Intersection_Node* get_intersection_node( uint aNodeIndex );
-
-        /**
-         * Updates an intersection node with a node ID and node owner.
-         *
-         * @param aNodeIndex Node index
-         * @param aNodeId Node ID
-         * @param aNodeOwner Node owner
-         */
-        void update_intersection_node(
-                const moris_index& aNodeIndex,
-                const moris_index& aNodeId,
-                const moris_index& aNodeOwner );
 
         /**
          * Set the requested interpolation node PDV types for sensitivities

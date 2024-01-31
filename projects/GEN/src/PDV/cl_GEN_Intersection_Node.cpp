@@ -105,14 +105,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Intersection_Node::get_coordinate_value( uint aCoordinateIndex )
-    {
-        return this->get_global_coordinates()( aCoordinateIndex );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     uint
     Intersection_Node::get_num_pdvs()
     {
@@ -124,8 +116,7 @@ namespace moris::ge
     void
     Intersection_Node::set_starting_pdv_id( moris_id aPDVStartingID )
     {
-        mPDVStartingID    = aPDVStartingID;
-        mPDVStartingIDSet = true;
+        mPDVStartingID = aPDVStartingID;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -133,7 +124,6 @@ namespace moris::ge
     moris_id
     Intersection_Node::get_starting_pdv_id()
     {
-        MORIS_ASSERT( mPDVStartingIDSet, "PDV Starting ID must be set for an intersection." );
         return mPDVStartingID;
     }
 

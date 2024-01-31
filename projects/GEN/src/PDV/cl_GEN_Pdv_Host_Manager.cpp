@@ -21,13 +21,8 @@ namespace moris::ge
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Pdv_Host_Manager::Pdv_Host_Manager()
-    {
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Pdv_Host_Manager::~Pdv_Host_Manager()
+    Pdv_Host_Manager::Pdv_Host_Manager( Node_Manager& aNodeManager )
+            : mNodeManager( aNodeManager )
     {
     }
 
@@ -59,20 +54,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Pdv_Host_Manager::set_num_background_nodes( uint aNumNodes )
-    {
-        mIntersectionNodes.resize( aNumNodes );
-        mNumBackgroundNodesSet = true;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
     Pdv_Host_Manager::reset()
     {
         mIpPdvHosts.clear();
-        mIntersectionNodes.clear();
-        mNumBackgroundNodesSet = false;
         mOwnedPdvLocalToGlobalMap.resize( 0, 0 );
         mOwnedAndSharedPdvLocalToGlobalMap.resize( 0, 0 );
         mNumOwnedPdvs          = 0;
@@ -187,11 +171,11 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Pdv_Host_Manager::get_ip_pdv_value(
+    Pdv_Host_Manager::get_ig_pdv_value(
             const Matrix< IndexMat >& aNodeIndices,
             const Cell< PDV_Type >&   aPdvTypes,
             Cell< Matrix< DDRMat > >& aDvValues,
-            Cell< Matrix< DDSMat > >& aIsActiveDv )
+            Cell< Cell< bool > >&     aIsActiveDv )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -208,89 +192,7 @@ namespace moris::ge
         {
             // Matrix size
             aDvValues( tPdvTypeIndex ).set_size( tNumIndices, 1 );
-            aIsActiveDv( tPdvTypeIndex ).set_size( tNumIndices, 1 );
-
-            // loop over the requested dv types
-            for ( uint tNodeIndex = 0; tNodeIndex < tNumIndices; tNodeIndex++ )
-            {
-                // get node index of PDV host
-                uint tIdnx = aNodeIndices( tNodeIndex );
-
-                // check that PDV host exists
-                MORIS_ASSERT( mIpPdvHosts( tIdnx ),
-                        "Pdv_Host_Manager::get_ip_pdv_value - IP PDV host does not exist at node with index %d\n",
-                        tIdnx );
-
-                aDvValues( tPdvTypeIndex )( tNodeIndex ) =
-                        mIpPdvHosts( tIdnx )->get_pdv_value( aPdvTypes( tPdvTypeIndex ) );
-
-                aIsActiveDv( tPdvTypeIndex )( tNodeIndex ) =
-                        mIpPdvHosts( tIdnx )->is_active_type( aPdvTypes( tPdvTypeIndex ) );
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Pdv_Host_Manager::get_ig_pdv_value(
-            const Matrix< IndexMat >& aNodeIndices,
-            const Cell< PDV_Type >&   aPdvTypes,
-            Cell< Matrix< DDRMat > >& aDvValues )
-    {
-        // Get the number of node indices requested
-        uint tNumIndices = aNodeIndices.length();
-
-        // Get the number of dv types requested
-        uint tNumTypes = aPdvTypes.size();
-
-        // Cell size
-        aDvValues.resize( tNumTypes );
-
-        // loop over the node indices
-        for ( uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++ )
-        {
-            // Matrix size
-            aDvValues( tPdvTypeIndex ).set_size( tNumIndices, 1 );
-
-            // loop over the requested dv types
-            for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
-            {
-                if ( mIntersectionNodes( aNodeIndices( tNode ) ) )
-                {
-                    aDvValues( tPdvTypeIndex )( tNode ) =                    //
-                            mIntersectionNodes( aNodeIndices( tNode ) )->    //
-                            get_coordinate_value( static_cast< uint >( aPdvTypes( tPdvTypeIndex ) ) );
-                }
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Pdv_Host_Manager::get_ig_pdv_value(
-            const Matrix< IndexMat >& aNodeIndices,
-            const Cell< PDV_Type >&   aPdvTypes,
-            Cell< Matrix< DDRMat > >& aDvValues,
-            Cell< Matrix< DDSMat > >& aIsActiveDv )
-    {
-        // Get the number of node indices requested
-        uint tNumIndices = aNodeIndices.length();
-
-        // Get the number of dv types requested
-        uint tNumTypes = aPdvTypes.size();
-
-        // Cell size
-        aDvValues.resize( tNumTypes );
-        aIsActiveDv.resize( tNumTypes );
-
-        // loop over the node indices
-        for ( uint tPdvTypeIndex = 0; tPdvTypeIndex < tNumTypes; tPdvTypeIndex++ )
-        {
-            // Matrix size
-            aDvValues( tPdvTypeIndex ).set_size( tNumIndices, 1 );
-            aIsActiveDv( tPdvTypeIndex ).set_size( tNumIndices, 1, 0 );
+            aIsActiveDv( tPdvTypeIndex ).resize( tNumIndices, false );
 
             // loop over the requested dv types
             for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
@@ -302,13 +204,10 @@ namespace moris::ge
                     tGenMeshNodeIndex = mGenMeshMap( tGenMeshNodeIndex );
                 }
 
-                if ( mIntersectionNodes( tGenMeshNodeIndex ) )
+                if ( mNodeManager.node_depends_on_advs( tGenMeshNodeIndex ) )
                 {
-                    aDvValues( tPdvTypeIndex )( tNode ) =                    //
-                            mIntersectionNodes( aNodeIndices( tNode ) )->    //
-                            get_coordinate_value( static_cast< uint >( aPdvTypes( tPdvTypeIndex ) ) );
-
-                    aIsActiveDv( tPdvTypeIndex )( tNode ) = 1;
+                    aDvValues( tPdvTypeIndex )( tNode ) = mNodeManager.get_node_coordinate_value( aNodeIndices( tNode ), static_cast< uint >( aPdvTypes( tPdvTypeIndex ) ) );
+                    aIsActiveDv( tPdvTypeIndex )( tNode ) = true;
                 }
             }
         }
@@ -402,11 +301,10 @@ namespace moris::ge
                     tGenMeshNodeIndex = mGenMeshMap( aNodeIndices( tNode ) );
                 }
 
-                if ( mIntersectionNodes( tGenMeshNodeIndex ) )
+                if ( mNodeManager.node_depends_on_advs( tGenMeshNodeIndex ) )
                 {
-                    aDvIds( tPdvTypeIndex )( tNode ) =
-                            mIntersectionNodes( tGenMeshNodeIndex )->get_starting_pdv_id()
-                            + static_cast< uint >( aPdvTypes( tPdvTypeIndex ) );
+                    aDvIds( tPdvTypeIndex )( tNode ) = mNodeManager.get_derived_node_starting_pdv_id( tGenMeshNodeIndex )
+                                                     + static_cast< uint >( aPdvTypes( tPdvTypeIndex ) );
                 }
             }
         }
@@ -575,51 +473,6 @@ namespace moris::ge
                             mIgPdvTypes( tMeshSetIndex )( tGroupIndex )( tPdvIndex );
                 }
             }
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Pdv_Host_Manager::set_intersection_node( Intersection_Node* aIntersectionNode )
-    {
-        // Check node index
-        MORIS_ASSERT( mNumBackgroundNodesSet,
-                "Pdv_Host_Manager::set_intersection_node - %s",
-                "Number of background nodes must be set before intersection nodes can be created." );
-
-        // Add intersection node
-        mIntersectionNodes.push_back( aIntersectionNode );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Intersection_Node*
-    Pdv_Host_Manager::get_intersection_node( uint aNodeIndex )
-    {
-        MORIS_ASSERT( aNodeIndex < mIntersectionNodes.size(), "Node does not exist in PDV host manager." );
-        return mIntersectionNodes( aNodeIndex );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Pdv_Host_Manager::update_intersection_node(
-            const moris_index& aNodeIndex,
-            const moris_index& aNodeId,
-            const moris_index& aNodeOwner )
-    {
-        // MORIS_ASSERT( mIntersectionNodes(aNodeIndex)!= nullptr,
-        //         "Pdv_Host_Manager::update_intersection_node(), Intersection node doe not exist.");
-        // FIXME the size of this cell should be correct. this is a hack to account for a wrong size
-        if ( aNodeIndex >= (sint)mIntersectionNodes.size() )
-        {
-            mIntersectionNodes.resize( aNodeIndex + 1, nullptr );
-        }
-        if ( mIntersectionNodes( aNodeIndex ) != nullptr )
-        {
-            mIntersectionNodes( aNodeIndex )->set_id( aNodeId );
-            mIntersectionNodes( aNodeIndex )->set_owner( aNodeOwner );
         }
     }
 
@@ -801,22 +654,21 @@ namespace moris::ge
         // Create ADV Host Sensitivities
         Matrix< DDRMat > tHostADVSensitivities;
         Matrix< DDRMat > tI;
+
         // Loop over intersection nodes for inserting
-        for ( uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++ )
+        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
         {
-            if ( mIntersectionNodes( tIntersectionIndex ) and mIntersectionNodes( tIntersectionIndex )->get_owner() == par_rank() )
+            if ( mNodeManager.node_depends_on_advs( iNodeIndex ) and mNodeManager.get_derived_node_owner( iNodeIndex ) == par_rank() )
             {
                 // Get starting ID and number of coordinates
-                uint tStartingGlobalIndex = mIntersectionNodes( tIntersectionIndex )->get_starting_pdv_id();
-                uint tNumCoordinates      = mIntersectionNodes( tIntersectionIndex )->get_num_pdvs();
+                uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
+                uint tNumCoordinates      = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
 
                 // Parent sensitivities and ADV IDs
                 tHostADVSensitivities.set_size( 0.0, 0.0 );
                 eye( tNumCoordinates, tNumCoordinates, tI );
-                mIntersectionNodes( tIntersectionIndex )->append_dcoordinate_dadv( tHostADVSensitivities, tI );
-
-                Matrix< DDSMat > tADVIds =
-                        mIntersectionNodes( tIntersectionIndex )->get_coordinate_determining_adv_ids();
+                mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
+                Matrix< DDSMat > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
 
                 // remove sensitivities wrt unused variables
                 this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
@@ -1001,20 +853,19 @@ namespace moris::ge
         }
 
         // Loop over intersection node pdvs
-        for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
-        // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
+        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
         {
-            uint tMeshNodeIndex = Ij;
+            uint tMeshNodeIndex = iNodeIndex;
             if ( mGenMeshMapIsInitialized )
             {
-                tMeshNodeIndex = mGenMeshMap( Ij );
+                tMeshNodeIndex = mGenMeshMap( iNodeIndex );
             }
 
-            if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
+            if ( mNodeManager.node_depends_on_advs( tMeshNodeIndex ) )
             {
-                uint tNumPdvsOnIntersectionNode = mIntersectionNodes( tMeshNodeIndex )->get_num_pdvs();
+                uint tNumPdvsOnIntersectionNode = mNodeManager.get_number_of_derived_node_pdvs( tMeshNodeIndex );
 
-                if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() == par_rank() )
+                if ( mNodeManager.get_derived_node_owner( tMeshNodeIndex ) == par_rank() )
                 {
                     mNumOwnedPdvs += tNumPdvsOnIntersectionNode;
                 }
@@ -1105,23 +956,18 @@ namespace moris::ge
         moris_id tSaveOffset = aOwnedIdCounter;
 
         // Loop over intersection node pdvs
-        for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
-        // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
+        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
         {
-            uint tMeshNodeIndex = Ij;
+            uint tMeshNodeIndex = iNodeIndex;
             if ( mGenMeshMapIsInitialized )
             {
-                tMeshNodeIndex = mGenMeshMap( Ij );
+                tMeshNodeIndex = mGenMeshMap( iNodeIndex );
             }
 
-            if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
+            if ( mNodeManager.node_depends_on_advs( tMeshNodeIndex ) and mNodeManager.get_derived_node_owner( tMeshNodeIndex ) == par_rank() )
             {
-                if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() == par_rank() )
-                {
-                    mIntersectionNodes( tMeshNodeIndex )->set_starting_pdv_id( aOwnedIdCounter );
-                    uint tNumPdvsOnIntersectionNode = mIntersectionNodes( tMeshNodeIndex )->get_num_pdvs();
-                    aOwnedIdCounter += tNumPdvsOnIntersectionNode;
-                }
+                mNodeManager.set_derived_node_starting_pdv_id( tMeshNodeIndex, aOwnedIdCounter );
+                aOwnedIdCounter += mNodeManager.get_number_of_derived_node_pdvs( tMeshNodeIndex );
             }
         }
 
@@ -1360,8 +1206,6 @@ namespace moris::ge
         // Build communication table map to determine the right position for each processor rank.
         Cell< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
         moris::uint tNumCommProcs = mCommTable.numel();
-
-        moris::uint tCounter       = 0;
         moris::uint tSharedCounter = 0;
 
         moris::Cell< Matrix< DDUMat > > tSharedPdvIds( tNumCommProcs );
@@ -1371,32 +1215,27 @@ namespace moris::ge
         Matrix< DDUMat > tNumSharedPdvsPerProc( tNumCommProcs, 1, 0 );
 
         // Loop over pdvs
-        for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
-        // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
+        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
         {
-
-            uint tMeshNodeIndex = Ij;
+            uint tMeshNodeIndex = iNodeIndex;
             if ( mGenMeshMapIsInitialized )
             {
-                tMeshNodeIndex = mGenMeshMap( Ij );
+                tMeshNodeIndex = mGenMeshMap( iNodeIndex );
             }
 
-            // Check if pdv at this position is not NULL
-            if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
+            // Get derived node owner
+            moris_index tProcIndex = mNodeManager.get_derived_node_owner( tMeshNodeIndex );
+
+            // Check if node depends on ADVs
+            if ( mNodeManager.node_depends_on_advs( tMeshNodeIndex ) and tProcIndex != par_rank() )
             {
-                // Check if owning processor is this processor
-                if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() != par_rank() )
-                {
-                    // get owning processor
-                    moris::moris_id tProcID = mIntersectionNodes( tMeshNodeIndex )->get_owner();
+                // Get proc position
+                sint tProcIdPos = tCommTableMap( tProcIndex );
 
-                    moris::sint tProcIdPos = tCommTableMap( tProcID );
+                // Add +1 to the processor number of shared dv per processor
+                tNumSharedPdvsPerProc( tProcIdPos )++;
 
-                    // Add +1 to the processor number of shared dv per processor
-                    tNumSharedPdvsPerProc( tProcIdPos )++;
-
-                    tSharedCounter++;
-                }
+                tSharedCounter++;
             }
         }
 
@@ -1413,43 +1252,39 @@ namespace moris::ge
         // Temporary Mat to add external pdv ids at the next spot in the matrix which will be communicated
         Matrix< DDUMat > tSharedPdvPosPerProc( tNumCommProcs, 1, 0 );
 
-        // Loop over pdvs
-        for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
-        // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
+        // Loop over all nodes
+        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
         {
-            uint tMeshNodeIndex = Ij;
+            uint tMeshNodeIndex = iNodeIndex;
             if ( mGenMeshMapIsInitialized )
             {
-                tMeshNodeIndex = mGenMeshMap( Ij );
+                tMeshNodeIndex = mGenMeshMap( iNodeIndex );
             }
 
-            // Check if pdv at this position is not NULL
-            if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
+            // Check that node depends on ADVs
+            if ( mNodeManager.node_depends_on_advs( tMeshNodeIndex ) )
             {
-                // Check if owning processor is this processor
-                if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() != par_rank() )
-                {
-                    // Get owning processor
-                    moris::moris_id tProcID = mIntersectionNodes( tMeshNodeIndex )->get_owner();
+                // Get node owner
+                moris_id tNodeOwner = mNodeManager.get_derived_node_owner( iNodeIndex );
 
-                    moris::sint tProcIdPos = tCommTableMap( tProcID );
+                // Check that owner is not this proc
+                if ( tNodeOwner != par_rank() )
+                {
+                    // Get owning processor position
+                    moris::sint tProcIdPos = tCommTableMap( tNodeOwner );
 
                     // Add owning processor id to moris::Mat
-                    tSharedPdvIds( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) =
-                            mIntersectionNodes( tMeshNodeIndex )->get_id();
+                    tSharedPdvIds( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) = mNodeManager.get_derived_node_id( tMeshNodeIndex );
 
                     // Add pdv position to Mat
-                    tSharedPdvPosLocal( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) = tCounter;
-
+                    tSharedPdvPosLocal( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) = tMeshNodeIndex;
                     tSharedPdvPosPerProc( tProcIdPos )++;
                 }
             }
-            tCounter++;
         }
 
         // receiving list
         moris::Cell< Matrix< DDUMat > > tMatsToReceive;
-
         barrier();
 
         // Communicate position of shared pdvs to the owning processor
@@ -1483,10 +1318,10 @@ namespace moris::ge
                     tMeshNodeIndex = mGenMeshMap( tLocalPdvInd );
                 }
 
-                MORIS_ASSERT( ( mIntersectionNodes( tMeshNodeIndex )->get_owner() ) == par_rank(),
+                MORIS_ASSERT( mNodeManager.get_derived_node_owner( tMeshNodeIndex ) == par_rank(),
                         "Pdv_Host_Manager::communicate_shared_pdv_ids(): Pdv not owned by this processor" );
 
-                tSharedPdvIdList( Ik )( Ii ) = mIntersectionNodes( tMeshNodeIndex )->get_starting_pdv_id();
+                tSharedPdvIdList( Ik )( Ii ) = mNodeManager.get_derived_node_starting_pdv_id( tMeshNodeIndex );
             }
         }
 
@@ -1538,7 +1373,11 @@ namespace moris::ge
                 tMeshNodeIndex = mGenMeshMap( tListSharedPdvPos( Ij ) );
             }
 
-            mIntersectionNodes( tMeshNodeIndex )->set_starting_pdv_id( tListSharedPdvIds( Ij ) );
+            // Set starting PDV ID
+            if ( not mNodeManager.is_background_node( tMeshNodeIndex ) )
+            {
+                mNodeManager.set_derived_node_starting_pdv_id( tMeshNodeIndex, tListSharedPdvIds( Ij ) );
+            }
         }
     }
 
@@ -1550,8 +1389,8 @@ namespace moris::ge
         mOwnedPdvLocalToGlobalMap.set_size( mNumOwnedPdvs, 1, -1 );
         mOwnedAndSharedPdvLocalToGlobalMap.set_size( mNumOwnedAndSharedPdvs, 1, -1 );
 
-        uint tCounter  = 0;
-        uint tCounter2 = 0;
+        uint tOwnedNodeCounter = 0;
+        uint tOwnedAndSharedNodeCounter = 0;
 
         // Loop over all different pdv types for IP node pdvs
         for ( moris::uint Ij = 0; Ij < mPdvTypeList.size(); Ij++ )
@@ -1570,36 +1409,35 @@ namespace moris::ge
                         // Check if owning processor is this processor
                         if ( mIpPdvHosts( Ib )->get_pdv_owning_processor() == par_rank() )
                         {
-                            mOwnedPdvLocalToGlobalMap( tCounter++ ) = mIpPdvHosts( Ib )->get_pdv_id( tPdvType );
+                            mOwnedPdvLocalToGlobalMap( tOwnedNodeCounter++ ) = mIpPdvHosts( Ib )->get_pdv_id( tPdvType );
                         }
-                        mOwnedAndSharedPdvLocalToGlobalMap( tCounter2++ ) = mIpPdvHosts( Ib )->get_pdv_id( tPdvType );
+                        mOwnedAndSharedPdvLocalToGlobalMap( tOwnedAndSharedNodeCounter++ ) = mIpPdvHosts( Ib )->get_pdv_id( tPdvType );
                     }
                 }
             }
         }
 
         // Loop over intersection node pdvs
-        for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
-        // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
+        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
         {
-            uint tMeshNodeIndex = Ij;
+            uint tMeshNodeIndex = iNodeIndex;
             if ( mGenMeshMapIsInitialized )
             {
-                tMeshNodeIndex = mGenMeshMap( Ij );
+                tMeshNodeIndex = mGenMeshMap( iNodeIndex );
             }
 
-            if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
+            if ( mNodeManager.node_depends_on_advs( tMeshNodeIndex ) )
             {
-                uint tNumPdvsOnIntersectionNode = mIntersectionNodes( tMeshNodeIndex )->get_num_pdvs();
+                uint tNumPdvsOnIntersectionNode = mNodeManager.get_number_of_derived_node_pdvs( tMeshNodeIndex );
 
-                for ( moris::uint Ik = 0; Ik < tNumPdvsOnIntersectionNode; Ik++ )
+                for ( uint iCoordinateIndex = 0; iCoordinateIndex < tNumPdvsOnIntersectionNode; iCoordinateIndex++ )
                 {
-                    if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() == par_rank() )
+                    if ( mNodeManager.get_derived_node_owner( tMeshNodeIndex ) == par_rank() )
                     {
-                        mOwnedPdvLocalToGlobalMap( tCounter++ ) = mIntersectionNodes( tMeshNodeIndex )->get_starting_pdv_id() + Ik;
+                        mOwnedPdvLocalToGlobalMap( tOwnedNodeCounter++ ) = mNodeManager.get_derived_node_starting_pdv_id( tMeshNodeIndex ) + iCoordinateIndex;
                     }
 
-                    mOwnedAndSharedPdvLocalToGlobalMap( tCounter2++ ) = mIntersectionNodes( tMeshNodeIndex )->get_starting_pdv_id() + Ik;
+                    mOwnedAndSharedPdvLocalToGlobalMap( tOwnedAndSharedNodeCounter++ ) = mNodeManager.get_derived_node_starting_pdv_id( tMeshNodeIndex ) + iCoordinateIndex;
                 }
             }
         }
@@ -1656,23 +1494,22 @@ namespace moris::ge
 
         for ( uint iIQI = 0; iIQI < (uint)tNumIQIs; iIQI++ )
         {
-            MORIS_ASSERT( mIntersectionNodes.size() == adQIdp( iIQI )->n_rows(), "Dimension mismatch, rows nodes" );
-
             // iterate through intersection vertices
-            for ( uint iNodes = 0; iNodes < mIntersectionNodes.size(); iNodes++ )
+            for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
             {
-                if ( mIntersectionNodes( iNodes ) != nullptr )
+                if ( mNodeManager.node_depends_on_advs( iNodeIndex ) )
                 {
-                    moris_id tStartingPDVId = mIntersectionNodes( iNodes )->get_starting_pdv_id();
+                    // Get number of PDVs and starting ID
+                    moris_id tStartingPDVId = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
+                    uint tNumberOfPDVs = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
 
-                    moris::Matrix< DDSMat > tPDVIds( 1, mIntersectionNodes( iNodes )->get_num_pdvs() );
-
-                    for ( moris::uint iPdv = 0; iPdv < mIntersectionNodes( iNodes )->get_num_pdvs(); iPdv++ )
+                    moris::Matrix< DDSMat > tPDVIds( 1, tNumberOfPDVs );
+                    for ( moris::uint iPdv = 0; iPdv < tNumberOfPDVs; iPdv++ )
                     {
                         tPDVIds( iPdv ) = tStartingPDVId + iPdv;
                     }
 
-                    Matrix< DDRMat > tIndividualSensitivity = adQIdp( iIQI )->get_row( iNodes );
+                    Matrix< DDRMat > tIndividualSensitivity = adQIdp( iIQI )->get_row( iNodeIndex );
 
                     tdQIDp->sum_into_global_values( tPDVIds, tIndividualSensitivity, iIQI );
                 }

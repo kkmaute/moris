@@ -79,7 +79,7 @@ namespace moris::ge
             tGeometryEngineParameters.mADVs = tADVs;
             Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVs );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
-            Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
+            Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // TODO ensure this writes the mesh/fields correctly instead of just relying on no errors being thrown
             tGeometryEngine.output_fields_on_mesh( tMesh, "intersection_test.exo" );
@@ -302,7 +302,7 @@ namespace moris::ge
 
             // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
             Cell< Matrix< DDRMat > > tPdvValues( 0 );
-            Cell< Matrix< DDSMat > > tIsActive( 0 );
+            Cell< Cell< bool > > tIsActive( 0 );
             tPDVHostManager->get_ig_pdv_value(
                     { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 } },
                     { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE },
@@ -374,18 +374,19 @@ namespace moris::ge
 
             Matrix< DDRMat > tHostADVSensitivities;
             Matrix< DDRMat > tI;
-            for ( uint tNodeIndex = 9; tNodeIndex < 23; tNodeIndex++ )
+            Node_Manager& tNodeManager = tGeometryEngine.get_node_manager();
+            for ( uint iNodeIndex = 9; iNodeIndex < 23; iNodeIndex++ )
             {
                 tHostADVSensitivities.set_size( 0.0, 0.0 );
                 eye( 2, 2, tI );
-                tPDVHostManager->get_intersection_node( tNodeIndex )->append_dcoordinate_dadv( tHostADVSensitivities, tI );
+                tNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
                 CHECK_EQUAL(
                         tHostADVSensitivities,
-                        tIntersectionSensitivities( tNodeIndex - 9 ),
+                        tIntersectionSensitivities( iNodeIndex - 9 ),
                         1E8, );
                 CHECK_EQUAL(
-                        tPDVHostManager->get_intersection_node( tNodeIndex )->get_coordinate_determining_adv_ids(),
-                        tIntersectionIDs( tNodeIndex - 9 ), );
+                        tNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex ),
+                        tIntersectionIDs( iNodeIndex - 9 ), );
             }
 
             //------------------------------------------------------------------------------------------------------
@@ -557,7 +558,7 @@ namespace moris::ge
             Geometry_Engine_Parameters tGeometryEngineParameters;
             Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
-            Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
+            Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // Solution for is_intersected() per geometry and per element
             Cell< bool > tIsElementIntersected = { true, true, true, true };
@@ -586,9 +587,6 @@ namespace moris::ge
                 { { 0.5, 0.0 } },
                 { { 0.0, 0.5 + ( tFrac / 2.0 ) } }
             };
-
-            // Get the PDV host manager
-            auto tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
 
             // Initialize sensitivity variables
             real tEpsilon = 1E-12;
@@ -639,10 +637,13 @@ namespace moris::ge
                         // Admit intersection
                         tGeometryEngine.admit_queued_intersection();
 
+                        // Get node manager
+                        Node_Manager& tNodeManager = tGeometryEngine.get_node_manager();
+
                         // Check sensitivities
                         tHostADVSensitivities.set_size( 0.0, 0.0 );
-                        tPDVHostManager->get_intersection_node( 9 + tIntersectionCount )->append_dcoordinate_dadv( tHostADVSensitivities, tI );
-                        Matrix< DDSMat > tADVIDs = tPDVHostManager->get_intersection_node( 9 + tIntersectionCount )->get_coordinate_determining_adv_ids();
+                        tNodeManager.append_dcoordinate_dadv_from_derived_node( 9 + tIntersectionCount, tHostADVSensitivities, tI );
+                        Matrix< DDSMat > tADVIDs = tNodeManager.get_coordinate_determining_adv_ids_from_derived_node( 9 + tIntersectionCount );
 
                         // Finite difference sensitivities by queueing dummy nodes
                         Matrix< DDRMat > tFDSensitivities( tHostADVSensitivities.n_rows(), tHostADVSensitivities.n_cols(), 0.0 );

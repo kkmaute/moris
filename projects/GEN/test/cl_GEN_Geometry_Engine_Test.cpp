@@ -26,6 +26,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Node_Manager& Geometry_Engine_Test::get_node_manager()
+        {
+            return mNodeManager;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         std::shared_ptr< Geometry > Geometry_Engine_Test::get_geometry(uint aGeometryIndex)
         {
             return mGeometries(aGeometryIndex);

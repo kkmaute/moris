@@ -50,6 +50,14 @@ namespace moris::ge
         virtual const Matrix< DDRMat >& get_global_coordinates() const = 0;
 
         /**
+         * Get the value of a coordinate of this node
+         *
+         * @param aCoordinateIndex index of the coordinate, obtained from casting the related PDV coordinate type
+         * @return Coordinate value
+         */
+        virtual real get_coordinate_value( uint aCoordinateIndex ) const = 0;
+
+        /**
          * Gets the locator nodes of this node.
          * Locator nodes are the most derived basis nodes that can determine the location of this node.
          *

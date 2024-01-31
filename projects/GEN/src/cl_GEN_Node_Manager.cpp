@@ -19,7 +19,7 @@ namespace moris::ge
 
     Node_Manager::Node_Manager( mtk::Mesh* aMesh )
     {
-        this->reset_base_nodes( aMesh );
+        this->reset_background_nodes( aMesh );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Node_Manager::reset_base_nodes( mtk::Mesh* aMesh )
+    void Node_Manager::reset_background_nodes( mtk::Mesh* aMesh )
     {
         // Delete all old nodes
         this->delete_all_nodes();
@@ -54,6 +54,13 @@ namespace moris::ge
                 mBackgroundNodes.emplace_back( iNodeIndex, aMesh->get_node_coordinate( iNodeIndex ) );
             }
         }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint Node_Manager::get_number_of_background_nodes()
+    {
+        return mBackgroundNodes.size();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -128,10 +135,103 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Node_Manager::update_derived_node(
+            uint        aNodeIndex,
+            moris_id    aNodeID,
+            moris_index aNodeOwner )
+    {
+        // Get derived node
+        Derived_Node& tDerivedNode = this->get_derived_node( aNodeIndex );
+
+        // Update node information
+        tDerivedNode.set_id( aNodeID );
+        tDerivedNode.set_owner( aNodeOwner );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Node_Manager::get_node_coordinate_value(
+            uint aNodeIndex,
+            uint aCoordinateIndex )
+    {
+        return this->get_node( aNodeIndex ).get_coordinate_value( aCoordinateIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Node_Manager::node_depends_on_advs( uint aNodeIndex )
+    {
+        return this->get_node( aNodeIndex ).depends_on_advs();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint Node_Manager::get_number_of_derived_node_pdvs( uint aNodeIndex )
+    {
+        return this->get_derived_node( aNodeIndex ).get_num_pdvs();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Node_Manager::set_derived_node_starting_pdv_id( uint aNodeIndex, moris_id aStartingPDVID )
+    {
+        this->get_derived_node( aNodeIndex ).set_starting_pdv_id( aStartingPDVID );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris_id Node_Manager::get_derived_node_starting_pdv_id( uint aNodeIndex )
+    {
+        return this->get_derived_node( aNodeIndex ).get_starting_pdv_id();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris_id Node_Manager::get_derived_node_id( uint aNodeIndex )
+    {
+        return this->get_derived_node( aNodeIndex ).get_id();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris_index Node_Manager::get_derived_node_owner( uint aNodeIndex )
+    {
+        return this->get_derived_node( aNodeIndex ).get_owner();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Node_Manager::append_dcoordinate_dadv_from_derived_node(
+            uint                    aNodeIndex,
+            Matrix< DDRMat >&       aCoordinateSensitivities,
+            const Matrix< DDRMat >& aSensitivityFactor )
+    {
+        this->get_derived_node( aNodeIndex ).append_dcoordinate_dadv( aCoordinateSensitivities, aSensitivityFactor );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat > Node_Manager::get_coordinate_determining_adv_ids_from_derived_node( uint aNodeIndex )
+    {
+        return this->get_derived_node( aNodeIndex ).get_coordinate_determining_adv_ids();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Node_Manager& Node_Manager::get_trivial_instance()
     {
         static Node_Manager tManager( nullptr );
         return tManager;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Derived_Node& Node_Manager::get_derived_node( uint aDerivedNodeIndex )
+    {
+        MORIS_ASSERT( aDerivedNodeIndex >= mBackgroundNodes.size(),
+                "A derived node was requested from the GEN node manager, but the index provided (%d) corresponds to a background node.",
+                aDerivedNodeIndex );
+        return *mDerivedNodes( aDerivedNodeIndex - mBackgroundNodes.size() );
     }
 
     //--------------------------------------------------------------------------------------------------------------

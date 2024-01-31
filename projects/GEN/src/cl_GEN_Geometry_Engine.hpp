@@ -50,6 +50,8 @@ namespace moris
             
           protected:
 
+            // Protected for access in test version
+            Node_Manager                        mNodeManager;
             Cell< std::shared_ptr< Geometry > > mGeometries;
             Cell< std::shared_ptr< Property > > mProperties;
             
@@ -85,7 +87,6 @@ namespace moris
 
             // PDVs
             Pdv_Host_Manager                     mPDVHostManager;
-            Node_Manager                         mNodeManager;
             Intersection_Node* mQueuedIntersectionNode = nullptr;
 
             // diagnostic information
@@ -293,10 +294,10 @@ namespace moris
              * @param aNodeId Node ID
              * @param aNodeOwner Node owner
              */
-            void update_queued_intersection(
-                    const moris_index& aNodeIndex,
-                    const moris_index& aNodeId,
-                    const moris_index& aNodeOwner );
+            void update_intersection_node(
+                    uint        aNodeIndex,
+                    moris_id    aNodeId,
+                    moris_index aNodeOwner );
             
             /**
              * Creates and registers new derived nodes based on the given information.

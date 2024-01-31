@@ -223,9 +223,9 @@ namespace moris
 
             void
             get_ig_pdv_value( const moris::Matrix< IndexMat >& aNodeIndices,
-                    const Cell< enum ge::PDV_Type >&               aDvTypes,
-                    Cell< moris::Matrix< DDRMat > >&           aDvValues,
-                    Cell< moris::Matrix< DDSMat > >&           aIsActiveDv )
+                    const Cell< enum ge::PDV_Type >& aDvTypes,
+                    Cell< moris::Matrix< DDRMat > >& aDvValues,
+                    Cell< Cell< bool > >&            aIsActiveDv )
             {
                 MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_pdv_value() - not implemented in the child class" );
             }

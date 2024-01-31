@@ -31,6 +31,12 @@ namespace moris::ge
         return mCoordinates;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Background_Node::get_coordinate_value( uint aCoordinateIndex ) const
+    {
+        return mCoordinates( aCoordinateIndex );
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 

@@ -127,42 +127,14 @@ namespace moris
             {
                 aDvTypes = {{ ge::PDV_Type::X_COORDINATE, ge::PDV_Type::Y_COORDINATE }};
             };
-            //------------------------------------------------------------------------------
-
-            void get_ip_pdv_value( const moris::Matrix< IndexMat >      & aNodeIndices,
-                    const Cell< enum ge::PDV_Type >            & aDvTypes,
-                    Cell<moris::Matrix< DDRMat > > & aDvValues,
-                    Cell<moris::Matrix< DDSMat > > & aIsActiveDv )
-            {
-                aIsActiveDv.resize( aDvTypes.size() );
-
-                for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
-                {
-                    aIsActiveDv(Ik).set_size( aNodeIndices.numel(), 1, MORIS_SINT_MAX );
-
-                    sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
-
-                    for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
-                    {
-                        // get node index
-                        uint tNodeIndex = aNodeIndices( Ii );
-
-                        if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
-                        {
-                            aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
-                        }
-                        aIsActiveDv( Ik )( Ii ) = mIsActiveDv( tNodeIndex, tIndex );
-                    }
-                }
-            }
 
             //------------------------------------------------------------------------------
 
             void get_ig_pdv_value(
-                    const moris::Matrix< IndexMat >  & aNodeIndices,
-                    const Cell< enum ge::PDV_Type >      & aDvTypes,
-                    Cell<moris::Matrix< DDRMat > >   & aDvValues,
-                    Cell<moris::Matrix< DDSMat > >   & aIsActiveDv )
+                    const moris::Matrix< IndexMat >& aNodeIndices,
+                    const Cell< enum ge::PDV_Type >& aDvTypes,
+                    Cell<moris::Matrix< DDRMat > >&  aDvValues,
+                    Cell< Cell< bool > >&            aIsActiveDv )
             {
                 // Get the number of node indices requested
                 uint tNumIndices = aNodeIndices.length();
@@ -178,7 +150,7 @@ namespace moris
                 {
                     // Matrix size
                     aDvValues(Ik).set_size(tNumIndices, 1, MORIS_REAL_MAX);
-                    aIsActiveDv(Ik).set_size(tNumIndices, 1, MORIS_SINT_MAX);
+                    aIsActiveDv(Ik).resize(tNumIndices, true);
 
                     sint tIndex = mDvToIndexMap.find( aDvTypes (Ik) );
 
@@ -216,41 +188,6 @@ namespace moris
                 for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
                 {
                     // Set matrix size
-                    aDvValues(Ik).set_size( tNumIndices, 1, MORIS_REAL_MAX );
-
-                    sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));
-
-                    for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
-                    {
-                        // get node index
-                        uint tNodeIndex = aNodeIndices( Ii );
-
-                        if( mIsActiveDv( tNodeIndex, tIndex ) == 1 )
-                        {
-                            aDvValues( Ik )( Ii ) = mDvValues( tNodeIndex, tIndex );
-                        }
-                    }
-                }
-            }
-
-            //------------------------------------------------------------------------------
-
-            void get_ig_pdv_value(
-                    const moris::Matrix< IndexMat > & aNodeIndices,
-                    const Cell< enum ge::PDV_Type >     & aDvTypes,
-                    Cell<moris::Matrix< DDRMat > >  & aDvValues )
-            {
-                // Get the number of node indices requested
-                uint tNumIndices = aNodeIndices.length();
-
-                // Get the number of dv types requested
-                uint tNumTypes = aDvTypes.size();
-
-                // Set cell size
-                aDvValues.resize(tNumTypes);
-
-                for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
-                {
                     aDvValues(Ik).set_size( tNumIndices, 1, MORIS_REAL_MAX );
 
                     sint tIndex = mDvToIndexMap.find( aDvTypes (Ik));

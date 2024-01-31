@@ -24,9 +24,7 @@ namespace moris::ge
       private:
         Cell< Basis_Node > mParentNodes;
         moris_id mPDVStartingID;
-        bool     mPDVStartingIDSet = false;
-
-        moris_id    mNodeID    = -1;
+        moris_id mNodeID    = -1;
         moris_index mNodeOwner = -1;
 
       public:
@@ -103,61 +101,53 @@ namespace moris::ge
         real get_local_coordinate() const;
 
         /**
-         * Get the value of a coordinate of this node
-         *
-         * @param aCoordinateIndex index of the coordinate, obtained from casting the related PDV coordinate type
-         * @return Coordinate value
-         */
-        real get_coordinate_value( uint aCoordinateIndex );
-
-        /**
          * Gets the number of PDVs on this intersection node.
          *
          * @return Number of PDVs
          */
-        uint get_num_pdvs();
+        uint get_num_pdvs() override;
 
         /**
          * Sets the starting index to be able to use the intersection coordinates of this node as PDVs
          *
          * @param aPDVStartingID The global index of the first PDV on the host
          */
-        void set_starting_pdv_id( moris_id aPDVStartingID );
+        void set_starting_pdv_id( moris_id aPDVStartingID ) override;
 
         /**
          * Get the starting global index for the intersection coordinate PDVs
          *
          * @return The global index of the first PDV on the host
          */
-        moris_id get_starting_pdv_id();
+        moris_id get_starting_pdv_id() override;
 
         /**
          * Set the node ID for this node.
          *
          * @param aNodeID Node ID
          */
-        void set_id( moris_id aNodeID );
+        void set_id( moris_id aNodeID ) override;
 
         /**
          * Set the owning processor for this node.
          *
          * @param aNodeOwner Owning processor
          */
-        void set_owner( moris_index aNodeOwner );
+        void set_owner( moris_index aNodeOwner ) override;
 
         /**
          * Get the ID for this node.
          *
          * @return Node ID
          */
-        moris_id get_id();
+        moris_id get_id() override;
 
         /**
          * Get the owning processor for this node.
          *
          * @return Owning processor
          */
-        moris_index get_owner();
+        moris_index get_owner() override;
 
       protected:
 

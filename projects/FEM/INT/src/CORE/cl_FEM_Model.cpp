@@ -280,7 +280,7 @@ namespace moris
                     // get the pdv values from the MSI/GEN interface
                     Matrix< IndexMat >              tVertexIndices( 1, 1, tVertexIndex );
                     moris::Cell< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
-                    moris::Cell< Matrix< DDSMat > > tIsActiveDv;
+                    Cell< Cell< bool > > tIsActiveDv;
 
                     this->get_design_variable_interface()->get_ig_pdv_value(
                             tVertexIndices,
@@ -3702,8 +3702,8 @@ namespace moris
 
         void
         FEM_Model::set_vertex_xyz_active_flags(
-                moris_index                      aVertexIndex,
-                moris::Cell< Matrix< DDSMat > > &aIsActiveDv )
+                moris_index                 aVertexIndex,
+                const Cell< Cell< bool > >& aIsActiveDv )
         {
             // get num of pdv
             uint tNumXYZPdv = aIsActiveDv.size();

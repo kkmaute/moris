@@ -81,7 +81,8 @@ namespace moris::ge
         else
         {
             // Get derived node
-            const Derived_Node& tDerivedNode = mNodeManager->get_derived_node( aNodeIndex );
+            const Node_Manager& tNodeManager = *mNodeManager;
+            const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
 
             // If derived node knows it is on this interface, can return interface
             if ( tDerivedNode.is_on_interface( *this ) )

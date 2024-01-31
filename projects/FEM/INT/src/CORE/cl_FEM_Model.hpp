@@ -731,8 +731,9 @@ namespace moris
              * @param[ in ] aVeretxIndex
              * @param[ out ] aIsActiveDv
              */
-            void set_vertex_xyz_active_flags( moris_index aVeretxIndex,
-                    moris::Cell< Matrix< DDSMat > >      &aIsActiveDv );
+            void set_vertex_xyz_active_flags(
+                    moris_index                 aVertexIndex,
+                    const moris::Cell< moris::Cell< bool > >& aIsActiveDv );
 
             //------------------------------------------------------------------------------
             /**

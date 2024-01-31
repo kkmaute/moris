@@ -129,7 +129,7 @@ Node_Hierarchy_Interface::perform(
             moris_id    tNodeId    = aDecompositionData->tNewNodeId( Ik );
             moris_index tNodeOwner = aDecompositionData->tNewNodeOwner( Ik );
 
-            mGeometryEngine->update_queued_intersection( tNodeIndex, tNodeId, tNodeOwner );
+            mGeometryEngine->update_intersection_node( tNodeIndex, tNodeId, tNodeOwner );
         }
 
         // commit vertices to the mesh

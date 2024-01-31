@@ -16,7 +16,6 @@
 #include "GEN_Data_Types.hpp"
 #include "cl_GEN_Design_Factory.hpp"
 #include "cl_GEN_Background_Node.hpp"
-#include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
 // MTK
@@ -44,8 +43,9 @@ namespace moris
                 Cell< Cell< ParameterList > > aParameterLists,
                 std::shared_ptr< Library_IO > aLibrary,
                 mtk::Mesh*                    aMesh )
-                : mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
-                , mNodeManager( aMesh )
+                : mNodeManager( aMesh )
+                , mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
+                , mPDVHostManager( mNodeManager )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
@@ -123,12 +123,13 @@ namespace moris
         Geometry_Engine::Geometry_Engine(
                 mtk::Interpolation_Mesh*   aMesh,
                 Geometry_Engine_Parameters aParameters )
-                : mGeometries( aParameters.mGeometries )
+                : mNodeManager( aMesh )
+                , mGeometries( aParameters.mGeometries )
                 , mProperties( aParameters.mProperties )
                 , mPhaseTable( create_phase_table( aParameters.mGeometries.size(), aParameters.mBulkPhases ) )
                 , mInitialPrimitiveADVs( aParameters.mADVs )
                 , mTimeOffset( aParameters.mTimeOffset )
-                , mNodeManager( aMesh )
+                , mPDVHostManager( mNodeManager )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
@@ -401,16 +402,6 @@ namespace moris
 
         void Geometry_Engine::admit_queued_intersection()
         {
-            // Assign as PDV host if constructed on adv dependent geometry or parent nodes are adv dependent
-            if ( mQueuedIntersectionNode->depends_on_advs() )
-            {
-                mPDVHostManager.set_intersection_node( mQueuedIntersectionNode );
-            }
-            else
-            {
-                mPDVHostManager.set_intersection_node( nullptr );
-            }
-
             // Add new derived node to the node manager
             mNodeManager.add_derived_node( mQueuedIntersectionNode );
 
@@ -421,12 +412,12 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Geometry_Engine::update_queued_intersection(
-                const moris_index& aNodeIndex,
-                const moris_index& aNodeId,
-                const moris_index& aNodeOwner )
+        Geometry_Engine::update_intersection_node(
+                uint        aNodeIndex,
+                moris_id    aNodeId,
+                moris_index aNodeOwner )
         {
-            mPDVHostManager.update_intersection_node( aNodeIndex, aNodeId, aNodeOwner );
+            mNodeManager.update_derived_node( aNodeIndex, aNodeId, aNodeOwner );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -492,12 +483,6 @@ namespace moris
                         aParametricCoordinates( iNode ),
                         aBackgroundGeometryType,
                         aBackgroundInterpolationOrder );
-            }
-
-            // Set max node index
-            if ( aNewNodeIndices.size() > 0 )
-            {
-                mPDVHostManager.set_num_background_nodes( aNewNodeIndices( aNewNodeIndices.size() - 1 ) + 1 );
             }
         }
 
@@ -1356,11 +1341,10 @@ namespace moris
             mNumSpatialDimensions = aMesh->get_spatial_dim();
 
             // Set GEN nodes
-            mNodeManager.reset_base_nodes( aMesh );
+            mNodeManager.reset_background_nodes( aMesh );
 
             // Reset PDV host manager
             mPDVHostManager.reset();
-            mPDVHostManager.set_num_background_nodes( aMesh->get_num_nodes() );
 
             // Reset info related to the mesh
             mActiveGeometryIndex = 0;

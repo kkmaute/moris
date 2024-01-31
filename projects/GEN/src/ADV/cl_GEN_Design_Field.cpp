@@ -121,19 +121,24 @@ namespace moris::ge
         }
         else
         {
+            // Get derived node
+            const Node_Manager& tNodeManager = *mNodeManager;
+            const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
+            
+            // Determine how to perform interpolation
             if ( mParameters.mUseMultilinearInterpolation )
             {
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 return mField->get_interpolated_field_value(
-                        mNodeManager->get_derived_node( aNodeIndex ).get_background_nodes(),
-                        *mNodeManager );
+                        tDerivedNode.get_background_nodes(),
+                        tNodeManager );
             }
             else
             {
                 // Let field decide the value
                 return mField->get_field_value(
-                        mNodeManager->get_derived_node( aNodeIndex ),
-                        *mNodeManager );
+                        tDerivedNode,
+                        tNodeManager );
             }
         }
     }
@@ -154,22 +159,26 @@ namespace moris::ge
             // Derived node, so we use interpolated vector
             mInterpolatedSensitivities.set_size( 0, 0 );
 
-            // Check for multilinear
+            // Get derived node
+            const Node_Manager& tNodeManager = *mNodeManager;
+            const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
+            
+            // Determine how to perform interpolation
             if ( mParameters.mUseMultilinearInterpolation )
             {
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 mField->append_interpolated_dfield_dadvs(
                         mInterpolatedSensitivities,
-                        mNodeManager->get_derived_node( aNodeIndex ).get_background_nodes(),
-                        *mNodeManager );
+                        tDerivedNode.get_background_nodes(),
+                        tNodeManager );
             }
             else
             {
                 // Let field decide the sensitivities
                 mField->get_dfield_dadvs(
                         mInterpolatedSensitivities,
-                        mNodeManager->get_derived_node( aNodeIndex ),
-                        *mNodeManager );
+                        tDerivedNode,
+                        tNodeManager );
             }
 
             // Return result
@@ -193,22 +202,26 @@ namespace moris::ge
             // Derived node, so we might need interpolation
             mInterpolatedADVIDs.set_size( 0, 0 );
 
-            // Check for multilinear
+            // Get derived node
+            const Node_Manager& tNodeManager = *mNodeManager;
+            const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
+            
+            // Determine how to perform interpolation
             if ( mParameters.mUseMultilinearInterpolation )
             {
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 mField->append_interpolated_determining_adv_ids(
                         mInterpolatedADVIDs,
-                        mNodeManager->get_derived_node( aNodeIndex ).get_background_nodes(),
-                        *mNodeManager );
+                        tDerivedNode.get_background_nodes(),
+                        tNodeManager );
             }
             else
             {
                 // Let field provide the IDs
                 mField->get_determining_adv_ids(
                         mInterpolatedADVIDs,
-                        mNodeManager->get_derived_node( aNodeIndex ),
-                        *mNodeManager );
+                        tDerivedNode,
+                        tNodeManager );
             }
 
             // Return result
