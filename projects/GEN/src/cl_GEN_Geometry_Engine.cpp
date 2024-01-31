@@ -349,7 +349,7 @@ namespace moris
             delete mQueuedIntersectionNode;
 
             // Get background nodes
-            Cell< Node* > tBackgroundNodes( aBackgroundElementNodeIndices.length() );
+            Cell< Background_Node* > tBackgroundNodes( aBackgroundElementNodeIndices.length() );
             for ( uint iNode = 0; iNode < tBackgroundNodes.size(); iNode++ )
             {
                 tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( aBackgroundElementNodeIndices( iNode ) ) );
@@ -471,7 +471,7 @@ namespace moris
             for ( uint iNode = 0; iNode < aNewNodeIndices.size(); iNode++ )
             {
                 // Create basis nodes
-                Cell< Node* > tBackgroundNodes( tVertexIndices( iNode ).length() );
+                Cell< Background_Node* > tBackgroundNodes( tVertexIndices( iNode ).length() );
                 for ( uint iBaseNode = 0; iBaseNode < tVertexIndices( iNode ).length(); iBaseNode++ )
                 {
                     tBackgroundNodes( iBaseNode ) = &( mNodeManager.get_background_node( tVertexIndices( iNode )( iBaseNode ) ) );

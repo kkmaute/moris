@@ -76,7 +76,7 @@ namespace moris::ge
          */
         Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBackgroundNodes,
+                const Cell< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
@@ -91,7 +91,7 @@ namespace moris::ge
          * @return Parent edge local coordinate, between -1 and 1
          */
         virtual real compute_intersection_local_coordinate(
-                const Cell< Node* >& aBackgroundNodes,
+                const Cell< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&   aFirstParentNode,
                 const Parent_Node&   aSecondParentNode ) override;
 

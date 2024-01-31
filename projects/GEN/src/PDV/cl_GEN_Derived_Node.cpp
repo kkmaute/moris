@@ -9,6 +9,7 @@
  */
 
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "cl_MTK_Interpolation_Function.hpp"
@@ -21,7 +22,7 @@ namespace moris::ge
 
     Derived_Node::Derived_Node(
             uint                     aIndex,
-            const Cell< Node* >&     aBackgroundNodes,
+            const Cell< Background_Node* >& aBackgroundNodes,
             const Matrix< DDRMat >&  aParametricCoordinates,
             mtk::Geometry_Type       aGeometryType,
             mtk::Interpolation_Order aInterpolationOrder )

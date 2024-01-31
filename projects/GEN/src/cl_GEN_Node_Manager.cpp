@@ -101,7 +101,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void Node_Manager::create_derived_node(
-            const Cell< Node* >&     aBackgroundNodes,
+            const Cell< Background_Node* >& aBackgroundNodes,
             const Matrix< DDRMat >&  aParametricCoordinates,
             mtk::Geometry_Type       aGeometryType,
             mtk::Interpolation_Order aInterpolationOrder )

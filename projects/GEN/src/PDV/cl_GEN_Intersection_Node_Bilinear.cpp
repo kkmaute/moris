@@ -23,7 +23,7 @@ namespace moris::ge
 
     Intersection_Node_Bilinear::Intersection_Node_Bilinear(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBackgroundNodes,
+            const Cell< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,

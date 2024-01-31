@@ -117,7 +117,7 @@ namespace moris::ge
 
     Intersection_Node* Voxel_Geometry::create_intersection_node(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBackgroundNodes,
+            const Cell< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -136,7 +136,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
     
     real Voxel_Geometry::compute_intersection_local_coordinate(
-            const Cell< Node* >& aBackgroundNodes,
+            const Cell< Background_Node* >& aBackgroundNodes,
             const Parent_Node&   aFirstParentNode,
             const Parent_Node&   aSecondParentNode )
     {

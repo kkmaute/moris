@@ -21,6 +21,7 @@ namespace moris::mtk
 namespace moris::ge
 {
     // Forward declare basis node
+    class Background_Node;
     class Basis_Node;
     class Geometry;
 
@@ -44,7 +45,7 @@ namespace moris::ge
          */
         Derived_Node(
                 uint                     aIndex,
-                const Cell< Node* >&     aBackgroundNodes,
+                const Cell< Background_Node* >& aBackgroundNodes,
                 const Matrix< DDRMat >&  aParametricCoordinates,
                 mtk::Geometry_Type       aGeometryType,
                 mtk::Interpolation_Order aInterpolationOrder );

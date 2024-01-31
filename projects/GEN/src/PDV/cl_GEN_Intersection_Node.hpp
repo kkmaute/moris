@@ -16,6 +16,7 @@ namespace moris::ge
 {
     // Forward declare necessary classes
     class Geometry;
+    class Background_Node;
     class Basis_Node;
     class Parent_Node;
 
@@ -41,7 +42,7 @@ namespace moris::ge
          */
         Intersection_Node(
                 uint                        aNodeIndex,
-                const Cell< Node* >&        aBackgroundNodes,
+                const Cell< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&          aFirstParentNode,
                 const Parent_Node&          aSecondParentNode,
                 real                        aLocalCoordinate,

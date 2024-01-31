@@ -21,7 +21,7 @@ namespace moris::ge
 
     Intersection_Node::Intersection_Node(
             uint                        aNodeIndex,
-            const Cell< Node* >&        aBackgroundNodes,
+            const Cell< Background_Node* >& aBackgroundNodes,
             const Parent_Node&          aFirstParentNode,
             const Parent_Node&          aSecondParentNode,
             real                        aLocalCoordinate,

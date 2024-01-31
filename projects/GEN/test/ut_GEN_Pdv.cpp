@@ -395,7 +395,7 @@ namespace moris::ge
                 tTemporaryBackgroundNodes.push_back( tSecondNode );
 
                 // Assign as base nodes
-                Cell< Node* > tBackgroundNodes( { tFirstNode, tSecondNode } );
+                Cell< Background_Node* > tBackgroundNodes( { tFirstNode, tSecondNode } );
 
                 // Create intersection node
                 auto tIntersectionNode = new Intersection_Node_Linear(

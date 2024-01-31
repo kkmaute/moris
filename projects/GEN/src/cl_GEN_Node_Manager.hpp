@@ -97,7 +97,7 @@ namespace moris::ge
          * @param aInterpolationOrder Interpolation order of the background element
          */
         void create_derived_node(
-                const Cell< Node* >&     aBackgroundNodes,
+                const Cell< Background_Node* >& aBackgroundNodes,
                 const Matrix< DDRMat >&  aParametricCoordinates,
                 mtk::Geometry_Type       aGeometryType,
                 mtk::Interpolation_Order aInterpolationOrder );
