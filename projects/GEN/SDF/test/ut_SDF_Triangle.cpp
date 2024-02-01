@@ -23,7 +23,7 @@ using namespace moris;
 using namespace sdf;
 
 TEST_CASE(
-        "ge::sdf::Triangle",
+        "gen::sdf::Triangle",
         "[geomeng],[sdf],[Triangle]" )
 {
     // example coordinartes for the triangle

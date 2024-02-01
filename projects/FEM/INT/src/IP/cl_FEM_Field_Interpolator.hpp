@@ -76,7 +76,7 @@ namespace moris
             moris::Cell< MSI::Dof_Type > mDofType;
 
             // dv type
-            moris::Cell< ge::PDV_Type > mDvType;
+            moris::Cell< gen::PDV_Type > mDvType;
 
             // field type
             moris::Cell< mtk::Field_Type > mFieldType;
@@ -159,7 +159,7 @@ namespace moris
                     const uint&                    aNumberOfFields,
                     const mtk::Interpolation_Rule& aFieldInterpolationRule,
                     Geometry_Interpolator*         aGeometryInterpolator,
-                    const moris::Cell< ge::PDV_Type >  aDvType );
+                    const moris::Cell< gen::PDV_Type >  aDvType );
 
             /**
              * constructor
@@ -191,7 +191,7 @@ namespace moris
              */
             Field_Interpolator(
                     const uint&                   aNumberOfFields,
-                    const moris::Cell< ge::PDV_Type > aDvType )
+                    const moris::Cell< gen::PDV_Type > aDvType )
                     : mNumberOfFields( aNumberOfFields )
                     , mDvType( aDvType )
             {
@@ -244,7 +244,7 @@ namespace moris
             /**
              * get dof type
              */
-            const moris::Cell< ge::PDV_Type >&
+            const moris::Cell< gen::PDV_Type >&
             get_dv_type() const
             {
                 return mDvType;

@@ -13,7 +13,7 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
@@ -180,4 +180,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+}    // namespace moris::gen

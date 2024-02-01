@@ -254,7 +254,7 @@ namespace xtk
 
       private:
         Model*                      mXTKModel       = nullptr;
-        moris::ge::Geometry_Engine* mGeometryEngine = nullptr;
+        moris::gen::Geometry_Engine* mGeometryEngine = nullptr;
         moris::Cell< enum Subdivision_Method > mSubdivisionMethods;
 
         bool mOutputCutIgMesh = false;
@@ -281,7 +281,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::ge::Geometry_Engine*
+        moris::gen::Geometry_Engine*
         get_geom_engine();
 
         // ----------------------------------------------------------------------------------

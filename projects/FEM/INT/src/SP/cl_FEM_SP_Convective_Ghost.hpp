@@ -93,7 +93,7 @@ namespace moris
                  * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dv_type_list(
-                        moris::Cell< moris::Cell< ge::PDV_Type > > & aDvTypes,
+                        moris::Cell< moris::Cell< gen::PDV_Type > > & aDvTypes,
                         moris::Cell< std::string >             & aDvStrings,
                         mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
                 {
@@ -128,7 +128,7 @@ namespace moris
                  * evaluate the penalty parameter derivative wrt to a leader dv type
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
                  */
-                void eval_dSPdLeaderDV( const moris::Cell< ge::PDV_Type > & aDvTypes )
+                void eval_dSPdLeaderDV( const moris::Cell< gen::PDV_Type > & aDvTypes )
                 {
                     MORIS_ERROR( false, "SP_Convective_Ghost::eval_dSPdLeaderDV - not implemented." );
                 }

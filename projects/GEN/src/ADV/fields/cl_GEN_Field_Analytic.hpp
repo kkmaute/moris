@@ -13,7 +13,7 @@
 #include "cl_GEN_Field.hpp"
 #include "cl_MTK_Mapper.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Class for fields that are specified by an analytic function.

@@ -247,7 +247,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -529,7 +529,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -811,7 +811,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

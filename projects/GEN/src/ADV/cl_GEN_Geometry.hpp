@@ -30,7 +30,7 @@ namespace moris
     }    // namespace mtk
 }    // namespace moris
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare intersection node classes
     class Intersection_Node;
@@ -168,4 +168,4 @@ namespace moris::ge
                 const Matrix< DDSMat >&       aSharedADVIds,
                 uint                          aADVOffsetID ) = 0;
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

@@ -13,7 +13,7 @@
 #include "cl_GEN_Field_Discrete_Interpolation.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Scaled_Field : public Field
     {

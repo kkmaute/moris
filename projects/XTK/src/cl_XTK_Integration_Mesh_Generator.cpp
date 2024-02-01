@@ -296,7 +296,7 @@ namespace xtk
         return tCutIntegrationMesh;
     }
 
-    moris::ge::Geometry_Engine*
+    moris::gen::Geometry_Engine*
     Integration_Mesh_Generator::get_geom_engine()
     {
         return mGeometryEngine;

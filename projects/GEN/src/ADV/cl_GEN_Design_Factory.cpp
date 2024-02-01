@@ -16,7 +16,7 @@
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Voxel_Geometry.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
@@ -237,4 +237,4 @@ namespace moris::ge
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}    // namespace moris::ge
+}    // namespace moris::gen

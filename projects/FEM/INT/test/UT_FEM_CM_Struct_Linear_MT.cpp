@@ -289,7 +289,7 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
             tLeaderFIs( 1 )->set_coeff( tUHat0 );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

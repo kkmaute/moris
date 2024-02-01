@@ -15,7 +15,7 @@
 #include "fn_eye.hpp"
 #include "fn_norm.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     Intersection_Node_Level_Set::Intersection_Node_Level_Set(
             uint                     aNodeIndex,

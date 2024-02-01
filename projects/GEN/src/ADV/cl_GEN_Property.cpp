@@ -11,7 +11,7 @@
 #include "cl_GEN_Property.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -155,4 +155,4 @@ namespace moris::ge
     {
         return mParameters.mDiscretizationUpperBound;
     }
-}    // namespace moris::ge
+}    // namespace moris::gen

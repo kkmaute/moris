@@ -866,7 +866,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dFluxdDV(
-                const moris::Cell< ge::PDV_Type >& aDvTypes )
+                const moris::Cell< gen::PDV_Type >& aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dFluxdDV - This function is not implemented." );
         }
@@ -875,7 +875,7 @@ namespace moris
 
         void
         CM_Diffusion_Linear_Isotropic::eval_dStraindDV(
-                const moris::Cell< ge::PDV_Type >& aDvTypes )
+                const moris::Cell< gen::PDV_Type >& aDvTypes )
         {
             MORIS_ASSERT( false, " CM_Diffusion_Linear_Isotropic::eval_dStraindDV - This function is not implemented." );
         }

@@ -1605,7 +1605,7 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Cleanup::make_GenMeshMap( moris::ge::Geometry_Engine* aGeometryEngine )
+    Integration_Mesh_Cleanup::make_GenMeshMap( moris::gen::Geometry_Engine* aGeometryEngine )
     {
         moris::Cell< moris_index > GenMeshMap;
         GenMeshMap.reserve( mNumVerts );
@@ -1667,7 +1667,7 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Cleanup::perform( moris::Cell< moris::mtk::Cell* >& aActiveIgCells, moris::ge::Geometry_Engine* aGeometryEngine )
+    Integration_Mesh_Cleanup::perform( moris::Cell< moris::mtk::Cell* >& aActiveIgCells, moris::gen::Geometry_Engine* aGeometryEngine )
     {
 
         // mFlats = this->check_flats(); //checks for degenerate cells

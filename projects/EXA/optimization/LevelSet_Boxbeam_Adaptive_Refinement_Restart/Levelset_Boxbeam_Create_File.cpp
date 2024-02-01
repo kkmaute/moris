@@ -182,7 +182,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // return absolute value of level set function
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val();
     }
 
     // Level set function defining property in FEM
@@ -193,7 +193,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
@@ -216,7 +216,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
@@ -225,7 +225,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->N();
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->N();
     }
 
     /* ------------------------------------------------------------------------ */
@@ -238,7 +238,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return spatial derivative of absolute value of level set function
         real factor = 1.0;
@@ -247,7 +247,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->gradx( 1 );
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->gradx( 1 );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -260,7 +260,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of spatial derivative of absolute value of level set function
         real factor = 1.0;
@@ -269,7 +269,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->dnNdxn( 1 );
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->dnNdxn( 1 );
     }
 
     //------------------------------------------------------------------------------

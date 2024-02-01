@@ -14,7 +14,7 @@
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_Matrix.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Parent_Node
     {

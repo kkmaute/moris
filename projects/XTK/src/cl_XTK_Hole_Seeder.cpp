@@ -148,7 +148,7 @@ Hole_Seeder::seed_field()
     mSpheres.resize(tNumSpheres);
     for(moris::uint i = 0; i <tNumSpheres; i++)
     {
-        mSpheres(i) = std::make_shared<moris::ge::Superellipsoid>(tCenters(i)(0),tCenters(i)(1),tCenters(i)(2),mRadiusX,mRadiusY,mRadiusZ,mNexp);
+        mSpheres(i) = std::make_shared<moris::gen::Superellipsoid>(tCenters(i)(0),tCenters(i)(1),tCenters(i)(2),mRadiusX,mRadiusY,mRadiusZ,mNexp);
     }
 
     // iterate through node to compute a level set value at each node
@@ -190,7 +190,7 @@ Hole_Seeder::get_seeded_field()
     return mSeededField;
 }
 
-moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> &
+moris::Cell<std::shared_ptr<moris::gen::Superellipsoid>> &
 Hole_Seeder::get_seeded_geometies()
 {
     return mSpheres;

@@ -19,7 +19,7 @@
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "fn_dot.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -616,4 +616,4 @@ namespace moris::ge
         return mParameters.mDiscretizationUpperBound;
     }
 
-}    // namespace moris::ge
+}    // namespace moris::gen

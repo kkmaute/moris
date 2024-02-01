@@ -6439,17 +6439,17 @@ namespace Catch {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    ScopedMessage::ScopedMessage( MessageBuilder const& builder )
+    ScopedMessagen::ScopedMessage( MessageBuilder const& builder )
     : m_info( builder.m_info )
     {
         m_info.message = builder.m_stream.str();
         getResultCapture().pushScopedMessage( m_info );
     }
-    ScopedMessage::ScopedMessage( ScopedMessage const& other )
+    ScopedMessagen::ScopedMessage( ScopedMessage const& other )
     : m_info( other.m_info )
     {}
 
-    ScopedMessage::~ScopedMessage() {
+    ScopedMessagen::~ScopedMessage() {
         getResultCapture().popScopedMessage( m_info );
     }
 

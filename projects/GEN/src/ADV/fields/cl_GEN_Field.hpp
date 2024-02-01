@@ -39,7 +39,7 @@ namespace moris::mtk
     class Mesh;
 }
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare derived node
     class Derived_Node;

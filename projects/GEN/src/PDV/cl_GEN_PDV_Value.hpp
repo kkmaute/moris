@@ -12,7 +12,7 @@
 
 #include "cl_GEN_PDV.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class PDV_Value : public PDV
     {

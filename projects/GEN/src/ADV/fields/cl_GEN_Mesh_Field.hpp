@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Mesh_Field : public Field_Discrete_Integration
     {

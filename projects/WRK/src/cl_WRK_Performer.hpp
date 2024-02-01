@@ -13,7 +13,7 @@
 #include "cl_Matrix.hpp"
 
 // This can be removed once we have the refinement interface
-namespace moris::ge
+namespace moris::gen
 {
     enum class Geometric_Region : signed char;
 }
@@ -48,7 +48,7 @@ namespace moris::wrk
              * @param aNodeIndex Index of the node
              * @param aCoordinates Coordinates of the node
              */
-            virtual ge::Geometric_Region get_geometric_region(
+            virtual gen::Geometric_Region get_geometric_region(
                     uint                  aFieldIndex,
                     uint                  aNodeIndex,
                     const Matrix<DDRMat>& aCoordinates) = 0;

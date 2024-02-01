@@ -14,7 +14,7 @@
 #include "cl_MTK_Field_Discrete.hpp"
 #include <utility>
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 #include "cl_GEN_Voxel_Geometry.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

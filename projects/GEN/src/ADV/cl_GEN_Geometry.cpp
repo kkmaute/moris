@@ -11,7 +11,7 @@
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

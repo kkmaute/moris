@@ -15,7 +15,7 @@
 #include "cl_MTK_Interpolation_Function.hpp"
 #include "cl_Communication_Tools.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

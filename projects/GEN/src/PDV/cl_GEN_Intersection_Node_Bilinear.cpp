@@ -17,7 +17,7 @@
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "cl_MTK_Enums.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 

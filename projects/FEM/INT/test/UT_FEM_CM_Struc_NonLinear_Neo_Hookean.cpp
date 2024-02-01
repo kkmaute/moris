@@ -237,7 +237,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
             tLeaderFIs( 0 )->set_coeff( 0.1 * tLeaderDOFHatVel );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

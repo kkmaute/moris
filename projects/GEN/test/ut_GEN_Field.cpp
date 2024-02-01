@@ -29,7 +29,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     uint
-    user_defined_phase_function( const ge::Geometry_Bitset& aGeometrySigns )
+    user_defined_phase_function( const gen::Geometry_Bitset& aGeometrySigns )
     {
         uint tPhaseIndex = 3;
         for ( uint tGeometryIndex = 0; tGeometryIndex < 8; tGeometryIndex++ )
@@ -68,7 +68,7 @@ namespace moris
 
 }    // namespace moris
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Checks for an ellipse location in a swiss cheese (field array with circles or superellipses)
@@ -1103,4 +1103,4 @@ namespace moris::ge
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}    // namespace moris::ge
+}    // namespace moris::gen

@@ -80,7 +80,7 @@ namespace moris::mig
 
     //------------------------------------------------------------------------------------------------------------
     void
-    Periodic_Mesh_Editor::set_geometry_engine( moris::ge::Geometry_Engine* aGeometryEngine )
+    Periodic_Mesh_Editor::set_geometry_engine( moris::gen::Geometry_Engine* aGeometryEngine )
     {
         mGeometryEngine = aGeometryEngine;
     }

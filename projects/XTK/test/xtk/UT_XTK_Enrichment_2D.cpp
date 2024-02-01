@@ -105,12 +105,12 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::mtk::EntityRank::NODE, tLevelsetVal);
 
-        auto tField = std::make_shared< ge::Mesh_Field >( tMeshData, tLSFName );
-        Cell< std::shared_ptr< ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
+        auto tField = std::make_shared< gen::Mesh_Field >( tMeshData, tLSFName );
+        Cell< std::shared_ptr< gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
-        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;
-        moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+        moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
         // Setup XTK Model -----------------------------
         size_t tModelDimension = 2;

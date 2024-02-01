@@ -11,7 +11,7 @@
 #include "cl_GEN_Phase_Table.hpp"
 #include "fn_linspace.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

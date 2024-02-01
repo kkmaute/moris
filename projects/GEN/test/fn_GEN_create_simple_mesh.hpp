@@ -13,7 +13,7 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Creates a simple HMR interpolation mesh for GEN testing.

@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Combined_Fields : public Field
     {

@@ -17,7 +17,7 @@
 #include "cl_GEN_Property.hpp"
 #include "GEN_Data_Types.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     struct Geometry_Engine_Parameters
     {

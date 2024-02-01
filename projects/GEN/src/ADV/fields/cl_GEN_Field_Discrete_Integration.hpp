@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Field_Discrete_Integration : public Field
     {

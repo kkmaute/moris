@@ -97,9 +97,9 @@ namespace moris
         {
             moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
             moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-            auto tField = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
-            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tField );
+            Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry( 1 );
+            auto tField = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
+            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tField );
 
             // Initialize field information container
             mtk::MtkFieldsInfo tFieldsInfo;
@@ -112,9 +112,9 @@ namespace moris
             std::string tMeshFileName = "generated:1x1x4|sideset:z";
             moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tMeshData );
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh1, tGeometryEngineParameters);
+            moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh1, tGeometryEngineParameters);
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;

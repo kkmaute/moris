@@ -180,7 +180,7 @@
 //         std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
 
 //         // Geometry engine initialize
-//         std::shared_ptr< ge::Geometry_Engine > pGEN = std::make_shared< ge::Geometry_Engine >( tGenParamList, nullptr );
+//         std::shared_ptr< gen::Geometry_Engine > pGEN = std::make_shared< gen::Geometry_Engine >( tGenParamList, nullptr );
 
 //         // Initialize  Background Mesh Mesh
 //         std::shared_ptr< mtk::Mesh_Manager > pBGMTK = std::make_shared< mtk::Mesh_Manager >();
@@ -371,7 +371,7 @@
 //         std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
 
 //         // Geometry engine initialize
-//         std::shared_ptr< ge::Geometry_Engine > pGEN = std::make_shared< ge::Geometry_Engine >( tGenParamList, nullptr );
+//         std::shared_ptr< gen::Geometry_Engine > pGEN = std::make_shared< gen::Geometry_Engine >( tGenParamList, nullptr );
 
 //         // Initialize  Background Mesh Mesh
 //         std::shared_ptr< mtk::Mesh_Manager > pBGMTK = std::make_shared< mtk::Mesh_Manager >();

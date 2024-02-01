@@ -36,7 +36,7 @@ namespace moris
     {
         class Mesh_Manager;
     }
-    namespace ge
+    namespace gen
     {
         class Geometry_Engine;
     }
@@ -67,7 +67,7 @@ namespace moris
 
                 moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
                 moris::Cell< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
-                moris::Cell< std::shared_ptr< ge::Geometry_Engine > >      mGENPerformer;
+                moris::Cell< std::shared_ptr< gen::Geometry_Engine > >      mGENPerformer;
                 moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
                 moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
                 moris::Cell< std::shared_ptr< opt::Manager > >             mOPTPerformer;

@@ -216,7 +216,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

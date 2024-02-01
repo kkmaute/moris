@@ -325,7 +325,7 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 
@@ -706,7 +706,7 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 
@@ -1069,7 +1069,7 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 
@@ -1429,7 +1429,7 @@ TEST_CASE( "IWG_Advection_Bulk_Crosswind", "[IWG_Advection_Bulk_Crosswind]" )
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 
@@ -1789,7 +1789,7 @@ TEST_CASE( "IWG_Advection_Bulk_Isotropic_Diffusion", "[IWG_Advection_Bulk_Isotro
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 

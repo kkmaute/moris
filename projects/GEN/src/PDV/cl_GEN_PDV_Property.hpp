@@ -13,7 +13,7 @@
 #include "cl_GEN_PDV.hpp"
 #include "cl_GEN_Property.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class PDV_Property : public PDV
     {

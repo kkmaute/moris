@@ -27,7 +27,7 @@ namespace moris
     }
 }
 
-namespace moris::ge
+namespace moris::gen
 {
     class Design_Factory
     {

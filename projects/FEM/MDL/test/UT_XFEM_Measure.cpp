@@ -201,13 +201,13 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::ge::Plane >( 2.6, 0.0, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            auto tPlane = std::make_shared< moris::gen::Plane >( 2.6, 0.0, 1.0, 0.0 );
+            moris::Cell< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t                                tModelDimension = 3;
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;

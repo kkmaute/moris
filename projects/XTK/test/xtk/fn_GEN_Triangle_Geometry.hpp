@@ -19,7 +19,7 @@
 
 namespace moris
 {
-    namespace ge
+    namespace gen
     {
         /*
          * Compute the surface normal of a triangle (Note this hasn't been fully optimized)

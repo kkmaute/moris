@@ -120,7 +120,7 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    Cell< Cell< ge::PDV_Type > > aDvTypes,
+                    Cell< Cell< gen::PDV_Type > > aDvTypes,
                     Cell< std::string >      aDvStrings )
             {
                 Constitutive_Model::set_dv_type_list( aDvTypes );

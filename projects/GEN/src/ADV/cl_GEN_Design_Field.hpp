@@ -15,10 +15,10 @@
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
-     * This is a struct used to simplify \ref moris::ge::Design_Field constructors. It contains additional parameters that
+     * This is a struct used to simplify \ref moris::gen::Design_Field constructors. It contains additional parameters that
      * are used by all fields, with given defaults.
      */
     struct Field_Parameters
@@ -168,4 +168,4 @@ namespace moris::ge
          */
         std::shared_ptr< mtk::Field > get_mtk_field();
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

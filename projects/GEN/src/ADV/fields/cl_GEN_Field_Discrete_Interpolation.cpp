@@ -11,7 +11,7 @@
 #include "cl_GEN_Field_Discrete_Interpolation.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 #include "cl_MTK_Exodus_IO_Helper.hpp"
 #include "HDF5_Tools.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

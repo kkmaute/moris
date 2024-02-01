@@ -285,7 +285,7 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
             tSPYZBeta->set_interpolation_order( iInterpOrder );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

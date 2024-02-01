@@ -52,7 +52,7 @@ void tFIValDvFunction_UTIQISTRAINENERGY
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::ge::PDV_Type::DENSITY )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::gen::PDV_Type::DENSITY )->val();
 }
 
 void tFIDerDvFunction_UTIQISTRAINENERGY
@@ -60,7 +60,7 @@ void tFIDerDvFunction_UTIQISTRAINENERGY
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::ge::PDV_Type::DENSITY )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::gen::PDV_Type::DENSITY )->N();
 }
 
 using namespace moris;
@@ -77,7 +77,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     // create the properties
     std::shared_ptr<fem::Property> tPropLeaderEMod = std::make_shared<fem::Property>();
     tPropLeaderEMod->set_parameters({{{1.0}}});
-    tPropLeaderEMod->set_dv_type_list( {{ ge::PDV_Type::DENSITY }} );
+    tPropLeaderEMod->set_dv_type_list( {{ gen::PDV_Type::DENSITY }} );
     tPropLeaderEMod->set_val_function( tFIValDvFunction_UTIQISTRAINENERGY );
     tPropLeaderEMod->set_dv_derivative_functions( { tFIDerDvFunction_UTIQISTRAINENERGY } );
 
@@ -164,7 +164,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     moris::Cell< Field_Interpolator* > tDvFIs( 1 );
 
     // create the field interpolator
-    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { ge::PDV_Type::DENSITY } );
+    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { gen::PDV_Type::DENSITY } );
 
     // set the coefficients uHat
     tDvFIs( 0 )->set_coeff( tDvHat );
@@ -209,7 +209,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tIQI->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
     // set size for the set mUniqueDvTypeList
-    tIQI->mSet->mUniqueDvTypeList.resize( 4, ge::PDV_Type::UNDEFINED );
+    tIQI->mSet->mUniqueDvTypeList.resize( 4, gen::PDV_Type::UNDEFINED );
 
     // set size and populate the set dof type map
     tIQI->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
@@ -220,12 +220,12 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tIQI->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set size and populate the set dof type map
-    tIQI->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( ge::PDV_Type::UNDEFINED ) + 1, 1, -1 );
-    tIQI->mSet->mUniqueDvTypeMap( static_cast< int >( ge::PDV_Type::DENSITY ) ) = 0;
+    tIQI->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( gen::PDV_Type::UNDEFINED ) + 1, 1, -1 );
+    tIQI->mSet->mUniqueDvTypeMap( static_cast< int >( gen::PDV_Type::DENSITY ) ) = 0;
 
     // set size and populate the set leader dof type map
-    tIQI->mSet->mLeaderDvTypeMap.set_size( static_cast< int >( ge::PDV_Type::UNDEFINED ) + 1, 1, -1 );
-    tIQI->mSet->mLeaderDvTypeMap( static_cast< int >( ge::PDV_Type::DENSITY ) ) = 0;
+    tIQI->mSet->mLeaderDvTypeMap.set_size( static_cast< int >( gen::PDV_Type::UNDEFINED ) + 1, 1, -1 );
+    tIQI->mSet->mLeaderDvTypeMap( static_cast< int >( gen::PDV_Type::DENSITY ) ) = 0;
 
     // set size and populate residual assembly map
     tIQI->mSet->mResDofAssemblyMap.resize( 1 );

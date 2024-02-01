@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Derived_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare necessary classes
     class Geometry;

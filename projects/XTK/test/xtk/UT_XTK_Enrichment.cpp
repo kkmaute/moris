@@ -88,12 +88,12 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         std::string tMeshOutputFile2 = "./xtk_exo/unit_enrichment_1_background.e";
         tMeshData->create_output_mesh( tMeshOutputFile2 );
 
-        auto tField = std::make_shared< moris::ge::Mesh_Field >( tMeshData, tLSFName );
-        Cell< std::shared_ptr< ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
+        auto tField = std::make_shared< moris::gen::Mesh_Field >( tMeshData, tLSFName );
+        Cell< std::shared_ptr< gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
-        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;
-        moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
+        moris::gen::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 
         /*
          * Setup XTK Model and tell it how to cut
@@ -194,12 +194,12 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         std::string tMeshOutputFile2 = "./xtk_exo/enrichment_test_10_cluster_background.e";
         tMeshData->create_output_mesh( tMeshOutputFile2 );
 
-        auto tField = std::make_shared< moris::ge::Mesh_Field >( tMeshData, tLSFName );
-        Cell< std::shared_ptr< ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
+        auto tField = std::make_shared< moris::gen::Mesh_Field >( tMeshData, tLSFName );
+        Cell< std::shared_ptr< gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
-        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;
-        moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
+        moris::gen::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 
         /*
          * Setup XTK Model and tell it how to cut

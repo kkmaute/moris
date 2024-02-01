@@ -218,14 +218,14 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            auto tPlane = std::make_shared< moris::gen::Plane >( -500.0, 0.0, 1.0, 0.0 );
+            moris::Cell< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
             //------------------------------------------------------------------------------
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
 
@@ -590,13 +590,13 @@ namespace moris
     //
     //         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
     //
-    //         moris::ge::Level_Set_Geometry_Field_HMR tPlaneFieldAsGeom(tField);
+    //         moris::gen::Level_Set_Geometry_Field_HMR tPlaneFieldAsGeom(tField);
     //
-    //         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+    //         moris::Cell<moris::gen::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
     //
     //         size_t tModelDimension = 2;
-    //         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    //         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+    //         moris::gen::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    //         moris::gen::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
     //
     //         xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
     //
@@ -692,14 +692,14 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            auto tPlane = std::make_shared< moris::gen::Plane >( -500.0, 0.0, 1.0, 0.0 );
+            moris::Cell< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
 

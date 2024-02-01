@@ -16,7 +16,7 @@
 // Constants
 #define MAX_GEOMETRIES 500
 
-namespace moris::ge
+namespace moris::gen
 {
     // Typdefs
     typedef Bitset< MAX_GEOMETRIES > Geometry_Bitset;

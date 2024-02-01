@@ -93,7 +93,7 @@ namespace xtk
         uint                                    mModelDimension;
         moris::mtk::Interpolation_Mesh*         mBackgroundMesh;
         Cut_Mesh                                mCutMesh;
-        moris::ge::Geometry_Engine*             mGeometryEngine;
+        moris::gen::Geometry_Engine*             mGeometryEngine;
         std::shared_ptr< Cut_Integration_Mesh > mCutIntegrationMesh;
         Enrichment*                             mEnrichment;
         Ghost_Stabilization*                    mGhostStabilization;
@@ -173,7 +173,7 @@ namespace xtk
          */
         Model( uint                             aModelDimension,
                 moris::mtk::Interpolation_Mesh* aMeshData,
-                moris::ge::Geometry_Engine*     aGeometryEngine,
+                moris::gen::Geometry_Engine*     aGeometryEngine,
                 bool                            aLinkGeometryOnConstruction = true );
 
         //--------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ namespace xtk
          * @brief Set the pointer to the geometry engine
          */
         void
-        set_geometry_engine( moris::ge::Geometry_Engine* aGeometryEngine );
+        set_geometry_engine( moris::gen::Geometry_Engine* aGeometryEngine );
 
         //--------------------------------------------------------------------------------
         /**
@@ -392,7 +392,7 @@ namespace xtk
         /**
          * @return Geometry engine pointer
          */
-        moris::ge::Geometry_Engine*
+        moris::gen::Geometry_Engine*
         get_geom_engine();
 
         // ----------------------------------------------------------------------------------

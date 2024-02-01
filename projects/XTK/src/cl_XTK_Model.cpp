@@ -80,7 +80,7 @@ namespace xtk
     Model::Model(
             uint                            aModelDimension,
             moris::mtk::Interpolation_Mesh *aMeshData,
-            moris::ge::Geometry_Engine     *aGeometryEngine,
+            moris::gen::Geometry_Engine     *aGeometryEngine,
             bool                            aLinkGeometryOnConstruction )
             : mModelDimension( aModelDimension )
             , mBackgroundMesh( aMeshData )
@@ -122,7 +122,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::set_geometry_engine( moris::ge::Geometry_Engine *aGeometryEngine )
+    Model::set_geometry_engine( moris::gen::Geometry_Engine *aGeometryEngine )
     {
         mGeometryEngine = aGeometryEngine;
     }
@@ -1098,7 +1098,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::ge::Geometry_Engine *
+    moris::gen::Geometry_Engine *
     Model::get_geom_engine()
     {
         return mGeometryEngine;

@@ -17,7 +17,7 @@ namespace moris::wrk
 
     // ----------------------------------------------------------------------------
 
-    Gen_Performer::Gen_Performer( std::shared_ptr< moris::ge::Geometry_Engine > aGeometryEngine )
+    Gen_Performer::Gen_Performer( std::shared_ptr< moris::gen::Geometry_Engine > aGeometryEngine )
             : mGeometryEngine( aGeometryEngine )
     {
     }
@@ -32,7 +32,7 @@ namespace moris::wrk
 
     // ----------------------------------------------------------------------------
 
-    ge::Geometric_Region Gen_Performer::get_geometric_region(
+    gen::Geometric_Region Gen_Performer::get_geometric_region(
             uint                    aFieldIndex,
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )

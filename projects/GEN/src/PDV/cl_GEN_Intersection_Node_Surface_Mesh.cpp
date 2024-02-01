@@ -14,7 +14,7 @@
 
 #include "fn_norm.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     Intersection_Node_Surface_Mesh::Intersection_Node_Surface_Mesh(
             uint                     aNodeIndex,
@@ -70,4 +70,4 @@ namespace moris::ge
     
     //--------------------------------------------------------------------------------------------------------------
     
-}    // namespace moris::ge
+}    // namespace moris::gen

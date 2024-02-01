@@ -13,7 +13,7 @@
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Stored_Field : public Field_Discrete_Integration
     {

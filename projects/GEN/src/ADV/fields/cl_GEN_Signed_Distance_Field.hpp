@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Signed_Distance_Field : public Field_Discrete_Integration
     {
@@ -75,4 +75,4 @@ namespace moris::ge
             return mValues;
         }
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

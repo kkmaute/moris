@@ -12,7 +12,7 @@
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

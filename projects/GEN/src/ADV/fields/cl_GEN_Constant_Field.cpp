@@ -10,7 +10,7 @@
 
 #include "cl_GEN_Constant_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 

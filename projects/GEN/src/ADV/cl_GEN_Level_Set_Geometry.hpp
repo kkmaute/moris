@@ -14,10 +14,10 @@
 #include "cl_GEN_Geometry.hpp"
 #include "GEN_Data_Types.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
-     * This is a struct used to simplify \ref moris::ge::Level_Set_Geometry constructors. It contains all field and level-set parameters.
+     * This is a struct used to simplify \ref moris::gen::Level_Set_Geometry constructors. It contains all field and level-set parameters.
      */
     struct Level_Set_Parameters : public Field_Parameters, public Design_Parameters
     {
@@ -263,4 +263,4 @@ namespace moris::ge
          */
         Geometric_Region determine_geometric_region( real aLevelSetValue ) const;
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

@@ -38,7 +38,7 @@ namespace moris::sdf
 {
 
     TEST_CASE(
-            "ge::sdf::Raycast",
+            "gen::sdf::Raycast",
             "[geomeng],[sdf],[Raycaster]" )
     {
         // get root from environment

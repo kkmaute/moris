@@ -103,7 +103,7 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    moris::Cell< moris::Cell< ge::PDV_Type > >& aDvTypes,
+                    moris::Cell< moris::Cell< gen::PDV_Type > >& aDvTypes,
                     moris::Cell< std::string >&             aDvStrings,
                     mtk::Leader_Follower                       aIsLeader = mtk::Leader_Follower::LEADER )
             {
@@ -140,7 +140,7 @@ namespace moris
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
             void
-            eval_dSPdLeaderDV( const moris::Cell< ge::PDV_Type >& aDvTypes )
+            eval_dSPdLeaderDV( const moris::Cell< gen::PDV_Type >& aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Viscous_Ghost::eval_dSPdLeaderDV - not implemented." );
             }

@@ -20,7 +20,7 @@
 #include "cl_SOL_Dist_Matrix.hpp"
 #include <unordered_map>
 
-namespace moris::ge
+namespace moris::gen
 {
     class PDV_Host_Manager : public MSI::Design_Variable_Interface
     {

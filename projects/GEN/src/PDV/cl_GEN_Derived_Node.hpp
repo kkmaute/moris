@@ -18,7 +18,7 @@ namespace moris::mtk
     enum class Interpolation_Order;
 }
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare basis node
     class Background_Node;

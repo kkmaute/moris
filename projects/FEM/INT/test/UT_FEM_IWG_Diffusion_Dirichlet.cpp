@@ -288,7 +288,7 @@ void UT_FEM_IWG_Diffusion_Dirichlet_Core ( enum fem::IWG_Type tIWGType )
             tIWG->mRequestedLeaderGlobalDofTypes = tTempDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 

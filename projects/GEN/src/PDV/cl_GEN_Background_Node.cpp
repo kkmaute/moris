@@ -11,7 +11,7 @@
 #include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

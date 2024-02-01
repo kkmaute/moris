@@ -17,7 +17,7 @@
 // detailed logging
 #include "cl_Tracer.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 

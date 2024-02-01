@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Background_Node : public Node
     {

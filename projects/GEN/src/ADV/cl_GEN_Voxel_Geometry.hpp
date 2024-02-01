@@ -14,7 +14,7 @@
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_Library_IO.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Voxel_Geometry : public Geometry
     {

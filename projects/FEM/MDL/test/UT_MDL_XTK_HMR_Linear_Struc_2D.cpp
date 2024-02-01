@@ -224,12 +224,12 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tCircle = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2501 );
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
+            auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2501 );
+            Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( 2, tInterpolationMesh, &tGeometryEngine );
 
@@ -517,11 +517,11 @@ namespace moris
         //
         //        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
         //
-        //        Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
-        //        tGeometry(0) = std::make_shared<moris::ge::Circle>(100.0, 0.0, 0.2501);
+        //        Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+        //        tGeometry(0) = std::make_shared<moris::gen::Circle>(100.0, 0.0, 0.2501);
         //
-        //        moris::ge::Phase_Table tPhaseTable (1);
-        //        moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 3);
+        //        moris::gen::Phase_Table tPhaseTable (1);
+        //        moris::gen::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable, 3);
         //
         //         xtk::Model tXTKModel(3, tInterpolationMesh, &tGeometryEngine);
         //
@@ -805,12 +805,12 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tCircle = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2505 );
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
+            auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2505 );
+            Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( 2, tInterpolationMesh, &tGeometryEngine );
 
@@ -1125,12 +1125,12 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tCircle = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2505 );
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
+            auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2505 );
+            Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( 2, tInterpolationMesh, &tGeometryEngine );
 

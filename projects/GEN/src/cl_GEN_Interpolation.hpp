@@ -15,7 +15,7 @@
 
 #include "fn_print.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Interpolation
     {

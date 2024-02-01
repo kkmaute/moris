@@ -37,7 +37,7 @@
 using namespace moris;
 
 TEST_CASE(
-        "ge::sdf::Generator",
+        "gen::sdf::Generator",
         "[geomeng],[sdf],[Triangle]" )
 {
     if ( par_size() == 1 )

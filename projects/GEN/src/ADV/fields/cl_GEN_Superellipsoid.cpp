@@ -10,7 +10,7 @@
 
 #include "cl_GEN_Superellipsoid.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 

@@ -29,7 +29,7 @@
 
 #include "fn_check_equal.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     class Node_Manager_Test : public Node_Manager

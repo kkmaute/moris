@@ -24,7 +24,7 @@
 
 #include "fn_PRM_GEN_Parameters.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -801,7 +801,7 @@ namespace moris::ge
 
             tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, mtk::EntityRank::NODE, tLevelsetVal );
 
-            Cell< std::shared_ptr< ge::Geometry > > tGeometry( 1 );
+            Cell< std::shared_ptr< gen::Geometry > > tGeometry( 1 );
             Level_Set_Parameters tLevelSetParameters;
             tLevelSetParameters.mUseMultilinearInterpolation = true;
             tLevelSetParameters.mIsocontourThreshold = 0.5;

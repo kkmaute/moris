@@ -25,7 +25,7 @@
 #include "cl_GEN_Signed_Distance_Field.hpp"
 #include "cl_GEN_Image_Signed_Distance_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ namespace moris::ge
         {
             MORIS_ERROR( aMTKMesh != nullptr, "Mesh is a null ptr for nodal field." );
 
-            tField = std::make_shared< ge::Mesh_Field >( aMTKMesh, tName, mtk::EntityRank::NODE );
+            tField = std::make_shared< gen::Mesh_Field >( aMTKMesh, tName, mtk::EntityRank::NODE );
         }
         else if ( tFieldType == "nodal_field_from_file" )
         {
@@ -161,7 +161,7 @@ namespace moris::ge
             std::string tFieldFormat = aFieldParameterList.get< std::string >( "file_format" );
             real        tOffset      = aFieldParameterList.get< real >( "offset" );
 
-            tField = std::make_shared< ge::Mesh_Field >(
+            tField = std::make_shared< gen::Mesh_Field >(
                     aMTKMesh,
                     tFileName,
                     tFieldName,
@@ -175,7 +175,7 @@ namespace moris::ge
             Cell< real > tObjectOffset = string_to_cell< real >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
             real         tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
 
-            tField = std::make_shared< ge::Signed_Distance_Field >(
+            tField = std::make_shared< gen::Signed_Distance_Field >(
                     tObjectPath,
                     tObjectOffset,
                     tSDFShift );
@@ -245,4 +245,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+}    // namespace moris::gen

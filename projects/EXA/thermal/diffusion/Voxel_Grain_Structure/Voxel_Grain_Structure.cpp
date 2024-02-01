@@ -193,7 +193,7 @@ namespace moris
     }
 
     uint
-    get_phase_index( const moris::ge::Geometry_Bitset& aGeometrySigns )
+    get_phase_index( const moris::gen::Geometry_Bitset& aGeometrySigns )
     {
         uint tPhaseIndex = 0;
 

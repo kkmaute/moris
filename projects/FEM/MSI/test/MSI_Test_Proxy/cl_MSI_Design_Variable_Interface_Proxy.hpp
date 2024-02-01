@@ -28,28 +28,28 @@ namespace moris
         class Design_Variable_Interface_Proxy : public Design_Variable_Interface
         {
         private:
-            Cell< Cell< enum ge::PDV_Type >>     mDvTypes;
-            Cell< enum ge::PDV_Type >            mDvTypesUnique;
+            Cell< Cell< enum gen::PDV_Type >>     mDvTypes;
+            Cell< enum gen::PDV_Type >            mDvTypesUnique;
             moris::Matrix< DDRMat >        mDvValues;
             moris::Matrix< DDSMat >        mIsActiveDv;
             Cell< moris::Matrix< IdMat > > mDvIds;
             moris::Matrix< DDSMat >        mMap;
             moris::Matrix< DDUMat >        mConstraintDofs;
-            moris::map< ge::PDV_Type, sint > mDvToIndexMap;
+            moris::map< gen::PDV_Type, sint > mDvToIndexMap;
 
         public :
             Design_Variable_Interface_Proxy()
             {
                 mDvTypes.resize( 2 );
-                mDvTypes( 0 ).resize( 2 );     mDvTypes( 0 )( 0 ) = ge::PDV_Type::X_COORDINATE;   mDvTypes( 0 )( 1 ) = ge::PDV_Type::Y_COORDINATE;
-                mDvTypes( 1 ).resize( 1 );     mDvTypes( 1 )( 0 ) = ge::PDV_Type::DENSITY;
+                mDvTypes( 0 ).resize( 2 );     mDvTypes( 0 )( 0 ) = gen::PDV_Type::X_COORDINATE;   mDvTypes( 0 )( 1 ) = gen::PDV_Type::Y_COORDINATE;
+                mDvTypes( 1 ).resize( 1 );     mDvTypes( 1 )( 0 ) = gen::PDV_Type::DENSITY;
 
                 mDvTypesUnique.resize( 3 );
-                mDvTypesUnique = { ge::PDV_Type::X_COORDINATE, ge::PDV_Type::Y_COORDINATE, ge::PDV_Type::DENSITY };
+                mDvTypesUnique = { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::DENSITY };
 
-                mDvToIndexMap[ ge::PDV_Type::X_COORDINATE ]   = 0;
-                mDvToIndexMap[ ge::PDV_Type::Y_COORDINATE ]   = 1;
-                mDvToIndexMap[ ge::PDV_Type::DENSITY ] = 2;
+                mDvToIndexMap[ gen::PDV_Type::X_COORDINATE ]   = 0;
+                mDvToIndexMap[ gen::PDV_Type::Y_COORDINATE ]   = 1;
+                mDvToIndexMap[ gen::PDV_Type::DENSITY ] = 2;
 
                 mDvValues.set_size( 6, 3 );
                 mDvValues( 0, 0 ) = 0;      mDvValues( 0, 1 ) = 0;             mDvValues( 0, 2 ) = 2;
@@ -99,40 +99,40 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void get_ip_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
-                    Cell< enum ge::PDV_Type > & aDvTypes )
+                    Cell< enum gen::PDV_Type > & aDvTypes )
             {
-                aDvTypes = { ge::PDV_Type::DENSITY };
+                aDvTypes = { gen::PDV_Type::DENSITY };
             };
 
             //------------------------------------------------------------------------------
 
             void get_ig_unique_dv_types_for_set( const moris::moris_index    aIntegrationMeshSetIndex,
-                    Cell< enum ge::PDV_Type > & aDvTypes )
+                    Cell< enum gen::PDV_Type > & aDvTypes )
             {
-                aDvTypes = { ge::PDV_Type::X_COORDINATE, ge::PDV_Type::Y_COORDINATE };
+                aDvTypes = { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE };
             };
 
             //------------------------------------------------------------------------------
 
             void get_ip_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                    Cell< Cell< enum ge::PDV_Type >> & aDvTypes )
+                    Cell< Cell< enum gen::PDV_Type >> & aDvTypes )
             {
-                aDvTypes = {{ ge::PDV_Type::DENSITY }};
+                aDvTypes = {{ gen::PDV_Type::DENSITY }};
             };
 
             //------------------------------------------------------------------------------
 
             void get_ig_dv_types_for_set( const moris::moris_index          aIntegrationMeshSetIndex,
-                    Cell< Cell< enum ge::PDV_Type >> & aDvTypes )
+                    Cell< Cell< enum gen::PDV_Type >> & aDvTypes )
             {
-                aDvTypes = {{ ge::PDV_Type::X_COORDINATE, ge::PDV_Type::Y_COORDINATE }};
+                aDvTypes = {{ gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE }};
             };
 
             //------------------------------------------------------------------------------
 
             void get_ig_pdv_value(
                     const moris::Matrix< IndexMat >& aNodeIndices,
-                    const Cell< enum ge::PDV_Type >& aDvTypes,
+                    const Cell< enum gen::PDV_Type >& aDvTypes,
                     Cell<moris::Matrix< DDRMat > >&  aDvValues,
                     Cell< Cell< bool > >&            aIsActiveDv )
             {
@@ -173,7 +173,7 @@ namespace moris
 
             void get_ip_pdv_value(
                     const moris::Matrix< IndexMat >  & aNodeIndices,
-                    const Cell< enum ge::PDV_Type >      & aDvTypes,
+                    const Cell< enum gen::PDV_Type >      & aDvTypes,
                     Cell<moris::Matrix< DDRMat > >   & aDvValues )
             {
                 // Get the number of node indices requested
@@ -238,7 +238,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void get_ip_dv_ids_for_type_and_ind( const Matrix<IndexMat> & aNodeIndices,
-                    const Cell< enum ge::PDV_Type >               & aDvTypes,
+                    const Cell< enum gen::PDV_Type >               & aDvTypes,
                     Cell<moris::Matrix< IdMat > >     & aDvIds )
             {
                 aDvIds.resize( aDvTypes.size() );
@@ -256,7 +256,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void get_ig_dv_ids_for_type_and_ind( const Matrix<IndexMat>               & aNodeIndices,
-                    const Cell< enum ge::PDV_Type >          & aDvTypes,
+                    const Cell< enum gen::PDV_Type >          & aDvTypes,
                     Cell< moris::Matrix< IdMat > > & aDvIds )
             {
                 aDvIds.resize( aDvTypes.size() );
@@ -274,14 +274,14 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void get_ip_requested_dv_types( Cell< enum ge::PDV_Type > & aDvTypes )
+            void get_ip_requested_dv_types( Cell< enum gen::PDV_Type > & aDvTypes )
             {
-                aDvTypes = {{ ge::PDV_Type::DENSITY }};
+                aDvTypes = {{ gen::PDV_Type::DENSITY }};
             }
 
             //------------------------------------------------------------------------------
 
-            void get_ig_requested_dv_types( Cell< enum ge::PDV_Type > & aDvTypes )
+            void get_ig_requested_dv_types( Cell< enum gen::PDV_Type > & aDvTypes )
             {
                 MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_requested_dv_types() - not implemented in the child class" );
             }

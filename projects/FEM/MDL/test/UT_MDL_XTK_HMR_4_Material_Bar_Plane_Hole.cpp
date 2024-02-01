@@ -286,16 +286,16 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Cell< std::shared_ptr< ge::Geometry > > tGeometryVector( 2 );
-        auto tCircle = std::make_shared< ge::Circle >( 0.01, 0.01, 0.47334 );
-        auto tPlane = std::make_shared< ge::Plane >( 0.1, 0.1, 1.0, 0.0 );
-        tGeometryVector( 0 ) = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
-        tGeometryVector( 1 ) = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+        moris::Cell< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
+        auto tCircle = std::make_shared< gen::Circle >( 0.01, 0.01, 0.47334 );
+        auto tPlane = std::make_shared< gen::Plane >( 0.1, 0.1, 1.0, 0.0 );
+        tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
+        tGeometryVector( 1 ) = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t                                tModelDimension = 2;
-        ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
-        ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+        gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
         xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
@@ -705,16 +705,16 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Cell< std::shared_ptr< ge::Geometry > > tGeometryVector( 2 );
-        auto tUserDefinedField = std::make_shared< ge::User_Defined_Field >( &( MultiMat3dCylGeometry ) );
-        auto tPlane = std::make_shared< ge::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
-        tGeometryVector( 0 ) = { std::make_shared< ge::Level_Set_Geometry >( tUserDefinedField ) };
-        tGeometryVector( 1 ) = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+        moris::Cell< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
+        auto tUserDefinedField = std::make_shared< gen::User_Defined_Field >( &( MultiMat3dCylGeometry ) );
+        auto tPlane = std::make_shared< gen::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
+        tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField ) };
+        tGeometryVector( 1 ) = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t                                tModelDimension = 3;
-        ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
-        ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+        gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
         xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 

@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Geometry_Engine.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Alternate geometry engine class for testing (provides access to some needed protected members)

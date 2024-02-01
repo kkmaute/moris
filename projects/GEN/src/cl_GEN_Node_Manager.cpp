@@ -12,7 +12,7 @@
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

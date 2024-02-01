@@ -15,7 +15,7 @@
 #include <memory>
 #include "cl_MTK_Integration_Mesh_Editor.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Geometry_Engine;
 }
@@ -37,7 +37,7 @@ namespace moris::mig
 
         mig::Periodic_3D* mPeriodicData3D = nullptr;
 
-        moris::ge::Geometry_Engine* mGeometryEngine = nullptr;
+        moris::gen::Geometry_Engine* mGeometryEngine = nullptr;
 
       public:
         //------------------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ namespace moris::mig
          */
 
         void
-        set_geometry_engine( moris::ge::Geometry_Engine* aGeometryEngine );
+        set_geometry_engine( moris::gen::Geometry_Engine* aGeometryEngine );
 
         //------------------------------------------------------------------------------------------------------------
 

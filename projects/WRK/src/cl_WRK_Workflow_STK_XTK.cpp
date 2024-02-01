@@ -69,7 +69,7 @@ namespace moris
             ModuleParameterList tGENParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
 
             // Create GE performer
-            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >(
+            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< gen::Geometry_Engine >(
                     tGENParameterList,
                     mPerformerManager->mLibrary,
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ) );

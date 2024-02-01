@@ -14,10 +14,10 @@
 #include "GEN_Data_Types.hpp"
 #include "cl_Library_IO.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     // User-defined phase function
-    typedef uint ( *PHASE_FUNCTION )( const ge::Geometry_Bitset& aGeometrySigns );
+    typedef uint ( *PHASE_FUNCTION )( const gen::Geometry_Bitset& aGeometrySigns );
 
     class Phase_Table
     {

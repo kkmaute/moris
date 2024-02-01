@@ -18,7 +18,7 @@ namespace moris::sol
     class Dist_Vector;
 }
 
-namespace moris::ge
+namespace moris::gen
 {
     class ADV
     {

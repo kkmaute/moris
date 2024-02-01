@@ -13,7 +13,7 @@
 #include "cl_GEN_Combined_Fields.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Class containing parameters for creating a field array. Functions verify and set inputs.

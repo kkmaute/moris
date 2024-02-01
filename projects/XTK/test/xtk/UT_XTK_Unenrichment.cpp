@@ -98,13 +98,13 @@ namespace xtk
             tXTKParameters.set( "write_cell_enrichments_levels", false );
 
             // define the sphere such that it is non interacting
-            auto tPlane = std::make_shared< moris::ge::Plane >( 1.5, 0.5, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            auto tPlane = std::make_shared< moris::gen::Plane >( 1.5, 0.5, 1.0, 0.0 );
+            moris::Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             // define ge engine
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             // dimension of the
             size_t tModelDimension = 2;

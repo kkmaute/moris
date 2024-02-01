@@ -15,7 +15,7 @@
 #include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Stored_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -268,4 +268,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+}    // namespace moris::gen

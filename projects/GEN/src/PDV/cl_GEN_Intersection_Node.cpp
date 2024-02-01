@@ -14,7 +14,7 @@
 #include "cl_GEN_Parent_Node.hpp"
 #include "cl_MTK_Enums.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

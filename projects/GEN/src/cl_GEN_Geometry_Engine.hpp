@@ -20,7 +20,7 @@
 #include "cl_MTK_Enums.hpp"
 #include <unordered_map>
 
-namespace moris::ge
+namespace moris::gen
 {
     class Geometry;
     class Property;
@@ -37,7 +37,7 @@ namespace moris::sol
     class Dist_Vector;
 }
 
-namespace moris::ge
+namespace moris::gen
 {
     class Geometry_Engine
     {
@@ -121,7 +121,7 @@ namespace moris::ge
          * Returns pdv host manager.
          *
          */
-        moris::ge::PDV_Host_Manager* get_pdv_host_manager();
+        moris::gen::PDV_Host_Manager* get_pdv_host_manager();
 
         /**
          * Sets new ADVs for the geometry engine.

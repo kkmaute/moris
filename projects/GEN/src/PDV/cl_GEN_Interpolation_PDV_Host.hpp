@@ -13,7 +13,7 @@
 #include "GEN_Data_Types.hpp"
 #include "cl_GEN_PDV.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Property;
     class PDV_Host_Manager;

@@ -16,7 +16,7 @@
 #include "cl_Library_IO.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Creates an instance of the specified Field class and returns a shared pointer to it.

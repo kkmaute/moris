@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Intersection_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare voxel geometry
     class Voxel_Geometry;

@@ -108,13 +108,13 @@ namespace moris
             tHMR->perform_initial_refinement();
             tHMR->perform();
 
-            auto                                              tField          = std::make_shared< moris::ge::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
-            Cell< std::shared_ptr< ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
+            auto                                              tField          = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
+            Cell< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
             size_t                                tModelDimension = 3;
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
             xtk::Model                 tXTKModel( tModelDimension, tMeshManager->get_interpolation_mesh( 0 ), &tGeometryEngine );
             tXTKModel.mVerbose = true;
 

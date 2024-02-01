@@ -278,7 +278,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Symmetric_Nitsche",
             tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -588,7 +588,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Unsymmetric_Nitsche",
             tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -915,7 +915,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 
@@ -1242,7 +1242,7 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -1578,7 +1578,7 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -1915,7 +1915,7 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

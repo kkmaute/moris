@@ -82,12 +82,12 @@ namespace moris
                 Matrix< DDSMat > mFollowerGlobalDofTypeMap;
 
                 // leader and follower dv type lists
-                moris::Cell< moris::Cell< ge::PDV_Type > > mLeaderDvTypes;
-                moris::Cell< moris::Cell< ge::PDV_Type > > mFollowerDvTypes;
+                moris::Cell< moris::Cell< gen::PDV_Type > > mLeaderDvTypes;
+                moris::Cell< moris::Cell< gen::PDV_Type > > mFollowerDvTypes;
 
                 // leader and follower global dv type list
-                moris::Cell< moris::Cell< ge::PDV_Type > > mLeaderGlobalDvTypes;
-                moris::Cell< moris::Cell< ge::PDV_Type > > mFollowerGlobalDvTypes;
+                moris::Cell< moris::Cell< gen::PDV_Type > > mLeaderGlobalDvTypes;
+                moris::Cell< moris::Cell< gen::PDV_Type > > mFollowerGlobalDvTypes;
 
                 // leader and follower global dv type maps
                 Matrix< DDSMat > mLeaderGlobalDvTypeMap;
@@ -347,7 +347,7 @@ namespace moris
                  * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dv_type_list(
-                        moris::Cell< moris::Cell< ge::PDV_Type > > & aDvTypes,
+                        moris::Cell< moris::Cell< gen::PDV_Type > > & aDvTypes,
                         mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER );
 
                 //------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ namespace moris
                  * @param[ in ] aIsLeader  enum for leader or follower
                  */
                 virtual void set_dv_type_list(
-                        moris::Cell< moris::Cell< ge::PDV_Type > > & aDvTypes,
+                        moris::Cell< moris::Cell< gen::PDV_Type > > & aDvTypes,
                         moris::Cell< std::string >             & aDvStrings,
                         mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
                 {
@@ -371,7 +371,7 @@ namespace moris
                  * @param[ in ]  aIsLeader enum leader or follower
                  * @param[ out ] aDvTypes a list of group of dv types
                  */
-                const moris::Cell< moris::Cell< ge::PDV_Type > > & get_dv_type_list(
+                const moris::Cell< moris::Cell< gen::PDV_Type > > & get_dv_type_list(
                         mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
                 //------------------------------------------------------------------------------
@@ -392,7 +392,7 @@ namespace moris
                 void get_non_unique_dof_types( moris::Cell< MSI::Dof_Type > & aDofTypes );
                 void get_non_unique_dof_and_dv_types(
                         moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        moris::Cell< ge::PDV_Type >      & aDvTypes );
+                        moris::Cell< gen::PDV_Type >      & aDvTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -473,7 +473,7 @@ namespace moris
                  * get global dv type list
                  * @param[ out ] mGlobalDvTypes global list of dv type
                  */
-                const moris::Cell< moris::Cell< ge::PDV_Type > > & get_global_dv_type_list(
+                const moris::Cell< moris::Cell< gen::PDV_Type > > & get_global_dv_type_list(
                         mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
                 //------------------------------------------------------------------------------
@@ -494,7 +494,7 @@ namespace moris
                  * @param[ in ]  aDvType       a group of dv types
                  * @param[ out ] tDvDependency a bool true if dependency on dv type
                  */
-                bool check_leader_dv_dependency( const moris::Cell< ge::PDV_Type > & aDvType );
+                bool check_leader_dv_dependency( const moris::Cell< gen::PDV_Type > & aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -503,7 +503,7 @@ namespace moris
                  * @param[ out ] tDvDependency a bool true if dependency on dv type
                  *
                  */
-                bool check_follower_dv_dependency( const moris::Cell< ge::PDV_Type > & aDvType );
+                bool check_follower_dv_dependency( const moris::Cell< gen::PDV_Type > & aDvType );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -597,14 +597,14 @@ namespace moris
                  * @param[ in ]  aDvTypes      dv type wrt which the derivative is evaluated
                  * @param[ out ] mdSPdLeaderDv stabilization parameter derivative wrt leader dv
                  */
-                const Matrix< DDRMat > & dSPdLeaderDV( const moris::Cell< ge::PDV_Type > & aDvTypes );
+                const Matrix< DDRMat > & dSPdLeaderDV( const moris::Cell< gen::PDV_Type > & aDvTypes );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the stabilization parameter derivative wrt leader dv
                  * @param[ in ] aDvTypes dv type wrt which the derivative is evaluated
                  */
-                virtual void eval_dSPdLeaderDV( const moris::Cell< ge::PDV_Type > & aDvTypes )
+                virtual void eval_dSPdLeaderDV( const moris::Cell< gen::PDV_Type > & aDvTypes )
                 {
                     MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdLeaderDV - Not implemented for base class. " );
                 }
@@ -615,14 +615,14 @@ namespace moris
                  * @param[ in ]  aDvTypes     a dv type wrt which the derivative is evaluated
                  * @param[ out ] mdSPdFollowerDv stabilization parameter derivative wrt leader dv
                  */
-                const Matrix< DDRMat > & dSPdFollowerDV( const moris::Cell< ge::PDV_Type > & aDvTypes );
+                const Matrix< DDRMat > & dSPdFollowerDV( const moris::Cell< gen::PDV_Type > & aDvTypes );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the stabilization parameter derivative wrt follower dv
                  * @param[ in ] aDvTypes dv type wrt which the derivative is evaluated
                  */
-                virtual void eval_dSPdFollowerDV( const moris::Cell< ge::PDV_Type > & aDvTypes )
+                virtual void eval_dSPdFollowerDV( const moris::Cell< gen::PDV_Type > & aDvTypes )
                 {
                     MORIS_ERROR( false, " Stabilization_Parameter::eval_dSPdFollowerDV - Not implemented for base class. " );
                 }

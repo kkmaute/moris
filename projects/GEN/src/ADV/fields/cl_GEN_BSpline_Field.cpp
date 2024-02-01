@@ -21,7 +21,7 @@
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 

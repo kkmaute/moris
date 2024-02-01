@@ -14,7 +14,7 @@
 #include "cl_GEN_Field_Analytic.hpp"
 #include "cl_Library_IO.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     // User-defined field functions
     typedef real ( *Field_Function )(

@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Intersection_Node_Level_Set.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Intersection_Node_Bilinear : public Intersection_Node_Level_Set
     {

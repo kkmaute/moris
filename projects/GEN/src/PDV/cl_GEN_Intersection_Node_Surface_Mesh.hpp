@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Intersection_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Surface_Mesh_Geometry;
 

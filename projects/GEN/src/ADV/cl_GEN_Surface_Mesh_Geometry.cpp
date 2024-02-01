@@ -15,7 +15,7 @@
 #include "cl_GEN_Parent_Node.hpp"
 #include "fn_cross.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -294,4 +294,4 @@ namespace moris::ge
     
     //--------------------------------------------------------------------------------------------------------------
     
-}    // namespace moris::ge
+}    // namespace moris::gen

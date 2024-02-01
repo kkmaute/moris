@@ -64,7 +64,7 @@ namespace moris
             tCM->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
 
             // set dv types
-            tCM->set_dv_type_list( {{ ge::PDV_Type::LS1 }} );
+            tCM->set_dv_type_list( {{ gen::PDV_Type::LS1 }} );
 
             // set property
             tCM->set_property( tProp, "Conductivity" );
@@ -78,8 +78,8 @@ namespace moris
 
             // create a dv field interpolator
             Cell< Field_Interpolator* > tDvFIs( 2, nullptr );
-            tDvFIs( 0 ) = new Field_Interpolator ( 1, { ge::PDV_Type::LS1 } );
-            tDvFIs( 1 ) = new Field_Interpolator ( 1, { ge::PDV_Type::LS2 } );
+            tDvFIs( 0 ) = new Field_Interpolator ( 1, { gen::PDV_Type::LS1 } );
+            tDvFIs( 1 ) = new Field_Interpolator ( 1, { gen::PDV_Type::LS2 } );
 
             // set a fem set pointer
             MSI::Equation_Set * tSet = new fem::Set();

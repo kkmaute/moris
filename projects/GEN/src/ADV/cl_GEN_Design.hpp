@@ -13,10 +13,10 @@
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Field.hpp"
-namespace moris::ge
+namespace moris::gen
 {
     /**
-     * This is a struct used to simplify \ref moris::ge::Design_Field constructors. It contains additional parameters that
+     * This is a struct used to simplify \ref moris::gen::Design_Field constructors. It contains additional parameters that
      * are used by all fields, with given defaults.
      */
     struct Design_Parameters
@@ -139,4 +139,4 @@ namespace moris::ge
          */
         virtual void set_advs( sol::Dist_Vector* aADVs ) = 0;
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

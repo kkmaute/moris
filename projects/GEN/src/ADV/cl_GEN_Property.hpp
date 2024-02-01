@@ -14,7 +14,7 @@
 #include "GEN_Data_Types.hpp"
 #include "cl_GEN_Design.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * This struct contains additional parameters that are used by properties.
@@ -165,4 +165,4 @@ namespace moris::ge
          */
         virtual real get_discretization_upper_bound() override;
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

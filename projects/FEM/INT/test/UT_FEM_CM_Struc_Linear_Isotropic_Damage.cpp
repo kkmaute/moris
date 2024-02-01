@@ -273,7 +273,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -797,7 +797,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -1311,7 +1311,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -1835,7 +1835,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -2359,7 +2359,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -2883,7 +2883,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -3408,7 +3408,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
 //             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 //
 //             // create a field interpolator manager
-//             moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
+//             moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
 //             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
 //             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 //
