@@ -346,9 +346,12 @@ namespace moris::ge
                 const Matrix< DDRMat >& aNodeCoordinates );
 
         /**
-         * @brief Provided the inside and out phase values for an entity, return the phase index
+         * Determines the phase of an element based on the geometric regions at each vertex.
+         *
+         * @param aCell Cell with vertices for geometric region evaluation
+         * @return element phase index
          */
-        moris_index get_elem_phase_index( Matrix< IndexMat > const & aElemOnOff );
+        moris_index get_element_phase_index( const mtk::Cell& aCell );
 
         /**
          * @brief Returns the number of geometries

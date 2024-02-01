@@ -99,7 +99,6 @@ set(HEADERS
     fn_XTK_match_normal_to_side_ordinal.hpp 
     cl_XTK_Basis_Processor.hpp
     cl_XTK_HMR_Helper.hpp
-    cl_XTK_Proximity.hpp
     )                                                                                                                                                                                                                                                                   
 
 
@@ -164,7 +163,6 @@ set(LIB_SOURCES
     cl_XTK_Integration_Mesh_Cleanup.cpp 
     cl_XTK_Basis_Processor.cpp
     cl_XTK_HMR_Helper.cpp
-    cl_XTK_Proximity.cpp 
     )
 
 # List library dependencies

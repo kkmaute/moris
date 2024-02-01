@@ -784,14 +784,6 @@ namespace xtk
         void
         compute_ig_cell_bulk_phase( Cut_Integration_Mesh* aCutIntegrationMesh );
 
-        // ----------------------------------------------------------------------------------
-
-        moris_index
-        deduce_ig_cell_bulk_phase_index( moris::mtk::Cell const * aCell );
-
-        moris_index
-        deduce_ig_cell_bulk_phase_from_vertices( moris::mtk::Cell const * aCell );
-
         moris_index
         deduce_ig_cell_bulk_phase_from_facets(
                 moris::mtk::Cell const * aCell,

@@ -522,13 +522,42 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Geometry_Engine::get_elem_phase_index( Matrix< IndexMat > const & aElemOnOff )
+    Geometry_Engine::get_element_phase_index( const mtk::Cell& aCell )
     {
-        // FIXME
+        // Get the vertices that are a part of this cell
+        Cell< mtk::Vertex* > tVertices = aCell.get_vertex_pointers();
+
+        // Start geometry bitset
         Geometry_Bitset tGeometrySigns( 0 );
-        for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
+
+        // Loop over all geometries
+        for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
         {
-            tGeometrySigns.set( tGeometryIndex, aElemOnOff( tGeometryIndex ) );
+            // Loop over vertices on the cell
+            for ( auto iVertex : tVertices )
+            {
+                // Get geometric region
+                Geometric_Region tGeometricRegion = mGeometries( iGeometryIndex )->get_geometric_region(
+                        iVertex->get_index(),
+                        iVertex->get_coords() );
+
+                // If we can determine the region already, do so
+                if ( tGeometricRegion == Geometric_Region::NEGATIVE )
+                {
+                    tGeometrySigns.set( iGeometryIndex, false );
+                    goto region_determined;
+                }
+                else if ( tGeometricRegion == Geometric_Region::POSITIVE )
+                {
+                    tGeometrySigns.set( iGeometryIndex, true );
+                    goto region_determined;
+                }
+            }
+
+            // All vertices are (somehow) on the interface; return that this is a problem
+            return MORIS_INDEX_MAX;
+
+        region_determined:;
         }
 
         return mPhaseTable.get_phase_index( tGeometrySigns );
