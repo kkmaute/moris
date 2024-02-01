@@ -2014,22 +2014,21 @@ namespace moris::ge
 
         // Recreate phase table via different methods if needed
         std::string tPhaseFunctionName = aParameterLists( 0 )( 0 ).get< std::string >( "phase_function_name" );
-        if ( tPhaseFunctionName != "" )
+        if ( not tPhaseFunctionName.empty() )
         {
             // User-defined phase function
-            return Phase_Table(
-                    aLibrary->load_function< PHASE_FUNCTION >( tPhaseFunctionName ),
-                    aParameterLists( 0 )( 0 ).get< sint >( "number_of_phases" ) );
+            return { aLibrary->load_function< PHASE_FUNCTION >( tPhaseFunctionName ),
+                    static_cast< uint >( aParameterLists( 0 )( 0 ).get< sint >( "number_of_phases" ) ) };
         }
-        else if ( aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ) != "" )
+        else if ( not aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ).empty() )
         {
             // User-defined bulk phases
-            return Phase_Table( tNumGeometries, string_to_mat< DDUMat >( aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ) ) );
+            return { tNumGeometries, string_to_mat< DDUMat >( aParameterLists( 0 )( 0 ).get< std::string >( "phase_table" ) ) };
         }
         else
         {
             // Unique phase per geometry combination
-            return Phase_Table( tNumGeometries );
+            return { tNumGeometries };
         }
     }
 
@@ -2037,25 +2036,25 @@ namespace moris::ge
 
     Phase_Table
     Geometry_Engine::create_phase_table(
-            uint             aNumGeometries,
-            Matrix< DDUMat > aBulkPhases,
-            PHASE_FUNCTION   aPhaseFunction,
-            uint             aNumPhases )
+            uint                    aNumGeometries,
+            const Matrix< DDUMat >& aBulkPhases,
+            PHASE_FUNCTION          aPhaseFunction,
+            uint                    aNumPhases )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create phase table" );
 
         if ( aPhaseFunction )
         {
-            return Phase_Table( aPhaseFunction, aNumPhases );
+            return { aPhaseFunction, aNumPhases };
         }
         else if ( aBulkPhases.length() > 0 )
         {
-            return Phase_Table( aNumGeometries, aBulkPhases );
+            return { aNumGeometries, aBulkPhases };
         }
         else
         {
-            return Phase_Table( aNumGeometries );
+            return { aNumGeometries };
         }
     }
 

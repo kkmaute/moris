@@ -350,17 +350,6 @@ namespace moris::ge
          */
         moris_index get_elem_phase_index( Matrix< IndexMat > const & aElemOnOff );
 
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @brief Returns whether a node is inside or outside wrt to a given geometry index
-         */
-        size_t get_node_phase_index_wrt_a_geometry(
-                uint aNodeIndex,
-                uint aGeometryIndex );
-
-        //-------------------------------------------------------------------------------
-
         /**
          * @brief Returns the number of geometries
          */
@@ -549,10 +538,10 @@ namespace moris::ge
          * @return Phase table
          */
         static Phase_Table create_phase_table(
-                uint             aNumGeometries,
-                Matrix< DDUMat > aBulkPhases,
-                PHASE_FUNCTION   aPhaseFunction = nullptr,
-                uint             aNumPhases     = 1 );
+                uint                    aNumGeometries,
+                const Matrix< DDUMat >& aBulkPhases,
+                PHASE_FUNCTION          aPhaseFunction = nullptr,
+                uint                    aNumPhases     = 1 );
 
     };
 }
