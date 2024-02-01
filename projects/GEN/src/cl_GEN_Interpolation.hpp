@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_INTERPOLATON_HPP_
-#define PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_INTERPOLATON_HPP_
+#pragma once
 
 // Matrix Include
 #include "cl_Matrix.hpp"
@@ -252,6 +251,3 @@ namespace moris::ge
             }
     };
 }
-
-#endif /* PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_INTERPOLATON_HPP_ */
-

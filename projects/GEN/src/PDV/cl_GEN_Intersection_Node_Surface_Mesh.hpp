@@ -8,11 +8,9 @@
  *
  */
 
-#ifndef MORIS_CL_GEN_INTERSECTION_NODE_SURFACE_MESH
-#define MORIS_CL_GEN_INTERSECTION_NODE_SURFACE_MESH
+#pragma once
 
 #include "cl_GEN_Intersection_Node.hpp"
-
 
 namespace moris::ge
 {
@@ -83,6 +81,4 @@ namespace moris::ge
 
         //--------------------------------------------------------------------------------------------------------------
     };
-}    // namespace moris::ge
-
-#endif    // MORIS_CL_GEN_INTERSECTION_NODE_SURFACE_MESH
+}
