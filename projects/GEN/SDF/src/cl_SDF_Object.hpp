@@ -107,7 +107,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             uint
-            get_dimension()
+            get_dimension() const
             {
                 return mDimension;
             }

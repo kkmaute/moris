@@ -105,7 +105,7 @@ namespace moris::mig
                 moris_index tNodeOwner = 0;
 
                 // add nodes to the ge
-                mGeometryEngine->update_queued_intersection( tNodeIndex, tNodeId, tNodeOwner );
+                mGeometryEngine->update_intersection_node( tNodeIndex, tNodeId, tNodeOwner );
             }
         }
         else
@@ -119,7 +119,7 @@ namespace moris::mig
                 moris_index tNodeOwner = 0;
 
                 // add nodes to the ge
-                mGeometryEngine->update_queued_intersection( tNodeIndex, tNodeId, tNodeOwner );
+                mGeometryEngine->update_intersection_node( tNodeIndex, tNodeId, tNodeOwner );
             }
         }
     }

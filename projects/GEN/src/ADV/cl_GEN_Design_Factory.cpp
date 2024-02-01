@@ -160,7 +160,8 @@ namespace moris::ge
                                     tVoxelFieldName,
                                     tDomainDimensions,
                                     tDomainOffset,
-                                    tGrainIdToValueMap );
+                                    tGrainIdToValueMap,
+                                    aNodeManager );
 
                             // Get number of voxel IDs
                             uint tNumberOfVoxelIDs = tVoxelInput->get_num_voxel_IDs();
@@ -171,10 +172,11 @@ namespace moris::ge
                             // Create each single voxel geometry
                             for ( uint iVoxelIndex = 0; iVoxelIndex < tNumberOfVoxelIDs; iVoxelIndex++ )
                             {
-                                // TODO: this can be uncommented and tested once the below fixme is resolved.
-                                // mGeometries( tGeometryIndex++ ) = std::make_shared< Voxel_Geometry >( tVoxelInput, iVoxelIndex );
+                                mGeometries( tGeometryIndex++ ) = std::make_shared< Voxel_Geometry >( tVoxelInput, iVoxelIndex );
                             }
-                            MORIS_ERROR( false, "Voxel geometry is not yet working." );
+
+                            // Let the factory know it is still working
+                            tSomethingHasBeenBuilt = true;
                         }
                         else if ( tGeometryType == "surface_mesh" )
                         {

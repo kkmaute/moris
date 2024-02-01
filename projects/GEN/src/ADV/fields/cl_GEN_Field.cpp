@@ -104,7 +104,7 @@ namespace moris::ge
         for ( auto iBasisNode : aBasisNodes )
         {
             // Check if we have a background node
-            if ( aNodeManager.is_base_node( iBasisNode.get_index() ) )
+            if ( aNodeManager.is_background_node( iBasisNode.get_index() ) )
             {
                 // Background node, we can directly add its contribution
                 tFieldValue += this->get_field_value( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis();
@@ -132,7 +132,7 @@ namespace moris::ge
         for ( auto iBasisNode : aBasisNodes )
         {
             // Check if we have a background node
-            if ( aNodeManager.is_base_node( iBasisNode.get_index() ) )
+            if ( aNodeManager.is_background_node( iBasisNode.get_index() ) )
             {
                 // Get locator sensitivities
                 Matrix< DDRMat > tBasisNodeSensitivities = this->get_dfield_dadvs( iBasisNode.get_index(), iBasisNode.get_global_coordinates() ) * iBasisNode.get_basis() * aBasisFactor;
@@ -172,9 +172,12 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field::get_determining_adv_ids( Matrix< DDSMat >& aDeterminingADVIDs, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    void Field::get_determining_adv_ids(
+            Matrix< DDSMat >& aDeterminingADVIDs,
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
-        aDeterminingADVIDs = this->get_determining_adv_ids( aDerivedNode->get_index(), aDerivedNode->get_global_coordinates() );
+        aDeterminingADVIDs = this->get_determining_adv_ids( aDerivedNode.get_index(), aDerivedNode.get_global_coordinates() );
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -188,7 +191,7 @@ namespace moris::ge
         for ( auto iBasisNode : aBasisNodes )
         {
             // Check if we have a background node
-            if ( aNodeManager.is_base_node( iBasisNode.get_index() ) )
+            if ( aNodeManager.is_background_node( iBasisNode.get_index() ) )
             {
                 // Get locator sensitivities
                 Matrix< DDSMat > tBasisNodeADVIDs = this->get_determining_adv_ids( iBasisNode.get_index(), iBasisNode.get_global_coordinates() );

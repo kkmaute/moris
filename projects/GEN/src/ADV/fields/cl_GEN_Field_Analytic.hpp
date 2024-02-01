@@ -83,7 +83,7 @@ namespace moris::ge
          */
         real get_field_value(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates ) override
+                const Matrix< DDRMat >& aCoordinates ) final
         {
             return this->get_field_value( aCoordinates );
         }
@@ -92,13 +92,14 @@ namespace moris::ge
          * Gets a field value of a derived node.
          *
          * @param aDerivedNode Derived node
+         * @param aNodeManager Node manager
          * @return Field value
          */
         real get_field_value(
-                Derived_Node*       aDerivedNode,
-                const Node_Manager& aNodeManager ) override
+                const Derived_Node& aDerivedNode,
+                const Node_Manager& aNodeManager ) final
         {
-            return this->get_field_value( aDerivedNode->get_global_coordinates() );
+            return this->get_field_value( aDerivedNode.get_global_coordinates() );
         }
 
         /**
@@ -118,7 +119,7 @@ namespace moris::ge
          */
         const Matrix< DDRMat >& get_dfield_dadvs(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates ) override
+                const Matrix< DDRMat >& aCoordinates ) final
         {
             return this->get_dfield_dadvs( aCoordinates );
         }
@@ -126,15 +127,16 @@ namespace moris::ge
         /**
          * Gets a vector of the field derivatives with respect to ADVs of a derived node.
          *
+         * @param aSensitivities Sensitivities to fill for the given derived node
          * @param aDerivedNode Derived node
-         * @return d(field value)/d(ADV_j)
+         * @param aNodeManager Node manager
          */
         void get_dfield_dadvs(
                 Matrix< DDRMat >&   aSensitivities,
-                Derived_Node*       aDerivedNode,
-                const Node_Manager& aNodeManager ) override
+                const Derived_Node& aDerivedNode,
+                const Node_Manager& aNodeManager ) final
         {
-            aSensitivities = this->get_dfield_dadvs( aDerivedNode->get_global_coordinates() );
+            aSensitivities = this->get_dfield_dadvs( aDerivedNode.get_global_coordinates() );
         }
 
         /**
@@ -156,7 +158,7 @@ namespace moris::ge
         void get_dfield_dcoordinates(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities ) override
+                Matrix< DDRMat >&       aSensitivities ) final
         {
             this->get_dfield_dcoordinates( aCoordinates, aSensitivities );
         }

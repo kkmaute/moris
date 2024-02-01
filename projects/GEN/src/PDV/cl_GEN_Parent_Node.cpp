@@ -17,7 +17,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Parent_Node::Parent_Node(
-            Node*                   aNode,
+            const Node&             aNode,
             const Matrix< DDRMat >& aParametricCoordinates )
             : mNode( aNode )
             , mParametricCoordinates( aParametricCoordinates )
@@ -28,14 +28,14 @@ namespace moris::ge
 
     uint Parent_Node::get_index() const
     {
-        return mNode->get_index();
+        return mNode.get_index();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     const Matrix< DDRMat >& Parent_Node::get_global_coordinates() const
     {
-        return mNode->get_global_coordinates();
+        return mNode.get_global_coordinates();
     }
 
     //--------------------------------------------------------------------------------------------------------------

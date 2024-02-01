@@ -34,6 +34,13 @@ namespace moris
                     Geometry_Engine_Parameters aParameters = {});
 
             /**
+             * Gets the node manager
+             *
+             * @return Node manager
+             */
+            Node_Manager& get_node_manager();
+
+            /**
              * Gets a geometry
              *
              * @param aGeometryIndex Geometry index

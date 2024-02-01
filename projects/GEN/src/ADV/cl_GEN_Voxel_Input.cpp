@@ -20,15 +20,32 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Voxel_Input::Voxel_Input(
-            std::string               aVoxelFieldName,
-            Matrix< DDRMat >          aDomainDimensions,
-            Matrix< DDRMat >          aDomainOffset,
-            Matrix< DDRMat >          aGrainIdToValueMap )
-            : mDomainDimensions( aDomainDimensions )
+            std::string      aVoxelFileName,
+            Matrix< DDRMat > aDomainDimensions,
+            Matrix< DDRMat > aDomainOffset,
+            Matrix< DDRMat > aGrainIdToValueMap,
+            Node_Manager&    aNodeManager )
+            : mVoxelFileName( aVoxelFileName )
+            , mNodeManager( aNodeManager )
+            , mDomainDimensions( aDomainDimensions )
             , mDomainOffset( aDomainOffset )
             , mGrainIdToValueMap( aGrainIdToValueMap )
     {
-        this->read_voxel_data( aVoxelFieldName );
+        this->read_voxel_data( aVoxelFileName );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string Voxel_Input::get_file_name()
+    {
+        return mVoxelFileName;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Node_Manager& Voxel_Input::get_node_manager()
+    {
+        return mNodeManager;
     }
 
     //--------------------------------------------------------------------------------------------------------------

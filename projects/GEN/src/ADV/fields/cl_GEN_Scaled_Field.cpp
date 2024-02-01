@@ -23,7 +23,9 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Scaled_Field::get_field_value( Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    real Scaled_Field::get_field_value(
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
         return mADVManager.get_variable( 0 ) * mField->get_field_value( aDerivedNode, aNodeManager );
     }
@@ -39,7 +41,10 @@ namespace moris::ge
     }
     //--------------------------------------------------------------------------------------------------------------
 
-    void Scaled_Field::get_dfield_dadvs( Matrix< DDRMat >& aSensitivities, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    void Scaled_Field::get_dfield_dadvs(
+            Matrix< DDRMat >&   aSensitivities,
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
         mField->get_dfield_dadvs( aSensitivities, aDerivedNode, aNodeManager );
         aSensitivities = aSensitivities * mADVManager.get_variable( 0 );
@@ -57,7 +62,10 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Scaled_Field::get_determining_adv_ids( Matrix< DDSMat >& aDeterminingADVIDs, Derived_Node* aDerivedNode, const Node_Manager& aNodeManager )
+    void Scaled_Field::get_determining_adv_ids(
+            Matrix< DDSMat >&   aDeterminingADVIDs,
+            const Derived_Node& aDerivedNode,
+            const Node_Manager& aNodeManager )
     {
         return mField->get_determining_adv_ids( aDeterminingADVIDs, aDerivedNode, aNodeManager );
     }

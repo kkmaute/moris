@@ -58,7 +58,7 @@ namespace moris::ge
         /**
          * Default destructor
          */
-        virtual ~Geometry() = default;
+        ~Geometry() override = default;
 
         /**
          * Sets a new node manager (from the geometry engine, if it was created after this geometry).
@@ -73,7 +73,7 @@ namespace moris::ge
          *
          * @return ADV dependence
          */
-        virtual bool depends_on_advs() = 0;
+        virtual bool depends_on_advs() const = 0;
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -92,7 +92,7 @@ namespace moris::ge
          * requested from the created intersection node.
          *
          * @param aNodeIndex Node index of the new intersection node
-         * @param aBaseNodes Base nodes of the element where the intersection lies
+         * @param aBackgroundNodes Background nodes of the element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
          * @param aBackgroundGeometryType Geometry type of the background element
@@ -101,11 +101,24 @@ namespace moris::ge
          */
         virtual Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBaseNodes,
+                const Cell< Node* >&     aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
                 mtk::Interpolation_Order aBackgroundInterpolationOrder ) = 0;
+
+        /**
+         * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
+         *
+         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aFirstParentNode Node marking the starting point of the intersection edge
+         * @param aSecondParentNode Node marking the ending point of the intersection edge
+         * @return Parent edge local coordinate, between -1 and 1
+         */
+        virtual real compute_intersection_local_coordinate(
+                const Cell< Node* >& aBackgroundNodes,
+                const Parent_Node&   aFirstParentNode,
+                const Parent_Node&   aSecondParentNode ) = 0;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh

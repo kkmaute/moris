@@ -128,26 +128,11 @@ namespace moris
                 MORIS_ERROR( false, "MSI_Design_Variable_Interface::set_GenMeshMap() - This function is not defined in this class" );
             }
 
-            //------------------------------------------------------------------------------
-
-            /**
-             * get pdv values for requested vertex indices and dv types
-             * @param[ in ]     aNodeIndices list of vertex indices
-             * @param[ in ]     aDvTypes     list of dv types
-             * @param[ in/out ] aDvValues    list of dv values
-             * @param[ in/out ] aIsActiveDv  list of active whether or not dv is active
-             */
-            virtual void get_ip_pdv_value(
-                    const Matrix< IndexMat >&               aNodeIndices,
-                    const moris::Cell< enum ge::PDV_Type >&     aDvTypes,
-                    moris::Cell< moris::Matrix< DDRMat > >& aDvValues,
-                    moris::Cell< moris::Matrix< DDSMat > >& aIsActiveDv ) = 0;
-
             virtual void get_ig_pdv_value(
                     const Matrix< IndexMat >&               aNodeIndices,
-                    const moris::Cell< enum ge::PDV_Type >&     aDvTypes,
+                    const moris::Cell< enum ge::PDV_Type >& aDvTypes,
                     moris::Cell< moris::Matrix< DDRMat > >& aDvValues,
-                    moris::Cell< moris::Matrix< DDSMat > >& aIsActiveDv ) = 0;
+                    Cell< Cell< bool > >&                   aIsActiveDv ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -158,12 +143,7 @@ namespace moris
              * @param[ in/out ] aDvValues    list of dv values
              */
             virtual void get_ip_pdv_value(
-                    const Matrix< IndexMat >&               aNodeIndices,    // TODO: does this need to be overloaded?
-                    const moris::Cell< enum ge::PDV_Type >&     aDvTypes,
-                    moris::Cell< moris::Matrix< DDRMat > >& aDvValues ) = 0;
-
-            virtual void get_ig_pdv_value(
-                    const Matrix< IndexMat >&               aNodeIndices,    // TODO: does this need to be overloaded?
+                    const Matrix< IndexMat >&               aNodeIndices,
                     const moris::Cell< enum ge::PDV_Type >&     aDvTypes,
                     moris::Cell< moris::Matrix< DDRMat > >& aDvValues ) = 0;
 

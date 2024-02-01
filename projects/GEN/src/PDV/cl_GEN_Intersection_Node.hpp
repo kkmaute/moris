@@ -21,49 +21,39 @@ namespace moris::ge
 
     class Intersection_Node : public Derived_Node
     {
-      protected:
-        Matrix< DDSMat > mCoordinateDeterminingADVIDs;
-
       private:
         Cell< Basis_Node > mParentNodes;
-        std::shared_ptr< Geometry > mInterfaceGeometry;
         moris_id mPDVStartingID;
-        bool     mPDVStartingIDSet = false;
-
-        moris_id    mNodeID    = -1;
+        moris_id mNodeID    = -1;
         moris_index mNodeOwner = -1;
 
       public:
         /**
          * Constructor
          *
-         * @param aLocalCoordinate Local coordinate inside of parent edge
-         * @param aFirstParentNode First parent node if it is also an intersection node, otherwise nullptr
-         * @param aSecondParentNode Second parent node if it is also an intersection node, otherwise nullptr
-         * @param aFirstParentNodeIndex Index of the first parent of this node
-         * @param aSecondParentNodeIndex Index of the second parent of this node
-         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent of this node
-         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent of this node
-         * @param aAncestorNodeIndices Node indices of the ancestors of this intersection node
-         * @param aAncestorNodeCoordinates Coordinates of the ancestors of this intersection node
-         * @param aAncestorBasisFunction Basis function of the ancestor topology
+         * @param aNodeIndex This node's index on the processor if it is admitted
+         * @param aBackgroundNodes Background nodes of the element where this node resides
+         * @param aFirstParentNode First parent node information
+         * @param aSecondParentNode Second parent node information
+         * @param aBackgroundGeometryType Background element geometry type
+         * @param aBackgroundInterpolationOrder Background element interpolation order
+         * @param aInterfaceGeometry Interface geometry
          */
         Intersection_Node(
                 uint                        aNodeIndex,
-                const Cell< Node* >&        aBaseNodes,
+                const Cell< Node* >&        aBackgroundNodes,
                 const Parent_Node&          aFirstParentNode,
                 const Parent_Node&          aSecondParentNode,
                 real                        aLocalCoordinate,
                 mtk::Geometry_Type          aBackgroundGeometryType,
-                mtk::Interpolation_Order    aBackgroundInterpolationOrder,
-                std::shared_ptr< Geometry > aInterfaceGeometry );
+                mtk::Interpolation_Order    aBackgroundInterpolationOrder );
 
         /**
          * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.
          *
          * @return ADV dependence
          */
-        bool depends_on_advs() override;
+        bool depends_on_advs() const override;
 
         /**
          * Gets the locator nodes of this derived node.
@@ -71,7 +61,7 @@ namespace moris::ge
          *
          * @return Locator nodes
          */
-        const Cell< Basis_Node >& get_locator_nodes() override;
+        const Cell< Basis_Node >& get_locator_nodes() const override;
 
         /**
          * Gets if this intersection node can be determined that it is on a specific interface without any field evaluation.
@@ -79,7 +69,7 @@ namespace moris::ge
          * @param aGeometry Potential interface geometry
          * @return If this node is on the requested interface
          */
-        bool is_on_interface( Geometry* aGeometry ) override;
+        bool is_on_interface( const Geometry& aGeometry ) const override;
 
         /**
          * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
@@ -108,86 +98,95 @@ namespace moris::ge
          *
          * @return Local coordinate
          */
-        real get_local_coordinate();
-
-        /**
-         * Get the value of a coordinate of this node
-         *
-         * @param aCoordinateIndex index of the coordinate, obtained from casting the related PDV coordinate type
-         * @return Coordinate value
-         */
-        real get_coordinate_value( uint aCoordinateIndex );
+        real get_local_coordinate() const;
 
         /**
          * Gets the number of PDVs on this intersection node.
          *
          * @return Number of PDVs
          */
-        uint get_num_pdvs();
+        uint get_num_pdvs() override;
 
         /**
          * Sets the starting index to be able to use the intersection coordinates of this node as PDVs
          *
          * @param aPDVStartingID The global index of the first PDV on the host
          */
-        void set_starting_pdv_id( moris_id aPDVStartingID );
+        void set_starting_pdv_id( moris_id aPDVStartingID ) override;
 
         /**
          * Get the starting global index for the intersection coordinate PDVs
          *
          * @return The global index of the first PDV on the host
          */
-        moris_id get_starting_pdv_id();
+        moris_id get_starting_pdv_id() override;
 
         /**
          * Set the node ID for this node.
          *
          * @param aNodeID Node ID
          */
-        void set_id( moris_id aNodeID );
+        void set_id( moris_id aNodeID ) override;
 
         /**
          * Set the owning processor for this node.
          *
          * @param aNodeOwner Owning processor
          */
-        void set_owner( moris_index aNodeOwner );
+        void set_owner( moris_index aNodeOwner ) override;
 
         /**
          * Get the ID for this node.
          *
          * @return Node ID
          */
-        moris_id get_id();
+        moris_id get_id() override;
 
         /**
          * Get the owning processor for this node.
          *
          * @return Owning processor
          */
-        moris_index get_owner();
+        moris_index get_owner() override;
 
       protected:
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface.
+         *
+         * @return Geometry reference
+         */
+        virtual Geometry& get_interface_geometry() = 0;
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface (const version)
+         *
+         * @return Const geometry reference
+         */
+        virtual const Geometry& get_interface_geometry() const = 0;
 
         /**
          * Gets the first parent node of this intersection node.
          *
          * @return First parent node
          */
-        Basis_Node& get_first_parent_node();
+        const Basis_Node& get_first_parent_node() const;
 
         /**
          * Gets the second parent node of this intersection node.
          *
          * @return Second parent node
          */
-        Basis_Node& get_second_parent_node();
+        const Basis_Node& get_second_parent_node() const;
 
         /**
          * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
          *
+         * @param aCombinedIDs Combined IDs
          * @param aIDsToAdd IDs to add
          */
-        void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
+        static void join_adv_ids(
+                Matrix< DDSMat >&       aCombinedIDs,
+                const Matrix< DDSMat >& aIDsToAdd );
     };
 }

@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Base_Node.hpp
+ * cl_GEN_Background_Node.hpp
  *
  */
 
@@ -14,7 +14,7 @@
 
 namespace moris::ge
 {
-    class Base_Node : public Node
+    class Background_Node : public Node
     {
       private:
         Matrix< DDRMat > mCoordinates;
@@ -22,12 +22,12 @@ namespace moris::ge
 
       public:
         /**
-         * Base node constructor. Requires a node index as well as coordinates.
+         * Background node constructor. Requires a node index as well as coordinates.
          *
          * @param aIndex Node index
          * @param aCoordinates Node coordinates
          */
-        Base_Node(
+        Background_Node(
                 uint                    aIndex,
                 const Matrix< DDRMat >& aCoordinates );
 
@@ -36,7 +36,15 @@ namespace moris::ge
          *
          * @return Node coordinates
          */
-        const Matrix< DDRMat >& get_global_coordinates() override;
+        const Matrix< DDRMat >& get_global_coordinates() const override;
+
+        /**
+         * Get the value of a coordinate of this node
+         *
+         * @param aCoordinateIndex index of the coordinate, obtained from casting the related PDV coordinate type
+         * @return Coordinate value
+         */
+        real get_coordinate_value( uint aCoordinateIndex ) const override;
 
         /**
          * Gets the locator nodes of this node.
@@ -45,6 +53,6 @@ namespace moris::ge
          *
          * @return Locator nodes (empty)
          */
-        const Cell< Basis_Node >& get_locator_nodes() override;
+        const Cell< Basis_Node >& get_locator_nodes() const override;
     };
 }

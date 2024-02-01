@@ -86,9 +86,6 @@ echo "setenv SSL_DIR  "        `spack location --install-dir openssl`          >
 echo "setenv CMAKE_DIR  "      `spack location --install-dir cmake`            >> $HOME/.cshrc_moris
 echo "setenv Trilinos_DIR       $Trilinos_DIR"                                 >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
-echo 'setenv ZLIB_LIBRARY_DIR  $ZLIB_DIR/lib'                                  >> $HOME/.cshrc_moris 
-echo 'setenv SSL_LIBRARY_DIR   $SSL_DIR/lib'                                   >> $HOME/.cshrc_moris 
-echo ""                                                                        >> $HOME/.cshrc_moris
 
 if [ $GCMMA_INSTALLED == "1" ];then
 echo "setenv GCMMA_DIR"        `spack location --install-dir gcmma`            >> $HOME/.cshrc_moris
@@ -147,6 +144,8 @@ fi
 
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv LD_LIBRARY_PATH $GCCLIB/lib64"                                    >> $HOME/.cshrc_moris 
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$ZLIB_DIR/lib'                  >> $HOME/.cshrc_moris 
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$SSL_DIR/lib64'                 >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MPI_HOME/lib64'                >> $HOME/.cshrc_moris 
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$Armadillo_DIR/lib64'           >> $HOME/.cshrc_moris 

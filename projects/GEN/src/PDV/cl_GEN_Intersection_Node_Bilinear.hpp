@@ -17,28 +17,28 @@ namespace moris::ge
     class Intersection_Node_Bilinear : public Intersection_Node_Level_Set
     {
       private:
-        Matrix< DDRMat > mFirstParentNodeParametricCoordinates;
-        Matrix< DDRMat > mSecondParentNodeParametricCoordinates;
+        Matrix< DDRMat > mParametricParentVector;
 
       public:
         /**
          * Constructor
-         * 
-         * @param aNodeIndex the index that will be assigned to this node if it is admitted
-         * @param aBaseNodes the background nodes that correspond to this intersection node
-         * @param aFirstParentNode the first node that this intersection node lies between
-         * @param aSecondParentNode the other node that this intersection node lies between
-         * @param aBaseGeometryType type of collection of base nodes. QUAD for 2D and HEX for 3D
-         * @param aInterfaceGeometry geometry that intersects the parents to create this intersection node
+         *
+         * @param aNodeIndex This node's index on the processor if it is admitted
+         * @param aBackgroundNodes Background nodes of the element where this node resides
+         * @param aFirstParentNode First parent node information
+         * @param aSecondParentNode Second parent node information
+         * @param aBackgroundGeometryType Background element geometry type
+         * @param aBackgroundInterpolationOrder Background element interpolation order
+         * @param aInterfaceGeometry Interface geometry (level set)
          */
         Intersection_Node_Bilinear(
-                uint                                  aNodeIndex,
-                const Cell< Node* >&                  aBaseNodes,
-                const Parent_Node&                    aFirstParentNode,
-                const Parent_Node&                    aSecondParentNode,
-                mtk::Geometry_Type                    aBackgroundGeometryType,
-                mtk::Interpolation_Order              aBackgroundInterpolationOrder,
-                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
+                uint                     aNodeIndex,
+                const Cell< Node* >&     aBackgroundNodes,
+                const Parent_Node&       aFirstParentNode,
+                const Parent_Node&       aSecondParentNode,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder,
+                Level_Set_Geometry&      aInterfaceGeometry );
 
       private:
 
@@ -48,7 +48,7 @@ namespace moris::ge
          *
          * @return Basis nodes for interpolating sensitivities
          */
-        const Cell< Basis_Node >& get_field_basis_nodes() override;
+        const Cell< Basis_Node >& get_field_basis_nodes() const override;
 
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -56,7 +56,7 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) override;
+        real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const override;
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -64,7 +64,7 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() override;
+        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const override;
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -72,24 +72,6 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() override;
-
-        /**
-         * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
-         *
-         * @param aFirstParentNodeLocalCoordinates Local coordinates of the first parent node with respect to
-         * the given ancestors
-         * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
-         * the given ancestors
-         * @param aAncestorNodeIndices Ancestor node indices
-         * @param aAncestorNodeCoordinates Ancestor node coordinates
-         * @param aInterfaceGeometry Geometry that intersects the parent to create this child
-         * @return Local coordinates
-         */
-        static real compute_local_coordinate(
-                const Cell< Node* >&                  aBaseNodes,
-                const Parent_Node&                    aFirstParentNode,
-                const Parent_Node&                    aSecondParentNode,
-                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
+        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
     };
 }

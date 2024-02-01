@@ -19,12 +19,14 @@ namespace moris::ge
     {
 
       private:
+        std::string             mVoxelFileName;
+        Node_Manager&           mNodeManager;
+
         moris::Matrix< DDRMat > mDomainDimensions;
         moris::Matrix< DDRMat > mDomainOffset;
-
         moris::Matrix< DDRMat > mGrainIdToValueMap;
-
         moris::Matrix< DDUMat > mVoxelField;
+
         moris::uint             mVoxelsInX;
         moris::uint             mVoxelsInY;
         moris::uint             mVoxelsInZ;
@@ -36,10 +38,25 @@ namespace moris::ge
          * Constructor
          */
         Voxel_Input(
-                std::string               aVoxelFieldName,
-                Matrix< DDRMat >          aDomainDimensions,
-                Matrix< DDRMat >          aDomainOffset,
-                Matrix< DDRMat >          aGrainIdToValueMap );
+                std::string      aVoxelFileName,
+                Matrix< DDRMat > aDomainDimensions,
+                Matrix< DDRMat > aDomainOffset,
+                Matrix< DDRMat > aGrainIdToValueMap,
+                Node_Manager&    aNodeManager );
+
+        /**
+         * Gets the file name of the voxel field.
+         *
+         * @return File name
+         */
+        std::string get_file_name();
+
+        /**
+         * Gets the node manager being stored, so that each voxel geometry can use it.
+         *
+         * @return Node manager
+         */
+        const Node_Manager& get_node_manager();
 
         /**
          * Given a node coordinate, returns the field value.

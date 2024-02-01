@@ -450,10 +450,7 @@ namespace xtk
         aMeshGenerationData.mAllIntersectedBgCellInds.reserve( tNumCells );
 
         // Initialize geometric query
-        Geometric_Query_XTK tGeometricQuery;
-
-        // say I am just interested in a yes or no answer
-        tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_NO_LOCATION );
+        Geometric_Query tGeometricQuery;
 
         // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
         tGeometricQuery.set_coordinates_matrix( &aCutIntegrationMesh->mVertexCoordinates );
@@ -520,10 +517,7 @@ namespace xtk
         aMeshGenerationData.mAllNonIntersectedBgCellInds.reserve( tNumCells );
 
         // Initialize geometric query
-        Geometric_Query_XTK tGeometricQuery;
-
-        // say I am just interested in a yes or no answer
-        tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_NO_LOCATION );
+        Geometric_Query tGeometricQuery;
 
         // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
         tGeometricQuery.set_coordinates_matrix( &aCutIntegrationMesh->mVertexCoordinates );

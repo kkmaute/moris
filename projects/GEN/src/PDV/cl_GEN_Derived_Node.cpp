@@ -12,6 +12,7 @@
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "cl_MTK_Interpolation_Function.hpp"
+#include "cl_Communication_Tools.hpp"
 
 namespace moris::ge
 {
@@ -20,15 +21,15 @@ namespace moris::ge
 
     Derived_Node::Derived_Node(
             uint                     aIndex,
-            const Cell< Node* >&     aBaseNodes,
+            const Cell< Node* >&     aBackgroundNodes,
             const Matrix< DDRMat >&  aParametricCoordinates,
             mtk::Geometry_Type       aGeometryType,
             mtk::Interpolation_Order aInterpolationOrder )
             : Node( aIndex )
             , mParametricCoordinates( aParametricCoordinates )
     {
-        // Check that at least one base node was given
-        MORIS_ASSERT( aBaseNodes.size() > 0, "A derived GEN node must have at least one basis node." );
+        // Check that at least one background node was given
+        MORIS_ASSERT( aBackgroundNodes.size() > 0, "A derived GEN node must have at least one basis node." );
 
         // Override linear interpolation if desired
         if ( gOverrideLinearInterpolation )
@@ -54,7 +55,7 @@ namespace moris::ge
         mBackgroundNodes.reserve( tNumberOfBases );
         for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
         {
-            mBackgroundNodes.emplace_back( aBaseNodes( iBasisIndex ), tBasis( iBasisIndex ) );
+            mBackgroundNodes.emplace_back( *aBackgroundNodes( iBasisIndex ), tBasis( iBasisIndex ) );
         }
 
         // Size global coordinates based on first locator
@@ -70,37 +71,90 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Derived_Node::get_global_coordinates()
+    const Matrix< DDRMat >& Derived_Node::get_global_coordinates() const
     {
         return mGlobalCoordinates;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Derived_Node::get_parametric_coordinates()
+    const Matrix< DDRMat >& Derived_Node::get_parametric_coordinates() const
     {
         return mParametricCoordinates;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_background_nodes()
+    const Cell< Basis_Node >& Derived_Node::get_background_nodes() const
     {
         return mBackgroundNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_locator_nodes()
+    const Cell< Basis_Node >& Derived_Node::get_locator_nodes() const
     {
         return mBackgroundNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Derived_Node::is_on_interface( Geometry* aGeometry )
+    bool Derived_Node::is_on_interface( const Geometry& aGeometry ) const
     {
         return false;
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    real Derived_Node::get_coordinate_value( uint aCoordinateIndex ) const
+    {
+        return mGlobalCoordinates( aCoordinateIndex );
+    }
+        
+    //--------------------------------------------------------------------------------------------------------------
+    
+    uint Derived_Node::get_num_pdvs()
+    {
+        return 0;
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    void Derived_Node::set_starting_pdv_id( moris_id aPDVStartingID )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    
+    moris_id Derived_Node::get_starting_pdv_id()
+    {
+        return -1;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    
+    void Derived_Node::set_id( moris_id aNodeID )
+    {
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    void Derived_Node::set_owner( moris_index aNodeOwner )
+    {
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    moris_id Derived_Node::get_id()
+    {
+        return -1;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    
+    moris_index Derived_Node::get_owner()
+    {
+        return par_rank();
     }
 
     //--------------------------------------------------------------------------------------------------------------

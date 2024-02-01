@@ -16,12 +16,6 @@
 
 namespace moris::ge
 {
-    enum class Int_Interpolation
-    {
-        LINEAR,
-        MULTILINEAR
-    };
-
     /**
      * This is a struct used to simplify \ref moris::ge::Level_Set_Geometry constructors. It contains all field and level-set parameters.
      */
@@ -39,9 +33,7 @@ namespace moris::ge
         explicit Level_Set_Parameters( const ParameterList& aParameterList = prm::create_level_set_geometry_parameter_list() );
     };
 
-    class Level_Set_Geometry : public Geometry
-            , public Design_Field
-            , public std::enable_shared_from_this< Level_Set_Geometry >    // TODO make it so we don't need enable_shared_from_this, should be possible in intersection node
+    class Level_Set_Geometry : public Geometry, public Design_Field
     {
       private:
         Level_Set_Parameters mParameters;
@@ -67,39 +59,18 @@ namespace moris::ge
         void set_node_manager( Node_Manager& aNodeManager ) override;
 
         /**
-         * Gets the mode of intersection used for this geometry
-         *
-         * @return Intersection_Mode enum
-         */
-        Intersection_Mode get_intersection_mode();
-
-        /**
          * Accesses the isocontour level that determines the interface for this geometry
          *
          * @return the isocontour level that determines the geometry interface
          */
-        real get_isocontour_threshold();
-
-        /**
-         * Acccesses the isocontour tolerance for this geometry
-         *
-         * @return isocontour tolerance
-         */
-        real get_isocontour_tolerance();
-
-        /**
-         * Accesses the intersection tolerance for this geometry
-         *
-         * @return The real value of the intersection tolerance
-         */
-        real get_intersection_tolerance();
+        real get_isocontour_threshold() const;
 
         /**
          * Gets if this geometry depends on ADVs.
          *
          * @return ADV dependence
          */
-        bool depends_on_advs() override;
+        bool depends_on_advs() const override;
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -118,7 +89,7 @@ namespace moris::ge
          * requested from the created intersection node.
          *
          * @param aNodeIndex Node index of the new intersection node
-         * @param aBaseNodes Base nodes of the element where the intersection lies
+         * @param aBackgroundNodes Background nodes of the element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
          * @param aBackgroundGeometryType Geometry type of the background element
@@ -127,11 +98,24 @@ namespace moris::ge
          */
         Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBaseNodes,
+                const Cell< Node* >&     aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
                 mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
+
+        /**
+         * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
+         *
+         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aFirstParentNode Node marking the starting point of the intersection edge
+         * @param aSecondParentNode Node marking the ending point of the intersection edge
+         * @return Parent edge local coordinate, between -1 and 1
+         */
+        real compute_intersection_local_coordinate(
+                const Cell< Node* >& aBackgroundNodes,
+                const Parent_Node&   aFirstParentNode,
+                const Parent_Node&   aSecondParentNode ) override;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -142,7 +126,7 @@ namespace moris::ge
          */
         void get_dfield_dcoordinates(
                 const Basis_Node& aParentNode,
-                Matrix< DDRMat >& aSensitivities );
+                Matrix< DDRMat >& aSensitivities ) const;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
@@ -150,14 +134,6 @@ namespace moris::ge
          * @return MTK field
          */
         Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
-
-        /**
-         * Determines the geometric region of a point based on a level set value
-         *
-         * @param aLevelSetValue Value of the level set function
-         * @return Geometric region enum
-         */
-        Geometric_Region determine_geometric_region( real aLevelSetValue );
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -203,7 +179,7 @@ namespace moris::ge
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
-        virtual void discretize(
+        void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
                 sol::Dist_Vector*             aOwnedADVs,
@@ -235,7 +211,7 @@ namespace moris::ge
          *
          * @return Underlying field
          */
-        std::shared_ptr< Field > get_field()
+        std::shared_ptr< Field > get_field() override
         {
             return Design_Field::mField;
         }
@@ -262,20 +238,29 @@ namespace moris::ge
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() const override;
+        moris_index get_discretization_mesh_index() override;
 
         /**
          * Gets the lower bound for a discretized field.
          *
          * @return Lower bound
          */
-        virtual real get_discretization_lower_bound() override;
+        real get_discretization_lower_bound() override;
 
         /**
          * Get the upper bound for a discretized field.
          *
          * @return Upper bound
          */
-        virtual real get_discretization_upper_bound() override;
+        real get_discretization_upper_bound() override;
+
+      private:
+        /**
+         * Determines the geometric region of a point based on a level set value
+         *
+         * @param aLevelSetValue Value of the level set function
+         * @return Geometric region enum
+         */
+        Geometric_Region determine_geometric_region( real aLevelSetValue ) const;
     };
 }    // namespace moris::ge

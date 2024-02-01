@@ -25,6 +25,7 @@
 * eigen (required)
 * hdf5 (required)
 * mpi implementation (required)
+* openblas (optional)
 * petsc (optional) with the following package
 *    mpi+metis+hypre+suite-sparse
 *    optional: mkl-pardiso
@@ -194,10 +195,20 @@ spack external find
 * scalapack: amdscalapack intel-mkl intel-oneapi-mkl netlib-scalapack
 * mkl:       intel-mkl intel-oneapi-mkl
 
+* for example:
 setenv blaspro    intel-mkl   
 setenv lapackpro  intel-mkl
 setenv sclpackpro intel-mkl   
 setenv mklpro     intel-mkl
+
+* or
+
+setenv blaspro    openblas 
+setenv lapackpro  openblas 
+setenv sclpackpro  
+setenv mklpro     intel-mkl
+
+* write setting to spack.yaml
 
 echo "  packages:\n    all:\n      providers:"                  >> spack.yaml
 echo "        blas: [$blaspro]\n        lapack: [$lapackpro]"   >> spack.yaml
@@ -209,19 +220,15 @@ echo "        scalapack: [$sclpackpro]\n        mkl: [$mklpro]" >> spack.yaml
 * as well as the optimization libraries;  to turn off one or all of these options, 
 * use for example:
 
-* users/non-developers with blas/lapack = intel-mkl or intel-oneapi-mkl
+* users/non-developers 
 
-spack add moris+mkl~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
+spack add moris~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
 
-* users/non-developers with blas/lapack = openblas
-
-spack add moris+openblas~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
-
-* otherwise use the following spack command to install default configuration
+* otherwise use the following spack command to install default configuration for developers
 
 spack add moris+pardiso+mumps
 
-* set local moris directory as source for spack install
+* and set local moris directory as source for spack install (not needed for user/non-developer mode)
 
 spack develop --path $WORKSPACE/moris moris@main
 

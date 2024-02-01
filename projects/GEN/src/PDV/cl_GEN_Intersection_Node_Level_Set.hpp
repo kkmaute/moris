@@ -19,29 +19,29 @@ namespace moris::ge
     class Intersection_Node_Level_Set : public Intersection_Node
     {
       protected:
-        std::weak_ptr< Level_Set_Geometry > mInterfaceGeometry;
+        Level_Set_Geometry& mInterfaceGeometry;
 
       public:
         /**
          * Constructor
-         * 
-         * @param aNodeIndex the index that will be assigned to this node if it is admitted
-         * @param aBaseNodes the background nodes that correspond to this intersection node
-         * @param aFirstParentNode the first node that this intersection node lies between
-         * @param aSecondParentNode the other node that this intersection node lies between
-         * @param aLocalCoordinate parametric coordinate of the intersection with respect to the parent nodes
-         * @param aBaseGeometryType type of collection of base nodes. QUAD for 2D and HEX for 3D
-         * @param aInterfaceGeometry geometry that intersects the parents to create this intersection node
+         *
+         * @param aNodeIndex This node's index on the processor if it is admitted
+         * @param aBackgroundNodes Background nodes of the element where this node resides
+         * @param aFirstParentNode First parent node information
+         * @param aSecondParentNode Second parent node information
+         * @param aLocalCoordinate Local coordinate along the parent edge
+         * @param aBackgroundGeometryType Background element geometry type
+         * @param aBackgroundInterpolationOrder Background element interpolation order
+         * @param aInterfaceGeometry Interface geometry (level set)
          */
         Intersection_Node_Level_Set(
-                uint                                  aNodeIndex,
-                const Cell< Node* >&                  aBaseNodes,
-                const Parent_Node&                    aFirstParentNode,
-                const Parent_Node&                    aSecondParentNode,
-                real                                  aLocalCoordinate,
-                mtk::Geometry_Type                    aBackgroundGeometryType,
-                mtk::Interpolation_Order              aBackgroundInterpolationOrder,
-                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
+                uint                     aNodeIndex,
+                const Cell< Node* >&     aBackgroundNodes,
+                const Parent_Node&       aFirstParentNode,
+                const Parent_Node&       aSecondParentNode,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder,
+                Level_Set_Geometry&      aInterfaceGeometry );
 
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
@@ -53,14 +53,30 @@ namespace moris::ge
          */
         void append_dcoordinate_dadv(
                 Matrix< DDRMat >&       aCoordinateSensitivities,
-                const Matrix< DDRMat >& aSensitivityFactor ) override;
+                const Matrix< DDRMat >& aSensitivityFactor ) const override;
 
         /**
          * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
          *
          * @return ADV IDs
          */
-        Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
+        Matrix< DDSMat > get_coordinate_determining_adv_ids() const override;
+
+      protected:
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface.
+         *
+         * @return Geometry shared pointer
+         */
+        Geometry& get_interface_geometry() override;
+
+        /**
+         * Gets the geometry that this intersection node was created on its interface (const version)
+         *
+         * @return Const geometry reference
+         */
+        const Geometry& get_interface_geometry() const override;
 
       private:
 
@@ -70,7 +86,7 @@ namespace moris::ge
          *
          * @return Basis nodes for interpolating sensitivities
          */
-        virtual const Cell< Basis_Node >& get_field_basis_nodes() = 0;
+        virtual const Cell< Basis_Node >& get_field_basis_nodes() const = 0;
 
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -79,7 +95,7 @@ namespace moris::ge
          * @param aAncestorIndex Ancestor index
          * @return Local coordinate sensitivity
          */
-        virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) = 0;
+        virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const = 0;
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -87,7 +103,7 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() = 0;
+        virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const = 0;
 
         /**
          * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -95,6 +111,6 @@ namespace moris::ge
          *
          * @return Local coordinate sensitivity
          */
-        virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() = 0;
+        virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const = 0;
     };
 }

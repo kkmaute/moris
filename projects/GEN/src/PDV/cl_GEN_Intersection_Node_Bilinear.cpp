@@ -17,36 +17,33 @@
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "cl_MTK_Enums.hpp"
 
-#include "fn_dot.hpp"
-#include "fn_norm.hpp"
-
 namespace moris::ge
 {
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Bilinear::Intersection_Node_Bilinear(
-            uint                                  aNodeIndex,
-            const Cell< Node* >&                  aBaseNodes,
-            const Parent_Node&                    aFirstParentNode,
-            const Parent_Node&                    aSecondParentNode,
-            mtk::Geometry_Type                    aBackgroundGeometryType,
-            mtk::Interpolation_Order              aBackgroundInterpolationOrder,
-            std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
+            uint                     aNodeIndex,
+            const Cell< Node* >&     aBackgroundNodes,
+            const Parent_Node&       aFirstParentNode,
+            const Parent_Node&       aSecondParentNode,
+            mtk::Geometry_Type       aBackgroundGeometryType,
+            mtk::Interpolation_Order aBackgroundInterpolationOrder,
+            Level_Set_Geometry&      aInterfaceGeometry )
             : Intersection_Node_Level_Set(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    Intersection_Node_Bilinear::compute_local_coordinate( aBaseNodes, aFirstParentNode, aSecondParentNode, aInterfaceGeometry ),
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder,
                     aInterfaceGeometry )
+            , mParametricParentVector( aSecondParentNode.get_parametric_coordinates() - aFirstParentNode.get_parametric_coordinates() )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Intersection_Node_Bilinear::get_field_basis_nodes()
+    const Cell< Basis_Node >& Intersection_Node_Bilinear::get_field_basis_nodes() const
     {
         return this->get_background_nodes();
     }
@@ -54,7 +51,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
+    Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const
     {
         // number of nodes to be used for interpolation
         uint tNumBases;
@@ -87,9 +84,6 @@ namespace moris::ge
             // return zero as only corner node level set values influence intersection
             return 0.0;
         }
-
-        // Locked interface geometry
-        std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
         // build interpolator
         mtk::Interpolation_Function_Factory tFactory;
@@ -128,7 +122,7 @@ namespace moris::ge
         const Cell< Basis_Node >& tBackgroundNodes = this->get_background_nodes();
         for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
-            tPhiBCNodes( iBackgroundNodeIndex ) = tLockedInterfaceGeometry->get_field_value(
+            tPhiBCNodes( iBackgroundNodeIndex ) = mInterfaceGeometry.get_field_value(
                     tBackgroundNodes( iBackgroundNodeIndex ).get_index(),
                     tBackgroundNodes( iBackgroundNodeIndex ).get_global_coordinates() );
         }
@@ -146,7 +140,7 @@ namespace moris::ge
         // compute Jacobian
         Matrix< DDRMat > tDBasisDxi;
         tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
-        Matrix< DDRMat > tJac = 0.5 * trans( mSecondParentNodeParametricCoordinates - mFirstParentNodeParametricCoordinates ) * tDBasisDxi * tPhiBCNodes;
+        Matrix< DDRMat > tJac = 0.5 * mParametricParentVector * tDBasisDxi * tPhiBCNodes;
 
         // delete interpolator
         delete tInterpolation;
@@ -158,7 +152,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent()
+    Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent() const
     {
         MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
         return { {} };
@@ -167,7 +161,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent()
+    Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent() const
     {
         MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
         return { {} };

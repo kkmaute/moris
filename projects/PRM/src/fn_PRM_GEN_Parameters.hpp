@@ -162,13 +162,11 @@ namespace moris::prm
     inline ParameterList
     create_level_set_geometry_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tLevelSetParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
-        insert_design_field_parameters( tLevelSetParameterList, aIncludeField );    // Inserts all design parameters
-        tLevelSetParameterList.set( "geometry_type", "level_set" );                 // Sets the geometry type to level set
-        tLevelSetParameterList.insert( "intersection_mode", "LEVEL_SET" );          // Deprecated
-        tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );               // Level set isocontour level
-        tLevelSetParameterList.insert( "isocontour_tolerance", 1e-12 );             // Interface tolerance based on geometry value
-
+        ParameterList tLevelSetParameterList = create_geometry_parameter_list();   // Inserts all geometry parameters
+        insert_design_field_parameters( tLevelSetParameterList, aIncludeField );   // Inserts all design parameters
+        tLevelSetParameterList.set( "geometry_type", "level_set" );                // Sets the geometry type to level set
+        tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );              // Level set isocontour level
+        tLevelSetParameterList.insert( "isocontour_tolerance", 1e-12 );            // Interface tolerance based on geometry value
         return tLevelSetParameterList;
     }
 

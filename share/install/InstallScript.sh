@@ -16,12 +16,25 @@
 export WORKSPACE=$HOME/codes
 
 # define developper mode: 0 for users; 1 for developpers
-# note: developer mode requires access to github optimization packages
-#       under gitbub.com/kkmaute: gcmma, lbfgs,and snopt
 export DEVELOPPER_MODE=0
 
-# define blas implementation INTEL_MKL: 0 for no; 1 for yes
-export INTEL_MKL=0
+# define blas and lapack provider:
+# options are:   amd, intel-mkl, intel-oneapi-mkl, openblas, netlib
+export BLASLAPACK=openblas
+
+# define whether petsc and slepc should be installed: 0 for no; 1 for yes
+export PETSC=0
+
+# define whether pardiso solver should be installed: 0 for no; 1 for yes
+export PARDISO=0
+
+# define whether mumps solver should be installed: 0 for no; 1 for yes
+export MUMPS=0
+
+# define wether optimization should be enabled: 0 for no; 1 for yes
+# note: optimization requires access to github optimization packages
+#       under gitbub.com/kkmaute: gcmma, lbfgs,and snopt
+export OPTALG=0
 
 # set compiler and version (see out of gcc --version)
 export COMPILER='gcc@11.3.0'
@@ -36,22 +49,99 @@ export VERBOSE=0
 # no need to edit script below
 #------------------------------------------------------------
 
-echo ""
-echo "MORIS installation parameters:"
-echo ""
-echo "WORKSPACE          $WORKSPACE"
-echo "DEVELOPPER_MODE    $DEVELOPPER_MODE"
-echo "INTEL_MKL          $INTEL_MKL"
-echo "COMPILER           $COMPILER"
-echo "TMPDIR             $TMPDIR"
-echo "VERBOSE            $VERBOSE"
+echo ""                                      > moris_config.log
+echo "MORIS installation parameters:"       >> moris_config.log
+echo ""                                     >> moris_config.log
+echo `date`                                 >> moris_config.log
+echo ""                                     >> moris_config.log
+echo "WORKSPACE          $WORKSPACE"        >> moris_config.log
+echo "DEVELOPPER_MODE    $DEVELOPPER_MODE"  >> moris_config.log
+echo "BLASLAPACK         $BLASLAPACK"       >> moris_config.log
+echo "PETSC              $PETSC"            >> moris_config.log
+echo "PARDISO            $PARDISO"          >> moris_config.log
+echo "MUMPS              $MUMPS"            >> moris_config.log
+echo "OPTALG             $OPTALG"           >> moris_config.log
+echo "COMPILER           $COMPILER"         >> moris_config.log
+echo "TMPDIR             $TMPDIR"           >> moris_config.log
+echo "VERBOSE            $VERBOSE"          >> moris_config.log
 echo ""
 
 if [ $VERBOSE = "0" ];then
+    cat moris_config.log
     echo "Press return to continue; to abort press ctrl+c"
     echo ""
     read ans
     echo ""
+fi
+
+ORGDIR=`pwd`
+
+#------------------------------------------------------------
+
+export blaspro=na
+
+if [ $PETSC = "1" ];then
+    export petopt='+petsc+slepc'
+else
+    export petopt='~petsc~slepc'
+fi
+
+if [ $PARDISO = "1" ];then
+    export mklpro=intel-oneapi-mkl
+    export paropt='+pardiso'
+else
+    export paropt='~pardiso'
+fi
+
+if [ $MUMPS = "1" ];then
+    export mumopt='+mumps'
+else
+    export mumopt='~mumps'
+fi
+
+if [ $OPTALG = "1" ];then
+    export optopt='+gcmma+lbfgs+snopt'
+else
+    export optopt='~gcmma~lbfgs~snopt'
+fi
+
+#------------------------------------------------------------
+
+if [ $BLASLAPACK = "amd" ];then
+    export blaspro=amdblis
+    export lapackpro=amdlibflame
+    export sclpackpro=amdscalapack
+fi
+
+if [ $BLASLAPACK = "intel-mkl" ];then
+    export blaspro=intel-mkl
+    export lapackpro=intel-mkl
+    export sclpackpro=intel-mkl
+    export mklpro=intel-mkl
+fi
+
+if [ $BLASLAPACK = "intel-mkl" ];then
+    export blaspro=intel-oneapi-mkl
+    export lapackpro=intel-oneapi-mkl
+    export sclpackpro=intel-oneapi-mkl
+    export mklpro=intel-oneapi-mkl
+fi
+
+if [ $BLASLAPACK = "openblas" ];then
+    export blaspro=openblas
+    export lapackpro=openblas
+    export sclpackpro=netlib-scalapack
+fi
+
+if [ $BLASLAPACK = "netlib" ];then
+    export blaspro=netlib-lapack
+    export lapackpro=netlib-lapack
+    export sclpackpro=netlib-scalapack
+fi
+
+if [ $blaspro = "na" ];then
+    echo "Error - incorrect blas and lapack provider"
+    exit
 fi
 
 #------------------------------------------------------------
@@ -63,6 +153,8 @@ fi
 
 mkdir $WORKSPACE
 cd $WORKSPACE
+
+mv $ORGDIR/moris_config.log .
 
 #------------------------------------------------------------
 
@@ -92,6 +184,8 @@ spack create --name snopt --skip-editor
 #------------------------------------------------------------
 
 cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/mumps_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/mumps/package.py
+
 cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
 cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
 cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/lbfgs/package.py
@@ -107,23 +201,19 @@ spack env activate .
 
 spack compiler find
 
+echo "  packages:"                      >> spack.yaml
+echo "    all:"                         >> spack.yaml
+echo "      providers:"                 >> spack.yaml
+echo "        blas: [$blaspro]"         >> spack.yaml
+echo "        lapack: [$lapackpro]"     >> spack.yaml
+echo "        scalapack: [$sclpackpro]" >> spack.yaml
+echo "        mkl: [$mklpro]"           >> spack.yaml
+
 #------------------------------------------------------------
 
-if [ $DEVELOPPER_MODE = "1" ];then
-    spack add moris+pardiso+mumps
-else
-    if [ $INTEL_MKL = "0" ];then
-        spack add moris+openblas~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
-    else
-        spack add moris+mkl~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
-    fi
-fi
+spack add moris$petopt$paropt$mumopt$optopt
 
 spack develop --path $WORKSPACE/moris moris@main
-
-if [ $INTEL_MKL = "0" ];then
-    spack add openblas
-fi
 
 if [ $DEVELOPPER_MODE = "1" ];then
     spack add doxygen
@@ -180,12 +270,6 @@ if [ $DEVELOPPER_MODE = "1" ];then
     spack install $VOPTION llvm %"$COMPILER"
 else
     spack install $VOPTION moris %"$COMPILER"
-fi
-
-#------------------------------------------------------------
-
-if [ $INTEL_MKL = "0" ];then
-    spack install $VOPTION openblas %"$COMPILER"
 fi
 
 #------------------------------------------------------------

@@ -36,13 +36,10 @@ namespace moris::ge
         explicit Surface_Mesh_Parameters( const ParameterList& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
-    class Surface_Mesh_Geometry : public Geometry
-            , public sdf::Object
-            , public std::enable_shared_from_this< Surface_Mesh_Geometry >    // TODO make it so we don't need enable_shared_from_this, should be possible in intersection node
+    class Surface_Mesh_Geometry : public Geometry, public sdf::Object
     {
       private:
         Surface_Mesh_Parameters mParameters;
-
         std::string mName;
 
       public:
@@ -71,7 +68,7 @@ namespace moris::ge
          * requested from the created intersection node.
          *
          * @param aNodeIndex Node index of the new intersection node
-         * @param aBaseNodes Base nodes of the element where the intersection lies
+         * @param aBackgroundNodes Background nodes of the element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
          * @param aBackgroundGeometryType Geometry type of the background element
@@ -80,11 +77,24 @@ namespace moris::ge
          */
         Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBaseNodes,
+                const Cell< Node* >&     aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
                 mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
+
+        /**
+         * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
+         *
+         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aFirstParentNode Node marking the starting point of the intersection edge
+         * @param aSecondParentNode Node marking the ending point of the intersection edge
+         * @return Parent edge local coordinate, between -1 and 1
+         */
+        virtual real compute_intersection_local_coordinate(
+                const Cell< Node* >& aBackgroundNodes,
+                const Parent_Node&   aFirstParentNode,
+                const Parent_Node&   aSecondParentNode ) override;
 
         /**
          *
@@ -92,7 +102,7 @@ namespace moris::ge
          *
          */
         bool
-        depends_on_advs()
+        depends_on_advs() const
         {
             // BRENDAN TODO
             return false;
@@ -209,7 +219,7 @@ namespace moris::ge
          *
          * @return Mesh index
          */
-        virtual moris_index get_discretization_mesh_index() const override;
+        virtual moris_index get_discretization_mesh_index() override;
 
         /**
          * Gets the lower bound for a discretized field.

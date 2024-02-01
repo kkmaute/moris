@@ -21,57 +21,55 @@ namespace moris::ge
 
     Intersection_Node::Intersection_Node(
             uint                        aNodeIndex,
-            const Cell< Node* >&        aBaseNodes,
+            const Cell< Node* >&        aBackgroundNodes,
             const Parent_Node&          aFirstParentNode,
             const Parent_Node&          aSecondParentNode,
             real                        aLocalCoordinate,
             mtk::Geometry_Type          aBackgroundGeometryType,
-            mtk::Interpolation_Order    aBackgroundInterpolationOrder,
-            std::shared_ptr< Geometry > aInterfaceGeometry )
+            mtk::Interpolation_Order    aBackgroundInterpolationOrder )
             : Derived_Node(
                     aNodeIndex,
-                    aBaseNodes,
+                    aBackgroundNodes,
                     0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates(),
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder )
             , mParentNodes( { Basis_Node( aFirstParentNode, 0.5 * ( 1.0 - aLocalCoordinate ) ), Basis_Node( aSecondParentNode, 0.5 * ( 1.0 + aLocalCoordinate ) ) } )
-            , mInterfaceGeometry( aInterfaceGeometry )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Basis_Node& Intersection_Node::get_first_parent_node()
+    const Basis_Node& Intersection_Node::get_first_parent_node() const
     {
         return mParentNodes( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Basis_Node& Intersection_Node::get_second_parent_node()
+    const Basis_Node& Intersection_Node::get_second_parent_node() const
     {
         return mParentNodes( 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Intersection_Node::depends_on_advs()
+    bool Intersection_Node::depends_on_advs() const
     {
-        return mInterfaceGeometry->depends_on_advs() or this->get_first_parent_node().depends_on_advs() or this->get_second_parent_node().depends_on_advs();
+        return this->get_interface_geometry().depends_on_advs() or mParentNodes( 0 ).depends_on_advs() or mParentNodes( 1 ).depends_on_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Intersection_Node::get_locator_nodes()
+    const Cell< Basis_Node >& Intersection_Node::get_locator_nodes() const
     {
         return mParentNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Intersection_Node::is_on_interface( Geometry* aGeometry )
+    bool Intersection_Node::is_on_interface( const Geometry& aGeometry ) const
     {
-        return aGeometry == mInterfaceGeometry.get();
+        return &aGeometry == &this->get_interface_geometry();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -96,7 +94,7 @@ namespace moris::ge
         // std::cout << "1st parent on interface: " << tOnInterface << std::endl
         //           << std::endl;
 
-        return mInterfaceGeometry->get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
+        return this->get_interface_geometry().get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
             or std::abs( this->get_local_coordinate() + 1.0 ) < mInterfaceGeometry->get_intersection_tolerance();
     }
 
@@ -114,24 +112,15 @@ namespace moris::ge
         // std::cout << "2nd parent on interface: " << tOnInterface << std::endl
         //           << std::endl;
 
-        return mInterfaceGeometry->get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
+        return this->get_interface_geometry().get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
             or std::abs( this->get_local_coordinate() - 1.0 ) < mInterfaceGeometry->get_intersection_tolerance();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Intersection_Node::get_local_coordinate()
+    real Intersection_Node::get_local_coordinate() const
     {
         return 1.0 - 2.0 * this->get_first_parent_node().get_basis();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real
-    Intersection_Node::get_coordinate_value( uint aCoordinateIndex )
-    {
-        return this->get_global_coordinates()( aCoordinateIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -147,8 +136,7 @@ namespace moris::ge
     void
     Intersection_Node::set_starting_pdv_id( moris_id aPDVStartingID )
     {
-        mPDVStartingID    = aPDVStartingID;
-        mPDVStartingIDSet = true;
+        mPDVStartingID = aPDVStartingID;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -156,7 +144,6 @@ namespace moris::ge
     moris_id
     Intersection_Node::get_starting_pdv_id()
     {
-        MORIS_ASSERT( mPDVStartingIDSet, "PDV Starting ID must be set for an intersection." );
         return mPDVStartingID;
     }
 
@@ -194,17 +181,18 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Intersection_Node::join_adv_ids( const Matrix< DDSMat >& aIDsToAdd )
+    void Intersection_Node::join_adv_ids(
+            Matrix< DDSMat >&       aCombinedIDs, 
+            const Matrix< DDSMat >& aIDsToAdd )
     {
         // Resize IDs
-        uint tJoinedSensitivityLength = mCoordinateDeterminingADVIDs.n_cols();
-        mCoordinateDeterminingADVIDs.resize( 1, tJoinedSensitivityLength + aIDsToAdd.length() );
+        uint tJoinedSensitivityLength = aCombinedIDs.n_cols();
+        aCombinedIDs.resize( 1, tJoinedSensitivityLength + aIDsToAdd.length() );
 
         // Join IDs
         for ( uint tAddedSensitivity = 0; tAddedSensitivity < aIDsToAdd.length(); tAddedSensitivity++ )
         {
-            mCoordinateDeterminingADVIDs( tJoinedSensitivityLength + tAddedSensitivity ) = aIDsToAdd( tAddedSensitivity );
+            aCombinedIDs( tJoinedSensitivityLength + tAddedSensitivity ) = aIDsToAdd( tAddedSensitivity );
         }
     }
 
