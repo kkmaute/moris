@@ -561,7 +561,6 @@ namespace moris::sdf
         uint tIntersectionsRightOfPoint = 0;
         for ( uint iIntersectionIndex = 0; iIntersectionIndex < tNumCoordsK; iIntersectionIndex++ )
         {
-            // BRENDAN FIXME CHANGE TOLERANCE FOR INTERFACE
             if ( std::abs( aIntersectionCoords( iIntersectionIndex ) - aPoint( aAxis ) ) < aObject.get_intersection_tolerance() )
             {
                 return INTERFACE;

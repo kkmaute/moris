@@ -26,7 +26,7 @@ namespace moris::ge
         Cell< real > mOffsets;          // Initial shift of surface mesh coordinates
         Cell< real > mScale;            // Option to scale each axis of the surface mesh
         std::string  mFilePath;         // Surface mesh file path
-        real mIntersectionTolerance;    // Interface tolerance based on intersection distance FIXME BRENDAN: move this to a geometry parameter struct
+        real mIntersectionTolerance;    // Interface tolerance based on intersection distance
 
         /**
          * Constructor with a given parameter list
@@ -104,7 +104,7 @@ namespace moris::ge
         bool
         depends_on_advs() const
         {
-            // BRENDAN TODO
+            // TODO BRENDAN
             return false;
         }
 
@@ -182,7 +182,8 @@ namespace moris::ge
          */
         uint get_num_fields() override
         {
-            return 0;    // BRENDAN todo: can be any number 0-3, probably based on some member data
+            // TODO BRENDAN
+            return 0;
         }
 
         /**

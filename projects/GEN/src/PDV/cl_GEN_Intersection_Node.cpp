@@ -85,15 +85,6 @@ namespace moris::ge
     bool
     Intersection_Node::is_first_parent_on_interface()
     {
-        // BRENDAN DELETE
-        // PRINT( this->get_first_parent_node().get_global_coordinates() );
-        // PRINT( this->get_second_parent_node().get_global_coordinates() );
-        // std::cout << "local coordinate: " << this->get_local_coordinate() << std::endl;
-        // bool tOnInterface = this->get_interface_geometry().get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
-        //                  or std::abs( this->get_local_coordinate() + 1.0 ) < this->get_interface_geometry().get_intersection_tolerance();
-        // std::cout << "1st parent on interface: " << tOnInterface << std::endl
-        //           << std::endl;
-
         return this->get_interface_geometry().get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
             or std::abs( this->get_local_coordinate() + 1.0 ) < this->get_interface_geometry().get_intersection_tolerance();
     }
@@ -103,15 +94,6 @@ namespace moris::ge
     bool
     Intersection_Node::is_second_parent_on_interface()
     {
-        // BRENDAN DELETE
-        // PRINT( this->get_first_parent_node().get_global_coordinates() );
-        // PRINT( this->get_second_parent_node().get_global_coordinates() );
-        // std::cout << "local coordinate: " << this->get_local_coordinate() << std::endl;
-        // bool tOnInterface = this->get_interface_geometry().get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
-        //                  or std::abs( this->get_local_coordinate() - 1.0 ) < this->get_interface_geometry().get_intersection_tolerance();
-        // std::cout << "2nd parent on interface: " << tOnInterface << std::endl
-        //           << std::endl;
-
         return this->get_interface_geometry().get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE
             or std::abs( this->get_local_coordinate() - 1.0 ) < this->get_interface_geometry().get_intersection_tolerance();
     }

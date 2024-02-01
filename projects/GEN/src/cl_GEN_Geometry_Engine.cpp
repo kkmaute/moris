@@ -752,7 +752,6 @@ namespace moris
                 }
                 for ( moris::uint iGeom = 0; iGeom < this->get_number_of_geometries(); iGeom++ )
                 {
-                    // BRENDAN is this okay?
                     Cell< real > tGeometryInfo;
                     mGeometries( iGeom )->get_design_info( tVertex.get_index(), tCoords, tGeometryInfo );
 

@@ -47,12 +47,7 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
-        // BRENDAN DELETE PRINTS
-        // PRINT( aNodeCoordinates );
-
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
-
-        // std::cout << "geometric region: " << tRegion << std::endl;
 
         switch ( tRegion )
         {
