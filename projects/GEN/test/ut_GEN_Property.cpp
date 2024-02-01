@@ -14,6 +14,7 @@
 #include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "fn_check_equal.hpp"
+#include "fn_trans.hpp"
 
 namespace moris::ge
 {

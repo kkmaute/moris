@@ -8,8 +8,11 @@
  *
  */
 
+// MRS
+#include "cl_Param_List.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Tracer.hpp"
+#include "cl_Library_IO.hpp"
 
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -24,9 +27,8 @@
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Field.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
-#include "cl_MTK_Enums.hpp"
 
-// SOL FIXME
+// SOL TODO if we move this out of SOL, GEN doesn't have to depend on it
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
@@ -38,9 +40,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Geometry_Engine::Geometry_Engine(
-            Cell< Cell< ParameterList > > aParameterLists,
-            std::shared_ptr< Library_IO > aLibrary,
-            mtk::Mesh*                    aMesh )
+            Cell< Cell< ParameterList > >        aParameterLists,
+            const std::shared_ptr< Library_IO >& aLibrary,
+            mtk::Mesh*                           aMesh )
             : mNodeManager( aMesh )
             , mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
             , mPDVHostManager( mNodeManager )
@@ -209,9 +211,9 @@ namespace moris::ge
 
     void
     Geometry_Engine::set_phase_function(
-            PHASE_FUNCTION      aPhaseFunction,
-            uint                aNumPhases,
-            Cell< std::string > aPhaseNames )
+            PHASE_FUNCTION             aPhaseFunction,
+            uint                       aNumPhases,
+            const Cell< std::string >& aPhaseNames )
     {
         mPhaseTable.set_phase_function( aPhaseFunction, aNumPhases, aPhaseNames );
     }
@@ -220,8 +222,8 @@ namespace moris::ge
 
     void
     Geometry_Engine::set_dQIdp(
-            moris::Cell< moris::Matrix< DDRMat >* > adQIdp,
-            moris::Matrix< moris::DDSMat >*         aMap )
+            const moris::Cell< moris::Matrix< DDRMat >* >& adQIdp,
+            moris::Matrix< moris::DDSMat >*                aMap )
     {
         mPDVHostManager.set_dQIdp( adQIdp, aMap );
     }
@@ -256,14 +258,6 @@ namespace moris::ge
     Geometry_Engine::communicate_requested_IQIs()
     {
         mPDVHostManager.set_requested_IQIs( mRequestedIQIs );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Geometry_Engine::communicate_requested_IQIs( Cell< std::string > aIQINames )
-    {
-        mPDVHostManager.set_requested_IQIs( aIQINames );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -452,7 +446,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    // FIXME don't need new node indices
     void
     Geometry_Engine::create_new_derived_nodes(
             const Cell< Matrix< IndexMat > >& aVertexIndices,
@@ -521,8 +514,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_index
-    Geometry_Engine::get_element_phase_index( const mtk::Cell& aCell )
+    moris_index Geometry_Engine::get_element_phase_index( const mtk::Cell& aCell )
     {
         // Get the vertices that are a part of this cell
         Cell< mtk::Vertex* > tVertices = aCell.get_vertex_pointers();
@@ -630,14 +622,14 @@ namespace moris::ge
         Cell< std::shared_ptr< mtk::Field > > tMTKFields;
 
         // Loop over geometries
-        for ( auto iGeometry : mGeometries )
+        for ( const auto& iGeometry : mGeometries )
         {
             // Add MTK fields
             tMTKFields.append( iGeometry->get_mtk_fields() );
         }
 
         // Loop over properties
-        for ( auto iProperty : mProperties )
+        for ( const auto& iProperty : mProperties )
         {
             // Add MTK field, if it exists
             auto tMTKField = iProperty->get_mtk_field();
@@ -664,7 +656,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Geometry_Engine::create_pdvs( mtk::Mesh_Pair aMeshPair )
+    Geometry_Engine::create_pdvs( const mtk::Mesh_Pair& aMeshPair )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create PDVs" );
@@ -731,8 +723,8 @@ namespace moris::ge
 
     void
     Geometry_Engine::print_gen_vertices(
-            std::string aFile,
-            mtk::Mesh*  aMesh )
+            const std::string& aFile,
+            mtk::Mesh*         aMesh )
     {
         std::ostringstream tStringStream;
         tStringStream.clear();
@@ -810,7 +802,7 @@ namespace moris::ge
             }
             tStringStream << std::endl;
         }
-        if ( aFile.empty() == false )
+        if ( not aFile.empty() )
         {
             std::ofstream tOutputFile( aFile );
             tOutputFile << tStringStream.str() << std::endl;
@@ -1024,7 +1016,7 @@ namespace moris::ge
 
                 if ( par_size() > 1 )
                 {
-                    this->communicate_missing_owned_coefficients(
+                    Geometry_Engine::communicate_missing_owned_coefficients(
                             aMeshPair,
                             tAllCoefIds,
                             tAllCoefOwners,
@@ -1384,8 +1376,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Geometry_Engine::communicate_missing_owned_coefficients(
+    void Geometry_Engine::communicate_missing_owned_coefficients(
             mtk::Mesh_Pair&  aMeshPair,
             Matrix< IdMat >& aAllCoefIds,
             Matrix< IdMat >& aAllCoefOwners,
@@ -1558,7 +1549,7 @@ namespace moris::ge
         // time shift
         real tTimeShift = 0.0;
 
-        if ( aExodusFileName != "" )
+        if ( not aExodusFileName.empty() )
         {
             if ( mTimeOffset > 0 )
             {
@@ -1597,7 +1588,7 @@ namespace moris::ge
                 for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
                 {
                     tFieldNames( iFieldIndex ) = mGeometries( tGeometryIndex )->get_name();
-                    if ( tFieldNames( tGeometryIndex ) == "" )
+                    if ( tFieldNames( tGeometryIndex ).empty() )
                     {
                         tFieldNames( tGeometryIndex ) = "Geometry " + std::to_string( tGeometryIndex ) + "Field " + std::to_string( iGeometryFieldIndex );
                     }
@@ -1613,7 +1604,7 @@ namespace moris::ge
                 for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
                 {
                     tFieldNames( tNumGeometryFields + tPropertyIndex ) = mProperties( tPropertyIndex )->get_name();
-                    if ( tFieldNames( tNumGeometryFields + tPropertyIndex ) == "" )
+                    if ( tFieldNames( tNumGeometryFields + tPropertyIndex ).empty() )
                     {
                         tFieldNames( tNumGeometryFields + tPropertyIndex ) = "Property " + std::to_string( tPropertyIndex ) + "Field " + std::to_string( iPropertyFieldIndex );
                     }
@@ -1689,10 +1680,10 @@ namespace moris::ge
 
     void
     Geometry_Engine::write_geometry_fields(
-            mtk::Mesh*  aMesh,
-            std::string aBaseFileName )
+            mtk::Mesh*         aMesh,
+            const std::string& aBaseFileName )
     {
-        if ( aBaseFileName != "" )
+        if ( not aBaseFileName.empty() )
         {
             // Get all node coordinates
             Cell< Matrix< DDRMat > > tNodeCoordinates( aMesh->get_num_nodes() );
@@ -1960,7 +1951,7 @@ namespace moris::ge
                 tNodeCoordinatesPerSet );
 
         // Loop over properties to assign PDVs on this set
-        for ( std::shared_ptr< Property > iProperty : mProperties )
+        for ( const auto& iProperty : mProperties )
         {
             // Check if this is an interpolation PDV
             MORIS_ERROR( iProperty->is_interpolation_pdv(),
@@ -2035,8 +2026,8 @@ namespace moris::ge
 
     Phase_Table
     Geometry_Engine::create_phase_table(
-            Cell< Cell< ParameterList > > aParameterLists,
-            std::shared_ptr< Library_IO > aLibrary )
+            const Cell< Cell< ParameterList > >& aParameterLists,
+            const std::shared_ptr< Library_IO >& aLibrary )
     {
         // Get number of geometries
         uint tNumGeometries = aParameterLists( 1 ).size();

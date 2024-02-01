@@ -10,11 +10,6 @@
 
 #pragma once
 
-// MRS
-#include "cl_Param_List.hpp"
-#include "cl_Library_IO.hpp"
-#include "fn_trans.hpp"
-
 // GEN
 #include "st_GEN_Geometry_Engine_Parameters.hpp"
 #include "cl_GEN_Phase_Table.hpp"
@@ -22,18 +17,24 @@
 #include "cl_GEN_PDV_Host_Manager.hpp"
 
 // MTK
-#include "cl_MTK_Mesh_Core.hpp"
-#include "cl_MTK_Cluster.hpp"
 #include "cl_MTK_Enums.hpp"
 #include <unordered_map>
 
-// SOL FIXME
-#include "cl_SOL_Dist_Vector.hpp"
+namespace moris::ge
+{
+    class Geometry;
+    class Property;
+}
 
 namespace moris::MSI
 {
     // Forward declare design variable interface
     class Design_Variable_Interface;
+}
+
+namespace moris::sol
+{
+    class Dist_Vector;
 }
 
 namespace moris::ge
@@ -84,8 +85,8 @@ namespace moris::ge
 
         // diagnostic information
         bool        mDiagnostics    = false;
-        std::string mDiagnosticPath = "";
-        std::string mDiagnosticId   = "";
+        std::string mDiagnosticPath;
+        std::string mDiagnosticId;
 
       public:
 
@@ -96,10 +97,10 @@ namespace moris::ge
          * @param aLibrary Library used for pulling user-defined functions
          * @param aMesh Mesh for discrete or mesh based geomtries
          */
-        Geometry_Engine(
-                Cell< Cell< ParameterList > > aParameterLists,
-                std::shared_ptr< Library_IO > aLibrary = nullptr,
-                mtk::Mesh*                    aMesh    = nullptr );
+        explicit Geometry_Engine(
+                Cell< Cell< ParameterList > >        aParameterLists,
+                const std::shared_ptr< Library_IO >& aLibrary = nullptr,
+                mtk::Mesh*                           aMesh    = nullptr );
 
         /**
          * Constructor
@@ -107,7 +108,7 @@ namespace moris::ge
          * @param aMesh Mesh for getting B-spline information
          * @param aParameters Optional geometry engine parameters
          */
-        Geometry_Engine(
+        explicit Geometry_Engine(
                 mtk::Interpolation_Mesh*   aMesh,
                 Geometry_Engine_Parameters aParameters = {} );
 
@@ -158,12 +159,10 @@ namespace moris::ge
         Matrix< DDRMat >& get_upper_bounds();
 
         /**
-         * Lets MDL know about the stored requested IQIs through the PDV host manager
+         * Lets MDL know about the stored requested IQIs through the PDV host manager. This has to be done after
+         * the model is set, that's why it's a separate call that needs to be performed at the right time.
          */
         void communicate_requested_IQIs();
-        void communicate_requested_IQIs( Cell< std::string > aIQINames );
-
-        //-------------------------------------------------------------------------------
 
         /**
          * Import a phase function pointer
@@ -173,7 +172,7 @@ namespace moris::ge
         set_phase_function(
                 PHASE_FUNCTION      aPhaseFunction,
                 uint                aNumPhases,
-                Cell< std::string > aPhaseNames = {} );
+                const Cell< std::string >& aPhaseNames = {} );
 
         /**
          * Import dcriteria/dx from file
@@ -181,8 +180,8 @@ namespace moris::ge
          */
         void
         set_dQIdp(
-                Cell< Matrix< DDRMat >* > adQIdp,
-                Matrix< DDSMat >*         aMap );
+                const Cell< Matrix< DDRMat >* >& adQIdp,
+                Matrix< DDSMat >*                aMap );
 
         /**
          * Gets the sensitivities of the criteria with respect to the advs
@@ -457,22 +456,22 @@ namespace moris::ge
          * @param aFileName Base name of text files to write the geometry field data to
          */
         void write_geometry_fields(
-                mtk::Mesh*  aMesh,
-                std::string aBaseFileName );
+                mtk::Mesh*         aMesh,
+                const std::string& aBaseFileName );
 
         /**
          * Assign PDV hosts based on properties constructed through parameter lists
          *
          * @param aMeshManager Mesh manager
          */
-        void create_pdvs( mtk::Mesh_Pair aMeshPair );
+        void create_pdvs( const mtk::Mesh_Pair& aMeshPair );
 
         //-------------------------------------------------------------------------------
 
         void
         print_gen_vertices(
-                std::string aFile,
-                mtk::Mesh*  aMesh );
+                const std::string& aFile,
+                mtk::Mesh*         aMesh );
 
         //-------------------------------------------------------------------------------
 
@@ -489,7 +488,7 @@ namespace moris::ge
 
       private:
 
-        void communicate_missing_owned_coefficients(
+        static void communicate_missing_owned_coefficients(
                 mtk::Mesh_Pair&  aMeshPair,
                 Matrix< IdMat >& aAllCoefIds,
                 Matrix< IdMat >& aAllCoefOwners,
@@ -529,8 +528,8 @@ namespace moris::ge
          * @return Phase table
          */
         static Phase_Table create_phase_table(
-                Cell< Cell< ParameterList > > aParameterLists,
-                std::shared_ptr< Library_IO > aLibrary );
+                const Cell< Cell< ParameterList > >& aParameterLists,
+                const std::shared_ptr< Library_IO >& aLibrary );
 
         /**
          * Decides how to construct the phase table based on the given parameter lists

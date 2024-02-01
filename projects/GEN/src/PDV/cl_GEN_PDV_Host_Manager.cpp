@@ -1477,8 +1477,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_dQIdp( Cell< Matrix< DDRMat >* > adQIdp,
-            Matrix< DDSMat >*                              aMap )
+    PDV_Host_Manager::set_dQIdp(
+            const Cell< Matrix< DDRMat >* >& adQIdp,
+            Matrix< DDSMat >*                aMap )
     {
         // Number
         sint tNumIQIs = adQIdp.size();

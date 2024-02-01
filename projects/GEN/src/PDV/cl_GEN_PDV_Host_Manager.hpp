@@ -358,8 +358,8 @@ namespace moris::ge
 
         void
         set_dQIdp(
-                Cell< Matrix< DDRMat >* > adQIdp,
-                Matrix< DDSMat >*         aMap );
+                const Cell< Matrix< DDRMat >* >& adQIdp,
+                Matrix< DDSMat >*                aMap );
 
         //-------------------------------------------------------------------------------
 
