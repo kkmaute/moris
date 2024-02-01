@@ -806,9 +806,6 @@ namespace xtk
 
             for ( uint iVert = 0; iVert < tNumVertices; iVert++ )
             {
-                // get the current vertex's index
-                moris_index tVertIndex = tVertices( iVert )->get_index();
-
                 // get the proximity of the current vertex wrt. the current geometry
                 ge::Geometric_Region tRegion = mGeometryEngine->get_geometric_region( iGeom, tVertices( iVert )->get_index(), tVertices( iVert )->get_coords() );
 
