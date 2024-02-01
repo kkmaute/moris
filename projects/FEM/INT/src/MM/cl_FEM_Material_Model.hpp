@@ -27,7 +27,7 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include <map>
 //GEN/src
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 namespace moris
 {

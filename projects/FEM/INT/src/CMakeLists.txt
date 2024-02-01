@@ -500,7 +500,6 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${GEN_CORE}-lib
     ${LINALG}-lib
     ${MTK}-lib
     ${MSI}-lib

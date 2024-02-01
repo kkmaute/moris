@@ -181,7 +181,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // return absolute value of level set function
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val();
     }
 
     // Level set function defining property in FEM
@@ -192,7 +192,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
@@ -215,7 +215,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
@@ -224,7 +224,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N();
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->N();
     }
 
     /* ------------------------------------------------------------------------ */
@@ -237,7 +237,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return spatial derivative of absolute value of level set function
         real factor = 1.0;
@@ -246,7 +246,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->gradx( 1 );
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->gradx( 1 );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -259,7 +259,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of spatial derivative of absolute value of level set function
         real factor = 1.0;
@@ -268,7 +268,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->dnNdxn( 1 );
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->dnNdxn( 1 );
     }
 
     //------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ namespace moris
     real
     Box_2D3D(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aGeometryParameters )
+            const Cell< real >&    aGeometryParameters )
     {
         real tBoxExponent = 24.0;
 
@@ -314,7 +314,7 @@ namespace moris
     real
     Hole_Pattern_2D3D(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aGeometryParameters )
+            const Cell< real >&    aGeometryParameters )
     {
         Matrix< DDRMat > tDelta  = { { tHoleXdim / tNumHolesX }, { tHoleYdim / tNumHolesY }, { tHoleZdim / tNumHolesZ } };
         Matrix< DDRMat > tOrigin = { { tHoleXOrg + tDelta( 0 ) / 2.0 }, { tHoleYOrg + tDelta( 1, 0 ) / 2.0 }, { tHoleZOrg + tDelta( 2, 0 ) / 2.0 } };
@@ -667,7 +667,7 @@ namespace moris
 
         tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "Level_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "type", "scaled_field" );
+        tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "1.0" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomain1 );

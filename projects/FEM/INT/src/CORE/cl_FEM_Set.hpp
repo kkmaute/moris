@@ -901,7 +901,7 @@ namespace moris
              *@param[ in ] aDofType a dof type enum
              */
             moris::sint
-            get_index_from_unique_dv_type_map( enum PDV_Type aDvType )
+            get_index_from_unique_dv_type_map( enum gen::PDV_Type aDvType )
             {
                 return mUniqueDvTypeMap( static_cast< int >( aDvType ), 0 );
             }
@@ -1064,7 +1064,7 @@ namespace moris
              * get ig unique dv types for set from design variable interface
              * @param[ in ] aGeoPdvType list of ig unique pdv types on set
              */
-            void get_ig_unique_dv_types_for_set( moris::Cell< enum PDV_Type >& aGeoPdvType );
+            void get_ig_unique_dv_types_for_set( moris::Cell< enum gen::PDV_Type >& aGeoPdvType );
 
             //------------------------------------------------------------------------------
 
@@ -1074,7 +1074,7 @@ namespace moris
              * @param[ in ] aIsLeader determine the leader / follower side, only for dbl sided set, is leader by default
              */
 
-            void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType, mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
+            void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum gen::PDV_Type > >& aMatPdvType, mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
 

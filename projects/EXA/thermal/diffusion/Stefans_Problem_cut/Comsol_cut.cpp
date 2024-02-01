@@ -101,10 +101,9 @@ namespace moris
     }
 
     // Level set functions for Rectangle
-    moris::real
-    Top_Boundary(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+    moris::real Top_Boundary(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const moris::Cell< real >&     aGeometryParameters )
     {
         moris::real tLSval = 0.5 * tYlength - aCoordinates( 1 ) + tYcenter;
 
@@ -112,10 +111,9 @@ namespace moris
         return tLSval;
     }
 
-    moris::real
-    Bottom_Boundary(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+    moris::real Bottom_Boundary(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const moris::Cell< real >&     aGeometryParameters )
     {
         moris::real tLSval = 0.5 * tYlength + aCoordinates( 1 ) - tYcenter;
 
@@ -123,10 +121,9 @@ namespace moris
         return tLSval;
     }
 
-    moris::real
-    Left_Boundary(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+    moris::real Left_Boundary(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const moris::Cell< real >&     aGeometryParameters )
     {
         moris::real tLSval = 0.5 * tXlength + aCoordinates( 0 ) - tXcenter;
 
@@ -134,10 +131,9 @@ namespace moris
         return tLSval;
     }
 
-    moris::real
-    Right_Boundary(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+    moris::real Right_Boundary(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const moris::Cell< real >&     aGeometryParameters )
     {
         moris::real tLSval = 0.5 * tXlength - aCoordinates( 0 ) + tXcenter;
 
@@ -145,10 +141,9 @@ namespace moris
         return tLSval;
     }
 
-    moris::Matrix< DDRMat >
-    Func_Sensitivity(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+    moris::Matrix< DDRMat > Func_Sensitivity(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const moris::Cell< real >&     aGeometryParameters )
     {
         moris::Matrix< DDRMat > aReturnValue;
         return aReturnValue;

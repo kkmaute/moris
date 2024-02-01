@@ -67,19 +67,12 @@ namespace xtk
         mBackgroundMesh     = aBackgroundMesh;
         mGenerator          = aMeshGenerator;
 
-        // active geometries
-        Matrix< IndexMat > const * tActiveGeometries = aMeshGenerator->get_active_geometries();
-
         // iterate through geometries
-        for ( uint iGeom = 0; iGeom < tActiveGeometries->numel(); iGeom++ )
+        for ( moris::uint iGeom = 0; iGeom < mGeometryEngine->get_number_of_geometries(); iGeom++ )
         {
-            // create a new decomposition data structure to store information in
+            // set a new decomposition data
             *aDecompositionData = Decomposition_Data();
-
-            // set the current geometry index
-            mCurrentGeomIndex = ( *tActiveGeometries )( iGeom );
-
-            aDecompositionData->mDecompId = 10000 * iGeom + this->get_signature(); // ID used to identify the associated communication requests later on
+            aDecompositionData->mDecompId = 10000 * iGeom + this->get_signature();
 
             // cell groups relevant to this geometry pick them out (i.e. the ones intersected by the current geometry)
             moris::Cell< std::shared_ptr< IG_Cell_Group > > tIgCellGroups;
@@ -136,7 +129,7 @@ namespace xtk
                 moris_id    tNodeId    = aDecompositionData->tNewNodeId( iNodeRequest );
                 moris_index tNodeOwner = aDecompositionData->tNewNodeOwner( iNodeRequest );
 
-                mGeometryEngine->update_queued_intersection( tNodeIndex, tNodeId, tNodeOwner );
+                mGeometryEngine->update_intersection_node( tNodeIndex, tNodeId, tNodeOwner );
             }
 
             // commit vertices to the mesh
@@ -148,7 +141,12 @@ namespace xtk
             // commit the cells to the mesh
             aMeshGenerator->commit_new_ig_cells_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
 
-        }    // end for: each level-set function
+            // Advance geometry index
+            if ( iGeom != mGeometryEngine->get_number_of_geometries() )
+            {
+                mGeometryEngine->advance_geometry_index();
+            }
+        }
 
         // trim data of CutIntegration mesh
         aCutIntegrationMesh->trim_data();
@@ -184,17 +182,15 @@ namespace xtk
         // Initialize geometric query
         // (object which holds/collects all information needed to determine an intersection
         // (e.g. data of an edge and its relation to its Child Mesh and BG Cell))
-        Geometric_Query_XTK tGeometricQuery;
+        Geometric_Query tGeometricQuery;
 
         // setup the query data (fixed parts for this function)
-        tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_LOCATION );
         tGeometricQuery.set_coordinates_matrix( mCutIntegrationMesh->get_all_vertex_coordinates_loc_inds() );
         tGeometricQuery.set_cut_integration_mesh( mCutIntegrationMesh );
         tGeometricQuery.set_query_entity_rank( mtk::EntityRank::EDGE );
         tGeometricQuery.set_edge_connectivity( aEdgeConnectivity );
         tGeometricQuery.set_edge_associated_background_cell( aBackgroundCellForEdge );
         tGeometricQuery.set_associated_vertex_group( aVertexGroups );
-        tGeometricQuery.set_geometric_index( mCurrentGeomIndex );
 
         mDecompositionData->mHasSecondaryIdentifier = true;
 
@@ -213,8 +209,25 @@ namespace xtk
             // update parent cell to BG cell of treated edge
             tGeometricQuery.set_parent_cell( ( *aBackgroundCellForEdge )( iEdge ) );
 
+            // Get query info
+            const Matrix< IndexMat >& tEdgeToVertex = tGeometricQuery.get_query_entity_to_vertex_connectivity();
+            Matrix< IndexMat > tParentEntityIndices = tGeometricQuery.get_query_parent_entity_connectivity();
+
+            // annoying copy until this is converted to using a vector
+            Matrix< DDUMat >         tParentEntityIndiceUINT( tParentEntityIndices.numel() );
+            for ( moris::uint i = 0; i < tParentEntityIndices.numel(); i++ )
+            {
+                tParentEntityIndiceUINT( i ) = (uint)tParentEntityIndices( i );
+            }
+
             // see if the edge is intersected using the geometry engine
-            bool tIsIntersected = mGeometryEngine->geometric_query( &tGeometricQuery );
+            bool tIsIntersected = mGeometryEngine->queue_intersection( tEdgeToVertex( 0 ),
+                    tEdgeToVertex( 1 ),
+                    tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
+                    tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
+                    tParentEntityIndiceUINT,
+                    tGeometricQuery.get_geometry_type(),
+                    tGeometricQuery.get_interpolation_order() );
 
             // for intersected edges, invoke intersection procedure
             if ( tIsIntersected )
@@ -262,29 +275,14 @@ namespace xtk
                                 mGeometryEngine->get_queued_intersection_global_coordinates() );
 
                         // create new node in GEN
-                        mGeometryEngine->admit_queued_intersection( tNewNodeIndex );
+                        mGeometryEngine->admit_queued_intersection();
 
                         // count number of new nodes created
                         tNewNodeIndex++;
                     }
-
-                }    // end if: intersection is between vertices on edge
-
-                else if ( mGeometryEngine->queued_intersection_first_parent_on_interface() )
-                {
-                    moris_index tVertexIndex = aEdgeConnectivity->mEdgeVertices( iEdge )( 0 )->get_index();
-                    mGeometryEngine->induce_as_interface_vertex_on_active_geometry( tVertexIndex );
                 }
-
-                else if ( mGeometryEngine->queued_intersection_second_parent_on_interface() )
-                {
-                    moris_index tVertexIndex = aEdgeConnectivity->mEdgeVertices( iEdge )( 1 )->get_index();
-                    mGeometryEngine->induce_as_interface_vertex_on_active_geometry( tVertexIndex );
-                }
-
-            }    // end if: edge is intersected
-
-        }        // end for: each edge in IG mesh (so far)
+            }
+        }
 
         // return success if finished
         return true;
@@ -414,12 +412,12 @@ namespace xtk
 
     void
     Node_Hierarchy_Interface::select_ig_cell_groups(
-            moris::Cell< std::shared_ptr< IG_Cell_Group > >& aIgCellGroups )
+        moris::Cell< std::shared_ptr< IG_Cell_Group > >& aIgCellGroups )
     {
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select Ig Cell Groups", mGenerator->verbosity_level(), 1 );
-
         // intersected background cells for the current geometry
-        moris::Cell< moris_index > const & tIntersectedBackground = mMeshGenerationData->mIntersectedBackgroundCellIndex( mCurrentGeomIndex );
+        moris::Cell< moris_index > const& tIntersectedBackground = mMeshGenerationData->mIntersectedBackgroundCellIndex(
+                mGeometryEngine->get_active_geometry_index() );
 
         // number of intersected background cells
         uint tNumIntersectedBackground = tIntersectedBackground.size();

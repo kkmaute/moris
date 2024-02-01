@@ -54,7 +54,7 @@ namespace moris
 
         std::shared_ptr< fem::Property > tPropLeader2 = std::make_shared< fem::Property > ();
         tPropLeader2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
-//        tPropLeader2->set_dv_type_list( {{ PDV_Type::LS1 }, { PDV_Type::LS2 }} );
+//        tPropLeader2->set_dv_type_list( {{ gen::PDV_Type::LS1 }, { gen::PDV_Type::LS2 }} );
         tPropLeader2->set_val_function( tValFunction_UTIWG );
 
         std::shared_ptr< fem::Property > tPropFollower1 = std::make_shared< fem::Property > ();
@@ -62,7 +62,7 @@ namespace moris
 
         std::shared_ptr< fem::Property > tPropFollower2 = std::make_shared< fem::Property > ();
         tPropFollower2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
-//        tPropFollower2->set_dv_type_list( {{ PDV_Type::LS1 }, { PDV_Type::LS2 }} );
+//        tPropFollower2->set_dv_type_list( {{ gen::PDV_Type::LS1 }, { gen::PDV_Type::LS2 }} );
         tPropFollower2->set_val_function( tValFunction_UTIWG );
 
         // define constitutive models
@@ -91,9 +91,9 @@ namespace moris
 
 //        // create leader dv field interpolators
 //        Cell< Field_Interpolator* > tLeaderDvFI( 3, nullptr );
-//        tLeaderDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::DENSITY } );
-//        tLeaderDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
-//        tLeaderDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
+//        tLeaderDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { gen::PDV_Type::DENSITY } );
+//        tLeaderDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { gen::PDV_Type::LS1 } );
+//        tLeaderDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { gen::PDV_Type::LS2 } );
 
 //        // create follower dof field interpolators
 //        Cell< Field_Interpolator* > tFollowerDofFI( 4, nullptr );
@@ -103,8 +103,8 @@ namespace moris
 
 //        // create follower dv field interpolators
 //        Cell< Field_Interpolator* > tFollowerDvFI( 2, nullptr );
-//        tFollowerDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
-//        tFollowerDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
+//        tFollowerDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { gen::PDV_Type::LS1 } );
+//        tFollowerDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { gen::PDV_Type::LS2 } );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -113,8 +113,8 @@ namespace moris
         tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
         tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::UX }}, mtk::Leader_Follower::FOLLOWER );
-        //tIWG->set_dv_type_list( {{ PDV_Type::DENSITY }, {PDV_Type::LS1 }}, mtk::Leader_Follower::LEADER );
-        //tIWG->set_dv_type_list( {{PDV_Type::LS1 }}, mtk::Leader_Follower::FOLLOWER );
+        //tIWG->set_dv_type_list( {{ gen::PDV_Type::DENSITY }, {gen::PDV_Type::LS1 }}, mtk::Leader_Follower::LEADER );
+        //tIWG->set_dv_type_list( {{gen::PDV_Type::LS1 }}, mtk::Leader_Follower::FOLLOWER );
         tIWG->set_constitutive_model( tCMLeader1, "Diffusion", mtk::Leader_Follower::LEADER );
         //tIWG->set_constitutive_model( tCMFollower1, "Diffusion", mtk::Leader_Follower::FOLLOWER );
         tIWG->set_property( tPropLeader1, "Load", mtk::Leader_Follower::LEADER );

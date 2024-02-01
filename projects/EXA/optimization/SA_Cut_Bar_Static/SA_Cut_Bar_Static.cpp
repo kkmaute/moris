@@ -142,10 +142,9 @@ namespace moris
         return tOutputCriterion;
     }
 
-    moris::Matrix< DDRMat >
-    Func_Dummy_Sensitivity(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+    moris::Matrix< DDRMat > Func_Dummy_Sensitivity(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const moris::Cell< real >&     aGeometryParameters )
     {
         moris::Matrix< DDRMat > aReturnValue = { { 0.0 } };
         return aReturnValue;
@@ -301,13 +300,13 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "-1.0, 0.0, 1.0, 0.0" );
         tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
         tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "1" );
         tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.0, 0.0, 1.0" );

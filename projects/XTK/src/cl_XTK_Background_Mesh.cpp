@@ -37,7 +37,7 @@ namespace xtk
 
     Background_Mesh::Background_Mesh(
             moris::mtk::Interpolation_Mesh* aMeshData,
-            moris::ge::Geometry_Engine*     aGeometryEngine )
+            moris::gen::Geometry_Engine*     aGeometryEngine )
             : mMeshData( aMeshData )
             , mEntityLocaltoGlobalMap( 4 )
             , mChildMtkCells( 0 )

@@ -73,7 +73,7 @@ tFIValDvFunction_UTIWGDIFFBULK(
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::DENSITY )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::gen::PDV_Type::DENSITY )->val();
 }
 
 inline void
@@ -82,7 +82,7 @@ tFIDerDvFunction_UTIWGDIFFBULK(
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::DENSITY )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::gen::PDV_Type::DENSITY )->N();
 }
 
 using namespace moris;
@@ -690,7 +690,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    // create the properties
     //    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property > ();
     //    tPropLeaderConductivity->set_parameters( { {{ 1.0 }} } );
-    //    tPropLeaderConductivity->set_dv_type_list( {{ PDV_Type::DENSITY0 }} );
+    //    tPropLeaderConductivity->set_dv_type_list( {{ gen::PDV_Type::DENSITY0 }} );
     //    tPropLeaderConductivity->set_val_function( tFIValDvFunction_UTIWGDIFFBULK );
     //    tPropLeaderConductivity->set_dv_derivative_functions( { tFIDerDvFunction_UTIWGDIFFBULK } );
     //
@@ -783,7 +783,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    Cell< Field_Interpolator* > tDvFIs( 1 );
     //
     //    // create the field interpolator
-    //    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { PDV_Type::DENSITY0 } );
+    //    tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { gen::PDV_Type::DENSITY0 } );
     //
     //    // set the coefficients
     //    tDvFIs( 0 )->set_coeff( tDvHat );
@@ -796,20 +796,20 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //
     //    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
     //
-    //    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::UNDEFINED );
-    //    tIWG->mSet->mUniqueDvTypeList.resize( 5, PDV_Type::UNDEFINED );
+    //    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
+    //    tIWG->mSet->mUniqueDvTypeList.resize( 5, gen::PDV_Type::END_ENUM );
     //
-    //    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::UNDEFINED) + 1, 1, -1 );
+    //    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     //    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
     //
-    //    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::UNDEFINED) + 1, 1, -1 );
+    //    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     //    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
     //
-    //    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
-    //    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
+    //    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( gen::PDV_Type::END_ENUM ) + 1, 1, -1 );
+    //    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( gen::PDV_Type::DENSITY0 ) ) = 0;
     //
-    //    tIWG->mSet->mLeaderDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
-    //    tIWG->mSet->mLeaderDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
+    //    tIWG->mSet->mLeaderDvTypeMap.set_size( static_cast< int >( gen::PDV_Type::END_ENUM ) + 1, 1, -1 );
+    //    tIWG->mSet->mLeaderDvTypeMap( static_cast< int >( gen::PDV_Type::DENSITY0 ) ) = 0;
     //
     //    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
     //    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };

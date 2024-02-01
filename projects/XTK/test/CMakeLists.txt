@@ -65,14 +65,13 @@ endforeach()
 
 # GEN directories
 set(GEN_INCLUDES
-	"field"
-	"field/geometry"
-	"field/property"
-	"pdv"
+	"ADV"
+	"ADV/fields"
+	"PDV"
 	)
 
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 
 # Include WRK directory
@@ -89,7 +88,7 @@ set(TEST_DEPENDENCIES
 	${INT}-lib
     ${HMR}-lib
     ${PRM}-lib
-	${GEN_MAIN}-lib
+	${GEN}-lib
     ${MORIS_BASE_LIBS}
     )
 

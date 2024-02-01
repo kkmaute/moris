@@ -101,7 +101,7 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
+                    moris::Cell< moris::Cell< gen::PDV_Type > >& aDvTypes,
                     moris::Cell< std::string >&             aDvStrings,
                     mtk::Leader_Follower                       aIsLeader = mtk::Leader_Follower::LEADER )
             {
@@ -148,7 +148,7 @@ namespace moris
              * dPPdLeaderDV ( 1 x numDerDv )
              */
             void
-            eval_dSPdLeaderDV( const moris::Cell< PDV_Type >& aDvTypes )
+            eval_dSPdLeaderDV( const moris::Cell< gen::PDV_Type >& aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdLeaderDV: not implemented." );
             }
@@ -160,7 +160,7 @@ namespace moris
              * dSPdFollowerDV ( 1 x numDerDv )
              */
             void
-            eval_dSPdFollowerDV( const moris::Cell< PDV_Type >& aDvTypes )
+            eval_dSPdFollowerDV( const moris::Cell< gen::PDV_Type >& aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdFollowerDV: not implemented." );
             }

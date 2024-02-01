@@ -570,13 +570,15 @@ namespace moris
         for ( uint iGeom = 0; iGeom < tNumGeometries; iGeom++ )
         {
             // load the standard geometry parameter regardless of type
-            tGenParamList( 1 )( iGeom ) = prm::create_geometry_parameter_list();
+            tGenParamList( 1 )( iGeom ) = prm::create_level_set_geometry_parameter_list();
+            tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
+            tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
 
             // move current geometry into the buffer
             mXmlReader->copy_subtree_into_buffer( aGenPath, tGeometryNodeName, iGeom );
 
             // get the type to geometry defined
-            std::string tGeomType = mXmlReader->get_attribute_from_buffer( "type", std::string( "" ) );
+            std::string tGeomType = mXmlReader->get_attribute_from_buffer( "field_type", std::string( "" ) );
 
             // check that a type is defined
             MORIS_ERROR( tGeomType != "",
@@ -595,7 +597,7 @@ namespace moris
                 // set parameters that are independent of the particular geometry used
                 tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
-                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
+                tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", tUseMultiLinearIntersections );
                 tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // -------------------------------- //
@@ -628,7 +630,7 @@ namespace moris
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "type", "plane" );
+                    tGenParamList( 1 )( iGeom ).set( "field_type", "plane" );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tNormal );
                 }
 
@@ -657,7 +659,7 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "type", "circle" );
+                    tGenParamList( 1 )( iGeom ).set( "field_type", "circle" );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tRadius );
                 }
 
@@ -696,7 +698,7 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "type", "superellipse" );
+                    tGenParamList( 1 )( iGeom ).set( "field_type", "superellipse" );
                     std::string tParamString = tPoint + "," + tSemiDiameters + "," + tExponent + ",1.0,0.0,0.0";
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tParamString );
                 }
@@ -731,7 +733,7 @@ namespace moris
                             "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "type", "sphere" );
+                    tGenParamList( 1 )( iGeom ).set( "field_type", "sphere" );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tRadius );
                 }
 
@@ -775,7 +777,7 @@ namespace moris
                     if ( tExponent == "" ) { tExponent = "2.0"; };
 
                     // set the parameters in the GEN parameter list
-                    tGenParamList( 1 )( iGeom ).set( "type", "superellipsoid" );
+                    tGenParamList( 1 )( iGeom ).set( "field_type", "superellipsoid" );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tSemiDiameters + "," + tExponent );
                 }
 
@@ -797,7 +799,7 @@ namespace moris
                 tGenParamList( 1 )( iGeom ) = prm::create_image_sdf_field_parameter_list();
                 tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
-                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
+                tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", tUseMultiLinearIntersections );
                 tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // get the file name and check it for validity
@@ -848,7 +850,7 @@ namespace moris
             {
                 // initialize with the sdf field default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
-                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", false );
+                tGenParamList( 1 )( iGeom ).set( "use_multilinear_interpolation", false );
                 // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // FIXME: this functionality needs to get added

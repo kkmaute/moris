@@ -158,12 +158,12 @@
 //         std::string tBackgroundMeshOutput = "./xtk_exo/volume_check_rs_bm.e";
 //         tMeshData->create_output_mesh(tBackgroundMeshOutput);
 
-//         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-//         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+//         moris::Cell< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+//         tGeometryVector(0) = std::make_shared<moris::gen::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometryVector;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         // Setup XTK Model -----------------------------
 //         size_t tModelDimension = 3;
@@ -216,12 +216,12 @@
 //         std::string tMeshFileName = "generated:1x1x4";
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-//         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-//         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+//         moris::Cell< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+//         tGeometryVector(0) = std::make_shared<moris::gen::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometryVector;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         // Setup XTK Model -----------------------------
 //         size_t tModelDimension = 3;
@@ -277,12 +277,12 @@
 //             std::string tMeshFileName = "generated:1x1x1";
 //             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-//             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-//             tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+//             moris::Cell< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+//             tGeometryVector(0) = std::make_shared<moris::gen::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-//             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //             tGeometryEngineParameters.mGeometries = tGeometryVector;
-//             moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//             moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //             // Setup XTK Model -----------------------------
 //             size_t tModelDimension = 3;

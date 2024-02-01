@@ -222,7 +222,7 @@ namespace moris
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -241,19 +241,19 @@ namespace moris
     moris::real
     Func_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
         real tY = aCoordinates( 1 );
 
         // get normal
-        real tNx = *aGeometryParameters( 0 );
-        real tNy = *aGeometryParameters( 1 );
+        real tNx = aGeometryParameters( 0 );
+        real tNy = aGeometryParameters( 1 );
 
         // get point on plane
-        real tPx = *aGeometryParameters( 2 );
-        real tPy = *aGeometryParameters( 3 );
+        real tPx = aGeometryParameters( 2 );
+        real tPy = aGeometryParameters( 3 );
 
         real tReturnValue = tNx * ( tPx - tX ) + tNy * ( tPy - tY );
 
@@ -597,7 +597,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", true );
+        tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", true );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 0 );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", -2.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_upper_bound", 2.0 );

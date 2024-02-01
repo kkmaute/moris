@@ -48,7 +48,7 @@ namespace moris
                 Matrix< DDSMat > mDofCheck;
 
                 // phase dv type list
-                moris::Cell< moris::Cell< PDV_Type > > mDvTypes;
+                moris::Cell< moris::Cell< gen::PDV_Type > > mDvTypes;
 
                 // matrix to check if a pdv type was already set to the phase
                 Matrix< DDSMat > mPdvCheck;
@@ -80,7 +80,7 @@ namespace moris
                     mDofCheck.set_size( static_cast< uint >( MSI::Dof_Type::END_ENUM ), 1, -1 );
 
                     // set size for mPdvCheck
-                    mPdvCheck.set_size( static_cast< uint >( PDV_Type::UNDEFINED ), 1, -1 );
+                    mPdvCheck.set_size( static_cast< uint >( gen::PDV_Type::UNDEFINED ), 1, -1 );
                 }
 
                 //------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ namespace moris
                  * set dv type list
                  * @param[ out ] mDvTypes list of group of dv types
                  */
-                void set_dv_type_list( const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes )
+                void set_dv_type_list( const moris::Cell< moris::Cell< gen::PDV_Type > > & aDvTypes )
                 {
                     mDvTypes = aDvTypes;
                 }
@@ -228,7 +228,7 @@ namespace moris
                  * @param[ out ] mDvTypes list of group of dv types
                  */
                 const
-                moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list()
+                moris::Cell< moris::Cell< gen::PDV_Type > > & get_dv_type_list()
                 {
                     return mDvTypes;
                 }
@@ -238,7 +238,7 @@ namespace moris
                  * add pdv type to list
                  * @param[ in ] aPdvTypes group of pdv types to add to list of pdv type
                  */
-                void add_pdv_type_to_list( moris::Cell< PDV_Type > & aPdvTypes )
+                void add_pdv_type_to_list( moris::Cell< gen::PDV_Type > & aPdvTypes )
                 {
                     // get pdv type index in enum list
                     uint tPdvIndex = static_cast< uint >( aPdvTypes( 0 ) );

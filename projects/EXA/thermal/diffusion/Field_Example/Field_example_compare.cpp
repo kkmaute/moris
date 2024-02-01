@@ -100,7 +100,7 @@ namespace moris
 
     moris::real LevelSetFunction(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         //return norm(aCoordinates) - 0.01;
         return std::pow( aCoordinates( 0 ), 2 )/1 + std::pow( aCoordinates( 1 ), 2 )/2 - 0.331;
@@ -216,7 +216,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set("number_of_refinements", "0");
         tParameterlist( 1 )( tGeoCounter ).set("refinement_mesh_index", "0");
         tParameterlist( 1 )( tGeoCounter ).set("discretization_mesh_index", 0);
-        tParameterlist( 1 )( tGeoCounter ).set("multilinear_intersections", true);
+        tParameterlist( 1 )( tGeoCounter ).set("use_multilinear_interpolation", true);
     }
 
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )

@@ -47,6 +47,7 @@ set(LIB_SOURCES
     cl_Tracer_Enums.cpp
     cl_XML_Parser.cpp
     cl_Ascii.cpp
+	fn_Parsing_Tools.cpp
     )
 
 
@@ -55,7 +56,6 @@ set(LIB_DEPENDENCIES
     ${COR}-lib
     ${COM}-lib
     ${PRM}-lib
-	${GEN_CORE}-lib
     ${MORIS_BASE_LIBS}
      )
 

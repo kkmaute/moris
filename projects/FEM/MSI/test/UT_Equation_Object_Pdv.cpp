@@ -92,7 +92,7 @@ void tFIValDvFunction_FDTest
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->val();
 }
 
 void tFIDerDvFunction_FDTest
@@ -100,7 +100,7 @@ void tFIDerDvFunction_FDTest
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->N();
 }
 
 TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
@@ -229,7 +229,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         std::shared_ptr< fem::Property > tPropLeaderConductivity =
                 std::make_shared< fem::Property > ();
         tPropLeaderConductivity->set_parameters( { {{ 1.0 }} } );
-        tPropLeaderConductivity->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+        tPropLeaderConductivity->set_dv_type_list( {{ gen::PDV_Type::DENSITY }} );
         tPropLeaderConductivity->set_val_function( tFIValDvFunction_FDTest );
         tPropLeaderConductivity->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
@@ -349,8 +349,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
         // set size and populate the set leader dof type map
-        reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
-        reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
+        reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDvTypeMap.set_size( static_cast< int >( gen::PDV_Type::UNDEFINED ) + 1, 1, -1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDvTypeMap( static_cast< int >( gen::PDV_Type::DENSITY ) ) = 0;
 
         // MSI Equation object
         //------------------------------------------------------------------------------

@@ -71,7 +71,7 @@ namespace moris
                     }
 
                     // Print the entry location and the values of each matrix
-                    std::cout << std::setprecision( 15 - ( int ) log10( aErrorFactor ) );
+                    std::cout << std::setprecision( 16 - ( int ) log10( aErrorFactor ) );
                     std::cout << "  ( " << iRowIndex << ", " << iColumnIndex << " ) value does not match:" << std::endl;
                     std::cout << "    " << aMatrix1( iRowIndex, iColumnIndex ) << " from " << aMatrix1Name << std::endl;
                     std::cout << "    " << aMatrix2( iRowIndex, iColumnIndex ) << " from " << aMatrix2Name << std::endl;

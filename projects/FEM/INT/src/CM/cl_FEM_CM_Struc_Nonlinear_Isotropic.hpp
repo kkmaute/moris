@@ -260,7 +260,7 @@ namespace moris
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
-                        Cell< Cell< PDV_Type > > aDvTypes,
+                        Cell< Cell< gen::PDV_Type > > aDvTypes,
                         Cell< std::string >      aDvStrings )
                 {
                     Constitutive_Model::set_dv_type_list( aDvTypes );

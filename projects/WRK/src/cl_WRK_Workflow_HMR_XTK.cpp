@@ -65,7 +65,7 @@ namespace moris
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
 
             // Create GE performer
-            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >(
+            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< gen::Geometry_Engine >(
                     tGENParameterList,
                     mPerformerManager->mLibrary );
 
@@ -140,7 +140,7 @@ namespace moris
                     Refinement_Mini_Performer tRefinementPerformer;
 
                     // get the GEN interface performer
-                    std::shared_ptr< ge::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
+                    std::shared_ptr< gen::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
 
                     std::shared_ptr< Performer > tGenInterfacePerformer = std::make_shared< wrk::Gen_Performer >( tGeometryEngine );
 
@@ -158,7 +158,7 @@ namespace moris
             else
             {
                 // get access to the performers
-                std::shared_ptr< ge::Geometry_Engine >        tGeometryEngine     = mPerformerManager->mGENPerformer( 0 );
+                std::shared_ptr< gen::Geometry_Engine >        tGeometryEngine     = mPerformerManager->mGENPerformer( 0 );
                 std::shared_ptr< mdl::Model >                 tModelPerformer     = mPerformerManager->mMDLPerformer( 0 );
                 std::shared_ptr< Remeshing_Mini_Performer >   tRemeshingPerformer = mPerformerManager->mRemeshingMiniPerformer( 0 );
                 Cell< std::shared_ptr< hmr::HMR > >&          tHmrPerformers      = mPerformerManager->mHMRPerformer;
@@ -185,7 +185,7 @@ namespace moris
 
                 // re-initialize GEN
                 ModuleParameterList tGENParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
-                tGeometryEngine                       = std::make_shared< ge::Geometry_Engine >( tGENParameterList, tLibrary );
+                tGeometryEngine                       = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
             }
 
             // Step 2: Initialize Level set field in GEN -----------------------------------------------
@@ -194,7 +194,7 @@ namespace moris
                 const mtk::Mesh_Pair& tMeshPair = mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 );
 
                 // initialize GEN
-                std::shared_ptr< ge::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
+                std::shared_ptr< gen::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
                 tGeometryEngine->distribute_advs( tMeshPair, tFieldsOut );
 
                 // Get ADVs

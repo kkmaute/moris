@@ -340,25 +340,22 @@ namespace moris
         uint tGeoCounter = 0;
 
         // outer frame
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "superellipse" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "superellipse" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.5, 0.5," + std::to_string( 1.5 - tWallThickness ) + "," + std::to_string( 0.5 - tWallThickness ) + ", 24.0, 0.1, 0.01, 0.0" );
         tGeoCounter++;
 
         // Geometry parameter lists
-        tParameterlist( 1 ).push_back( prm::create_swiss_cheese_slice_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "left_bound", 0.12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "right_bound", 2.88 );
-        tParameterlist( 1 )( tGeoCounter ).set( "bottom_bound", 0.12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "top_bound", 0.88 );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_x_holes", tNumHoleX );
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_y_holes", tNumHoleY );
-
-        tParameterlist( 1 )( tGeoCounter ).set( "hole_x_semidiameter", tHoleDiameter );
-        tParameterlist( 1 )( tGeoCounter ).set( "hole_y_semidiameter", tHoleDiameter );
-        tParameterlist( 1 )( tGeoCounter ).set( "superellipse_exponent", 8.0 );
-        tParameterlist( 1 )( tGeoCounter ).set( "superellipse_scaling", std::pow( tHoleDiameter * tHoleDiameter, 0.5 ) );
-        tParameterlist( 1 )( tGeoCounter ).set( "superellipse_regularization", 0.1 );
+        tParameterlist( 1 ).push_back( prm::create_field_array_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "superellipse" );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",
+                "0.0, 0.0, " + std::to_string( tHoleDiameter ) + ", " + std::to_string( tHoleDiameter ) + ", 8.0, " + std::to_string( std::pow( tHoleDiameter * tHoleDiameter, 0.5 ) ) + ", 0.1, 0.0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_x", 0.12 );
+        tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_x", 2.88 );
+        tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_y", 0.12 );
+        tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_y", 0.88 );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_fields_x", tNumHoleX );
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_fields_y", tNumHoleY );
 
         if ( tIsOpt )
         {

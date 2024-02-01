@@ -80,7 +80,7 @@ namespace xtk
     Model::Model(
             uint                            aModelDimension,
             moris::mtk::Interpolation_Mesh *aMeshData,
-            moris::ge::Geometry_Engine     *aGeometryEngine,
+            moris::gen::Geometry_Engine     *aGeometryEngine,
             bool                            aLinkGeometryOnConstruction )
             : mModelDimension( aModelDimension )
             , mBackgroundMesh( aMeshData )
@@ -122,7 +122,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Model::set_geometry_engine( moris::ge::Geometry_Engine *aGeometryEngine )
+    Model::set_geometry_engine( moris::gen::Geometry_Engine *aGeometryEngine )
     {
         mGeometryEngine = aGeometryEngine;
     }
@@ -323,8 +323,8 @@ namespace xtk
                 }
 
                 // check that the number of double sided side sets to be created is correct
-                MORIS_ASSERT( 
-                        tNumDblSideSetsCreated == tNumDblSideSetsToCreate, 
+                MORIS_ASSERT(
+                        tNumDblSideSetsCreated == tNumDblSideSetsToCreate,
                         "xtk::Model::perform_enrichment() - "
                         "Number of high-to-low double sided side sets created is incorrect." );
 
@@ -688,15 +688,8 @@ namespace xtk
         // log/trace the mesh decomposition
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
 
-        // get the geometries for each level-set field in GEN
-        moris::Matrix< moris::IndexMat > tActiveGeometries( 1, mGeometryEngine->get_num_geometries() );
-        for ( uint i = 0; i < mGeometryEngine->get_num_geometries(); i++ )
-        {
-            tActiveGeometries( i ) = (moris_index)i;
-        }
-
         // initialize IMG object for performing decomposition
-        Integration_Mesh_Generator tIntegrationGenerator( this, aMethods, tActiveGeometries );
+        Integration_Mesh_Generator tIntegrationGenerator( this, aMethods );
 
         // perform decomposition
         mCutIntegrationMesh = tIntegrationGenerator.perform();
@@ -723,23 +716,6 @@ namespace xtk
 
         // return successful decomposition
         return mDecomposed;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::create_new_node_association_with_geometry( Decomposition_Data &tDecompData )
-    {
-        MORIS_ERROR( false,
-                "Model::create_new_node_association_with_geometry - depreciated function." );
-
-        // FIXME: REMOVE
-        //  // create geometry objects for each node
-        //  mGeometryEngine->create_new_child_nodes(
-        //      tDecompData.tNewNodeIndex,
-        //      tDecompData.tNewNodeParentTopology,
-        //      tDecompData.tParamCoordRelativeToParent,
-        //      mBackgroundMesh.get_all_node_coordinates_loc_inds() );
     }
 
     // ----------------------------------------------------------------------------------
@@ -943,18 +919,6 @@ namespace xtk
             MORIS_LOG_SPEC( "Cell Index", tIndex );
             MORIS_LOG_SPEC( "Cell Owner", tCell.get_owner() );
             MORIS_LOG_SPEC( "Vertex Ids", ios::stringify_log( tVertexIds ) );
-
-            // collect geometric info
-            uint                     tNumGeom = mGeometryEngine->get_num_geometries();
-            Cell< Matrix< DDRMat > > tVertexGeomVals( tNumGeom, Matrix< DDRMat >( 1, tVertexPtrs.size() ) );
-            for ( uint iG = 0; iG < tNumGeom; iG++ )
-            {
-                for ( uint iV = 0; iV < tVertexPtrs.size(); iV++ )
-                {
-                    tVertexGeomVals( iG )( iV ) = mGeometryEngine->get_field_value( iG, (uint)tVertexPtrs( iV )->get_index(), tVertexPtrs( iV )->get_coords() );
-                }
-                MORIS_LOG_SPEC( "Geom Field " + std::to_string( iG ) + " Vals", ios::stringify_log( tVertexGeomVals( iG ) ) );
-            }
         }
     }
 
@@ -1134,7 +1098,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::ge::Geometry_Engine *
+    moris::gen::Geometry_Engine *
     Model::get_geom_engine()
     {
         return mGeometryEngine;

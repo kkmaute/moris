@@ -273,8 +273,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -797,8 +797,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_020_No_Growth", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -1311,8 +1311,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -1835,8 +1835,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_101_Threshold", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -2359,8 +2359,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Growth", "[CM_Struc_Lin_Iso_Dam
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -2883,8 +2883,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -3240,16 +3240,16 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
 //     tCMLeader->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 //
 //     // set size for the set EqnObjDofTypeList
-//     tCMLeader->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::UNDEFINED );
+//     tCMLeader->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 //
 //     // set size and populate the set dof type map
-//     tCMLeader->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::UNDEFINED ) + 1, 1, -1 );
+//     tCMLeader->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
 //     tCMLeader->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )         = 0;
 //     tCMLeader->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::NLEQSTRAIN ) ) = 1;
 //     tCMLeader->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::HISTORY ) )    = 2;
 //
 //     // set size and populate the set master dof type map
-//     tCMLeader->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::UNDEFINED ) + 1, 1, -1 );
+//     tCMLeader->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
 //     tCMLeader->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )         = 0;
 //     tCMLeader->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::NLEQSTRAIN ) ) = 1;
 //     tCMLeader->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::HISTORY ) )    = 2;
@@ -3408,8 +3408,8 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
 //             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatNlEqStrain );
 //
 //             // create a field interpolator manager
-//             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-//             moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
+//             moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
+//             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
 //             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 //
 //             // populate the field interpolator manager

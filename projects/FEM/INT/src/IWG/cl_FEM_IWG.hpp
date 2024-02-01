@@ -29,7 +29,7 @@
 // FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 // GEN/src
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 namespace moris
 {
@@ -88,12 +88,12 @@ namespace moris
             Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
 
             // leader and follower dv type lists
-            moris::Cell< moris::Cell< PDV_Type > > mLeaderDvTypes;
-            moris::Cell< moris::Cell< PDV_Type > > mFollowerDvTypes;
+            moris::Cell< moris::Cell< gen::PDV_Type > > mLeaderDvTypes;
+            moris::Cell< moris::Cell< gen::PDV_Type > > mFollowerDvTypes;
 
             // leader and follower global dv type list
-            moris::Cell< moris::Cell< PDV_Type > > mLeaderGlobalDvTypes;
-            moris::Cell< moris::Cell< PDV_Type > > mFollowerGlobalDvTypes;
+            moris::Cell< moris::Cell< gen::PDV_Type > > mLeaderGlobalDvTypes;
+            moris::Cell< moris::Cell< gen::PDV_Type > > mFollowerGlobalDvTypes;
 
             // leader and follower field type lists
             moris::Cell< moris::Cell< mtk::Field_Type > > mLeaderFieldTypes;
@@ -517,7 +517,7 @@ namespace moris
              * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_dv_type_list(
-                    const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
+                    const moris::Cell< moris::Cell< gen::PDV_Type > >& aDvTypes,
                     mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -526,7 +526,7 @@ namespace moris
              * @param[ in ]  aIsLeader enum leader or follower
              * @param[ out ] aDvTypes a list of group of dv types
              */
-            const moris::Cell< moris::Cell< PDV_Type > >& get_dv_type_list(
+            const moris::Cell< moris::Cell< gen::PDV_Type > >& get_dv_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
@@ -656,7 +656,7 @@ namespace moris
              */
             void get_non_unique_dof_dv_and_field_types(
                     moris::Cell< moris::Cell< MSI::Dof_Type > >&   aDofTypes,
-                    moris::Cell< moris::Cell< PDV_Type > >&        aDvTypes,
+                    moris::Cell< moris::Cell< gen::PDV_Type > >&        aDvTypes,
                     moris::Cell< moris::Cell< mtk::Field_Type > >& aFieldTypes );
 
             //------------------------------------------------------------------------------
@@ -674,7 +674,7 @@ namespace moris
              * @param[ in ]  aIsLeader       enum leader or follower
              * @param[ out ] mGlobalDvTypes global list of group of dv types
              */
-            const moris::Cell< moris::Cell< PDV_Type > >& get_global_dv_type_list(
+            const moris::Cell< moris::Cell< gen::PDV_Type > >& get_global_dv_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------

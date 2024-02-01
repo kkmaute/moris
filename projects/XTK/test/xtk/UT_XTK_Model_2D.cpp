@@ -33,8 +33,8 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
@@ -66,9 +66,9 @@
 
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         // Setup XTK Model -----------------------------
 //         size_t tModelDimension = 2;
@@ -119,8 +119,8 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Circle>(tXCenter, tYCenter, tRadius);
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
 //         uint aNumDim = 2;
@@ -151,9 +151,9 @@
 
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 // // Setup XTK Model ----------------------------------------------------------------
 //         size_t tModelDimension = 2;
@@ -187,8 +187,8 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
@@ -232,9 +232,9 @@
 
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         std::string tMeshInterpOutputFile    = "./xtk_exo/xtk_test_output_regular_subdivision_interp_2d.e";
 //         tMeshData->create_output_mesh(tMeshInterpOutputFile);
@@ -281,8 +281,8 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
@@ -326,9 +326,9 @@
 
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         std::string tMeshInterpOutputFile    = "./xtk_exo/xtk_test_conformal_subdivision_quad_interp_2d.e";
 //         tMeshData->create_output_mesh(tMeshInterpOutputFile);

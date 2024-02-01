@@ -2432,7 +2432,7 @@ namespace xtk
             moris_index aBulkPhaseIndex0,
             moris_index aBulkPhaseIndex1 )
     {
-        MORIS_ASSERT( aGeomIndex < (moris_index)mModel->get_geom_engine()->get_num_geometries(), "Geometry index out of bounds" );
+        MORIS_ASSERT( aGeomIndex < (moris_index)mModel->get_geom_engine()->get_number_of_geometries(), "Geometry index out of bounds" );
         MORIS_ASSERT( aBulkPhaseIndex0 < (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(), "Bulk phase index 0 out of bounds" );
         MORIS_ASSERT( aBulkPhaseIndex1 < (moris_index)mModel->get_geom_engine()->get_num_bulk_phase(), "Bulk phase index 1 out of bounds" );
 
@@ -4765,7 +4765,7 @@ namespace xtk
     Enriched_Integration_Mesh::declare_interface_vertex_sets()
     {
         // number of geometries in the mesh
-        uint tNumGeometries = mModel->get_geom_engine()->get_num_geometries();
+        uint tNumGeometries = mModel->get_geom_engine()->get_number_of_geometries();
 
         // allocate a cell of strings
         Cell< std::string > tInterfaceVertexSetNames( tNumGeometries );

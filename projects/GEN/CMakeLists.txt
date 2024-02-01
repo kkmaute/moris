@@ -5,10 +5,18 @@
 #------------------------------------------------------------------------------------
 #
 
-# GEN ---------------------------------------------------------------------
+# Geometry Engine ---------------------------------------------------------
 # -------------------------------------------------------------------------
 
-# Add source directories
-add_subdirectory(${GEN_CORE})
-add_subdirectory(${GEN_MAIN})
+# Add source directory
+add_subdirectory(src)
+
+#if(BUILD_SDF)
+#	add_subdirectory(SDF)
+#endif()
+
+# Add test directory
+if(MORIS_USE_TESTS AND BUILD_GEN)
+    add_subdirectory(test)
+endif()
 

@@ -16,7 +16,7 @@
 #include "cl_Map.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_FEM_Enums.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 
 namespace moris
@@ -75,8 +75,8 @@ namespace moris
             Cell< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
 
             // lists of leader and follower groups of dv types
-            moris::Cell< moris::Cell< enum PDV_Type > > mLeaderDvTypes;
-            moris::Cell< moris::Cell< enum PDV_Type > > mFollowerDvTypes;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > mLeaderDvTypes;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > > mFollowerDvTypes;
 
             // maps for the leader and follower dv type
             moris::Matrix< DDSMat > mLeaderDvTypeMap;
@@ -93,7 +93,7 @@ namespace moris
             // map of leader and follower mat pdv types for assembly
             Cell< moris::Matrix< DDSMat > >                      mPdvMatAssemblyMap;
             moris::Matrix< DDSMat >                              mPdvMatAssemblyVector;
-            std::map< std::pair< moris_index, PDV_Type >, uint > mPdvGeoAssemblyMap;
+            std::map< std::pair< moris_index, gen::PDV_Type >, uint > mPdvGeoAssemblyMap;
             moris::Matrix< DDSMat >                              mPdvGeoAssemblyVector;
             bool                                                 mPdvGeoAssemblyFlag = false;
 
@@ -116,13 +116,13 @@ namespace moris
 
             // unique list of dof and dv types
             moris::Cell< moris::Cell< enum MSI::Dof_Type > >   mUniqueDofTypeListLeaderFollower;
-            moris::Cell< moris::Cell< enum PDV_Type > >        mUniqueDvTypeListLeaderFollower;
-            moris::Cell< moris::Cell< mtk::Field_Type > > mUniqueFieldTypeListLeaderFollower;
+            moris::Cell< moris::Cell< enum gen::PDV_Type > >        mUniqueDvTypeListLeaderFollower;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > mUniqueFieldTypeListLeaderFollower;
 
             // unique list of dof and dv types. Leader and Follower are combined
             moris::Cell< enum MSI::Dof_Type >   mUniqueDofTypeList;
-            moris::Cell< enum PDV_Type >        mUniqueDvTypeList;
-            moris::Cell< mtk::Field_Type > mUniqueFieldTypeList;
+            moris::Cell< enum gen::PDV_Type >        mUniqueDvTypeList;
+            moris::Cell< enum mtk::Field_Type > mUniqueFieldTypeList;
 
             // pointer to the model solver interface
             Model_Solver_Interface* mModelSolverInterface = nullptr;
@@ -237,7 +237,7 @@ namespace moris
              * get dv type list
              * @param[ in ] aIsLeader enum for leader or follower
              */
-            const moris::Cell< moris::Cell< PDV_Type > >& get_dv_type_list(
+            const moris::Cell< moris::Cell< gen::PDV_Type > >& get_dv_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ namespace moris
              * @param[ out ] sint     consecutive index for dv type
              */
             sint get_dv_index_for_type(
-                    enum PDV_Type     aDvType,
+                    enum gen::PDV_Type     aDvType,
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -271,7 +271,7 @@ namespace moris
              * @param[ out ] sint      non-consecutive index for dv type
              */
             sint get_dv_index_for_type_1(
-                    enum PDV_Type     aDvType,
+                    enum gen::PDV_Type     aDvType,
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -475,7 +475,7 @@ namespace moris
             /**
              * get dRdpGeo pdv assembly map
              */
-            std::map< std::pair< moris_index, PDV_Type >, uint >&
+            std::map< std::pair< moris_index, gen::PDV_Type >, uint >&
             get_geo_pdv_assembly_map()
             {
                 return mPdvGeoAssemblyMap;
@@ -632,7 +632,7 @@ namespace moris
              * get unique dv type list
              * @param[ out ] mUniqueDvTypeList a unique list of dv type
              */
-            const moris::Cell< enum PDV_Type >&
+            const moris::Cell< enum gen::PDV_Type >&
             get_unique_dv_type_list()
             {
                 return mUniqueDvTypeList;
@@ -691,7 +691,7 @@ namespace moris
             /**
              * get requested dv types
              */
-            moris::Cell< enum PDV_Type > get_requested_dv_types();
+            moris::Cell< enum gen::PDV_Type > get_requested_dv_types();
 
             //------------------------------------------------------------------------------
             /**

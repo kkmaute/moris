@@ -209,13 +209,13 @@ namespace moris
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
         real tY = aCoordinates( 1 );
 
-        real tRadius = tUseAnalyticGeometry ? *aGeometryParameters( 0 ) : tSphereRadius;
+        real tRadius = tUseAnalyticGeometry ? aGeometryParameters( 0 ) : tSphereRadius;
 
         real tReturnValue = tRadius - std::pow( std::pow( tX - tSpherePosX, tSphereExpon ) + std::pow( tY - tSpherePosY, tSphereExpon ), 1.0 / tSphereExpon );
 
@@ -242,19 +242,19 @@ namespace moris
     moris::real
     Func_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
         real tY = aCoordinates( 1 );
 
         // get normal
-        real tNx = *aGeometryParameters( 0 );
-        real tNy = *aGeometryParameters( 1 );
+        real tNx = aGeometryParameters( 0 );
+        real tNy = aGeometryParameters( 1 );
 
         // get point on plane
-        real tPx = *aGeometryParameters( 2 );
-        real tPy = *aGeometryParameters( 3 );
+        real tPx = aGeometryParameters( 2 );
+        real tPy = aGeometryParameters( 3 );
 
         real tReturnValue = tNx * ( tPx - tX ) + tNy * ( tPy - tY );
 
@@ -524,7 +524,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
-        tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", false );
+        tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", false );
 
         if ( tUseAnalyticGeometry )
         {

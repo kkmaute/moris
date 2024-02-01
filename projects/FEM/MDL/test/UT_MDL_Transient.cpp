@@ -387,12 +387,12 @@ namespace moris
 
         //    for( uint k=0; k<tNumRef; ++k )
         //    {
-        //        Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
-        //        tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-        //        tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+        //        Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry( 2 );
+        //        tGeometry( 0 ) = std::make_shared< moris::gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
+        //        tGeometry( 1 ) = std::make_shared< moris::gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
         //
-        //        moris::ge::Phase_Table tPhaseTable (1);
-        //        moris::ge::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable, 2 );
+        //        moris::gen::Phase_Table tPhaseTable (1);
+        //        moris::gen::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable, 2 );
         //
         //        moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
         //
@@ -426,12 +426,12 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
-        tGeometry0( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-        tGeometry0( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+        Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry0( 2 );
+        tGeometry0( 0 ) = std::make_shared< moris::gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
+        tGeometry0( 1 ) = std::make_shared< moris::gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
 
         size_t                     tModelDimension = 2;
-        moris::ge::Geometry_Engine tGENGeometryEngine0( tGeometry0, tModelDimension );
+        moris::gen::Geometry_Engine tGENGeometryEngine0( tGeometry0, tModelDimension );
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );

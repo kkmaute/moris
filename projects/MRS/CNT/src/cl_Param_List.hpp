@@ -27,21 +27,17 @@
 #include "ios.hpp"
 #include "fn_Parsing_Tools.hpp"
 
-namespace moris
+namespace moris::containers
 {
-    namespace containers
+    struct strcmp
     {
-        struct strcmp
+        bool
+        operator()( const std::string& a, const std::string& b ) const
         {
-            bool
-            operator()( const std::string& a, const std::string& b ) const
-            {
-                return std::strcmp( a.c_str(), b.c_str() ) < 0;
-            }
-        };
-
-    }    // namespace containers
-}    // namespace moris
+            return std::strcmp( a.c_str(), b.c_str() ) < 0;
+        }
+    };
+}
 
 namespace moris
 {
@@ -92,9 +88,9 @@ namespace moris
         insert( const std::string& aKey, Variant aVal )
         {
             // check for leading and trailing whitespaces in key
-            std::string tKey = aKey;
-            split_trim_string( tKey, "" );
-            MORIS_ERROR( !aKey.compare( tKey ),
+            std::string tKeyWithoutSpaces = aKey;
+            split_trim_string( tKeyWithoutSpaces, "" );
+            MORIS_ERROR( aKey == tKeyWithoutSpaces,
                     "Param_List::insert - key contains whitespaces" );
 
             // if value is a string remove leading and trailing whitespaces
@@ -271,6 +267,17 @@ namespace moris
             }
         }
 
+        /**
+         * Checks whether or not the given key exists. Useful for when a parameter may or may not have been inserted.
+         *
+         * @param aKey Key in the map
+         * @return whether or not this key is in the map with a corresponding value
+         */
+        [[nodiscard]] bool exists( const std::string& aKey ) const
+        {
+            return mParamMap.find( aKey ) not_eq mParamMap.end();
+        }
+
         //------------------------------------------------------------------------------
 
         /**
@@ -350,6 +357,19 @@ namespace moris
                     aKey.c_str() );
 
             return boost::get< Key >( it->second );
+        }
+
+        /**
+         * Gets a cell from a paramter that is stored as a std::string
+         *
+         * @tparam T Cell data type
+         * @param aKey Key corresponding to mapped string
+         * @return Cell of values
+         */
+        template< typename T >
+        Cell< T > get_cell( const std::string& aKey ) const
+        {
+            return string_to_cell< T >( this->get< std::string >( aKey ) );
         }
 
         //------------------------------------------------------------------------------

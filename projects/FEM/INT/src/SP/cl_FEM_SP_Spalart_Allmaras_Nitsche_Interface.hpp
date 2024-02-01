@@ -102,7 +102,7 @@ namespace moris
                  * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dv_type_list(
-                        moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
+                        moris::Cell< moris::Cell< gen::PDV_Type > > & aDvTypes,
                         moris::Cell< std::string >             & aDvStrings,
                         mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
                 {
@@ -147,7 +147,7 @@ namespace moris
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
                  * dPPdLeaderDV ( 1 x numDerDv )
                  */
-                void eval_dSPdLeaderDV( const moris::Cell< PDV_Type > & aDvTypes )
+                void eval_dSPdLeaderDV( const moris::Cell< gen::PDV_Type > & aDvTypes )
                 {
                     MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdLeaderDV: not implemented." );
                 }
@@ -158,7 +158,7 @@ namespace moris
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
                  * dSPdFollowerDV ( 1 x numDerDv )
                  */
-                void eval_dSPdFollowerDV( const moris::Cell< PDV_Type > & aDvTypes )
+                void eval_dSPdFollowerDV( const moris::Cell< gen::PDV_Type > & aDvTypes )
                 {
                     MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdFollowerDV: not implemented." );
                 }

@@ -23,16 +23,16 @@ set(TEST_DEPENDENCIES
     )
 
 set(GEN_INCLUDES
-    "field"
-    "field/geometry"
-    "field/property"
-    "pdv"
+	"ADV"
+	"ADV/fields"
+	"PDV"
     )
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
+include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/IP)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -65,17 +65,17 @@ SET(SO_INCLUDES
     ${INT_SRC_LIST}
     ${MTK_SRC_LIST}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
-    ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
-    ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
-    ${MORIS_PACKAGE_DIR}/SOL/DLA/src 
+    ${MORIS_PACKAGE_DIR}/FEM/VIS/src
+    ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src
+    ${MORIS_PACKAGE_DIR}/SOL/DLA/src
     ${MORIS_PACKAGE_DIR}/SOL/TSA/src
-    ${MORIS_PACKAGE_DIR}/SOL/NLA/src 
-    ${MORIS_PACKAGE_DIR}/SOL/SOL_CORE/src 
+    ${MORIS_PACKAGE_DIR}/SOL/NLA/src
+    ${MORIS_PACKAGE_DIR}/SOL/SOL_CORE/src
     ${MORIS_PACKAGE_DIR}/LINALG/src
     ${MORIS_PACKAGE_DIR}/LINALG/src/${LINALG_IMPLEMENTATION_INCLUDES}
-    ${MORIS_PACKAGE_DIR}/COM/src 
-    ${MORIS_PACKAGE_DIR}/MTK/src 
-    ${MORIS_PACKAGE_DIR}/PRM/src 
+    ${MORIS_PACKAGE_DIR}/COM/src
+    ${MORIS_PACKAGE_DIR}/MTK/src
+    ${MORIS_PACKAGE_DIR}/PRM/src
     ${MORIS_PACKAGE_DIR}/MRS/COR/src
     ${MORIS_PACKAGE_DIR}/FEM/INT/src/IP
     ${MORIS_PACKAGE_DIR}/PRM/ENM/src

@@ -112,49 +112,6 @@ interpolated_coordinate_check( Cut_Integration_Mesh* aCutMesh )
 }
 
 bool
-verify_interface_vertices(
-    xtk::Model*                           aModel,
-    moris::Matrix< moris::DDRMat > const& aIsocontourThreshold,
-    moris::Matrix< moris::DDRMat > const& aIsocontourTolerance )
-{
-    // get the cut integration mesh
-    Cut_Integration_Mesh* tCutMesh = aModel->get_cut_integration_mesh();
-
-    // get the geometry engine
-    moris::ge::Geometry_Engine* tGeomEngine = aModel->get_geom_engine();
-
-    // number of vertices
-    moris::uint tNumVertices = tCutMesh->get_num_entities( mtk::EntityRank::NODE, 0 );
-
-    // keep track of problem vertices
-    moris::Cell< moris_index > tProblemIgVertices( 0 );
-
-    // iterate through vertices in the integration mesh
-    for ( moris::uint iV = 0; iV < tNumVertices; iV++ )
-    {
-        // iterate through geometries
-        for ( moris::uint iGeom = 0; iGeom < tGeomEngine->get_num_geometries(); iGeom++ )
-        {
-            moris::mtk::Vertex* tVertex = &tCutMesh->get_mtk_vertex( (moris_index)iV );
-            if ( tGeomEngine->is_interface_vertex( tVertex->get_index(), iGeom ) )
-            {
-                moris::real tGeomVal    = tGeomEngine->get_field_value( iGeom, tVertex->get_index(), tVertex->get_coords() );
-                moris::real tDifference = std::abs( tGeomVal - aIsocontourThreshold( iGeom ) );
-                if ( tDifference > aIsocontourTolerance( iGeom ) )
-                {
-                    tProblemIgVertices.push_back( tVertex->get_index() );
-
-                    std::cout << "Interface Issue:"
-                              << " Vert Index: " << tVertex->get_index() << " | Vert Id: " << tVertex->get_id() << " | Owner: " << tVertex->get_owner() << " | diff: " << tDifference << " | par_rank: " << par_rank() << std::endl;
-                }
-            }
-        }
-    }
-
-    return tProblemIgVertices.size() == 0;
-}
-
-bool
 check_vertices(
     xtk::Model*                                           aModel,
     moris::Cell< moris_index > const&                     aGoldNumVerts,

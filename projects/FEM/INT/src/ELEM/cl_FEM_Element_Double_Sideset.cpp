@@ -171,7 +171,7 @@ namespace moris
                         mFollowerCell->get_vertices_ind_on_side_ordinal( aFollowerSideOrdinal );
 
                 // get the requested geo pdv types
-                moris::Cell< enum PDV_Type > tGeoPdvType;
+                moris::Cell< enum gen::PDV_Type > tGeoPdvType;
                 mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
                 // get local assembly indices

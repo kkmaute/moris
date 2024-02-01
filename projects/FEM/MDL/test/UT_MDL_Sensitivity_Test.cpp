@@ -52,9 +52,8 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Property.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
 
 #include "cl_VIS_Output_Manager.hpp"
 
@@ -62,7 +61,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
-                                 const moris::Cell< moris::real* > & aParameters)
+                                 const moris::Cell< moris::real > & aParameters)
 {
     moris::real mXC = 0.11;
     moris::real mYC = 0.11;
@@ -72,7 +71,7 @@ real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
 }
 
 void evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
-                                const moris::Cell< moris::real* > & aParameters,
+                                const moris::Cell< moris::real > & aParameters,
                                 Matrix<DDRMat>& aSensitivities)
 {
     MORIS_ERROR( false, "sensitivities not implemented");
@@ -91,7 +90,7 @@ void tFIValDvFunction_FDTest
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->val();
 }
 
 void tFIDerDvFunction_FDTest
@@ -99,15 +98,15 @@ void tFIDerDvFunction_FDTest
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->N();
 }
 
-real density_function_1(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables)
+real density_function_1(const Matrix<DDRMat>& aCoordinates, const Cell<real>& aPropertyVariables)
 {
     return 1.0;
 }
 
-real density_function_2(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables)
+real density_function_2(const Matrix<DDRMat>& aCoordinates, const Cell<real>& aPropertyVariables)
 {
     return 2.0;
 }
@@ -155,12 +154,12 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
 //        for( uint k=0; k<tNumRef; ++k )
 //        {
-//            Cell<std::shared_ptr<moris::ge::Geometry>> tGeomVec(2);
-//            tGeomVec(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
-//            tGeomVec(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
+//            Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeomVec(2);
+//            tGeomVec(0) = std::make_shared<moris::gen::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
+//            tGeomVec(1) = std::make_shared<moris::gen::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 //
-//            moris::ge::Phase_Table     tPhaseTable( tGeomVec.size() );
-//            moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
+//            moris::gen::Phase_Table     tPhaseTable( tGeomVec.size() );
+//            moris::gen::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, 2 );
 //
 //            moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
 //
@@ -194,18 +193,19 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
 
-        Matrix<DDRMat> tADVs(0, 0);
-        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(tADVs,
+        Matrix<DDRMat> tADVs( 0, 0 );
+        auto tField = std::make_shared<moris::gen::User_Defined_Field>(tADVs,
                                                                      Matrix<DDUMat> (0, 0),
                                                                      Matrix<DDUMat> (0, 0),
                                                                      Matrix<DDRMat> (0, 0),
                                                                             &plane_evaluate_field_value,
                                                                             &evaluate_sensitivity);
+        tGeometryVector( 0 ) = std::make_shared< Level_Set_Field >( tField );
 
         size_t tModelDimension = 2;
-        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
+        moris::gen::Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
         xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
         tXTKModel.mVerbose = false;
 
@@ -235,13 +235,13 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // create the properties
         std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property > ();
         tPropConductivity1->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity1->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+        tPropConductivity1->set_dv_type_list( {{ gen::PDV_Type::DENSITY }} );
         tPropConductivity1->set_val_function( tFIValDvFunction_FDTest );
         tPropConductivity1->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
         std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property > ();
         tPropConductivity2->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity2->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+        tPropConductivity2->set_dv_type_list( {{ gen::PDV_Type::DENSITY }} );
         tPropConductivity2->set_val_function( tFIValDvFunction_FDTest );
         tPropConductivity2->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
@@ -424,42 +424,46 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // PDVs and design variable interface
         tGeometryEngine.register_mesh(&tMeshManager);
 
-        Cell<Cell<Cell<PDV_Type>>> tPdvTypes(15);
-        Cell<Cell<Cell<PDV_Type>>> tIGPdvTypes(100);
+        Cell<Cell<Cell<gen::PDV_Type>>> tPdvTypes(15);
+        Cell<Cell<Cell<gen::PDV_Type>>> tIGPdvTypes(100);
         for (uint tBulkSetIndex = 0; tBulkSetIndex < 4; tBulkSetIndex++)
         {
             tPdvTypes(tBulkSetIndex).resize(1);
             tPdvTypes(tBulkSetIndex)(0).resize(1);
-            tPdvTypes(tBulkSetIndex)(0)(0) = PDV_Type::DENSITY;
+            tPdvTypes(tBulkSetIndex)(0)(0) = gen::PDV_Type::DENSITY;
         }
         tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
 
-        Cell< PDV_Type> tRequestedType( 1, PDV_Type::DENSITY );
-        reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
+        Cell< gen::PDV_Type> tRequestedType( 1, gen::PDV_Type::DENSITY );
+        reinterpret_cast< gen::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(100), tIGPdvTypes);
-        moris::Cell< PDV_Type > tMatPdvTypes = { PDV_Type::DENSITY };
-        reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
+        moris::Cell< gen::PDV_Type > tMatPdvTypes = { gen::PDV_Type::DENSITY };
+        reinterpret_cast< gen::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 set_ip_requested_dv_types( tMatPdvTypes );
 
         Matrix<DDRMat> tAdvs(1, 1, 0.0);
-        std::shared_ptr<ge::Property> tDensityProperty1 = std::make_shared<ge::User_Defined_Geometry>(tAdvs,
-                                                                                                      Matrix<DDUMat>(0, 0),
-                                                                                                      Matrix<DDUMat>(0, 0),
-                                                                                                      Matrix<DDRMat>(0, 0),
-                                                                                                      Cell<std::shared_ptr<ge::Property>>(0),
-                                                                                                      &density_function_1,
-                                                                                                      &evaluate_sensitivity);
-        std::shared_ptr<ge::Property> tDensityProperty2 = std::make_shared<ge::User_Defined_Geometry>(tAdvs,
-                                                                                                      Matrix<DDUMat>(0, 0),
-                                                                                                      Matrix<DDUMat>(0, 0),
-                                                                                                      Matrix<DDRMat>(0, 0),
-                                                                                                      Cell<std::shared_ptr<ge::Property>>(0),
-                                                                                                      &density_function_2,
-                                                                                                      &evaluate_sensitivity);
-        tGeometryEngine.assign_ip_hosts_by_set_index(0, tDensityProperty1, PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, PDV_Type::DENSITY);
+        auto tDensityField1 = std::make_shared<gen::User_Defined_Field>(
+                tAdvs,
+                Matrix<DDUMat>(0, 0),
+                Matrix<DDUMat>(0, 0),
+                Matrix<DDRMat>(0, 0),
+                Cell<std::shared_ptr<gen::Property>>(0),
+                &density_function_1,
+                &evaluate_sensitivity);
+        auto tDensityProperty1 = std::make_shared< gen::Property >( tDensityField1 );
+        auto tDensityField2 = std::make_shared<gen::User_Defined_Field>(
+                tAdvs,
+                Matrix<DDUMat>(0, 0),
+                Matrix<DDUMat>(0, 0),
+                Matrix<DDRMat>(0, 0),
+                Cell<std::shared_ptr<gen::Property>>(0),
+                &density_function_2,
+                &evaluate_sensitivity);
+        auto tDensityProperty2 = std::make_shared< gen::Property >( tDensityField2 );
+        tGeometryEngine.assign_ip_hosts_by_set_index(0, tDensityProperty1, gen::PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, gen::PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, gen::PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, gen::PDV_Type::DENSITY);
 
         tModel->set_design_variable_interface(tGeometryEngine.get_design_variable_interface());
 

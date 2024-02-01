@@ -71,33 +71,33 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
 
     // Geometry parameter lists
     moris::uint tGeoCounter = 0;
-    tGENParams( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
+    tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list();
     tGENParams( 1 )( tGeoCounter ).set("isocontour_threshold", 1e-16);
     tGENParams( 1 )( tGeoCounter ).set("isocontour_tolerance", 1e-12);
     tGENParams( 1 )( tGeoCounter ).set("intersection_tolerance", 1e-12);
-    tGENParams( 1 )( tGeoCounter ).set( "type", "plane");
+    tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane");
     tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "0.0, " + std::to_string(tOffset) + ", " + std::to_string(tXNormal) + ", "+ std::to_string(tYNormal));
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_intersections", tBilinear);
+    tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear);
     tGeoCounter++;
 
     // Geometry parameter lists
-    tGENParams( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
+    tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list();
     tGENParams( 1 )( tGeoCounter ).set("isocontour_threshold", 1e-16);
     tGENParams( 1 )( tGeoCounter ).set("isocontour_tolerance", 1e-12);
     tGENParams( 1 )( tGeoCounter ).set("intersection_tolerance", 1e-12);
-    tGENParams( 1 )( tGeoCounter ).set( "type", "plane");
+    tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane");
     tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "-0.5, 0.0, 1.0, 0.0");
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_intersections", tBilinear);
+    tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear);
     tGeoCounter++;
 
     // Geometry parameter lists
-    tGENParams( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
+    tGENParams( 1 )( tGeoCounter ) = prm::create_level_set_geometry_parameter_list();
     tGENParams( 1 )( tGeoCounter ).set("isocontour_threshold", 1e-16);
     tGENParams( 1 )( tGeoCounter ).set("isocontour_tolerance", 1e-12);
     tGENParams( 1 )( tGeoCounter ).set("intersection_tolerance", 1e-12);
-    tGENParams( 1 )( tGeoCounter ).set( "type", "plane");
+    tGENParams( 1 )( tGeoCounter ).set( "field_type", "plane");
     tGENParams( 1 )( tGeoCounter ).set( "constant_parameters", "1.0, 0.0, 1.0, 0.0");
-    tGENParams( 1 )( tGeoCounter ).set( "multilinear_intersections", tBilinear);
+    tGENParams( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", tBilinear);
     tGeoCounter++;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,7 +136,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
 
     // Geometry engine initialize
-    std::shared_ptr< ge::Geometry_Engine > pGEN = std::make_shared< ge::Geometry_Engine >( tGENParams, nullptr );
+    std::shared_ptr< gen::Geometry_Engine > pGEN = std::make_shared< gen::Geometry_Engine >( tGENParams, nullptr );
 
     // Initialize  Background Mesh Mesh
     std::shared_ptr< mtk::Mesh_Manager > pBGMTK = std::make_shared< mtk::Mesh_Manager >();
@@ -161,7 +161,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     // HMR finalize
     pHMR->perform();
     //
-    pGEN->distribute_advs( pBGMTK->get_mesh_pair( 0 ),{} );
+    pGEN->distribute_advs( pBGMTK->get_mesh_pair( 0 ) );
 
     // Output GEN fields, if requested
     pGEN->output_fields(pBGMTK->get_interpolation_mesh( 0 ));

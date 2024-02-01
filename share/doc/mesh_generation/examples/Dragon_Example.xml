@@ -10,7 +10,7 @@
     <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
     <Geometries>
 
-        <Geometry type="object_file">
+        <Geometry field_type="object_file">
             <FileName>Dragon.obj</FileName>
             <ObjectOrigin>0.0,0.0,0.0</ObjectOrigin>
             <SdfShift>0.00</SdfShift>

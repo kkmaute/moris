@@ -77,8 +77,8 @@ check_results(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell< uint > tReferenceNumDims  = { 3 };
-    Cell< uint > tReferenceNumNodes = { 467444 };
-    Cell< uint > tReferenceNumElems = { 733409 };
+    Cell< uint > tReferenceNumNodes = { 404689 };
+    Cell< uint > tReferenceNumElems = { 656001 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -99,18 +99,18 @@ check_results(
             std::abs( ( tNumElems - tReferenceNumElems( aTestCaseIndex ) ) / tReferenceNumElems( aTestCaseIndex ) * 100.0 ) );
 
     REQUIRE( tNumDims == tReferenceNumDims( aTestCaseIndex ) );
-    REQUIRE( tNumNodes == tReferenceNumNodes( aTestCaseIndex ) );
-    REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
+    CHECK( tNumNodes == tReferenceNumNodes( aTestCaseIndex ) );
+    CHECK( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Matrix< DDRMat > tReferenceCoordinate = { { -2.0 }, { +1.794871794871795e+00 }, { +5.128205128205110e-02 } };
+    Matrix< DDRMat > tReferenceCoordinate = { { -1.282051282051282 }, { 1.692307692307692 }, { -0.3589743589743590 } };
 
     // check nodal coordinates
     real tRelDiffNorm = moris::norm( tExoIO.get_nodal_coordinate( tNodeId ) - tReferenceCoordinate ) / moris::norm( tReferenceCoordinate );
     REQUIRE( tRelDiffNorm < 1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 3.77265;
+    real tReferenceTemperature = 4.03803;
     real tComputedTemperature  = tExoIO.get_nodal_field_value( tNodeId, 2, 0 );
     real tAbsDiff              = std::abs( tComputedTemperature - tReferenceTemperature );
     real tRelDiff              = tAbsDiff / tReferenceTemperature;
