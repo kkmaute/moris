@@ -823,8 +823,8 @@ namespace moris
 
     moris::real
     Func_Inclusion(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Matrix< DDRMat >&    aCoordinates,
+            const moris::Cell< moris::real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -884,21 +884,21 @@ namespace moris
 
     moris::real
     Func_Thin_Wall(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Matrix< DDRMat >&    aCoordinates,
+            const moris::Cell< moris::real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
         real tY = aCoordinates( 1 );
         
         // parameters
-        real tXctr = *aGeometryParameters( 0 ); //6.5 * sH;
-        real tYctr = *aGeometryParameters( 1 ); //5.0 * sH;
-        real tXRad = *aGeometryParameters( 2 ); //sH;
-        real tYRad = *aGeometryParameters( 3 ); //sH;
-        real tExpn = *aGeometryParameters( 4 ); //2.0;
-        real tBot  = *aGeometryParameters( 5 ); //4.5 * sH;
-        real tTop  = *aGeometryParameters( 6 ); //5.5 * sH;
+        real tXctr = aGeometryParameters( 0 ); //6.5 * sH;
+        real tYctr = aGeometryParameters( 1 ); //5.0 * sH;
+        real tXRad = aGeometryParameters( 2 ); //sH;
+        real tYRad = aGeometryParameters( 3 ); //sH;
+        real tExpn = aGeometryParameters( 4 ); //2.0;
+        real tBot  = aGeometryParameters( 5 ); //4.5 * sH;
+        real tTop  = aGeometryParameters( 6 ); //5.5 * sH;
 
         // init return value
         real tReturnValue = 1.0;
@@ -1246,32 +1246,32 @@ namespace moris
         uint tGeoCounter = 0;
 
         // Plane 0 in y = 0
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",   "0.0, 0.0, 0.0, 1.0");
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
         
         // Plane 1 in y = 10.0*sH
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",   "0.0," + std::to_string(10.0*sH) + ", 0.0, 1.0");
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
         
         // Plane 2 in x = 0.0*sH
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",   std::to_string(2.0*sH) + ",0.0, 1.0, 0.0");
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tGeoCounter++;
         
         // Plane 3 in x = 12.0*sH
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane");
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",   std::to_string(12.0*sH) + ",0.0, 1.0, 0.0");
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementInclusion );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
@@ -1324,7 +1324,7 @@ namespace moris
 
         tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "Level_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "type", "scaled_field" );
+        tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "1.0" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tFluid + "," + tInclusionSolid );
