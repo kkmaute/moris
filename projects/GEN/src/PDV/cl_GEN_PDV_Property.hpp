@@ -27,12 +27,14 @@ namespace moris::ge
          *
          * @param aPropertyPointer a GEN property pointer
          */
-        PDV_Property( std::shared_ptr< Property > aPropertyPointer );
+        explicit PDV_Property( std::shared_ptr< Property > aPropertyPointer );
 
         /**
-         * Destructor
+         * Gets if this PDV is active
+         *
+         * @return If PDV is active
          */
-        ~PDV_Property();
+        bool is_active() override;
 
         /**
          * Get the PDV value
@@ -41,10 +43,9 @@ namespace moris::ge
          * @param aCoordinates Coordinate values
          * @return Current value of this PDV
          */
-        real
-        get_value(
+        real get_value(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Get the PDV sensitivity with respect to ADVs
@@ -55,7 +56,7 @@ namespace moris::ge
          */
         Matrix< DDRMat > get_sensitivities(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Gets the IDs of ADVs which this PDV depends on.
@@ -64,6 +65,6 @@ namespace moris::ge
          */
         Matrix< DDSMat > get_determining_adv_ids(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+                const Matrix< DDRMat >& aCoordinates ) override;
     };
 }

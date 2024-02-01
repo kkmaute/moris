@@ -17,17 +17,23 @@ namespace moris::ge
     class PDV_Value : public PDV
     {
 
-    private:
+      private:
         real mValue;
 
-    public:
-
+      public:
         /**
          * Constructor
          *
          * @param aValue Constant value for this PDV
          */
-        PDV_Value(real aValue);
+        explicit PDV_Value( real aValue );
+
+        /**
+         * Gets if this PDV is active
+         *
+         * @return If PDV is active
+         */
+        bool is_active() override;
 
         /**
          * Get the PDV value.
@@ -36,7 +42,7 @@ namespace moris::ge
          * @param aCoordinates Coordinate values
          * @return Current value of this PDV
          */
-        real get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+        real get_value( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Get the PDV sensitivity with respect to ADVs.
@@ -45,14 +51,14 @@ namespace moris::ge
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities to be returned
          */
-        Matrix<DDRMat> get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+        Matrix< DDRMat > get_sensitivities( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Gets the IDs of ADVs which this PDV depends on.
          *
          * @return ADV IDs
          */
-        Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates);
+        Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) override;
 
     };
 }

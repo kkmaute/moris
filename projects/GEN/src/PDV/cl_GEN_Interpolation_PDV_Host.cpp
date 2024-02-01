@@ -183,7 +183,7 @@ namespace moris::ge
                 mNodeIndex );
 
         // return if active PDV
-        return mPDVs( tPDVIndex )->mIsActive;
+        return mPDVs( tPDVIndex )->is_active();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -316,7 +316,7 @@ namespace moris::ge
     Interpolation_PDV_Host::get_sensitivities( uint aPDVIndex )
     {
         // If PDV exists and is active, ask it for sensitivities; otherwise, return zero matrix
-        if ( mPDVs( aPDVIndex ) and mPDVs( aPDVIndex )->mIsActive )
+        if ( mPDVs( aPDVIndex ) and mPDVs( aPDVIndex )->is_active() )
         {
             return mPDVs( aPDVIndex )->get_sensitivities( mNodeIndex, mCoordinates );
         }
@@ -330,7 +330,7 @@ namespace moris::ge
     Interpolation_PDV_Host::get_determining_adv_ids( uint aPDVIndex )
     {
         // If PDV exists and is active, ask it for depending ADV IDs; Otherwise, return zero matrix
-        if ( mPDVs( aPDVIndex ) and mPDVs( aPDVIndex )->mIsActive )
+        if ( mPDVs( aPDVIndex ) and mPDVs( aPDVIndex )->is_active() )
         {
             return mPDVs( aPDVIndex )->get_determining_adv_ids( mNodeIndex, mCoordinates );
         }

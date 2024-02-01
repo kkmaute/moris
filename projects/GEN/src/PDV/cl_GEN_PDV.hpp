@@ -16,39 +16,42 @@ namespace moris::ge
 {
     class PDV
     {
-      public:
-        bool     mIsActive = true;
-        moris_id mId       = gNoID;
+      private:
+        moris_id mID       = gNoID;
 
-      protected:
+      public:
+
         /**
          * constructor
          */
-        PDV();
+        PDV() = default;
 
       public:
         /**
          * trivial destructor
          */
-        virtual ~PDV();
+        virtual ~PDV() = default;
 
         /**
-         * set PDV IDr
+         * Sets the PDV ID of this PDV
+         *
+         * @param aID
          */
-        void
-        set_id( const moris_id& tId )
-        {
-            mId = tId;
-        };
+        void set_id( moris_id aID );
 
         /**
-         * get PDV ID
+         * Gets the PDV ID of this PDV
+         *
+         * @return
          */
-        moris_id
-        get_id()
-        {
-            return mId;
-        };
+        moris_id get_id();
+
+        /**
+         * Gets if this PDV is active
+         *
+         * @return If PDV is active
+         */
+        virtual bool is_active() = 0;
 
         /**
          * Get the PDV value
@@ -58,12 +61,6 @@ namespace moris::ge
          * @return Current value of this PDV
          */
         virtual real get_value( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) = 0;
-
-        virtual void
-        set_value( const moris::real& aValue )
-        {
-            MORIS_ERROR( false, "PDV::set_value(), not implemented for this pdv type" );
-        }
 
         /**
          * Get the PDV sensitivity with respect to ADVs

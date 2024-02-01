@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * cl_GEN_PDV.cpp
- *
- */
+* Copyright (c) 2022 University of Colorado
+* Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+*
+*------------------------------------------------------------------------------------
+*
+* cl_GEN_PDV.cpp
+*
+*/
 
 #include "cl_GEN_PDV.hpp"
 
@@ -15,14 +15,16 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    PDV::PDV()
+    void PDV::set_id( moris::moris_id aID )
     {
+        mID = aID;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    PDV::~PDV()
+    moris_id PDV::get_id()
     {
+        return mID;
     }
 
     //--------------------------------------------------------------------------------------------------------------
