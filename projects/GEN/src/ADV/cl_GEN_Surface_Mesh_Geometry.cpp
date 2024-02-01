@@ -92,9 +92,9 @@ namespace moris::ge
                 aBackgroundInterpolationOrder,
                 *this );
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     real Surface_Mesh_Geometry::compute_intersection_local_coordinate(
             const Cell< Node* >& aBackgroundNodes,
             const Parent_Node&   aFirstParentNode,
@@ -102,7 +102,7 @@ namespace moris::ge
     {
         // transform the interface geometry to local coordinates
         this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
-        
+
         // Compute the distance to the facets
         Matrix< DDRMat > tCastPoint( this->get_dimension(), 1 );
         tCastPoint.fill( 0.0 );
@@ -117,21 +117,27 @@ namespace moris::ge
         // reset the object
         this->reset_coordinates();
 
-        if ( tLocalCoordinate.size() == 0 )
+        // check number of intersections along parent edge
+        uint tNumberOfParentEdgeIntersections = 0;
+        for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
+        {
+            if ( tLocalCoordinate( iIntersection ) < 1.0 + this->get_intersection_tolerance() and tLocalCoordinate( iIntersection ) > -1.0 - this->get_intersection_tolerance() )
+            {
+                tNumberOfParentEdgeIntersections++;
+            }
+        }
+
+        // no intersections detected or multiple along parent edge
+        if ( tLocalCoordinate.size() == 0 or tNumberOfParentEdgeIntersections > 1 )
         {
             return MORIS_REAL_MAX;
-        }
-        // FIXME: the case where 3 or more intersections occur between the two parents needs to be carefully considered
-        else if ( tLocalCoordinate.size() > 2 )
-        {
-            MORIS_ERROR( tLocalCoordinate( 2 ) <= 1.0, "GEN - Intersection Node Surface Mesh: Parent nodes are in different geometric regions, and multiple intersections detected along parent edge." );
         }
 
         return tLocalCoordinate( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     void Surface_Mesh_Geometry::transform_surface_mesh_to_local_coordinate(
             const Parent_Node& aFirstParentNode,
             const Parent_Node& aSecondParentNode )
@@ -199,7 +205,7 @@ namespace moris::ge
         Cell< real > tScaling( this->get_dimension(), 2.0 / tParentVectorNorm );
         this->scale( tScaling );
     }
-    
+
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -249,7 +255,7 @@ namespace moris::ge
     {
         // TODO BRENDAN
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
     void
@@ -261,7 +267,7 @@ namespace moris::ge
         // TODO BRENDAN
         aOutputDesignInfo.resize( 0 );
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
     bool Surface_Mesh_Geometry::intended_discretization()
@@ -295,7 +301,7 @@ namespace moris::ge
     {
         return mParameters.mDiscretizationUpperBound;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
 }    // namespace moris::ge
