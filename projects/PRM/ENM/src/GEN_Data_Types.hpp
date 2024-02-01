@@ -41,19 +41,4 @@ namespace moris::ge
      * @return PDV_Type map
      */
     moris::map< std::string, PDV_Type > get_pdv_type_map();
-
-    enum class Intersection_Mode
-    {
-        LEVEL_SET,
-        SURFACE_MESH,
-        COLORING,
-        END_ENUM
-    };
-
-    /**
-     * Gets a map going from a std::string to a Intersection_Mode enum. Used to convert parameter list arguments.
-     *
-     * @return Intersection_Mode map
-     */
-    moris::map< std::string, Intersection_Mode > get_intersection_mode_map();
 }
