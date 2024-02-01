@@ -243,5 +243,10 @@ namespace moris::ge
         {
             return this->Geometry::get_intersection_tolerance();
         }
+
+        private:
+        void transform_surface_mesh_to_local_coordinate(
+            const Parent_Node& aFirstParentNode,
+            const Parent_Node& aSecondParentNode );
     };
 }    // namespace moris::ge

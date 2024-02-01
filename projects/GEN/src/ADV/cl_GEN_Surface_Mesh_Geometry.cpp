@@ -14,6 +14,7 @@
 #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 #include "fn_cross.hpp"
+#include "fn_eye.hpp"
 
 namespace moris::ge
 {
@@ -105,12 +106,12 @@ namespace moris::ge
             const Parent_Node&   aSecondParentNode )
     {
         // transform the interface geometry to local coordinates
-        uint tRotatedAxis = this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
+        this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
         
         // Compute the distance to the facets
         Matrix< DDRMat > tCastPoint( this->get_dimension(), 1 );
         tCastPoint.fill( 0.0 );
-        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, tRotatedAxis );
+        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0 );
 
         // shift local coordinate to be between -1 and 1
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
@@ -136,24 +137,22 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
     
-    uint Surface_Mesh_Geometry::transform_surface_mesh_to_local_coordinate(
+    void Surface_Mesh_Geometry::transform_surface_mesh_to_local_coordinate(
             const Parent_Node& aFirstParentNode,
             const Parent_Node& aSecondParentNode )
     {
         // step 1: shift the object so the first parent is at the origin
         Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
-        Cell< real > tShift( this->get_dimension() );
-        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size() , "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
-        for( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
+        Cell< real >     tShift( this->get_dimension() );
+        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(), "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
+        for ( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
         {
             tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
         }
         this->shift( tShift );
-        
+
         // step 2: rotate the object
         // get unit axis to rotate to
-        Matrix< DDRMat > tTransformationMatrix( 3, 3 );
-
         Matrix< DDRMat > tParentVector = aSecondParentNode.get_global_coordinates() - aFirstParentNode.get_global_coordinates();
 
         // augment with zero if 2D
@@ -163,49 +162,47 @@ namespace moris::ge
             tParentVector( 2, 0 ) = 0.0;
         }
 
-        // Normalize parent vector
         real tParentVectorNorm = norm( tParentVector );
+
         tParentVector = tParentVector / tParentVectorNorm;
 
-        // create vector orthogonal to parent vector and coordinate axis
+        // create vector orthogonal to parent vector and cast axis
         // in 2D, this vector is the z axis
-        tTransformationMatrix.set_column( 2, cross( tParentVector, { { 1.0, 0.0, 0.0 } } ) );
-        uint tRotationAxis = 0;
-        if ( norm( tTransformationMatrix.get_column( 2 ) ) < MORIS_REAL_EPS )
+        Matrix< DDRMat > tRotationMatrix( 3, 1 );
+        Matrix< DDRMat > tCastAxis = { { 1.0 }, { 0.0 }, { 0.0 } };
+
+        if ( norm( tParentVector + tCastAxis ) < this->get_intersection_tolerance() )
         {
-            tTransformationMatrix.set_column( 2, cross( tParentVector, { { 0.0, 1.0, 0.0 } } ) );
-            tRotationAxis = 1;
-
-            // rotate along z axis only if basis is 3D
-            if ( norm( tTransformationMatrix.get_column( 2 ) ) < MORIS_REAL_EPS && aFirstParentNode.get_global_coordinates().numel() > 2 )
-            {
-                tTransformationMatrix.set_column( 2, cross( tParentVector, { { 0.0, 0.0, 1.0 } } ) );
-                tRotationAxis = 2;
-            }
+            tRotationMatrix = { { -1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
         }
-        tTransformationMatrix.set_column( 2, tTransformationMatrix.get_column( 2 ) / norm( tTransformationMatrix.get_column( 2 ) ) );
+        else
+        {
+            Matrix< DDRMat > tAntisymmetricCrossProduct = { { 0, tParentVector( 1 ), tParentVector( 2 ) },
+                { -tParentVector( 1 ), 0.0, 0.0 },
+                { -tParentVector( 2 ), 0.0, 0.0 } };
 
-        // create a second vector orthogonal to parent vector and first basis
-        tTransformationMatrix.set_column( 1, cross( tParentVector, tTransformationMatrix.get_column( 2 ) ) );
+            Matrix< DDRMat > tAntisymmetricCrossProductSquared = { { -std::pow( tParentVector( 1 ), 2 ) - std::pow( tParentVector( 2 ), 2 ), 0.0, 0.0 },
+                { 0.0, -std::pow( tParentVector( 1 ), 2 ), -tParentVector( 1 ) * tParentVector( 2 ) },
+                { 0.0, -tParentVector( 1 ) * tParentVector( 2 ), -std::pow( tParentVector( 2 ), 2 ) } };
 
-        // the third vector of the transformation matrix is the parent vector
-        tTransformationMatrix.set_column( 0, tParentVector );
+            tRotationMatrix = eye( 3, 3 ) + tAntisymmetricCrossProduct + ( 1 / ( 1 + tParentVector( 0 ) ) ) * tAntisymmetricCrossProductSquared;
+        }
+
+        // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
+        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < this->get_intersection_tolerance(), "Rotation matrix should rotate the parent vector to the x axis." );
 
         // trim the transformation matrix if 2D
         if ( this->get_dimension() == 2 )
         {
-            tTransformationMatrix.resize( 2, 2 );
+            tRotationMatrix.resize( 2, 2 );
         }
 
         // rotate the object
-        this->rotate( tTransformationMatrix );
+        this->rotate( tRotationMatrix );
 
         // step 3: scale the object
         Cell< real > tScaling( this->get_dimension(), 2.0 / tParentVectorNorm );
         this->scale( tScaling );
-
-        // Return rotation axis
-        return tRotationAxis;
     }
     
 

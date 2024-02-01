@@ -169,264 +169,264 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Intersection_Node_Bilinear::compute_local_coordinate(
-            const Cell< Node* >&                  aBaseNodes,
-            const Parent_Node&                    aFirstParentNode,
-            const Parent_Node&                    aSecondParentNode,
-            std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
-    {
-        // get isocontour threshold from geometry
-        real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
+    // real
+    // Intersection_Node_Bilinear::compute_local_coordinate(
+    //         const Cell< Node* >&                  aBaseNodes,
+    //         const Parent_Node&                    aFirstParentNode,
+    //         const Parent_Node&                    aSecondParentNode,
+    //         std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
+    // {
+    //     // get isocontour threshold from geometry
+    //     real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
 
-        // spatial dimension
-        uint tNumDims = aFirstParentNode.get_global_coordinates().length();
+    //     // spatial dimension
+    //     uint tNumDims = aFirstParentNode.get_global_coordinates().length();
 
-        // number of nodes to be used for interpolation
-        uint tNumBases;
+    //     // number of nodes to be used for interpolation
+    //     uint tNumBases;
 
-        // build interpolator
-        mtk::Interpolation_Function_Factory tFactory;
-        mtk::Interpolation_Function_Base*   tInterpolation;
+    //     // build interpolator
+    //     mtk::Interpolation_Function_Factory tFactory;
+    //     mtk::Interpolation_Function_Base*   tInterpolation;
 
-        // create interpolation function based on spatial dimension of problem
-        switch ( tNumDims )
-        {
-            case 2:
-            {
-                tInterpolation = tFactory.create_interpolation_function(
-                        mtk::Geometry_Type::QUAD,
-                        mtk::Interpolation_Type::LAGRANGE,
-                        mtk::Interpolation_Order::LINEAR );
+    //     // create interpolation function based on spatial dimension of problem
+    //     switch ( tNumDims )
+    //     {
+    //         case 2:
+    //         {
+    //             tInterpolation = tFactory.create_interpolation_function(
+    //                     mtk::Geometry_Type::QUAD,
+    //                     mtk::Interpolation_Type::LAGRANGE,
+    //                     mtk::Interpolation_Order::LINEAR );
 
-                tNumBases = 4;
-                break;
-            }
-            case 3:
-            {
-                tInterpolation = tFactory.create_interpolation_function(
-                        mtk::Geometry_Type::HEX,
-                        mtk::Interpolation_Type::LAGRANGE,
-                        mtk::Interpolation_Order::LINEAR );
+    //             tNumBases = 4;
+    //             break;
+    //         }
+    //         case 3:
+    //         {
+    //             tInterpolation = tFactory.create_interpolation_function(
+    //                     mtk::Geometry_Type::HEX,
+    //                     mtk::Interpolation_Type::LAGRANGE,
+    //                     mtk::Interpolation_Order::LINEAR );
 
-                tNumBases = 8;
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR( false,
-                        "Intersection_Node_Bilinear::compute_intersection - Interpolation type not implemented." );
-            }
-        }
+    //             tNumBases = 8;
+    //             break;
+    //         }
+    //         default:
+    //         {
+    //             MORIS_ERROR( false,
+    //                     "Intersection_Node_Bilinear::compute_intersection - Interpolation type not implemented." );
+    //         }
+    //     }
 
-        // allocate matrix for level set values at background cell nodes
-        Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
+    //     // allocate matrix for level set values at background cell nodes
+    //     Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
-        // get level set values of corner nodes
-        for ( uint iBaseNode = 0; iBaseNode < tNumBases; ++iBaseNode )
-        {
-            tPhiBCNodes( iBaseNode ) = aInterfaceGeometry->get_field_value(
-                    aBaseNodes( iBaseNode )->get_index(),
-                    aBaseNodes( iBaseNode )->get_global_coordinates() );
-        }
+    //     // get level set values of corner nodes
+    //     for ( uint iBaseNode = 0; iBaseNode < tNumBases; ++iBaseNode )
+    //     {
+    //         tPhiBCNodes( iBaseNode ) = aInterfaceGeometry->get_field_value(
+    //                 aBaseNodes( iBaseNode )->get_index(),
+    //                 aBaseNodes( iBaseNode )->get_global_coordinates() );
+    //     }
 
-        // Scale element level set field such that norm equals 1.0
-        real tPhiScaling = 1.0 / norm( tPhiBCNodes );
-        tPhiBCNodes      = tPhiScaling * tPhiBCNodes;
-        tIsocontourThreshold *= tPhiScaling;
+    //     // Scale element level set field such that norm equals 1.0
+    //     real tPhiScaling = 1.0 / norm( tPhiBCNodes );
+    //     tPhiBCNodes      = tPhiScaling * tPhiBCNodes;
+    //     tIsocontourThreshold *= tPhiScaling;
 
-        // Get scaled parent level set values
-        real tFirstParentPhi  = tPhiScaling * aInterfaceGeometry->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
-        real tSecondParentPhi = tPhiScaling * aInterfaceGeometry->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+    //     // Get scaled parent level set values
+    //     real tFirstParentPhi  = tPhiScaling * aInterfaceGeometry->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+    //     real tSecondParentPhi = tPhiScaling * aInterfaceGeometry->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
 
-        // check that line is intersected
-        if ( ( tFirstParentPhi - tIsocontourThreshold ) * ( tSecondParentPhi - tIsocontourThreshold ) > 0 )
-        {
-            delete tInterpolation;
+    //     // check that line is intersected
+    //     if ( ( tFirstParentPhi - tIsocontourThreshold ) * ( tSecondParentPhi - tIsocontourThreshold ) > 0 )
+    //     {
+    //         delete tInterpolation;
 
-            return MORIS_REAL_MAX;
-        }
+    //         return MORIS_REAL_MAX;
+    //     }
 
-        // check that difference between first and second parent is not smaller than MORIS_REAL_EPS
-        if ( std::abs( tFirstParentPhi - tSecondParentPhi ) < MORIS_REAL_EPS )
-        {
-            delete tInterpolation;
+    //     // check that difference between first and second parent is not smaller than MORIS_REAL_EPS
+    //     if ( std::abs( tFirstParentPhi - tSecondParentPhi ) < MORIS_REAL_EPS )
+    //     {
+    //         delete tInterpolation;
 
-            // return that intersection node is at center of edge
-            return 0.0;
-        }
+    //         // return that intersection node is at center of edge
+    //         return 0.0;
+    //     }
 
-        // set Newton parameters
-        const uint tNewMaxIter  = 20;    // maximum number of iterations in Newton
-        const uint tCurvMaxIter = 10;    // maximum number of iterations using curvature information
+    //     // set Newton parameters
+    //     const uint tNewMaxIter  = 20;    // maximum number of iterations in Newton
+    //     const uint tCurvMaxIter = 10;    // maximum number of iterations using curvature information
 
-        const real tNewRelax  = 1.0;      // relaxation factor for solution update
-        const real tNewRelEps = 1e-8;     // required relative residual drop
-        const real tNewAbsEps = 1e-12;    // required absolute residual drop
-        const real tCurvMin   = 1e-8;     // threshold for curvature magnitude above which curvature is used
+    //     const real tNewRelax  = 1.0;      // relaxation factor for solution update
+    //     const real tNewRelEps = 1e-8;     // required relative residual drop
+    //     const real tNewAbsEps = 1e-12;    // required absolute residual drop
+    //     const real tCurvMin   = 1e-8;     // threshold for curvature magnitude above which curvature is used
 
-        // allocate matrices used within Newton loop
-        Matrix< DDRMat > tCellCoordinate( tNumDims, 1 );
-        Matrix< DDRMat > tBasis;
-        Matrix< DDRMat > tDBasisDxi;
-        Matrix< DDRMat > tDBasisDxi2;
-        Matrix< DDRMat > tD2PhiDxi2;
+    //     // allocate matrices used within Newton loop
+    //     Matrix< DDRMat > tCellCoordinate( tNumDims, 1 );
+    //     Matrix< DDRMat > tBasis;
+    //     Matrix< DDRMat > tDBasisDxi;
+    //     Matrix< DDRMat > tDBasisDxi2;
+    //     Matrix< DDRMat > tD2PhiDxi2;
 
-        // vector from first to second parent in parametric coordinates
-        Matrix< DDRMat > tSecondToFirstParent = aSecondParentNode.get_parametric_coordinates() - aFirstParentNode.get_parametric_coordinates();
+    //     // vector from first to second parent in parametric coordinates
+    //     Matrix< DDRMat > tSecondToFirstParent = aSecondParentNode.get_parametric_coordinates() - aFirstParentNode.get_parametric_coordinates();
 
-        // initialized reference residual
-        real tReferenceResidual = 0.0;
-        real tResidual          = 0.0;
+    //     // initialized reference residual
+    //     real tReferenceResidual = 0.0;
+    //     real tResidual          = 0.0;
 
-        // compute initial guess: location of intersection point along edge in edge CS
-        real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
-                             / ( tSecondParentPhi - tFirstParentPhi );
-        Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
+    //     // compute initial guess: location of intersection point along edge in edge CS
+    //     real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
+    //                          / ( tSecondParentPhi - tFirstParentPhi );
+    //     Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
 
-        // loop over initial guess trials
-        for ( uint iGuess = 0; iGuess < tInitialGuess.numel(); iGuess++ )
-        {
-            // set initial guess
-            tEdgeCoordinate = tInitialGuess( iGuess );
+    //     // loop over initial guess trials
+    //     for ( uint iGuess = 0; iGuess < tInitialGuess.numel(); iGuess++ )
+    //     {
+    //         // set initial guess
+    //         tEdgeCoordinate = tInitialGuess( iGuess );
 
-            // perform iterations
-            for ( uint iNew = 0; iNew < tNewMaxIter; ++iNew )
-            {
-                // compute local coordinate in background cell CS
-                tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNode.get_parametric_coordinates()
-                                + 0.5 * ( 1.0 + tEdgeCoordinate ) * aSecondParentNode.get_parametric_coordinates();
+    //         // perform iterations
+    //         for ( uint iNew = 0; iNew < tNewMaxIter; ++iNew )
+    //         {
+    //             // compute local coordinate in background cell CS
+    //             tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNode.get_parametric_coordinates()
+    //                             + 0.5 * ( 1.0 + tEdgeCoordinate ) * aSecondParentNode.get_parametric_coordinates();
 
-                // compute basis function
-                tInterpolation->eval_N( tCellCoordinate, tBasis );
+    //             // compute basis function
+    //             tInterpolation->eval_N( tCellCoordinate, tBasis );
 
-                // compute residual
-                tResidual = dot( tBasis, tPhiBCNodes ) - tIsocontourThreshold;
+    //             // compute residual
+    //             tResidual = dot( tBasis, tPhiBCNodes ) - tIsocontourThreshold;
 
-                // check convergence against absolute residual
-                if ( std::abs( tResidual ) < tNewAbsEps )
-                {
-                    delete tInterpolation;
+    //             // check convergence against absolute residual
+    //             if ( std::abs( tResidual ) < tNewAbsEps )
+    //             {
+    //                 delete tInterpolation;
 
-                    return tEdgeCoordinate;
-                }
+    //                 return tEdgeCoordinate;
+    //             }
 
-                // store reference residual
-                if ( iNew == 0 )
-                {
-                    tReferenceResidual = std::abs( tResidual );
-                }
+    //             // store reference residual
+    //             if ( iNew == 0 )
+    //             {
+    //                 tReferenceResidual = std::abs( tResidual );
+    //             }
 
-                // check convergence against relative residual
-                if ( std::abs( tResidual ) < tNewRelEps * tReferenceResidual )
-                {
-                    delete tInterpolation;
+    //             // check convergence against relative residual
+    //             if ( std::abs( tResidual ) < tNewRelEps * tReferenceResidual )
+    //             {
+    //                 delete tInterpolation;
 
-                    return tEdgeCoordinate;
-                }
+    //                 return tEdgeCoordinate;
+    //             }
 
-                // compute Jacobian
-                tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
+    //             // compute Jacobian
+    //             tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
 
-                // compute first order gradient of residual with respect to edge coordinate
-                real tGradRes = 0.5 * dot( tSecondToFirstParent, tDBasisDxi * tPhiBCNodes );
+    //             // compute first order gradient of residual with respect to edge coordinate
+    //             real tGradRes = 0.5 * dot( tSecondToFirstParent, tDBasisDxi * tPhiBCNodes );
 
-                // initialize solution increment
-                real tSolIncrement;
+    //             // initialize solution increment
+    //             real tSolIncrement;
 
-                // initialize curvature variable
-                real tSqrt2   = -1.0;
-                real tCurvRes = 0.0;
+    //             // initialize curvature variable
+    //             real tSqrt2   = -1.0;
+    //             real tCurvRes = 0.0;
 
-                // compute second order derivatives
-                if ( iNew < tCurvMaxIter )
-                {
-                    // compute Hessian
-                    tInterpolation->eval_d2NdXi2( tCellCoordinate, tDBasisDxi2 );
+    //             // compute second order derivatives
+    //             if ( iNew < tCurvMaxIter )
+    //             {
+    //                 // compute Hessian
+    //                 tInterpolation->eval_d2NdXi2( tCellCoordinate, tDBasisDxi2 );
 
-                    tD2PhiDxi2 = tDBasisDxi2 * tPhiBCNodes;
+    //                 tD2PhiDxi2 = tDBasisDxi2 * tPhiBCNodes;
 
-                    // compute second order derivative of residual with respect to edge coordinate
-                    if ( tNumDims == 2 )
-                    {
-                        tCurvRes =                                                                                   //
-                                0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
-                                0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
-                                0.250 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
-                    }
-                    else
-                    {
-                        tCurvRes =                                                                                   //
-                                0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
-                                0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
-                                0.125 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 2 ) * tSecondToFirstParent( 2 ) +    //
-                                0.250 * tD2PhiDxi2( 3 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 2 ) +    //
-                                0.250 * tD2PhiDxi2( 4 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 2 ) +    //
-                                0.250 * tD2PhiDxi2( 5 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
-                    }
+    //                 // compute second order derivative of residual with respect to edge coordinate
+    //                 if ( tNumDims == 2 )
+    //                 {
+    //                     tCurvRes =                                                                                   //
+    //                             0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
+    //                             0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
+    //                             0.250 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
+    //                 }
+    //                 else
+    //                 {
+    //                     tCurvRes =                                                                                   //
+    //                             0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
+    //                             0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
+    //                             0.125 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 2 ) * tSecondToFirstParent( 2 ) +    //
+    //                             0.250 * tD2PhiDxi2( 3 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 2 ) +    //
+    //                             0.250 * tD2PhiDxi2( 4 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 2 ) +    //
+    //                             0.250 * tD2PhiDxi2( 5 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
+    //                 }
 
-                    // compute square of sqrt term in root finding formula for quadratic equations
-                    tSqrt2 = tGradRes * tGradRes - 4.0 * tCurvRes * tResidual;
-                }
+    //                 // compute square of sqrt term in root finding formula for quadratic equations
+    //                 tSqrt2 = tGradRes * tGradRes - 4.0 * tCurvRes * tResidual;
+    //             }
 
-                // update solution depending on curvature
-                if ( iNew < tCurvMaxIter && std::abs( tCurvRes ) > tCurvMin && tSqrt2 >= 0.0 )
-                {
-                    // add roots of quadratic function to current edge coordinate
-                    real tSqrt = std::sqrt( tSqrt2 );
+    //             // update solution depending on curvature
+    //             if ( iNew < tCurvMaxIter && std::abs( tCurvRes ) > tCurvMin && tSqrt2 >= 0.0 )
+    //             {
+    //                 // add roots of quadratic function to current edge coordinate
+    //                 real tSqrt = std::sqrt( tSqrt2 );
 
-                    real tRootMin = ( -1.0 * tGradRes - tSqrt ) / ( 2.0 * tCurvRes );
-                    real tRootMax = ( -1.0 * tGradRes + tSqrt ) / ( 2.0 * tCurvRes );
+    //                 real tRootMin = ( -1.0 * tGradRes - tSqrt ) / ( 2.0 * tCurvRes );
+    //                 real tRootMax = ( -1.0 * tGradRes + tSqrt ) / ( 2.0 * tCurvRes );
 
-                    // check with root is in [-1,1] interval
-                    bool tRootMinIsValid = std::abs( tEdgeCoordinate + tRootMin ) <= 1.0;
-                    bool tRootMaxIsValid = std::abs( tEdgeCoordinate + tRootMax ) <= 1.0;
+    //                 // check with root is in [-1,1] interval
+    //                 bool tRootMinIsValid = std::abs( tEdgeCoordinate + tRootMin ) <= 1.0;
+    //                 bool tRootMaxIsValid = std::abs( tEdgeCoordinate + tRootMax ) <= 1.0;
 
-                    // compute increment
-                    if ( tRootMinIsValid && tRootMaxIsValid )
-                    {
-                        tSolIncrement = std::abs( tRootMin ) < std::abs( tRootMax ) ? tRootMin : tRootMax;
-                    }
-                    else if ( tRootMinIsValid )
-                    {
-                        tSolIncrement = tRootMin;
-                    }
-                    else if ( tRootMaxIsValid )
-                    {
-                        tSolIncrement = tRootMax;
-                    }
-                    else
-                    {
-                        tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
-                    }
-                }
-                else
-                {
-                    // compute increment
-                    tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
-                }
+    //                 // compute increment
+    //                 if ( tRootMinIsValid && tRootMaxIsValid )
+    //                 {
+    //                     tSolIncrement = std::abs( tRootMin ) < std::abs( tRootMax ) ? tRootMin : tRootMax;
+    //                 }
+    //                 else if ( tRootMinIsValid )
+    //                 {
+    //                     tSolIncrement = tRootMin;
+    //                 }
+    //                 else if ( tRootMaxIsValid )
+    //                 {
+    //                     tSolIncrement = tRootMax;
+    //                 }
+    //                 else
+    //                 {
+    //                     tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 // compute increment
+    //                 tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
+    //             }
 
-                // update solution
-                tEdgeCoordinate += tNewRelax * tSolIncrement;
+    //             // update solution
+    //             tEdgeCoordinate += tNewRelax * tSolIncrement;
 
-                // trim solution
-                tEdgeCoordinate = std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) );
-            }
-        }
+    //             // trim solution
+    //             tEdgeCoordinate = std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) );
+    //         }
+    //     }
 
-        MORIS_ERROR( false,
-                "Intersection_Node_Bilinear::compute_intersection - Newton did not converge: %s %e %s %e %s %e",
-                "Reference residual",
-                tReferenceResidual,
-                "Current residual",
-                std::abs( tResidual ),
-                "Edge coordinate",
-                tEdgeCoordinate );
+    //     MORIS_ERROR( false,
+    //             "Intersection_Node_Bilinear::compute_intersection - Newton did not converge: %s %e %s %e %s %e",
+    //             "Reference residual",
+    //             tReferenceResidual,
+    //             "Current residual",
+    //             std::abs( tResidual ),
+    //             "Edge coordinate",
+    //             tEdgeCoordinate );
 
-        delete tInterpolation;
+    //     delete tInterpolation;
 
-        return tEdgeCoordinate;
-    }
+    //     return tEdgeCoordinate;
+    // }
 
     //--------------------------------------------------------------------------------------------------------------
 
