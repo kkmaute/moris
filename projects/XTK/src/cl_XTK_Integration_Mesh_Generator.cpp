@@ -860,11 +860,11 @@ namespace xtk
             }
             else if ( tCellProximity == xtk::Geometric_Proximity::OUTSIDE )
             {
-                tGeomProximities( iGeom ) = 0;
+                tGeomProximities( iGeom ) = 1;
             }
             else if ( tCellProximity == xtk::Geometric_Proximity::INSIDE )
             {
-                tGeomProximities( iGeom ) = 1;
+                tGeomProximities( iGeom ) = 0;
             }
             else
             {
