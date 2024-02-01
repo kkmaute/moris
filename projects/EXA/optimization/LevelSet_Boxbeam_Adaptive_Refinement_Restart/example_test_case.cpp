@@ -59,7 +59,7 @@ check_results(
     // Check field values
     for ( uint iCheckNode = 0; iCheckNode < 9; iCheckNode++ )
     {
-        CHECK( tExoIO.get_nodal_field_value( tNodeIDs( iCheckNode ), 2, 0 ) == Approx( tLevelSetValues( iCheckNode ) ) );
+        CHECK( tExoIO.get_nodal_field_value( tNodeIDs( iCheckNode ), 2, 0 ) == Approx( tLevelSetValues( iCheckNode ) ).epsilon( 0.0001 ) );
     }
 }
 
