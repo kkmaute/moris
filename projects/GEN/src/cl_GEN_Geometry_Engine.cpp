@@ -150,8 +150,12 @@ namespace moris::gen
 
     Geometry_Engine::~Geometry_Engine()
     {
+        // Delete stored distributed vectors
         delete mOwnedADVs;
         delete mPrimitiveADVs;
+
+        // Delete queued intersection node, in case it wasn't admitted
+        delete mQueuedIntersectionNode;
     }
 
     //--------------------------------------------------------------------------------------------------------------
