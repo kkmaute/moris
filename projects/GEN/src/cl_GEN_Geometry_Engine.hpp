@@ -68,7 +68,6 @@ namespace moris::gen
         // Bounds
         Matrix< DDRMat > mLowerBounds;
         Matrix< DDRMat > mUpperBounds;
-        Matrix< IdMat >  mOwnedijklIds;
 
         // IQIs
         Cell< std::string > mRequestedIQIs;

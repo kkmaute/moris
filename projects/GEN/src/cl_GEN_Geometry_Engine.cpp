@@ -921,7 +921,7 @@ namespace moris::gen
         }
 
         // this is done to initialize primitive adv positions with gNoID
-        mOwnedijklIds.set_size( tPrimitiveADVIds.numel(), 1, gNoID );
+        Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.numel(), 1, gNoID );
 
         // Owned and shared ADVs per field
         Cell< Matrix< DDSMat > > tSharedADVIds( tDesigns.size() );
@@ -1058,7 +1058,7 @@ namespace moris::gen
                 tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                 mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                 mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                mOwnedijklIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
+                tOwnedijklIDs.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                 tSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length(), 1 );
 
                 // Add owned coefficients to lists
@@ -1079,7 +1079,7 @@ namespace moris::gen
 
                     if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
-                        mOwnedijklIds( tNumOwnedADVs + iOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( iOwnedCoefficient ) );
+                        tOwnedijklIDs( tNumOwnedADVs + iOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( iOwnedCoefficient ) );
                     }
                 }
 
@@ -1274,7 +1274,7 @@ namespace moris::gen
             tSendingIDs         = { tOwnedADVIds };
             tSendingLowerBounds = { mLowerBounds };
             tSendingUpperBounds = { mUpperBounds };
-            tSendingijklIDs     = { mOwnedijklIds };
+            tSendingijklIDs     = { tOwnedijklIDs };
         }
 
         // Communicate mats
@@ -1297,7 +1297,7 @@ namespace moris::gen
             mFullADVIds = tOwnedADVIds;
             if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
             {
-                mFullijklIDs = mOwnedijklIds;
+                mFullijklIDs = tOwnedijklIDs;
             }
             else
             {
