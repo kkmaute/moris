@@ -1619,7 +1619,7 @@ namespace xtk
             }
         }
 
-        aGeometryEngine->get_pdv_host_manager()->set_GenMeshMap( GenMeshMap );
+        aGeometryEngine->get_design_variable_interface()->set_GenMeshMap( GenMeshMap );
     }
 
     // ----------------------------------------------------------------------------

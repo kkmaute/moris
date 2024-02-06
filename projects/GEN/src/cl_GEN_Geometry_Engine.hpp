@@ -117,12 +117,6 @@ namespace moris::gen
         ~Geometry_Engine();
 
         /**
-         * Returns pdv host manager.
-         *
-         */
-        moris::gen::PDV_Host_Manager* get_pdv_host_manager();
-
-        /**
          * Sets new ADVs for the geometry engine.
          *
          * @param aNewADVs vector of new advs to use

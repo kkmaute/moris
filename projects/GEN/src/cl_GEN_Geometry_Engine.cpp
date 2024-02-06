@@ -156,14 +156,6 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    PDV_Host_Manager*
-    Geometry_Engine::get_pdv_host_manager()
-    {
-        return &mPDVHostManager;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     void
     Geometry_Engine::set_advs( const Matrix< DDRMat >& aNewADVs )
     {
