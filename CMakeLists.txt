@@ -582,6 +582,10 @@ if (MORIS_HAVE_PEDANTIC)
     if (HAVE_EXCEPTION)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
     endif()
+    check_cxx_compiler_flag("-Wno-free-nonheap-object" HAVE_NOFREE )
+    if (HAVE_NOFREE)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-free-nonheap-object" )
+    endif()
 endif()
 
 # Check for C++17 and lower version support.
