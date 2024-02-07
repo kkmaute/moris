@@ -39,15 +39,17 @@ namespace moris
 
             // store vertices
             tMeshObj.push_back( { "sets", tSets } );
-            tMeshObj.push_back( { "vertices_ig", serialize_all_vertices( mAllIGVertices ) } );
-            tMeshObj.push_back( { "vertices_ip", serialize_all_vertices( mAllIPVertices ) } );
+            tMeshObj.push_back( { "vertices_ig", serialize_all_vertices( mAllIGVertices, mIGVertexDisplacements ) } );
+            tMeshObj.push_back( { "vertices_ip", serialize_all_vertices( mAllIPVertices, mIPVertexDisplacements ) } );
             tMeshObj.push_back( { "cells_ig", serialize_all_cells( mAllIGCells ) } );
             tMeshObj.push_back( { "cells_ip", serialize_all_cells( mAllIPCells ) } );
 
             write_json( aFileName, tMeshObj );
         }
 
-        Json Json_Debug_Output::serialize_all_vertices( const std::unordered_set< Vertex const * > &aVertices )
+        Json Json_Debug_Output::serialize_all_vertices(
+                const std::unordered_set< Vertex const * >                  &aVertices,
+                const std::map< moris::moris_index, Vector< moris::real > > &aVertexDisplacements )
         {
             Json tVertexObj;
 
@@ -56,16 +58,28 @@ namespace moris
             Vector< real >        tX;
             Vector< real >        tY;
             Vector< real >        tZ;
-            for ( auto *tVertex : aVertices )
+            for ( auto const *tVertex : aVertices )
             {
                 // Add values to corresponding arrays
                 tIds.push_back( tVertex->get_id() );
                 tIndices.push_back( tVertex->get_index() );
-                tX.push_back( tVertex->get_coords()( 0 ) );
-                tY.push_back( tVertex->get_coords()( 1 ) );
+
+                Vector< real > tDisplacement;
+                if ( aVertexDisplacements.find( tVertex->get_index() ) != aVertexDisplacements.end() )
+                {
+                    tDisplacement = aVertexDisplacements.at( tVertex->get_index() );
+                    MORIS_ASSERT( tDisplacement.size() == mMesh->get_spatial_dim(), "Displacement vector size does not match mesh dimension" );
+                }
+                else
+                {
+                    tDisplacement = { 0.0, 0.0, 0.0 };
+                }
+
+                tX.push_back( tVertex->get_coords()( 0 ) + tDisplacement( 0 ) );
+                tY.push_back( tVertex->get_coords()( 1 ) + tDisplacement( 1 ) );
                 if ( mMesh->get_spatial_dim() == 3 )
                 {
-                    tZ.push_back( tVertex->get_coords()( 2 ) );
+                    tZ.push_back( tVertex->get_coords()( 2 ) + tDisplacement( 2 ) );
                 }
             }
 
