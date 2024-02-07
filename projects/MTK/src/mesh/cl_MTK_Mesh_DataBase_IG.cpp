@@ -82,6 +82,7 @@ namespace moris::mtk
             delete tNonconformalSideSet;
         }
         mNonconformalSideClusters.clear();
+        mListOfNonconformalSideSets.clear();
     }
 
     //-----------------------------------------------------------------------------
