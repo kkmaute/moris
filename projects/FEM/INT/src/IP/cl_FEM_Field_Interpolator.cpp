@@ -82,7 +82,7 @@ namespace moris
                 const uint&                    aNumberOfFields,
                 const mtk::Interpolation_Rule& aFieldInterpolationRule,
                 Geometry_Interpolator*         aGeometryInterpolator,
-                const Vector< PDV_Type >  aDvType )
+                const Vector< gen::PDV_Type >  aDvType )
                 : mNumberOfFields( aNumberOfFields )
                 , mGeometryInterpolator( aGeometryInterpolator )
                 , mDvType( aDvType )

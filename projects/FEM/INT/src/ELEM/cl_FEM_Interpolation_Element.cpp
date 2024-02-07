@@ -219,7 +219,7 @@ namespace moris
             // dv field interpolators------------------------------------------
 
             // get leader dv type list from set
-            const Vector< Vector< PDV_Type > >& tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
+            const Vector< Vector< gen::PDV_Type > >& tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
 
             // get number of leader dv types
             uint const tLeaderNumDvTypes = tLeaderDvTypeList.size();
@@ -228,7 +228,7 @@ namespace moris
             for ( uint iDv = 0; iDv < tLeaderNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                const moris::Vector< PDV_Type >& tDvTypeGroup = tLeaderDvTypeList( iDv );
+                const moris::Vector< gen::PDV_Type >& tDvTypeGroup = tLeaderDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 // FIXME: the underlying use of the base cell needs to be hidden within PDV
@@ -252,7 +252,7 @@ namespace moris
             }
 
             // get follower dv type list from set
-            const Vector< Vector< PDV_Type > >& tFollowerDvTypeList =
+            const Vector< Vector< gen::PDV_Type > >& tFollowerDvTypeList =
                     mSet->get_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
             // get number of follower dv types
@@ -262,7 +262,7 @@ namespace moris
             for ( uint iDv = 0; iDv < tFollowerNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                const moris::Vector< PDV_Type >& tDvTypeGroup = tFollowerDvTypeList( iDv );
+                const moris::Vector< gen::PDV_Type >& tDvTypeGroup = tFollowerDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 Vector< Matrix< DDRMat > > tCoeff_Original;
@@ -377,7 +377,7 @@ namespace moris
                     mSet->mEquationModel->get_design_variable_interface();
 
             // get the list of requested dv types by the opt solver
-            moris::Vector< moris::Vector< enum PDV_Type > > tRequestedDvTypes;
+            moris::Vector< moris::Vector< enum gen::PDV_Type > > tRequestedDvTypes;
             mSet->get_ip_dv_types_for_set( tRequestedDvTypes );
 
             // reset material pdv assembly vector

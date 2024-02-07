@@ -72,7 +72,7 @@ namespace moris
 
         uint mIteration = 0;    // FIXME this is absolutely a hack, it doesn't even store the iteration correctly :)
 
-        inline int
+        static int
         logger_par_rank()
         {
             int tProcRank;
@@ -80,7 +80,7 @@ namespace moris
             return tProcRank;
         }
 
-        inline real
+        static real
         logger_sum_all( real& aLocalInput )
         {
             real aGlobalMax;
@@ -88,7 +88,7 @@ namespace moris
             return aGlobalMax;
         }
 
-        inline real
+        static real
         logger_max_all( real& aLocalInput )
         {
             real aGlobalMax;
@@ -96,7 +96,7 @@ namespace moris
             return aGlobalMax;
         }
 
-        inline real
+        static real
         logger_min_all( real& aLocalInput )
         {
             real aGlobalMin;

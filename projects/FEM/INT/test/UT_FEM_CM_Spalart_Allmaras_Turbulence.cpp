@@ -242,8 +242,8 @@ TEST_CASE( "CM_Spalart_Allmaras_Turbulence", "[CM_Spalart_Allmaras_Turbulence]" 
             tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatPVis );
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > > tDummyDv;
-            Vector< Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

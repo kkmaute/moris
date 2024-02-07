@@ -142,7 +142,7 @@ namespace moris
     // Interface
     //    moris::real Interface(
     //            const moris::Matrix< DDRMat >     & aCoordinates,
-    //            const Vector< moris::real* > & aGeometryParameters )
+    //            const Vector< real > & aGeometryParameters )
     //    {
     //        // compute level set value
     //        moris::real aReturnValue = ( aCoordinates( 0 ) - *aGeometryParameters( 0 ) - 0.4 );
@@ -187,10 +187,9 @@ namespace moris
     }
 
     // Dummy function for unused sensitivities if needed
-    moris::Matrix< DDRMat >
-    Func_Dummy_Sensitivity(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::Matrix< DDRMat > Func_Dummy_Sensitivity(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::Matrix< DDRMat > aReturnValue = { { 0.0 } };
         return aReturnValue;
@@ -391,8 +390,8 @@ namespace moris
         //        tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Interface" );
         //        tGeoCounter++;
 
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
         tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.0, 1.0, 0.0" );
@@ -1280,7 +1279,6 @@ namespace moris
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
-
     }
 
     void

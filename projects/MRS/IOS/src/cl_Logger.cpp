@@ -37,42 +37,6 @@
 
 namespace moris
 {
-    int
-    logger_par_rank()
-    {
-        int tProcRank;
-        MPI_Comm_rank( MPI_COMM_WORLD, &tProcRank );
-        return tProcRank;
-    }
-
-    real
-    logger_max_all( real& aLocalInput )
-    {
-        real aGlobalMax;
-        MPI_Allreduce( &aLocalInput, &aGlobalMax, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD );
-        return aGlobalMax;
-    }
-
-    real
-    logger_min_all( real& aLocalInput )
-    {
-        real aGlobalMin;
-        MPI_Allreduce( &aLocalInput, &aGlobalMin, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD );
-        return aGlobalMin;
-    }
-
-    real
-    logger_sum_all( real& aLocalInput )
-    {
-        real aGlobalMin;
-        MPI_Allreduce( &aLocalInput, &aGlobalMin, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
-        return aGlobalMin;
-    }
-    // -----------------------------------------------------------------------------
-
-    // log with specified output type
-    // template <class T>
-    // void Logger::log_specific( std::string aOutputSpecifier, T aOutputValue )
 
     // -----------------------------------------------------------------------------
 

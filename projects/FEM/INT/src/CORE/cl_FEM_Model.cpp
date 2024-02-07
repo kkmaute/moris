@@ -46,7 +46,7 @@
 // FEM/VIS/src
 #include "cl_VIS_Output_Enums.hpp"
 // GEN/src
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
@@ -229,17 +229,17 @@ namespace moris
             // set size for list IG nodes
             mIGNodes.resize( tNumIGNodes, nullptr );
 
-            Vector< enum PDV_Type > tGeoPdvType;
+            Vector< enum gen::PDV_Type > tGeoPdvType;
             switch ( mSpaceDim )
             {
                 case 1:
-                    tGeoPdvType = { PDV_Type::X_COORDINATE };
+                    tGeoPdvType = { gen::PDV_Type::X_COORDINATE };
                     break;
                 case 2:
-                    tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
+                    tGeoPdvType = { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE };
                     break;
                 case 3:
-                    tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::Z_COORDINATE };
+                    tGeoPdvType = { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::Z_COORDINATE };
                     break;
                 default:
                     MORIS_ERROR( false,
@@ -274,7 +274,7 @@ namespace moris
                     // get the pdv values from the MSI/GEN interface
                     Matrix< IndexMat >              tVertexIndices( 1, 1, tVertexIndex );
                     Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
-                    Vector< Matrix< DDSMat > > tIsActiveDv;
+                    Vector< Vector< bool > > tIsActiveDv;
 
                     this->get_design_variable_interface()->get_ig_pdv_value(
                             tVertexIndices,
@@ -467,7 +467,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_active_flags(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const Vector< PDV_Type > &aRequestedPdvTypes,
+                const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aIsActiveDv )
         {
             // Get the number of node indices requested
@@ -497,7 +497,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_ids(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const Vector< PDV_Type > &aRequestedPdvTypes,
+                const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aXYZPdvIds )
         {
             // Get the number of node indices requested
@@ -527,7 +527,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_active_flags_and_ids(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const Vector< PDV_Type > &aRequestedPdvTypes,
+                const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aIsActiveDv,
                 Matrix< DDSMat >              &aXYZPdvIds )
         {
@@ -586,7 +586,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_assembly_indices(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const Vector< PDV_Type > &aRequestedPdvTypes,
+                const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aXYZPdvAssemblyIndices )
         {
             // Get the number of node indices requested
@@ -624,7 +624,7 @@ namespace moris
         void
         FEM_Model::set_integration_xyz_pdv_assembly_index(
                 moris_index   aNodeIndex,
-                enum PDV_Type aPdvType,
+                enum gen::PDV_Type aPdvType,
                 moris_index   aXYZPdvAssemblyIndex )
         {
             // get the index of the underlying node
@@ -947,7 +947,7 @@ namespace moris
         FEM_Model::get_vertex_xyz_active_flags(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aIsActiveDv,
-                const Vector< enum PDV_Type > &aPdvTypes )
+                const Vector< enum gen::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -970,7 +970,7 @@ namespace moris
         void
         FEM_Model::set_vertex_xyz_active_flags(
                 moris_index                      aVertexIndex,
-                Vector< Matrix< DDSMat > > &aIsActiveDv )
+                Vector< Vector< bool > > &aIsActiveDv )
         {
             // get num of pdv
             uint tNumXYZPdv = aIsActiveDv.size();
@@ -1003,7 +1003,7 @@ namespace moris
         FEM_Model::get_vertex_xyz_pdv_ids(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aXYZPdvIds,
-                const Vector< enum PDV_Type > &aPdvTypes )
+                const Vector< enum gen::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -1027,7 +1027,7 @@ namespace moris
         FEM_Model::get_local_xyz_pdv_assembly_indices(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aXYZLocalAssemblyIndices,
-                const Vector< enum PDV_Type > &aPdvTypes )
+                const Vector< enum gen::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();

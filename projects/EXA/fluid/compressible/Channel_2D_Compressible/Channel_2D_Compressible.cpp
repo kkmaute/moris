@@ -205,7 +205,7 @@ namespace moris
 
     moris::real Func_Dummy_Plane(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const Vector< moris::real* > & aGeometryParameters )
+            const Vector< moris::real > & aGeometryParameters )
     {
         moris::real aReturnValue = aCoordinates( 1 ) - 10000; //tPlaneBottom - 0.01;
         return aReturnValue;

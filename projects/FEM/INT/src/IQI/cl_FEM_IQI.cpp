@@ -429,7 +429,7 @@ namespace moris
 
         void
         IQI::set_dv_type_list(
-                const Vector< Vector< PDV_Type > >& aDvTypes,
+                const Vector< Vector< gen::PDV_Type > >& aDvTypes,
                 mtk::Leader_Follower                          aIsLeader )
         {
             switch ( aIsLeader )
@@ -453,7 +453,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Vector< Vector< PDV_Type > >&
+        Vector< Vector< gen::PDV_Type > >&
         IQI::get_dv_type_list(
                 mtk::Leader_Follower aIsLeader )
         {
@@ -483,7 +483,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Vector< Vector< PDV_Type > >&
+        const Vector< Vector< gen::PDV_Type > >&
         IQI::get_global_dv_type_list(
                 mtk::Leader_Follower aIsLeader )
         {
@@ -764,7 +764,7 @@ namespace moris
         void
         IQI::get_non_unique_dof_dv_and_field_types(
                 Vector< Vector< MSI::Dof_Type > >&   aDofTypes,
-                Vector< Vector< PDV_Type > >&        aDvTypes,
+                Vector< Vector< gen::PDV_Type > >&        aDvTypes,
                 Vector< Vector< mtk::Field_Type > >& aFieldTypes )
 
         {
@@ -819,7 +819,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -841,7 +841,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -863,7 +863,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
                     tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -884,7 +884,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
                     tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -905,7 +905,7 @@ namespace moris
                 {
                     // get SP non unique dof type list
                     Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< PDV_Type >      tActiveDvTypes;
+                    Vector< gen::PDV_Type >      tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types(
                             tActiveDofTypes,
                             tActiveDvTypes );
@@ -978,7 +978,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -1000,7 +1000,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -1022,7 +1022,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -1044,7 +1044,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -1069,7 +1069,7 @@ namespace moris
                 {
                     // get SP non unique leader dof type list
                     Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< PDV_Type >      tActiveDvTypes;
+                    Vector< gen::PDV_Type >      tActiveDvTypes;
 
                     tSP->get_non_unique_dof_and_dv_types(
                             tActiveDofTypes,
@@ -1172,7 +1172,7 @@ namespace moris
                     }
 
                     // get dv types for property
-                    const Vector< Vector< PDV_Type > >& tActiveDvTypes =
+                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
                             tProperty->get_dv_type_list();
 
                     // loop on property dv type
@@ -1242,7 +1242,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    const Vector< Vector< PDV_Type > >& tActiveDvTypes =
+                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
                             tCM->get_global_dv_type_list();
 
                     // loop on property dv type
@@ -1312,7 +1312,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    const Vector< Vector< PDV_Type > >& tActiveDvTypes =
+                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
                             tSP->get_global_dv_type_list( mtk::Leader_Follower::LEADER );
 
                     // loop on property dv type
@@ -1417,7 +1417,7 @@ namespace moris
                     }
 
                     // get dv types for property
-                    const Vector< Vector< PDV_Type > >& tActiveDvTypes =
+                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
                             tProperty->get_dv_type_list();
 
                     // loop on property dv type
@@ -1487,7 +1487,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    const Vector< Vector< PDV_Type > >& tActiveDvTypes =
+                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
                             tCM->get_global_dv_type_list();
 
                     // loop on property dv type
@@ -1557,7 +1557,7 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                    const Vector< Vector< PDV_Type > >& tActiveDvTypes =
+                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
                             tSP->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
                     // loop on property dv type
@@ -1965,7 +1965,7 @@ namespace moris
             uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get the requested ip pdv types
-            Vector< Vector< PDV_Type > > tRequestedPdvTypes;
+            Vector< Vector< gen::PDV_Type > > tRequestedPdvTypes;
             mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
 
             // get number of requested dv types

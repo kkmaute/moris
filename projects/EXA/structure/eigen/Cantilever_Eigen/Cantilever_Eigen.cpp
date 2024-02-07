@@ -137,7 +137,7 @@ namespace moris
     moris::real
     Back_Wall(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         real tVal = aCoordinates( 0 ) - 100.0;
 
@@ -195,7 +195,7 @@ namespace moris
     moris::Matrix< DDRMat >
     Func_Dummy_Sensitivity(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         moris::Matrix< DDRMat > aReturnValue = { { 0.0 } };
         return aReturnValue;

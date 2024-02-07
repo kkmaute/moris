@@ -94,7 +94,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 
 namespace moris
 {
@@ -149,7 +149,7 @@ namespace moris
     }
 
     inline moris::real
-    LevelSetSphereCylinderGeometry( const moris::Matrix< moris::DDRMat >& aCoordinates, const Vector< moris::real* >& aParameters )
+    LevelSetSphereCylinderGeometry( const moris::Matrix< moris::DDRMat >& aCoordinates, const Vector< moris::real >& aParameters )
     {
         return LevelSetSphereCylinder( aCoordinates );
     }
@@ -242,13 +242,14 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-            tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+            auto tPlane = std::make_shared< moris::gen::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
+            tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tPlane );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t                          tModelDimension       = 3;
@@ -488,13 +489,14 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-            tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+            auto tPlane = std::make_shared< moris::gen::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
+            tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tPlane );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t                          tModelDimension       = 3;
@@ -778,13 +780,14 @@ namespace moris
             // start timer
             tic tTimer_XTK;
 
-            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-            tGeometryVector( 0 ) = std::make_shared< moris::ge::User_Defined_Geometry >( Matrix< DDRMat >( 0, 0 ), &( LevelSetSphereCylinderGeometry ) );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+            auto tUserDefinedField = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
+            tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t                          tModelDimension       = 3;
@@ -1066,13 +1069,14 @@ namespace moris
             // start timer
             tic tTimer_XTK;
 
-            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-            tGeometryVector( 0 ) = std::make_shared< moris::ge::User_Defined_Geometry >( Matrix< DDRMat >( 0, 0 ), LevelSetSphereCylinderGeometry );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+            auto tUserDefinedField = std::make_shared< moris::gen::User_Defined_Field >( LevelSetSphereCylinderGeometry );
+            tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
             size_t                          tModelDimension       = 3;

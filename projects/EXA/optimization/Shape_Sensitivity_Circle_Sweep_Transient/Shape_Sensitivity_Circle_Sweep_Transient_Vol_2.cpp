@@ -300,8 +300,8 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).resize( 1 );
 
-        tParameterlist( 1 )( 0 ) = prm::create_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "type", "circle" );
+        tParameterlist( 1 )( 0 ) = prm::create_level_set_geometry_parameter_list();
+        tParameterlist( 1 )( 0 ).set( "field_type", "circle" );
         tParameterlist( 1 )( 0 ).set( "field_variable_indices", "0, 1, 2" );
         tParameterlist( 1 )( 0 ).set( "adv_indices", "0, 1, 2" );
     }

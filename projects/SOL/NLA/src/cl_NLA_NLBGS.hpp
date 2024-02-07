@@ -20,60 +20,58 @@ namespace moris
     {
         class Dist_Vector;
     }
-namespace dla
-{
-    class Linear_Solver_Algorithm;
-}
-namespace NLA
-{
-    class Nonlinear_Solver;
-    class NonLinBlockGaussSeidel : public Nonlinear_Algorithm
+    namespace dla
     {
-    private:
+        class Linear_Solver_Algorithm;
+    }
+    namespace NLA
+    {
+        class Nonlinear_Solver;
+        class NonLinBlockGaussSeidel : public Nonlinear_Algorithm
+        {
+          private:
+            /**
+             * @brief Call for solve of linear system
+             *
+             * @param[in] aIter       Number of newton iterations
+             * @param[in] aHardBreak  Flag for HartBreak
+             */
+            void solve_linear_system(
+                    moris::sint &aIter,
+                    bool        &aHardBreak );
 
-         /**
-         * @brief Call for solve of linear system
-         *
-         * @param[in] aIter       Number of newton iterations
-         * @param[in] aHardBreak  Flag for HartBreak
-         */
-        void solve_linear_system( moris::sint & aIter,
-                                  bool        & aHardBreak);
+            void compute_norms(
+                    const moris::sint aIter,
+                    const moris::sint aRefIts );
 
-        void compute_norms( const moris::sint aIter );
+          public:
+            /**
+             * @brief Constructor for Newton
+             *
+             */
+            // NonLinBlockGaussSeidel( Solver_Interface * aSolverInterface );
 
-    public:
-        /**
-         * @brief Constructor for Newton
-         *
-         */
-        //NonLinBlockGaussSeidel( Solver_Interface * aSolverInterface );
+            NonLinBlockGaussSeidel();
 
-        NonLinBlockGaussSeidel();
+            NonLinBlockGaussSeidel( const ParameterList aParameterlist );
 
-        NonLinBlockGaussSeidel(const ParameterList            aParameterlist );
+            ~NonLinBlockGaussSeidel();
 
-        ~NonLinBlockGaussSeidel();
+            /**
+             * @brief Call to solve the nonlinear system
+             *
+             * @param[in] aNonlinearProblem Nonlinear problem
+             */
+            void solver_nonlinear_system( Nonlinear_Problem *aNonlinearProblem );
 
-        /**
-         * @brief Call to solve the nonlinear system
-         *
-         * @param[in] aNonlinearProblem Nonlinear problem
-         */
-        void solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem );
+            void get_full_solution( moris::Matrix< DDRMat > &LHSValues ){};
 
-        void get_full_solution( moris::Matrix< DDRMat > & LHSValues )
-        {};
-
-        void extract_my_values( const moris::uint                            & aNumIndices,
-                                const moris::Matrix< DDSMat >                & aGlobalBlockRows,
-                                const moris::uint                            & aBlockRowOffsets,
-                                      Vector< moris::Matrix< DDRMat > > & LHSValues )
-        {};
-
-    };
-}
-}
+            void extract_my_values( const moris::uint      &aNumIndices,
+                    const moris::Matrix< DDSMat >          &aGlobalBlockRows,
+                    const moris::uint                      &aBlockRowOffsets,
+                    Vector< moris::Matrix< DDRMat > > &LHSValues ){};
+        };
+    }    // namespace NLA
+}    // namespace moris
 
 #endif /* SRC_FEM_CL_NLBGS_HPP_ */
-

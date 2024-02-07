@@ -167,13 +167,13 @@ namespace moris
 
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-                Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-                tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 0.11, 0.11, 1.0, 0.0 );
+                auto tPlane = std::make_shared< moris::gen::Plane >( 0.11, 0.11, 1.0, 0.0 );
+                Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
                 size_t                                tModelDimension = 2;
-                moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+                moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries = tGeometryVector;
-                moris::ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+                moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
                 xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
                 tXTKModel.mVerbose = false;
@@ -470,13 +470,13 @@ namespace moris
 
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-                Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-                tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( 0.11, 0.11, 1.0, 0.0 );
+                auto tPlane = std::make_shared< moris::gen::Plane >( 0.11, 0.11, 1.0, 0.0 );
+                Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
                 size_t                                tModelDimension = 2;
-                moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+                moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries = tGeometryVector;
-                moris::ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+                moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
                 xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
                 tXTKModel.mVerbose = false;

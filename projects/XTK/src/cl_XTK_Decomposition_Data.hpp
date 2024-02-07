@@ -14,7 +14,6 @@
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
 #include "cl_XTK_Topology.hpp"
-#include "cl_XTK_Proximity.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "enums.hpp"

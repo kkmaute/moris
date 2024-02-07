@@ -715,7 +715,7 @@ namespace moris
                     mMeshCluster->get_vertices_in_cluster( aIsLeader );
 
             // get the requested geo pdv types
-            Vector< enum PDV_Type > tGeoPdvType;
+            Vector< enum gen::PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
             // get number of pdv on cluster
@@ -816,7 +816,7 @@ namespace moris
                     mMeshCluster->get_vertices_in_cluster( aIsLeader );
 
             // get the requested geo pdv types
-            Vector< enum PDV_Type > tGeoPdvType;
+            Vector< enum gen::PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
             // get number of pdv on cluster

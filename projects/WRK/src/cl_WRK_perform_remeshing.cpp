@@ -62,10 +62,6 @@ namespace moris
 
             if ( mParameters.mModeIndex == 0 )
             {
-                string_to_cell(
-                        aParameterlist.get< std::string >( "remeshing_field_names" ),
-                        mParameters.mRefinementsFieldNames_0 );
-
                 // set refinement level
                 string_to_cell_mat(
                         aParameterlist.get< std::string >( "remeshing_levels_of_refinement" ),
@@ -80,10 +76,6 @@ namespace moris
             }
             if ( mParameters.mModeIndex == 1 )
             {
-                //                string_to_cell(
-                //                        aParameterlist.get< std::string >( "remeshing_field_names" ),
-                //                        mParameters.mRefinementsFieldNames_0 );
-                //
                 //                // set refinement level
                 //                string_to_cell_mat(
                 //                        aParameterlist.get< std::string >( "remeshing_levels_of_refinement" ),
@@ -93,10 +85,6 @@ namespace moris
                 //                string_to_cell_mat(
                 //                        aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
                 //                        mParameters.mRefinementPatternMode_0 );
-
-                string_to_cell_of_cell(
-                        aParameterlist.get< std::string >( "remeshing_field_names" ),
-                        mParameters.mRefinementsFieldNames_1 );
 
                 string_to_mat(
                         aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
@@ -116,15 +104,8 @@ namespace moris
             if ( mParameters.mModeIndex == 2 )
             {
                 string_to_cell(
-                        aParameterlist.get< std::string >( "remeshing_field_names" ),
-                        mParameters.mRefinementsFieldNames_0 );
-
-                string_to_cell(
                         aParameterlist.get< std::string >( "refinement_function_name" ),
                         mParameters.mRefinementFunctionForField );
-
-                MORIS_ERROR( mParameters.mRefinementsFieldNames_0.size() == mParameters.mRefinementFunctionForField.size(),
-                        "advanced mode needs the same number of refinement function names and fields" );
 
                 // set refinement pattern
                 string_to_cell_mat(
@@ -452,13 +433,11 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
 
             Vector< moris_index >                       tRefinementPattern;
-            Vector< Vector< std::string > > tFieldNames;
             Vector< Vector< uint > >        tRefinements;
             Vector< sint >                       tMaxRefinementPerLevel;
 
             this->prepare_input_for_refinement(
                     tRefinementPattern,
-                    tFieldNames,
                     tRefinements,
                     tMaxRefinementPerLevel );
 
@@ -493,7 +472,7 @@ namespace moris
 
                     // create refinement parameter list
                     moris::ParameterList tRefinementParameterlist;
-                    this->create_refinement_input_list( tRefinementParameterlist, tPattern );
+                    this->create_refinement_input_list( tRefinementParameterlist, aTargetFields, tPattern );
 
                     // create refinement mini performer and perform refinement
                     wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
@@ -505,7 +484,6 @@ namespace moris
                 }
 
                 {
-                    uint tCounter = 0;
                     while ( true )
                     {
                         // create mesh for this pattern
@@ -529,7 +507,7 @@ namespace moris
 
                         // create refinement parameter list
                         moris::ParameterList tRefinementParameterlist;
-                        this->create_refinement_input_list( tRefinementParameterlist, tPattern );
+                        this->create_refinement_input_list( tRefinementParameterlist, aSourceFields, tPattern );
 
                         // create refinement mini performer and perform refinement
                         wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
@@ -546,8 +524,6 @@ namespace moris
                         tHMRDatabase->get_background_mesh()->update_database();
                         tHMRDatabase->update_bspline_meshes();
                         tHMRDatabase->update_lagrange_meshes();
-
-                        tCounter++;
                     }
                 }
             }
@@ -559,11 +535,6 @@ namespace moris
                 std::shared_ptr< hmr::HMR >           aHMRPerformer,
                 Vector< std::shared_ptr< mtk::Field > > aSourceFields )
         {
-            // mParameters.mRefinementsFieldNames_1;
-
-            // mParameters.mMaxRefinementsMode_1 ;
-            // mParameters.mMinRefinementsMode_1 ;
-
             uint tNumPattern = mParameters.mRefinementPatternMode_1.numel();
 
             std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
@@ -572,33 +543,30 @@ namespace moris
             for ( uint Ik = 0; Ik < tNumPattern; Ik++ )
             {
                 // get pattern
-                uint tPattern = mParameters.mRefinementPatternMode_1( Ik );
+                uint tInitialPattern = mParameters.mRefinementPatternMode_1( Ik );
 
                 // create refinement parameterlist
-                moris::ParameterList tRefinementParameterlist;
-                prm::create_refinement_parameterlist( tRefinementParameterlist );
-                std::string tFieldNames = "";
-                std::string tPatterns   = "";
-                for ( uint Ii = 0; Ii < mParameters.mRefinementsFieldNames_1( Ik ).size(); Ii++ )
+                moris::ParameterList tInitialRefinementParameterlist;
+                prm::create_refinement_parameterlist( tInitialRefinementParameterlist );
+                std::string tInitialFieldNames;
+                std::string tInitialPatterns;
+                for ( uint iFieldIndex = 0; iFieldIndex < aSourceFields.size(); iFieldIndex++ )
                 {
-                    tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_1( Ik )( Ii ) + ",";
-                    tPatterns   = tPatterns + ios::stringify( tPattern ) + ";";
+                    tInitialFieldNames.append( aSourceFields( iFieldIndex )->get_label() + "," );
+                    tInitialPatterns = tInitialPatterns + ios::stringify( tInitialPattern ) + ";";
                 }
-                tFieldNames.pop_back();
-                tPatterns.pop_back();
-                tRefinementParameterlist.set( "field_names", tFieldNames );
-                tRefinementParameterlist.set( "refinement_pattern", tPatterns );
-                tRefinementParameterlist.set( "refinement_function_name", mParameters.mRefinementFunction );
+                tInitialPatterns.pop_back();
+                tInitialRefinementParameterlist.set( "refinement_pattern", tInitialPatterns );
+                tInitialRefinementParameterlist.set( "refinement_function_name", mParameters.mRefinementFunction );
 
                 // create refinement mini performer and perform refinement
-                wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
-                tRefinementMiniPerformer.perform_refinement_based_on_working_pattern( aSourceFields, aHMRPerformer );
+                wrk::Refinement_Mini_Performer tInitialRefinementMiniPerformer( tInitialRefinementParameterlist, mLibrary );
+                tInitialRefinementMiniPerformer.perform_refinement_based_on_working_pattern( aSourceFields, aHMRPerformer );
 
                 tHMRDatabase->get_background_mesh()->update_database();
                 tHMRDatabase->update_bspline_meshes();
                 tHMRDatabase->update_lagrange_meshes();
 
-                uint tCounter = 0;
                 while ( true )
                 {
                     sint tFirstDiscreteFieldIndex = 0;
@@ -614,15 +582,15 @@ namespace moris
                     uint tLagrangeOrder       = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
                     uint tDiscretizationOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
 
-                    uint tPattern = mParameters.mRefinementPatternMode_1( Ik );
+                    uint tCurrentPattern = mParameters.mRefinementPatternMode_1( Ik );
 
                     // create mesh for this pattern
                     hmr::Interpolation_Mesh_HMR* tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                             tHMRDatabase,
                             tLagrangeOrder,
-                            tPattern,
+                            tCurrentPattern,
                             tDiscretizationOrder,
-                            tPattern );
+                            tCurrentPattern );
 
                     mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
 
@@ -632,20 +600,19 @@ namespace moris
                             aSourceFields,
                             aTargetFields,
                             tMeshPair,
-                            tPattern,
-                            true );    // FIXME tPattern = DiscretizationMeshIndex
+                            tCurrentPattern,
+                            true );    // FIXME tPattern = DiscretizationMeshiondex
 
                     // create refinement parameterlist
                     moris::ParameterList tRefinementParameterlist;
                     prm::create_refinement_parameterlist( tRefinementParameterlist );
-                    std::string tFieldNames = "";
-                    std::string tPatterns   = "";
-                    for ( uint Ii = 0; Ii < mParameters.mRefinementsFieldNames_1( Ik ).size(); Ii++ )
+                    std::string tFieldNames;
+                    std::string tPatterns;
+                    for ( uint iFieldIndex = 0; iFieldIndex < aSourceFields.size(); iFieldIndex++ )
                     {
-                        tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_1( Ik )( Ii ) + ",";
-                        tPatterns   = tPatterns + ios::stringify( tPattern ) + ";";
+                        tPatterns += ios::stringify( tCurrentPattern ) + ";";
+                        tFieldNames.append( aSourceFields( iFieldIndex )->get_label() + "," );
                     }
-                    tFieldNames.pop_back();
                     tPatterns.pop_back();
                     tRefinementParameterlist.set( "field_names", tFieldNames );
                     tRefinementParameterlist.set( "refinement_pattern", tPatterns );
@@ -666,8 +633,6 @@ namespace moris
                     tHMRDatabase->get_background_mesh()->update_database();
                     tHMRDatabase->update_bspline_meshes();
                     tHMRDatabase->update_lagrange_meshes();
-
-                    tCounter++;
                 }
             }
         }
@@ -686,7 +651,7 @@ namespace moris
 
             // create refinement parameter list
             moris::ParameterList tRefinementParameterlist;
-            this->create_refinement_input_list_2( tRefinementParameterlist );
+            this->create_refinement_input_list_2( tRefinementParameterlist, aSourceFields );
 
             // create refinement mini performer and perform refinement
             wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
@@ -727,10 +692,20 @@ namespace moris
                     }
                     else
                     {
+                        // Unlock field
                         aTargetFields( If )->unlock_field();
-                        // aTargetFields( If )->set_values( aSourceFields( If )->get_values() );
-                        aTargetFields( If )->set_coefficients( aSourceFields( If )->get_coefficients() );
-                        aTargetFields( If )->compute_nodal_values();
+
+                        // If coefficients exist, copy them over. If not, just copy values
+                        const Matrix< DDRMat >& tCoefficients = aSourceFields( If )->get_coefficients();
+                        if ( tCoefficients.length() > 0 )
+                        {
+                            aTargetFields( If )->set_coefficients( aSourceFields( If )->get_coefficients() );
+                            aTargetFields( If )->compute_nodal_values();
+                        }
+                        else
+                        {
+                            aTargetFields( If )->set_values( aSourceFields( If )->get_values() );
+                        }
                     }
                 }
                 else
@@ -752,7 +727,6 @@ namespace moris
         void
         Remeshing_Mini_Performer::prepare_input_for_refinement(
                 Vector< moris_index >&                       aPatternForRefinement,
-                Vector< Vector< std::string > >& aFieldsForRefinement,
                 Vector< Vector< uint > >&        aRefinements,
                 Vector< sint >&                       aMaxRefinementPerPattern )
         {
@@ -777,7 +751,6 @@ namespace moris
             uint tNumberOfRefinementPattern = aPatternForRefinement.size();
 
             // resize
-            aFieldsForRefinement.resize( tNumberOfRefinementPattern );
             aRefinements.resize( tNumberOfRefinementPattern );
             aMaxRefinementPerPattern.resize( tNumberOfRefinementPattern, MORIS_SINT_MAX );
 
@@ -794,8 +767,6 @@ namespace moris
                     {
                         if ( tPattern == mParameters.mRefinementPatternMode_0( Ii )( Ia ) )
                         {
-                            aFieldsForRefinement( Ik ).push_back( mParameters.mRefinementsFieldNames_0( Ii ) );
-
                             // aRefinements are not use tight now but implemented for future use
                             aRefinements( Ik ).push_back( mParameters.mRefinementsMode_0( Ii )( Ia ) );
 
@@ -816,18 +787,19 @@ namespace moris
 
         void
         Remeshing_Mini_Performer::create_refinement_input_list(
-                moris::ParameterList& aRefinementParameterlist,
-                uint                  aPattern )
+                moris::ParameterList&                  aRefinementParameterlist,
+                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                uint                                   aPattern )
         {
-            std::string tFieldNames = "";
-            std::string tPattern    = "";
-            std::string tRefinement = "";
+            std::string tFieldNames;
+            std::string tPattern;
+            std::string tRefinement;
 
-            for ( uint Ik = 0; Ik < mParameters.mRefinementsFieldNames_0.size(); Ik++ )
+            for ( uint iFieldIndex = 0; iFieldIndex < aFields.size(); iFieldIndex++ )
             {
-                tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_0( Ik ) + ",";
-                tRefinement = tRefinement + "1;";
-                tPattern    = tPattern + ios::stringify( aPattern ) + ";";
+                tFieldNames.append( aFields( iFieldIndex )->get_label() + "," );
+                tRefinement += "1;";
+                tPattern    += ios::stringify( aPattern ) + ";";
             }
 
             tFieldNames.pop_back();
@@ -845,20 +817,21 @@ namespace moris
 
         void
         Remeshing_Mini_Performer::create_refinement_input_list_2(
-                moris::ParameterList& aRefinementParameterlist )
+                moris::ParameterList&                  aRefinementParameterlist,
+                Cell< std::shared_ptr< mtk::Field > >& aFields )
         {
             std::string tFieldNames               = "";
             std::string tRefFunctionForFieldNames = "";
             std::string tPattern                  = "";
 
-            for ( uint Ik = 0; Ik < mParameters.mRefinementsFieldNames_0.size(); Ik++ )
+            for ( uint iFieldIndex = 0; iFieldIndex < aFields.size(); iFieldIndex++ )
             {
-                tFieldNames               = tFieldNames + mParameters.mRefinementsFieldNames_0( Ik ) + ",";
-                tRefFunctionForFieldNames = tRefFunctionForFieldNames + mParameters.mRefinementFunctionForField( Ik ) + ",";
+                tFieldNames.append( aFields( iFieldIndex )->get_label() + ", " );
+                tRefFunctionForFieldNames = tRefFunctionForFieldNames + mParameters.mRefinementFunctionForField( iFieldIndex ) + ",";
 
-                for ( uint Ia = 0; Ia < mParameters.mRefinementPatternMode_0( Ik ).numel(); Ia++ )
+                for ( uint Ia = 0; Ia < mParameters.mRefinementPatternMode_0( iFieldIndex ).numel(); Ia++ )
                 {
-                    tPattern = tPattern + ios::stringify( mParameters.mRefinementPatternMode_0( Ik )( Ia ) ) + ",";
+                    tPattern = tPattern + ios::stringify( mParameters.mRefinementPatternMode_0( iFieldIndex )( Ia ) ) + ",";
                 }
 
                 tPattern.pop_back();

@@ -7,8 +7,8 @@
  * enums.hpp  
  * 
  */
-#ifndef SRC_enums
-#define SRC_enums
+
+#pragma once
 
 // all enum header files defined in this directory
 #include "cl_FEM_Enums.hpp"
@@ -20,5 +20,4 @@
 #include "cl_VIS_Output_Enums.hpp"
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
 #include "cl_TSA_Time_Solver_Enums.hpp"
-
-#endif /* enums.hpp */
+#include "GEN_Data_Types.hpp"

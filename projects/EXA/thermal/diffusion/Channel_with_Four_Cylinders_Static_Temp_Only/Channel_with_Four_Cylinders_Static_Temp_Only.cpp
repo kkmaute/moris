@@ -86,80 +86,72 @@ namespace moris
         return true;
     }
 
-    moris::real
-    Func_Bottom_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Func_Bottom_Plane(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 1 ) - tPlaneBottom;
 
         return std::abs( tValue ) < tMinLSvalue ? tMinLSvalue : tValue;
     }
 
-    moris::real
-    Func_Top_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Func_Top_Plane(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 1 ) - tPlaneTop;
 
         return std::abs( tValue ) < tMinLSvalue ? tMinLSvalue : tValue;
     }
 
-    moris::real
-    Func_Left_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Func_Left_Plane(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneLeft;
 
         return std::abs( tValue ) < tMinLSvalue ? tMinLSvalue : tValue;
     }
 
-    moris::real
-    Func_Right_Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Func_Right_Plane(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneRight;
 
         return std::abs( tValue ) < tMinLSvalue ? tMinLSvalue : tValue;
     }
 
-    moris::real
-    Func_Cylinder(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Func_Cylinder(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 0.4, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 - tCylinderOffset ), 2.0 ), 0.5 );
 
         return std::abs( tValue ) < tMinLSvalue ? tMinLSvalue : tValue;
     }
 
-    moris::real
-    Func_Cylinder2(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Func_Cylinder2(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 0.8, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
         return std::abs( tValue ) < tMinLSvalue ? tMinLSvalue : tValue;
     }
 
-    moris::real
-    Func_Cylinder3(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Func_Cylinder3(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 1.2, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 - tCylinderOffset ), 2.0 ), 0.5 );
 
         return std::abs( tValue ) < tMinLSvalue ? tMinLSvalue : tValue;
     }
 
-    moris::real
-    Func_Cylinder4(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Func_Cylinder4(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 1.6, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 

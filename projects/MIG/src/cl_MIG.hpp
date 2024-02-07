@@ -18,7 +18,7 @@ namespace moris::mtk
     class Mesh_Manager;
 } // namespace moris::mtk
 
-namespace moris::ge
+namespace moris::gen
 {
     class Geometry_Engine;
 }
@@ -35,7 +35,7 @@ namespace moris::mig
         moris::ParameterList                        mParameterList;
 
         // geometry engine in order to link newly created nodes
-        moris::ge::Geometry_Engine*                 mGeometryEngine;
+        moris::gen::Geometry_Engine*                 mGeometryEngine;
 
       public:
 
@@ -51,7 +51,7 @@ namespace moris::mig
 
         MIG( std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
             moris::ParameterList&                        aParameterList,
-            moris::ge::Geometry_Engine*                  aGeometryEngine );
+            moris::gen::Geometry_Engine*                  aGeometryEngine );
 
         // ----------------------------------------------------------------------------
 

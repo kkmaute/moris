@@ -453,7 +453,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::set_dv_type_list(
-                Vector< Vector< PDV_Type > > aDvTypes )
+                Vector< Vector< gen::PDV_Type > > aDvTypes )
         {
             // set the dv types
             mDvTypes = aDvTypes;
@@ -524,7 +524,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get active dv types
-                    Vector< Vector< PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
+                    Vector< Vector< gen::PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
 
                     for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
                     {
@@ -577,7 +577,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Vector< Vector< PDV_Type > > & Constitutive_Model::get_global_dv_type_list()
+        const Vector< Vector< gen::PDV_Type > > & Constitutive_Model::get_global_dv_type_list()
         {
             if( mGlobalDvBuild )
             {
@@ -623,7 +623,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool Constitutive_Model::check_dv_dependency(
-                const Vector< PDV_Type > & aDvType )
+                const Vector< gen::PDV_Type > & aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -973,7 +973,7 @@ namespace moris
 
         void Constitutive_Model::get_non_unique_dof_dv_and_field_types(
                 Vector< MSI::Dof_Type > & aDofTypes,
-                Vector< PDV_Type >      & aDvTypes,
+                Vector< gen::PDV_Type >      & aDvTypes,
                 Vector< mtk::Field_Type > & aFieldTypes )
         {
             // initialize dof counter
@@ -1009,7 +1009,7 @@ namespace moris
                 {
                     // get property dof type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
                     tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -1071,7 +1071,7 @@ namespace moris
                 {
                     // get property dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -2521,7 +2521,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dFluxdDV_FD(
-                const Vector< PDV_Type > & aDvTypes,
+                const Vector< gen::PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adFluxdDV_FD,
                 real                            aPerturbation,
                 fem::FDScheme_Type              aFDSchemeType,
@@ -2596,7 +2596,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dStraindDV_FD(
-                const Vector< PDV_Type > & aDvTypes,
+                const Vector< gen::PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adStraindDV_FD,
                 real                            aPerturbation,
                 fem::FDScheme_Type              aFDSchemeType,
@@ -3581,7 +3581,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dFluxdDV(
-                const Vector< PDV_Type > & aDvType,
+                const Vector< gen::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3613,7 +3613,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dStraindDV(
-                const Vector< PDV_Type > & aDvType,
+                const Vector< gen::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3645,7 +3645,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dConstdDV(
-                const Vector< PDV_Type > & aDvType,
+                const Vector< gen::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"

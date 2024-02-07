@@ -54,7 +54,7 @@ namespace xtk
 
         Background_Mesh(
                 moris::mtk::Interpolation_Mesh* aMeshData,
-                moris::ge::Geometry_Engine*     aGeometryEngine );
+                moris::gen::Geometry_Engine*     aGeometryEngine );
 
         ~Background_Mesh();
         /*!

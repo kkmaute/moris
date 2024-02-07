@@ -70,8 +70,7 @@ class Node_Hierarchy_Template_Library
 class Node_Hierarchy_Interface : public Decomposition_Algorithm
 {
     private:
-    moris_index                       mCurrentGeomIndex;
-    moris::ge::Geometry_Engine*       mGeometryEngine;
+    moris::gen::Geometry_Engine*       mGeometryEngine;
     Integration_Mesh_Generation_Data* mMeshGenerationData;
     Decomposition_Data*               mDecompositionData;
     Cut_Integration_Mesh*             mCutIntegrationMesh;

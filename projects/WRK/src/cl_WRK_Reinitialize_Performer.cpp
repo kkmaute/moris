@@ -84,7 +84,7 @@ namespace moris
         void
         Reinitialize_Performer::perform(
                 Vector< std::shared_ptr< hmr::HMR > >&            aHMRPerformers,
-                Vector< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer,
+                Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer,
                 Vector< std::shared_ptr< mtk::Mesh_Manager > >&   aMTKPerformer,
                 Vector< std::shared_ptr< mdl::Model > >           aMDLPerformer )
         {
@@ -182,7 +182,7 @@ namespace moris
         }
         //------------------------------------------------------------------------------
         void
-        Reinitialize_Performer::impose_upper_lower_bound( Vector< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer, mtk::Field* aField )
+        Reinitialize_Performer::impose_upper_lower_bound( Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer, mtk::Field* aField )
         {
             // lower bound and upper bound are defined on proc 0 and they need to be communicated to other
             // Note:  we make an assumption that all the lower bounds and upper bounds are equal

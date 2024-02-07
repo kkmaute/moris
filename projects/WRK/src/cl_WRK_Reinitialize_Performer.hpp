@@ -36,7 +36,7 @@ namespace moris
         enum class Dof_Type;
     }
 
-    namespace ge
+    namespace gen
     {
         class Geometry_Engine;
     }
@@ -109,7 +109,7 @@ namespace moris
 
             void perform(
                     Vector< std::shared_ptr< hmr::HMR > >&            aHMRPerformers,
-                    Vector< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer,
+                    Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer,
                     Vector< std::shared_ptr< mtk::Mesh_Manager > >&   aMTKPerformer,
                     Vector< std::shared_ptr< mdl::Model > >           mMDLPerformer );
 
@@ -145,7 +145,7 @@ namespace moris
              */
 
             void
-            impose_upper_lower_bound( Vector< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer, mtk::Field* aField );
+            impose_upper_lower_bound( Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer, mtk::Field* aField );
 
             //------------------------------------------------------------------------------
 

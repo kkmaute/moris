@@ -31,11 +31,11 @@
 //    moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
 //    moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
 //
-//    Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-//    tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
+//    Vector<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//    tGeometry(0) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 //
-//    moris::ge::Phase_Table tPhaseTable (tGeometry.size());
-//    moris::ge::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
+//    moris::gen::Phase_Table tPhaseTable (tGeometry.size());
+//    moris::gen::Geometry_Engine tGeometryEngine(tGeometry, tPhaseTable);
 //
 //    // Create Mesh ---------------------------------
 //    std::string tMeshFileName = "generated:1x1x16|sideset:z";

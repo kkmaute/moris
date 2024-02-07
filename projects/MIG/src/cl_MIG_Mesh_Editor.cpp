@@ -310,7 +310,7 @@ namespace moris::mig
 
     //------------------------------------------------------------------------------------------------------------
     void
-    Periodic_Mesh_Editor::set_geometry_engine( moris::ge::Geometry_Engine* aGeometryEngine )
+    Periodic_Mesh_Editor::set_geometry_engine( moris::gen::Geometry_Engine* aGeometryEngine )
     {
         mGeometryEngine = aGeometryEngine;
     }
@@ -335,7 +335,7 @@ namespace moris::mig
                 moris_index tNodeOwner = 0;
 
                 // add nodes to the ge
-                mGeometryEngine->update_queued_intersection( tNodeIndex, tNodeId, tNodeOwner );
+                mGeometryEngine->update_intersection_node( tNodeIndex, tNodeId, tNodeOwner );
             }
         }
         else
@@ -349,7 +349,7 @@ namespace moris::mig
                 moris_index tNodeOwner = 0;
 
                 // add nodes to the ge
-                mGeometryEngine->update_queued_intersection( tNodeIndex, tNodeId, tNodeOwner );
+                mGeometryEngine->update_intersection_node( tNodeIndex, tNodeId, tNodeOwner );
             }
         }
     }

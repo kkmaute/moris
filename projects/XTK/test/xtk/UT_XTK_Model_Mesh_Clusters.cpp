@@ -33,16 +33,16 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             real tXCenter = 1.0;
             real tYCenter = 1.0;
             real tZCenter = 0.0;
-            Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-            tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+            auto tSphere = std::make_shared< moris::gen::Sphere >( tXCenter, tYCenter, tZCenter, tRadius );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tSphere ) };
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4|sideset:Z";
             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+            moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;

@@ -12,6 +12,14 @@
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_DATA_STK_HPP_
 
 // Third-party header files.
+#ifdef private
+#if ( private == public )
+#undef private
+#undef protected
+#define RESETPRIVATE
+#endif
+#endif
+
 #include <stk_io/StkMeshIoBroker.hpp>             // for StkMeshIoBroker
 #include <stk_mesh/base/GetEntities.hpp>          // for count_entities
 #include <stk_mesh/base/MetaData.hpp>             // for MetaData
@@ -26,6 +34,11 @@
 #include "stk_mesh/base/Field.hpp"                // for coordinates
 #include "stk_mesh/base/GetEntities.hpp"          // for coordinates
 #include "stk_mesh/base/FieldParallel.hpp"        // for handling parallel fields
+
+#ifdef RESETPRIVATE
+#define private public
+#define protected public
+#endif
 
 #include "cl_MTK_Sets_Info.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
@@ -55,15 +68,12 @@ namespace moris
 
             ~Mesh_Data_STK()
             {
-                delete mMeshReader;
-                delete mMtkMeshBulkData;
-                delete mMtkMeshMetaData;
             }
 
             // STK specific Member variables
-            stk::io::StkMeshIoBroker* mMeshReader      = nullptr;
-            stk::mesh::MetaData*      mMtkMeshMetaData = nullptr;
-            stk::mesh::BulkData*      mMtkMeshBulkData = nullptr;
+            std::shared_ptr< stk::io::StkMeshIoBroker > mMeshReader;
+            std::shared_ptr< stk::mesh::MetaData>       mMtkMeshMetaData;
+            std::shared_ptr< stk::mesh::BulkData>       mMtkMeshBulkData;
 
             // General mesh trait member variables
             bool mDataGeneratedMesh = false;

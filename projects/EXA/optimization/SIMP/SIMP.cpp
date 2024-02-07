@@ -55,7 +55,7 @@ namespace moris
     {
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
-        aPropMatrix                          = tHCT * std::pow( aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val()( 0 ), tBeta );
+        aPropMatrix                          = tHCT * std::pow( aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->val()( 0 ), tBeta );
     }
 
     void
@@ -66,7 +66,7 @@ namespace moris
     {
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
-        aPropMatrix                          = tBeta * tHCT * std::pow( aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val()( 0 ), tBeta - 1 );
+        aPropMatrix                          = tBeta * tHCT * std::pow( aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->val()( 0 ), tBeta - 1 );
     }
 
     void
@@ -75,7 +75,7 @@ namespace moris
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->val();
     }
 
     void
@@ -84,7 +84,7 @@ namespace moris
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->N();
     }
 
     bool
@@ -96,7 +96,7 @@ namespace moris
     moris::real
     Func_Right_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         return aCoordinates( 0 ) - 1000;
     }
@@ -104,7 +104,7 @@ namespace moris
     moris::real
     sensitivity_func(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // MORRIS_ERROR( false, "sensitivity_func() not implemented");
         return 0;
@@ -277,7 +277,7 @@ namespace moris
 
         // Density property
         tParameterlist( 2 )( 0 ) = moris::prm::create_gen_property_parameter_list();
-        tParameterlist( 2 )( 0 ).set( "type", "constant" );
+        tParameterlist( 2 )( 0 ).set( "field_type", "constant" );
         tParameterlist( 2 )( 0 ).set( "name", "density" );
         tParameterlist( 2 )( 0 ).set( "constant_parameters", "0.4" );
         tParameterlist( 2 )( 0 ).set( "discretization_mesh_index", 0 );

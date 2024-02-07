@@ -298,8 +298,8 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
             tIWG->mRequestedLeaderGlobalDofTypes = tTempDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > >        tDummyDv;
-            Vector< Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

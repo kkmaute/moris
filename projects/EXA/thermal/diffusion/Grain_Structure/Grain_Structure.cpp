@@ -62,7 +62,7 @@ namespace moris
 
     moris::real Colors_1(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const Vector< moris::real* > & aGeometryParameters)
+                const Vector< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( aCoordinates(0) > 0.1117 && aCoordinates(1) <= -0.11)
@@ -75,7 +75,7 @@ namespace moris
 
     moris::real Colors_2(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const Vector< moris::real* > & aGeometryParameters)
+                const Vector< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( std::sqrt( std::pow( aCoordinates(0) -2.0, 2) + std::pow( aCoordinates(1) -2.0, 2) ) - 1.2 <= 0.0 &&
@@ -89,7 +89,7 @@ namespace moris
 
        moris::real Colors_3(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const Vector< moris::real* > & aGeometryParameters)
+                const Vector< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if(  aCoordinates(0)-aCoordinates(1) +  1.5 <= 0.0 &&
@@ -104,7 +104,7 @@ namespace moris
 
        moris::real Colors_4(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const Vector< moris::real* > & aGeometryParameters)
+                const Vector< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( std::sqrt( std::pow( aCoordinates(0) +2.0, 2) + std::pow( aCoordinates(1) +2.0, 2) ) - 2.6 <= 0.0 &&
@@ -186,46 +186,36 @@ namespace moris
         tParameterlist( 1 ).resize( 4 );
 
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
+        tParameterlist( 0 )( 0 ).set( "output_mesh_file", "gen_output.exo" );
 
         // Geometry parameter lists
         tParameterlist( 1 )( 0 ) = prm::create_user_defined_geometry_parameter_list();
-        tParameterlist( 1 )( 0 ).set( "field_function_name", "Colors_1");
-        tParameterlist( 1 )( 0 ).set( "number_of_refinements", "2");
-        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0");
-        tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1);
-        tParameterlist( 1 )( 0 ).set( "isocontour_tolerance", 1E-12);
-        tParameterlist( 1 )( 0 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 0 ).set( "multilinear_intersections", false);
+        tParameterlist( 1 )( 0 ).set( "field_function_name", "Colors_1" );
+        tParameterlist( 1 )( 0 ).set( "number_of_refinements", "2" );
+        tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1 );
+        tParameterlist( 1 )( 0 ).set( "isocontour_tolerance", 1E-12 );
 
-                // Geometry parameter lists
         tParameterlist( 1 )( 1 ) = prm::create_user_defined_geometry_parameter_list();
-        tParameterlist( 1 )( 1 ).set( "field_function_name", "Colors_2");
-        tParameterlist( 1 )( 1 ).set( "number_of_refinements", "2");
-        tParameterlist( 1 )( 1 ).set( "refinement_mesh_index", "0");
-        tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", -1);
-        tParameterlist( 1 )( 1 ).set( "isocontour_tolerance", 1E-12);
-        tParameterlist( 1 )( 1 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 1 ).set( "multilinear_intersections", false);
+        tParameterlist( 1 )( 1 ).set( "field_function_name", "Colors_2" );
+        tParameterlist( 1 )( 1 ).set( "number_of_refinements", "2" );
+        tParameterlist( 1 )( 1 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 1 ).set( "discretization_mesh_index", -1 );
+        tParameterlist( 1 )( 1 ).set( "isocontour_tolerance", 1E-12 );
 
-                // Geometry parameter lists
         tParameterlist( 1 )( 2 ) = prm::create_user_defined_geometry_parameter_list();
-        tParameterlist( 1 )( 2 ).set( "field_function_name", "Colors_3");
-        tParameterlist( 1 )( 2 ).set( "number_of_refinements", "2");
-        tParameterlist( 1 )( 2 ).set( "refinement_mesh_index", "0");
-        tParameterlist( 1 )( 2 ).set( "discretization_mesh_index", -1);
-        tParameterlist( 1 )( 2 ).set( "isocontour_tolerance", 1E-12);
-        tParameterlist( 1 )( 2 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 2 ).set( "multilinear_intersections", false);
+        tParameterlist( 1 )( 2 ).set( "field_function_name", "Colors_3" );
+        tParameterlist( 1 )( 2 ).set( "number_of_refinements", "2" );
+        tParameterlist( 1 )( 2 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 2 ).set( "discretization_mesh_index", -1 );
+        tParameterlist( 1 )( 2 ).set( "isocontour_tolerance", 1E-12 );
 
-                // Geometry parameter lists
         tParameterlist( 1 )( 3 ) = prm::create_user_defined_geometry_parameter_list();
-        tParameterlist( 1 )( 3 ).set( "field_function_name", "Colors_4");
-        tParameterlist( 1 )( 3 ).set( "number_of_refinements", "2");
-        tParameterlist( 1 )( 3 ).set( "refinement_mesh_index", "0");
-        tParameterlist( 1 )( 3 ).set( "discretization_mesh_index", -1);
-        tParameterlist( 1 )( 3 ).set( "isocontour_tolerance", 1E-12);
-        tParameterlist( 1 )( 3 ).set( "intersection_mode", "LEVEL_SET");
-        tParameterlist( 1 )( 3 ).set( "multilinear_intersections", false);
+        tParameterlist( 1 )( 3 ).set( "field_function_name", "Colors_4" );
+        tParameterlist( 1 )( 3 ).set( "number_of_refinements", "2" );
+        tParameterlist( 1 )( 3 ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( 3 ).set( "discretization_mesh_index", -1 );
+        tParameterlist( 1 )( 3 ).set( "isocontour_tolerance", 1E-12 );
 
     }
 

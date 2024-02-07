@@ -384,7 +384,7 @@ namespace moris
             {
                 // get an IWG non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -403,7 +403,7 @@ namespace moris
             {
                 // get an IWG non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -438,7 +438,7 @@ namespace moris
             {
                 // get non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -464,7 +464,7 @@ namespace moris
             {
                 // get non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -609,7 +609,7 @@ namespace moris
                 const Vector< Vector< MSI::Dof_Type > >& tDofTypeLeader =
                         tIWG->get_global_dof_type_list();
 
-                const Vector< Vector< PDV_Type > >& tDvTypeLeader =
+                const Vector< Vector< gen::PDV_Type > >& tDvTypeLeader =
                         tIWG->get_global_dv_type_list();
 
                 const Vector< Vector< mtk::Field_Type > >& tFieldTypeLeader =
@@ -670,7 +670,7 @@ namespace moris
                 const Vector< Vector< MSI::Dof_Type > >& tDofTypeFollower =
                         tIWG->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
 
-                const Vector< Vector< PDV_Type > >& tDvTypeFollower =
+                const Vector< Vector< gen::PDV_Type > >& tDvTypeFollower =
                         tIWG->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
                 const Vector< Vector< mtk::Field_Type > >& tFieldTypeFollower =
@@ -735,7 +735,7 @@ namespace moris
                 const Vector< Vector< MSI::Dof_Type > >& tDofTypeLeader =
                         tIQI->get_global_dof_type_list();
 
-                const Vector< Vector< PDV_Type > >& tDvTypeLeader =
+                const Vector< Vector< gen::PDV_Type > >& tDvTypeLeader =
                         tIQI->get_global_dv_type_list();
 
                 const Vector< Vector< mtk::Field_Type > >& tFieldTypeLeader =
@@ -795,7 +795,7 @@ namespace moris
                 // get follower dof and dv types for the IWG
                 const Vector< Vector< MSI::Dof_Type > >& tDofTypeFollower =
                         tIQI->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
-                const Vector< Vector< PDV_Type > >& tDvTypeFollower =
+                const Vector< Vector< gen::PDV_Type > >& tDvTypeFollower =
                         tIQI->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
                 const Vector< Vector< mtk::Field_Type > >& tFieldTypeFollower =
                         tIQI->get_global_field_type_list( mtk::Leader_Follower::FOLLOWER );
@@ -898,7 +898,7 @@ namespace moris
             // dv types
             //------------------------------------------------------------------------------
             // Create temporary dv type list
-            const Vector< enum PDV_Type >& tDvType = get_unique_dv_type_list();
+            const Vector< enum gen::PDV_Type >& tDvType = get_unique_dv_type_list();
 
             // Get number of unique dvs of this equation object
             moris::uint tNumUniqueDvTypes = tDvType.size();
@@ -1988,7 +1988,7 @@ namespace moris
         Set::create_mat_pdv_assembly_map()
         {
             // get the list of requested dv types by the opt solver
-            Vector< enum PDV_Type > tRequestedDvTypes = mUniqueDvTypeList;
+            Vector< enum gen::PDV_Type > tRequestedDvTypes = mUniqueDvTypeList;
 
             // init the max index for dv types
             moris_index tMaxDvIndex = -1;
@@ -1997,7 +1997,7 @@ namespace moris
             for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
                 // get the current PDV type
-                PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+                gen::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
 
                 // get the set index for the requested leader dof type
                 moris_index tDvIndex = this->get_dv_index_for_type(
@@ -2042,7 +2042,7 @@ namespace moris
             for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
                 // get the current PDV type
-                PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+                gen::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
 
                 // get the set index for the requested leader dv type
                 moris_index tDvIndex = this->get_dv_index_for_type(
@@ -2072,7 +2072,7 @@ namespace moris
             for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
                 // get the current PDV type
-                PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+                gen::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
 
                 // get the set index for the follower dv type
                 moris_index tDvIndex = this->get_dv_index_for_type(
@@ -2117,7 +2117,7 @@ namespace moris
                     mEquationModel->get_design_variable_interface();
 
             // get the geo dv types requested by the opt
-            moris::Vector< enum PDV_Type > tRequestedDvTypes;
+            moris::Vector< enum gen::PDV_Type > tRequestedDvTypes;
             moris_index                    tMeshSetIndex = mMeshSet->get_set_index();
             tDVInterface->get_ig_unique_dv_types_for_set(
                     tMeshSetIndex,
@@ -2173,7 +2173,7 @@ namespace moris
             for ( uint iGeoPdv = 0; iGeoPdv < tNumPdvTypes; iGeoPdv++ )
             {
                 // get treated geo pdv type
-                PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+                gen::PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
 
                 // get treated geo pdv type index
                 // moris_index tGeoPdvIndex = static_cast< uint >( tGeoPdvType );
@@ -2185,7 +2185,7 @@ namespace moris
                     moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
 
                     // create key pair
-                    std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
+                    std::pair< moris_index, gen::PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
 
                     // if active and not set in the map
                     bool tPdvIsActive   = tIsActivePdv( iIGNode, iGeoPdv );
@@ -2669,7 +2669,7 @@ namespace moris
                 mdQIdp( 0 ).resize( tNumRequestedIQIs );
 
                 // get the requested pdv types
-                Vector< Vector< enum PDV_Type > > tRequestedDvTypes;
+                Vector< Vector< enum gen::PDV_Type > > tRequestedDvTypes;
                 this->get_ip_dv_types_for_set( tRequestedDvTypes );
 
                 // init pdv coefficient counter
@@ -2795,7 +2795,7 @@ namespace moris
                 }
 
                 // get the dv types requested by the opt
-                Vector< Vector< enum PDV_Type > > tRequestedDvTypes;
+                Vector< Vector< enum gen::PDV_Type > > tRequestedDvTypes;
                 this->get_ip_dv_types_for_set( tRequestedDvTypes );
 
                 // init dv coefficient counter
@@ -3758,7 +3758,7 @@ namespace moris
 
         void
         Set::get_ig_unique_dv_types_for_set(
-                Vector< enum PDV_Type >& aGeoPdvType )
+                Vector< enum gen::PDV_Type >& aGeoPdvType )
         {
             // get design variable interface
             MSI::Design_Variable_Interface* tPdvInterface =
@@ -3778,7 +3778,7 @@ namespace moris
 
         void
         Set::get_ip_dv_types_for_set(
-                moris::Vector< moris::Vector< enum PDV_Type > >& aMatPdvType,
+                moris::Vector< moris::Vector< enum gen::PDV_Type > >& aMatPdvType,
                 mtk::Leader_Follower                             aIsLeader )
         {
             // choose based on the leader, follower type

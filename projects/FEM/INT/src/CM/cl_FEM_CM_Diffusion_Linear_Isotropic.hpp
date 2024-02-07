@@ -95,7 +95,7 @@ namespace moris
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
-                        Vector< Vector< PDV_Type > > aDvTypes,
+                        Vector< Vector< gen::PDV_Type > > aDvTypes,
                         Vector< std::string >             aDvStrings )
                 {
                     Constitutive_Model::set_dv_type_list( aDvTypes );
@@ -315,7 +315,7 @@ namespace moris
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
                  * dFluxdDV ( mSpaceDim x numDerDv )
                  */
-                void eval_dFluxdDV( const Vector< PDV_Type > & aDofTypes );
+                void eval_dFluxdDV( const Vector< gen::PDV_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -323,7 +323,7 @@ namespace moris
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
                  * dStraindDV ( mSpaceDim x numDerDV )
                  */
-                void eval_dStraindDV( const Vector< PDV_Type > & aDofTypes );
+                void eval_dStraindDV( const Vector< gen::PDV_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
         };

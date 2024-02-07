@@ -90,7 +90,7 @@ namespace moris
                  * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dv_type_list(
-                        Vector< Vector< PDV_Type > > & aDvTypes,
+                        Vector< Vector< gen::PDV_Type > > & aDvTypes,
                         Vector< std::string >             & aDvStrings,
                         mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
                 {
@@ -127,7 +127,7 @@ namespace moris
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
                  * dPPdLeaderDV ( 1 x numDerDv )
                  */
-                void eval_dSPdLeaderDV( const Vector< PDV_Type > & aDvTypes )
+                void eval_dSPdLeaderDV( const Vector< gen::PDV_Type > & aDvTypes )
                 {
                     MORIS_ERROR( false, "SP_Lagrange_Multiplier_L2 - eval_dSPdLeaderDV: not implemented." );
                 }

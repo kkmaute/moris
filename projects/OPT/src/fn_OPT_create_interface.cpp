@@ -57,7 +57,7 @@ namespace moris
         std::shared_ptr< Criteria_Interface >
         create_interface( ParameterList aParameterList )
         {
-            std::string tInterfaceType = aParameterList.get< std::string >( "type" );
+            std::string tInterfaceType = aParameterList.get< std::string >( "field_type" );
             if ( !tInterfaceType.compare( "user_defined" ) )
             {
                 return std::make_shared< Interface_User_Defined >( aParameterList );

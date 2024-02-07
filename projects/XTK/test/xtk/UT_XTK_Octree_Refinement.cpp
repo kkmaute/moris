@@ -11,7 +11,7 @@
 // #include "catch.hpp"
 // #include "cl_Communication_Manager.hpp"
 // #include "cl_GEN_Geometry.hpp"
-// #include "cl_GEN_User_Defined_Geometry.hpp"
+// #include "cl_GEN_User_Defined_Field.hpp"
 // #include "cl_HMR.hpp"
 // #include "cl_MTK_Enums.hpp"
 // #include "cl_MTK_Mesh_Manager.hpp"
@@ -26,7 +26,7 @@
 // #include "fn_PRM_HMR_Parameters.hpp"
 // #include "fn_PRM_XTK_Parameters.hpp"
 // #include "fn_PRM_GEN_Parameters.hpp"
-// #include "cl_GEN_User_Defined_Geometry.hpp"
+// #include "cl_GEN_User_Defined_Field.hpp"
 // #include "fn_all_true.hpp"
 // #include "op_minus.hpp"
 // #include "fn_norm.hpp"
@@ -122,11 +122,11 @@
 //     tHMR->perform();
 
 //     // GEN
-//     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-//     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
+//     moris::gen::Geometry_Engine_Parameters                 tGeometryEngineParameters;
+//     Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+//     tGeometryVector( 0 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
-//     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+//     moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
 
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
@@ -6129,11 +6129,11 @@
 //     tHMR->perform();
 
 //     // GEN
-//     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-//     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
+//     moris::gen::Geometry_Engine_Parameters                 tGeometryEngineParameters;
+//     Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+//     tGeometryVector( 0 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
-//     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+//     moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
 
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
@@ -6189,11 +6189,11 @@
 //     tHMR->perform();
 
 //     // GEN
-//     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-//     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
+//     moris::gen::Geometry_Engine_Parameters                 tGeometryEngineParameters;
+//     Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+//     tGeometryVector( 0 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
-//     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+//     moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
 
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
@@ -6249,11 +6249,11 @@
 //     tHMR->perform();
 
 //     // GEN
-//     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-//     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
+//     moris::gen::Geometry_Engine_Parameters                 tGeometryEngineParameters;
+//     Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+//     tGeometryVector( 0 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
-//     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+//     moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
 
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
@@ -6309,11 +6309,11 @@
 //     tHMR->perform();
 
 //     // GEN
-//     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-//     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
+//     moris::gen::Geometry_Engine_Parameters                 tGeometryEngineParameters;
+//     Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+//     tGeometryVector( 0 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
-//     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+//     moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
 
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
@@ -6368,11 +6368,11 @@
 //     tHMR->perform();
 
 //     // GEN
-//     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
-//     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
+//     moris::gen::Geometry_Engine_Parameters                 tGeometryEngineParameters;
+//     Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
+//     tGeometryVector( 0 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
-//     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+//     moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
 
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
@@ -6427,13 +6427,13 @@
 //     tHMR->perform();
 
 //     // GEN
-//     moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
-//     Vector< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 3 );
-//     tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
-//     tGeometryVector( 1 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom2 ) );
-//     tGeometryVector( 2 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom3 ) );
+//     moris::gen::Geometry_Engine_Parameters                 tGeometryEngineParameters;
+//     Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 3 );
+//     tGeometryVector( 0 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
+//     tGeometryVector( 1 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom2 ) );
+//     tGeometryVector( 2 )                  = std::make_shared< moris::gen::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom3 ) );
 //     tGeometryEngineParameters.mGeometries = tGeometryVector;
-//     moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+//     moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
 
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();

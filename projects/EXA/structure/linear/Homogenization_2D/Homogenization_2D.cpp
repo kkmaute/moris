@@ -111,7 +111,7 @@
         // Level set function for diamond shaped wedge
         moris::real Inclusion(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const Vector< moris::real* > & aGeometryParameters )
+                const Vector< real > & aGeometryParameters )
         {
             // distance from sphere center
             moris::real tDx1 = aCoordinates(0) - tCenterX1;

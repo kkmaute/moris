@@ -291,7 +291,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
             tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatViscosity );
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > > tDummyDv;
+            Vector< Vector< gen::PDV_Type > > tDummyDv;
             Vector< Vector< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

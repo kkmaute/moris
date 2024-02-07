@@ -23,7 +23,7 @@
 // FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 // GEN/src
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 namespace moris
 {
@@ -76,7 +76,7 @@ namespace moris
             Vector< MSI::Dof_Type > mDofType;
 
             // dv type
-            Vector< PDV_Type > mDvType;
+            Vector< gen::PDV_Type > mDvType;
 
             // field type
             Vector< mtk::Field_Type > mFieldType;
@@ -159,7 +159,7 @@ namespace moris
                     const uint&                    aNumberOfFields,
                     const mtk::Interpolation_Rule& aFieldInterpolationRule,
                     Geometry_Interpolator*         aGeometryInterpolator,
-                    const Vector< PDV_Type >  aDvType );
+                    const Vector< gen::PDV_Type >  aDvType );
 
             /**
              * constructor
@@ -191,7 +191,7 @@ namespace moris
              */
             Field_Interpolator(
                     const uint&                   aNumberOfFields,
-                    const Vector< PDV_Type > aDvType )
+                    const Vector< gen::PDV_Type > aDvType )
                     : mNumberOfFields( aNumberOfFields )
                     , mDvType( aDvType )
             {
@@ -244,7 +244,7 @@ namespace moris
             /**
              * get dof type
              */
-            const Vector< PDV_Type >&
+            const Vector< gen::PDV_Type >&
             get_dv_type() const
             {
                 return mDvType;

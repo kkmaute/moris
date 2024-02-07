@@ -41,7 +41,7 @@ set(MAIN_DEPENDENCIES
     ${HMR}-lib
     ${COM}-lib
     ${IOS}-lib
-    ${GEN_MAIN}-lib
+    ${GEN}-lib
     ${WRK}-lib
     ${MORIS_PETSC_LIBS}
     ${MORIS_BOOST_LIBS}
@@ -126,8 +126,7 @@ SET(SO_INCLUDES
     ${MTK_INTERNAL_INCLUDES} 
     ${MORIS_PACKAGE_DIR}/PRM/src/ 
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
-    ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
-    ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
+    ${MORIS_PACKAGE_DIR}/FEM/VIS/src
     ${MORIS_PACKAGE_DIR}/HMR/src 
     ${MORIS_PACKAGE_DIR}/SOL/DLA/src 
     ${MORIS_PACKAGE_DIR}/SOL/TSA/src

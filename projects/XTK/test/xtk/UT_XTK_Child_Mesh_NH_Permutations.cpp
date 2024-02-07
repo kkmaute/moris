@@ -675,7 +675,7 @@ namespace xtk
                 setup_node_coordinates_3_node( tEdgeL, tEdgeM, tEdgeH, tNodeCoords );
 
                 // Compute base tet volume
-                real tTetVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+                real tTetVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
 
                 // Compute base element surface normals (parent faces)
                 moris::Matrix< moris::IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
@@ -689,7 +689,7 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
 
                     moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                    ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                    gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                     tParentFaceNormals.set_column( iF, tFaceNormal );
                 }
@@ -730,7 +730,7 @@ namespace xtk
                 CHECK( tValidTopo );
 
                 // verify volume is conserved
-                real tTotalChildVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+                real tTotalChildVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
                 ;
 
                 CHECK( approximate( tTetVol, tTotalChildVol ) );
@@ -749,7 +749,7 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
 
                     moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                    ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                    gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                     tFaceNormals.set_column( iF, tFaceNormal );
                 }
@@ -852,7 +852,7 @@ namespace xtk
                 moris::Matrix< moris::DDRMat > tNodeCoords;
                 setup_node_coordinates_4_node( tEdgeL, tEdgeML, tEdgeMH, tEdgeH, tNodeCoords );
                 // Compute base tet volume
-                real tTetVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+                real tTetVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
 
                 // Compute base element surface normals (parent faces)
                 moris::Matrix< moris::IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
@@ -866,7 +866,7 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
 
                     moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                    ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                    gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                     tParentFaceNormals.set_column( iF, tFaceNormal );
                 }
@@ -908,7 +908,7 @@ namespace xtk
                 CHECK( tValidTopo );
 
                 // verify volume is conserved
-                real tTotalChildVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+                real tTotalChildVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
                 ;
 
                 CHECK( approximate( tTetVol, tTotalChildVol ) );
@@ -927,7 +927,7 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
 
                     moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                    ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                    gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                     tFaceNormals.set_column( iF, tFaceNormal );
                 }
@@ -1011,7 +1011,7 @@ namespace xtk
             setup_node_coordinates_bisected( iEdge, tNodeCoords );
 
             // Compute base tet volume
-            real tTetVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+            real tTetVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
 
             // Compute base element surface normals (parent faces)
             moris::Matrix< moris::IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
@@ -1025,7 +1025,7 @@ namespace xtk
                 moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
 
                 moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                 tParentFaceNormals.set_column( iF, tFaceNormal );
             }
@@ -1066,7 +1066,7 @@ namespace xtk
             CHECK( tValidTopo );
 
             // verify volume is conserved
-            real tTotalChildVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+            real tTotalChildVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
             ;
 
             CHECK( approximate( tTetVol, tTotalChildVol ) );
@@ -1085,7 +1085,7 @@ namespace xtk
                 moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
 
                 moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                 tFaceNormals.set_column( iF, tFaceNormal );
             }
@@ -1175,7 +1175,7 @@ namespace xtk
             setup_node_coordinates_2_node( tEdgeL, tEdgeH, tNodeCoords );
 
             // Compute base tet volume
-            real tTetVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+            real tTetVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
             // Compute base element surface normals (parent faces)
             moris::Matrix< moris::IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
             size_t                                  tNumParentFaces   = tParentFaceToNode.n_rows();
@@ -1188,7 +1188,7 @@ namespace xtk
                 moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
 
                 moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                 tParentFaceNormals.set_column( iF, tFaceNormal );
             }
@@ -1229,7 +1229,7 @@ namespace xtk
             CHECK( tValidTopo );
 
             // verify volume is conserved
-            real tTotalChildVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+            real tTotalChildVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
 
             CHECK( approximate( tTetVol, tTotalChildVol ) );
 
@@ -1247,7 +1247,7 @@ namespace xtk
                 moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
 
                 moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                 tFaceNormals.set_column( iF, tFaceNormal );
             }
@@ -1369,7 +1369,7 @@ namespace xtk
     //                // ------------------------------------------------
     //
     //                // Compute base tet volume
-    //                real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+    //                real tTetVol = gen::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
     //
     //                // Compute base element surface normals (parent faces)
     //                moris::Matrix< moris::IndexMat > const & tParentFaceToNode = tChildMesh.get_face_to_node();
@@ -1469,7 +1469,7 @@ namespace xtk
     //                CHECK(tValidTopo);
     //
     //                // verify volume is conserved
-    //                real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+    //                real tTotalChildVol = gen::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
     //                CHECK(approximate(tTetVol,tTotalChildVol));
     //
     //

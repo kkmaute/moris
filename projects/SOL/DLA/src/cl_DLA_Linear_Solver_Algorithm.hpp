@@ -80,7 +80,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------
             virtual void
-            set_preconditioner( Preconditioner* aPreconditioner ){}; 
+            set_preconditioner( Preconditioner* aPreconditioner ){};
 
             //-----------------------------------------------------------------------------------
 
@@ -96,19 +96,19 @@ namespace moris
 
             /**
              * @brief compute the condition number of the operator with moris arma/eigen
-             * 
+             *
              */
-            
-            virtual void compute_operator_condition_number_with_moris(){}; 
+
+            virtual void compute_operator_condition_number_with_moris(){};
 
             //-----------------------------------------------------------------------------------
 
-              /**
+            /**
              * @brief compute the condition number of the preconditioned operator with moris arma/eigen
-             * 
+             *
              */
 
-             virtual void compute_preconditioned_operator_condition_number_with_moris(){}; 
+            virtual void compute_preconditioned_operator_condition_number_with_moris(){};
         };
     }    // namespace dla
 }    // namespace moris

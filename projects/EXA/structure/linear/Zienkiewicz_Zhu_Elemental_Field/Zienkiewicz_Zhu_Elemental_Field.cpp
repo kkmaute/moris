@@ -130,7 +130,7 @@ namespace moris
     real
     circle(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real* >&    aGeometryParameters )
+            const Vector< real >&    aGeometryParameters )
     {
         return norm( aCoordinates ) - 1.1;
     }

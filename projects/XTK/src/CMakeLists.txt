@@ -99,22 +99,20 @@ set(HEADERS
     fn_XTK_match_normal_to_side_ordinal.hpp 
     cl_XTK_Basis_Processor.hpp
     cl_XTK_HMR_Helper.hpp
-    cl_XTK_Proximity.hpp
     )                                                                                                                                                                                                                                                                   
 
 
 include_directories(${MORIS_PACKAGE_DIR}/include)
 
 set(GEN_INCLUDES
-	"field"
-	"field/geometry"
-	"field/property"
-	"pdv"
+	"ADV"
+	"ADV/fields"
+	"PDV"
 	)
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 
 # Include WRK directory
@@ -165,12 +163,11 @@ set(LIB_SOURCES
     cl_XTK_Integration_Mesh_Cleanup.cpp 
     cl_XTK_Basis_Processor.cpp
     cl_XTK_HMR_Helper.cpp
-    cl_XTK_Proximity.cpp 
     )
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
-	${GEN_MAIN}-lib
+	${GEN}-lib
 	${LINALG}-lib
 	${MTK}-lib
 	${ALG}-lib

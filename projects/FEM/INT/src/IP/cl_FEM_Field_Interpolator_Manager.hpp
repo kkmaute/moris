@@ -67,7 +67,7 @@ namespace moris
             moris::uint mNumSolutionSets = 1;
 
             // dof type list for the FI manager
-            const Vector< Vector< enum PDV_Type > > mDvTypes;
+            const Vector< Vector< enum gen::PDV_Type > > mDvTypes;
 
             // dof type map
             moris::Matrix< DDSMat > mDvTypeMap;
@@ -130,8 +130,8 @@ namespace moris
              */
             Field_Interpolator_Manager(
                     const Vector< Vector< enum MSI::Dof_Type > >&   aDofTypes,
-                    const Vector< Vector< enum PDV_Type > >&        aDvTypes,
-                    const Vector< Vector< mtk::Field_Type > >& aFieldTypes,
+                    const Vector< Vector< enum gen::PDV_Type > >&        aDvTypes,
+                    const Vector< Vector< enum mtk::Field_Type > >& aFieldTypes,
                     MSI::Equation_Set*                                        aEquationSet,
                     mtk::Leader_Follower                                         aIsLeader = mtk::Leader_Follower::LEADER );
 
@@ -263,7 +263,7 @@ namespace moris
              * get the field interpolator for a given dv type
              * @param[ in ] aDvType a dv type enum
              */
-            Field_Interpolator* get_field_interpolators_for_type( enum PDV_Type aDvType );
+            Field_Interpolator* get_field_interpolators_for_type( enum gen::PDV_Type aDvType );
 
             //------------------------------------------------------------------------------
             /**
@@ -304,7 +304,7 @@ namespace moris
              * @param[ in ] aCoeff   coefficients to be set
              */
             void set_coeff_for_type(
-                    enum PDV_Type           aDvType,
+                    enum gen::PDV_Type           aDvType,
                     const Matrix< DDRMat >& aCoeff );
 
             //------------------------------------------------------------------------------

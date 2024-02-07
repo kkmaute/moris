@@ -8,7 +8,7 @@
     <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
     <Geometries>
     
-        <Geometry type="image_file"> 
+        <Geometry field_type="image_file"> 
             <FileName>Bear.hdf5</FileName>
             <ImageDimensions>8.80,5.28</ImageDimensions>
             <ImageOrigin>0.0,0.0</ImageOrigin>

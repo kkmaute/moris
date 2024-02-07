@@ -356,8 +356,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
             tIWGVelocity->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > >        tDummyDv;
-            Vector< Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -739,8 +739,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
             tIWGVelocity->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > > tDummyDv;
-            Vector< Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -1088,8 +1088,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
             tIWGPressure->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > > tDummyDv;
-            Vector< Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -1436,8 +1436,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
             tIWGPressure->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > > tDummyDv;
-            Vector< Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

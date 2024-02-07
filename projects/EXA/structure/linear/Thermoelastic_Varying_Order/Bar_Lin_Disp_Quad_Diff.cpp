@@ -90,10 +90,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Level set function of Sphere
 
-    moris::real
-    Plane(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Plane(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
         return aCoordinates( 0 ) - 1.2;
     }

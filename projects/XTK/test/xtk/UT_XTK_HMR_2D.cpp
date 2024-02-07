@@ -137,13 +137,13 @@
 
 //             hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-//             Vector< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-//             tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 1.1);
+//             Vector< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+//             tGeometryVector(0) = std::make_shared<moris::gen::Circle>(0.0, 0.0, 1.1);
 
 //             size_t tModelDimension = 2;
-//             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //             tGeometryEngineParameters.mGeometries = tGeometryVector;
-//             moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
+//             moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 //             Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
 //             tXTKModel.mVerbose  =  false;
 
@@ -222,13 +222,13 @@
 //         // create a plane which intentionally intersects from fine to coarse
 //         moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
 //         moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-//         Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1));
+//         Vector<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1));
 
 //         size_t tModelDimension = 2;
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 //         Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
 //         tXTKModel.mVerbose  =  false;
 
@@ -296,15 +296,15 @@
 //         // create a plane which intentionally intersects from fine to coarse
 //         moris::Matrix<moris::DDRMat> tCenters = {{ 0.0,0.0 }};
 //         moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-//         Vector<std::shared_ptr<moris::ge::Geometry>> tGeometry(2);
-//         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1)); // center vertical
-//         tGeometry(1) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(1), tNormals(0)); // center horizontal
+//         Vector<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(2);
+//         tGeometry(0) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1)); // center vertical
+//         tGeometry(1) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tNormals(1), tNormals(0)); // center horizontal
 
 //         size_t tModelDimension = 2;
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
 //         tGeometryEngineParameters.mIsocontourTolerance = 1E-8;
-//         moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 //         Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
 //         tXTKModel.mVerbose  =  true;
 

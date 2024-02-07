@@ -204,11 +204,15 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 4 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
-            tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
-            tGeometry( 2 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-            tGeometry( 3 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+            Vector< std::shared_ptr< gen::Geometry > > tGeometry( 4 );
+            auto tBottomPlane = std::make_shared< gen::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
+            auto tTopPlane = std::make_shared< gen::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
+            auto tLeftPlane = std::make_shared< gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
+            auto tRightPlane = std::make_shared< gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tBottomPlane );
+            tGeometry( 1 ) = std::make_shared< gen::Level_Set_Geometry >( tTopPlane );
+            tGeometry( 2 ) = std::make_shared< gen::Level_Set_Geometry >( tLeftPlane );
+            tGeometry( 3 ) = std::make_shared< gen::Level_Set_Geometry >( tRightPlane );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -217,9 +221,9 @@ namespace moris
             tHMR->finalize();
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR->create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGENGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            gen::Geometry_Engine tGENGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine );
@@ -565,11 +569,15 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 4 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
-            tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
-            tGeometry( 2 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-            tGeometry( 3 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+            Vector< std::shared_ptr< gen::Geometry > > tGeometry( 4 );
+            auto tBottomPlane = std::make_shared< gen::Plane >( 0.0, tPlaneBottom, 0.0, 1.0 );
+            auto tTopPlane = std::make_shared< gen::Plane >( 0.0, tPlaneTop, 0.0, 1.0 );
+            auto tLeftPlane = std::make_shared< gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
+            auto tRightPlane = std::make_shared< gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tBottomPlane );
+            tGeometry( 1 ) = std::make_shared< gen::Level_Set_Geometry >( tTopPlane );
+            tGeometry( 2 ) = std::make_shared< gen::Level_Set_Geometry >( tLeftPlane );
+            tGeometry( 3 ) = std::make_shared< gen::Level_Set_Geometry >( tRightPlane );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -578,9 +586,9 @@ namespace moris
             tHMR->finalize();
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR->create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGENGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            gen::Geometry_Engine tGENGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine );
@@ -932,16 +940,16 @@ namespace moris
     //
     //         for( uint k = 0; k < tNumRef; k++ )
     //         {
-    //             moris::ge::Plane< 3 > tPlane00( {{ 0.0, tPlaneBottom, 0.0 }}, {{ 0.0, 1.0, 0.0 }} );
-    //             moris::ge::Plane< 3 > tPlane01( {{ 0.0, tPlaneTop, 0.0 }},    {{ 0.0, 1.0, 0.0 }} );
-    //             moris::ge::Plane< 3 > tPlane02( {{ 0.0, 0.0, tPlaneBack }},   {{ 0.0, 0.0, 1.0 }} );
-    //             moris::ge::Plane< 3 > tPlane03( {{ 0.0, 0.0, tPlaneFront }},  {{ 0.0, 0.0, 1.0 }} );
-    //             moris::ge::Plane< 3 > tPlane04( {{ tPlaneLeft, 0.0, 0.0 }},   {{ 1.0, 0.0, 0.0 }} );
-    //             moris::ge::Plane< 3 > tPlane05( {{ tPlaneRight, 0.0, 0.0 }},  {{ 1.0, 0.0, 0.0 }} );
-    //             Vector< moris::ge::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03, &tPlane04, &tPlane05 };
+    //             gen::Plane< 3 > tPlane00( {{ 0.0, tPlaneBottom, 0.0 }}, {{ 0.0, 1.0, 0.0 }} );
+    //             gen::Plane< 3 > tPlane01( {{ 0.0, tPlaneTop, 0.0 }},    {{ 0.0, 1.0, 0.0 }} );
+    //             gen::Plane< 3 > tPlane02( {{ 0.0, 0.0, tPlaneBack }},   {{ 0.0, 0.0, 1.0 }} );
+    //             gen::Plane< 3 > tPlane03( {{ 0.0, 0.0, tPlaneFront }},  {{ 0.0, 0.0, 1.0 }} );
+    //             gen::Plane< 3 > tPlane04( {{ tPlaneLeft, 0.0, 0.0 }},   {{ 1.0, 0.0, 0.0 }} );
+    //             gen::Plane< 3 > tPlane05( {{ tPlaneRight, 0.0, 0.0 }},  {{ 1.0, 0.0, 0.0 }} );
+    //             Vector< gen::GEN_Geometry* > tGeomVec = { &tPlane00, &tPlane01, &tPlane02, &tPlane03, &tPlane04, &tPlane05 };
     //
-    //             moris::ge::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
-    //             moris::ge::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
+    //             gen::GEN_Phase_Table     tPhaseTable( tGeomVec.size(),  Phase_Table_Structure::EXP_BASE_2 );
+    //             gen::Geometry_Engine tGENGeometryEngine( tGeomVec, tPhaseTable, tModelDimension );
     //
     //             moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
     //
@@ -989,19 +997,19 @@ namespace moris
     //
     //        //-----------------------------------------------------------------------------------------------
     //
-    //        moris::ge::Plane< 3 > tPlane0( {{ 0.0, tPlaneBottom, 0.0 }}, {{ 0.0, 1.0, 0.0 }} );
-    //        moris::ge::Plane< 3 > tPlane1( {{ 0.0, tPlaneTop, 0.0 }},    {{ 0.0, 1.0, 0.0 }} );
-    //        moris::ge::Plane< 3 > tPlane2( {{ 0.0, 0.0, tPlaneBack }},   {{ 0.0, 0.0, 1.0 }} );
-    //        moris::ge::Plane< 3 > tPlane3( {{ 0.0, 0.0, tPlaneFront }},  {{ 0.0, 0.0, 1.0 }} );
-    //        moris::ge::Plane< 3 > tPlane4( {{ tPlaneLeft, 0.0, 0.0 }},   {{ 1.0, 0.0, 0.0 }} );
-    //        moris::ge::Plane< 3 > tPlane5( {{ tPlaneRight, 0.0, 0.0 }},  {{ 1.0, 0.0, 0.0 }} );
+    //        gen::Plane< 3 > tPlane0( {{ 0.0, tPlaneBottom, 0.0 }}, {{ 0.0, 1.0, 0.0 }} );
+    //        gen::Plane< 3 > tPlane1( {{ 0.0, tPlaneTop, 0.0 }},    {{ 0.0, 1.0, 0.0 }} );
+    //        gen::Plane< 3 > tPlane2( {{ 0.0, 0.0, tPlaneBack }},   {{ 0.0, 0.0, 1.0 }} );
+    //        gen::Plane< 3 > tPlane3( {{ 0.0, 0.0, tPlaneFront }},  {{ 0.0, 0.0, 1.0 }} );
+    //        gen::Plane< 3 > tPlane4( {{ tPlaneLeft, 0.0, 0.0 }},   {{ 1.0, 0.0, 0.0 }} );
+    //        gen::Plane< 3 > tPlane5( {{ tPlaneRight, 0.0, 0.0 }},  {{ 1.0, 0.0, 0.0 }} );
     //
     //        // NOTE the order of this geometry vector is important.
     //        // If it changes the resulting bulk phase of the output mesh change.
-    //        Vector<moris::ge::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3, &tPlane4, &tPlane5 };
+    //        Vector<gen::GEN_Geometry*> tGeomVec0 = { &tPlane0, &tPlane1, &tPlane2, &tPlane3, &tPlane4, &tPlane5 };
     //
-    //        moris::ge::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
-    //        moris::ge::Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
+    //        gen::GEN_Phase_Table     tPhaseTable0( tGeomVec0.size(), Phase_Table_Structure::EXP_BASE_2 );
+    //        gen::Geometry_Engine tGENGeometryEngine0( tGeomVec0, tPhaseTable0, tModelDimension );
     //
     //        // --------------------------------------------------------------------------------------
     //        xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGENGeometryEngine0);
@@ -2253,9 +2261,11 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROut );
-            tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRIn );
+            Vector< std::shared_ptr< gen::Geometry > > tGeometry( 2 );
+            auto tOuterCircle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROut );
+            auto tInnerCircle = std::make_shared< gen::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRIn );
+            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tOuterCircle );
+            tGeometry( 1 ) = std::make_shared< gen::Level_Set_Geometry >( tInnerCircle );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -2265,9 +2275,9 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh =
                     tHMR->create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGENGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            gen::Geometry_Engine tGENGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             // --------------------------------------------------------------------------------------
             xtk::Model tXTKModel( 2, tInterpolationMesh, &tGENGeometryEngine );

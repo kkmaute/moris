@@ -23,7 +23,7 @@
 
 #include "fn_PRM_FEM_Parameters.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_FEM_Phase_User_Info.hpp"
@@ -261,9 +261,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_active_flags(
-                    const Matrix< IndexMat > &aNodeIndices,
-                    const Vector< PDV_Type > &aPdvTypes,
-                    Matrix< DDSMat >         &aIsActiveDv ) override;
+                    const Matrix< IndexMat >      &aNodeIndices,
+                    const Vector< gen::PDV_Type > &aPdvTypes,
+                    Matrix< DDSMat >              &aIsActiveDv ) override;
 
             /**
              * @brief get integration xyz pdv ids
@@ -273,9 +273,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_ids(
-                    const Matrix< IndexMat > &aNodeIndices,
-                    const Vector< PDV_Type > &aRequestedPdvTypes,
-                    Matrix< DDSMat >         &aXYZPdvIds ) override;
+                    const Matrix< IndexMat >      &aNodeIndices,
+                    const Vector< gen::PDV_Type > &aRequestedPdvTypes,
+                    Matrix< DDSMat >              &aXYZPdvIds ) override;
 
             /**
              * @brief get integration xyz pdv ids
@@ -287,10 +287,10 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_active_flags_and_ids(
-                    const Matrix< IndexMat > &aNodeIndices,
-                    const Vector< PDV_Type > &aRequestedPdvTypes,
-                    Matrix< DDSMat >         &aIsActiveDv,
-                    Matrix< DDSMat >         &aXYZPdvIds ) override;
+                    const Matrix< IndexMat >      &aNodeIndices,
+                    const Vector< gen::PDV_Type > &aRequestedPdvTypes,
+                    Matrix< DDSMat >              &aIsActiveDv,
+                    Matrix< DDSMat >              &aXYZPdvIds ) override;
 
             /**
              * @brief get integration xyz pdv local cluster assembly indices
@@ -300,9 +300,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_assembly_indices(
-                    const Matrix< IndexMat > &aNodeIndices,
-                    const Vector< PDV_Type > &aRequestedPdvTypes,
-                    Matrix< DDSMat >         &aXYZPdvAssemblyIndices ) override;
+                    const Matrix< IndexMat >      &aNodeIndices,
+                    const Vector< gen::PDV_Type > &aRequestedPdvTypes,
+                    Matrix< DDSMat >              &aXYZPdvAssemblyIndices ) override;
 
 
             Matrix< DDSMat >
@@ -321,9 +321,9 @@ namespace moris
              * @param[ in ] aXYZPdvAssemblyIndex assembly index for pdv type to set
              */
             void set_integration_xyz_pdv_assembly_index(
-                    moris_index   aNodeIndex,
-                    enum PDV_Type aPdvType,
-                    moris_index   aXYZPdvAssemblyIndex ) override;
+                    moris_index        aNodeIndex,
+                    enum gen::PDV_Type aPdvType,
+                    moris_index        aXYZPdvAssemblyIndex ) override;
 
             /**
              * @brief create fem sets
@@ -425,7 +425,7 @@ namespace moris
              */
             void get_vertex_xyz_active_flags( moris_index aVeretxIndex,
                     Matrix< DDSMat >                     &aIsActiveDv,
-                    const Vector< enum PDV_Type >        &aPdvTypes );
+                    const Vector< enum gen::PDV_Type >   &aPdvTypes );
 
             /**
              * @brief set vertex active flags (if relevant)  based on the index of the vertex
@@ -433,7 +433,7 @@ namespace moris
              * @param[ out ] aIsActiveDv
              */
             void set_vertex_xyz_active_flags( moris_index aVeretxIndex,
-                    Vector< Matrix< DDSMat > >           &aIsActiveDv );
+                    Vector< Vector< bool > >             &aIsActiveDv );
 
             /**
              * @brief set vertex active flags (if relevant)  based on the index of the vertex
@@ -449,9 +449,9 @@ namespace moris
              * @param[ in ] aXYZPdvIds
              * @param[ in ] aIsActiveDv
              */
-            void get_vertex_xyz_pdv_ids( moris_index aVeretxIndex,
-                    Matrix< DDSMat >                &aXYZPdvIds,
-                    const Vector< enum PDV_Type >   &aPdvTypes );
+            void get_vertex_xyz_pdv_ids( moris_index    aVeretxIndex,
+                    Matrix< DDSMat >                   &aXYZPdvIds,
+                    const Vector< enum gen::PDV_Type > &aPdvTypes );
 
             /**
              * @brief get x/y/z pdv local cluster assembly indices  based on the index of the vertex
@@ -461,7 +461,7 @@ namespace moris
              */
             void get_local_xyz_pdv_assembly_indices( moris_index aVeretxIndex,
                     Matrix< DDSMat >                            &aXYZLocalAssemblyIndices,
-                    const Vector< enum PDV_Type >               &aPdvTypes );
+                    const Vector< enum gen::PDV_Type >          &aPdvTypes );
 
             /**
              * @brief Set the dof type to Bspline mesh index map

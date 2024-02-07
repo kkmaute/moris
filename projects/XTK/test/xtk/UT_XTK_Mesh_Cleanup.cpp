@@ -128,23 +128,23 @@
 //         moris::uint tGeoCounter = 0;
 
 //         tGenParamList( 1 )( tGeoCounter ) = prm::create_geometry_parameter_list();
-//         tGenParamList( 1 )( tGeoCounter ).set( "type", "plane");
+//         tGenParamList( 1 )( tGeoCounter ).set( "field_type", "plane");
 //         std::string tPlaneStr1 = std::to_string(tPlaneXCenter1)  + "," + std::to_string(tPlaneYCenter1)  + "," + std::to_string(tPlaneXNormal1)  + "," + std::to_string(tPlaneYNormal1);
 //         tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", tPlaneStr1);
 //         tGeoCounter++;
 
 //         tGenParamList( 1 ).push_back( prm::create_geometry_parameter_list() );
-//         tGenParamList( 1 )( tGeoCounter ).set( "type", "plane");
+//         tGenParamList( 1 )( tGeoCounter ).set( "field_type", "plane");
 //         tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string(tPlaneXCenter2) + "," + std::to_string(tPlaneYCenter2)  + "," + std::to_string(tPlaneXNormal2) + "," + std::to_string(tPlaneYNormal2));
 //         tGeoCounter++;
 
 //         tGenParamList( 1 ).push_back( prm::create_geometry_parameter_list() );
-//         tGenParamList( 1 )( tGeoCounter ).set( "type", "plane");
+//         tGenParamList( 1 )( tGeoCounter ).set( "field_type", "plane");
 //         tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string(tPlaneXCenter3) + "," + std::to_string(tPlaneYCenter3)  + "," + std::to_string(tPlaneXNormal3) + "," + std::to_string(tPlaneYNormal3));
 //         tGeoCounter++;
 
 //         tGenParamList( 1 ).push_back( prm::create_geometry_parameter_list() );
-//         tGenParamList( 1 )( tGeoCounter ).set( "type", "plane");
+//         tGenParamList( 1 )( tGeoCounter ).set( "field_type", "plane");
 //         tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", std::to_string(tPlaneXCenter4) + "," + std::to_string(tPlaneYCenter4)  + "," + std::to_string(tPlaneXNormal4) + "," + std::to_string(tPlaneYNormal4));
 //         tGeoCounter++;
 
@@ -180,7 +180,7 @@
 //         std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
 
 //         // Geometry engine initialize
-//         std::shared_ptr< ge::Geometry_Engine > pGEN = std::make_shared< ge::Geometry_Engine >( tGenParamList, nullptr );
+//         std::shared_ptr< gen::Geometry_Engine > pGEN = std::make_shared< gen::Geometry_Engine >( tGenParamList, nullptr );
 
 //         // Initialize  Background Mesh Mesh
 //         std::shared_ptr< mtk::Mesh_Manager > pBGMTK = std::make_shared< mtk::Mesh_Manager >();
@@ -311,20 +311,20 @@
 //         // Geometry parameter lists
 //         moris::uint tGeoCounter = 0;
 //         tGenParamList( 1 )( tGeoCounter ) = moris::prm::create_geometry_parameter_list();
-//         tGenParamList( 1 )( tGeoCounter ).set( "type", "circle");
+//         tGenParamList( 1 )( tGeoCounter ).set( "field_type", "circle");
 //         std::string tGeomStr = std::to_string(tCenterCircleX1)  + "," + std::to_string(tCenterCircleX2)  + "," + std::to_string(tCenterCircleR);
 //         tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", tGeomStr);
 //         tGeoCounter++;
 
 //         // right side nbc
 //         tGenParamList( 1 )( tGeoCounter ) = moris::prm::create_geometry_parameter_list();
-//         tGenParamList( 1 )( tGeoCounter ).set( "type", "circle");
+//         tGenParamList( 1 )( tGeoCounter ).set( "field_type", "circle");
 //         tGeomStr = std::to_string(tNBCCircleX1)  + "," + std::to_string(tNBCCircleX2)  + "," + std::to_string(tNBCCircleR);
 //         tGenParamList( 1 )( tGeoCounter ).set( "constant_parameters", tGeomStr);
 //         tGeoCounter++;
 
 //         tGenParamList( 1 )( tGeoCounter ) = moris::prm::create_geometry_parameter_list();
-//         tGenParamList( 1 )( tGeoCounter ).set( "type", "circle");
+//         tGenParamList( 1 )( tGeoCounter ).set( "field_type", "circle");
 //         tGeomStr = std::to_string(tDBCCircle1X1)  + ","
 //                   + std::to_string(tDBCCircle1X2)  + ","
 //                   + std::to_string(tDBCCircle1R);
@@ -332,7 +332,7 @@
 //         tGeoCounter++;
 
 //         tGenParamList( 1 )( tGeoCounter ) = moris::prm::create_geometry_parameter_list();
-//         tGenParamList( 1 )( tGeoCounter ).set( "type", "circle");
+//         tGenParamList( 1 )( tGeoCounter ).set( "field_type", "circle");
 //         tGeomStr = std::to_string(tDBCCircle2X1)  + ","
 //                  + std::to_string(tDBCCircle2X2)  + ","
 //                  + std::to_string(tDBCCircle2R);
@@ -371,7 +371,7 @@
 //         std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
 
 //         // Geometry engine initialize
-//         std::shared_ptr< ge::Geometry_Engine > pGEN = std::make_shared< ge::Geometry_Engine >( tGenParamList, nullptr );
+//         std::shared_ptr< gen::Geometry_Engine > pGEN = std::make_shared< gen::Geometry_Engine >( tGenParamList, nullptr );
 
 //         // Initialize  Background Mesh Mesh
 //         std::shared_ptr< mtk::Mesh_Manager > pBGMTK = std::make_shared< mtk::Mesh_Manager >();

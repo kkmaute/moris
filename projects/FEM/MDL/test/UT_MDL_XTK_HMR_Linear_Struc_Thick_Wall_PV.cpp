@@ -74,7 +74,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geom_Field_HMR.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Level_Set_Geometry.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "cl_Plane.hpp"
@@ -273,10 +273,10 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 Vector< MSI::Dof_Type > tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
 
                 // Construct inner circle Plane
-                ge::Circle tInnerCircle(tA,tCenterPoint(0),tCenterPoint(1));
+                gen::Circle tInnerCircle(tA,tCenterPoint(0),tCenterPoint(1));
                 auto tInnerCircleFP = [&tInnerCircle] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tInnerCircle.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda pointer for class */
 
-                ge::Circle tOuterCircle(tB,tCenterPoint(0),tCenterPoint(1));
+                gen::Circle tOuterCircle(tB,tCenterPoint(0),tCenterPoint(1));
                 auto tOuterCircleFP = [&tOuterCircle] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tOuterCircle.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda pointer for class */
 
                 if(tVerboseGeometry)
@@ -350,14 +350,14 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
                 //-----------------------------------------------------------------------------------------------
-                moris::ge::GEN_Geom_Field_HMR tInnerCircleForGE(tInnerCircleField);
-                moris::ge::GEN_Geom_Field_HMR tOuterCircleForGE(tOuterCircleField);
+                moris::gen::GEN_Geom_Field_HMR tInnerCircleForGE(tInnerCircleField);
+                moris::gen::GEN_Geom_Field_HMR tOuterCircleForGE(tOuterCircleField);
 
                 // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-                Vector<moris::ge::GEN_Geometry*> tGeometryVector = { & tInnerCircleForGE , & tOuterCircleForGE};
+                Vector<moris::gen::GEN_Geometry*> tGeometryVector = { & tInnerCircleForGE , & tOuterCircleForGE};
 
                 size_t tModelDimension = 2;
-                moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
+                moris::gen::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
                 xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;
 

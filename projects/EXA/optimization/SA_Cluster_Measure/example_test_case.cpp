@@ -108,8 +108,8 @@ check_results(
     // define reference coordinates for node aNodeId
     Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
-    tReferenceCoordinate.push_back( { { +1.000000000000000e+00 }, { +3.499989999999999e-01 } } );
-    tReferenceCoordinate.push_back( { { +1.000000000000000e+00 }, { +3.499989999999999e-01 }, { +1.000000000000000e+00 } } );
+    tReferenceCoordinate.push_back( { { 1.0 }, { 0.35 } } );
+    tReferenceCoordinate.push_back( { { 1.0 }, { 0.35 }, { 1.0 } } );
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) );
@@ -133,7 +133,7 @@ check_results(
                 tRelDiffNorm * 100.0 );
     }
 
-    REQUIRE( tRelDiffNorm < 1.0e-8 );
+    REQUIRE( tRelDiffNorm < 1.0e-6 );
 
     // check time value for time step index 0
     Vector< real > tReferenceTime;

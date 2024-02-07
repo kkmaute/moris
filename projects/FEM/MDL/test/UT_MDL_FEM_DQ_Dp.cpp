@@ -174,13 +174,13 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //
 //        std::shared_ptr< hmr::Interpolation_Mesh_HMR > tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 //
-//        moris::ge::GEN_Geom_Field tFieldAsGeom(tField);
+//        moris::gen::GEN_Geom_Field tFieldAsGeom(tField);
 //
-//        Vector<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+//        Vector<moris::gen::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 //
 //        size_t tModelDimension = 3;
-//        moris::ge::GEN_Phase_Table  tPhaseTable( tGeometryVector.size());
-//        moris::ge::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
+//        moris::gen::GEN_Phase_Table  tPhaseTable( tGeometryVector.size());
+//        moris::gen::Geometry_Engine  tGeometryEngine( tGeometryVector,tPhaseTable,tModelDimension );
 //
 //        xtk::Model tXTKModel( tModelDimension,tInterpMesh.get(),&tGeometryEngine );
 //        tXTKModel.mVerbose = false;

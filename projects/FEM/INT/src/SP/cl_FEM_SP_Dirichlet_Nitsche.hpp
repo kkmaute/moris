@@ -106,7 +106,7 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    Vector< Vector< PDV_Type > >& aDvTypes,
+                    Vector< Vector< gen::PDV_Type > >& aDvTypes,
                     Vector< std::string >&             aDvStrings,
                     mtk::Leader_Follower                       aIsLeader = mtk::Leader_Follower::LEADER )
             {
@@ -151,7 +151,7 @@ namespace moris
              * dPPdLeaderDV ( 1 x numDerDv )
              */
             void
-            eval_dSPdLeaderDV( const Vector< PDV_Type >& aDvTypes )
+            eval_dSPdLeaderDV( const Vector< gen::PDV_Type >& aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Dirichlet_Nitsche - eval_dSPdLeaderDV: not implemented." );
             }

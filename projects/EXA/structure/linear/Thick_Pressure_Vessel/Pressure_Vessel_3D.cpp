@@ -119,23 +119,15 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Level set function of Sphere
 
-    moris::real
-    Sphere(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+    moris::real Sphere(
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&     aGeometryParameters )
     {
-        moris::real tVal = aGeometryParameters( 0 )[ 0 ] - norm( aCoordinates );
+        moris::real tVal = aGeometryParameters( 0 ) - norm( aCoordinates );
 
         if ( std::abs( tVal ) < tMinLevs )
         {
-            if ( tVal < 0 )
-            {
-                tVal = tMinLevs;
-            }
-            else
-            {
-                tVal = tMinLevs;
-            }
+            tVal = tMinLevs;
         }
 
         return tVal;

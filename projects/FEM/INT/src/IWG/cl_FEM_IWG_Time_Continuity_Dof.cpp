@@ -85,6 +85,8 @@ namespace moris
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
+            // externally controlled weighting for residual (but not Jacobian) to enable
+            // inexact Newton with time continuity contribution to Jacobian but not residual
             real tResWeight = 1.0;
             if ( tPropWeightResidual != nullptr )
             {
@@ -167,7 +169,6 @@ namespace moris
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
-
 
             // get the number of leader dof type dependencies
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();

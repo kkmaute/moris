@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_FN_WRK_PERFORM_REMESCHING_HPP
-#define MORIS_FN_WRK_PERFORM_REMESCHING_HPP
+#pragma once
 
 #include "cl_Matrix.hpp"
 
@@ -160,8 +159,8 @@ namespace moris
             void queue_single_refinement( std::shared_ptr< hmr::HMR > aHMR,
                     std::shared_ptr< hmr::Mesh >                      aMesh,
                     std::shared_ptr< Performer >                      aPerformer,
-                    sint                                              aRefinementNumber,
-                    sint                                              aMeshIndex );
+                    uint                                              aRefinementNumber,
+                    uint                                              aMeshIndex );
 
             //--------------------------------------------------------------------------------------------------------------
 
@@ -169,11 +168,11 @@ namespace moris
                     std::shared_ptr< hmr::HMR >  aHMR,
                     std::shared_ptr< hmr::Mesh > aMesh,
                     std::shared_ptr< Performer > aPerformer,
-                    sint                         aMeshIndex );
+                    uint                         aMeshIndex );
 
             //--------------------------------------------------------------------------------------------------------------
 
-            moris::sint get_max_refinement_level( const Vector< std::shared_ptr< Performer > > &aPerformers );
+            uint get_max_refinement_level( const Vector< std::shared_ptr< Performer > > &aPerformers );
 
             //--------------------------------------------------------------------------------------------------------------
 
@@ -190,5 +189,3 @@ namespace moris
 
     }    // namespace wrk
 }    // namespace moris
-
-#endif    // MORIS_FN_WRK_PERFORM_REFINEMENT_HPP

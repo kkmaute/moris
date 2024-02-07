@@ -16,7 +16,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Map.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
@@ -35,7 +35,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
           private:
-
             Matrix< DDRMat >                       mTime;
             std::shared_ptr< MSI::Equation_Model > mModel         = nullptr;
             bool                                   mdQIdpImported = false;
@@ -44,7 +43,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
           public:
-
             //------------------------------------------------------------------------------
 
             /**
@@ -99,12 +97,12 @@ namespace moris
              * @param[ in ] aDvTypes
              */
             virtual void get_ip_unique_dv_types_for_set(
-                    const moris::moris_index aIntegrationMeshSetIndex,
-                    Vector< enum PDV_Type >&   aDvTypes ) = 0;
+                    const moris::moris_index      aIntegrationMeshSetIndex,
+                    Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
 
             virtual void get_ig_unique_dv_types_for_set(
-                    const moris::moris_index aIntegrationMeshSetIndex,
-                    Vector< enum PDV_Type >&   aDvTypes ) = 0;
+                    const moris::moris_index      aIntegrationMeshSetIndex,
+                    Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -114,40 +112,25 @@ namespace moris
              * @param[ in ] aDvTypes                  list of group of dv types
              */
             virtual void get_ip_dv_types_for_set(
-                    const moris::moris_index       aIntegrationMeshSetIndex,
-                    Vector< Vector< enum PDV_Type > >& aDvTypes ) = 0;
+                    const moris::moris_index                aIntegrationMeshSetIndex,
+                    Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) = 0;
 
             virtual void get_ig_dv_types_for_set(
-                    const moris::moris_index       aIntegrationMeshSetIndex,
-                    Vector< Vector< enum PDV_Type > >& aDvTypes ) = 0;
+                    const moris::moris_index                aIntegrationMeshSetIndex,
+                    Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
 
-            virtual void set_GenMeshMap( Vector<moris_index> aGenMeshMap )
+            virtual void set_GenMeshMap( Vector< moris_index > aGenMeshMap )
             {
                 MORIS_ERROR( false, "MSI_Design_Variable_Interface::set_GenMeshMap() - This function is not defined in this class" );
             }
 
-            //------------------------------------------------------------------------------
-
-            /**
-             * get pdv values for requested vertex indices and dv types
-             * @param[ in ]     aNodeIndices list of vertex indices
-             * @param[ in ]     aDvTypes     list of dv types
-             * @param[ in/out ] aDvValues    list of dv values
-             * @param[ in/out ] aIsActiveDv  list of active whether or not dv is active
-             */
-            virtual void get_ip_pdv_value(
-                    const Matrix< IndexMat >&               aNodeIndices,
-                    const Vector< enum PDV_Type >&     aDvTypes,
-                    Vector< moris::Matrix< DDRMat > >& aDvValues,
-                    Vector< moris::Matrix< DDSMat > >& aIsActiveDv ) = 0;
-
             virtual void get_ig_pdv_value(
-                    const Matrix< IndexMat >&               aNodeIndices,
-                    const Vector< enum PDV_Type >&     aDvTypes,
-                    Vector< moris::Matrix< DDRMat > >& aDvValues,
-                    Vector< moris::Matrix< DDSMat > >& aIsActiveDv ) = 0;
+                    const Matrix< IndexMat >&           aNodeIndices,
+                    const Vector< enum gen::PDV_Type >& aDvTypes,
+                    Vector< moris::Matrix< DDRMat > >&  aDvValues,
+                    Vector< Vector< bool > >&           aIsActiveDv ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -158,13 +141,8 @@ namespace moris
              * @param[ in/out ] aDvValues    list of dv values
              */
             virtual void get_ip_pdv_value(
-                    const Matrix< IndexMat >&               aNodeIndices,    // TODO: does this need to be overloaded?
-                    const Vector< enum PDV_Type >&     aDvTypes,
-                    Vector< moris::Matrix< DDRMat > >& aDvValues ) = 0;
-
-            virtual void get_ig_pdv_value(
-                    const Matrix< IndexMat >&               aNodeIndices,    // TODO: does this need to be overloaded?
-                    const Vector< enum PDV_Type >&     aDvTypes,
+                    const Matrix< IndexMat >&               aNodeIndices,
+                    const Vector< enum gen::PDV_Type >&     aDvTypes,
                     Vector< moris::Matrix< DDRMat > >& aDvValues ) = 0;
 
             //------------------------------------------------------------------------------
@@ -178,7 +156,7 @@ namespace moris
             virtual void
             reshape_pdv_values(
                     const Vector< moris::Matrix< DDRMat > >& aPdvValues,
-                    moris::Matrix< DDRMat >&                      aReshapedPdvValues )
+                    moris::Matrix< DDRMat >&                 aReshapedPdvValues )
             {
                 MORIS_ASSERT( aPdvValues.size() != 0,
                         "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty." );
@@ -214,14 +192,14 @@ namespace moris
              * @param[ in ] aDvIds         List of Dv Ids
              */
             virtual void get_ip_dv_ids_for_type_and_ind(
-                    const Matrix< IndexMat >&       aNodeIndices,
-                    const Vector< enum PDV_Type >&    aDvTypes,
-                    Vector< moris::Matrix< IdMat > >& aDvIds ) = 0;
+                    const Matrix< IndexMat >&           aNodeIndices,
+                    const Vector< enum gen::PDV_Type >& aDvTypes,
+                    Vector< moris::Matrix< IdMat > >&   aDvIds ) = 0;
 
             virtual void get_ig_dv_ids_for_type_and_ind(
-                    const Matrix< IndexMat >&       aNodeIndices,
-                    const Vector< enum PDV_Type >&    aDvTypes,
-                    Vector< moris::Matrix< IdMat > >& aDvIds ) = 0;
+                    const Matrix< IndexMat >&           aNodeIndices,
+                    const Vector< enum gen::PDV_Type >& aDvTypes,
+                    Vector< moris::Matrix< IdMat > >&   aDvIds ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -229,7 +207,7 @@ namespace moris
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
              */
-            virtual void get_ip_requested_dv_types( Vector< enum PDV_Type >& aDvTypes ) = 0;
+            virtual void get_ip_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -237,7 +215,7 @@ namespace moris
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
              */
-            virtual void get_ig_requested_dv_types( Vector< enum PDV_Type >& aDvTypes ) = 0;
+            virtual void get_ig_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -257,7 +235,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-        }; // class Design_Variable_Interface
+        };    // class Design_Variable_Interface
 
         //------------------------------------------------------------------------------
 

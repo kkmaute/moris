@@ -620,19 +620,19 @@ namespace moris
                 std::shared_ptr< hmr::HMR >  aHMR,
                 std::shared_ptr< hmr::Mesh > aMesh,
                 std::shared_ptr< Performer > aPerformer,
-                sint                         aRefinementNumber,
-                sint                         aMeshIndex )
+                uint                         aRefinementNumber,
+                uint                         aMeshIndex )
         {
             // uint tLagrangeMeshPattern = aMesh->get_lagrange_mesh_pattern();
 
             // Loop over fields
             for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const moris::Matrix< DDSMat >& tNumRefinements      = aPerformer->get_num_refinements( iField );
-                const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
+                const Cell< uint >& tNumRefinements      = aPerformer->get_num_refinements( iField );
+                const Cell< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
-                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.numel(); iLagMesh++ )
+                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.size(); iLagMesh++ )
                 {
                     if ( tLagrangeMeshIndices( iLagMesh ) == aMeshIndex )
                     {
@@ -643,7 +643,9 @@ namespace moris
                             for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                             {
                                 Matrix< DDRMat > tNodeCoordinates = aMesh->get_node_coordinate( tNodeIndex );
-                                tFieldValues( tNodeIndex )        = aPerformer->get_field_value( iField, tNodeIndex, tNodeCoordinates );
+
+                                // FIXME right now the geometric region is converted into a real value, but this should be handled by the refinement interface
+                                tFieldValues( tNodeIndex )        = (real) aPerformer->get_geometric_region( iField, tNodeIndex, tNodeCoordinates );
                             }
 
                             // Put elements on queue and set flag for refinement
@@ -662,17 +664,17 @@ namespace moris
                 std::shared_ptr< hmr::HMR >  aHMR,
                 std::shared_ptr< hmr::Mesh > aMesh,
                 std::shared_ptr< Performer > aPerformer,
-                sint                         aMeshIndex )
+                uint                         aMeshIndex )
         {
             uint tNumElements = 0;
 
             // Loop over fields
             for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
+                const Cell< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMesh indices // if aMeshIndex put in queue
-                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.numel(); iLagMesh++ )
+                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.size(); iLagMesh++ )
                 {
                     if ( tLagrangeMeshIndices( iLagMesh ) == aMeshIndex )
                     {
@@ -685,11 +687,12 @@ namespace moris
                         for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
                         {
                             Matrix< DDRMat > tNodeCoordinates = aMesh->get_node_coordinate( tNodeIndex );
-                            tFieldValues( tNodeIndex ) =
-                                    aPerformer->get_field_value(
-                                            iField,
-                                            tNodeIndex,
-                                            tNodeCoordinates );
+
+                            // FIXME right now the geometric region is converted into a real value, but this should be handled by the refinement interface
+                            tFieldValues( tNodeIndex ) = (real) aPerformer->get_geometric_region(
+                                    iField,
+                                    tNodeIndex,
+                                    tNodeCoordinates );
                         }
 
                         // Put elements on queue and set flag for refinement // FIXME: this is untested for a refinement function,
@@ -707,10 +710,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::sint
+        uint
         Refinement_Mini_Performer::get_max_refinement_level( const Vector< std::shared_ptr< Performer > >& aPerformers )
         {
-            sint tMaxNumRefinements = 0;
+            uint tMaxNumRefinements = 0;
 
             for ( uint iPerformer = 0; iPerformer < aPerformers.size(); iPerformer++ )
             {
@@ -719,9 +722,9 @@ namespace moris
                 // Loop over fields
                 for ( uint iField = 0; iField < tNumFields; iField++ )
                 {
-                    const moris::Matrix< DDSMat >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
+                    const Cell< uint >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
 
-                    for ( uint iRefinement = 0; iRefinement < tNumRefinements.numel(); iRefinement++ )
+                    for ( uint iRefinement = 0; iRefinement < tNumRefinements.size(); iRefinement++ )
                     {
                         tMaxNumRefinements = std::max( tMaxNumRefinements, tNumRefinements( iRefinement ) );
                     }
@@ -750,9 +753,9 @@ namespace moris
                 // Loop over fields
                 for ( uint iRefineField = 0; iRefineField < tNumFields; iRefineField++ )
                 {
-                    const moris::Matrix< DDSMat >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
+                    const Cell< uint >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
 
-                    for ( uint iMesh = 0; iMesh < tRefinementMeshIndices.numel(); iMesh++ )
+                    for ( uint iMesh = 0; iMesh < tRefinementMeshIndices.size(); iMesh++ )
                     {
                         sint tRefinementMeshIndex = tRefinementMeshIndices( iMesh );
 

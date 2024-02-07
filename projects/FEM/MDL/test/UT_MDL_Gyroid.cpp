@@ -258,7 +258,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         //==============================
         std::shared_ptr< hmr::Field > tField = tMesh01->create_field( "gyroid", tLagrangeMeshIndex);
 
-        tField->evaluate_scalar_function( moris::ge::getDistanceToGyroidsMassive );
+        tField->evaluate_scalar_function( moris::gen::getDistanceToGyroidsMassive );
 
         Vector< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
@@ -267,7 +267,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 //            tHMR.flag_surface_elements_on_working_pattern( tField );
             tHMR.user_defined_flagging( user_defined_refinement, tFields, tParam, 0 );
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
-            tField->evaluate_scalar_function( moris::ge::getDistanceToGyroidsMassive );
+            tField->evaluate_scalar_function( moris::gen::getDistanceToGyroidsMassive );
         }
         tHMR.finalize();
 
@@ -278,14 +278,14 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::ge::GEN_Geom_Field_HMR tFieldAsGeom(tField);
+        moris::gen::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
-        Vector<moris::ge::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+        Vector<moris::gen::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         size_t tModelDimension = 3;
-        moris::ge::Geometry_Engine tGeometryEngine( tGeometryVector, tModelDimension );
+        moris::gen::Geometry_Engine tGeometryEngine( tGeometryVector, tModelDimension );
 
-//        moris::ge::Geometry_Engine tGeometryEngine;
+//        moris::gen::Geometry_Engine tGeometryEngine;
 
         xtk::Model                  tXTKModel( tModelDimension,tInterpMesh,&tGeometryEngine );
         tXTKModel.mVerbose = false;

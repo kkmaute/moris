@@ -19,7 +19,7 @@
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
 #include "fn_equal_to.hpp"
 
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 #include <functional>
 
@@ -67,7 +67,7 @@ namespace moris
             Matrix< DDSMat > mDofTypeMap;
 
             // active dv types
-            Vector< Vector< PDV_Type > > mDvTypes;
+            Vector< Vector< gen::PDV_Type > > mDvTypes;
 
             // active dv type map
             Matrix< DDSMat > mDvTypeMap;
@@ -329,14 +329,14 @@ namespace moris
              * set a list of dv types
              * @param[ in ] aDvTypes list of dv type
              */
-            void set_dv_type_list( const Vector< Vector< PDV_Type > >& aDvTypes );
+            void set_dv_type_list( const Vector< Vector< gen::PDV_Type > >& aDvTypes );
 
             //------------------------------------------------------------------------------
             /**
              * return a list of dv types
              * @param[ out ] mDvTypes list of dv type
              */
-            const Vector< Vector< PDV_Type > >&
+            const Vector< Vector< gen::PDV_Type > >&
             get_dv_type_list() const
             {
                 return mDvTypes;
@@ -365,7 +365,7 @@ namespace moris
              * @param[ in ]  aDvType cell of dv type
              * @param[ out ] aBool   boolean, true if dependency on the dv type
              */
-            bool check_dv_dependency( const Vector< PDV_Type >& aDvType );
+            bool check_dv_dependency( const Vector< gen::PDV_Type >& aDvType );
 
             //------------------------------------------------------------------------------
             /**
@@ -450,14 +450,14 @@ namespace moris
              * @param[ in ]  aDvType   cell of dv type
              * @param[ out ] adPropdDV matrix with derivative wrt to the dv type
              */
-            const Matrix< DDRMat >& dPropdDV( const Vector< PDV_Type >& aDvType );
+            const Matrix< DDRMat >& dPropdDV( const Vector< gen::PDV_Type >& aDvType );
 
             //------------------------------------------------------------------------------
             /**
              * evaluate property derivatives wrt a design variable
              * @param[ in ] aDvType cell of dv type
              */
-            void eval_dPropdDV( const Vector< PDV_Type >& aDvType );
+            void eval_dPropdDV( const Vector< gen::PDV_Type >& aDvType );
 
             //------------------------------------------------------------------------------
             /**
@@ -498,7 +498,7 @@ namespace moris
              */
             void get_non_unique_dof_dv_and_field_types(
                     Vector< MSI::Dof_Type >&   aDofTypes,
-                    Vector< PDV_Type >&        aDvTypes,
+                    Vector< gen::PDV_Type >&        aDvTypes,
                     Vector< mtk::Field_Type >& aFieldTypes );
 
             //------------------------------------------------------------------------------

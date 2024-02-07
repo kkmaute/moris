@@ -274,8 +274,8 @@ TEST_CASE( "IWG_Interface_SLM_Constraint", "[moris],[fem],[IWG_Interface_SLM_Con
             tIWG->mRequestedFollowerGlobalDofTypes  = tAllDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > > tDummyDv;
-            Vector< Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tAllDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tAllDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -609,8 +609,8 @@ TEST_CASE( "IWG_Interface_SLM_Mixed", "[moris],[fem],[IWG_Interface_SLM_Mixed]" 
             tIWG->mRequestedFollowerGlobalDofTypes  = tAllDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum PDV_Type > > tDummyDv;
-            Vector< Vector< mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tAllDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tAllDofTypes, tDummyDv, tDummyField, tSet );
 

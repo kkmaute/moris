@@ -141,7 +141,7 @@ namespace xtk
          * @param aGeometryEngine link between XTK and FEM
          */
         void
-        make_GenMeshMap( moris::ge::Geometry_Engine* aGeometryEngine );
+        make_GenMeshMap( moris::gen::Geometry_Engine* aGeometryEngine );
 
         // ----------------------------------------------------------------------------
 
@@ -180,7 +180,7 @@ namespace xtk
         void
         perform(
                 Vector< moris::mtk::Cell* >& aActiveIgCells,
-                moris::ge::Geometry_Engine*       aGeometryEngine );
+                moris::gen::Geometry_Engine*       aGeometryEngine );
 
         // ----------------------------------------------------------------------------
 

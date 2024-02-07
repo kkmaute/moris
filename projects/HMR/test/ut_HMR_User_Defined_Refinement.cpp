@@ -15,7 +15,7 @@
 
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src
-#include "moris_typedefs.hpp"                    // COR/src
+#include "moris_typedefs.hpp"              // COR/src
 #include "cl_Matrix.hpp"                   // LINALG/src
 #include "fn_norm.hpp"
 
@@ -35,7 +35,7 @@ namespace moris::hmr
     }
 
     static int user_defined_refinement(
-            Element* aElement,
+            Element*                aElement,
             const Matrix< DDRMat >& aElementLocalValues )
     {
         int aDoRefine = -1;
@@ -80,7 +80,7 @@ namespace moris::hmr
                     aDoRefine = -1;    // coarsen
                 }
             }
-                // for interface refinement
+            // for interface refinement
             else
             {
                 if ( curlevel < maxifcref && curlevel < maxlevel )
@@ -115,25 +115,37 @@ namespace moris::hmr
     static real Colors(
             const Matrix< DDRMat >& aCoordinates )
     {
-        real tVal = -1.0;
-        if ( aCoordinates( 0 ) > 0.1117 && aCoordinates( 1 ) <= -0.11 )
+        real deps = 1.0e-8;    // offset to avoid machine precision issue when assigning point to geometric object
+
+        real tVal;
+
+        // lower right square
+        if ( aCoordinates( 0 ) > 0.1117 + deps && aCoordinates( 1 ) <= -0.11 - deps )
         {
             tVal = 0.0;
         }
+        // upper right circle
         else if ( std::sqrt(
-                std::pow( aCoordinates( 0 ) - 2.0, 2 ) + std::pow( aCoordinates( 1 ) - 2.0, 2 ) ) - 1.2 <= 0.0 )
+                          std::pow( aCoordinates( 0 ) - 2.0, 2 ) + std::pow( aCoordinates( 1 ) - 2.0, 2 ) )
+                          - 1.2 - deps
+                  <= 0.0 )
         {
             tVal = 1.0;
         }
-        else if ( aCoordinates( 0 ) - aCoordinates( 1 ) + 1.5 <= 0.0 )
+        // upper left triangle
+        else if ( aCoordinates( 0 ) - aCoordinates( 1 ) + 1.5 + deps <= 0.0 )
         {
             tVal = 2.0;
         }
+        // lower left circle
         else if ( std::sqrt(
-                std::pow( aCoordinates( 0 ) + 2.0, 2 ) + std::pow( aCoordinates( 1 ) + 2.0, 2 ) ) - 2.6 <= 0.0 )
+                          std::pow( aCoordinates( 0 ) + 2.0, 2 ) + std::pow( aCoordinates( 1 ) + 2.0, 2 ) )
+                          - 2.6 - deps
+                  <= 0.0 )
         {
             tVal = 3.0;
         }
+        // remainder
         else
         {
             tVal = 4.0;
@@ -145,13 +157,14 @@ namespace moris::hmr
     /* ------------------------------------------------------------------------ */
 
     static int user_defined_refinement_color(
-            Element* aElement,
+            Element*                aElement,
             const Matrix< DDRMat >& aElementLocalValues )
     {
         int aDoRefine = -1;
 
-        real tMaxVal = aElementLocalValues.max();
-        real tMinVal = aElementLocalValues.min();
+        // convert to uint as color is defined here as positive integer
+        uint tMaxVal = aElementLocalValues.max();
+        uint tMinVal = aElementLocalValues.min();
 
         if ( tMaxVal != tMinVal )
         {
@@ -350,6 +363,7 @@ namespace moris::hmr
 
             for ( uint Ik = 0; Ik < 3; Ik++ )
             {
+                fprintf( stdout, " ----------------------------------------------- \n" );
                 tField->evaluate_scalar_function( Colors );
 
                 tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
@@ -367,7 +381,7 @@ namespace moris::hmr
             uint tNumElements = tMesh->get_num_elems();
 
             // perform test
-            REQUIRE( tNumElements == 5011 );
+            REQUIRE( tNumElements == 5017 );
         }
     }
-}
+}    // namespace moris::hmr

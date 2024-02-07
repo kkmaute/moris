@@ -148,7 +148,7 @@ namespace moris
     real
     Const_Geometry(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real* >&    aGeometryParameters )
+            const Vector< real >&    aGeometryParameters )
     {
         return norm( aCoordinates ) - 3.0;
     }
@@ -162,7 +162,7 @@ namespace moris
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
 
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         real tDensity = ( tLevelSet - phi_sh ) / ( 1 - phi_sh );
 
@@ -182,7 +182,7 @@ namespace moris
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
 
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         real tDensity = ( tLevelSet - phi_sh ) / ( 1 - phi_sh );
 
@@ -191,7 +191,7 @@ namespace moris
 
         // FIXME density shift missing
 
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N() * tBeta * tHCT( 0 ) * std::pow( tDensity, tBeta - 1 ) / ( 1 - phi_sh );
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->N() * tBeta * tHCT( 0 ) * std::pow( tDensity, tBeta - 1 ) / ( 1 - phi_sh );
         // aPropMatrix = tBeta * tHCT * std::pow( tDensity, tBeta -1 ) / ( 1 - phi_sh );
     }
 
@@ -202,7 +202,7 @@ namespace moris
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         real tDensity = ( tLevelSet - phi_sh ) / ( 1 - phi_sh );
 
@@ -220,7 +220,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         MORIS_ERROR( false, "Do not need this one" );
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N() / ( 1 - phi_sh );
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->N() / ( 1 - phi_sh );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -444,10 +444,10 @@ namespace moris
         // tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
-        // tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", false );
+        // tParameterlist( 1 )( tGeoCounter ).set( "use_multilinear_interpolation", false );
 
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
         // tParameterlist(1)( tGeoCounter ).set("constant_parameters", "0.0, 0.0, 2.0");
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
@@ -457,7 +457,7 @@ namespace moris
         uint tParamCounter = 0;
         tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
         tParameterlist( 2 )( tParamCounter ).set( "name", "LvL_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "type", "constant" );
+        tParameterlist( 2 )( tParamCounter ).set( "field_type", "constant" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "0.8" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         // tParameterlist( 2 )( tParamCounter ).set("discretization_mesh_index",   0);

@@ -104,13 +104,13 @@ extern "C"
 
         moris::real Func_Plane(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const Vector< moris::real* > & aGeometryParameters )
+                const Vector< moris::real > & aGeometryParameters )
         {
-            moris::real tXNormal = *( aGeometryParameters( 0 ) );
-            moris::real tYNormal = *( aGeometryParameters( 1 ) );
+            moris::real tXNormal = aGeometryParameters( 0 );
+            moris::real tYNormal = aGeometryParameters( 1 );
 
-            moris::real tXCenter = *( aGeometryParameters( 2 ) );
-            moris::real tYCenter = *( aGeometryParameters( 3 ) );
+            moris::real tXCenter = aGeometryParameters( 2 );
+            moris::real tYCenter = aGeometryParameters( 3 );
 
             moris::real aReturnValue =
                     tXNormal * ( aCoordinates( 0 ) - tXCenter ) + tYNormal * ( aCoordinates( 1 ) - tYCenter );

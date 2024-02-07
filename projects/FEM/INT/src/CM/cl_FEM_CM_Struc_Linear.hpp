@@ -120,7 +120,7 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    Vector< Vector< PDV_Type > > aDvTypes,
+                    Vector< Vector< gen::PDV_Type > > aDvTypes,
                     Vector< std::string >      aDvStrings )
             {
                 Constitutive_Model::set_dv_type_list( aDvTypes );

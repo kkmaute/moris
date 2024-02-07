@@ -20,6 +20,7 @@
 
 namespace moris
 {
+#ifdef MORIS_HAVE_DEBUG
     template< typename ET >
     auto
     solve( const ET&           aA,
@@ -27,13 +28,19 @@ namespace moris
             const std::string& aSolver = "default" )
             -> decltype( arma::solve( aA, aB ) )
     {
-#ifdef MORIS_HAVE_DEBUG
         return arma::solve( aA, aB );
-#else
-        return arma::solve( aA, aB, arma::solve_opts::fast );
-#endif
     }
-
+#else
+    template< typename ET >
+    auto
+    solve( const ET&           aA,
+            const ET&          aB,
+            const std::string& aSolver = "default" )
+            -> decltype( arma::solve( aA, aB, arma::solve_opts::fast  ) )
+    {
+        return arma::solve( aA, aB, arma::solve_opts::fast );
+    }
+#endif
     //    template< typename ET >
     //    auto
     //    solve( const sparse_Mat          & aA,

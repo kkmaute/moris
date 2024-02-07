@@ -143,9 +143,30 @@ namespace moris
          *
          */
 
-        Matrix( std::initializer_list< std::initializer_list< Type > > const & aInitList )
-                : mMatrix( aInitList )
+        Matrix( const std::initializer_list< std::initializer_list< Type > >& aInitList )
         {
+            // "manual" implementation of initialization of arma::Mat
+            // due to issue with initialization with initializer list since arma 12.x.x
+
+            uint tRow = aInitList.size();
+            uint tCol = aInitList.begin()->size();
+
+            mMatrix.set_size( tRow, tCol );
+
+            uint tRc = 0;
+            for ( const auto& tIter : aInitList )
+            {
+                MORIS_ASSERT( tIter.size() == tCol,
+                        "Matrix< arma::Mat< Type > > constructed with initializer list - non-uniform number of columns" );
+
+                uint tCc = 0;
+                for ( const auto& tVal : tIter )
+                {
+                    mMatrix( tRc, tCc ) = tVal;
+                    tCc++;
+                }
+                tRc++;
+            }
         }
 
         // -----------------------------------------------------------------

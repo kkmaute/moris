@@ -171,7 +171,7 @@ namespace xtk
 
         // Check the volume
         moris::Matrix< moris::IndexMat > const &tElemToNode = tRegSubChildMesh.get_element_to_node();
-        real                                    tVolume     = moris::ge::compute_volume_for_multiple_tets( tNodeCoords, tElemToNode );
+        real                                    tVolume     = moris::gen::compute_volume_for_multiple_tets( tNodeCoords, tElemToNode );
         CHECK( approximate( tVolume, 1.0 ) );
 
         //

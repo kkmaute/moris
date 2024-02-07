@@ -15,6 +15,9 @@ set(EXAMPLE_SOURCES
     example_test_case.cpp
 )
 
+# Include functionality of paths
+include_directories( ${CMAKE_BINARY_DIR}/generated/ )
+
 # List include directories
 set(EXAMPLE_INCLUDES
     ${COM}
@@ -60,16 +63,14 @@ ${ARMADILLO_EIGEN}
 get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
 get_property(MTK_SRC_LIST GLOBAL PROPERTY MTK_SRC_LIST)
 
-# does not work anymore as variable is no longer chached (see find wrapper)  ${MORIS_BOOST_INCLUDE_DIRS}
-# does nto work anymore as variable is no longer chached (see find wrapper)  ${MORIS_TRILINOS_INCLUDE_DIRS}  using SO_TPLS list for includes see below
-
 SET(SO_INCLUDES
-	${MORIS_PACKAGE_DIR}/ALG/src
+    ${MORIS_BOOST_INCLUDE_DIRS}
+    ${MORIS_TRILINOS_INCLUDE_DIRS}
+    ${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_SRC_LIST}
     ${MTK_SRC_LIST}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
-    ${MORIS_PACKAGE_DIR}/FEM/VIS/src 
-    ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
+    ${MORIS_PACKAGE_DIR}/FEM/VIS/src
     ${MORIS_PACKAGE_DIR}/SOL/DLA/src 
     ${MORIS_PACKAGE_DIR}/SOL/TSA/src
     ${MORIS_PACKAGE_DIR}/SOL/NLA/src 

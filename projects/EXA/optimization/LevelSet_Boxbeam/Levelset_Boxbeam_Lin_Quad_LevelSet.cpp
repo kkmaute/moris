@@ -139,10 +139,9 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // Hole pattern
-    real
-    Box_2D3D(
-            const Matrix< DDRMat >& aCoordinates,
-            const Vector< real* >&    aGeometryParameters )
+    real Box_2D3D(
+            const Matrix< DDRMat >  & aCoordinates,
+            const Vector< real >     & aGeometryParameters )
     {
         real tBoxExponent = 24.0;
 
@@ -176,10 +175,9 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // Hole pattern
-    real
-    Hole_Pattern_2D3D(
-            const Matrix< DDRMat >& aCoordinates,
-            const Vector< real* >&    aGeometryParameters )
+    real Hole_Pattern_2D3D(
+            const Matrix< DDRMat >  & aCoordinates,
+            const Vector< real >     & aGeometryParameters )
     {
         Matrix< DDRMat > tDelta  = { { tHoleXdim / tNumHolesX }, { tHoleYdim / tNumHolesY }, { tHoleZdim / tNumHolesZ } };
         Matrix< DDRMat > tOrigin = { { tHoleXOrg + tDelta( 0 ) / 2.0 }, { tHoleYOrg + tDelta( 1, 0 ) / 2.0 }, { tHoleZOrg + tDelta( 2, 0 ) / 2.0 } };

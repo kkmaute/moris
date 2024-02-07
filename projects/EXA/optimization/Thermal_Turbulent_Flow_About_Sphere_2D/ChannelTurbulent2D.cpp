@@ -252,7 +252,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     // number of constraints (here: number of design criteria)
-    moris::uint tNumConstraints = 10;
+    moris::uint tNumConstraints = 11;
 
     // max dof IQI
     std::string tRefTemp         = moris_to_string( 250.0 * tTempScale );
@@ -291,13 +291,13 @@ namespace moris
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
         real tY = aCoordinates( 1 );
 
-        real tRadius = *aGeometryParameters( 0 );
+        real tRadius = aGeometryParameters( 0 );
 
         real tReturnValue = tRadius - std::pow( std::pow( tX - tSpherePosX, tSphereExpon ) + std::pow( tY - tSpherePosY, tSphereExpon ), 1.0 / tSphereExpon );
 
@@ -320,19 +320,19 @@ namespace moris
     moris::real
     Func_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
         real tY = aCoordinates( 1 );
 
         // get normal
-        real tNx = *aGeometryParameters( 0 );
-        real tNy = *aGeometryParameters( 1 );
+        real tNx = aGeometryParameters( 0 );
+        real tNy = aGeometryParameters( 1 );
 
         // get point on plane
-        real tPx = *aGeometryParameters( 2 );
-        real tPy = *aGeometryParameters( 3 );
+        real tPx = aGeometryParameters( 2 );
+        real tPy = aGeometryParameters( 3 );
 
         real tReturnValue = tNx * ( tPx - tX ) + tNy * ( tPy - tY );
 
@@ -483,16 +483,17 @@ namespace moris
         Matrix< DDRMat > tConstraints( tNumConstraints, 1 );
 
         // constraints
-        tConstraints( 0 ) = aCriteria( 0 );
-        tConstraints( 1 ) = aCriteria( 1 );
-        tConstraints( 2 ) = aCriteria( 2 );
-        tConstraints( 3 ) = aCriteria( 3 );
-        tConstraints( 4 ) = aCriteria( 4 );
-        tConstraints( 5 ) = aCriteria( 5 );
-        tConstraints( 6 ) = aCriteria( 6 );
-        tConstraints( 7 ) = aCriteria( 7 );
-        tConstraints( 8 ) = aCriteria( 8 );
-        tConstraints( 9 ) = aCriteria( 9 );
+        tConstraints( 0 )  = aCriteria( 0 );
+        tConstraints( 1 )  = aCriteria( 1 );
+        tConstraints( 2 )  = aCriteria( 2 );
+        tConstraints( 3 )  = aCriteria( 3 );
+        tConstraints( 4 )  = aCriteria( 4 );
+        tConstraints( 5 )  = aCriteria( 5 );
+        tConstraints( 6 )  = aCriteria( 6 );
+        tConstraints( 7 )  = aCriteria( 7 );
+        tConstraints( 8 )  = aCriteria( 8 );
+        tConstraints( 9 )  = aCriteria( 9 );
+        tConstraints( 10 ) = aCriteria( 10 );
 
         return tConstraints;
     }
@@ -518,16 +519,17 @@ namespace moris
     {
         Matrix< DDRMat > tDConstraintDCriteria( tNumConstraints, aCriteria.numel(), 0.0 );
 
-        tDConstraintDCriteria( 0, 0 ) = 1.0;
-        tDConstraintDCriteria( 1, 1 ) = 1.0;
-        tDConstraintDCriteria( 2, 2 ) = 1.0;
-        tDConstraintDCriteria( 3, 3 ) = 1.0;
-        tDConstraintDCriteria( 4, 4 ) = 1.0;
-        tDConstraintDCriteria( 5, 5 ) = 1.0;
-        tDConstraintDCriteria( 6, 6 ) = 1.0;
-        tDConstraintDCriteria( 7, 7 ) = 1.0;
-        tDConstraintDCriteria( 8, 8 ) = 1.0;
-        tDConstraintDCriteria( 9, 9 ) = 1.0;
+        tDConstraintDCriteria( 0, 0 )   = 1.0;
+        tDConstraintDCriteria( 1, 1 )   = 1.0;
+        tDConstraintDCriteria( 2, 2 )   = 1.0;
+        tDConstraintDCriteria( 3, 3 )   = 1.0;
+        tDConstraintDCriteria( 4, 4 )   = 1.0;
+        tDConstraintDCriteria( 5, 5 )   = 1.0;
+        tDConstraintDCriteria( 6, 6 )   = 1.0;
+        tDConstraintDCriteria( 7, 7 )   = 1.0;
+        tDConstraintDCriteria( 8, 8 )   = 1.0;
+        tDConstraintDCriteria( 9, 9 )   = 1.0;
+        tDConstraintDCriteria( 10, 10 ) = 1.0;
 
         return tDConstraintDCriteria;
     }
@@ -627,7 +629,7 @@ namespace moris
                 "IQIInletMassFlow,IQIOutletMassFlow,"
                 "IQIMaxTemp,"
                 "IQISolidVolume,"
-                "IQIInletPowDisp,IQIOutletPowDisp" );
+                "IQIInletPowDisp,IQIOutletPowDisp,IQIVolumePowDisp" );
 
         tParameterlist( 0 )( 0 ).set( "initial_advs", moris_to_string( tSphereRadius ) );
         tParameterlist( 0 )( 0 ).set( "lower_bounds", moris_to_string( tSphereRadius * 0.9 ) );
@@ -1865,6 +1867,14 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases", "PhaseVoidBack" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::POWER_DISSIPATION );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
+        tIQICounter++;
+
+        // fluid power dissipation in volume
+        tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIVolumePowDisp" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::POWER_DISSIPATION_BULK );
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
         tIQICounter++;
 

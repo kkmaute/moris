@@ -88,8 +88,8 @@ Vector_Epetra::replace_global_values(
     }
 
     // check for valid IDs
-    MORIS_ASSERT( aGlobalIds.min() >= 0 && aGlobalIds.max() < MORIS_SINT_MAX,
-            "Vector_Epetra::sum_into_global_values - invalid ID provided" );
+    MORIS_ASSERT( aGlobalIds.min() >= 0 and aGlobalIds.max() < MORIS_SINT_MAX,
+            "Vector_Epetra::replace_global_values - invalid ID range (%d, %d) provided", aGlobalIds.min(), aGlobalIds.max() );
 
     // call native epetra function
     int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
@@ -118,8 +118,8 @@ Vector_Epetra::sum_into_global_values(
     }
 
     // check for valid IDs
-    MORIS_ASSERT( aGlobalIds.min() >= 0 && aGlobalIds.max() < MORIS_SINT_MAX,
-            "Vector_Epetra::sum_into_global_values - invalid ID provided" );
+    MORIS_ASSERT( aGlobalIds.min() >= 0 and aGlobalIds.max() < MORIS_SINT_MAX,
+            "Vector_Epetra::sum_into_global_values - invalid ID range (%d, %d) provided", aGlobalIds.min(), aGlobalIds.max() );
 
     // call native epetra function
     if ( mVecBuildWithPointMap )

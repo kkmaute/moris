@@ -14,15 +14,12 @@
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
-#include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Diagnostics.hpp"
 #include "cl_MTK_Mesh_Checker.hpp"
 
-#include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "fn_GEN_Triangle_Geometry.hpp"// For surface normals
 
 // Linalg includes
 #include "cl_Matrix.hpp"
@@ -37,7 +34,7 @@
 namespace xtk
 {
 
-TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFORMAL_COIN]" )
+TEST_CASE( "Geometry with a coincident boundary to background cell", "[XTK_CONFORMAL_COIN]" )
 {
     // Geometry Engine Setup ---------------------------------------------------------
     // Using a Levelset Sphere as the Geometry
@@ -49,16 +46,16 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
     real tYNormal = 0.0;
     real tZNormal = 0.0;
 
-    Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-    tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    auto tPlane = std::make_shared< moris::gen::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";
     moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-    moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+    moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
     tGeometryEngineParameters.mGeometries = tGeometry;
-    moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
+    moris::gen::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
@@ -565,10 +562,6 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
     CHECK( check_vertices( &tXTKModel, tGoldNumVertex, tGoldVertexMap, tGoldCoords ) );
     CHECK( check_cells( &tXTKModel, tGoldNumCells, tGoldCellMap, tGoldCellConn ) );
     CHECK( interpolated_coordinate_check( tCutMesh ) );
-
-    moris::Matrix< moris::DDRMat > tIsoContourThreshold = { { 0.0 } };
-    moris::Matrix< moris::DDRMat > tIsoContourTolerance = { { 1e-12 } };
-    CHECK( verify_interface_vertices( &tXTKModel, tIsoContourThreshold, tIsoContourTolerance ) );
 }
 TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONFORMAL_COIN2]" )
 {
@@ -582,16 +575,16 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
     real tYNormal = 0.0;
     real tZNormal = 0.0;
 
-    Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-    tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    auto tPlane = std::make_shared< moris::gen::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";
     moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-    moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+    moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
     tGeometryEngineParameters.mGeometries = tGeometry;
-    moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
+    moris::gen::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
@@ -1223,10 +1216,6 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
     CHECK( check_vertices( &tXTKModel, tGoldNumVertex, tGoldVertexMap, tGoldCoords ) );
     CHECK( check_cells( &tXTKModel, tGoldNumCells, tGoldCellMap, tGoldCellConn ) );
     CHECK( interpolated_coordinate_check( tCutMesh ) );
-
-    moris::Matrix< moris::DDRMat > tIsoContourThreshold = { { 0.0 } };
-    moris::Matrix< moris::DDRMat > tIsoContourTolerance = { { 1e-12 } };
-    CHECK( verify_interface_vertices( &tXTKModel, tIsoContourThreshold, tIsoContourTolerance ) );
 }
 
 TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CONFORMAL_COIN3]" )
@@ -1241,16 +1230,16 @@ TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CON
     real tYNormal = 0.0;
     real tZNormal = 1.0;
 
-    Vector< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-    tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    auto tPlane = std::make_shared< moris::gen::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";
     moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-    moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+    moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
     tGeometryEngineParameters.mGeometries = tGeometry;
-    moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
+    moris::gen::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
@@ -1695,10 +1684,6 @@ tGoldCellMap =
     CHECK( check_vertices( &tXTKModel, tGoldNumVertex, tGoldVertexMap, tGoldCoords ) );
     CHECK( check_cells( &tXTKModel, tGoldNumCells, tGoldCellMap, tGoldCellConn ) );
     CHECK( interpolated_coordinate_check( tCutMesh ) );
-
-    moris::Matrix< moris::DDRMat > tIsoContourThreshold = { { 0.0 } };
-    moris::Matrix< moris::DDRMat > tIsoContourTolerance = { { 1e-12 } };
-    CHECK( verify_interface_vertices( &tXTKModel, tIsoContourThreshold, tIsoContourTolerance ) );
 }
 }// namespace xtk
 

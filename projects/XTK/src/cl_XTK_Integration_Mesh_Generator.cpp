@@ -12,7 +12,6 @@
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 #include "cl_XTK_Decomposition_Algorithm_Factory.hpp"
 #include "cl_XTK_Decomposition_Algorithm.hpp"
-#include "cl_XTK_Proximity.hpp"
 #include "fn_determine_cell_topology.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_XTK_find_most_frequent_int_in_cell.hpp"
@@ -31,12 +30,10 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     Integration_Mesh_Generator::Integration_Mesh_Generator(
-            xtk::Model*                     aXTKModelPtr,
-            Vector< enum Subdivision_Method > aMethods,
-            Matrix< IndexMat >              aActiveGeometries )
+            xtk::Model*                      aXTKModelPtr,
+            Vector< enum Subdivision_Method >  aMethods )
             : mXTKModel( aXTKModelPtr )
             , mGeometryEngine( mXTKModel->get_geom_engine() )
-            , mActiveGeometries( aActiveGeometries )
             , mSubdivisionMethods( aMethods )
     {
         if ( mXTKModel->mParameterList.get< bool >( "has_parameter_list" ) )
@@ -299,15 +296,7 @@ namespace xtk
         return tCutIntegrationMesh;
     }
 
-    // ----------------------------------------------------------------------------------
-
-    Matrix< IndexMat > const *
-    Integration_Mesh_Generator::get_active_geometries()
-    {
-        return &mActiveGeometries;
-    }
-
-    moris::ge::Geometry_Engine*
+    moris::gen::Geometry_Engine*
     Integration_Mesh_Generator::get_geom_engine()
     {
         return mGeometryEngine;
@@ -452,7 +441,7 @@ namespace xtk
             mtk::Mesh*                        aBackgroundMesh )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells", mXTKModel->mVerboseLevel, 1 );
-        uint   tNumGeometries = mActiveGeometries.numel();
+        uint   tNumGeometries = this->get_geom_engine()->get_number_of_geometries();
 
         uint tNumCells = aBackgroundMesh->get_num_elems();
 
@@ -461,10 +450,7 @@ namespace xtk
         aMeshGenerationData.mAllIntersectedBgCellInds.reserve( tNumCells );
 
         // Initialize geometric query
-        Geometric_Query_XTK tGeometricQuery;
-
-        // say I am just interested in a yes or no answer
-        tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_NO_LOCATION );
+        Geometric_Query tGeometricQuery;
 
         // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
         tGeometricQuery.set_coordinates_matrix( &aCutIntegrationMesh->mVertexCoordinates );
@@ -488,13 +474,7 @@ namespace xtk
             // iterate through all geometries for current cell
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
-                // current index for this geometry
-                moris_index tGeometryIndex = mActiveGeometries( iGeom );
-
-                // tell the query which geometric index we are working on
-                tGeometricQuery.set_geometric_index( tGeometryIndex );
-
-                if ( mXTKModel->get_geom_engine()->geometric_query( &tGeometricQuery ) )
+                if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity(), tGeometricQuery.get_query_indexed_coordinates() ) )
                 {
                     // add background cell to the list for iGEOM
                     aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
@@ -528,7 +508,7 @@ namespace xtk
             mtk::Mesh*                        aBackgroundMesh )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells", mXTKModel->mVerboseLevel, 1 );
-        uint   tNumGeometries = mActiveGeometries.numel();
+        uint   tNumGeometries = this->get_geom_engine()->get_number_of_geometries();
 
         // get number of Lagrange elements
         uint tNumCells = aBackgroundMesh->get_num_elems();
@@ -537,10 +517,7 @@ namespace xtk
         aMeshGenerationData.mAllNonIntersectedBgCellInds.reserve( tNumCells );
 
         // Initialize geometric query
-        Geometric_Query_XTK tGeometricQuery;
-
-        // say I am just interested in a yes or no answer
-        tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_NO_LOCATION );
+        Geometric_Query tGeometricQuery;
 
         // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
         tGeometricQuery.set_coordinates_matrix( &aCutIntegrationMesh->mVertexCoordinates );
@@ -560,14 +537,11 @@ namespace xtk
             // iterate through all geometries for current cell and check if it gets cut by any of the geometries
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
-                // current index for this geometry
-                moris_index tGeometryIndex = mActiveGeometries( iGeom );
-
-                // tell the query which geometric index we are working on
-                tGeometricQuery.set_geometric_index( tGeometryIndex );
-
                 // set to true if cell is cut by current or any previous geometry
-                tCellIsCut = tCellIsCut || mXTKModel->get_geom_engine()->geometric_query( &tGeometricQuery );
+                tCellIsCut = tCellIsCut || mXTKModel->get_geom_engine()->is_intersected(
+                                     iGeom,
+                                     tGeometricQuery.get_query_entity_to_vertex_connectivity(),
+                                     tGeometricQuery.get_query_indexed_coordinates() );
             }
 
             // if the cell is not cut by any geometry, store the cell's index
@@ -705,7 +679,7 @@ namespace xtk
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Compute IG cell bulk phases", mXTKModel->mVerboseLevel, 1 );
 
         // get an estimate how many IG cells will have issues with vertex-based phase assignment
-        uint tNumGeometries                   = mGeometryEngine->get_num_geometries();
+        uint tNumGeometries                   = mGeometryEngine->get_number_of_geometries();
         uint tNumIgCells                      = aCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
         uint tExpectedNumNotAssignableIgCells = tNumGeometries * ( tNumIgCells / 1000 ) + 1;
 
@@ -719,7 +693,7 @@ namespace xtk
             // get the Bulk-phase index for the IG cell
             // moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_index( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
             const mtk::Cell* tCell = &aCutIntegrationMesh->get_mtk_cell( iCell );
-            moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_index( tCell );
+            moris_index tBulkPhaseIndex = mGeometryEngine->get_element_phase_index( *tCell );
 
             // store the bulk-phase of the IG cell
             aCutIntegrationMesh->mIntegrationCellBulkPhase( iCell ) = tBulkPhaseIndex;
@@ -809,154 +783,6 @@ namespace xtk
         }
 
         return tMax;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    moris_index
-    Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index( mtk::Cell const * aCell )
-    {
-        // cell vertices
-        Vector< mtk::Vertex* > tVertices    = aCell->get_vertex_pointers();
-        moris::size_t               tNumGeom     = mGeometryEngine->get_num_geometries();
-        uint                        tNumVertices = tVertices.size();
-
-        // initialize array holding the inside-outside values for each geometry
-        Matrix< IndexMat > tGeomProximities( 1, tNumGeom, MORIS_INDEX_MAX );
-
-        for ( uint iGeom = 0; iGeom < tNumGeom; iGeom++ )
-        {
-            // initialize list of node proximities
-            Vector< xtk::Geometric_Proximity > tVertexProximities( tNumVertices, xtk::Geometric_Proximity::UNDEFINED );
-
-            for ( uint iVert = 0; iVert < tNumVertices; iVert++ )
-            {
-                // get the current vertex's index
-                moris_index tVertIndex = tVertices( iVert )->get_index();
-
-                // get the proximity of the current vertex wrt. the current geometry
-                moris_index tGenProximity = mGeometryEngine->get_node_proximity_wrt_a_geometry( tVertIndex, iGeom );
-
-                // convert GEN to XTK proximity
-                // 0 - phi(x) < threshold --> OUTSIDE
-                // 1 - phi(x) = threshold --> INTERFACE
-                // 2 - phi(x) > threshold --> INSIDE
-                switch ( tGenProximity )
-                {
-                    case 0:
-                    {
-                        tVertexProximities( iVert ) = xtk::Geometric_Proximity::OUTSIDE;
-                        break;
-                    }
-                    case 1:
-                    {
-                        tVertexProximities( iVert ) = xtk::Geometric_Proximity::INTERFACE;
-                        break;
-                    }
-                    case 2:
-                    {
-                        tVertexProximities( iVert ) = xtk::Geometric_Proximity::INSIDE;
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ERROR( false,
-                                "Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index() - "
-                                "Unknown GEN nodal proximity value." );
-                        break;
-                    }
-                }
-            }    // end: loop over all vertices on IG cell
-
-            // vote on whether cell is inside or outside
-            xtk::Geometric_Proximity tCellProximity = xtk::proximity_vote( tVertexProximities );
-
-            // if all vertices are detected as being on the interface something is wrong
-            if ( tCellProximity == xtk::Geometric_Proximity::INTERFACE )
-            {
-                // un-comment for debugging phase assignment issues
-                // MORIS_LOG_WARNING(
-                //         "IMG::deduce_ig_cell_bulk_phase_index() - "
-                //         "Did not find a non-interface node wrt. geometry #%i for element #%i, set to dummy: %zu",
-                //         iGeom,
-                //         aCell->get_index(),
-                //         mGeometryEngine->get_num_phases() );
-
-                // return false
-                return MORIS_INDEX_MAX;
-            }
-            else if ( tCellProximity == xtk::Geometric_Proximity::OUTSIDE )
-            {
-                tGeomProximities( iGeom ) = 0;
-            }
-            else if ( tCellProximity == xtk::Geometric_Proximity::INSIDE )
-            {
-                tGeomProximities( iGeom ) = 1;
-            }
-            else
-            {
-                // return false
-                return MORIS_INDEX_MAX;
-            }
-
-        }    // end: loop over all level-sets
-
-        // ask GEN for the material index associated with the computed inside-outside list
-        moris_index tBulkPhaseIndex = mGeometryEngine->get_elem_phase_index( tGeomProximities );
-
-        // return the bulk phase index
-        return tBulkPhaseIndex;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    moris_index
-    Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_from_vertices( mtk::Cell const * aCell )
-    {
-        // cell vertices
-        Vector< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
-        moris::size_t               tNumGeom  = mGeometryEngine->get_num_geometries();
-
-        // allocate phase on or off value (either 0 or 1)
-        Matrix< IndexMat > tPhaseVotes( 1, 2 );
-        tPhaseVotes.fill( 0 );
-
-        uint               tMaxRow = 0;
-        uint               tMaxCol = 0;
-        Matrix< IndexMat > tNodalPhaseVals( 1, tNumGeom, MORIS_INDEX_MAX );
-
-        for ( uint iGeom = 0; iGeom < tNumGeom; iGeom++ )
-        {
-            bool tFoundNonInterfaceNode = false;
-
-            for ( uint iVert = 0; iVert < tVertices.size(); iVert++ )
-            {
-                uint tVertexIndex = tVertices( iVert )->get_index();
-
-                if ( !mGeometryEngine->is_interface_vertex( tVertexIndex, iGeom ) )
-                {
-                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertexIndex, iGeom );
-                    tFoundNonInterfaceNode  = true;
-                    tPhaseVotes( tPhaseIndex )++;
-                }
-            }    // end: loop over all vertices on IG cell
-
-            // take the phase with the maximum number of votes
-            tPhaseVotes.max( tMaxRow, tMaxCol );
-            tNodalPhaseVals( 0, iGeom ) = tMaxCol;
-            tPhaseVotes.fill( 0 );
-
-            // do not return bulk-phase if non could be assigned based on the vertex Level-Set values
-            if ( !tFoundNonInterfaceNode )
-            {
-                // MORIS_LOG_SPEC( "Vertex-based phase assignment failed for IG cell index", aCell->get_index() );
-                return MORIS_INDEX_MAX;
-            }
-
-        }    // end: loop over all level-sets
-
-        // return the dominant phase index
-        return mGeometryEngine->get_elem_phase_index( tNodalPhaseVals );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1152,7 +978,7 @@ namespace xtk
     //                 mtk::Vertex* tVertex = aFacetConnectivity->mFacetVertices( iFacet )( iVert );
     //
     //                 // determine whether the Level-Set is zero at the vertex within snapping tolerance
-    //                 if ( !mGeometryEngine->is_interface_vertex( tVertex->get_index(), tGeomIndex ) )
+    //                 if ( !mGeometryEngine->get_geometric_region( tVertex->get_index(), tGeomIndex ) )
     //                 {
     //                     // if any of the vertices on the facet is not on the interface, mark the whole facet to not be an interface and ...
     //                     tIsInterfaceFacet = false;
@@ -2659,7 +2485,7 @@ namespace xtk
             moris_index aBulkPhaseIndex0,
             moris_index aBulkPhaseIndex1 )
     {
-        MORIS_ASSERT( aGeomIndex < (moris_index)mGeometryEngine->get_num_geometries(), "Geometry index out of bounds" );
+        MORIS_ASSERT( aGeomIndex < (moris_index)mGeometryEngine->get_number_of_geometries(), "Geometry index out of bounds" );
         MORIS_ASSERT( aBulkPhaseIndex0 < (moris_index)mGeometryEngine->get_num_bulk_phase(), "Bulk phase index 0 out of bounds" );
         MORIS_ASSERT( aBulkPhaseIndex1 < (moris_index)mGeometryEngine->get_num_bulk_phase(), "Bulk phase index 1 out of bounds" );
 
@@ -3791,11 +3617,9 @@ namespace xtk
         if ( aDecompAlg->has_geometric_independent_vertices() )
         {
             // pass the data in decomposition data to the geometry engine so it can keep track of these newly constructed vertices
-            mGeometryEngine->create_new_child_nodes(
-                    &aDecompositionData->tNewNodeIndex,
-                    &aDecompositionData->mNewNodeParentCells,
-                    &aDecompositionData->mNewVertexLocalCoordWRTParentCell,
-                    &aDecompositionData->tNewNodeCoordinate );
+            mGeometryEngine->create_new_derived_nodes(
+                    aDecompositionData->mNewNodeParentCells,
+                    aDecompositionData->mNewVertexLocalCoordWRTParentCell );
         }
     }
 

@@ -181,7 +181,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Vector< Vector< PDV_Type > > & Equation_Set::get_dv_type_list(
+        const Vector< Vector< gen::PDV_Type > > & Equation_Set::get_dv_type_list(
                 mtk::Leader_Follower aIsLeader )
         {
             switch ( aIsLeader )
@@ -274,7 +274,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         sint Equation_Set::get_dv_index_for_type(
-                enum PDV_Type     aDvType,
+                enum gen::PDV_Type     aDvType,
                 mtk::Leader_Follower aIsLeader  )
         {
             switch ( aIsLeader )
@@ -336,7 +336,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         sint Equation_Set::get_dv_index_for_type_1(
-                enum PDV_Type            aDvType,
+                enum gen::PDV_Type            aDvType,
                 mtk::Leader_Follower aIsLeader )
         {
             switch ( aIsLeader )
@@ -506,9 +506,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Vector < enum PDV_Type > Equation_Set::get_requested_dv_types()
+        Vector < enum gen::PDV_Type > Equation_Set::get_requested_dv_types()
         {
-            Vector< enum PDV_Type > tDvTypes;
+            Vector< enum gen::PDV_Type > tDvTypes;
             mEquationModel->get_design_variable_interface()->get_ip_requested_dv_types( tDvTypes );
             return tDvTypes;
         }

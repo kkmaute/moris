@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 namespace moris
 {
@@ -182,7 +182,7 @@ namespace moris
             virtual void
             get_vertex_xyz_active_flags(
                     Matrix< DDSMat >                   &aIsActiveDv,
-                    const Vector< enum PDV_Type > &aPdvTypes )
+                    const Vector< enum gen::PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_vertex_xyz_active_flags() - not implemented in base class" );
             }
@@ -208,7 +208,7 @@ namespace moris
             virtual void
             get_vertex_xyz_pdv_ids(
                     Matrix< DDSMat >                   &aXYZPdvIds,
-                    const Vector< enum PDV_Type > &aPdvTypes )
+                    const Vector< enum gen::PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_vertex_xyz_pdv_ids() - not implemented in base class" );
             }
@@ -231,7 +231,7 @@ namespace moris
             virtual void
             set_local_xyz_pdv_assembly_index(
                     moris_index   aLocalPdvAssemblyIndex,
-                    enum PDV_Type aPdvType )
+                    enum gen::PDV_Type aPdvType )
             {
                 MORIS_ERROR( false, "fem::Node_Base::set_local_xyz_pdv_assembly_index() - not implemented in base class" );
             }
@@ -249,7 +249,7 @@ namespace moris
             virtual void
             get_local_xyz_pdv_assembly_indices(
                     Matrix< DDSMat >                   &aXYZLocalAssemblyIndices,
-                    const Vector< enum PDV_Type > &aPdvTypes )
+                    const Vector< enum gen::PDV_Type > &aPdvTypes )
             {
                 MORIS_ERROR( false, "fem::Node_Base::get_local_xyz_pdv_assembly_indices() - not implemented in base class" );
             }
