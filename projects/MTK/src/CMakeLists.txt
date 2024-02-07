@@ -111,6 +111,9 @@ set(HEADERS
         integration/cl_MTK_Integration_Coeffs_Bar_4.hpp
         integration/cl_MTK_Integration_Coeffs_Bar_5.hpp
         integration/cl_MTK_Integration_Coeffs_Bar_6.hpp
+        integration/cl_MTK_Integration_Coeffs_Bar_16.hpp
+        integration/cl_MTK_Integration_Coeffs_Bar_32.hpp
+        integration/cl_MTK_Integration_Coeffs_Bar_64.hpp
         integration/cl_MTK_Integration_Coeffs_Base.hpp
         integration/cl_MTK_Integration_Coeffs_Hex_2x2x2.hpp
         integration/cl_MTK_Integration_Coeffs_Hex_3x3x3.hpp
