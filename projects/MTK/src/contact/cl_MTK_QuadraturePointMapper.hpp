@@ -17,16 +17,18 @@ namespace moris::mtk
     {
       public:
         QuadraturePointMapper(
-                Integration_Mesh                                           *aIGMesh,
+                Integration_Mesh                                      *aIGMesh,
                 Vector< Side_Set const * >                            &aSideSets,
                 Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs );
 
         virtual ~QuadraturePointMapper() = default;
 
-        virtual auto map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate ) const -> MappingResult = 0;
+        virtual MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate ) const = 0;
+
+        virtual void update_displacements( std::map< moris_index, Vector< real > > const &aSetDisplacements ) = 0;
 
       protected:
-        Integration_Mesh                                    *mIGMesh;
+        Integration_Mesh                               *mIGMesh;
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
     };

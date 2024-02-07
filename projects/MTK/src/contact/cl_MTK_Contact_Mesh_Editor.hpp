@@ -37,7 +37,9 @@ namespace moris::mtk
 
         void update_nonconformal_side_sets() const;
 
-        void update_displacements( Matrix< DDRMat > &aDisplacements );
+        void update_displacements( std::map< moris_index, Vector< real > > const &aNodalDisplacements );
+
+        Vector< Side_Set const * > get_side_sets() const;
 
       private:
         // types
@@ -98,6 +100,7 @@ namespace moris::mtk
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
         QuadraturePointMapper_Ray                       mPointMapper;
+        int mIteration = 0;
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP

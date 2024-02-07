@@ -23,11 +23,13 @@ namespace moris::mtk
         ~QuadraturePointMapper_Ray() override = default;
 
         QuadraturePointMapper_Ray(
-                mtk::Integration_Mesh                                      *aIGMesh,
+                mtk::Integration_Mesh                                 *aIGMesh,
                 Vector< Side_Set const * >                            &aSideSets,
                 const Vector< std::pair< moris_index, moris_index > > &aCandidatePairs );
 
         MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates ) const override;
+
+        void update_displacements( std::map< moris_index, Vector< real > > const &aSetDisplacements ) override;
 
       private:
         // methods
@@ -40,7 +42,7 @@ namespace moris::mtk
          * @return
          */
         static auto initialize_surface_meshes(
-                Integration_Mesh const                     *aIGMesh,
+                Integration_Mesh const                *aIGMesh,
                 Vector< mtk::Side_Set const * > const &aSideSets ) -> Vector< Surface_Mesh >;
 
         /**
@@ -55,12 +57,13 @@ namespace moris::mtk
         static void interpolate_source_point( moris_index aCellIndex, Matrix< DDRMat > const &aParametricCoordinates, Space_Interpolator &aCoordinateInterpolator, Space_Interpolator &aNormalInterpolator, Surface_Mesh const &aSurfaceMesh, MappingResult &aMappingResult );
 
         // data
-        Vector< Surface_Mesh > mSurfaceMeshes;
-        Spatial_Indexer_BruteForce  mSpatialIndexer;
-        void                        check_ray_cell_intersection( MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, moris_index aSourceCellIndex, moris_index aTargetCellIndex, uint aResultOffset ) const;
-        void                        process_rays( moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult, uint aResultOffset, MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, bool aBruteForce ) const;
-        std::set< moris_index >     get_potential_target_meshes( bool aBruteForce, moris_index aSourceMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
-        std::set< moris_index >     get_potential_target_cells( bool aBruteForce, moris_index aSourceMeshIndex, moris_index tTargetMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
+        Vector< Surface_Mesh >     mSurfaceMeshes;
+        Spatial_Indexer_BruteForce mSpatialIndexer;
+        void                       check_ray_cell_intersection( MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, moris_index aSourceCellIndex, moris_index aTargetCellIndex, uint aResultOffset ) const;
+        void                       process_rays( moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult, uint aResultOffset, MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, bool aBruteForce ) const;
+        std::set< moris_index >    get_potential_target_meshes( bool aBruteForce, moris_index aSourceMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
+        std::set< moris_index >    get_potential_target_cells( bool aBruteForce, moris_index aSourceMeshIndex, moris_index tTargetMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
+        void                       write_surface_mesh_json() const;
     };
 }    // namespace moris::mtk
 

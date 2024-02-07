@@ -12,6 +12,7 @@
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_Json_Object.hpp"
+#include "fn_assert.hpp"
 
 
 #include <cl_MTK_Ray_Line_Intersection.hpp>
@@ -26,13 +27,20 @@ namespace moris::mtk
             , mSurfaceMeshes( initialize_surface_meshes( aIGMesh, aSideSets ) )
             , mSpatialIndexer( mSurfaceMeshes, mCandidatePairs )
     {
+        write_surface_mesh_json();
+    }
+
+    void QuadraturePointMapper_Ray::write_surface_mesh_json() const
+    {
         Json  tSurfaceMeshes;
         auto &tMeshes = tSurfaceMeshes.put_child( "surface_meshes", Json() );
         for ( auto const &tSurfaceMesh : mSurfaceMeshes )
         {
             tMeshes.push_back( { "", tSurfaceMesh.to_json() } );
         }
-        write_json( "surface_meshes.json", tSurfaceMeshes );
+        uint const  tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
+        std::string tFileName  = "surface_meshes_" + std::to_string( tIteration ) + ".json";
+        write_json( tFileName, tSurfaceMeshes );
     }
 
     Vector< Surface_Mesh > QuadraturePointMapper_Ray::initialize_surface_meshes(
@@ -106,6 +114,30 @@ namespace moris::mtk
         return tMappingResult;
     }
 
+    void QuadraturePointMapper_Ray::update_displacements( std::map< moris_index, Vector< real > > const &aSetDisplacements )
+    {
+        for ( auto &tSurfaceMesh : mSurfaceMeshes )
+        {
+            uint const tNumSurfaceVertices = tSurfaceMesh.get_number_of_vertices();
+            uint const tNumDimensions      = tSurfaceMesh.get_spatial_dimension();
+            // rows are dimensions, columns are vertices
+            Matrix< DDRMat > tDisplacements( tNumDimensions, tNumSurfaceVertices, 0.0 );
+            for ( size_t iLocalVertexIndex = 0; iLocalVertexIndex < tNumSurfaceVertices; ++iLocalVertexIndex )
+            {
+                moris_index const tGlobalVertexIndex = tSurfaceMesh.get_global_vertex_index( iLocalVertexIndex );
+                auto const       &tDisplacement      = aSetDisplacements.find( tGlobalVertexIndex );
+                MORIS_ASSERT( tDisplacement != aSetDisplacements.end(), "QuadraturePointMapper_Ray::update_displacements: Vertex %d not found in displacement map.", tGlobalVertexIndex );
+                MORIS_ASSERT( tDisplacement->second.size() == tNumDimensions, "QuadraturePointMapper_Ray::update_displacements: Vertex %d: Displacement vector has wrong size.", tGlobalVertexIndex );
+                for ( size_t iDimension = 0; iDimension < tNumDimensions; ++iDimension )
+                {
+                    tDisplacements( iDimension, iLocalVertexIndex ) = tDisplacement->second( iDimension );
+                }
+            }
+            tSurfaceMesh.set_displacement( tDisplacements );
+        }
+        write_surface_mesh_json();
+    }
+
     void QuadraturePointMapper_Ray::interpolate_source_point(
             moris_index const       aCellIndex,
             Matrix< DDRMat > const &aParametricCoordinates,
@@ -124,6 +156,8 @@ namespace moris::mtk
         Matrix< DDRMat > const tVertexNormals = aSurfaceMesh.get_vertex_normals_of_cell( aCellIndex );
         aNormalInterpolator.set_space_coeff( tVertexNormals );
 
+        // Matrix< DDRMat > const tNormals = aSurfaceMesh.get_facet_normals();
+
         for ( uint iPoint = 0; iPoint < tNumRays; iPoint++ )
         {
             // set the parametric coordinate of both interpolators
@@ -133,6 +167,7 @@ namespace moris::mtk
             // map the parametric coordinate to the surface mesh
             aMappingResult.mSourcePhysicalCoordinate.set_column( tStartIndex + iPoint, tVertexCoordinates * trans( aCoordinateInterpolator.NXi() ) );
             aMappingResult.mNormals.set_column( tStartIndex + iPoint, tVertexNormals * trans( aNormalInterpolator.NXi() ) );
+            // aMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( aCellIndex ) );
         }
     }
 
@@ -176,7 +211,7 @@ namespace moris::mtk
 
         if ( !tUnprocessedRays.empty() )
         {
-            MORIS_LOG_INFO( "Cell %d: %zu rays could not be mapped.", aSourceCellIndex, tUnprocessedRays.size() );
+            // MORIS_LOG_INFO( "Cell %d: %zu rays could not be mapped.", aSourceCellIndex, tUnprocessedRays.size() );
         }
     }
 

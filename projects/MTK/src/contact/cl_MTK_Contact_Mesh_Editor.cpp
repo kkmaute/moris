@@ -149,8 +149,9 @@ namespace moris::mtk
             tMappingResults.push_back( tResult );
             tMappingResultsJson.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() );
         }
-
-        write_json( "mapping_result.json", tMappingResultsJson );
+        uint const  tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
+        std::string tFileName  = "mapping_result_" + std::to_string( tIteration ) + ".json";
+        write_json( tFileName, tMappingResultsJson );
 
         return tMappingResults;
     }
@@ -177,7 +178,7 @@ namespace moris::mtk
                 0,
                 []( size_t aSum, auto const &aPair ) { return aSum + aPair.second.size(); } );
 
-        std::cout << "Number of nonconformal side clusters: " << tNumNonconformalSideClusters << std::endl;
+        // std::cout << "Number of nonconformal side clusters: " << tNumNonconformalSideClusters << std::endl;
 
         // the number of nonconformal side clusters that get stored in the IGMesh has to be reserved beforehand.
         // If a reallocation of memory would be necessary, the pointers to the nonconformal side clusters would be invalidated, which would
@@ -217,6 +218,15 @@ namespace moris::mtk
         return { tB0Phase, tB1Phase };
     }
 
-    void Contact_Mesh_Editor::update_displacements( Matrix< DDRMat > &aDisplacements ) {}
+    void Contact_Mesh_Editor::update_displacements( std::map< moris_index, Vector< real > > const &aNodalDisplacements )
+    {
+        mPointMapper.update_displacements( aNodalDisplacements );
+    }
+
+    Vector< Side_Set const * > Contact_Mesh_Editor::get_side_sets() const
+    {
+        return mSideSets;
+    }
+
 
 }    // namespace moris::mtk
