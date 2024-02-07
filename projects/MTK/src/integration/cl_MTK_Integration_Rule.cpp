@@ -18,6 +18,10 @@
 #include "cl_MTK_Integration_Coeffs_Bar_4.hpp"
 #include "cl_MTK_Integration_Coeffs_Bar_5.hpp"
 #include "cl_MTK_Integration_Coeffs_Bar_6.hpp"
+#include "cl_MTK_Integration_Coeffs_Bar_16.hpp"
+#include "cl_MTK_Integration_Coeffs_Bar_32.hpp"
+#include "cl_MTK_Integration_Coeffs_Bar_64.hpp"
+
 // quad
 #include "cl_MTK_Integration_Coeffs_Quad_2x2.hpp"
 #include "cl_MTK_Integration_Coeffs_Quad_3x3.hpp"
@@ -197,6 +201,21 @@ namespace moris
                     return std::make_unique< Integration_Coeffs<
                             Integration_Type::GAUSS,
                             Integration_Order::BAR_6 > >();
+
+                case Integration_Order::BAR_16:
+                    return std::make_unique< Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::BAR_16 > >();
+
+                case Integration_Order::BAR_32:
+                    return std::make_unique< Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::BAR_32 > >();
+
+                case Integration_Order::BAR_64:
+                    return std::make_unique< Integration_Coeffs<
+                            Integration_Type::GAUSS,
+                            Integration_Order::BAR_64 > >();
 
                 default:
                     MORIS_ERROR( false, "Integration_Rule::create_coeffs_gauss_bar - integration order not implemented/allowed for bar." );
