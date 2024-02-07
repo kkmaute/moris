@@ -123,7 +123,7 @@ namespace moris
                 Matrix< DDRMat > tABC = tAB * tC;
                 Matrix< DDRMat > tE   = tABC * tD;
             }
-            std::cout << "Matrix multiplication without expression templates completed in " << ( std::clock() - tTotalTime ) / (double)(CLOCKS_PER_SEC)*1000 << " s." << std::endl;
+            std::cout << "Matrix multiplication without expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << std::endl;
 
             // Start clock
             DDRMat tAA( tNumCR, tNumCR );
@@ -141,7 +141,7 @@ namespace moris
             {
                 DDRMat tE = ( tAA * tBA * tCA * tDA );
             }
-            std::cout << "Matrix multiplication with armadillo direct completed in " << ( std::clock() - tTotalTime ) / (double)(CLOCKS_PER_SEC)*1000 << " s." << std::endl;
+            std::cout << "Matrix multiplication with armadillo direct completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << std::endl;
 
             // Start clock
             tTotalTime = std::clock();
@@ -150,7 +150,7 @@ namespace moris
             {
                 Matrix< DDRMat > tE = tA * tB * tC * tD;
             }
-            std::cout << "Matrix multiplication with expression templates completed in " << ( std::clock() - tTotalTime ) / (double)(CLOCKS_PER_SEC)*1000 << " s." << std::endl;
+            std::cout << "Matrix multiplication with expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << std::endl;
 
             // check plus and minus operators
             Matrix< DDRMat > tMpm1( 2, 2, 1 );
