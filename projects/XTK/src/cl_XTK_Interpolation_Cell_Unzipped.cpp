@@ -9,7 +9,7 @@
  */
 
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
 
@@ -70,12 +70,12 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< mtk::Vertex* >
+    Vector< mtk::Vertex* >
     Interpolation_Cell_Unzipped::get_vertex_pointers() const
     {
 
-        uint                        tNumVerts = this->get_number_of_vertices();
-        moris::Cell< mtk::Vertex* > tVerts( tNumVerts );
+        uint                   tNumVerts = this->get_number_of_vertices();
+        Vector< mtk::Vertex* > tVerts( tNumVerts );
 
         for ( uint i = 0; i < tNumVerts; i++ )
         {
@@ -105,7 +105,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Interpolation_Cell_Unzipped::set_vertices( moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & aVertexPointers )
+    Interpolation_Cell_Unzipped::set_vertices( Vector< xtk::Interpolation_Vertex_Unzipped* > const & aVertexPointers )
     {
         mVertices = aVertexPointers;
     }
@@ -172,15 +172,15 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const &
+    Vector< xtk::Interpolation_Vertex_Unzipped* > const &
     Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices() const
     {
         return mVertices;
     }
-    
+
     //------------------------------------------------------------------------------
 
-    moris::Cell< xtk::Interpolation_Vertex_Unzipped* >&
+    Vector< xtk::Interpolation_Vertex_Unzipped* >&
     Interpolation_Cell_Unzipped::get_xtk_interpolation_vertices()
     {
         return mVertices;
@@ -206,4 +206,4 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk

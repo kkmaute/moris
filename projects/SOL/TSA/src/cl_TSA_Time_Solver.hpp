@@ -12,7 +12,7 @@
 
 // MORIS header files.
 #include "moris_typedefs.hpp"    // CON/src
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include <memory>
 #include "cl_Param_List.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -47,26 +47,26 @@ namespace moris
         {
           private:
             //! List of list of dof types
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > mDofTypeList;
+            Vector< Vector< enum MSI::Dof_Type > > mDofTypeList;
 
             //! List with time solvers
-            moris::Cell< std::shared_ptr< Time_Solver_Algorithm > > mTimeSolverAlgorithmList;
+            Vector< std::shared_ptr< Time_Solver_Algorithm > > mTimeSolverAlgorithmList;
 
             //! List with time sub solvers
-            moris::Cell< Time_Solver* > mTimeSubSolverList;
+            Vector< Time_Solver* > mTimeSubSolverList;
 
-            moris::Cell< sol::Dist_Vector* > mFullVector;
+            Vector< sol::Dist_Vector* > mFullVector;
 
-            moris::Cell< sol::Dist_Vector* > mFullVectorSensitivity;
+            Vector< sol::Dist_Vector* > mFullVectorSensitivity;
 
-            moris::Cell< sol::Dist_Vector* > mFullEigenVector;
+            Vector< sol::Dist_Vector* > mFullEigenVector;
 
-            moris::Cell< moris::Matrix< DDRMat > > mTimeFrames;
+            Vector< moris::Matrix< DDRMat > > mTimeFrames;
 
             sol::Dist_Map* mFullMap = nullptr;
 
-            moris::Cell< moris::uint >     mOutputIndices;
-            moris::Cell< Output_Criteria > mOutputCriteriaPointer;
+            Vector< moris::uint >     mOutputIndices;
+            Vector< Output_Criteria > mOutputCriteriaPointer;
 
             moris::ParameterList mParameterListTimeSolver;
 
@@ -121,7 +121,7 @@ namespace moris
              * @param[in] aNonLinSolverType Nonlinear solver type. Default is Newton
              */
             Time_Solver(
-                    moris::Cell< std::shared_ptr< Time_Solver_Algorithm > >& aTimeSolverList,
+                    Vector< std::shared_ptr< Time_Solver_Algorithm > >& aTimeSolverList,
                     const enum TimeSolverType                                aTimeSolverType = TimeSolverType::MONOLITHIC );
 
             //--------------------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ namespace moris
              * @param[in] aLevel           Solver level in the block structure. Default is 0
              */
             void set_dof_type_list(
-                    const moris::Cell< enum MSI::Dof_Type > aDofTypeList,
+                    const Vector< enum MSI::Dof_Type > aDofTypeList,
                     const moris::sint                       aLevel = 0 );
 
             //--------------------------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ namespace moris
             /**
              * @brief Accessor function to the time frames
              */
-            moris::Cell< Matrix< DDRMat > >&
+            Vector< Matrix< DDRMat > >&
             get_time_frames()
             {
                 return mTimeFrames;
@@ -182,7 +182,7 @@ namespace moris
             /**
              * @brief Accessor function to the solution vectos
              */
-            moris::Cell< sol::Dist_Vector* >&
+            Vector< sol::Dist_Vector* >&
             get_solution_vectors()
             {
                 return mFullVector;
@@ -276,7 +276,7 @@ namespace moris
              *
              * @param[out] rListOfListsOfDofTypes Returns the nonlinear solver managers list of list of dof types
              */
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > >&
+            Vector< Vector< enum MSI::Dof_Type > >&
             get_dof_type_list()
             {
                 return mDofTypeList;
@@ -289,7 +289,7 @@ namespace moris
              *
              * @param[out] rUnionListOfDofTypes    Returns the union list of this time solvers dof types
              */
-            moris::Cell< enum MSI::Dof_Type > get_dof_type_union();
+            Vector< enum MSI::Dof_Type > get_dof_type_union();
 
             //--------------------------------------------------------------------------------------------------
 
@@ -335,7 +335,7 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------
 
-            void solve( moris::Cell< sol::Dist_Vector* >& aFullVector );
+            void solve( Vector< sol::Dist_Vector* >& aFullVector );
 
             //--------------------------------------------------------------------------------------------------
 

@@ -81,7 +81,7 @@ namespace MSI
 
 void tConstValFunction_FDTest
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -89,7 +89,7 @@ void tConstValFunction_FDTest
 
 void tFIValDvFunction_FDTest
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->val();
@@ -97,7 +97,7 @@ void tFIValDvFunction_FDTest
 
 void tFIDerDvFunction_FDTest
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->N();
@@ -277,7 +277,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tSetBulk1.set_finite_difference_perturbation_size( 1e-6 );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+        Vector< fem::Set_User_Info > tSetInfo( 1 );
         tSetInfo( 0 ) = tSetBulk1;
 
         // FEM model
@@ -293,7 +293,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         MSI::MSI_Solver_Interface * tSolverInterface = tModel->get_solver_interface();
 
         // set requested dof types for solver interface
-        moris::Cell< MSI::Dof_Type > tRequestedDofTypes = { MSI::Dof_Type::TEMP };
+        Vector< MSI::Dof_Type > tRequestedDofTypes = { MSI::Dof_Type::TEMP };
         tSolverInterface->set_requested_dof_types( tRequestedDofTypes );
 
         //
@@ -306,7 +306,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // FEM set
         //------------------------------------------------------------------------------
         // get the equation set from the model
-        moris::Cell< MSI::Equation_Set * > tSets =
+        Vector< MSI::Equation_Set * > tSets =
                 tModel->get_fem_model()->get_equation_sets();
 
         // get the equation set from the model
@@ -355,7 +355,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // MSI Equation object
         //------------------------------------------------------------------------------
         // get list of equation objects from set
-        Cell< MSI::Equation_Object * > tEqObjs = tWorkSet->get_equation_object_list();
+        Vector< MSI::Equation_Object * > tEqObjs = tWorkSet->get_equation_object_list();
 
         // get a working equation object
         MSI::Equation_Object * tWorkEqObj = tEqObjs( 0 );

@@ -23,7 +23,7 @@ namespace moris
             const moris_index aIndex,
             const moris_id    aID,
             const Matrix< IndexMat > & aIndices,
-            moris::Cell< Vertex * >  & aAllVertices ) :
+            Vector< Vertex * >  & aAllVertices ) :
                     mIndex( aIndex ),
                     mID( aID )
     {

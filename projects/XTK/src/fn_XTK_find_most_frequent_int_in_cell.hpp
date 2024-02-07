@@ -14,7 +14,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     //-------------------------------------------------------------------------------------
 
@@ -27,8 +27,8 @@ namespace xtk
      */
     inline moris_index
     find_most_frequent_index_in_cell(
-            moris::Cell< moris_index >& aCellOfIndices,
-            uint&                       aCount )
+            Vector< moris_index >& aCellOfIndices,
+            uint&                  aCount )
     {
         uint tNumElemsInArray = aCellOfIndices.size();
 
@@ -63,6 +63,6 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* fn_XTK_find_most_frequent_int_in_cell.hpp */

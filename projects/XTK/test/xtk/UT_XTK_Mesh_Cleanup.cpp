@@ -10,7 +10,7 @@
 
 // #include "catch.hpp"
 // #include <string>
-// #include "cl_Cell.hpp"
+// #include "cl_Vector.hpp"
 
 // // XTKL: Geometry  Include
 // #include "cl_Logger.hpp"
@@ -25,7 +25,7 @@
 // #include "cl_Param_List.hpp"
 // #include "fn_stringify_matrix.hpp"
 
-// namespace xtk
+// namespace moris::xtk
 // {
 
 // TEST_CASE("Mesh Cleanup","[Mesh_Cleanup_2d]")
@@ -83,7 +83,7 @@
 //         moris::real tPlaneYNormal4 = 0.0;
 
 //         // XTK parameter list
-//         moris::Cell< moris::Cell< moris::ParameterList > > tXTKParams(1);
+//         Vector< Vector< moris::ParameterList > > tXTKParams(1);
 //         tXTKParams( 0 ).resize( 1 );
 //         tXTKParams( 0 )( 0 ) = prm::create_xtk_parameter_list();
 //         tXTKParams( 0 )( 0 ).set( "decompose",                 true );
@@ -99,7 +99,7 @@
 //         tXTKParams( 0 )( 0 ).set( "visualize_ghost", true );
 //         tXTKParams( 0 )( 0 ).set( "cleanup_cut_mesh", true );
 
-//         moris::Cell< moris::Cell< moris::ParameterList > > tGenParamList;
+//         Vector< Vector< moris::ParameterList > > tGenParamList;
 //         tGenParamList.resize( 3 );
 //         tGenParamList( 0 ).resize( 1 );
 //         tGenParamList( 1 ).resize( 1 );
@@ -151,7 +151,7 @@
 //         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //         // HMR parameters
 
-//         moris::Cell< moris::Cell< moris::ParameterList > > tHMRParams(1);
+//         Vector< Vector< moris::ParameterList > > tHMRParams(1);
 //         tHMRParams.resize( 1 );
 //         tHMRParams( 0 ).resize( 1 );
 
@@ -260,7 +260,7 @@
 //         moris::real tDBCCircle2R  = 0.111*tXDomainDim;
 
 //         // XTK parameter list
-//         moris::Cell< moris::Cell< moris::ParameterList > > tXTKParams(1);
+//         Vector< Vector< moris::ParameterList > > tXTKParams(1);
 //         tXTKParams( 0 ).resize( 1 );
 //         tXTKParams( 0 )( 0 ) = moris::prm::create_xtk_parameter_list();
 //         tXTKParams( 0 )( 0 ).set( "decompose",                 true );
@@ -284,7 +284,7 @@
 //         tXTKParams( 0 )( 0 ).set( "deactivate_all_but_blocks","Block1");
 //         tXTKParams( 0 )( 0 ).set( "deactivate_all_but_side_sets","SS1,SideSet_2_c_p11");
 
-//         moris::Cell< moris::Cell< moris::ParameterList > > tGenParamList;
+//         Vector< Vector< moris::ParameterList > > tGenParamList;
 //         tGenParamList.resize( 3 );
 //         tGenParamList( 0 ).resize( 1 );
 //         tGenParamList( 1 ).resize( 4 );
@@ -293,7 +293,7 @@
 //         tGenParamList( 0 )( 0 ).set("isocontour_threshold", 1e-12);      // Level-set isocontour level
 //         tGenParamList( 0 )( 0 ).set("isocontour_tolerance", 1e-12);      // Level-set isocontour level
 
-//         // moris::Matrix<moris::DDUMat> tPhaseMap(16,1,7);
+//         // moris::Matrix<DDUMat> tPhaseMap(16,1,7);
 //         // tPhaseMap(8)  = 0;
 //         // tPhaseMap(12) = 0;
 //         // tPhaseMap(13) = 1;
@@ -342,7 +342,7 @@
 //         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //         // HMR parameters
 
-//         moris::Cell< moris::Cell< moris::ParameterList > > tHMRParams(1);
+//         Vector< Vector< moris::ParameterList > > tHMRParams(1);
 //         tHMRParams.resize( 1 );
 //         tHMRParams( 0 ).resize( 1 );
 
@@ -408,4 +408,3 @@
 //     }
 
 // }
-

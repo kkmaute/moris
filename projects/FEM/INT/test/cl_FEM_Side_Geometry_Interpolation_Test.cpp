@@ -39,7 +39,7 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
     tSideNormalsExact( 1, 3 ) =  0.2940858488375231;
 
     // define a list of side ordinals
-    Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3 };
+    Vector< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3 };
 
     // loop over the interpolation order
     for( uint iOrder = 0; iOrder < 3; iOrder++ )
@@ -392,7 +392,7 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, mtk::CellShape::GENERAL, true );
 
         // side space ordinal
-        Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2 };
+       Vector< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2 };
 
         // create a side integration
         mtk::Integration_Rule tSideIntegrationRule( tSideGeometryType,
@@ -615,7 +615,7 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
          Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, mtk::CellShape::GENERAL, true );
 
          // side space ordinal
-         Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3 };
+         Vector< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3 };
 
          // create a side integration
          mtk::Integration_Rule tSideIntegrationRule( tSideGeometryType,
@@ -787,7 +787,7 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
         Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, mtk::CellShape::GENERAL, true );
 
         // side geometry type and space ordinal
-        Cell< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3, 4, 5 };
+        Vector< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2, 3, 4, 5 };
 
         // create a side integration
         mtk::Integration_Rule tSideIntegrationRule( tSideGeometryType,

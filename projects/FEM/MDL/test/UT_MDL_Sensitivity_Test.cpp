@@ -61,7 +61,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
-                                 const moris::Cell< moris::real > & aParameters)
+                                 const Vector< moris::real > & aParameters)
 {
     moris::real mXC = 0.11;
     moris::real mYC = 0.11;
@@ -71,7 +71,7 @@ real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
 }
 
 void evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
-                                const moris::Cell< moris::real > & aParameters,
+                                const Vector< moris::real > & aParameters,
                                 Matrix<DDRMat>& aSensitivities)
 {
     MORIS_ERROR( false, "sensitivities not implemented");
@@ -79,7 +79,7 @@ void evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
 
 void tConstValFunction2MatMDL
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -87,7 +87,7 @@ void tConstValFunction2MatMDL
 
 void tFIValDvFunction_FDTest
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->val();
@@ -95,7 +95,7 @@ void tFIValDvFunction_FDTest
 
 void tFIDerDvFunction_FDTest
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::DENSITY )->N();
@@ -193,7 +193,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+        Vector< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
 
         Matrix<DDRMat> tADVs( 0, 0 );
         auto tField = std::make_shared<moris::gen::User_Defined_Field>(tADVs,
@@ -392,7 +392,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         tSetInterface.set_IWGs( { tIWGInterface } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+        Vector< fem::Set_User_Info > tSetInfo( 7 );
         tSetInfo( 0 ) = tSetBulk1;
         tSetInfo( 1 ) = tSetBulk2;
         tSetInfo( 2 ) = tSetBulk3;
@@ -437,7 +437,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         Cell< gen::PDV_Type> tRequestedType( 1, gen::PDV_Type::DENSITY );
         reinterpret_cast< gen::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(100), tIGPdvTypes);
-        moris::Cell< gen::PDV_Type > tMatPdvTypes = { gen::PDV_Type::DENSITY };
+        Vector< gen::PDV_Type > tMatPdvTypes = { gen::PDV_Type::DENSITY };
         reinterpret_cast< gen::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 set_ip_requested_dv_types( tMatPdvTypes );
 
@@ -481,7 +481,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         std::shared_ptr< sol::SOL_Warehouse > tSolverWarehouse
         = std::make_shared<sol::SOL_Warehouse>( tModel->get_solver_interface() );
 
-        moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+        Vector< Vector< moris::ParameterList > > tParameterlist( 7 );
         for( uint Ik = 0; Ik < 7; Ik ++)
         {
         tParameterlist( Ik ).resize(1);

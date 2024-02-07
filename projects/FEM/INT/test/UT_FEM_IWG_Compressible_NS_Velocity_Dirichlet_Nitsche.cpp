@@ -44,7 +44,7 @@ using namespace fem;
 
 void tMValFunc_Select_2D(
         moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix =
@@ -54,7 +54,7 @@ void tMValFunc_Select_2D(
 
 void tMValFunc_Select_3D(
         moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix =
@@ -80,13 +80,13 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -94,12 +94,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
+    Vector< Vector< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
 
-    moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    Vector< Vector< Vector< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -363,7 +363,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
                     fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator density
                     tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof( 0 ));
@@ -411,8 +411,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal",
                     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
@@ -516,13 +516,13 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -530,12 +530,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
+    Vector< Vector< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
 
-    moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    Vector< Vector< Vector< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -817,7 +817,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
                     fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator density
                     tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof( 0 ) );
@@ -865,8 +865,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_VdW",
                     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
@@ -970,13 +970,13 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -984,12 +984,12 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
+    Vector< Vector< MSI::Dof_Type > > tVelocityDof = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tDensityDof( 0 ), tVelocityDof( 0 ), tTempDof( 0 ) };
 
-    moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
+    Vector< Vector< Vector< MSI::Dof_Type > > > tResDofTypes = { tDensityDof, tVelocityDof, tTempDof };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1266,7 +1266,7 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
                     fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator density
                     tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof( 0 ) );
@@ -1314,8 +1314,8 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche_Ideal_Select",
                     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager

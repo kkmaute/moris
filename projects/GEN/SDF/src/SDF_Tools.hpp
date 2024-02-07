@@ -283,11 +283,11 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        inline moris::Cell< std::string >
+        inline Vector< std::string >
         string_to_words( const std::string& aString )
         {
             // output cell
-            moris::Cell< std::string > aWords;
+            Vector< std::string > aWords;
 
             // cleanup string
             std::string tClean = clean( aString );

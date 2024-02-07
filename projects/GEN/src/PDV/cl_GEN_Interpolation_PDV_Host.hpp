@@ -31,7 +31,7 @@ namespace moris::gen
         Matrix< DDRMat > mCoordinates;
 
         // Information about the contained PDVs
-        Cell< std::shared_ptr< PDV > > mPDVs;
+        Vector< std::shared_ptr< PDV > > mPDVs;
 
       public:
         /**

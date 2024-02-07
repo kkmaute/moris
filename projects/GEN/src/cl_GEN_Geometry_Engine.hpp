@@ -46,8 +46,8 @@ namespace moris::gen
 
         // Protected for access in test version
         Node_Manager                        mNodeManager;
-        Cell< std::shared_ptr< Geometry > > mGeometries;
-        Cell< std::shared_ptr< Property > > mProperties;
+        Vector< std::shared_ptr< Geometry > > mGeometries;
+        Vector< std::shared_ptr< Property > > mProperties;
 
       private:
 
@@ -70,7 +70,7 @@ namespace moris::gen
         Matrix< DDRMat > mUpperBounds;
 
         // IQIs
-        Cell< std::string > mRequestedIQIs;
+        Vector< std::string > mRequestedIQIs;
 
         size_t      mActiveGeometryIndex = 0;
         std::string mGeometryFieldFile;
@@ -97,7 +97,7 @@ namespace moris::gen
          * @param aMesh Mesh for discrete or mesh based geomtries
          */
         explicit Geometry_Engine(
-                Cell< Cell< ParameterList > >        aParameterLists,
+                Vector< Vector< ParameterList > >        aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary = nullptr,
                 mtk::Mesh*                           aMesh    = nullptr );
 
@@ -165,7 +165,7 @@ namespace moris::gen
         set_phase_function(
                 PHASE_FUNCTION      aPhaseFunction,
                 uint                aNumPhases,
-                const Cell< std::string >& aPhaseNames = {} );
+                const Vector< std::string >& aPhaseNames = {} );
 
         /**
          * Import dcriteria/dx from file
@@ -173,7 +173,7 @@ namespace moris::gen
          */
         void
         set_dQIdp(
-                const Cell< Matrix< DDRMat >* >& adQIdp,
+                const Vector< Matrix< DDRMat >* >& adQIdp,
                 Matrix< DDSMat >*                aMap );
 
         /**
@@ -214,7 +214,7 @@ namespace moris::gen
         bool is_intersected(
                 uint                                         aGeometryIndex,
                 const Matrix< IndexMat >&                    aNodeIndices,
-                Cell< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
+                Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
 
         /**
          * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
@@ -293,8 +293,8 @@ namespace moris::gen
          * @param aBackgroundInterpolationOrder Interpolation order of the background element
          */
         void create_new_derived_nodes(
-                const Cell< Matrix< IndexMat > >& aVertexIndices,
-                const Cell< Matrix< DDRMat > >&   aParametricCoordinates,
+                const Vector< Matrix< IndexMat > >& aVertexIndices,
+                const Vector< Matrix< DDRMat > >&   aParametricCoordinates,
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder );
 
@@ -305,8 +305,8 @@ namespace moris::gen
          * @param aParametricCoordinates Parametric coordinates for creating the derived node
          */
         void create_new_derived_nodes(
-                Cell< mtk::Cell* >&                                aNewNodeParentCell,
-                const Cell< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates );
+                Vector< mtk::Cell* >&                                aNewNodeParentCell,
+                const Vector< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates );
 
         /**
          * Get the total number of phases in the phase table
@@ -382,18 +382,18 @@ namespace moris::gen
 
         //-------------------------------------------------------------------------------
 
-        const Cell< uint >& get_num_refinements( uint aFieldIndex );
+        const Vector< uint >& get_num_refinements( uint aFieldIndex );
 
         //-------------------------------------------------------------------------------
 
-        const Cell< uint >& get_refinement_mesh_indices( uint aFieldIndex );
+        const Vector< uint >& get_refinement_mesh_indices( uint aFieldIndex );
 
         /**
          * Gets all of the MTK fields that the geometry engine is using.
          *
          * @return MTK fields
          */
-        Cell< std::shared_ptr< mtk::Field > > get_mtk_fields();
+        Vector< std::shared_ptr< mtk::Field > > get_mtk_fields();
 
         /**
          * Gets the index of an HMR user-defined refinement function for the given field index
@@ -413,7 +413,7 @@ namespace moris::gen
          */
         void distribute_advs(
                 mtk::Mesh_Pair                        aMeshPair,
-                Cell< std::shared_ptr< mtk::Field > > aFields = {},
+                Vector< std::shared_ptr< mtk::Field > > aFields = {},
                 mtk::EntityRank                       aADVEntityRank = mtk::EntityRank::BSPLINE );
 
         /**
@@ -486,7 +486,7 @@ namespace moris::gen
                 Matrix< IdMat >& aAllCoefIds,
                 Matrix< IdMat >& aAllCoefOwners,
                 Matrix< IdMat >& aAllCoefijklIds,
-                Cell< uint >&    aNumCoeff,
+                Vector< uint >&    aNumCoeff,
                 uint             aFieldIndex,
                 uint             aDiscretizationMeshIndex,
                 mtk::MeshType    aMeshType );
@@ -500,7 +500,7 @@ namespace moris::gen
         void create_interpolation_pdvs(
                 mtk::Interpolation_Mesh*         aInterpolationMesh,
                 mtk::Integration_Mesh*           aIntegrationMesh,
-                Cell< Cell< Cell< PDV_Type > > > aPDVTypes );
+                Vector< Vector< Vector< PDV_Type > > > aPDVTypes );
 
         /**
          * Create PDV_Type hosts with PDVs for each of the spatial dimensions on the integration mesh
@@ -521,7 +521,7 @@ namespace moris::gen
          * @return Phase table
          */
         static Phase_Table create_phase_table(
-                const Cell< Cell< ParameterList > >& aParameterLists,
+                const Vector< Vector< ParameterList > >& aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary );
 
         /**

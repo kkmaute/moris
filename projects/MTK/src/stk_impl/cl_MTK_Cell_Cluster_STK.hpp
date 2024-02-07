@@ -25,9 +25,9 @@ class Cell_Cluster_STK: public Cell_Cluster
 private:
     bool                                    mTrivial;
     moris::mtk::Cell const *                mInterpolationCell;
-    moris::Cell<moris::mtk::Cell const *>   mPrimaryIntegrationCells;
-    moris::Cell<moris::mtk::Cell const *>   mVoidIntegrationCells;
-    moris::Cell<moris::mtk::Vertex const *> mVerticesInCluster;
+    Vector<moris::mtk::Cell const *>   mPrimaryIntegrationCells;
+    Vector<moris::mtk::Cell const *>   mVoidIntegrationCells;
+    Vector<moris::mtk::Vertex const *> mVerticesInCluster;
     moris::Matrix<moris::DDRMat>            mVertexParamCoords;
 
     // map from vertex id to local index
@@ -69,17 +69,17 @@ public:
     //----------------------------------------------------------------
 
     void
-    add_primary_integration_cell(moris::Cell<moris::mtk::Cell  const *> const & aIntegrationCell);
+    add_primary_integration_cell(Vector<moris::mtk::Cell  const *> const & aIntegrationCell);
 
     //----------------------------------------------------------------
 
     void
-    add_void_integration_cell(moris::Cell<moris::mtk::Cell const *> const & aIntegrationCell);
+    add_void_integration_cell(Vector<moris::mtk::Cell const *> const & aIntegrationCell);
 
     //----------------------------------------------------------------
 
     void
-    add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex);
+    add_vertex_to_cluster(Vector<moris::mtk::Vertex const *> const & aVertex);
 
     //----------------------------------------------------------------
 
@@ -92,12 +92,12 @@ public:
     // Required Access Functions
     //##############################################
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    Vector<moris::mtk::Cell const *> const &
     get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const;
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    Vector<moris::mtk::Cell const *> const &
     get_void_cells_in_cluster() const;
 
     //----------------------------------------------------------------
@@ -107,7 +107,7 @@ public:
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Vertex const *>
+    Vector<moris::mtk::Vertex const *>
     get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
     //----------------------------------------------------------------

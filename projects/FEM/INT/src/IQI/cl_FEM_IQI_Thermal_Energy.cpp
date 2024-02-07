@@ -165,7 +165,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Thermal_Energy::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
+                Vector< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
             // get the fluid CM

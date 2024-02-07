@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * fn_XTK_match_normal_to_side_ordinal.hpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * fn_XTK_match_normal_to_side_ordinal.hpp
+ *
  */
 #ifndef SRC_fn_XTK_match_normal_to_side_ordinal
 #define SRC_fn_XTK_match_normal_to_side_ordinal
@@ -17,7 +17,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
 
     //-------------------------------------------------------------------------------------
@@ -25,14 +25,14 @@ namespace xtk
     /**
      * @brief checks if a normal corresponds to one of the global axis directions and returns the corresponding ordinal for a QUAD/HEX
      * NOTE: instead of failing, MORIS_INDEX_MAX is returned if the normal does not match any coordinate direction.
-     * 
+     *
      * @param aNormal normal for which the ordinal is to be found
      * @return moris_index ordinal for a QUAD/HEX the coordinate direction corresponds to
      */
-    moris_index 
-    match_normal_to_side_ordinal( Matrix< DDRMat > const & aNormal )
+    moris_index
+    match_normal_to_side_ordinal( Matrix< DDRMat > const &aNormal )
     {
-        // define a tolerance 
+        // define a tolerance
         real tEps = 1.0e-6;
 
         // normalize the normal
@@ -43,18 +43,19 @@ namespace xtk
         {
             tNormal = trans( tNormal );
         }
-        
+
         // case: 2D
         if ( aNormal.numel() == 2 )
         {
-            const Cell< Matrix< DDRMat > > tOrdinalNormals = { 
-                    { {  0.0, -1.0 } },   // 0 
-                    { {  1.0,  0.0 } },   // 1
-                    { {  0.0,  1.0 } },   // 2
-                    { { -1.0,  0.0 } } }; // 3
+            const Vector< Matrix< DDRMat > > tOrdinalNormals = {
+                { { 0.0, -1.0 } },    // 0
+                { { 1.0, 0.0 } },     // 1
+                { { 0.0, 1.0 } },     // 2
+                { { -1.0, 0.0 } }
+            };                        // 3
 
             // check if any of the ordinals match
-            for( uint iOrdinal = 0; iOrdinal < 4; iOrdinal++ )
+            for ( uint iOrdinal = 0; iOrdinal < 4; iOrdinal++ )
             {
                 real tNorm = norm( tNormal - tOrdinalNormals( iOrdinal ) );
                 if ( tNorm < tEps )
@@ -68,18 +69,19 @@ namespace xtk
         }
 
         // case: 3D
-        else if ( aNormal.numel() == 3 ) 
+        else if ( aNormal.numel() == 3 )
         {
-            const Cell< Matrix< DDRMat > > tOrdinalNormals = { 
-                    { {  0.0, -1.0,  0.0 } },   // 0 
-                    { {  1.0,  0.0,  0.0 } },   // 1
-                    { {  0.0,  1.0,  0.0 } },   // 2
-                    { { -1.0,  0.0,  0.0 } },   // 3
-                    { {  0.0,  0.0, -1.0 } },   // 4
-                    { {  0.0,  0.0,  1.0 } } }; // 5
+            const Vector< Matrix< DDRMat > > tOrdinalNormals = {
+                { { 0.0, -1.0, 0.0 } },    // 0
+                { { 1.0, 0.0, 0.0 } },     // 1
+                { { 0.0, 1.0, 0.0 } },     // 2
+                { { -1.0, 0.0, 0.0 } },    // 3
+                { { 0.0, 0.0, -1.0 } },    // 4
+                { { 0.0, 0.0, 1.0 } }
+            };                             // 5
 
             // check if any of the ordinals match
-            for( uint iOrdinal = 0; iOrdinal < 6; iOrdinal++ )
+            for ( uint iOrdinal = 0; iOrdinal < 6; iOrdinal++ )
             {
                 real tNorm = norm( tNormal - tOrdinalNormals( iOrdinal ) );
                 if ( tNorm < tEps )
@@ -90,7 +92,6 @@ namespace xtk
 
             // if non of the ordinals match, return a false
             return MORIS_INDEX_MAX;
-
         }
 
         // dimension unknown
@@ -103,7 +104,7 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 
 #endif /* fn_XTK_match_normal_to_side_ordinal.hpp */

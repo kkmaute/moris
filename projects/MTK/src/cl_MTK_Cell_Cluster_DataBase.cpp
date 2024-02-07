@@ -38,7 +38,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< moris::mtk::Cell const* > const&
+    Vector< moris::mtk::Cell const* > const&
     Cell_Cluster_DataBase::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mPrimaryIntegrationCells;
@@ -46,7 +46,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< moris::mtk::Cell const* > const&
+    Vector< moris::mtk::Cell const* > const&
     Cell_Cluster_DataBase::get_void_cells_in_cluster() const
     {
         return mVoidIntegrationCells;
@@ -66,7 +66,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< moris::mtk::Vertex const* >
+    Vector< moris::mtk::Vertex const* >
     Cell_Cluster_DataBase::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         // extract the vertices and number of them
@@ -74,7 +74,7 @@ namespace moris::mtk
         uint           tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
 
         // initialize the ouput
-        moris::Cell< moris::mtk::Vertex const* > tVerticesInCluster;
+        Vector< moris::mtk::Vertex const* > tVerticesInCluster;
 
         // insert vertex pointers in the cell
         tVerticesInCluster.insert( 0, tVertices, tVertices + tNumVertex );
@@ -181,7 +181,7 @@ namespace moris::mtk
             moris::mtk::Cell const* tIntegrationCell = this->get_primary_cells_in_cluster()( aPrimaryCellClusterIndex );
 
             // get the vertex pointers on the side
-            moris::Cell< moris::mtk::Vertex* > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
+            Vector< moris::mtk::Vertex* > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
 
             // allocate output (n_node x dim_xsi)
             moris::Matrix< moris::DDRMat > tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord() );

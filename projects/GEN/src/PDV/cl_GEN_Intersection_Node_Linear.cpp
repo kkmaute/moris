@@ -19,7 +19,7 @@ namespace moris::gen
 
     Intersection_Node_Linear::Intersection_Node_Linear(
             uint                     aNodeIndex,
-            const Cell< Background_Node* >& aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -38,7 +38,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Intersection_Node_Linear::get_field_basis_nodes() const
+    const Vector< Basis_Node >& Intersection_Node_Linear::get_field_basis_nodes() const
     {
         return this->get_locator_nodes();
     }

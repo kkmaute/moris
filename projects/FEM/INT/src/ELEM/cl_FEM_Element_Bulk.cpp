@@ -66,7 +66,7 @@ namespace moris
                 Matrix< IndexMat > tVertexIndices = mLeaderCell->get_vertex_inds();
 
                 // get the requested geo pdv types
-                moris::Cell< enum gen::PDV_Type > tGeoPdvType;
+                Vector< enum gen::PDV_Type > tGeoPdvType;
                 mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
                 // get local assembly indices
@@ -400,7 +400,7 @@ namespace moris
                             mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute dRdp at evaluation point
-                    moris::Cell< Matrix< IndexMat > > tVertexIndices( 0 );
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
                     ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
             }
@@ -523,7 +523,7 @@ namespace moris
                     tReqIQI->reset_eval_flags();
 
                     // compute dQIdp at evaluation point
-                    moris::Cell< Matrix< IndexMat > > tVertexIndices( 0 );
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
                     ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
             }
@@ -593,7 +593,7 @@ namespace moris
                             mCluster->mInterpolationElement->get_weak_bcs() );
 
                     // compute dRdp at evaluation point
-                    moris::Cell< Matrix< IndexMat > > tVertexIndices( 0 );
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
                     ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
 
@@ -608,7 +608,7 @@ namespace moris
                     tReqIQI->reset_eval_flags();
 
                     // compute dQIdp at evaluation point
-                    moris::Cell< Matrix< IndexMat > > tVertexIndices( 0 );
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
                     ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
             }

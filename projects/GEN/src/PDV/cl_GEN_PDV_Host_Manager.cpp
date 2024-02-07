@@ -68,7 +68,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ip_dv_types_for_set(
             const moris::moris_index  aIPMeshSetIndex,
-            Cell< Cell< PDV_Type > >& aPDVTypes )
+            Vector< Vector< PDV_Type > >& aPDVTypes )
     {
         if ( mIpPDVTypes.size() > 0 )    // FIXME
         {
@@ -81,7 +81,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ig_dv_types_for_set(
             const moris::moris_index  aIGMeshSetIndex,
-            Cell< Cell< PDV_Type > >& aPDVTypes )
+            Vector< Vector< PDV_Type > >& aPDVTypes )
     {
         if ( mIgPDVTypes.size() > 0 )    // FIXME
         {
@@ -94,7 +94,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ip_unique_dv_types_for_set(
             const moris_index aIPMeshSetIndex,
-            Cell< PDV_Type >& aPDVTypes )
+            Vector< PDV_Type >& aPDVTypes )
     {
         if ( mUniqueIpPDVTypes.size() > 0 )    // FIXME
         {
@@ -107,7 +107,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ig_unique_dv_types_for_set(
             const moris::moris_index aIGMeshSetIndex,
-            Cell< PDV_Type >&        aPDVTypes )
+            Vector< PDV_Type >&        aPDVTypes )
     {
         if ( mUniqueIgPDVTypes.size() > 0 )    // FIXME
         {
@@ -120,8 +120,8 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ip_pdv_value(
             const Matrix< IndexMat >& aNodeIndices,
-            const Cell< PDV_Type >&   aPDVTypes,
-            Cell< Matrix< DDRMat > >& aDvValues )
+            const Vector< PDV_Type >&   aPDVTypes,
+            Vector< Matrix< DDRMat > >& aDvValues )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.numel();
@@ -162,7 +162,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_GenMeshMap( moris::Cell< moris_index > aGenMeshMap )
+    PDV_Host_Manager::set_GenMeshMap( Vector< moris_index > aGenMeshMap )
     {
         mGenMeshMap              = aGenMeshMap;
         mGenMeshMapIsInitialized = true;
@@ -173,9 +173,9 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ig_pdv_value(
             const Matrix< IndexMat >& aNodeIndices,
-            const Cell< PDV_Type >&   aPDVTypes,
-            Cell< Matrix< DDRMat > >& aDvValues,
-            Cell< Cell< bool > >&     aIsActiveDv )
+            const Vector< PDV_Type >&   aPDVTypes,
+            Vector< Matrix< DDRMat > >& aDvValues,
+            Vector< Vector< bool > >&     aIsActiveDv )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -234,8 +234,8 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ip_dv_ids_for_type_and_ind(
             const Matrix< IndexMat >& aNodeIndices,
-            const Cell< PDV_Type >&   aPDVTypes,
-            Cell< Matrix< IdMat > >&  aDvIds )
+            const Vector< PDV_Type >&   aPDVTypes,
+            Vector< Matrix< IdMat > >&  aDvIds )
     {
         // get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -275,8 +275,8 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ig_dv_ids_for_type_and_ind(
             const Matrix< IndexMat >& aNodeIndices,
-            const Cell< PDV_Type >&   aPDVTypes,
-            Cell< Matrix< IdMat > >&  aDvIds )
+            const Vector< PDV_Type >&   aPDVTypes,
+            Vector< Matrix< IdMat > >&  aDvIds )
     {
         // get the number of node indices requested
         uint tNumIndices = aNodeIndices.numel();
@@ -313,7 +313,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::get_ip_requested_dv_types( Cell< PDV_Type >& aPDVTypes )
+    PDV_Host_Manager::get_ip_requested_dv_types( Vector< PDV_Type >& aPDVTypes )
     {
         aPDVTypes = mRequestedIpPDVTypes;
     }
@@ -321,7 +321,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::get_ig_requested_dv_types( Cell< PDV_Type >& aPDVTypes )
+    PDV_Host_Manager::get_ig_requested_dv_types( Vector< PDV_Type >& aPDVTypes )
     {
         aPDVTypes = mRequestedIgPDVTypes;
     }
@@ -329,7 +329,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void PDV_Host_Manager::set_interpolation_pdv_types(
-            const Cell< Cell< Cell< PDV_Type > > >& aPDVTypes )
+            const Vector< Vector< Vector< PDV_Type > > >& aPDVTypes )
     {
         // Get number of sets
         uint tNumSets = aPDVTypes.size();
@@ -365,10 +365,10 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::create_interpolation_pdv_hosts(
-            const Cell< Cell< uint > >& aNodeIndicesPerSet,
-            const Cell< Cell< sint > >& aNodeIdsPerSet,
-            const Cell< Cell< uint > >& aNodeOwnersPerSet,
-            const Cell< Matrix< DDRMat > >& aNodeCoordinatesPerSet )
+            const Vector< Vector< uint > >& aNodeIndicesPerSet,
+            const Vector< Vector< sint > >& aNodeIdsPerSet,
+            const Vector< Vector< uint > >& aNodeOwnersPerSet,
+            const Vector< Matrix< DDRMat > >& aNodeCoordinatesPerSet )
     {
         // Check that number of sets is consistent
         uint tNumSets = mIpPDVTypes.size();
@@ -443,7 +443,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_integration_pdv_types( Cell< Cell< Cell< PDV_Type > > > aPDVTypes )
+    PDV_Host_Manager::set_integration_pdv_types( Vector< Vector< Vector< PDV_Type > > > aPDVTypes )
     {
         // Check that number of sets is consistent
         uint tNumSets = aPDVTypes.size();
@@ -479,7 +479,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_requested_interpolation_pdv_types( Cell< PDV_Type > aPDVTypes )
+    PDV_Host_Manager::set_requested_interpolation_pdv_types( Vector< PDV_Type > aPDVTypes )
     {
         mRequestedIpPDVTypes = aPDVTypes;
     }
@@ -487,7 +487,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_requested_integration_pdv_types( Cell< PDV_Type > aPDVTypes )
+    PDV_Host_Manager::set_requested_integration_pdv_types( Vector< PDV_Type > aPDVTypes )
     {
         mRequestedIgPDVTypes = aPDVTypes;
     }
@@ -715,7 +715,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::communicate_dof_types( moris::Cell< enum PDV_Type >& aPDVTypeList )
+    PDV_Host_Manager::communicate_dof_types( Vector< enum PDV_Type >& aPDVTypeList )
     {
         // Get processor size
         int tSize = par_size();
@@ -733,7 +733,7 @@ namespace moris::gen
         }
 
         // Create list containing the number of local dof types
-        moris::Cell< moris::sint > tNumLocalDvTypesList( tSize );
+        Vector< moris::sint > tNumLocalDvTypesList( tSize );
 
         // Insert number of local dof types into list containing the number of local dof types
         MPI_Allgather(
@@ -746,7 +746,7 @@ namespace moris::gen
                 MPI_COMM_WORLD );
 
         // Create list containing the offsets of the local dof types in relation to processor 0
-        moris::Cell< moris::sint > tDvTypeOffset( tSize, 0 );
+        Vector< moris::sint > tDvTypeOffset( tSize, 0 );
 
         // Fill the list with the corresponding offsets
         for ( int Ip = 1; Ip < tSize; ++Ip )
@@ -993,7 +993,7 @@ namespace moris::gen
     PDV_Host_Manager::communicate_shared_interpolation_pdv_ids()
     {
         // Build communication table map to determine the right position for each processor rank.
-        Cell< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
+        Vector< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
         moris::uint tNumCommProcs = mCommTable.numel();
 
         // FIXME: cannot have communication within following loop
@@ -1035,8 +1035,8 @@ namespace moris::gen
             }
 
             // Define cells of vectors to store PDV host IDs and indices of shared PDvs
-            Cell< Matrix< DDUMat > > tSharedPDVHostIds( tNumCommProcs );
-            Cell< Matrix< DDUMat > > tSharedPDVHostIndices( tNumCommProcs );
+            Vector< Matrix< DDUMat > > tSharedPDVHostIds( tNumCommProcs );
+            Vector< Matrix< DDUMat > > tSharedPDVHostIndices( tNumCommProcs );
 
             // Set size of vectors to store PDV host IDs and indices of shared PDvs
             for ( uint iCommunicationProcIndex = 0; iCommunicationProcIndex < tNumCommProcs; iCommunicationProcIndex++ )
@@ -1090,7 +1090,7 @@ namespace moris::gen
             }
 
             // Receive IDs of PDV hosts that this processor owns
-            Cell< Matrix< DDUMat > > tOwnedIds;
+            Vector< Matrix< DDUMat > > tOwnedIds;
 
             // FIXME: should not be needed if done correctly
             barrier();
@@ -1146,7 +1146,7 @@ namespace moris::gen
             }
 
             // receiving list
-            Cell< Matrix< DDUMat > > tSharedPDVIds;
+            Vector< Matrix< DDUMat > > tSharedPDVIds;
 
             // FIXME: should not be needed if done correctly
             barrier();
@@ -1204,12 +1204,12 @@ namespace moris::gen
     PDV_Host_Manager::communicate_shared_intersection_node_pdv_ids()
     {
         // Build communication table map to determine the right position for each processor rank.
-        Cell< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
+        Vector< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
         moris::uint tNumCommProcs = mCommTable.numel();
         moris::uint tSharedCounter = 0;
 
-        moris::Cell< Matrix< DDUMat > > tSharedPDVIds( tNumCommProcs );
-        moris::Cell< Matrix< DDUMat > > tSharedPDVPosLocal( tNumCommProcs );
+        Vector< Matrix< DDUMat > > tSharedPDVIds( tNumCommProcs );
+        Vector< Matrix< DDUMat > > tSharedPDVPosLocal( tNumCommProcs );
 
         // Set Mat to store number of shared pdv per processor
         Matrix< DDUMat > tNumSharedPDVsPerProc( tNumCommProcs, 1, 0 );
@@ -1284,7 +1284,7 @@ namespace moris::gen
         }
 
         // receiving list
-        moris::Cell< Matrix< DDUMat > > tMatsToReceive;
+        Vector< Matrix< DDUMat > > tMatsToReceive;
         barrier();
 
         // Communicate position of shared pdvs to the owning processor
@@ -1294,7 +1294,7 @@ namespace moris::gen
                 tMatsToReceive );
 
         // Create List of Mats containing the shared node Ids
-        moris::Cell< Matrix< DDUMat > > tSharedPDVIdList( tNumCommProcs );
+        Vector< Matrix< DDUMat > > tSharedPDVIdList( tNumCommProcs );
 
         // Loop over all Mats setting the size
         for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
@@ -1325,7 +1325,7 @@ namespace moris::gen
             }
         }
 
-        moris::Cell< Matrix< DDUMat > > tMatsToReceive2;
+        Vector< Matrix< DDUMat > > tMatsToReceive2;
 
         barrier();
 
@@ -1478,7 +1478,7 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::set_dQIdp(
-            const Cell< Matrix< DDRMat >* >& adQIdp,
+            const Vector< Matrix< DDRMat >* >& adQIdp,
             Matrix< DDSMat >*                aMap )
     {
         // Number

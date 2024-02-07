@@ -19,21 +19,21 @@ namespace moris{
 //		//------------------------------------------------------------------------------
 //	private:
 //
-//		moris::Cell< mtk::Vertex* > mListOfNodes;
+//		Vector< mtk::Vertex* > mListOfNodes;
 //
 //		//------------------------------------------------------------------------------
 //	public:
 //		//------------------------------------------------------------------------------
 //
-//		Element( moris::Cell< mtk::Vertex* > aListOfNodes )
+//		Element( Vector< mtk::Vertex* > aListOfNodes )
 //		{
 //			mListOfNodes = aListOfNodes;
 //		};
 //		~Element(){};
 //
 //		//------------------------------------------------------------------------------
-//		// fills a moris::cell with pointers to connected nodes
-//		moris::Cell< mtk::Vertex* >
+//		// fills a Vector with pointers to connected nodes
+//		Vector< mtk::Vertex* >
 //		get_vertex_pointers() const
 //	    {
 //			return mListOfNodes;

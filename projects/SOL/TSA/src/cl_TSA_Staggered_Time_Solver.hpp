@@ -27,7 +27,7 @@ namespace tsa
     {
     private:
 
-        void solve_staggered_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector );
+        void solve_staggered_time_system( Vector< sol::Dist_Vector * > & aFullVector );
 
     public:
         //-------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ namespace tsa
          *
          * @param[in] aFullVector     Solution Vector
          */
-        void solve( moris::Cell< sol::Dist_Vector * > & aFullVector );
+        void solve( Vector< sol::Dist_Vector * > & aFullVector );
 
         //-------------------------------------------------------------------------------
     };

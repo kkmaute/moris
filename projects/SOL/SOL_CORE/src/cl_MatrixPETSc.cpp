@@ -332,8 +332,8 @@ Matrix_PETSc::save_matrix_to_matlab_file( const char* aFilename )
 
 void
 Matrix_PETSc::build_graph(
-        Cell< moris_id >& aNonZeroDiagonal,
-        Cell< moris_id >& aNonZeroOffDiagonal )
+        Vector< moris_id >& aNonZeroDiagonal,
+        Vector< moris_id >& aNonZeroOffDiagonal )
 {
     // Define sparsity structure
     MatMPIAIJSetPreallocation( mPETScMat, 0, aNonZeroDiagonal.memptr(), 0, aNonZeroOffDiagonal.memptr() );

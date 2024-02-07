@@ -74,7 +74,7 @@ namespace moris::hmr
         Lagrange_Mesh_Base*
         create_lagrange_mesh(
                 Background_Mesh_Base*      aBackgroundMesh,
-                Cell< BSpline_Mesh_Base* > aBSplineMeshes,
+                Vector< BSpline_Mesh_Base* > aBSplineMeshes,
                 uint                       aActivationPattern,
                 luint                      aPolynomialDegree,
                 uint                       aMeshIndex = MORIS_UINT_MAX );

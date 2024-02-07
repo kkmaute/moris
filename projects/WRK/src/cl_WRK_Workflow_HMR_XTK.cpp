@@ -120,8 +120,8 @@ namespace moris
 
             mIter = 0;
 
-            moris::Cell< std::shared_ptr< mtk::Field > > tFieldsIn;
-            moris::Cell< std::shared_ptr< mtk::Field > > tFieldsOut;
+            Vector< std::shared_ptr< mtk::Field > > tFieldsIn;
+            Vector< std::shared_ptr< mtk::Field > > tFieldsOut;
 
             // perform in first optimization iteration only
             if ( tIsFirstOptSolve )
@@ -161,8 +161,8 @@ namespace moris
                 std::shared_ptr< gen::Geometry_Engine >        tGeometryEngine     = mPerformerManager->mGENPerformer( 0 );
                 std::shared_ptr< mdl::Model >                 tModelPerformer     = mPerformerManager->mMDLPerformer( 0 );
                 std::shared_ptr< Remeshing_Mini_Performer >   tRemeshingPerformer = mPerformerManager->mRemeshingMiniPerformer( 0 );
-                Cell< std::shared_ptr< hmr::HMR > >&          tHmrPerformers      = mPerformerManager->mHMRPerformer;
-                Cell< std::shared_ptr< mtk::Mesh_Manager > >& tMtkPerformers      = mPerformerManager->mMTKPerformer;
+                Vector< std::shared_ptr< hmr::HMR > >&          tHmrPerformers      = mPerformerManager->mHMRPerformer;
+                Vector< std::shared_ptr< mtk::Mesh_Manager > >& tMtkPerformers      = mPerformerManager->mMTKPerformer;
 
                 // get refinement fields from GEN and MDL performers
                 tFieldsIn.append( tGeometryEngine->get_mtk_fields() );
@@ -461,7 +461,7 @@ namespace moris
             }
 
             // evaluate IQIs
-            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
+            Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             // get number of design criteria
             mNumCriteria = tVal.size();

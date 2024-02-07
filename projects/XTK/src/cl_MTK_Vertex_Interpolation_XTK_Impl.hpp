@@ -15,7 +15,7 @@
 
 #include "cl_MTK_Vertex.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     class Vertex_Enrichment;
 }
@@ -48,7 +48,7 @@ namespace moris
             get_ids() const
             {
                 MORIS_ERROR( 0, "get_ids not implemented in xtk vertex interpolation" );
-                return moris::Matrix< IdMat >( 0, 0 );
+                return Matrix< IdMat >( 0, 0 );
             }
 
             //------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace moris
             get_owners() const
             {
                 MORIS_ERROR( 0, "get_owners not implemented in xtk vertex interpolation" );
-                return moris::Matrix< IdMat >( 0, 0 );
+                return Matrix< IdMat >( 0, 0 );
             }
 
             //------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ namespace moris
              * set the interpolation weights
              */
             void
-            set_weights( const moris::Matrix< DDRMat >& aWeights )
+            set_weights( const Matrix< DDRMat >& aWeights )
             {
                 MORIS_ERROR( 0, "set_weights not implemented in xtk vertex interpolation" );
             }
@@ -94,7 +94,7 @@ namespace moris
              * set the coefficient objects
              */
             void
-            set_coefficients( moris::Cell< Vertex* >& aCoefficients )
+            set_coefficients( Vector< Vertex* >& aCoefficients )
             {
                 MORIS_ERROR( 0, "set_coefficients not implemented in xtk vertex interpolation" );
             }
@@ -104,7 +104,7 @@ namespace moris
             /**
              * returns the pointers to the coefficient objects
              */
-            moris::Cell< Vertex* >&
+            Vector< Vertex* >&
             get_coefficients()
             {
                 MORIS_ERROR( 0, "get_coefficients not implemented in xtk vertex interpolation" );
@@ -116,7 +116,7 @@ namespace moris
             /**
              * returns the pointers to the coefficient objects (const version)
              */
-            const moris::Cell< Vertex* >&
+            const Vector< Vertex* >&
             get_coefficients() const
             {
                 MORIS_ERROR( 0, "get_coefficients not implemented in xtk vertex interpolation" );

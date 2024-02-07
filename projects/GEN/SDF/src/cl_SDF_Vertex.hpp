@@ -57,9 +57,9 @@ namespace moris
 
             uint                mCellCounter = 0;
 
-            moris::Cell< Cell* > mCells;
+            Vector< Cell* > mCells;
 
-            moris::Cell< Vertex* > mNeighbors;
+            Vector< Vertex* > mNeighbors;
 
 // -----------------------------------------------------------------------------
         public:
@@ -231,7 +231,7 @@ namespace moris
  // -----------------------------------------------------------------------------
 
             void
-            insert_cell( Cell * aCell );
+            insert_cell( Cell* aCell );
 
 // -----------------------------------------------------------------------------
 
@@ -243,7 +243,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            Cell *
+            Cell*
             get_cell( const uint aIndex )
             {
                 return mCells( aIndex );

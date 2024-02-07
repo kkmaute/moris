@@ -87,7 +87,7 @@ namespace moris::mtk
          * @return Ptrs of vertices connected to this cell
          */
 
-        virtual moris::Cell< Vertex* >
+        virtual Vector< Vertex* >
         get_vertex_pointers() const override;
 
         //------------------------------------------------------------------------------

@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_VIS_OUTPUT_DATA_HPP_
 #define SRC_FEM_CL_VIS_OUTPUT_DATA_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
 
@@ -76,16 +76,16 @@ namespace moris
             std::string mMeshPath;
 
             //! Set names which shall be part of this mesh
-            moris::Cell< std::string > mSetNames;
+            Vector< std::string > mSetNames;
 
             //! Field names which shall be used for outputs
-            moris::Cell< std::string > mFieldNames;
+            Vector< std::string > mFieldNames;
 
             //! Field types
-            moris::Cell< enum Field_Type > mFieldType;
+            Vector< enum Field_Type > mFieldType;
 
             //! Quantity of interest names
-            moris::Cell< std::string > mQINames;
+            Vector< std::string > mQINames;
         };
 
         //-----------------------------------------------------------------------------------------------------------
@@ -93,14 +93,14 @@ namespace moris
         class Output_Manager
         {
           private:
-            moris::Cell< vis::Output_Data > mOutputData;
+            Vector< vis::Output_Data > mOutputData;
 
-            moris::Cell< mtk::Mesh * > mVisMesh;
-            moris::Cell< bool >        mVisMeshCreatedAndOpen;
+            Vector< mtk::Mesh * > mVisMesh;
+            Vector< bool >        mVisMeshCreatedAndOpen;
 
             bool mOnlyPrimary = false;
 
-            moris::Cell< moris::mtk::Writer_Exodus * > mWriter;
+            Vector< moris::mtk::Writer_Exodus * > mWriter;
 
             std::shared_ptr< mtk::Mesh_Manager > mMTKMesh = nullptr;
 
@@ -122,7 +122,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------------------
 
-            Output_Manager( moris::Cell< moris::ParameterList > aParameterList )
+            Output_Manager( Vector< moris::ParameterList > aParameterList )
             {
                 for ( uint iVisParameter = 0; iVisParameter < aParameterList.size(); iVisParameter++ )
                 {
@@ -179,10 +179,10 @@ namespace moris
                     const std::string                    &aMeshName,
                     const std::string                    &aTempPath,
                     const std::string                    &aTempName,
-                    const moris::Cell< std::string >     &aBlockNames,
-                    const moris::Cell< std::string >     &aFieldNames,
-                    const moris::Cell< enum Field_Type > &aFieldType,
-                    const moris::Cell< std::string >     &aQINames,
+                    const Vector< std::string >     &aBlockNames,
+                    const Vector< std::string >     &aFieldNames,
+                    const Vector< enum Field_Type > &aFieldType,
+                    const Vector< std::string >     &aQINames,
                     const uint                            aSaveFrequency = 1,
                     const real                            aTimeOffset    = 0.0 );
 
@@ -247,17 +247,17 @@ namespace moris
             void
             get_IQI_and_field_names(
                     const uint                   aVisMeshIndex,
-                    Cell< Cell< std::string > > &aIQINames,
-                    Cell< Cell< std::string > > &aFieldNames,
-                    Cell< uint >                &aNumIQIsForFieldType );
+                    Vector< Vector< std::string > > &aIQINames,
+                    Vector< Vector< std::string > > &aFieldNames,
+                    Vector< uint >                &aNumIQIsForFieldType );
 
             //-----------------------------------------------------------------------------------------------------------
 
             void compute_fields_for_set(
                     const uint                         aVisMeshIndex,
                     MSI::Equation_Set                 *aFemSet,
-                    Cell< Cell< std::string > > const &aIQINames,
-                    Cell< Cell< std::string > > const &aFieldNames,
+                    Vector< Vector< std::string > > const &aIQINames,
+                    Vector< Vector< std::string > > const &aFieldNames,
                     Matrix< DDRMat >                  *aGlobalFieldValues,
                     Matrix< DDRMat >                  *aNodalFieldValues );
 
@@ -268,8 +268,8 @@ namespace moris
                     const uint                 aVisMeshIndex,
                     MSI::Equation_Set         *aFemSet,
                     const Field_Type           aFieldType,
-                    Cell< std::string > const &aIQINamesForType,
-                    Cell< std::string > const &aFieldNamesForType );
+                    Vector< std::string > const &aIQINamesForType,
+                    Vector< std::string > const &aFieldNamesForType );
 
             //-----------------------------------------------------------------------------------------------------------
         };

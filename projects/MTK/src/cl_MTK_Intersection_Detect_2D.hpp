@@ -27,28 +27,28 @@ namespace moris
 
                 std::shared_ptr<moris::mtk::Mesh_Manager>             mMeshManager;
                 moris::moris_index                                    mMeshIndex;
-                moris::Cell< moris::Cell< std::string > >             mMeshSideSetPairs;
+                Vector< Vector< std::string > >             mMeshSideSetPairs;
                 moris::uint                                           mNumBulkPhases;
 
                 // To keep track of id and index of added data
                 Mesh_Intersection_Data                                mIntersectedMeshData;
 
                 //All the double sided cluster
-                moris::Cell<moris::mtk::Cluster const* >              mDoubleSidedClusters;
-                moris::Cell<moris::mtk::Cluster const* >              mFollowerSidedClusters;
-                moris::Cell<moris::mtk::Cluster const* >              mLeaderSidedClusters;
+                Vector<moris::mtk::Cluster const* >              mDoubleSidedClusters;
+                Vector<moris::mtk::Cluster const* >              mFollowerSidedClusters;
+                Vector<moris::mtk::Cluster const* >              mLeaderSidedClusters;
 
                 // All the leader side cells created in the intersection process
-                moris::Cell<moris::mtk::Cell const *>                         mLeaderSideCells;
-                moris::Cell<moris::mtk::Cell const *>                         mFollowerSideCells;
+                Vector<moris::mtk::Cell const *>                         mLeaderSideCells;
+                Vector<moris::mtk::Cell const *>                         mFollowerSideCells;
 
                 // All the vertices created in the intersection process
-                moris::Cell<moris::mtk::Vertex const *>                         mLeaderVertices;
-                moris::Cell<moris::mtk::Vertex const *>                         mFollowerVertices;
+                Vector<moris::mtk::Vertex const *>                         mLeaderVertices;
+                Vector<moris::mtk::Vertex const *>                         mFollowerVertices;
 
                 // Index of double sided cluster ( relevant indices of each cluster )
                 // Each index shows a distinct interaction between leader phases and salve phases
-                moris::Cell<moris::moris_index >                      mDoubleSidedClustersIndex;
+                Vector<moris::moris_index >                      mDoubleSidedClustersIndex;
 
             public:
 
@@ -84,8 +84,8 @@ namespace moris
                  * @param[in] tPhaseToPhaseIndex a index showing interaction of leader-side and follower-side phases
                  */
                 void create_dbl_sided_cluster(
-                        moris::Cell< Matrix < DDRMat> > tP,
-                        moris::Cell<moris_index> & aIndicesinCutCell,
+                        Vector< Matrix < DDRMat> > tP,
+                        Vector<moris_index> & aIndicesinCutCell,
                         moris::mtk::Cell const & aRightInterpCell,
                         moris::mtk::Cell const & aLeftInterpCell,
                         uint aPairCount,
@@ -99,7 +99,7 @@ namespace moris
                  * @param[in] aPairCount number of the pair in the periodic side set pair
                  */
                 moris::mtk::Cell const * create_leader_ig_cell(
-                        moris::Cell<moris::mtk::Vertex *> tLeaderVertices ,
+                        Vector<moris::mtk::Vertex *> tLeaderVertices ,
                         moris::mtk::Cell const & aLeaderInterpCell,
                         uint aPairCount);
 
@@ -111,7 +111,7 @@ namespace moris
                  * @param[in] aPairCount number of the pair in the periodic side set pair
                  */
                 moris::mtk::Cell const *  create_follower_ig_cell(
-                        moris::Cell<moris::mtk::Vertex *> tFollowerVertices ,
+                        Vector<moris::mtk::Vertex *> tFollowerVertices ,
                         moris::mtk::Cell const & aFollowerInterpCell,
                         uint aPairCount );
 
@@ -132,8 +132,8 @@ namespace moris
                  */
                 void
                 offset_vector(moris::Matrix<DDRMat > &tOffsetVector,
-                        moris::Cell< std::string > &tFirstSideSetNames,
-                        moris::Cell< std::string > &tSecondSideSetNames,
+                        Vector< std::string > &tFirstSideSetNames,
+                        Vector< std::string > &tSecondSideSetNames,
                         uint aPairCount);
 
                 // ----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ namespace moris
                  * @param[ in ] aLeaderInterpCell Leader interpolation cell
                  * @param[ in ] aPairCount Number of the pair in the periodic side set pair
                  */
-                moris::Cell< moris::mtk::Vertex *>
+                Vector< moris::mtk::Vertex *>
                 create_leader_vertices( Matrix < DDRMat> tUniqueIntersectedPoints,
                         moris::mtk::Cell const & aLeaderInterpCell,
                         uint aPairCount);
@@ -155,7 +155,7 @@ namespace moris
                  * @param[ in ] aFollowerInterpCell Follower interpolation cell
                  * @param[ in ] aPairCount Number of the pair in the periodic side set pair
                  */
-                moris::Cell< moris::mtk::Vertex *>
+                Vector< moris::mtk::Vertex *>
                 create_follower_vertices( Matrix < DDRMat> tUniqueIntersectedPoints,
                         moris::mtk::Cell const & aFollowerInterpCell,
                         uint aPairCount);
@@ -184,9 +184,9 @@ namespace moris
                  * @param[ out ] aMap map relating the background cells to the side clusters
                  */
                 void
-                generate_identifier( moris::Cell< mtk::Cluster const * > & aSideClusters,
+                generate_identifier( Vector< mtk::Cluster const * > & aSideClusters,
                         uint &                                  aPairCount,
-                        std::unordered_map< moris::moris_index, moris::Cell<moris_index> > & aMap) const ;
+                        std::unordered_map< moris::moris_index, Vector<moris_index> > & aMap) const ;
 
                 // ----------------------------------------------------------------------------
                 /*
@@ -200,11 +200,11 @@ namespace moris
 
                 void
                 elementwise_bruteforce_search (
-                        moris::Cell < moris::Matrix <DDRMat> >  const &  tParamCoordsCell,
+                        Vector< moris::Matrix <DDRMat> >  const &  tParamCoordsCell,
                         moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap,
-                        moris::Cell < moris::Matrix <DDRMat> >  const &  tParamCoordsCell2,
+                        Vector< moris::Matrix <DDRMat> >  const &  tParamCoordsCell2,
                         moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap2,
-                        moris::Cell < moris::Matrix <DDRMat> > &         tCutTriangles,
+                        Vector< moris::Matrix <DDRMat> > &         tCutTriangles,
                         moris::Matrix< moris::IndexMat> &                tCutTrianglesIdentifier) const;
 
                 // ----------------------------------------------------------------------------
@@ -232,7 +232,7 @@ namespace moris
                  */
                 void
                 group_cut_cells(moris::Matrix< IndexMat> const & aCutCellIndetiferMatrix,
-                        std::unordered_map< moris_index , moris::Cell< moris_index > > & aCutCellIdentifierToCutCellIndex) const;
+                        std::unordered_map< moris_index , Vector< moris_index > > & aCutCellIdentifierToCutCellIndex) const;
 
                 // ----------------------------------------------------------------------------
 

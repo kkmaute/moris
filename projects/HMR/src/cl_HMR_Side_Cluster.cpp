@@ -26,7 +26,7 @@ namespace moris::hmr
     Side_Cluster_HMR::Side_Cluster_HMR(
             moris::mtk::Cell const *                        aInterpCell,
             moris::mtk::Cell const *                        aIntegrationCell,
-            moris::Cell<moris::mtk::Vertex const *> const & aVerticesInCluster,
+            Vector<moris::mtk::Vertex const *> const & aVerticesInCluster,
             moris_index aSideOrdinal)
     : mTrivial(true),
       mInterpolationCell(aInterpCell),
@@ -49,9 +49,9 @@ namespace moris::hmr
     Side_Cluster_HMR::Side_Cluster_HMR(
             bool                                            aTrivial,
             moris::mtk::Cell const *                        aInterpolationCell,
-            moris::Cell<moris::mtk::Cell const *>   const & aIntegrationCells,
+            Vector<moris::mtk::Cell const *>   const & aIntegrationCells,
             moris::Matrix<moris::IndexMat>          const & aIntegrationCellSideOrdinals,
-            moris::Cell<moris::mtk::Vertex const *> const & aVerticesInCluster,
+            Vector<moris::mtk::Vertex const *> const & aVerticesInCluster,
             moris::Matrix<moris::DDRMat>            const & aVertexParamCoords)
     : mTrivial(aTrivial),
       mInterpolationCell(aInterpolationCell),
@@ -88,7 +88,7 @@ namespace moris::hmr
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    Vector<moris::mtk::Cell const *> const &
     Side_Cluster_HMR::get_cells_in_side_cluster() const
     {
         return mIntegrationCells;
@@ -115,7 +115,7 @@ namespace moris::hmr
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Vertex const *>
+    Vector<moris::mtk::Vertex const *>
     Side_Cluster_HMR::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mVerticesInCluster;

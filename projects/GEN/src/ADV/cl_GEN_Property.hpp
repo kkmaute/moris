@@ -21,11 +21,11 @@ namespace moris::gen
      */
     struct Property_Parameters : public Field_Parameters, public Design_Parameters
     {
-        Cell< std::string > mDependencyNames;      //! Names of the dependencies of this property
+        Vector< std::string > mDependencyNames;      //! Names of the dependencies of this property
         PDV_Type            mPDVType;              //! The type of PDV that this property will be assigned to
         bool                mInterpolationPDV;     //! If the PDV is defined on the interpolation mesh (always true for now)
-        Cell< uint >        mPDVMeshSetIndices;    //! Mesh set indices for assigning PDVs
-        Cell< std::string > mPDVMeshSetNames;      //! Mesh set names for assigning PDVs
+        Vector< uint >        mPDVMeshSetIndices;    //! Mesh set indices for assigning PDVs
+        Vector< std::string > mPDVMeshSetNames;      //! Mesh set names for assigning PDVs
 
         /**
          * Constructor with a given parameter list
@@ -67,7 +67,7 @@ namespace moris::gen
          *
          * @param aAllUpdatedFields All fields (this property will take the ones it needs)
          */
-        void update_dependencies( Cell< std::shared_ptr< Design > > aAllUpdatedFields );
+        void update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedFields );
 
         /**
          * Gets the PDV type that this property defines.
@@ -89,7 +89,7 @@ namespace moris::gen
          * @param aMesh Mesh for getting set indices from set names
          * @return Mesh set indices
          */
-        Cell< uint > get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh );
+        Vector< uint > get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh );
 
         /**
          * Used for writing to mtk meshes and printing for debug info
@@ -101,7 +101,7 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Cell< real >& aOutputDesignInfo ) override;
+                Vector< real >& aOutputDesignInfo ) override;
 
         /**
          * gets the number of fields the property has

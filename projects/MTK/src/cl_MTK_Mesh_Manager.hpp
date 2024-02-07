@@ -12,7 +12,7 @@
 #define PROJECTS_MTK_SRC_CL_MTK_MESH_MANAGER_HPP_
 
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Map.hpp"
 
 namespace moris
@@ -33,7 +33,7 @@ namespace moris
         {
         private:
             // list of mesh pairs
-            moris::Cell<Mesh_Pair>                     mMeshPairs;
+            Vector<Mesh_Pair>                     mMeshPairs;
 
             // mesh pair to index map
             moris::map< std::string, moris_index >     mMeshPairNameToIndexMap;
@@ -42,12 +42,12 @@ namespace moris
             std::weak_ptr<hmr::HMR>                    mHMRPerformer ;
 
             // list of registered fields
-            moris::Cell< std::weak_ptr< mtk::Field > > mFields;
+            Vector< std::weak_ptr< mtk::Field > > mFields;
 
             // mesh pair to index map
             moris::map< std::string, moris_index >     mFieldLabelToIndexMap;
 
-            moris::Cell< moris::Cell< moris_index > >  mMeshPairToFieldIndexMap;
+            Vector< Vector< moris_index > >  mMeshPairToFieldIndexMap;
 
         public:
 
@@ -113,7 +113,7 @@ namespace moris
 
             //-------------------------------------------------------------------------
 
-            void update_mesh_pairs( const moris::Cell< std::string > & aMeshPairNames );
+            void update_mesh_pairs( const Vector< std::string > & aMeshPairNames );
 
             //--------------------------------------------------------------------
 

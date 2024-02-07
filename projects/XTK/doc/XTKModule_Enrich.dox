@@ -1,55 +1,55 @@
 #
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#Copyright( c ) 2022 University of Colorado
+#Licensed under the MIT license.See LICENSE.txt file in the MORIS root for details.
 #
-#------------------------------------------------------------------------------------
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 #
 
-namespace moris {
+namespace moris
+{
 
-/** @defgroup XTKEnrich Enrichment Strategy
-@section EnrTheory Theory
-The standard FEM solution is enriched with some enrichment function: 
-\f[
-  \mathbf{u}(\mathbf{x},t) =\sum_{i=1}^{n} N_i(\mathbf{x}) \bigg[u_i(t) + \sum_{j=1}^{n_{enrich}}G_j(\mathbf{x},t) a_{ij}\bigg]
-\f]
-where \f$G_j(\mathbf{x},t)\f$ is an enrichment function and \f$a_{ij}\f$ are the enriched degrees of freedom. 
-A useful enrichment function for the modeling of material interface is the Heaviside function or step enrichment \citep{Hansbo2004}. Standard step enrichment falls short for complex interfaces with small features because of fictitious coupling between topologically disconnected features of the same material. \citep{Makhija2014} mitigates this issue by considering enrichment levels node-wise where a node can have multiple enrichment levels with the same material type. This was different from the preceding work where enrichment levels were considered elementally \cite{Terada2003}. For basis-wise consideration with an arbitrary number of materials, the generalized Heaviside enrichment (GHE) takes the form of equation \eqref{eq:ghe}.
+    /** @defgroup XTKEnrich Enrichment Strategy
+    @section EnrTheory Theory
+    The standard FEM solution is enriched with some enrichment function:
+    \f[
+      \mathbf{u}(\mathbf{x},t) =\sum_{i=1}^{n} N_i(\mathbf{x}) \bigg[u_i(t) + \sum_{j=1}^{n_{enrich}}G_j(\mathbf{x},t) a_{ij}\bigg]
+    \f]
+    where \f$G_j(\mathbf{x},t)\f$ is an enrichment function and \f$a_{ij}\f$ are the enriched degrees of freedom.
+    A useful enrichment function for the modeling of material interface is the Heaviside function or step enrichment \citep{Hansbo2004}. Standard step enrichment falls short for complex interfaces with small features because of fictitious coupling between topologically disconnected features of the same material. \citep{Makhija2014} mitigates this issue by considering enrichment levels node-wise where a node can have multiple enrichment levels with the same material type. This was different from the preceding work where enrichment levels were considered elementally \cite{Terada2003}. For basis-wise consideration with an arbitrary number of materials, the generalized Heaviside enrichment (GHE) takes the form of equation \eqref{eq:ghe}.
 
-\f[
-\mathbf{u}(\mathbf{x}) =\sum_{l=1}^L \sum_{m=1}^M\bigg( H(\psi) \sum_{i=1}^{n}N_i \hat{c}_{i,l}^m \bigg)
-\f]
-where \f$l\f$ is the enrichment level, \f$L\f$ is the maximum number of enrichment levels, \f$m\f$ is the bulk-phase, \f$M\f$ is the number of bulk-phases in the domain, \f$\hat{c}\f$  is the  enriched basis coefficient, \f$N\f$ are the basis function weights, \f$\psi\f$ is an \f$\Omega^m\f$ membership indicator and \f$H(z)\f$ is the Heaviside function. This equation does not use commas to denote a gradient or derivative operator. \f$\Omega_m \subseteq\Omega \f$ is the body in which an enriched basis function interpolates into the physical or primary domain. If \f$x \in \Omega_m\f$, then \f$\psi = 1\f$ otherwise \f$\psi = 0\f$. In the case \f$M = 2\f$, the two material generalized Heaviside enrichment is recovered  as shown in\citep{Makhija2014}. This approach is more general because no assumption is made that the Heaviside function operates on a LS field. There is no \a a \a priori value for \f$M\f$ per basis function.
+    \f[
+    \mathbf{u}(\mathbf{x}) =\sum_{l=1}^L \sum_{m=1}^M\bigg( H(\psi) \sum_{i=1}^{n}N_i \hat{c}_{i,l}^m \bigg)
+    \f]
+    where \f$l\f$ is the enrichment level, \f$L\f$ is the maximum number of enrichment levels, \f$m\f$ is the bulk-phase, \f$M\f$ is the number of bulk-phases in the domain, \f$\hat{c}\f$  is the  enriched basis coefficient, \f$N\f$ are the basis function weights, \f$\psi\f$ is an \f$\Omega^m\f$ membership indicator and \f$H(z)\f$ is the Heaviside function. This equation does not use commas to denote a gradient or derivative operator. \f$\Omega_m \subseteq\Omega \f$ is the body in which an enriched basis function interpolates into the physical or primary domain. If \f$x \in \Omega_m\f$, then \f$\psi = 1\f$ otherwise \f$\psi = 0\f$. In the case \f$M = 2\f$, the two material generalized Heaviside enrichment is recovered  as shown in\citep{Makhija2014}. This approach is more general because no assumption is made that the Heaviside function operates on a LS field. There is no \a a \a priori value for \f$M\f$ per basis function.
 
-@section EnrTheory Implementation Details
-\anchor XEN1
-\image html  basis_support.png "Figure 1: Domain colored by bulk-phase in a single basis support."
-\anchor XEN2
-\image html  basis_support_enriched.png "Figure 2: Domain colored by enrichment level in a single basis support."
+    @section EnrTheory Implementation Details
+    \anchor XEN1
+    \image html  basis_support.png "Figure 1: Domain colored by bulk-phase in a single basis support."
+    \anchor XEN2
+    \image html  basis_support_enriched.png "Figure 2: Domain colored by enrichment level in a single basis support."
 
-Take for example the basis function support, or portion of \f$\Omega\f$ which a basis function has a nonzero value, illustrated in Figure Figure \ref XEN1 "1". The basis function support is denoted as \f$\Omega^s\f$.  There are two topologically disconnected regions of bulk-phase phase B, \f$\Omega_B\f$, and one region of bulk-phase phase A, \f$\Omega_A\f$. Without GHE, the two bodies in \f$\Omega_B\f$ would be fictitiously coupled resulting in artificial stiffness in the system. The enrichment strategy identifies and enriches existing basis functions for consistent decoupling of \f$\Omega_B^1\f$ and \f$\Omega_B^2\f$ as seen in Figure \ref XEN2 "2". It may be the case that these bodies become connected outside of $\Omega^s$ and may belong to the same enrichment level for wider basis function support.
+    Take for example the basis function support, or portion of \f$\Omega\f$ which a basis function has a nonzero value, illustrated in Figure Figure \ref XEN1 "1". The basis function support is denoted as \f$\Omega^s\f$.  There are two topologically disconnected regions of bulk-phase phase B, \f$\Omega_B\f$, and one region of bulk-phase phase A, \f$\Omega_A\f$. Without GHE, the two bodies in \f$\Omega_B\f$ would be fictitiously coupled resulting in artificial stiffness in the system. The enrichment strategy identifies and enriches existing basis functions for consistent decoupling of \f$\Omega_B^1\f$ and \f$\Omega_B^2\f$ as seen in Figure \ref XEN2 "2". It may be the case that these bodies become connected outside of $\Omega^s$ and may belong to the same enrichment level for wider basis function support.
 
-At this point it is important to understand the concepts of \ref XTKBpSpSpNeigh "bulk-phase, sub-phase and sub-phase neighborhood" because they will be used extensively to describe the enrichment strategy algorithm. The skeleton of the enrichment algorithm can be found in Alg. \ref XEN_Alg "1". The implementation can be found in cl_XTK_Enrichment.hpp:perform_basis_cluster_enrichment().
+    At this point it is important to understand the concepts of \ref XTKBpSpSpNeigh "bulk-phase, sub-phase and sub-phase neighborhood" because they will be used extensively to describe the enrichment strategy algorithm. The skeleton of the enrichment algorithm can be found in Alg. \ref XEN_Alg "1". The implementation can be found in cl_XTK_Enrichment.hpp:perform_basis_cluster_enrichment().
 
-\anchor XEN_Alg
-\code{.py}
- Add clean enrichment algorithm here. (similar to latex algorithm)
-\endcode
- The enrichment strategy takes as an input globally consistent sub-phase identifiers, a partitioned conformal integration mesh from the decomposition strategy and a sub-phase neighborhood of all sub-phases on the partition including the aura. The enrichment strategy outputs globally consistent enriched basis functions, an enriched interpolation mesh and an enriched integration mesh.  
- 
-Iteration is performed over background basis functions. For the current basis function, all sub-phases in  its support are collected, the full sub-phase neighborhood is pruned to only the active sub-phases and a flood-fill algorithm determines the enrichment level of each active sub-phase. After basis function iteration, globally consistent enriched basis function identifiers are allocated and assigned to all enrichment levels of all owned background basis functions on a processor. For global consistency, the owning processor of a background basis function needs to have the entire basis support for all of its owned basis functions. Each non-owning processor of a background basis functions requests the assigned enriched basis function identifiers from the owning processor using the sub-phase global identifiers to identify the correct enrichment level. Non-owning processors of a basis function do not require knowledge of all sub-phases in the basis support. An enriched interpolation mesh is constructed which has one interpolation cell per encased sub-phase where the interpolation cell is interpolated into by the enriched basis functions rather than the background basis functions. An enriched integration mesh is constructed which defines the integration domains and appropriate groupings pertaining to the enriched interpolation mesh.
+    \anchor XEN_Alg
+    \code{.py}
+     Add clean enrichment algorithm here. (similar to latex algorithm)
+    \endcode
+     The enrichment strategy takes as an input globally consistent sub-phase identifiers, a partitioned conformal integration mesh from the decomposition strategy and a sub-phase neighborhood of all sub-phases on the partition including the aura. The enrichment strategy outputs globally consistent enriched basis functions, an enriched interpolation mesh and an enriched integration mesh.
+
+    Iteration is performed over background basis functions. For the current basis function, all sub-phases in  its support are collected, the full sub-phase neighborhood is pruned to only the active sub-phases and a flood-fill algorithm determines the enrichment level of each active sub-phase. After basis function iteration, globally consistent enriched basis function identifiers are allocated and assigned to all enrichment levels of all owned background basis functions on a processor. For global consistency, the owning processor of a background basis function needs to have the entire basis support for all of its owned basis functions. Each non-owning processor of a background basis functions requests the assigned enriched basis function identifiers from the owning processor using the sub-phase global identifiers to identify the correct enrichment level. Non-owning processors of a basis function do not require knowledge of all sub-phases in the basis support. An enriched interpolation mesh is constructed which has one interpolation cell per encased sub-phase where the interpolation cell is interpolated into by the enriched basis functions rather than the background basis functions. An enriched integration mesh is constructed which defines the integration domains and appropriate groupings pertaining to the enriched interpolation mesh.
 
 
-@subsection EnrParallel Parallel Considerations
-The ghost stabilization uses the standard \ref XTKParallel "XTK parallelism" to assign enriched basis identifiers.  The anchors used are the background basis id and a sub-phase id in the support of the enriched basis function. Requests are made to the owning processor. The owning processor selects the correct enriched basis id to answer the request by iterating through the enriched basis functions at a requested background basis function until finding the one with the same subphase id in the support as requested. On the non-owning processors a basis function may have a different number of enrichment levels than the owning processor because the full  basis support is not necessarily present. This means that an enriched basis functions for a given background basis function may have the same id for different enrichment levels on the non-owning processor of the background basis function. The function can be found in cl_XTK_Enrichment.hpp:assign_enriched_coefficients_identifiers().
+    @subsection EnrParallel Parallel Considerations
+    The ghost stabilization uses the standard \ref XTKParallel "XTK parallelism" to assign enriched basis identifiers.  The anchors used are the background basis id and a sub-phase id in the support of the enriched basis function. Requests are made to the owning processor. The owning processor selects the correct enriched basis id to answer the request by iterating through the enriched basis functions at a requested background basis function until finding the one with the same subphase id in the support as requested. On the non-owning processors a basis function may have a different number of enrichment levels than the owning processor because the full  basis support is not necessarily present. This means that an enriched basis functions for a given background basis function may have the same id for different enrichment levels on the non-owning processor of the background basis function. The function can be found in cl_XTK_Enrichment.hpp:assign_enriched_coefficients_identifiers().
 
-@subsection EnrExample Conceptual Example
-\anchor XEN3
-\image html  subphase_basis_small.png "Figure 3: Enrichment of small support basis function."
-\anchor XEN4
-\image html  subphase_basis_full.png "Figure 4: Enrichment of large support basis function."
-For the same conformal integration mesh, the expected results are visualized for a small and large basis support, Figure \ref XEN3 "3"  and \ref XEN4 "4"  respectively. For the small basis support, all white sub-phases with dashed outlines are outside of the basis support. The center diagram of Figure \ref XEN3 "3" shows the pruned sub-phase neighborhood and the right diagram is colored by enrichment levels within the basis support. There are six enrichment levels for the small configuration. For the large basis function, the pruned sub-phase neighborhood is equivalent to the entire domain because the basis support spans the entire domain. The resulting enrichment levels are shown on the right diagram of Figure \ref XEN4 "4" . There are only three enrichment levels for this basis function. It should be noted that when the basis support is wide enough that features reconnect, fictitious coupling may be introduced which is caused by an under resolution of the geometry representation. This should be avoided and if detected be fixed with further adaptive mesh refinement.
+    @subsection EnrExample Conceptual Example
+    \anchor XEN3
+    \image html  subphase_basis_small.png "Figure 3: Enrichment of small support basis function."
+    \anchor XEN4
+    \image html  subphase_basis_full.png "Figure 4: Enrichment of large support basis function."
+    For the same conformal integration mesh, the expected results are visualized for a small and large basis support, Figure \ref XEN3 "3"  and \ref XEN4 "4"  respectively. For the small basis support, all white sub-phases with dashed outlines are outside of the basis support. The center diagram of Figure \ref XEN3 "3" shows the pruned sub-phase neighborhood and the right diagram is colored by enrichment levels within the basis support. There are six enrichment levels for the small configuration. For the large basis function, the pruned sub-phase neighborhood is equivalent to the entire domain because the basis support spans the entire domain. The resulting enrichment levels are shown on the right diagram of Figure \ref XEN4 "4" . There are only three enrichment levels for this basis function. It should be noted that when the basis support is wide enough that features reconnect, fictitious coupling may be introduced which is caused by an under resolution of the geometry representation. This should be avoided and if detected be fixed with further adaptive mesh refinement.
 
- */
- }
-
+     */
+}

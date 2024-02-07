@@ -8,11 +8,10 @@
  *
  */
 
-#ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_
-#define PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_
+#pragma once
 
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_XTK_Topology.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -20,7 +19,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     struct Decomposition_Data
     {
@@ -38,59 +37,53 @@ namespace xtk
         bool mFirstSubdivision       = false;
 
         // Active child mesh to its nodes location in tNewNodeIndex
-        Cell< Cell< moris_index > >      tCMNewNodeLoc;           // input: Cell group index || output: list of edge indices
-        Cell< Cell< Matrix< DDRMat > > > tCMNewNodeParamCoord;    // input: Cell group index || output: list of coordinates
+        Vector< Vector< moris_index > >      tCMNewNodeLoc;           // input: Cell group index || output: list of edge indices
+        Vector< Vector< Matrix< DDRMat > > > tCMNewNodeParamCoord;    // input: Cell group index || output: list of coordinates
         /* Note: this stores some duplicate parametric coordinates but is necessary for flexible use*/
 
-        // geometric proximity of vertices and cells
-        Cell< Cell< Geometric_Proximity > > mVertexProximity; // input: Vertex index, Geometry index || output: geometric proximity of the vertex wrt to the specified geometry
-        Cell< Cell< bool > > mVertexProximitySet; // input: Vertex index, Geometry index || output: whether this Vertex's proximity has already been decided
-        Cell< Cell< Geometric_Proximity > > mCellProximity; // input: Cell index, Geometry index || output: geometric proximity of the cell wrt to the specified geometry
-        Cell< Cell< bool > > mCellProximitySet; // input: Cell index, Geometry index || output: whether this Cell's proximity has already been decided
-
         // New node indices
-        Cell< moris_index > tNewNodeIndex;
+        Vector< moris_index > tNewNodeIndex;
 
         // new node ids
-        Cell< moris_index > tNewNodeId;
+        Vector< moris_index > tNewNodeId;
 
         // new node owner
-        Cell< moris_index > tNewNodeOwner;
+        Vector< moris_index > tNewNodeOwner;
 
         // hanging nodes between procs
-        Cell< moris_index > tNewNodeHangingFlag;
-        Cell< moris_index > tNewNodeHangingWRTProcRank;
+        Vector< moris_index > tNewNodeHangingFlag;
+        Vector< moris_index > tNewNodeHangingWRTProcRank;
 
         // New node parent topology
-        Cell< Topology* > tNewNodeParentTopology;
+        Vector< Topology* > tNewNodeParentTopology;
 
-        Cell< mtk::Cell* >                          mNewNodeParentCells;
-        Cell< std::shared_ptr< Matrix< DDRMat > > > mNewVertexLocalCoordWRTParentCell;
+        Vector< mtk::Cell* >                          mNewNodeParentCells;
+        Vector< std::shared_ptr< Matrix< DDRMat > > > mNewVertexLocalCoordWRTParentCell;
 
         // new node vertex dependencies
-        Cell< std::shared_ptr< Cell< mtk::Vertex* > > > mNewVertexParentVertices;
+        Vector< std::shared_ptr< Vector< mtk::Vertex* > > > mNewVertexParentVertices;
 
-        Cell< std::shared_ptr< Matrix< DDRMat > > > mNewVertexBasisWeights;
+        Vector< std::shared_ptr< Matrix< DDRMat > > > mNewVertexBasisWeights;
 
         // Parent index of a new node
-        Cell< moris_index > tNewNodeParentIndex;
+        Vector< moris_index > tNewNodeParentIndex;
 
         // Parent entity secondary identifier
-        Cell< moris_index > tSecondaryIdentifiers;
+        Vector< moris_index > tSecondaryIdentifiers;
 
         // Parent entity rank
-        Cell< mtk::EntityRank > tNewNodeParentRank;
+        Vector< mtk::EntityRank > tNewNodeParentRank;
 
         // new node coordinate
-        Cell< Matrix< DDRMat > > tNewNodeCoordinate;
+        Vector< Matrix< DDRMat > > tNewNodeCoordinate;
 
         // new node parametric coordinate relative to parent entity
-        Cell< Matrix< DDRMat > > tParamCoordRelativeToParent;
+        Vector< Matrix< DDRMat > > tParamCoordRelativeToParent;
 
         // map from elements to location in tNewNodeParentIndex
         std::unordered_map< moris_index, moris_index > tElementIndexToNodeLoc;
 
-        Cell< IndexMap > mElementIndexToSecondaryIdAndNewNodeLoc;
+        Vector< IndexMap > mElementIndexToSecondaryIdAndNewNodeLoc;
 
         // map from face to location in tNewNodeParentIndex
         std::unordered_map< moris_index, moris_index > tFaceIndexToNodeLoc;
@@ -99,10 +92,10 @@ namespace xtk
         // outer cell - Face index
         // inner map - iter->first  = secondary id
         //             iter->second = new node location
-        Cell< IndexMap > mFaceIndexToSecondaryIdAndNewNodeLoc;
+        Vector< IndexMap > mFaceIndexToSecondaryIdAndNewNodeLoc;
 
         std::unordered_map< moris_index, moris_index > mEdgeIndexToNodeLoc;
-        Cell< IndexMap >                               mEdgeIndexToSecondaryIdAndNewNodeLoc;
+        Vector< IndexMap >                             mEdgeIndexToSecondaryIdAndNewNodeLoc;
 
         // map from edge to location in tNewNodeParentIndex
         std::unordered_map< moris_index, moris_index > tEdgeIndexToNodeLoc;
@@ -599,6 +592,4 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-}    // namespace xtk
-
-#endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_ */
+}    // namespace moris::xtk

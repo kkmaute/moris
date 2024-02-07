@@ -10,7 +10,7 @@
 
 #include "cl_Library_Enums.hpp"
 #include "assert.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris
 {
@@ -118,7 +118,7 @@ namespace moris
             uint                aParamListIndex )
     {
         // initialize the names with the standard
-        Cell< std::string > tNames = { "General" };
+        Vector< std::string > tNames = { "General" };
 
         // get the names of the sub-parameter lists for each of the modules
         switch ( aModule )
@@ -210,7 +210,7 @@ namespace moris
             uint                aParamListIndex )
     {
         // initialize the names with the standard
-        Cell< std::string > tNames = { "" };
+        Vector< std::string > tNames = { "" };
 
         // get the names of the sub-parameter lists for each of the modules
         switch ( aModule )

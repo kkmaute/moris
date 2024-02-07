@@ -16,7 +16,7 @@
 #include "HMR_Globals.hpp"     //HMR/src
 #include "HMR_Tools.hpp"       //HMR/src
 #include "cl_Stopwatch.hpp"    //CHR/src
-#include "cl_Cell.hpp"         //CNT/src
+#include "cl_Vector.hpp"       //CNT/src
 #include "cl_Bitset.hpp"       //CNT/src
 #include "cl_Tracer.hpp"
 
@@ -122,7 +122,7 @@ namespace moris::hmr
 
             // matrix to send
             Matrix< IdMat >         tEmpty;
-            Cell< Matrix< IdMat > > tSendOwners( tNumberOfNeighbors, tEmpty );
+            Vector< Matrix< IdMat > > tSendOwners( tNumberOfNeighbors, tEmpty );
 
             // loop over all neighbor procs
             for ( uint k = 0; k < tNumberOfNeighbors; ++k )
@@ -146,7 +146,7 @@ namespace moris::hmr
             }
 
             // matrix to receive
-            Cell< Matrix< IdMat > > tReceiveOwners;
+            Vector< Matrix< IdMat > > tReceiveOwners;
 
             // communicate ownership to neighbors
             communicate_mats( mMyProcNeighbors,
@@ -357,11 +357,11 @@ namespace moris::hmr
 
             // create empty matrix n
             Matrix< DDLUMat >         tEmptyLuint;
-            Cell< Matrix< DDLUMat > > tAncestorListSend;
+            Vector< Matrix< DDLUMat > > tAncestorListSend;
             tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
             Matrix< DDUMat >         tEmptyUint;
-            Cell< Matrix< DDUMat > > tPedigreeListSend;
+            Vector< Matrix< DDUMat > > tPedigreeListSend;
             tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
             // loop over all procs
@@ -394,7 +394,7 @@ namespace moris::hmr
                     }
 
                     // assign memory
-                    Cell< Background_Element_Base* > tActiveElements( tNumberOfActiveElements, nullptr );
+                    Vector< Background_Element_Base* > tActiveElements( tNumberOfActiveElements, nullptr );
 
                     // reset counter
                     luint tCount = 0;
@@ -464,8 +464,8 @@ namespace moris::hmr
             } /* end loop over all procs */
 
             // initialize matrices for receiving
-            Cell< Matrix< DDLUMat > > tAncestorListReceive;
-            Cell< Matrix< DDUMat > >  tPedigreeListReceive;
+            Vector< Matrix< DDLUMat > > tAncestorListReceive;
+            Vector< Matrix< DDUMat > >  tPedigreeListReceive;
 
             // communicate ancestor IDs
             communicate_mats( mMyProcNeighbors,
@@ -548,7 +548,7 @@ namespace moris::hmr
         }
 
         // array for padding elements
-        Cell< Background_Element_Base* > tAllPaddingElements( tPaddingCount, nullptr );
+        Vector< Background_Element_Base* > tAllPaddingElements( tPaddingCount, nullptr );
 
         // reset counter
         tPaddingCount = 0;
@@ -959,7 +959,7 @@ namespace moris::hmr
     void
     Background_Mesh_Base::collect_elements_on_level(
             uint                              aLevel,
-            Cell< Background_Element_Base* >& aElementList )
+            Vector< Background_Element_Base* >& aElementList )
     {
         // get number of elements from lookup table
         auto tNumberOfElements = mNumberOfElementsPerLevel[ aLevel ];
@@ -993,7 +993,7 @@ namespace moris::hmr
     void
     Background_Mesh_Base::collect_elements_on_level_including_aura(
             uint                              aLevel,
-            Cell< Background_Element_Base* >& aElementList )
+            Vector< Background_Element_Base* >& aElementList )
     {
         // get number of elements from lookup table
         auto tNumberOfElements = this->count_elements_on_level_including_aura( aLevel );
@@ -1027,7 +1027,7 @@ namespace moris::hmr
     void
     Background_Mesh_Base::collect_elements_on_level_within_proc_domain(
             uint                              aLevel,
-            Cell< Background_Element_Base* >& aElementList )
+            Vector< Background_Element_Base* >& aElementList )
     {
         // get number of elements from lookup table
         auto tNumberOfElements = this->count_elements_on_level( aLevel );
@@ -1059,7 +1059,7 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Background_Mesh_Base::collect_all_elements( Cell< Background_Element_Base* >& aElementList )
+    Background_Mesh_Base::collect_all_elements( Vector< Background_Element_Base* >& aElementList )
     {
         // clear element list
         aElementList.clear();
@@ -1100,7 +1100,7 @@ namespace moris::hmr
         this->collect_neighbors_on_level_zero();
 
         // element list on level
-        Cell< Background_Element_Base* > tElementList;
+        Vector< Background_Element_Base* > tElementList;
 
         // collect higher level neighbors if any refinement exists
         if ( mMaxLevel > 0 )
@@ -1200,11 +1200,11 @@ namespace moris::hmr
 
             // create empty matrix n
             Matrix< DDLUMat >         tEmpty;
-            Cell< Matrix< DDLUMat > > tIndexListSend;
+            Vector< Matrix< DDLUMat > > tIndexListSend;
             tIndexListSend.resize( tNumberOfNeighbors, { tEmpty } );
 
             // initialize matrices for receiving
-            Cell< Matrix< DDLUMat > > tIndexListReceive;
+            Vector< Matrix< DDLUMat > > tIndexListReceive;
 
             // loop over all procs
             for ( uint p = 0; p < tNumberOfNeighbors; ++p )
@@ -1226,7 +1226,7 @@ namespace moris::hmr
                     }
 
                     // assign memory for cell of elements
-                    Cell< Background_Element_Base* > tElements( tNumberOfElementsOnInverseAura, nullptr );
+                    Vector< Background_Element_Base* > tElements( tNumberOfElementsOnInverseAura, nullptr );
 
                     // reset counter
                     luint tCount = 0;
@@ -1267,7 +1267,7 @@ namespace moris::hmr
                     luint tNumberOfElementsOnAura = tIndexListReceive( p ).length();
 
                     // assign memory for cell of elements
-                    Cell< Background_Element_Base* > tElements( tNumberOfElementsOnAura, nullptr );
+                    Vector< Background_Element_Base* > tElements( tNumberOfElementsOnAura, nullptr );
 
                     // initialize counter
                     luint tCount = 0;
@@ -1300,7 +1300,7 @@ namespace moris::hmr
     Background_Mesh_Base::collect_active_elements_from_aura(
             uint                              aProcNeighbor,
             uint                              aMode,
-            Cell< Background_Element_Base* >& aElementList )
+            Vector< Background_Element_Base* >& aElementList )
     {
         // clear element list
         aElementList.clear();
@@ -1386,7 +1386,7 @@ namespace moris::hmr
             uint                     aHalfBuffer )
     {
         // cell containing neighbors of each parent
-        Cell< Background_Element_Base* > tNeighbors;
+        Vector< Background_Element_Base* > tNeighbors;
 
         // get level of this element
         auto tLevel = aElement->get_level();
@@ -1633,7 +1633,7 @@ namespace moris::hmr
         luint tNumberOfAllElements = this->count_all_elements_including_aura();
 
         // collect all elements on proc
-        Cell< Background_Element_Base* > tAllElements( tNumberOfAllElements, nullptr );
+        Vector< Background_Element_Base* > tAllElements( tNumberOfAllElements, nullptr );
         this->collect_all_elements( tAllElements );
 
         // initialize element counter
@@ -1836,7 +1836,7 @@ namespace moris::hmr
         MORIS_ERROR( aPattern < gNumberOfPatterns, "Background_Mesh_Base::reset_pattern() - Invalid Pattern." );
 
         // Cell containing all elements
-        Cell< Background_Element_Base* > tElements;
+        Vector< Background_Element_Base* > tElements;
 
         // collect all elements on this level including the padding/aura around it
         this->collect_elements_on_level_including_aura( 0, tElements );
@@ -1905,7 +1905,7 @@ namespace moris::hmr
         for ( uint l = 0; l < mMaxLevel; ++l )
         {
             // cell containing elements on current level
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // get elements from level that belong to myself
             this->collect_elements_on_level( l, tElements );
@@ -1961,7 +1961,7 @@ namespace moris::hmr
         for ( uint l = 0; l < mMaxLevel; ++l )
         {
             // cell containing elements on current level
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // get elements from level that belong to myself
             this->collect_elements_on_level( l, tElements );
@@ -1985,7 +1985,7 @@ namespace moris::hmr
 
     void
     Background_Mesh_Base::unite_patterns(
-            const moris::Cell< uint >& aSourcePattern,
+            const Vector< uint >& aSourcePattern,
             const uint                 aTarget )
     {
         for ( uint Il = 0; Il < aSourcePattern.size(); ++Il )
@@ -2003,7 +2003,7 @@ namespace moris::hmr
         for ( uint Ii = 0; Ii < mMaxLevel; ++Ii )
         {
             // cell containing elements on current level
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // get elements from level that belong to myself
             this->collect_elements_on_level( Ii, tElements );
@@ -2040,7 +2040,7 @@ namespace moris::hmr
     {
         if ( aSource != aTarget )
         {
-            Cell< Background_Element_Base* > tElementList;
+            Vector< Background_Element_Base* > tElementList;
 
             // collect all elements
             this->collect_all_elements( tElementList );
@@ -2083,7 +2083,7 @@ namespace moris::hmr
         for ( uint l = 0; l <= mMaxLevel; ++l )
         {
             // list of all elements on this level
-            Cell< Background_Element_Base* > tElementList;
+            Vector< Background_Element_Base* > tElementList;
 
             // collect all elements on this level
             this->collect_elements_on_level_including_aura( l, tElementList );
@@ -2113,7 +2113,7 @@ namespace moris::hmr
         for ( uint iLevel = 0; iLevel <= mMaxLevel; ++iLevel )
         {
             // list of all elements on this level
-            Cell< Background_Element_Base* > tElementList;
+            Vector< Background_Element_Base* > tElementList;
 
             // collect all elements on this level
             this->collect_elements_on_level_including_aura( iLevel, tElementList );
@@ -2139,7 +2139,7 @@ namespace moris::hmr
         for ( uint l = 0; l <= mMaxLevel; ++l )
         {
             // list of all elements on this level
-            Cell< Background_Element_Base* > tElementList;
+            Vector< Background_Element_Base* > tElementList;
 
             // collect all elements on this level
             this->collect_elements_on_level_including_aura( l, tElementList );
@@ -2162,7 +2162,7 @@ namespace moris::hmr
         for ( uint l = 0; l <= mMaxLevel; ++l )
         {
             // list of all elements on this level
-            Cell< Background_Element_Base* > tElementList;
+            Vector< Background_Element_Base* > tElementList;
 
             // collect all elements on this level
             this->collect_elements_on_level_including_aura( l, tElementList );
@@ -2187,7 +2187,7 @@ namespace moris::hmr
         for ( uint l = 0; l <= mMaxLevel; ++l )
         {
             // list of all elements on this level
-            Cell< Background_Element_Base* > tElementList;
+            Vector< Background_Element_Base* > tElementList;
 
             // collect all elements on this level
             this->collect_elements_on_level_including_aura( l, tElementList );
@@ -2229,12 +2229,12 @@ namespace moris::hmr
     Background_Mesh_Base::collect_side_set_elements(
             uint                              aPattern,
             uint                              aSideOrdinal,
-            Cell< Background_Element_Base* >& aElements )
+            Vector< Background_Element_Base* >& aElements )
     {
         luint tElementCounter = 0;
 
         // step 1: collect elements on coarsest level
-        Cell< Background_Element_Base* > tCoarsestElements;
+        Vector< Background_Element_Base* > tCoarsestElements;
         collect_coarsest_elements_on_side( aSideOrdinal, tCoarsestElements );
 
         switch ( aSideOrdinal )
@@ -2447,7 +2447,7 @@ namespace moris::hmr
         for ( uint l = 0; l <= mMaxLevel; ++l )
         {
             // collect elements from this level
-            moris::Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             this->collect_elements_on_level_including_aura( l, tElements );
 
@@ -2469,7 +2469,7 @@ namespace moris::hmr
         for ( uint iLevel = 0; iLevel <= mMaxLevel; ++iLevel )
         {
             // collect elements from this level
-            moris::Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             this->collect_elements_on_level_including_aura( iLevel, tElements );
 

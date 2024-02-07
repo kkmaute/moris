@@ -43,7 +43,7 @@ using namespace fem;
 inline void
 tWallDistanceValFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     moris::fem::Field_Interpolator* tFIWallDist =
@@ -55,7 +55,7 @@ tWallDistanceValFunc(
 inline void
 tWallDistanceDerFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     moris::fem::Field_Interpolator* tFIWallDist =
@@ -82,14 +82,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -98,10 +98,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -304,7 +304,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder, iCp );
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
                     tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
@@ -340,8 +340,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
@@ -441,14 +441,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -457,11 +457,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type >                tVelDofTypes      = { MSI::Dof_Type::VX };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes      = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tWallDistDofTypes = { { MSI::Dof_Type::L2 } };
+    Vector< MSI::Dof_Type >                tVelDofTypes      = { MSI::Dof_Type::VX };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes      = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tWallDistDofTypes = { { MSI::Dof_Type::L2 } };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes( 0 ), tWallDistDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes( 0 ), tWallDistDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -671,7 +671,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                     tLeaderDOFHatWallDist = tWallDistScaling * tLeaderDOFHatWallDist;
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
                     tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
@@ -715,8 +715,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
@@ -1277,14 +1277,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -1293,10 +1293,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1496,7 +1496,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
                     tLeaderDOFHatVis = -1.0 * tLeaderDOFHatVis;
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
                     tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
@@ -1532,8 +1532,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
                     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
@@ -1625,14 +1625,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Crosswind", "[IWG_Spalart_Allma
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -1641,10 +1641,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Crosswind", "[IWG_Spalart_Allma
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1858,7 +1858,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Crosswind", "[IWG_Spalart_Allma
                     fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder, iCp );
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
                     tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
@@ -1894,8 +1894,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Crosswind", "[IWG_Spalart_Allma
                     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
@@ -1988,14 +1988,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Isotropic_Diffusion",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -2004,10 +2004,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Isotropic_Diffusion",
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -2221,7 +2221,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Isotropic_Diffusion",
                     fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder, iCp );
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
                     tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
@@ -2257,8 +2257,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Isotropic_Diffusion",
                     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager

@@ -39,7 +39,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, true );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 4403, 4579, 2375, 2360 };
+    Vector< uint > tReferenceNodeId = { 4403, 4579, 2375, 2360 };
 
     if ( gPrintReferenceValues )
     {
@@ -74,9 +74,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2 };
-    Cell< uint > tReferenceNumNodes = { 7127 };
-    Cell< uint > tReferenceNumElems = { 11454 };
+    Vector< uint > tReferenceNumDims  = { 2 };
+    Vector< uint > tReferenceNumNodes = { 7127 };
+    Vector< uint > tReferenceNumElems = { 11454 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -101,7 +101,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { 0.0274990890175104 }, { 0.00591698987409472 } } );
     tReferenceCoordinate.push_back( { { 0.0316400639712811 }, { 0.00252554262988269 } } );
@@ -127,7 +127,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-5 );
 
     // check time value for time step index 0
-    Cell< real > tReferenceTime;
+    Vector< real > tReferenceTime;
     tReferenceTime.push_back( 0.005 );
     tReferenceTime.push_back( 0.005 );
     tReferenceTime.push_back( 0.005 );
@@ -146,7 +146,7 @@ check_results(
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
     // check displacements at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
-    Cell< Matrix< DDRMat > > tReferenceVelocity;
+    Vector< Matrix< DDRMat > > tReferenceVelocity;
 
     tReferenceVelocity.push_back( { { -3.14130625281294e-07 }, { -2.69800723469803e-07 } } );
     tReferenceVelocity.push_back( { { -3.12490194316204e-07 }, { -5.38959617315861e-08 } } );
@@ -172,7 +172,7 @@ check_results(
     REQUIRE( tRelVelDifference < 1.0e-5 );
 
     // check pressure at node aNodeId in first time step (temperature is 6th nodal field, first time step has index 0)
-    Cell< real > tReferencePressure;
+    Vector< real > tReferencePressure;
     tReferencePressure.push_back( 0.185522355835879 );
     tReferencePressure.push_back( 0.151972186085483 );
     tReferencePressure.push_back( 0.745731048974504 );
@@ -190,7 +190,7 @@ check_results(
     REQUIRE( tRelPresDifference < 1.0e-5 );
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
-    Cell< real > tReferenceIQI;
+    Vector< real > tReferenceIQI;
     tReferenceIQI.push_back( 0.185522355835879 );
     tReferenceIQI.push_back( 0.151972186085483 );
     tReferenceIQI.push_back( 0.745731048974504 );

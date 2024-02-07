@@ -112,7 +112,7 @@ namespace moris
 
     inline void
     tConstValFunction( moris::Matrix< moris::DDRMat >&     aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -120,7 +120,7 @@ namespace moris
 
     inline void
     tMValFunction( moris::Matrix< moris::DDRMat >&         aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = { { aParameters( 0 )( 0 ), 0.0 },
@@ -129,7 +129,7 @@ namespace moris
 
     inline void
     tMValFunction_3D( moris::Matrix< moris::DDRMat >&      aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = { { aParameters( 0 )( 0 ), 0.0, 0.0 },
@@ -225,7 +225,7 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2501 );
-            Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
@@ -234,7 +234,7 @@ namespace moris
             xtk::Model tXTKModel( 2, tInterpolationMesh, &tGeometryEngine );
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -380,7 +380,7 @@ namespace moris
             tSetInterface.set_IWGs( { tIWGInterface } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+            Vector< fem::Set_User_Info > tSetInfo( 7 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetBulk3;
@@ -400,7 +400,7 @@ namespace moris
             // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+            Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
             tDofTypesU( 0 ) = MSI::Dof_Type::UX;
             tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
@@ -659,7 +659,7 @@ namespace moris
         //        tSetInterface.set_IWGs( { tIWGInterface } );
         //
         //        // create a cell of set info
-        //        moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+        //        Vector< fem::Set_User_Info > tSetInfo( 7 );
         //        tSetInfo( 0 ) = tSetBulk1;
         //        tSetInfo( 1 ) = tSetBulk2;
         //        tSetInfo( 2 ) = tSetBulk3;
@@ -678,7 +678,7 @@ namespace moris
         //        // STEP 1: create linear solver and algorithm
         //        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //
-        //        moris::Cell< enum MSI::Dof_Type > tDofTypesU( 3 );
+        //        Vector< enum MSI::Dof_Type > tDofTypesU( 3 );
         //        tDofTypesU( 0 ) = MSI::Dof_Type::UX;
         //        tDofTypesU( 1 ) = MSI::Dof_Type::UY;
         //        tDofTypesU( 2 ) = MSI::Dof_Type::UZ;
@@ -806,7 +806,7 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2505 );
-            Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
@@ -817,7 +817,7 @@ namespace moris
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             bool                            tSuccess              = tXTKModel.decompose( tDecompositionMethods );
             CHECK( tSuccess );
 
@@ -982,7 +982,7 @@ namespace moris
             //        tSetInterface.set_IWGs( { tIWGInterface } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+            Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -999,7 +999,7 @@ namespace moris
             // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+            Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
             tDofTypesU( 0 ) = MSI::Dof_Type::UX;
             tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
@@ -1126,7 +1126,7 @@ namespace moris
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             auto tCircle = std::make_shared< moris::gen::Circle >( 0.0, 0.0, 0.2505 );
-            Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
@@ -1137,7 +1137,7 @@ namespace moris
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE, 0 );
@@ -1241,7 +1241,7 @@ namespace moris
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+            Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -1258,7 +1258,7 @@ namespace moris
             // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+            Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
             tDofTypesU( 0 ) = MSI::Dof_Type::UX;
             tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 

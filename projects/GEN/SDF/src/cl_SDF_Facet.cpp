@@ -10,7 +10,7 @@
 
 #include "cl_SDF_Facet.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "assert.hpp"
 #include "fn_dot.hpp"
@@ -29,7 +29,7 @@ namespace moris
 
         Facet::Facet(
                 moris_index                                     aIndex,
-                moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
+                Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
                 uint                                            aDimension )
                 : mIndex( aIndex )
                 , mVertices( aVertices )
@@ -55,7 +55,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet::scale( const moris::Cell< real >& aScaling )
+        Facet::scale( const Vector< real >& aScaling )
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
@@ -69,7 +69,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet::shift( const moris::Cell< real >& aShift )
+        Facet::shift( const Vector< real >& aShift )
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
@@ -135,11 +135,11 @@ namespace moris
         }
 
 
-        moris::Cell< mtk::Vertex* >
+        Vector< mtk::Vertex* >
         Facet::get_vertex_pointers() const
         {
             uint                        tDimension = get_number_of_vertices();
-            moris::Cell< mtk::Vertex* > tVertices( tDimension, nullptr );
+            Vector< mtk::Vertex* > tVertices( tDimension, nullptr );
 
             for ( uint k = 0; k < tDimension; ++k )
             {

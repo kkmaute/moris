@@ -29,7 +29,7 @@ namespace moris::sdf
 
         // example coordinartes for the line
         // create list of vertices
-        moris::Cell< std::shared_ptr< Facet_Vertex > > tVertices;
+        Vector< std::shared_ptr< Facet_Vertex > > tVertices;
         tVertices.resize( 2, nullptr );
         tVertices( 0 ) = std::make_shared< Facet_Vertex >( 0, Matrix< DDRMat >( { { 2.0 }, { 2.0 } } ) );
         tVertices( 1 ) = std::make_shared< Facet_Vertex >( 1, Matrix< DDRMat >( { { -2.0 }, { -1.0 } } ) );
@@ -122,7 +122,7 @@ namespace moris::sdf
             CHECK( abs( tComputedIntersection - tIntersection ) < tEpsilon );
 
             // Check to ensure proper error for a horizontal line
-            moris::Cell< std::shared_ptr< Facet_Vertex > > tHorizontalVertices;
+            Vector< std::shared_ptr< Facet_Vertex > > tHorizontalVertices;
             tHorizontalVertices.resize( 2, nullptr );
             tHorizontalVertices( 0 ) = std::make_shared< Facet_Vertex >( 2, Matrix< DDRMat >( { { -4.0 }, { 2.0 } } ) );
             tHorizontalVertices( 1 ) = std::make_shared< Facet_Vertex >( 3, Matrix< DDRMat >( { { 4.0 }, { 2.0 } } ) );
@@ -180,7 +180,7 @@ namespace moris::sdf
             tError = false;
 
             // Check to ensure proper error for a vertical line
-            moris::Cell< std::shared_ptr< Facet_Vertex > > tVerticalVertices;
+            Vector< std::shared_ptr< Facet_Vertex > > tVerticalVertices;
             tVerticalVertices.resize( 2, nullptr );
             tVerticalVertices( 0 ) = std::make_shared< Facet_Vertex >( 2, Matrix< DDRMat >( { { 2.0 }, { 2.0 } } ) );
             tVerticalVertices( 1 ) = std::make_shared< Facet_Vertex >( 3, Matrix< DDRMat >( { { 2.0 }, { 6.0 } } ) );

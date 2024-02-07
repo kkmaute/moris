@@ -22,7 +22,7 @@
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -36,7 +36,7 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
     void
-    check_for_forbidden_fields( Cell< std::shared_ptr< Field > > &aInputFields )
+    check_for_forbidden_fields( Vector< std::shared_ptr< Field > > &aInputFields )
     {
         for ( auto tField : aInputFields )
         {
@@ -63,8 +63,8 @@ namespace moris::hmr
             const Arguments                  &aArguments,
             const Paramfile                  &aParamfile,
             HMR                              *aHMR,
-            Cell< std::shared_ptr< Field > > &aInputFields,
-            Cell< std::shared_ptr< Field > > &aOutputFields )
+            Vector< std::shared_ptr< Field > > &aInputFields,
+            Vector< std::shared_ptr< Field > > &aOutputFields )
     {
         // make sure that we only map allowed fields
 
@@ -129,13 +129,13 @@ namespace moris::hmr
         // step 2: create union meshes and mappers
         // - - - - - - - - - - - - - - - - - - - - - -
 
-        Cell< Interpolation_Mesh_HMR * > tUnionInterpMeshes;
-        Cell< Integration_Mesh_HMR * >   tUnionIntegMeshes;
-        Cell< Interpolation_Mesh_HMR * > tInputInterpMeshes;
-        Cell< Integration_Mesh_HMR * >   tInputIntegMeshes;
-        Cell< mtk::Mesh_Pair >           tMeshPairs;
-        Cell< mtk::Mapper * >            tMappers( tNumberOfMappers, nullptr );
-        Cell< mtk::Field * >             tFieldUnion( tNumberOfMappers, nullptr );
+        Vector< Interpolation_Mesh_HMR * > tUnionInterpMeshes;
+        Vector< Integration_Mesh_HMR * >   tUnionIntegMeshes;
+        Vector< Interpolation_Mesh_HMR * > tInputInterpMeshes;
+        Vector< Integration_Mesh_HMR * >   tInputIntegMeshes;
+        Vector< mtk::Mesh_Pair >           tMeshPairs;
+        Vector< mtk::Mapper * >            tMappers( tNumberOfMappers, nullptr );
+        Vector< mtk::Field * >             tFieldUnion( tNumberOfMappers, nullptr );
 
         for ( uint m = 0; m < tNumberOfMappers; ++m )
         {

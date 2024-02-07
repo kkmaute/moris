@@ -176,9 +176,9 @@ namespace moris
 
         // initialize a map that stores in what order the grids are defined
         std::map< moris_index, uint > tGridIndexMap;    // map: grid index | position in list
-        Cell< moris_index >           tGridIndices( tNumGridsSpecified, 0 );
-        Cell< moris_index >           tInitialRefinements( tNumGridsSpecified, 0 );
-        Cell< moris_index >           tBoundaryRefinements( tNumGridsSpecified, 0 );
+        Vector< moris_index >           tGridIndices( tNumGridsSpecified, 0 );
+        Vector< moris_index >           tInitialRefinements( tNumGridsSpecified, 0 );
+        Vector< moris_index >           tBoundaryRefinements( tNumGridsSpecified, 0 );
         moris_index                   tMaxGridIndex = -1;
 
         // go through grids specified and get their data
@@ -238,9 +238,9 @@ namespace moris
 
         // initialize a map that stores in what order the grids are defined
         std::map< moris_index, uint > tBspMeshIndexMap;    // map: B-spline mesh index | position in list
-        Cell< moris_index >           tBspMeshIndices( tNumBspMeshesSpecified, -1 );
-        Cell< moris_index >           tGridsForMeshes( tNumBspMeshesSpecified, -1 );
-        Cell< moris_index >           tPolyOrders( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >           tBspMeshIndices( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >           tGridsForMeshes( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >           tPolyOrders( tNumBspMeshesSpecified, -1 );
         moris_index                   tMaxBspMeshIndex = -1;
         moris_index                   tMaxPolyOrder    = -1;
 

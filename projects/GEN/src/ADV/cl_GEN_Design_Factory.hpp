@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Geometry.hpp"
@@ -32,9 +32,9 @@ namespace moris::gen
     class Design_Factory
     {
       private:
-        Cell< std::shared_ptr< Field > > mFields;
-        Cell< std::shared_ptr< Geometry > > mGeometries;
-        Cell< std::shared_ptr< Property > > mProperties;
+        Vector< std::shared_ptr< Field > > mFields;
+        Vector< std::shared_ptr< Geometry > > mGeometries;
+        Vector< std::shared_ptr< Property > > mProperties;
 
       public:
         /**
@@ -47,7 +47,7 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if applicable
          */
         Design_Factory(
-                Cell< ParameterList >         aParameterLists,
+                Vector< ParameterList >         aParameterLists,
                 Matrix< DDRMat >&             aADVs,
                 std::shared_ptr< Library_IO > aLibrary = nullptr,
                 mtk::Mesh*                    aMesh = nullptr,
@@ -58,13 +58,13 @@ namespace moris::gen
          *
          * @return vector of geometries
          */
-        Cell< std::shared_ptr< Geometry > > get_geometries();
+        Vector< std::shared_ptr< Geometry > > get_geometries();
 
         /**
          * Gets the properties that the factory has created.
          *
          * @return vector of properties
          */
-        Cell< std::shared_ptr< Property > > get_properties();
+        Vector< std::shared_ptr< Property > > get_properties();
     };
 }

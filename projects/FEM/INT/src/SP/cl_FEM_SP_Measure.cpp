@@ -24,11 +24,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void SP_Measure::set_cluster_measure_type_list(
-                moris::Cell< std::tuple<
+                Vector< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
                 mtk::Leader_Follower > >      & aClusterMeasureTuples,
-                moris::Cell< std::string > & aClusterMeasureStrings )
+                Vector< std::string > & aClusterMeasureStrings )
         {
             // loop over provided cluster measure strings
             for( uint iCMEA = 0; iCMEA < aClusterMeasureStrings.size(); iCMEA ++ )
@@ -51,7 +51,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::tuple<
+        Vector< std::tuple<
                        fem::Measure_Type,
                        mtk::Primary_Void,
                        mtk::Leader_Follower > > SP_Measure::get_cluster_measure_tuple_list()

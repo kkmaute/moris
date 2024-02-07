@@ -119,7 +119,7 @@ namespace moris
 
         Matrix< DDRMat >
         CM_Struc_Linear_Isotropic::eval_dInvBulkModulusdDOF(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof FI
             Field_Interpolator* tFI =
@@ -148,7 +148,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic::eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes )
+        CM_Struc_Linear_Isotropic::eval_dFluxdDOF( const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // call the parent contribution
             CM_Struc_Linear::eval_dFluxdDOF( aDofTypes );
@@ -178,10 +178,10 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF(
-                const Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&      aNormal,
                 const Matrix< DDRMat >&      aJump,
-                const Cell< MSI::Dof_Type >& aTestDofTypes )
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // compute generic derivative of test traction
             CM_Struc_Linear::eval_dTestTractiondDOF( aDofTypes, aNormal, aJump, aTestDofTypes );

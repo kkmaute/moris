@@ -13,69 +13,68 @@
 
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
 
-enum class Decomposition_Algorithm_Type
-{
-    REGULAR_TEMPLATE_NONCONFORMING,
-    NODE_HEIRARCHY,
-    OCTREE,
-    ELEVATE_ORDER,
-    MAX_ENUM
-};
+    enum class Decomposition_Algorithm_Type
+    {
+        REGULAR_TEMPLATE_NONCONFORMING,
+        NODE_HEIRARCHY,
+        OCTREE,
+        ELEVATE_ORDER,
+        MAX_ENUM
+    };
 
-class Integration_Mesh_Generation_Data;
-class Integration_Mesh_Generator;
-class Decomposition_Data;
-class Cut_Integration_Mesh;
+    class Integration_Mesh_Generation_Data;
+    class Integration_Mesh_Generator;
+    class Decomposition_Data;
+    class Cut_Integration_Mesh;
 
-class Decomposition_Algorithm
-{
-  public:
-    // number of cells less the number you are replace
-    moris_index                                             mNumNewCells = 0;
-    moris::Cell< moris::Cell< moris::moris_index > >        mNewCellToVertexConnectivity; // over allocated
-    moris::Cell< moris::moris_index >                       mNewCellChildMeshIndex;       // over allocated
-    moris::Cell< moris::moris_index >                       mNewCellCellIndexToReplace;   // over allocated
-    moris::Cell< std::shared_ptr< moris::mtk::Cell_Info > > mNewCellCellInfo;             // over allocated
+    class Decomposition_Algorithm
+    {
+      public:
+        // number of cells less the number you are replace
+        moris_index                                        mNumNewCells = 0;
+        Vector< Vector< moris::moris_index > >             mNewCellToVertexConnectivity;    // over allocated
+        Vector< moris::moris_index >                       mNewCellChildMeshIndex;          // over allocated
+        Vector< moris::moris_index >                       mNewCellCellIndexToReplace;      // over allocated
+        Vector< std::shared_ptr< moris::mtk::Cell_Info > > mNewCellCellInfo;                // over allocated
 
-  public:
-    Decomposition_Algorithm() {}
-    virtual ~Decomposition_Algorithm() {}
+      public:
+        Decomposition_Algorithm() {}
+        virtual ~Decomposition_Algorithm() {}
 
-    // set of
-    virtual void perform(
-        Integration_Mesh_Generation_Data* aMeshGenerationData,
-        Decomposition_Data*               aDecompositionData,
-        Cut_Integration_Mesh*             aCutIntegrationMesh,
-        moris::mtk::Mesh*                 aBackgroundMesh,
-        Integration_Mesh_Generator*       aMeshGenerator );
+        // set of
+        virtual void perform(
+                Integration_Mesh_Generation_Data* aMeshGenerationData,
+                Decomposition_Data*               aDecompositionData,
+                Cut_Integration_Mesh*             aCutIntegrationMesh,
+                moris::mtk::Mesh*                 aBackgroundMesh,
+                Integration_Mesh_Generator*       aMeshGenerator );
 
-    virtual enum Decomposition_Algorithm_Type get_algorithm_type() const = 0;
+        virtual enum Decomposition_Algorithm_Type get_algorithm_type() const = 0;
 
-    virtual moris_index get_signature() const = 0;
+        virtual moris_index get_signature() const = 0;
 
-    virtual bool has_geometric_independent_vertices() const = 0;
+        virtual bool has_geometric_independent_vertices() const = 0;
 
-    virtual void
-    perform_impl_vertex_requests(
-        Integration_Mesh_Generation_Data* aMeshGenerationData,
-        Decomposition_Data*               aDecompositionData,
-        Cut_Integration_Mesh*             aCutIntegrationMesh,
-        moris::mtk::Mesh*                 aBackgroundMesh,
-        Integration_Mesh_Generator*       aMeshGenerator ) = 0;
+        virtual void
+        perform_impl_vertex_requests(
+                Integration_Mesh_Generation_Data* aMeshGenerationData,
+                Decomposition_Data*               aDecompositionData,
+                Cut_Integration_Mesh*             aCutIntegrationMesh,
+                moris::mtk::Mesh*                 aBackgroundMesh,
+                Integration_Mesh_Generator*       aMeshGenerator ) = 0;
 
-    virtual void
-    perform_impl_generate_mesh(
-        Integration_Mesh_Generation_Data* aMeshGenerationData,
-        Decomposition_Data*               aDecompositionData,
-        Cut_Integration_Mesh*             aCutIntegrationMesh,
-        moris::mtk::Mesh*                 aBackgroundMesh,
-        Integration_Mesh_Generator*       aMeshGenerator ) = 0;
-};
+        virtual void
+        perform_impl_generate_mesh(
+                Integration_Mesh_Generation_Data* aMeshGenerationData,
+                Decomposition_Data*               aDecompositionData,
+                Cut_Integration_Mesh*             aCutIntegrationMesh,
+                moris::mtk::Mesh*                 aBackgroundMesh,
+                Integration_Mesh_Generator*       aMeshGenerator ) = 0;
+    };
 
-}// namespace xtk
+}    // namespace moris::xtk
 
 #endif
-

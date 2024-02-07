@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_XTK_Side_Cluster.hpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Side_Cluster.hpp
+ *
  */
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_SIDE_CLUSTER_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_SIDE_CLUSTER_HPP_
@@ -21,7 +21,7 @@ namespace moris::mtk
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     class Interpolation_Cell_Unzipped;
     class Cell_Cluster;
@@ -38,20 +38,19 @@ namespace xtk
 
       protected:
         bool                                          mTrivial;
-        Interpolation_Cell_Unzipped const            *mInterpolationCell;
-        moris::Cell< moris::mtk::Cell const * >       mIntegrationCells;
-        moris::Matrix< moris::IndexMat >              mIntegrationCellSideOrdinals;
-        moris::Cell< moris::mtk::Vertex const * >     mVerticesInCluster;
+        Interpolation_Cell_Unzipped const *           mInterpolationCell;
+        Vector< moris::mtk::Cell const * >            mIntegrationCells;
+        Matrix< IndexMat >                            mIntegrationCellSideOrdinals;
+        Vector< moris::mtk::Vertex const * >          mVerticesInCluster;
         std::shared_ptr< IG_Vertex_Group >            mVertexGroup;
-        moris::Cell< moris::Matrix< moris::DDRMat > > mVertexLocalCoords;
-        moris::Matrix< moris::DDRMat >                mVertexLocalCoordsMat;  /*FIXME: get rid of mVertexLocalCoords*/
-        xtk::Cell_Cluster const                      *mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in Nitsche).*/
-        moris::Cell< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
+        Vector< Matrix< DDRMat > >                    mVertexLocalCoords;
+        Matrix< DDRMat >                              mVertexLocalCoordsMat;  /*FIXME: get rid of mVertexLocalCoords*/
+        xtk::Cell_Cluster const *                     mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in Nitsche).*/
+        Vector< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //---------------------------------------------------------------------------------------
 
       public:
-
         //---------------------------------------------------------------------------------------
 
         Side_Cluster();
@@ -66,128 +65,128 @@ namespace xtk
 
         //---------------------------------------------------------------------------------------
 
-        moris::mtk::Cell const&
+        moris::mtk::Cell const &
         get_interpolation_cell(
                 const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris::Cell< mtk::Cell const* > const&
+        Vector< mtk::Cell const * > const &
         get_cells_in_side_cluster() const;
 
         //---------------------------------------------------------------------------------------
 
-        moris::Matrix< moris::IndexMat > 
+        Matrix< IndexMat >
         get_cell_side_ordinals(
                 const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris_index 
+        moris_index
         get_cell_side_ordinal(
-                moris::moris_index      aCellIndexInCluster,
+                moris::moris_index         aCellIndexInCluster,
                 const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const* > 
+        Vector< moris::mtk::Vertex const * >
         get_vertices_in_cluster(
                 const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris::Matrix< moris::DDRMat > 
+        Matrix< DDRMat >
         get_vertices_local_coordinates_wrt_interp_cell(
                 const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris::moris_index 
+        moris::moris_index
         get_vertex_cluster_index(
-                const moris::mtk::Vertex* aVertex,
-                const mtk::Leader_Follower   aIsLeader = mtk::Leader_Follower::LEADER ) const;
+                const moris::mtk::Vertex*  aVertex,
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris_index 
+        moris_index
         get_vertex_ordinal_on_facet(
-                moris_index               aCellIndexInCluster,
-                moris::mtk::Vertex const* aVertex ) const;
+                moris_index                aCellIndexInCluster,
+                moris::mtk::Vertex const * aVertex ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris::Matrix< moris::DDRMat > 
+        Matrix< DDRMat >
         get_vertex_local_coordinate_wrt_interp_cell(
-                const moris::mtk::Vertex* aVertex,
-                const mtk::Leader_Follower   aIsLeader = mtk::Leader_Follower::LEADER ) const;
+                const moris::mtk::Vertex*  aVertex,
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris_index 
+        moris_index
         get_dim_of_param_coord(
                 const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris::real 
+        moris::real
         compute_cluster_cell_measure(
-                const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                 const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
-        //---------------------------------------------------------------------------------------    
+        //---------------------------------------------------------------------------------------
 
         moris::real
         compute_cluster_group_cell_measure(
-                const moris_index       aDiscretizationMeshIndex,
-                const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER) const;
-
-        //---------------------------------------------------------------------------------------
-
-        Matrix< DDRMat > 
-        compute_cluster_ig_cell_measures(
-                const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const moris_index          aDiscretizationMeshIndex,
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                 const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
-        moris::real 
+        Matrix< DDRMat >
+        compute_cluster_ig_cell_measures(
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
+
+        //---------------------------------------------------------------------------------------
+
+        moris::real
         compute_cluster_cell_measure_derivative(
-                const Matrix< DDRMat >& aPerturbedVertexCoords,
-                uint                    aDirection,
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const Matrix< DDRMat >&    aPerturbedVertexCoords,
+                uint                       aDirection,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris::real
         compute_cluster_group_cell_measure_derivative(
-                const moris_index       aDiscretizationMeshIndex,
-                const Matrix< DDRMat >& aPerturbedVertexCoords,
-                uint aDirection,
-                const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+                const moris_index          aDiscretizationMeshIndex,
+                const Matrix< DDRMat >&    aPerturbedVertexCoords,
+                uint                       aDirection,
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris::real
         compute_cluster_group_cell_side_measure(
-                const moris_index       aDiscretizationMeshIndex,
-                const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER) const;
+                const moris_index          aDiscretizationMeshIndex,
+                const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris::real
         compute_cluster_group_cell_side_measure_derivative(
-                const moris_index       aDiscretizationMeshIndex,
-                const Matrix< DDRMat >& aPerturbedVertexCoords,
-                uint aDirection,
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const moris_index          aDiscretizationMeshIndex,
+                const Matrix< DDRMat >&    aPerturbedVertexCoords,
+                uint                       aDirection,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader ) const;
 
         //---------------------------------------------------------------------------------------
-        
+
         void
         set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup );
 
@@ -204,8 +203,8 @@ namespace xtk
         //---------------------------------------------------------------------------------------
 
         void
-        set_cluster_group( 
-                const moris_index aDiscretizationMeshIndex,
+        set_cluster_group(
+                const moris_index                     aDiscretizationMeshIndex,
                 std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr ) override;
 
         //---------------------------------------------------------------------------------------
@@ -220,10 +219,10 @@ namespace xtk
 
         //---------------------------------------------------------------------------------------
 
-    }; // class Side_Cluster
+    };    // class Side_Cluster
 
     //---------------------------------------------------------------------------------------
-    
-} // namespace xtk
+
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_SIDE_CLUSTER_HPP_ */

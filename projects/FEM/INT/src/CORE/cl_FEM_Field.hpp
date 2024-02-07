@@ -37,7 +37,7 @@ namespace moris
         {
           private:
             //! Field type. Identifier for a field interpolator. Similar to dof type or dv type
-            Cell< mtk::Field_Type > mFieldType;
+            Vector< mtk::Field_Type > mFieldType;
 
             //! Name of IQI which is used to populate field
             std::string mIQIName;
@@ -54,9 +54,9 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Field(
-                    mtk::Mesh_Pair              aMeshPair,
+                    mtk::Mesh_Pair         aMeshPair,
                     mtk::Field_Entity_Type tFieldEntityType         = mtk::Field_Entity_Type::NODAL,
-                    uint                        aDiscretizationMeshIndex = 0 );
+                    uint                   aDiscretizationMeshIndex = 0 );
 
             //------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void set_field_type( const moris::Cell< mtk::Field_Type >& aType );
+            void set_field_type( const Vector< mtk::Field_Type >& aType );
 
             //-----------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ namespace moris
             void get_values(
                     Matrix< IndexMat > const &      aIndex,
                     Matrix< DDRMat >&               aValues,
-                    Cell< mtk::Field_Type > const & aFieldTypes );
+                    Vector< mtk::Field_Type > const & aFieldTypes );
 
             //-----------------------------------------------------------------------------
 
@@ -124,21 +124,6 @@ namespace moris
             compute_nodal_values()
             {
                 MORIS_ERROR( false, "fem::Field::compute_nodal_values - not implemented.\n" );
-            }
-
-            // ----------------------------------------------------------------------------------------------
-
-            /**
-             * @brief child class implementation: computes derivatives of nodal values
-             */
-            virtual void
-            compute_derivatives_of_field_value(
-                    Matrix< DDRMat >& aDerivatives,
-                    Matrix< DDUMat >& aCoefIndices,
-                    uint const &      aNodeIndex,
-                    uint const &      aFieldIndex )
-            {
-                MORIS_ERROR( false, "fem::Field::compute_derivatives_of_field_value - not implemented.\n" );
             }
 
             //-----------------------------------------------------------------------------

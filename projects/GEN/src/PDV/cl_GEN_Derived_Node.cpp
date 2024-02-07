@@ -22,7 +22,7 @@ namespace moris::gen
 
     Derived_Node::Derived_Node(
             uint                     aIndex,
-            const Cell< Background_Node* >& aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Matrix< DDRMat >&  aParametricCoordinates,
             mtk::Geometry_Type       aGeometryType,
             mtk::Interpolation_Order aInterpolationOrder )
@@ -86,14 +86,14 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_background_nodes() const
+    const Vector< Basis_Node >& Derived_Node::get_background_nodes() const
     {
         return mBackgroundNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_locator_nodes() const
+    const Vector< Basis_Node >& Derived_Node::get_locator_nodes() const
     {
         return mBackgroundNodes;
     }

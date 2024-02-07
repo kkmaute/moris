@@ -350,7 +350,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tIWG->mRequestedFollowerGlobalDofTypes  = { tVelDofTypes, tPDofTypes };
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            Vector< Vector< enum MSI::Dof_Type > > tDummy;
             Field_Interpolator_Manager tLeaderFIManager( tDummy, tSet, mtk::Leader_Follower::LEADER );
             Field_Interpolator_Manager tFollowerFIManager( tDummy, tSet, mtk::Leader_Follower::FOLLOWER );
 

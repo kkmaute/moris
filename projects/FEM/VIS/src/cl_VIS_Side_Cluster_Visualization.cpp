@@ -53,7 +53,7 @@ namespace moris
         //----------------------------------------------------------------
 
         void
-        Side_Cluster_Visualization::add_primary_integration_cell( moris::Cell< moris::mtk::Cell const * > const &aIntegrationCell )
+        Side_Cluster_Visualization::add_primary_integration_cell( Vector< moris::mtk::Cell const * > const &aIntegrationCell )
         {
             mPrimaryIntegrationCells.append( aIntegrationCell );
         }
@@ -79,7 +79,7 @@ namespace moris
         //----------------------------------------------------------------
 
         void
-        Side_Cluster_Visualization::add_vertex_to_cluster( moris::Cell< moris::mtk::Vertex const * > const &aVertex )
+        Side_Cluster_Visualization::add_vertex_to_cluster( Vector< moris::mtk::Vertex const * > const &aVertex )
         {
 
             // add vertices to map
@@ -118,7 +118,7 @@ namespace moris
 
         //----------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Cell const * > const &
+        Vector< moris::mtk::Cell const * > const &
         Side_Cluster_Visualization::get_cells_in_side_cluster() const
         {
             return mPrimaryIntegrationCells;
@@ -144,7 +144,7 @@ namespace moris
 
         //----------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Side_Cluster_Visualization::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
         {
             return mVerticesInCluster;
@@ -180,7 +180,7 @@ namespace moris
             moris_index tSideOrd = mIntegrationCellSideOrdinals( aCellIndexInCluster );
 
             // get the vertices 
-            moris::Cell< mtk::Vertex const * > tVerticesOnSide = 
+            Vector< mtk::Vertex const * > tVerticesOnSide =
                     mPrimaryIntegrationCells( aCellIndexInCluster )->get_vertices_on_side_ordinal( tSideOrd );
             
             // iterate through vertices and see if the ids match

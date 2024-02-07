@@ -16,7 +16,7 @@
 #include "op_minus.hpp"
 #include "op_times.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 
@@ -36,7 +36,7 @@ namespace moris
             moris_index mIndex;
 
             // cells with vertex pointers
-            moris::Cell< std::shared_ptr< Facet_Vertex > > mVertices;
+            Vector< std::shared_ptr< Facet_Vertex > > mVertices;
 
             // container for center
             Matrix< DDRMat > mCenter;
@@ -44,8 +44,8 @@ namespace moris
             // container for normal
             Matrix< DDRMat > mNormal;
 
-            moris::Cell< real > mMinCoord;
-            moris::Cell< real > mMaxCoord;
+            Vector< real > mMinCoord;
+            Vector< real > mMaxCoord;
 
             real mHesse;
 
@@ -58,7 +58,7 @@ namespace moris
 
             Facet(
                     moris_index                                     aIndex,
-                    moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
+                    Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
                     uint                                            aDimension );
 
             //-------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ namespace moris
              * @param aScaling factor to scale in each coordinate direction
              */
             void
-            scale( const moris::Cell< real >& aScaling );
+            scale( const Vector< real >& aScaling );
 
             //-------------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ namespace moris
              * @param aShift shift in each coordinate direction that is added to the objects coordinates.
              */
             void
-            shift( const moris::Cell< real >& aShift );
+            shift( const Vector< real >& aShift );
 
             //-------------------------------------------------------------------------------
 
@@ -263,7 +263,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            moris::Cell< mtk::Vertex* >
+            Vector< mtk::Vertex* >
             get_vertex_pointers() const;
 
             //-------------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 
 #include "cl_MTK_Vertex.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
 
@@ -154,8 +154,10 @@ namespace xtk
         if ( mInterpolation( aOrder ) != nullptr )
         {
             std::cout << "aOrder = " << aOrder << std::endl;
-            std::cout << "Old = \n" << *mInterpolation( aOrder ) << std::endl;
-            std::cout << "New = \n" << *aVertexInterp << std::endl;
+            std::cout << "Old = \n"
+                      << *mInterpolation( aOrder ) << std::endl;
+            std::cout << "New = \n"
+                      << *aVertexInterp << std::endl;
         }
         MORIS_ASSERT( mInterpolation( aOrder ) == nullptr,
                 "Interpolation_Vertex_Unzipped::add_vertex_interpolation() - Vertex interpolation for this order already set" );
@@ -176,11 +178,11 @@ namespace xtk
     Interpolation_Vertex_Unzipped::print() const
     {
         std::cout << "\n-------------------------------------------------------------" << std::endl;
-        std::cout << "Unzipped IP vertex #" << mVertexIndex << " (ID = " << mVertexId <<  ")" << std::endl;
+        std::cout << "Unzipped IP vertex #" << mVertexIndex << " (ID = " << mVertexId << ")" << std::endl;
         std::cout << "Number of enriched T-matrices (reserved): " << mInterpolation.size() << std::endl;
-        for( uint iTMat = 0; iTMat < mInterpolation.size(); iTMat++ )
+        for ( uint iTMat = 0; iTMat < mInterpolation.size(); iTMat++ )
         {
-            if( mInterpolation( iTMat ) != nullptr )
+            if ( mInterpolation( iTMat ) != nullptr )
             {
                 mInterpolation( iTMat )->print();
             }
@@ -189,7 +191,8 @@ namespace xtk
                 std::cout << "Enriched T-matrix #" << iTMat << " is nullptr." << std::endl;
             }
         }
-        std::cout << "-------------------------------------------------------------\n" << std::endl;
+        std::cout << "-------------------------------------------------------------\n"
+                  << std::endl;
     }
 
     //------------------------------------------------------------------------------
@@ -206,5 +209,4 @@ namespace xtk
         return tTotal;
     }
 
-}    // namespace xtk
-
+}    // namespace moris::xtk

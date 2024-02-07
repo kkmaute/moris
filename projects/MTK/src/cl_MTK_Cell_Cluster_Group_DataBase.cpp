@@ -19,7 +19,7 @@ namespace moris
 
         Cell_Cluster_Group_DataBase::Cell_Cluster_Group_DataBase( 
                 const moris_index                  aDiscretizationMeshIndex,
-                moris::Cell< mtk::Cluster const* > aClusters )
+                Vector< mtk::Cluster const* > aClusters )
                 : mtk::Cell_Cluster_Group( aDiscretizationMeshIndex )
                 , mClusters( aClusters )
         {
@@ -28,7 +28,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< mtk::Cluster const* >
+        const Vector< mtk::Cluster const* >
         Cell_Cluster_Group_DataBase::get_clusters_in_group() const
         {
             return mClusters;

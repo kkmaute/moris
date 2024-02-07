@@ -13,12 +13,12 @@
 
 #include <limits>
 
-namespace xtk
+namespace moris::xtk
 {
     inline bool
     approximate(
-            size_t const & aNum1,
-            size_t const & aNum2 )
+            size_t const &aNum1,
+            size_t const &aNum2 )
     {
         bool tEqual = false;
 
@@ -31,8 +31,8 @@ namespace xtk
     }
 
     inline bool
-    approximate( sint const & aNum1,
-            sint const &      aNum2 )
+    approximate( sint const &aNum1,
+            sint const      &aNum2 )
     {
         bool tEqual = false;
 
@@ -45,9 +45,9 @@ namespace xtk
     }
 
     inline bool
-    approximate( real const & aNum1,
-            real const &      aNum2,
-            real              aErrorFactor = 1000.0 )
+    approximate( real const &aNum1,
+            real const      &aNum2,
+            real             aErrorFactor = 1000.0 )
     {
         if ( std::abs( aNum1 - aNum2 ) <= std::numeric_limits< real >::epsilon() * aErrorFactor )
         {
@@ -57,6 +57,6 @@ namespace xtk
         return false;
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_TOOLS_FN_APPROXIMATE_HPP_ */

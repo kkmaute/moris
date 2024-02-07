@@ -49,11 +49,11 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_Ideal_Analytic",
         real tEpsilon = 1.0E-4;
 
         // dof type list
-        moris::Cell<MSI::Dof_Type> tVelocityDof = {MSI::Dof_Type::VX};
-        moris::Cell<MSI::Dof_Type> tTempDof     = {MSI::Dof_Type::TEMP};
+        Vector<MSI::Dof_Type> tVelocityDof = {MSI::Dof_Type::VX};
+        Vector<MSI::Dof_Type> tTempDof     = {MSI::Dof_Type::TEMP};
 
-        moris::Cell<moris::Cell<MSI::Dof_Type>> tDensityDof = { { MSI::Dof_Type::RHO } };
-        moris::Cell<moris::Cell<MSI::Dof_Type>> tDofTypes   = {tDensityDof( 0 ), tVelocityDof, tTempDof};
+        Vector<Vector<MSI::Dof_Type>> tDensityDof = { { MSI::Dof_Type::RHO } };
+        Vector<Vector<MSI::Dof_Type>> tDofTypes   = {tDensityDof( 0 ), tVelocityDof, tTempDof};
 
         // init IWG
         //------------------------------------------------------------------------------
@@ -218,7 +218,7 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_Ideal_Analytic",
         tLeaderDOFHatTemp = trans(tLeaderDOFHatTemp);
 
         // create a cell of field interpolators for IWG
-        Cell<Field_Interpolator *> tLeaderFIs(tDofTypes.size());
+        Vector<Field_Interpolator *> tLeaderFIs(tDofTypes.size());
 
         // create the field interpolator density
         tLeaderFIs(0) = new Field_Interpolator(1, tFIRule, &tGI, tDensityDof( 0 ));
@@ -266,8 +266,8 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_Ideal_Analytic",
         tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
         // create a field interpolator manager
-        moris::Cell<moris::Cell<enum gen::PDV_Type>> tDummyDv;
-        moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+        Vector<Vector<enum gen::PDV_Type>> tDummyDv;
+        Vector< Vector< enum mtk::Field_Type > > tDummyField;
         Field_Interpolator_Manager tFIManager(tDofTypes, tDummyDv, tDummyField, tSet);
 
         // populate the field interpolator manager
@@ -363,11 +363,11 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_VdW_Analytic",
         real tEpsilon = 1.0E-4;
 
         // dof type list
-        moris::Cell<MSI::Dof_Type> tVelocityDof = {MSI::Dof_Type::VX};
-        moris::Cell<MSI::Dof_Type> tTempDof     = {MSI::Dof_Type::TEMP};
+        Vector<MSI::Dof_Type> tVelocityDof = {MSI::Dof_Type::VX};
+        Vector<MSI::Dof_Type> tTempDof     = {MSI::Dof_Type::TEMP};
 
-        moris::Cell<moris::Cell<MSI::Dof_Type>> tDensityDof = { { MSI::Dof_Type::RHO } };
-        moris::Cell<moris::Cell<MSI::Dof_Type>> tDofTypes   = {tDensityDof( 0 ), tVelocityDof, tTempDof};
+        Vector<Vector<MSI::Dof_Type>> tDensityDof = { { MSI::Dof_Type::RHO } };
+        Vector<Vector<MSI::Dof_Type>> tDofTypes   = {tDensityDof( 0 ), tVelocityDof, tTempDof};
 
         // init IWG
         //------------------------------------------------------------------------------
@@ -551,7 +551,7 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_VdW_Analytic",
         tLeaderDOFHatTemp = trans(tLeaderDOFHatTemp);
 
         // create a cell of field interpolators for IWG
-        Cell<Field_Interpolator *> tLeaderFIs(tDofTypes.size());
+        Vector<Field_Interpolator *> tLeaderFIs(tDofTypes.size());
 
         // create the field interpolator density
         tLeaderFIs(0) = new Field_Interpolator(1, tFIRule, &tGI, tDensityDof( 0 ));
@@ -599,8 +599,8 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_VdW_Analytic",
         tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
         // create a field interpolator manager
-        moris::Cell<moris::Cell<enum gen::PDV_Type>> tDummyDv;
-        moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+        Vector<Vector<enum gen::PDV_Type>> tDummyDv;
+        Vector< Vector< enum mtk::Field_Type > > tDummyField;
         Field_Interpolator_Manager tFIManager(tDofTypes, tDummyDv, tDummyField, tSet);
 
         // populate the field interpolator manager

@@ -54,44 +54,44 @@ namespace moris
           private:
 
           protected:
-            moris::Cell< MSI::Equation_Object* > mEquationObjList;
+            Vector< MSI::Equation_Object* > mEquationObjList;
 
-            moris::Cell< Matrix< DDRMat > >                mResidual;
+            Vector< Matrix< DDRMat > >                mResidual;
             Matrix< DDRMat >                               mJacobian;
-            moris::Cell< Matrix< DDRMat > >                mQI;
-            moris::Cell< Matrix< DDRMat > >                mdRdp;
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > mdQIdp;
+            Vector< Matrix< DDRMat > >                mQI;
+            Vector< Matrix< DDRMat > >                mdRdp;
+            Vector< Vector< Matrix< DDRMat > > > mdQIdp;
 
             // lists of leader and follower groups of dof types
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > mLeaderDofTypes;
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > mFollowerDofTypes;
+            Vector< Vector< enum MSI::Dof_Type > > mLeaderDofTypes;
+            Vector< Vector< enum MSI::Dof_Type > > mFollowerDofTypes;
 
             // maps for the leader and follower dof type
             moris::Matrix< DDSMat > mLeaderDofTypeMap;
             moris::Matrix< DDSMat > mFollowerDofTypeMap;
 
             // map of leader and follower dof types for assembly
-            Cell< moris::Matrix< DDSMat > > mResDofAssemblyMap;
-            Cell< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
+            Vector< moris::Matrix< DDSMat > > mResDofAssemblyMap;
+            Vector< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
 
             // lists of leader and follower groups of dv types
-            moris::Cell< moris::Cell< enum gen::PDV_Type > > mLeaderDvTypes;
-            moris::Cell< moris::Cell< enum gen::PDV_Type > > mFollowerDvTypes;
+            Vector< Vector< enum gen::PDV_Type > > mLeaderDvTypes;
+            Vector< Vector< enum gen::PDV_Type > > mFollowerDvTypes;
 
             // maps for the leader and follower dv type
             moris::Matrix< DDSMat > mLeaderDvTypeMap;
             moris::Matrix< DDSMat > mFollowerDvTypeMap;
 
             // lists of leader and follower groups of field types
-            moris::Cell< moris::Cell< mtk::Field_Type > > mLeaderFieldTypes;
-            moris::Cell< moris::Cell< mtk::Field_Type > > mFollowerFieldTypes;
+            Vector< Vector< mtk::Field_Type > > mLeaderFieldTypes;
+            Vector< Vector< mtk::Field_Type > > mFollowerFieldTypes;
 
             // maps for the leader and follower field type
             moris::Matrix< DDSMat > mLeaderFieldTypeMap;
             moris::Matrix< DDSMat > mFollowerFieldTypeMap;
 
             // map of leader and follower mat pdv types for assembly
-            Cell< moris::Matrix< DDSMat > >                      mPdvMatAssemblyMap;
+            Vector< moris::Matrix< DDSMat > >                      mPdvMatAssemblyMap;
             moris::Matrix< DDSMat >                              mPdvMatAssemblyVector;
             std::map< std::pair< moris_index, gen::PDV_Type >, uint > mPdvGeoAssemblyMap;
             moris::Matrix< DDSMat >                              mPdvGeoAssemblyVector;
@@ -115,14 +115,14 @@ namespace moris
             Matrix< DDRMat > mTime;
 
             // unique list of dof and dv types
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > >   mUniqueDofTypeListLeaderFollower;
-            moris::Cell< moris::Cell< enum gen::PDV_Type > >        mUniqueDvTypeListLeaderFollower;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mUniqueFieldTypeListLeaderFollower;
+            Vector< Vector< enum MSI::Dof_Type > >   mUniqueDofTypeListLeaderFollower;
+            Vector< Vector< enum gen::PDV_Type > >        mUniqueDvTypeListLeaderFollower;
+            Vector< Vector< enum mtk::Field_Type > > mUniqueFieldTypeListLeaderFollower;
 
             // unique list of dof and dv types. Leader and Follower are combined
-            moris::Cell< enum MSI::Dof_Type >   mUniqueDofTypeList;
-            moris::Cell< enum gen::PDV_Type >        mUniqueDvTypeList;
-            moris::Cell< enum mtk::Field_Type > mUniqueFieldTypeList;
+            Vector< enum MSI::Dof_Type >   mUniqueDofTypeList;
+            Vector< enum gen::PDV_Type >        mUniqueDvTypeList;
+            Vector< enum mtk::Field_Type > mUniqueFieldTypeList;
 
             // pointer to the model solver interface
             Model_Solver_Interface* mModelSolverInterface = nullptr;
@@ -141,19 +141,19 @@ namespace moris
             MSI::Equation_Model* mEquationModel = nullptr;
 
             //! actual pdof values. Cells are for different multi-vectors
-            moris::Cell< Matrix< DDRMat > > mPdofValues;
+            Vector< Matrix< DDRMat > > mPdofValues;
 
             //! previous pdof values
-            moris::Cell< Matrix< DDRMat > > mPreviousPdofValues;
+            Vector< Matrix< DDRMat > > mPreviousPdofValues;
 
             //! adjoint pdof values
-            moris::Cell< Matrix< DDRMat > > mAdjointPdofValues;
+            Vector< Matrix< DDRMat > > mAdjointPdofValues;
 
             //! previous adjoint pdof values
-            moris::Cell< Matrix< DDRMat > > mPreviousAdjointPdofValues;
+            Vector< Matrix< DDRMat > > mPreviousAdjointPdofValues;
 
             //! previous adjoint pdof values
-            moris::Cell< Matrix< DDRMat > > mEigenVectorPdofValues;
+            Vector< Matrix< DDRMat > > mEigenVectorPdofValues;
 
             friend class MSI::Equation_Object;
             friend class Element_Bulk;
@@ -195,7 +195,7 @@ namespace moris
              * get dof type list
              * @param[ in ] aIsLeader enum for leader or follower
              */
-            moris::Cell< moris::Cell< MSI::Dof_Type > >& get_dof_type_list(
+            Vector< Vector< MSI::Dof_Type > >& get_dof_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -237,7 +237,7 @@ namespace moris
              * get dv type list
              * @param[ in ] aIsLeader enum for leader or follower
              */
-            const moris::Cell< moris::Cell< gen::PDV_Type > >& get_dv_type_list(
+            const Vector< Vector< gen::PDV_Type > >& get_dv_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ namespace moris
              * get field type list
              * @param[ in ] aIsLeader enum for leader or follower
              */
-            const moris::Cell< moris::Cell< mtk::Field_Type > >& get_field_type_list(
+            const Vector< Vector< mtk::Field_Type > >& get_field_type_list(
                     mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -357,7 +357,7 @@ namespace moris
             /**
              * get residual
              */
-            Cell< Matrix< DDRMat > >&
+            Vector< Matrix< DDRMat > >&
             get_residual()
             {
                 return mResidual;
@@ -367,7 +367,7 @@ namespace moris
             /**
              * get residual dof assembly map
              */
-            moris::Cell< moris::Matrix< DDSMat > >&
+            Vector< moris::Matrix< DDSMat > >&
             get_res_dof_assembly_map()
             {
                 return mResDofAssemblyMap;
@@ -377,7 +377,7 @@ namespace moris
             /**
              * get QI
              */
-            Cell< Matrix< DDRMat > >&
+            Vector< Matrix< DDRMat > >&
             get_QI()
             {
                 return mQI;
@@ -415,7 +415,7 @@ namespace moris
             /**
              * get jacobian dof assembly map
              */
-            moris::Cell< moris::Matrix< DDSMat > >&
+            Vector< moris::Matrix< DDSMat > >&
             get_jac_dof_assembly_map()
             {
                 return mJacDofAssemblyMap;
@@ -425,7 +425,7 @@ namespace moris
             /**
              * get dRdp
              */
-            moris::Cell< Matrix< DDRMat > >&
+            Vector< Matrix< DDRMat > >&
             get_drdp()
             {
                 return mdRdp;
@@ -445,7 +445,7 @@ namespace moris
             /**
              * get dRdpMat pdv assembly map
              */
-            moris::Cell< moris::Matrix< DDSMat > >&
+            Vector< moris::Matrix< DDSMat > >&
             get_mat_pdv_assembly_map()
             {
                 return mPdvMatAssemblyMap;
@@ -505,7 +505,7 @@ namespace moris
             /**
              * get dQIdp
              */
-            moris::Cell< moris::Cell< Matrix< DDRMat > > >&
+            Vector< Vector< Matrix< DDRMat > > >&
             get_dqidp()
             {
                 return mdQIdp;
@@ -515,7 +515,7 @@ namespace moris
             /**
              * get dQIdp for material pdv
              */
-            moris::Cell< Matrix< DDRMat > >&
+            Vector< Matrix< DDRMat > >&
             get_dqidpmat()
             {
                 return mdQIdp( 0 );
@@ -525,7 +525,7 @@ namespace moris
             /**
              * get dQIdp for geometry pdv
              */
-            moris::Cell< Matrix< DDRMat > >&
+            Vector< Matrix< DDRMat > >&
             get_dqidpgeo()
             {
                 return mdQIdp( 1 );
@@ -589,7 +589,7 @@ namespace moris
             /**
              * get list of equation object pointers
              */
-            Cell< MSI::Equation_Object* >&
+            Vector< MSI::Equation_Object* >&
             get_equation_object_list()
             {
                 return mEquationObjList;
@@ -600,7 +600,7 @@ namespace moris
              * get unique dof type list
              * @param[ out ] mUniqueDofTypeList a unique list of dof type
              */
-            const moris::Cell< enum MSI::Dof_Type >&
+            const Vector< enum MSI::Dof_Type >&
             get_unique_dof_type_list()
             {
                 return mUniqueDofTypeList;
@@ -611,7 +611,7 @@ namespace moris
              * get unique dof type list
              * @param[ out ] mUniqueDofTypeList a unique list of dof type
              */
-            const moris::Cell< moris::Cell< enum MSI::Dof_Type > >&
+            const Vector< Vector< enum MSI::Dof_Type > >&
             get_unique_leader_follower_dof_type_list()
             {
                 return mUniqueDofTypeListLeaderFollower;
@@ -632,7 +632,7 @@ namespace moris
              * get unique dv type list
              * @param[ out ] mUniqueDvTypeList a unique list of dv type
              */
-            const moris::Cell< enum gen::PDV_Type >&
+            const Vector< enum gen::PDV_Type >&
             get_unique_dv_type_list()
             {
                 return mUniqueDvTypeList;
@@ -653,7 +653,7 @@ namespace moris
              * get unique field type list
              * @param[ out ] mUniqueFieldTypeList a unique list of field type
              */
-            const moris::Cell< mtk::Field_Type >&
+            const Vector< mtk::Field_Type >&
             get_unique_field_type_list()
             {
                 return mUniqueFieldTypeList;
@@ -673,13 +673,13 @@ namespace moris
             /**
              * get requested dof types
              */
-            const moris::Cell< enum MSI::Dof_Type >& get_requested_dof_types();
+            const Vector< enum MSI::Dof_Type >& get_requested_dof_types();
 
             //------------------------------------------------------------------------------
             /**
              * get secondary dof types
              */
-            const moris::Cell< enum MSI::Dof_Type >& get_secondary_dof_types();
+            const Vector< enum MSI::Dof_Type >& get_secondary_dof_types();
 
             //------------------------------------------------------------------------------
             /**
@@ -691,7 +691,7 @@ namespace moris
             /**
              * get requested dv types
              */
-            moris::Cell< enum gen::PDV_Type > get_requested_dv_types();
+            Vector< enum gen::PDV_Type > get_requested_dv_types();
 
             //------------------------------------------------------------------------------
             /**
@@ -720,7 +720,7 @@ namespace moris
             compute_quantity_of_interest_global(
                     const uint                        aMeshIndex,
                     Matrix< DDRMat >*                 aFieldValues,
-                    const moris::Cell< std::string >& aQINames )
+                    const Vector< std::string >& aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_global - not implemented for base class." );
             }
@@ -736,7 +736,7 @@ namespace moris
             compute_quantity_of_interest_nodal(
                     const uint                        aMeshIndex,
                     Matrix< DDRMat >*                 aFieldValues,
-                    const moris::Cell< std::string >& aQINames )
+                    const Vector< std::string >& aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_nodal - not implemented for base class." );
             }
@@ -753,7 +753,7 @@ namespace moris
             compute_quantity_of_interest_elemental(
                     const uint                        aMeshIndex,
                     Matrix< DDRMat >*                 aFieldValues,
-                    const moris::Cell< std::string >& aQINames,
+                    const Vector< std::string >& aQINames,
                     const bool                        aOutputAverageValue = true  )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_elemental - not implemented for base class." );
@@ -763,8 +763,8 @@ namespace moris
 
             virtual void
             populate_fields(
-                    moris::Cell< std::shared_ptr< fem::Field > >& aFieldToPopulate,
-                    moris::Cell< std::string > const &            aFieldIQINames )
+                    Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
+                    Vector< std::string > const &            aFieldIQINames )
             {
                 MORIS_ERROR( false, "populate_fields(), no child implementation." );
             }

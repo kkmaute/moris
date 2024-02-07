@@ -18,7 +18,7 @@ namespace moris::gen
     {
 
       private:
-        Cell< std::shared_ptr< Field > > mFields;
+        Vector< std::shared_ptr< Field > > mFields;
         real                             mScale;
 
       public:
@@ -29,7 +29,7 @@ namespace moris::gen
          * @param aUseMinimum Whether or not to use minimum or maximum value when combining fields
          */
         Combined_Fields(
-                Cell< std::shared_ptr< Field > > aFields,
+                Vector< std::shared_ptr< Field > > aFields,
                 bool                             aUseMinimum = true,
                 std::string                      aName = "" );
 

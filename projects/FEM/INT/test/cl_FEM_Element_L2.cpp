@@ -123,7 +123,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -146,7 +146,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -306,7 +306,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //
 //                // 8) Postprocessing
 //                // dof type list for the solution to write on the mesh
-//                moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
+//                Vector< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
 //
 //                // create a matrix to be filled  with the solution
 //                Matrix< DDRMat > tVXSolutionField( tNumOfNodes, 1 );
@@ -481,7 +481,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -504,7 +504,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -660,7 +660,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //
 //                // 8) Postprocessing
 //                // dof type list for the solution to write on the mesh
-//                moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
+//                Vector< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
 //
 //                // create a matrix to be filled  with the solution
 //                Matrix< DDRMat > tVXSolutionField( tNumOfNodes, 1 );
@@ -788,7 +788,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -811,7 +811,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -964,7 +964,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //
 //                // 8) Postprocessing
 //                // dof type list for the solution to write on the mesh
-//                moris::Cell< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
+//                Vector< MSI::Dof_Type > tDofTypeList = { MSI::Dof_Type::VX };
 //
 //                // create a matrix to be filled  with the solution
 //                Matrix< DDRMat > tVXSolutionField( tNumOfNodes, 1 );
@@ -1073,7 +1073,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -1096,7 +1096,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)

@@ -48,7 +48,7 @@ namespace moris
     real
     user_defined_geometry_field(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&     aParameters )
+            const Vector< real >&     aParameters )
     {
         return aCoordinates( 0 ) * pow( aParameters( 0 ), 2 ) + aCoordinates( 1 ) * pow( aParameters( 1 ), 3 );
     }
@@ -58,7 +58,7 @@ namespace moris
     void
     user_defined_geometry_sensitivity(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&     aParameters,
+            const Vector< real >&     aParameters,
             Matrix< DDRMat >&       aSensitivities )
     {
         aSensitivities = { { 2 * aCoordinates( 0 ) * aParameters( 0 ), 3 * aCoordinates( 1 ) * pow( aParameters( 1 ), 2 ) } };
@@ -561,7 +561,7 @@ namespace moris::gen
         // Set up 2 B-spline geometries
         Matrix< DDRMat >                    tADVs( 0, 0 );
         Matrix< DDRMat >                    tRadii = { { 0.5, 0.25 } };
-        Cell< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
+        Vector< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
 
         // Loop over possible cases
         for ( uint tBSplineOrder = 1; tBSplineOrder < 3; tBSplineOrder++ )
@@ -791,7 +791,7 @@ namespace moris::gen
         Matrix< DDSMat > tADVIndicesMat2 = string_to_mat< DDSMat >( tADVIndices2 );
 
         // Set up 2 circles
-        Cell< ParameterList > tParameterLists( 3 );
+        Vector< ParameterList > tParameterLists( 3 );
         tParameterLists( 0 ) = prm::create_field_parameter_list();
         tParameterLists( 0 ).set( "field_type", "circle" );
         tParameterLists( 0 ).set( "field_variable_indices", "all" );
@@ -811,7 +811,7 @@ namespace moris::gen
         // Create combined fields
         Matrix< DDRMat >                    tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
         Design_Factory                      tDesignFactory( tParameterLists, tADVs );
-        Cell< std::shared_ptr< Geometry > > tGeometries = tDesignFactory.get_geometries();
+        Vector< std::shared_ptr< Geometry > > tGeometries = tDesignFactory.get_geometries();
 
         // Should be only one total geometry
         REQUIRE( tGeometries.size() == 1 );
@@ -889,7 +889,7 @@ namespace moris::gen
                 std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
                 // Radii to check
-                Cell< real > tRadii;
+                Vector< real > tRadii;
                 if ( tUseADVs )
                 {
                     tRadii = { 0.1, 0.15, 0.2 };

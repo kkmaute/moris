@@ -36,7 +36,7 @@ namespace moris
             MSI::Equation_Set * tFEMSet = new fem::Set();
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            Vector< Vector< enum MSI::Dof_Type > > tDummy;
             Field_Interpolator_Manager tFIManager( tDummy, tFEMSet );
 
             // create a geometry interpolator for the FEM Set
@@ -119,7 +119,7 @@ namespace moris
             MSI::Equation_Set * tFEMSet = new fem::Set();
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+            Vector< Vector< enum MSI::Dof_Type > > tDummy;
             Field_Interpolator_Manager tFIManager( tDummy, tFEMSet );
 
             // create a geometry interpolator for the FEM Set

@@ -28,7 +28,7 @@ namespace moris::gen
     class Derived_Node : public Node
     {
       private:
-        Cell< Basis_Node > mBackgroundNodes;
+        Vector< Basis_Node > mBackgroundNodes;
         Matrix< DDRMat > mGlobalCoordinates;
         Matrix< DDRMat > mParametricCoordinates;
         static inline bool gOverrideLinearInterpolation = false;
@@ -45,7 +45,7 @@ namespace moris::gen
          */
         Derived_Node(
                 uint                     aIndex,
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Matrix< DDRMat >&  aParametricCoordinates,
                 mtk::Geometry_Type       aGeometryType,
                 mtk::Interpolation_Order aInterpolationOrder );
@@ -77,7 +77,7 @@ namespace moris::gen
          *
          * @return Basis nodes
          */
-        const Cell< Basis_Node >& get_background_nodes() const;
+        const Vector< Basis_Node >& get_background_nodes() const;
 
         /**
          * Gets the locator nodes of this derived node.
@@ -86,7 +86,7 @@ namespace moris::gen
          *
          * @return Locator nodes
          */
-        const Cell< Basis_Node >& get_locator_nodes() const override;
+        const Vector< Basis_Node >& get_locator_nodes() const override;
 
         /**
          * Gets if this derived node can be determined that it is on a specific interface without any field evaluation.

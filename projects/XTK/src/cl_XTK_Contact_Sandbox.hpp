@@ -13,7 +13,7 @@
 
 // #include "cl_MTK_Integration_Mesh.hpp"
 // #include "cl_MTK_Set.hpp"
-// #include "cl_Cell.hpp"
+// #include "cl_Vector.hpp"
 // #include "moris_typedefs.hpp"
 // #include "cl_Matrix.hpp"
 // #include "linalg_typedefs.hpp"
@@ -22,7 +22,7 @@
 // #include <Kokkos_Core.hpp>
 // #include "cl_Stopwatch.hpp" //CHR/src
 
-// namespace xtk
+// namespace moris::xtk
 // {
 //     using ExecSpace = Kokkos::DefaultExecutionSpace;
 //     using MemSpace = typename ExecSpace::memory_space;
@@ -157,10 +157,10 @@
 // namespace Traits
 // {
 // template <>
-// struct Access<moris::Cell<xtk::Bounding_Box>, PrimitivesTag>
+// struct Access<Vector<xtk::Bounding_Box>, PrimitivesTag>
 // {
-//   inline static std::size_t size(moris::Cell<xtk::Bounding_Box> const &boxes) { return boxes.size(); }
-//   KOKKOS_FUNCTION static ArborX::Box const &  get(moris::Cell<xtk::Bounding_Box>  const & boxes, std::size_t i)
+//   inline static std::size_t size(Vector<xtk::Bounding_Box> const &boxes) { return boxes.size(); }
+//   KOKKOS_FUNCTION static ArborX::Box const &  get(Vector<xtk::Bounding_Box>  const & boxes, std::size_t i)
 //   {
 //       return boxes(i).get_arborx_box();
 //   }
@@ -168,11 +168,11 @@
 // };
 
 // template <>
-// struct Access<moris::Cell<xtk::Bounding_Box>, PredicatesTag>
+// struct Access<Vector<xtk::Bounding_Box>, PredicatesTag>
 // {
-//   inline static std::size_t size(moris::Cell<xtk::Bounding_Box> const &boxes) { return boxes.size(); }
+//   inline static std::size_t size(Vector<xtk::Bounding_Box> const &boxes) { return boxes.size(); }
 
-//   KOKKOS_INLINE_FUNCTION static auto get(moris::Cell<xtk::Bounding_Box> const &boxes, std::size_t i)
+//   KOKKOS_INLINE_FUNCTION static auto get(Vector<xtk::Bounding_Box> const &boxes, std::size_t i)
 //   {
 //     return intersects(boxes(i).get_arborx_box());
 //   }
@@ -180,7 +180,7 @@
 // };
 // }
 // }
-// namespace xtk
+// namespace moris::xtk
 // {
 
 //     class Contact_Sandbox
@@ -302,11 +302,11 @@
 //             aSideClusterBBs.resize(tNumClusters, mIntegrationMesh->get_spatial_dim());
 
 //             // get the set clusters
-//             moris::Cell<mtk::Cluster const *> tClusters = aSet->get_clusters_on_set();
+//             Vector<mtk::Cluster const *> tClusters = aSet->get_clusters_on_set();
 
 //             for(moris::uint i = 0; i < tNumClusters; i++)
 //             {
-//                   moris::Matrix<moris::IndexMat> tVerticesInCluster = tClusters(i)->get_primary_vertices_inds_in_cluster();\
+//                   Matrix<IndexMat> tVerticesInCluster = tClusters(i)->get_primary_vertices_inds_in_cluster();\
 
 //                   this->construct_AABB_from_vertices(tVerticesInCluster,aCurrentDispVec,aPredictedDispVec,aSideClusterBBs(i));
 //             }
@@ -320,7 +320,7 @@
 //                     Cell<Bounding_Box>       & aVertexBBs)
 //         {
 //             // get the set clusters
-//             moris::Matrix< IndexMat > tSetIgVerts = aSet->get_ig_vertices_inds_on_block(true);
+//             Matrix< IndexMat > tSetIgVerts = aSet->get_ig_vertices_inds_on_block(true);
 
 //             // number of clusters
 //             moris::uint tNumVerts  = tSetIgVerts.numel();
@@ -360,7 +360,7 @@
 
 //             for(moris::moris_index i = 0; i <(moris::moris_index)tNumNodes; i++)
 //             {
-//                 moris::Matrix< moris::DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVerticesForBB(i));
+//                 Matrix< DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVerticesForBB(i));
 
 //                 for(moris::uint iSpatial = 0; iSpatial<tSpatialDim; iSpatial++)
 //                 {
@@ -412,7 +412,7 @@
 //                                      Bounding_Box         & aVertexSetBB)
 //             {
 //                 moris::uint tSpatialDim = mIntegrationMesh->get_spatial_dim();
-//                 moris::Matrix< moris::DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVertexIndex);
+//                 Matrix< DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVertexIndex);
 
 //                 // allocate bounds
 //                 Matrix<DDRMat> tBounds(tSpatialDim,2);

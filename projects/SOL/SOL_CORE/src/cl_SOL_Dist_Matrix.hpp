@@ -175,8 +175,8 @@ namespace moris
              */
             virtual void
             build_graph(
-                    Cell< moris_id >& aNonZeroDiagonal,
-                    Cell< moris_id >& aNonZeroOffDiagonal )
+                    Vector< moris_id >& aNonZeroDiagonal,
+                    Vector< moris_id >& aNonZeroOffDiagonal )
             {
                 MORIS_ERROR( false, "build_graph does not have an implementation in the base class" );
             }

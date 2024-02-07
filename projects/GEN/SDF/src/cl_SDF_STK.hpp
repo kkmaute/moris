@@ -13,7 +13,7 @@
 
 #include <string>
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -39,7 +39,7 @@ namespace moris
             mtk::MtkFieldsInfo    mFieldsInfo;
 
             // Fields the field info contain references
-            moris::Cell<mtk::Scalar_Field_Info<DDRMat>> mFields;
+            Vector<mtk::Scalar_Field_Info<DDRMat>> mFields;
 
             //! set this to 3D
             uint                  mNumberOfDimensions = 3;
@@ -79,8 +79,8 @@ namespace moris
 
             void
             create_mesh_data(
-                    moris::Cell< Matrix<DDRMat> > & aFields,
-                    moris::Cell< std::string >    & aFieldLabels,
+                    Vector< Matrix<DDRMat> > & aFields,
+                    Vector< std::string >    & aFieldLabels,
                     const double                    aTimeStep=0.0 );
 
 //-------------------------------------------------------------------------------

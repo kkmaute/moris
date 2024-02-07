@@ -486,12 +486,12 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    Cell< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable )
+    Vector< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable )
     {
         if ( par_size() > 1 )
         {
             // Start map
-            Cell< moris_id > tCommunicationTableMap( aCommunicationTable.max() + 1, -1 );
+            Vector< moris_id > tCommunicationTableMap( aCommunicationTable.max() + 1, -1 );
 
             // Get number of processors
             uint tNumCommunicationProcs = aCommunicationTable.numel();
@@ -515,8 +515,8 @@ namespace moris
 
     void
     all_gather_cell_of_str(
-            Cell< std::string > const &  aCellToGather,
-            Cell< Cell< std::string > >& aGatheredCells,
+            Vector< std::string > const &  aCellToGather,
+            Vector< Vector< std::string > >& aGatheredCells,
             moris_index                  aTag,
             moris_index                  aBaseProc )
     {

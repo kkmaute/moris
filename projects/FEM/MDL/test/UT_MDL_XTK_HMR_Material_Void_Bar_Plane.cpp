@@ -91,7 +91,7 @@ PlaneMatVoidMDL( const moris::Matrix< moris::DDRMat >& aPoint )
 
 void
 tConstValFunctionMatVoidMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >&       aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
         moris::fem::Field_Interpolator_Manager*              aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -128,7 +128,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -157,24 +157,24 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         auto tPlane = std::make_shared< moris::gen::Plane >( 0.9545459, 0.11, 1.0, 0.0 );
-        moris::Cell< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
+        Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t                                tModelDimension = 2;
         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         // Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+        Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
         tXTKModel.decompose( tDecompositionMethods );
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-        xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
+        moris::xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        moris::xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
         // tEnrIntegMesh.print();
 
@@ -281,7 +281,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         tSetGhost.set_IWGs( { tIWGGhost } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 5 );
+        Vector< fem::Set_User_Info > tSetInfo( 5 );
         tSetInfo( 0 ) = tSetBulk1;
         tSetInfo( 1 ) = tSetBulk2;
         tSetInfo( 2 ) = tSetDirichlet;
@@ -295,7 +295,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
                 0,
                 false );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm

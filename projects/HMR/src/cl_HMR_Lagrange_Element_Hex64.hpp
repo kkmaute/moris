@@ -546,7 +546,7 @@ namespace moris::hmr
     template<>
     inline
     luint Lagrange_Element< 3, 64 >::create_basis_on_level_zero(
-          moris::Cell< Element * > & aAllElementsOnProc )
+          Vector< Element * > & aAllElementsOnProc )
     {
         // Start basis counter
         luint tBasisCounter = 0;
@@ -659,7 +659,7 @@ namespace moris::hmr
     template<>
     inline
     luint Lagrange_Element< 3, 64 >::create_basis_for_children(
-        moris::Cell< Element * > & aAllElementsOnProc )
+        Vector< Element * > & aAllElementsOnProc )
     {
         // Start basis counter
         luint tBasisCounter = 0;

@@ -1,194 +1,195 @@
 #
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#Copyright( c ) 2022 University of Colorado
+#Licensed under the MIT license.See LICENSE.txt file in the MORIS root for details.
 #
-#------------------------------------------------------------------------------------
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 #
 
-namespace moris {
+namespace moris
+{
 
-/** @defgroup XTKDictionary Dictionary
+    /** @defgroup XTKDictionary Dictionary
 
-This is an unordered collection of XTK-documentation
+    This is an unordered collection of XTK-documentation
 
 
 
-<hr>
+    <hr>
 
 
 
-@section XTK_Mesh_Entities Mesh-Entities
+    @section XTK_Mesh_Entities Mesh-Entities
 
-@subsection XTK_Mesh_Entities_Definitions Definitions
+    @subsection XTK_Mesh_Entities_Definitions Definitions
 
-- mtk::Cell: volumentric domain of a finite element
-- mtk::Vertex: A point used to describe the geometry of a cell. Equivalent of a finite element node.
-- Geometric Vertex: Corner Vertices of geometric elements.
-- Edge: Continuous line in space starting and terminating on a geometric vertex that may be populated with (non-geometric) vertices along the way.
-- Facet: Side of a cell. A facet is always one spatial dimension lower than the cell it sits on. In 2D it is equivalent to an edge, 
-in 3D it is equaivalent to a 2D cell (face).
-- Ordinal: index of an entity relative to another entity the former is related to. 
-Example: The start and end vertices of an edge have the ordinals 0 and 1 respectively. If this edge belongs to a TRI-element, 
-this edge e.g. has the ordinal 2 relative to this TRI. The same vertices then have ordinals 1 and 2 respectively w.r.t. the element.
+    - mtk::Cell: volumentric domain of a finite element
+    - mtk::Vertex: A point used to describe the geometry of a cell. Equivalent of a finite element node.
+    - Geometric Vertex: Corner Vertices of geometric elements.
+    - Edge: Continuous line in space starting and terminating on a geometric vertex that may be populated with (non-geometric) vertices along the way.
+    - Facet: Side of a cell. A facet is always one spatial dimension lower than the cell it sits on. In 2D it is equivalent to an edge,
+    in 3D it is equaivalent to a 2D cell (face).
+    - Ordinal: index of an entity relative to another entity the former is related to.
+    Example: The start and end vertices of an edge have the ordinals 0 and 1 respectively. If this edge belongs to a TRI-element,
+    this edge e.g. has the ordinal 2 relative to this TRI. The same vertices then have ordinals 1 and 2 respectively w.r.t. the element.
 
-@subsection XTK_Entity_Hierarchy Entity Hierarchy
+    @subsection XTK_Entity_Hierarchy Entity Hierarchy
 
-XTK uses the concept of an "Entity Hierarchy" to group and identify entities. "Entity" can be identified by a rank and an ID.
-An entity may be carried by another entity of higher rank, but not the other way around 
-(e.g. an edge is a part of a face, but a face is not a part of an edge). 
-Further, an entity of higher rank can be defined by entities of a lower rank.
-(e.g. an edge can be defined by vertices, or, a face can be defined by edges and/or vertices, and so on).
+    XTK uses the concept of an "Entity Hierarchy" to group and identify entities. "Entity" can be identified by a rank and an ID.
+    An entity may be carried by another entity of higher rank, but not the other way around
+    (e.g. an edge is a part of a face, but a face is not a part of an edge).
+    Further, an entity of higher rank can be defined by entities of a lower rank.
+    (e.g. an edge can be defined by vertices, or, a face can be defined by edges and/or vertices, and so on).
 
-\anchor EH1
-<table>
-<caption id="Entity_Hierarchy">Hierarchy of XTK-Entities</caption>
-<tr><th> Entity </th>       <th> Dimension </th>       <th> Rank </th>          <th> Comment </th></tr>
-<tr><td> mtk::Vertex </td>  <td> \f$ 0 \f$ </td>       <td> \f$ 0 \f$ </td>     <td> - </td></tr>
-<tr><td> Edge </td>         <td> \f$ 1 \f$ </td>       <td> \f$ 1 \f$ </td>     <td> - </td></tr>
-<tr><td> Facet </td>        <td> \f$ d_s-1 \f$ </td>   <td> \f$ 2 \f$ </td>     <td> not used in 2D, since equaivalent to edge </td></tr>
-<tr><td> mtk::Cell </td>    <td> \f$ d_s \f$ </td>     <td> \f$ 3 \f$ </td>     <td> - </td></tr>
-</table>
+    \anchor EH1
+    <table>
+    <caption id="Entity_Hierarchy">Hierarchy of XTK-Entities</caption>
+    <tr><th> Entity </th>       <th> Dimension </th>       <th> Rank </th>          <th> Comment </th></tr>
+    <tr><td> mtk::Vertex </td>  <td> \f$ 0 \f$ </td>       <td> \f$ 0 \f$ </td>     <td> - </td></tr>
+    <tr><td> Edge </td>         <td> \f$ 1 \f$ </td>       <td> \f$ 1 \f$ </td>     <td> - </td></tr>
+    <tr><td> Facet </td>        <td> \f$ d_s-1 \f$ </td>   <td> \f$ 2 \f$ </td>     <td> not used in 2D, since equaivalent to edge </td></tr>
+    <tr><td> mtk::Cell </td>    <td> \f$ d_s \f$ </td>     <td> \f$ 3 \f$ </td>     <td> - </td></tr>
+    </table>
 
 
 
-<hr>
+    <hr>
 
 
 
-@section XTK_Ancestry Ancestry
+    @section XTK_Ancestry Ancestry
 
-The ancestry of an entity defines it's carrier or "parent". 
-That is, any entity that gets created for the integration mesh is also linked (i.e. "inherits") to an entity on the background mesh. 
+    The ancestry of an entity defines it's carrier or "parent".
+    That is, any entity that gets created for the integration mesh is also linked (i.e. "inherits") to an entity on the background mesh.
 
-Consider the \ref AN1 "below example", where the blue triangle is created on the black background cell. 
-The ancestry information for the newly created entities is listed on the right.
+    Consider the \ref AN1 "below example", where the blue triangle is created on the black background cell.
+    The ancestry information for the newly created entities is listed on the right.
 
-\anchor AN1
-\image html Ancestry.jpg "Example for the ancestry for the various entities on an integration cell." width=550px
+    \anchor AN1
+    \image html Ancestry.jpg "Example for the ancestry for the various entities on an integration cell." width=550px
 
-Ancestry information is the link between the integration and interpolation mesh enabling their separation. 
-This is a key to enabling XFEM analysis. 
-The ancestry information is also used to determine the integration mesh entities' processor ownership which again is tied to the background mesh. 
-See more on this in Section \ref XTK_Parallel-Considerations "Parallel-Considerations".
+    Ancestry information is the link between the integration and interpolation mesh enabling their separation.
+    This is a key to enabling XFEM analysis.
+    The ancestry information is also used to determine the integration mesh entities' processor ownership which again is tied to the background mesh.
+    See more on this in Section \ref XTK_Parallel-Considerations "Parallel-Considerations".
 
 
 
-<hr>
+    <hr>
 
 
 
-@section XTK_Phases Bulk-phase, Sub-phase and Sub-phase Neighborhood
+    @section XTK_Phases Bulk-phase, Sub-phase and Sub-phase Neighborhood
 
-\anchor XC1
-\image html  bulkphase.png "Colored by bulk-phase"
-\anchor XC2
-\image html  subphase_neighborhood.png "Colored by sub-phase with sub-phase neighborhood relationships"
+    \anchor XC1
+    \image html  bulkphase.png "Colored by bulk-phase"
+    \anchor XC2
+    \image html  subphase_neighborhood.png "Colored by sub-phase with sub-phase neighborhood relationships"
 
-A bulk-phase is an index, \f$i\f$, which describes an entities membership in \f$\Omega_i\f$. Not all points in \f$\Omega_i\f$ 
-are topologically connected. A sub-phase is a set of points \f$\mathbf{x}\f$ which are topologically connected, have the same 
-bulk-phase and are in the non-zero support of the same set of background basis functions, each color in the second \ref XC2 "Figure". 
-All regions which have space between them are different sub-phases although some colors have been reused. The sub-phase 
-neighborhood is a first order adjacency matrix between sub-phases of the same bulk-phase, see the connecting lines in the second  
-\ref XC2 "Figure" where the color of the line indicates the bulk-phase. For emphasis, notice that there are no sub-phase 
-neighborhood relationships between sub-phases in different bulk-phases.
+    A bulk-phase is an index, \f$i\f$, which describes an entities membership in \f$\Omega_i\f$. Not all points in \f$\Omega_i\f$
+    are topologically connected. A sub-phase is a set of points \f$\mathbf{x}\f$ which are topologically connected, have the same
+    bulk-phase and are in the non-zero support of the same set of background basis functions, each color in the second \ref XC2 "Figure".
+    All regions which have space between them are different sub-phases although some colors have been reused. The sub-phase
+    neighborhood is a first order adjacency matrix between sub-phases of the same bulk-phase, see the connecting lines in the second
+    \ref XC2 "Figure" where the color of the line indicates the bulk-phase. For emphasis, notice that there are no sub-phase
+    neighborhood relationships between sub-phases in different bulk-phases.
 
 
 
-<hr>
+    <hr>
 
 
 
-@section XTK_Mesh The XTK-Mesh (xtk::Cut_Integration_Mesh)
-The mesh information XTK generates during the \ref XTKDecomp "decomposition" is stored in the form of the xtk::Cut_Integration_Mesh. 
-To understand this mesh, a variety of other meshes and mesh entities are needed
+    @section XTK_Mesh The XTK-Mesh (xtk::Cut_Integration_Mesh)
+    The mesh information XTK generates during the \ref XTKDecomp "decomposition" is stored in the form of the xtk::Cut_Integration_Mesh.
+    To understand this mesh, a variety of other meshes and mesh entities are needed
 
-@subsection XTK_Mesh_Background_Mesh Background Mesh
-The Background Mesh is the tensor grid background mesh which a geometry gets immersed into for analysis purposes.
-It is also the interpolation mesh, enabling geometry interpolation.
-From an XTK standpoint it is a grid of rectangular (QUAD and HEX) cells, with respect to which all "mesh-cutting" operations are executed.
+    @subsection XTK_Mesh_Background_Mesh Background Mesh
+    The Background Mesh is the tensor grid background mesh which a geometry gets immersed into for analysis purposes.
+    It is also the interpolation mesh, enabling geometry interpolation.
+    From an XTK standpoint it is a grid of rectangular (QUAD and HEX) cells, with respect to which all "mesh-cutting" operations are executed.
 
-@subsection XTK_Mesh_IG-Cell_Group IG-Cell Groups
-The xtk::IG_Cell_Group, xtk::IG_Cell_Side_Group, and xtk::IG_Cell_Double_Side_Group are simple lists of mtk::Cells of the 
-same type within the domain of one background cell.
+    @subsection XTK_Mesh_IG-Cell_Group IG-Cell Groups
+    The xtk::IG_Cell_Group, xtk::IG_Cell_Side_Group, and xtk::IG_Cell_Double_Side_Group are simple lists of mtk::Cells of the
+    same type within the domain of one background cell.
 
-\anchor MSH1
-\image html Child_Meshes.png "Cut Integration Mesh consisting of a background mesh, and cut child meshes." width=400px
+    \anchor MSH1
+    \image html Child_Meshes.png "Cut Integration Mesh consisting of a background mesh, and cut child meshes." width=400px
 
-@subsection XTK_Mesh_Child_Mesh Child Mesh
+    @subsection XTK_Mesh_Child_Mesh Child Mesh
 
-The Child_Mesh is the integration mesh related and "living on" one individual background cell. 
-This is the non-cut background cell for a trivial non-cut element, or the triangulated mesh resulting from the decomposition of a cut element.
-Further, the Child_Mesh holds the information which elements belong to which (sub-/bulk-/etc.) phases.
+    The Child_Mesh is the integration mesh related and "living on" one individual background cell.
+    This is the non-cut background cell for a trivial non-cut element, or the triangulated mesh resulting from the decomposition of a cut element.
+    Further, the Child_Mesh holds the information which elements belong to which (sub-/bulk-/etc.) phases.
 
-Conceptually, the union of all child meshes then forms an integration mesh.
+    Conceptually, the union of all child meshes then forms an integration mesh.
 
 
 
-<hr>
- 
+    <hr>
 
 
-@section XTK_Parallel-Considerations Parallel-Considerations
 
-@subsection XTK_Parallel-Considerations_Definitions Definitions
-- Index: Identifier of an entity within one processor's domain. Indices are assigned gapless, 
-meaning that every index from 0 up to the number of entities on the processor domain (minus one) is used and exists.
-This allows for easy storage of and access to the entities through sorted lists.
-- ID: Globally (i.e. across all processors) unique identifier of an entity. These may be arbitrary numbers.
+    @section XTK_Parallel-Considerations Parallel-Considerations
 
-The \ref PL1 "below figure" shows a two cell background mesh being split into two processor domains and 
-the index-ID relationships of the vertices and cells.
-(Note, that the processor splitting is purely from an XTK standpoint, HMR-Ghost-Cells or the Aura are ignored for readability.)
+    @subsection XTK_Parallel-Considerations_Definitions Definitions
+    - Index: Identifier of an entity within one processor's domain. Indices are assigned gapless,
+    meaning that every index from 0 up to the number of entities on the processor domain (minus one) is used and exists.
+    This allows for easy storage of and access to the entities through sorted lists.
+    - ID: Globally (i.e. across all processors) unique identifier of an entity. These may be arbitrary numbers.
 
-\anchor PL1
-\image html Index_vs_ID.jpg "Difference between an entity ID and index on a parallelized two element mesh." width=800px
+    The \ref PL1 "below figure" shows a two cell background mesh being split into two processor domains and
+    the index-ID relationships of the vertices and cells.
+    (Note, that the processor splitting is purely from an XTK standpoint, HMR-Ghost-Cells or the Aura are ignored for readability.)
 
-@subsection XTK_Parallel_Routines Parallel Routines Standard
-All routines within XTK that need to create new parallel consistent data on the mesh follow the same structure as shown here.
+    \anchor PL1
+    \image html Index_vs_ID.jpg "Difference between an entity ID and index on a parallelized two element mesh." width=800px
 
-\anchor PL2
-\image html parallel_standard.png "Generic parallel routine in XTK" width=300px
- 
-Requests are made by anchoring information that needs to be consistent to the model such that the owning processor of the data 
-can determine the correct information to return.  For example, when a new vertex is created during the decomposition strategy, 
-the id is created by anchoring the vertex to a parent entity id and a secondary identifier (cantor pair of the two vertices it 
-was constructed between). Sometimes, additional information is sent to debug or verify further the consistency of data between 
-processors. Note that all processors send at least a dummy message to all processors in their communication table. Processors 
-in the communication table include all processors which own an entity existing on a partition. XTK constructs its own 
-communication table and makes them symmetric in cl_XTK_Background_Mesh.hpp:setup_comm_map().
+    @subsection XTK_Parallel_Routines Parallel Routines Standard
+    All routines within XTK that need to create new parallel consistent data on the mesh follow the same structure as shown here.
 
- The function which use this standard in XTK are as follows:
- - assign_node_requests_identifiers() in cl_XTK_Model.hpp
- - assign_child_element_identifiers() in cl_XTK_Model.hpp
- - assign_subphase_glob_ids() in cl_XTK_Model.hpp
- - assign_enriched_coefficients_identifiers() in cl_XTK_Enrichment.hpp
- - identify_and_setup_aura_vertices_in_ghost() in cl_XTK_Ghost_Stabilization.hpp
+    \anchor PL2
+    \image html parallel_standard.png "Generic parallel routine in XTK" width=300px
 
+    Requests are made by anchoring information that needs to be consistent to the model such that the owning processor of the data
+    can determine the correct information to return.  For example, when a new vertex is created during the decomposition strategy,
+    the id is created by anchoring the vertex to a parent entity id and a secondary identifier (cantor pair of the two vertices it
+    was constructed between). Sometimes, additional information is sent to debug or verify further the consistency of data between
+    processors. Note that all processors send at least a dummy message to all processors in their communication table. Processors
+    in the communication table include all processors which own an entity existing on a partition. XTK constructs its own
+    communication table and makes them symmetric in cl_XTK_Background_Mesh.hpp:setup_comm_map().
 
+     The function which use this standard in XTK are as follows:
+     - assign_node_requests_identifiers() in cl_XTK_Model.hpp
+     - assign_child_element_identifiers() in cl_XTK_Model.hpp
+     - assign_subphase_glob_ids() in cl_XTK_Model.hpp
+     - assign_enriched_coefficients_identifiers() in cl_XTK_Enrichment.hpp
+     - identify_and_setup_aura_vertices_in_ghost() in cl_XTK_Ghost_Stabilization.hpp
 
-<hr>
 
 
+    <hr>
 
-@section XTK_Dict_Decomposition Decomposition
-Decomposition is the routine in which the background mesh gets cut up based on geometry and the 
-xtk::Cut_Integration_Mesh is constructed. This process is documented in detail \ref XTKDecomp "here".
 
 
+    @section XTK_Dict_Decomposition Decomposition
+    Decomposition is the routine in which the background mesh gets cut up based on geometry and the
+    xtk::Cut_Integration_Mesh is constructed. This process is documented in detail \ref XTKDecomp "here".
 
-<hr>
 
 
+    <hr>
 
-@section XTK_Dict_Enrichment Enrichment
-Enrichement is the process in which entities on the XTK mesh (xtk::Cut_Integration_Mesh) are assigned to material phases 
-and duplicated if they live on different phases. The process is documented in detail \ref XTKEnrich "here".
 
-This enables XFEM analysis to be performed on the mesh.
 
+    @section XTK_Dict_Enrichment Enrichment
+    Enrichement is the process in which entities on the XTK mesh (xtk::Cut_Integration_Mesh) are assigned to material phases
+    and duplicated if they live on different phases. The process is documented in detail \ref XTKEnrich "here".
 
-<hr>
+    This enables XFEM analysis to be performed on the mesh.
 
-*/
+
+    <hr>
+
+    */
 
 }

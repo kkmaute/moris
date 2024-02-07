@@ -14,7 +14,7 @@
 #include "assert.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris::mtk
 {
@@ -241,7 +241,7 @@ namespace moris::mtk
      * @param aSetType Set enum
      * @return Leader/follower cell, either { Leader } or { Leader, Follower }
      */
-    moris::Cell< Leader_Follower > get_leader_follower( SetType aSetType );
+    Vector< Leader_Follower > get_leader_follower( SetType aSetType );
 
     //------------------------------------------------------------------------------
 

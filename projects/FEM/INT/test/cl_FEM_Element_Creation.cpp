@@ -95,7 +95,7 @@ namespace moris
             uint tNumOfNodes = tMesh2D_Quad4->get_num_nodes();
 
             //create a cell of fem nodes
-            moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+            Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 
             // loop over the mesh nodes
             for( uint k = 0; k < tNumOfNodes; k++ )
@@ -298,7 +298,7 @@ namespace moris
 //            mtk::Vertex* tVertex4_3 = new NodeProxy( 1.0,  3.0, 8 );
 //            mtk::Vertex* tVertex4_4 = new NodeProxy( 0.0,  3.0, 9 );
 //
-//            moris::Cell< mtk::Vertex* > allNodes( 10 );
+//            Vector< mtk::Vertex* > allNodes( 10 );
 //            allNodes( 0 ) = tVertex1_1;
 //            allNodes( 1 ) = tVertex1_2;
 //            allNodes( 2 ) = tVertex1_3;
@@ -314,28 +314,28 @@ namespace moris
 //            // create cells of nodes for element
 //
 //            // cell containing nodes for element 1
-//            moris::Cell< mtk::Vertex* > Name1(4);
+//            Vector< mtk::Vertex* > Name1(4);
 //            Name1(0) = tVertex1_1;
 //            Name1(1) = tVertex1_2;
 //            Name1(2) = tVertex1_3;
 //            Name1(3) = tVertex1_4;
 //
 //            // cell containing nodes for element 2
-//            moris::Cell< mtk::Vertex* > Name2(4);
+//            Vector< mtk::Vertex* > Name2(4);
 //            Name2(0) = tVertex1_4;
 //            Name2(1) = tVertex1_3;
 //            Name2(2) = tVertex2_3;
 //            Name2(3) = tVertex2_4;
 //
 //            // cell containing nodes for element 1
-//            moris::Cell< mtk::Vertex* > Name3(4);
+//            Vector< mtk::Vertex* > Name3(4);
 //            Name3(0) = tVertex2_4;
 //            Name3(1) = tVertex2_3;
 //            Name3(2) = tVertex3_3;
 //            Name3(3) = tVertex3_4;
 //
 //            // cell containing nodes for element 1
-//            moris::Cell< mtk::Vertex* > Name4(4);
+//            Vector< mtk::Vertex* > Name4(4);
 //            Name4(0) = tVertex3_4;
 //            Name4(1) = tVertex3_4;
 //            Name4(2) = tVertex4_3;
@@ -350,7 +350,7 @@ namespace moris
 //
 //            //------------------------------------------------------------------------------
 //            // create a mesh
-//            moris::Cell< mtk::Cell* > Elems(4);
+//            Vector< mtk::Cell* > Elems(4);
 //            Elems(0) = tElement1;
 //            Elems(1) = tElement2;
 //            Elems(2) = tElement3;
@@ -363,7 +363,7 @@ namespace moris
 //            uint tNumOfNodes = allNodes.size();
 //
 //            //create a celle of fem nodes
-//            moris::Cell< Node_Base* > tNodes( tNumOfNodes, nullptr );
+//            Vector< Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //            // loop obver the mesh nodes
 //            for( uint k = 0; k < tNumOfNodes; k++ )

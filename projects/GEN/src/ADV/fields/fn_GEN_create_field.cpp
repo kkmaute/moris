@@ -34,7 +34,7 @@ namespace moris::gen
     create_field(
             ParameterList                    aFieldParameterList,
             Matrix< DDRMat >&                aADVs,
-            Cell< std::shared_ptr< Field > > aFieldDependencies,
+            Vector< std::shared_ptr< Field > > aFieldDependencies,
             std::shared_ptr< Library_IO >    aLibrary,
             mtk::Mesh*                       aMTKMesh,
             uint                             aIndex )
@@ -172,7 +172,7 @@ namespace moris::gen
         else if ( tFieldType == "sdf_field" )
         {
             std::string  tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
-            Cell< real > tObjectOffset = string_to_cell< real >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
+            Vector< real > tObjectOffset = string_to_cell< real >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
             real         tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
 
             tField = std::make_shared< gen::Signed_Distance_Field >(

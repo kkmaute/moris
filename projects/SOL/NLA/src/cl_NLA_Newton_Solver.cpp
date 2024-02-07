@@ -260,7 +260,7 @@ void Newton_Solver::extract_my_values(
         const uint&               aNumIndices,
         const Matrix< DDSMat >&   aGlobalBlockRows,
         const uint&               aBlockRowOffsets,
-        Cell< Matrix< DDRMat > >& LHSValues )
+        Vector< Matrix< DDRMat > >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }

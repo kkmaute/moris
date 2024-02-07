@@ -35,45 +35,45 @@ namespace moris
             uint mSpatilDim;
 
             // Vertex Information
-            moris::Cell< Vertex_DataBase > mVertices;
+            Vector< Vertex_DataBase > mVertices;
 
             // coordinates matrix to store all the coordinates
             Matrix< moris::DDRMat > mVertexCoordinates;
 
             // vertex ip info
-            moris::Cell< Vertex_Interpolation_DataBase > mVertexInterpoltions;
-            moris::Cell< Vertex_Interpolation* >         mVertexInterpoltionsPtrs;
+            Vector< Vertex_Interpolation_DataBase > mVertexInterpoltions;
+            Vector< Vertex_Interpolation* >         mVertexInterpoltionsPtrs;
 
             // outer cell is the bspline mesh index
             // inner cell is the combined nodal t-matrices
-            moris::Cell< moris::Cell< size_t > >             mOffSetTMatrix;
-            moris::Cell< moris::Cell< moris::real > >        mWeights;
-            moris::Cell< moris::Cell< moris::moris_id > >    mBasisIds;
-            moris::Cell< moris::Cell< moris::moris_index > > mBasisOwners;
-            moris::Cell< moris::Cell< moris::moris_index > > mBasisIndices;
+            Vector< Vector< size_t > >             mOffSetTMatrix;
+            Vector< Vector< moris::real > >        mWeights;
+            Vector< Vector< moris::moris_id > >    mBasisIds;
+            Vector< Vector< moris::moris_index > > mBasisOwners;
+            Vector< Vector< moris::moris_index > > mBasisIndices;
 
             // Cell to vertex connectivity
-            moris::Cell< mtk::Vertex* > mCellToVertices;
-            moris::Cell< moris_index >  mCellToVertexOffSet;
+            Vector< mtk::Vertex* > mCellToVertices;
+            Vector< moris_index >  mCellToVertexOffSet;
 
             // Cell Information
-            moris::Cell< Cell_DataBase >             mCells;
+            Vector< Cell_DataBase >             mCells;
             std::shared_ptr< moris::mtk::Cell_Info > mCellInfo;
 
             // Communication table
             Matrix< IdMat > mCommunicationTable;
 
             // Adof Map (global to local map for enriched vertices)
-            moris::Cell< map< moris_id, moris_index > > mAdofMap;
+            Vector< map< moris_id, moris_index > > mAdofMap;
 
             // vertex map (used in GEN)
             std::unordered_map< moris_id, moris_index > mVertexGlobalIdToLocalIndex;
 
             // id and owner information
-            moris::Cell< moris_id > mVertexIdList;
-            moris::Cell< moris_id > mCellIdList;
-            moris::Cell< moris_id > mVertexOwnerList;
-            moris::Cell< moris_id > mCellOwnerList;
+            Vector< moris_id > mVertexIdList;
+            Vector< moris_id > mCellIdList;
+            Vector< moris_id > mVertexOwnerList;
+            Vector< moris_id > mCellOwnerList;
 
             Matrix< IndexMat >                             mMeshIndices;
             std::unordered_map< moris_index, moris_index > mGlobalMeshIndexToLocalMeshIndex;
@@ -170,7 +170,7 @@ namespace moris
 
             virtual mtk::Cell& get_mtk_cell( moris_index aCellIndex ) override;
 
-            // moris::Cell<mtk::Cell_DataBase> const & get_mtk_cells() const;
+            // Vector<mtk::Cell_DataBase> const & get_mtk_cells() const;
 
             // ----------------------------------------------------------------------------
 

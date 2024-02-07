@@ -36,7 +36,7 @@ namespace moris
             moris_index mClusterGroupIndex;
 
             // list of clusters in group
-            moris::Cell< mtk::Cluster const* > mSideClusters;
+            Vector< mtk::Cluster const* > mSideClusters;
 
             // associated bulk cluster group
             mtk::Cluster_Group const* mAssociatedCellClusterGroup;
@@ -46,9 +46,9 @@ namespace moris
             /**
              * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
              * 
-             * @return moris::Cell< Cluster const* > const& list of clusters in the cluster group
+             * @return Vector< Cluster const* > const& list of clusters in the cluster group
              */
-            const moris::Cell< mtk::Cluster const* >
+            const Vector< mtk::Cluster const* >
             get_side_clusters_in_group() const;
 
             //------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ namespace moris
              */
             Side_Cluster_Group_DataBase( 
                     const moris_index                  aDiscretizationMeshIndex,
-                    moris::Cell< mtk::Cluster const* > aClusters, 
+                    Vector< mtk::Cluster const* > aClusters,
                     mtk::Cluster_Group const*          aAssociatedCellClusterGroup );
 
             //------------------------------------------------------------------------------

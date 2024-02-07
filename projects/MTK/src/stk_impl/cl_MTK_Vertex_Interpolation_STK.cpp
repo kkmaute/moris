@@ -34,14 +34,14 @@ namespace moris
 // ----------------------------------------------------------------------------
 
     void
-	Vertex_Interpolation_STK::set_coefficients( moris::Cell< mtk::Vertex* > & aCoefficients )
+	Vertex_Interpolation_STK::set_coefficients( Vector< mtk::Vertex* > & aCoefficients )
     {
         mCoefficients = aCoefficients;
     }
 
 // ----------------------------------------------------------------------------
 
-    moris::Cell< mtk::Vertex* > &
+    Vector< mtk::Vertex* > &
 	Vertex_Interpolation_STK::get_coefficients()
     {
         return mCoefficients;
@@ -49,7 +49,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-    const moris::Cell< mtk::Vertex* > &
+    const Vector< mtk::Vertex* > &
 	Vertex_Interpolation_STK::get_coefficients() const
     {
         return mCoefficients;

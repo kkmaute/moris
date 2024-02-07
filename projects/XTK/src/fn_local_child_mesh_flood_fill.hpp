@@ -18,13 +18,13 @@
 // XTKL: XTK Includes
 #include "fn_mesh_flood_fill.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     /*
      * Performs local child mesh flood fill operation and returns the elemental subphases
      * see test case xtk/fn_flood_fill.cpp
      */
-    inline moris::Matrix< moris::IndexMat >
+    inline Matrix< IndexMat >
     local_child_mesh_flood_fill( Child_Mesh& aChildMesh )
     {
         // Get number of elements in the child mesh
@@ -37,7 +37,7 @@ namespace xtk
         moris::size_t tNumPhases = 2;
 
         // Allocate space for active elements
-        moris::Matrix< moris::IndexMat > tActiveElements( 1, tNumElements );
+        Matrix< IndexMat > tActiveElements( 1, tNumElements );
 
         for ( moris::size_t iE = 0; iE < tNumElements; iE++ )
         {
@@ -46,13 +46,13 @@ namespace xtk
         }
 
         // Mark all elements as included
-        moris::Matrix< moris::IndexMat > tIncludedElementMarker( 1, tNumElements, 1 );
+        Matrix< IndexMat > tIncludedElementMarker( 1, tNumElements, 1 );
 
         // maximum subphase
         moris_index tMaxSubphase = 0;
 
         // Run flood fill Algorithm
-        moris::Matrix< moris::IndexMat > tElementSubphase = flood_fill( aChildMesh.get_element_to_element(),
+        Matrix< IndexMat > tElementSubphase = flood_fill( aChildMesh.get_element_to_element(),
                 aChildMesh.get_element_phase_indices(),
                 tActiveElements,
                 tIncludedElementMarker,
@@ -63,6 +63,6 @@ namespace xtk
 
         return tElementSubphase;
     }
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_XTK_FN_LOCAL_CHILD_MESH_FLOOD_FILL_HPP_ */

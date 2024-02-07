@@ -16,12 +16,12 @@
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_Matrix.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // Unordered Map Include
 #include <unordered_map>
 
-namespace xtk
+namespace moris::xtk
 {
 
     /*
@@ -36,12 +36,12 @@ namespace xtk
      *             Cell(1) Pruned shared faces
      *
      */
-    inline Cell< moris::Matrix< moris::IndexMat > >
+    inline Vector< Matrix< IndexMat > >
     prune_element_to_element(
-            moris::Matrix< moris::IndexMat > const & aElementToElement,
-            moris::Matrix< moris::IndexMat > const & aElementsInPrunedGraph,
-            moris::Matrix< moris::IndexMat > const & aSharedFaces,
-            moris::moris_index                       aDummyValue = MORIS_INDEX_MAX )
+            Matrix< IndexMat > const &aElementToElement,
+            Matrix< IndexMat > const &aElementsInPrunedGraph,
+            Matrix< IndexMat > const &aSharedFaces,
+            moris::moris_index        aDummyValue = MORIS_INDEX_MAX )
     {
 
         // Number of elements in to included in pruned graph
@@ -50,8 +50,8 @@ namespace xtk
         MORIS_ASSERT( aElementToElement.n_rows() == tNumIncludedElems, "Included elements and number of element neighbor relationships in element to element graph do not match" );
 
         // Intialize pruned results where cell 0 is for element to element and cell 1 is the corresponding shared face
-        moris::Matrix< moris::IndexMat > tPrunedElements( tNumIncludedElems, aElementToElement.n_cols(), aDummyValue );
-        moris::Matrix< moris::IndexMat > tPrunedSharedFaces( tNumIncludedElems, aElementToElement.n_cols(), aDummyValue );
+        Matrix< IndexMat > tPrunedElements( tNumIncludedElems, aElementToElement.n_cols(), aDummyValue );
+        Matrix< IndexMat > tPrunedSharedFaces( tNumIncludedElems, aElementToElement.n_cols(), aDummyValue );
 
         // Generate Map
         std::unordered_map< moris::moris_index, moris::moris_index > tElementMap( tNumIncludedElems );
@@ -77,6 +77,6 @@ namespace xtk
         return { tPrunedElements, tPrunedSharedFaces };
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_XTK_FN_PRUNE_ELEMENT_TO_ELEMENT_HPP_ */

@@ -13,7 +13,7 @@
 
 #include "moris_typedefs.hpp"
 #include "cl_Logger.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -37,7 +37,7 @@ namespace moris
 
         class Cell_STK : public moris::mtk::Cell
         {
-            moris::Cell< Vertex* > mCellVertices;
+            Vector< Vertex* > mCellVertices;
             Mesh*                  mSTKMeshData = nullptr;
             uint                   mBulkSetId   = MORIS_UINT_MAX;
 
@@ -60,7 +60,7 @@ namespace moris
                     std::shared_ptr< moris::mtk::Cell_Info > aCellConn,
                     moris_id                                 aCellId,
                     moris_index                              aCellInd,
-                    const moris::Cell< Vertex* >&            aCellVertices,
+                    const Vector< Vertex* >&            aCellVertices,
                     Mesh*                                    aStkImplementation,
                     uint                                     aBulkSetId = MORIS_UINT_MAX )
                     : Cell( aCellId, aCellInd, aStkImplementation->get_entity_owner( aCellInd, EntityRank::ELEMENT ), aCellConn )
@@ -88,9 +88,9 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * fills a moris::cell with pointers to connected vertices
+             * fills a Vector with pointers to connected vertices
              */
-            moris::Cell< Vertex* >
+            Vector< Vertex* >
             get_vertex_pointers() const
             {
                 return mCellVertices;

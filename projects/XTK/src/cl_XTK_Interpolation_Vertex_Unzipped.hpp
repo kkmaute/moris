@@ -16,14 +16,14 @@
 
 #include "cl_XTK_Vertex_Enrichment.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     class Vertex_Enrichment;
 }
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     class Interpolation_Vertex_Unzipped : public mtk::Vertex
     {
@@ -36,7 +36,7 @@ namespace xtk
         moris_index mVertexOwner;
 
         // interpolation of vertex
-        Cell< Vertex_Enrichment* > mInterpolation;    // Vertex Enrichment owned by ip mesh
+        Vector< Vertex_Enrichment* > mInterpolation;    // Vertex Enrichment owned by ip mesh
 
       public:
         Interpolation_Vertex_Unzipped(){};
@@ -55,7 +55,7 @@ namespace xtk
         Matrix< DDRMat >                 get_coords() const;
         moris_id                         get_id() const;
         moris_index                      get_index() const;
-        mtk::Vertex const*               get_base_vertex() const;
+        mtk::Vertex const *              get_base_vertex() const;
         moris_index                      get_owner() const;
         mtk::Vertex_Interpolation*       get_interpolation( const uint aOrder );
         const mtk::Vertex_Interpolation* get_interpolation( const uint aOrder ) const;
@@ -64,8 +64,8 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-        Vertex_Enrichment*       get_xtk_interpolation( const uint aOrder );
-        Vertex_Enrichment const* get_xtk_interpolation( const uint aOrder ) const;
+        Vertex_Enrichment*        get_xtk_interpolation( const uint aOrder );
+        Vertex_Enrichment const * get_xtk_interpolation( const uint aOrder ) const;
 
         //------------------------------------------------------------------------------
 
@@ -91,7 +91,6 @@ namespace xtk
         mtk::Vertex* get_base_vertex();
 
       protected:
-
         void
         set_vertex_id( moris_index const & aId );
     };
@@ -105,7 +104,6 @@ namespace xtk
            << " | Vertex Interpolation: " << *( dt.get_xtk_interpolation( 0 ) );
         return os;
     }
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_VERTEX_UNZIPPED_HPP_ */
-

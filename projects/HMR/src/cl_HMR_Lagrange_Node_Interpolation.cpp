@@ -28,21 +28,21 @@ const Matrix< DDRMat > * Lagrange_Node_Interpolation::get_weights() const
 
 // ----------------------------------------------------------------------------
 
-void Lagrange_Node_Interpolation::set_coefficients( Cell< mtk::Vertex* > & aCoefficients )
+void Lagrange_Node_Interpolation::set_coefficients( Vector< mtk::Vertex* > & aCoefficients )
 {
     mCoefficients = aCoefficients;
 }
 
 // ----------------------------------------------------------------------------
 
-Cell< mtk::Vertex* > & Lagrange_Node_Interpolation::get_coefficients()
+Vector< mtk::Vertex* > & Lagrange_Node_Interpolation::get_coefficients()
 {
     return mCoefficients;
 }
 
 // ----------------------------------------------------------------------------
 
-const Cell< mtk::Vertex* > & Lagrange_Node_Interpolation::get_coefficients() const
+const Vector< mtk::Vertex* > & Lagrange_Node_Interpolation::get_coefficients() const
 {
     return mCoefficients;
 }

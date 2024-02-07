@@ -40,7 +40,7 @@ namespace moris
     void Multigrid::multigrid_initialize()
     {
         // get list of owned adofs
-        Cell< moris::Cell < Adof * > > tOwnedAdofList = mModelSolverInterface->get_dof_manager()->get_owned_adofs();
+        Vector< Vector< Adof * > > tOwnedAdofList = mModelSolverInterface->get_dof_manager()->get_owned_adofs();
 
         // get number of owned adofs                                               //FIXME has to be adjusted for only a subset of adofs ( types or time)
         moris::uint tNumOwnedAdofs = mModelSolverInterface->get_dof_manager()->get_num_owned_adofs();
@@ -120,7 +120,7 @@ namespace moris
             moris::uint tNumDofsOnLevel = mListAdofExtIndMap( Ik ).numel();
 
             // Create list of of doftypes/time to check if a coarse level adof was created earlier. 0 means it was not created
-            moris::Cell < Matrix < DDUMat> > tCoarseDofExist( mMaxDofTypes );
+            Vector< Matrix < DDUMat> > tCoarseDofExist( mMaxDofTypes );
             for ( moris::sint Ib = 0; Ib < mMaxDofTypes; Ib++ )
             {
                 tCoarseDofExist( Ib ).set_size( tMaxIndex, 1, 0 );

@@ -31,8 +31,8 @@ namespace moris
          * @param[ out ] cgradxw
          */
         void compute_cgradxw(
-                const moris::Cell< MSI::Dof_Type > & aVelocityDofGroup,
-                const moris::Cell< MSI::Dof_Type > & aTargetDofGroup,
+                const Vector< MSI::Dof_Type > & aVelocityDofGroup,
+                const Vector< MSI::Dof_Type > & aTargetDofGroup,
                 Field_Interpolator_Manager         * aLeaderFIManager,
                 const real                         & aSpaceDim,
                 const real                         & aEpsilon,
@@ -51,10 +51,10 @@ namespace moris
          * @param[ in ] adcgradxwdu        a matrix to fill with derivative
          */
         void compute_dcgradxwdu(
-                const moris::Cell< MSI::Dof_Type > & aVelocityDofGroup,
-                const moris::Cell< MSI::Dof_Type > & aTargetDofGroup,
+                const Vector< MSI::Dof_Type > & aVelocityDofGroup,
+                const Vector< MSI::Dof_Type > & aTargetDofGroup,
                 Field_Interpolator_Manager         * aLeaderFIManager,
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 const real                         & aSpaceDim,
                 const real                         & aEpsilon,
                 bool                               & aIsCrosswind,

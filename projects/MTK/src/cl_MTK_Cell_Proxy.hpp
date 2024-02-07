@@ -30,7 +30,7 @@ namespace moris
             moris::moris_index mIndex = gNoIndex;
             moris::moris_id    mOwner = gNoID;
 
-            moris::Cell< Vertex * >  mVertices;
+            Vector< Vertex * >  mVertices;
             moris::uint              mSpatialDim   = 3;
             enum Geometry_Type       mGeometryType = Geometry_Type::UNDEFINED;
             enum Interpolation_Order mInterpOrder  = Interpolation_Order::UNDEFINED;
@@ -103,9 +103,9 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * fills a moris::cell with pointers to connected vertices
+             * fills a Vector with pointers to connected vertices
              */
-            moris::Cell< Vertex * >
+            Vector< Vertex * >
             get_vertex_pointers() const
             {
                 return mVertices;

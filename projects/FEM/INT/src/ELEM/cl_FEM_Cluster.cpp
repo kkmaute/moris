@@ -125,7 +125,7 @@ namespace moris
             mClusterMEAMap = mSet->get_cluster_measure_map();
 
             // get cluster measure tuples from set
-            moris::Cell< std::tuple<
+            Vector< std::tuple<
                     fem::Measure_Type,
                     mtk::Primary_Void,
                     mtk::Leader_Follower > >
@@ -662,11 +662,11 @@ namespace moris
             MORIS_ASSERT( !this->is_VIS_cluster(), "FEM cluster is actually VIS cluster." );
 
             // get the vertex pointers in cluster
-            moris::Cell< moris::mtk::Vertex const * > tVertices =
+            Vector< moris::mtk::Vertex const * > tVertices =
                     mMeshCluster->get_vertices_in_cluster( aIsLeader );
 
             // get the requested geo pdv types
-            moris::Cell< enum gen::PDV_Type > tGeoPdvType;
+            Vector< enum gen::PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
             // get number of pdv on cluster
@@ -763,11 +763,11 @@ namespace moris
                     "Cluster::compute_cluster_cell_side_measure_derivative - empty cluster." );
 
             // get the vertex pointers in cluster
-            moris::Cell< moris::mtk::Vertex const * > tVertices =
+            Vector< moris::mtk::Vertex const * > tVertices =
                     mMeshCluster->get_vertices_in_cluster( aIsLeader );
 
             // get the requested geo pdv types
-            moris::Cell< enum gen::PDV_Type > tGeoPdvType;
+            Vector< enum gen::PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
             // get number of pdv on cluster

@@ -185,7 +185,7 @@ namespace moris
             for (uint iDof = 0; iDof < mRequestedLeaderGlobalDofTypes.size(); iDof++)
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
                 // get index
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( iDof )( 0 ), mtk::Leader_Follower::LEADER );

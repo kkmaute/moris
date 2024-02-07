@@ -29,7 +29,7 @@ namespace moris::gen
     std::shared_ptr< Field > create_field(
             ParameterList                         aFieldParameterList,
             Matrix< DDRMat >&                     aADVs,
-            Cell< std::shared_ptr< Field > >      aFieldDependencies = {},
+            Vector< std::shared_ptr< Field > >      aFieldDependencies = {},
             std::shared_ptr<Library_IO>           aLibrary = nullptr,
             mtk::Mesh*                            aMTKMesh = nullptr,
             uint                                  aIndex = 0 );

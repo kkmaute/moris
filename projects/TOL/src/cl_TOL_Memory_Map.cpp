@@ -22,7 +22,7 @@ namespace moris
 
     // ----------------------------------------------------------------------------------
 
-    Memory_Map::Memory_Map(Cell<std::string> const & aKeys,
+    Memory_Map::Memory_Map( Vector<std::string> const & aKeys,
                            Matrix<DDSTMat>   const & aVals)
     {
         MORIS_ERROR(aKeys.size() == aVals.numel(), "Dimension mismatch on allocation.");
@@ -96,7 +96,7 @@ namespace moris
     Memory_Map::par_print(std::string const & aTitle)
     {
         // get all the memory maps onto this proc
-        Cell<Memory_Map> tGatheredMM;
+        Vector<Memory_Map> tGatheredMM;
         this->gather_all(tGatheredMM);
 
         // Combined memory map
@@ -107,7 +107,7 @@ namespace moris
             // total memory
             size_t tTotalMem = 0;
             // determine memory on each proc
-            Cell<size_t> tTotalMemPerProc(par_size());
+            Vector<size_t> tTotalMemPerProc(par_size());
             for (int i = 0; i < par_size(); i++)
             {
                 tTotalMemPerProc(i) = tGatheredMM(i).sum();
@@ -191,19 +191,19 @@ namespace moris
     // ----------------------------------------------------------------------------------
 
     void
-    Memory_Map::gather_all(Cell<Memory_Map> & aGatheredMemMap)
+    Memory_Map::gather_all( Vector<Memory_Map> & aGatheredMemMap)
     {
         // serialize my map as a cell of keys (str) and a cell of size_t (mem)
-        Cell<std::string> tKeyCell;
+        Vector<std::string> tKeyCell;
         Matrix<DDSTMat>   tVals;
         this->serialize(tKeyCell,tVals);
 
-        Cell<Cell<std::string>> tGatheredKeys;
+        Vector< Vector<std::string>> tGatheredKeys;
         moris_index tTag = 7000; // no particular reason for number
         all_gather_cell_of_str(tKeyCell,tGatheredKeys,tTag);
 
         // all gather the values
-        Cell<Matrix<DDSTMat>> tGatheredVals;
+        Vector<Matrix<DDSTMat>> tGatheredVals;
         tTag = 7001; // no particular reason for number
         all_gather_vector(tVals,tGatheredVals,tTag,0,0);
 
@@ -217,7 +217,7 @@ namespace moris
     // ----------------------------------------------------------------------------------
 
     void
-    Memory_Map::serialize(Cell<std::string> & aKeyCell,
+    Memory_Map::serialize( Vector<std::string> & aKeyCell,
                            Matrix<DDSTMat>  & aValCell)
     {
         // size the serialized vars
@@ -237,9 +237,9 @@ namespace moris
     // ----------------------------------------------------------------------------------
 
     void
-    Memory_Map::deserialize(Cell<Cell<std::string>> & aGatheredKeyCells,
-                            Cell<Matrix<DDSTMat>>   & aGatheredValCells,
-                            Cell<Memory_Map>        & aGatheredMemMaps)
+    Memory_Map::deserialize( Vector< Vector<std::string>> & aGatheredKeyCells,
+            Vector<Matrix<DDSTMat>>   & aGatheredValCells,
+            Vector<Memory_Map>        & aGatheredMemMaps)
     {
         aGatheredMemMaps.resize(par_size());
         for(moris::uint i = 0; i < aGatheredKeyCells.size(); i++)

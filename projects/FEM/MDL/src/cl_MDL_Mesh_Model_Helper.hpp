@@ -12,7 +12,7 @@
 #define PROJECTS_FEM_MDL_SRC_CL_MDL_MESH_MODEL_HELPER_HPP_
 
 #include "moris_typedefs.hpp"                       //MRS/COR/src
-#include "cl_Cell.hpp"                        //MRS/CNT/src
+#include "cl_Vector.hpp"                            //MRS/CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -49,21 +49,21 @@ namespace moris
 
             mtk::Mesh_Manager * mMesh = nullptr;
 
-            moris::Cell< moris::Matrix< DDUMat > > mColorListBlock;
-            moris::Cell< moris::Matrix< DDUMat > > mColorListSideSet;
+            Vector< moris::Matrix< DDUMat > > mColorListBlock;
+            Vector< moris::Matrix< DDUMat > > mColorListSideSet;
 
             mtk::Interpolation_Mesh* mInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   mIntegrationMesh = nullptr;
 
             Cell< fem::Node_Base* >           mNodes;
 
-            moris::Cell< Matrix< DDSMat > > VertexIndOnColor;
+            Vector< Matrix< DDSMat > > VertexIndOnColor;
 
             Matrix< DDSMat >  mVerticesOnBlock;
             Matrix< DDSMat >  mVerticesOnSideSet;
 
             Matrix< DDSMat >  mNodeToVertexIndMap;
-            moris::Cell< Matrix< DDSMat > >  mVertexColorToNodeIndMap;
+            Vector< Matrix< DDSMat > >  mVertexColorToNodeIndMap;
 
             Cell< MSI::Equation_Object* >     mElements;
             Cell< MSI::Equation_Set * >      mElementBlocks;

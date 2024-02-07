@@ -23,8 +23,8 @@ namespace moris
 
         void
         STK::create_mesh_data(
-                moris::Cell< Matrix<DDRMat> > & aFields,
-                moris::Cell< std::string >    & aFieldLabels,
+                Vector< Matrix<DDRMat> > & aFields,
+                Vector< std::string >    & aFieldLabels,
                 const double                    aTimeStep )
         {
             // start timer
@@ -131,7 +131,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // Initialize scalar field data
-            mFields = moris::Cell< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfFields+2 );
+            mFields = Vector< mtk::Scalar_Field_Info<DDRMat> >( tNumberOfFields+2 );
 
             for( uint f=0; f<tNumberOfFields; ++f )
             {

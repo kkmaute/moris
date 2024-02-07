@@ -46,7 +46,7 @@ namespace moris::mtk
             {
                 const Matrix< IndexMat > tSideOrdinal = mSetClusters( Ik )->get_cell_side_ordinals();
 
-                const moris::Cell< moris::mtk::Cell const * > &tCellsInCluster =    //
+                const Vector< moris::mtk::Cell const * > &tCellsInCluster =    //
                         mSetClusters( Ik )->get_primary_cells_in_cluster();
 
                 for ( uint Ij = 0; Ij < tCellsInCluster.size(); Ij++ )
@@ -64,7 +64,7 @@ namespace moris::mtk
             {
                 Matrix< IndexMat > tSideOrdinal = mSetClusters( Ik )->get_cell_side_ordinals();
 
-                const moris::Cell< moris::mtk::Cell const * > &tCellsInCluster =    //
+                const Vector< moris::mtk::Cell const * > &tCellsInCluster =    //
                         mSetClusters( Ik )->get_primary_cells_in_cluster();
 
                 for ( uint Ij = 0; Ij < tCellsInCluster.size(); Ij++ )
@@ -121,7 +121,7 @@ namespace moris::mtk
          */
         Side_Set(
                 std::string const                    &aName,
-                moris::Cell< Cluster const * > const &aSideSetClusters,
+                Vector< Cluster const * > const &aSideSetClusters,
                 Matrix< IndexMat > const             &aColors,
                 uint const                           &aSpatialDim )
                 : Set( aName, aSideSetClusters, aColors, aSpatialDim )
@@ -203,7 +203,7 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< Cluster const * >
+        Vector< Cluster const * >
         get_clusters_on_set() const override
         {
             return mSetClusters;

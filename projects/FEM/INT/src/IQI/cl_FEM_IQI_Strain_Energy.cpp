@@ -158,7 +158,7 @@ namespace moris
             for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -203,7 +203,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Strain_Energy::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
+                Vector< MSI::Dof_Type > & aDofType,
                 Matrix< DDRMat >             & adQIdu )
         {
             // check the point is inside the bounded box

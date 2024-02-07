@@ -52,7 +52,7 @@ namespace moris::sdf
      * @param aAxis direction in which the ray is cast
      * @return intersection coordinate locations
      */
-    moris::Cell< real >
+    Vector< real >
     compute_distance_to_facets(
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
@@ -91,7 +91,7 @@ namespace moris::sdf
      * @param aAxis direction in which the ray is cast
      * @return facet indices which could be intersected by the ray
      */
-    moris::Cell< uint >
+    Vector< uint >
     preselect_triangles(
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
@@ -116,8 +116,8 @@ namespace moris::sdf
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis,
-            moris::Cell< uint >&    aIntersectedFacets,
-            moris::Cell< Facet* >&  aCandidateFacets );
+            Vector< uint >&    aIntersectedFacets,
+            Vector< Facet* >&  aCandidateFacets );
 
     //-------------------------------------------------------------------------------
 
@@ -131,9 +131,9 @@ namespace moris::sdf
      * @param aAxis coordinate axis in which to cast from
      * @return pointers to which facets are intersected
      */
-    moris::Cell< Facet* >
+    Vector< Facet* >
     intersect_triangles(
-            moris::Cell< uint >& aCandidateFacets,
+            Vector< uint >& aCandidateFacets,
             Object&              aObject,
             Matrix< DDRMat >&    aPoint,
             uint                 aAxis );
@@ -149,9 +149,9 @@ namespace moris::sdf
      * @param aAxis coordinate axis to shoot ray in. 0 = x, 1 = y, 2 = z
      * @return matrix of intersection coordinate locations
      */
-    moris::Cell< real >
+    Vector< real >
     intersect_ray_with_facets(
-            moris::Cell< Facet* >&  aIntersectedFacets,
+            Vector< Facet* >&  aIntersectedFacets,
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis );
 
@@ -168,7 +168,7 @@ namespace moris::sdf
      */
     Object_Region
     check_if_node_is_inside_triangles(
-            moris::Cell< real >& aIntersectionCoords,
+            Vector< real >& aIntersectionCoords,
             Matrix< DDRMat >&    aPoint,
             uint                 aAxis );
 
@@ -187,8 +187,8 @@ namespace moris::sdf
      */
     Object_Region
     check_if_node_is_inside_lines(
-            const moris::Cell< real >& aIntersectionCoords,
-            const moris::Cell< uint >& aCandidateFacets,
+            const Vector< real >& aIntersectionCoords,
+            const Vector< uint >& aCandidateFacets,
             const Matrix< DDRMat >&    aPoint,
             uint                       aAxis );
 

@@ -44,7 +44,7 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
         Matrix< IdMat >   tNodeIds      = tMesh1.get_nodes_connected_to_element_glob_ids(1);
 
         // Setup Node Vertices (note: this data structure will be in the STK_Implementation
-        moris::Cell<Vertex*> tElementVertices;
+        Vector<Vertex*> tElementVertices;
         for(size_t i =0; i<tNodeIndices.numel(); i++)
         {
             tElementVertices.push_back( new Vertex_STK(tNodeIds(i),tNodeIndices(i),&tMesh1) );
@@ -104,7 +104,7 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
         }
 
         // Gold Normals
-        moris::Cell<moris::Matrix<moris::DDRMat>> tGoldNormals(6);
+        Vector<moris::Matrix<moris::DDRMat>> tGoldNormals(6);
         tGoldNormals(0) = {{+0.000000000000000e+00},
                            {-1.000000000000000e+00},
                            {+0.000000000000000e+00}};
@@ -187,7 +187,7 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
         Mesh* tMesh1  = create_interpolation_mesh( MeshType::STK, aMeshData );
 
         // Setup Node Vertices (note: this data structure will be in the STK_Implementation
-        moris::Cell<Vertex*> tElementVertices;
+        Vector<Vertex*> tElementVertices;
         for(size_t i =0; i<tNodeIndices.numel(); i++)
         {
             tElementVertices.push_back( new Vertex_STK(tNodeIds(i),tNodeIndices(i),tMesh1) );
@@ -221,7 +221,7 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
 
         // Gold Normals
         moris::uint tNumSides = 4;
-        moris::Cell<moris::Matrix<moris::DDRMat>> tGoldNormals(tNumSides);
+        Vector<moris::Matrix<moris::DDRMat>> tGoldNormals(tNumSides);
         tGoldNormals(0) = {{+0.000000000000000e+00},
                            {-1.000000000000000e+00},
                            {+0.000000000000000e+00}};

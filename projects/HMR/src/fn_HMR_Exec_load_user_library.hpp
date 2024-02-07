@@ -20,7 +20,7 @@
 #include "HMR_Globals.hpp"
 #include "assert.hpp"
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -33,7 +33,7 @@ namespace moris::hmr
      */
     typedef int ( *MORIS_HMR_USER_FUNCTION )(
             Element                        *aElement,
-            const Cell< Matrix< DDRMat > > &aElementLocalValues,
+            const Vector< Matrix< DDRMat > > &aElementLocalValues,
             ParameterList                  &aParameters );
 
     // -----------------------------------------------------------------------------

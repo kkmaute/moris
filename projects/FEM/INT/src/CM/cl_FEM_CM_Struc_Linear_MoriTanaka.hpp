@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -163,7 +163,7 @@ namespace moris
              *
              * @param[ in ] aDofTypes  dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+            virtual void eval_dFluxdDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -175,10 +175,10 @@ namespace moris
              * @param[ in ] aTestDofTypes  dof type of test function
              */
             virtual void eval_dTestTractiondDOF(
-                    const Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     const Matrix< DDRMat >&      aNormal,
                     const Matrix< DDRMat >&      aJump,
-                    const Cell< MSI::Dof_Type >& aTestDofTypes );
+                    const Vector< MSI::Dof_Type >& aTestDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -200,7 +200,7 @@ namespace moris
              *
              * @param[ in ] aDofTypes  dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dConstdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+            virtual void eval_dConstdDOF( const Vector< MSI::Dof_Type >& aDofTypes );
         };
         //--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */

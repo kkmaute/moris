@@ -98,21 +98,21 @@ namespace moris
 
 void tPropValConstFunc
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 void tPropValFunc
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 void tPropDerFunc
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
@@ -210,7 +210,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         uint tLagrangeMeshIndex = 0;
         // empty container for B-Spline meshes
-        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+        Vector< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
         // create settings object
         moris::hmr::Parameters tParameters;
@@ -260,7 +260,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         tField->evaluate_scalar_function( moris::gen::getDistanceToGyroidsMassive );
 
-        moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
+        Vector< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
         for( uint k=0; k<1; ++k )
         {
@@ -280,7 +280,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
 
         moris::gen::GEN_Geom_Field_HMR tFieldAsGeom(tField);
 
-        moris::Cell<moris::gen::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+        Vector<moris::gen::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 
         size_t tModelDimension = 3;
         moris::gen::Geometry_Engine tGeometryEngine( tGeometryVector, tModelDimension );
@@ -446,7 +446,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tSetInterface1.set_IWGs( { tIWGInterface } );
 
        // create a cell of set info
-       moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+       Vector< fem::Set_User_Info > tSetInfo( 7 );
        tSetInfo( 0 ) = tSetBulk1;
        tSetInfo( 1 ) = tSetBulk2;
        tSetInfo( 2 ) = tSetBulk3;

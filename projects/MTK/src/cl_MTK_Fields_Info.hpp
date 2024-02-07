@@ -13,7 +13,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 #include "cl_MTK_Matrix_Field_Info.hpp"
@@ -83,10 +83,10 @@ struct MtkFieldsInfo
         mSintMatrixFields.append(aOtherFields.mSintMatrixFields);
     }
 
-    moris::Cell<Scalar_Field_Info<DDRMat>*> mRealScalarFields;
-    moris::Cell<Matrix_Field_Info<DDRMat>*> mRealMatrixFields;
-    moris::Cell<Scalar_Field_Info<DDSMat>*> mSintScalarFields;
-    moris::Cell<Matrix_Field_Info<DDSMat>*> mSintMatrixFields;
+    Vector<Scalar_Field_Info<DDRMat>*> mRealScalarFields;
+    Vector<Matrix_Field_Info<DDRMat>*> mRealMatrixFields;
+    Vector<Scalar_Field_Info<DDSMat>*> mSintScalarFields;
+    Vector<Matrix_Field_Info<DDSMat>*> mSintMatrixFields;
 
     void
     print()

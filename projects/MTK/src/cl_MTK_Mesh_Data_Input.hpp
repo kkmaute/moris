@@ -35,7 +35,7 @@ namespace mtk
 
         // element to node connectivity
         // Cell - topology of element, inner matrix  - element to node connectivity
-        moris::Cell<Matrix < IdMat >*>  ElemConn;
+        Vector<Matrix < IdMat >*>  ElemConn;
 
         // Owning processor of a node
         Matrix < IdMat >*               NodeProcOwner;
@@ -56,8 +56,8 @@ namespace mtk
 
         // Node coordinates (row - node index, col - (x,y,z)
         Matrix < DDRMat >*              NodeCoords;
-        moris::Cell<Matrix < IdMat >*>  LocaltoGlobalElemMap;
-        moris::Cell<enum CellTopology>  CellTopology;
+        Vector<Matrix < IdMat >*>  LocaltoGlobalElemMap;
+        Vector<enum CellTopology>  CellTopology;
         Matrix < IdMat >*               LocaltoGlobalNodeMap;
         bool                            CreateAllEdgesAndFaces;
         MtkFieldsInfo*                  FieldsInfo;

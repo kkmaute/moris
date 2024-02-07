@@ -22,7 +22,7 @@ namespace moris
 //        TEST_CASE( "FEM Input", "[moris],[fem],[FEM_Input]" )
 //        {
 //            // create a cell of cell of parameter list for fem
-//            moris::Cell< moris::Cell< ParameterList > > tParameterList( 5 );
+//            Vector< Vector< ParameterList > > tParameterList( 5 );
 //
 //            //------------------------------------------------------------------------------
 //            // fill the property part of the parameter list
@@ -154,17 +154,17 @@ namespace moris
 //
 ////            // parsing tool debug
 ////            std::string tString = " 1.0, 2.0, 3.0; 4.0, 5.0, 6.0; 7.0, 8.0, 9.0";
-////            moris::Cell< Matrix< DDRMat > > tTest;
+////            Vector< Matrix< DDRMat > > tTest;
 ////            string_to_cell_mat_2( tString, tTest );
 ////            print( tTest, "tTest" );
 ////
 ////            std::string tString2 = " 1.0, 2.0, 3.0; 4.0, 5.0, 6.0; 7.0, 8.0, 9.0/ 10.0, 11.0, 12.0; 13.0, 14.0, 15.0; 16.0, 17.0, 18.0";
-////            moris::Cell< Matrix< DDRMat > > tTest2;
+////            Vector< Matrix< DDRMat > > tTest2;
 ////            string_to_cell_mat_2( tString2, tTest2 );
 ////            print( tTest2, "tTest2" );
 //
 ////            std::string tString = "MeshSet5,MeshSet2";
-////            moris::Cell< std::string > tStrings;
+////            Vector< std::string > tStrings;
 ////            string_to_cell( tString, tStrings );
 ////            std::cout<<"1"<<tStrings( 0 )<<std::endl;
 ////            std::cout<<"2"<<tStrings( 1 )<<std::endl;

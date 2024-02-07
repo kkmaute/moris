@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -109,8 +109,8 @@ namespace moris
              * @param[ in ] aDofStrings a list of strings to describe the dof types
              */
             void set_dof_type_list(
-                    Cell< Cell< MSI::Dof_Type > > aDofTypes,
-                    Cell< std::string >           aDofStrings );
+                    Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                    Vector< std::string >           aDofStrings );
 
             //------------------------------------------------------------------------------
             /**
@@ -120,8 +120,8 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    Cell< Cell< gen::PDV_Type > > aDvTypes,
-                    Cell< std::string >      aDvStrings )
+                    Vector< Vector< gen::PDV_Type > > aDvTypes,
+                    Vector< std::string >      aDvStrings )
             {
                 Constitutive_Model::set_dv_type_list( aDvTypes );
             }
@@ -146,7 +146,7 @@ namespace moris
              * @param[ in ] aDofTypes            a dof type wrt which the derivative is evaluated
              * @param[ out ] dInvBulkModulusdDOF derivative of K
              */
-            virtual Matrix< DDRMat > eval_dInvBulkModulusdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+            virtual Matrix< DDRMat > eval_dInvBulkModulusdDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -227,7 +227,7 @@ namespace moris
              */
             void eval_testTraction(
                     const Matrix< DDRMat >&      aNormal,
-                    const Cell< MSI::Dof_Type >& aTestDofTypes );
+                    const Vector< MSI::Dof_Type >& aTestDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -259,7 +259,7 @@ namespace moris
              * evaluate the constitutive model flux derivative wrt to a dof type
              * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+            virtual void eval_dFluxdDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -268,7 +268,7 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             void eval_dTractiondDOF(
-                    const Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     const Matrix< DDRMat >&      aNormal );
 
             //--------------------------------------------------------------------------------------------------------------
@@ -278,10 +278,10 @@ namespace moris
              * @param[ in ] aNormal   normal
              */
             virtual void eval_dTestTractiondDOF(
-                    const Cell< MSI::Dof_Type >& aDofTypes,
+                    const Vector< MSI::Dof_Type >& aDofTypes,
                     const Matrix< DDRMat >&      aNormal,
                     const Matrix< DDRMat >&      aJump,
-                    const Cell< MSI::Dof_Type >& aTestDofTypes );
+                    const Vector< MSI::Dof_Type >& aTestDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -289,7 +289,7 @@ namespace moris
              * @param[ in ] aDofTypes    a dof type wrt which the derivative is evaluated
              * @param[ in ] adStraindDOF a matrix to fill with derivative evaluation
              */
-            void eval_dStraindDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dStraindDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -297,7 +297,7 @@ namespace moris
              * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
              * @param[ in ] adConstdDOF a matrix to fill with derivative evaluation
              */
-            void eval_dConstdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dConstdDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**

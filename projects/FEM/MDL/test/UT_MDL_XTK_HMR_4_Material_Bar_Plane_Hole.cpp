@@ -130,7 +130,7 @@ Circle4MatMDL( const moris::Matrix< moris::DDRMat >& aPoint )
 
 inline void
 tConstValFunction2MatMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >&    aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >&    aParameters,
         moris::fem::Field_Interpolator_Manager*           aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -145,7 +145,7 @@ tSolverOutputCriteria_4MatMDL( moris::tsa::Time_Solver* )
 inline void
 run_hmr_for_multi_mat_model_2d(
         hmr::HMR&                                     aHMR,
-        Cell< std::shared_ptr< moris::hmr::Field > >& aFields )
+        Vector< std::shared_ptr< moris::hmr::Field > >& aFields )
 {
     moris_index tLagrangeMeshIndex = 0;
 
@@ -201,12 +201,12 @@ MultiMat3dCyl( const moris::Matrix< moris::DDRMat >& aPoint )
     MORIS_ASSERT( aCenter.numel() == 3, "Centers need to have length 3" );
     MORIS_ASSERT( aAxis.numel() == 3, "axis need to have length 3" );
 
-    Cell< moris::real > relativePosition = { ( aPoint( 0 ) - aCenter( 0 ) ), ( aPoint( 1 ) - aCenter( 1 ) ), ( aPoint( 2 ) - aCenter( 2 ) ) };
+    Vector< moris::real > relativePosition = { ( aPoint( 0 ) - aCenter( 0 ) ), ( aPoint( 1 ) - aCenter( 1 ) ), ( aPoint( 2 ) - aCenter( 2 ) ) };
     moris::real         lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
     moris::real         lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
 
     moris::real         axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
-    Cell< moris::real > radDir    = { ( relativePosition( 0 ) - aAxis( 0 ) * axialCrd ), ( relativePosition( 1 ) - aAxis( 1 ) * axialCrd ), ( relativePosition( 2 ) - aAxis( 2 ) * axialCrd ) };
+    Vector< moris::real > radDir    = { ( relativePosition( 0 ) - aAxis( 0 ) * axialCrd ), ( relativePosition( 1 ) - aAxis( 1 ) * axialCrd ), ( relativePosition( 2 ) - aAxis( 2 ) * axialCrd ) };
     moris::real         radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
     moris::real         lsFromRad = radDist - aRad;
 
@@ -216,7 +216,7 @@ MultiMat3dCyl( const moris::Matrix< moris::DDRMat >& aPoint )
 inline real
 MultiMat3dCylGeometry(
         const Matrix< DDRMat >& aCoordinates,
-        const Cell< real >&     aParameters )
+        const Vector< real >&     aParameters )
 {
     return MultiMat3dCyl( aCoordinates );
 }
@@ -224,7 +224,7 @@ MultiMat3dCylGeometry(
 inline void
 run_hmr_for_multi_mat_model_3d(
         hmr::HMR&                                     aHMR,
-        Cell< std::shared_ptr< moris::hmr::Field > >& aFields )
+        Vector< std::shared_ptr< moris::hmr::Field > >& aFields )
 {
     moris_index tLagrangeMeshIndex = 0;
 
@@ -281,12 +281,12 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         tParameters.set_lagrange_to_bspline_mesh( { { { 0 } } } );
 
         hmr::HMR                                     tHMR( tParameters );
-        Cell< std::shared_ptr< moris::hmr::Field > > tHMRFields;
+        Vector< std::shared_ptr< moris::hmr::Field > > tHMRFields;
         run_hmr_for_multi_mat_model_2d( tHMR, tHMRFields );
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Cell< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
+        Vector< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
         auto tCircle = std::make_shared< gen::Circle >( 0.01, 0.01, 0.47334 );
         auto tPlane = std::make_shared< gen::Plane >( 0.1, 0.1, 1.0, 0.0 );
         tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
@@ -296,16 +296,16 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
-        Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+        Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
         tXTKModel.decompose( tDecompositionMethods );
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
-        xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
+        moris::xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        moris::xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -541,7 +541,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         tSetInterface4.set_IWGs( { tIWGInterface3 } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 14 );
+        Vector< fem::Set_User_Info > tSetInfo( 14 );
         tSetInfo( 0 )  = tSetBulk1;
         tSetInfo( 1 )  = tSetBulk2;
         tSetInfo( 2 )  = tSetBulk3;
@@ -581,7 +581,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
 
         tModel->set_output_manager( &tOutputData );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -700,12 +700,12 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         tParameters.set_lagrange_to_bspline_mesh( { { { 0 } } } );
 
         hmr::HMR                                     tHMR( tParameters );
-        Cell< std::shared_ptr< moris::hmr::Field > > tHMRFields;
+        Vector< std::shared_ptr< moris::hmr::Field > > tHMRFields;
         run_hmr_for_multi_mat_model_3d( tHMR, tHMRFields );
 
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-        moris::Cell< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
+        Vector< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
         auto tUserDefinedField = std::make_shared< gen::User_Defined_Field >( &( MultiMat3dCylGeometry ) );
         auto tPlane = std::make_shared< gen::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
         tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField ) };
@@ -715,17 +715,17 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
-        Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+        Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
         tXTKModel.decompose( tDecompositionMethods );
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         // Write mesh
-        xtk::Enriched_Integration_Mesh& tEnrIgMesh = tXTKModel.get_enriched_integ_mesh( 0 );
+        moris::xtk::Enriched_Integration_Mesh& tEnrIgMesh = tXTKModel.get_enriched_integ_mesh( 0 );
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( 6, "ghost_ss_0" );
         tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_0", mtk::CellTopology::HEX8 );
@@ -746,8 +746,8 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         writer.set_time( 0.0 );
         writer.close_file();
 
-        xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
+        moris::xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        moris::xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -985,7 +985,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         tSetInterface4.set_IWGs( { tIWGInterface3 } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 14 );
+        Vector< fem::Set_User_Info > tSetInfo( 14 );
         tSetInfo( 0 )  = tSetBulk1;
         tSetInfo( 1 )  = tSetBulk2;
         tSetInfo( 2 )  = tSetBulk3;
@@ -1008,7 +1008,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
                 0,
                 false );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // --------------------------------------------------------------------------------------
         // Define outputs
@@ -1101,7 +1101,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
 
         //        // Declare the fields related to enrichment strategy in output options
         //        // output solution and meshes
-        //        xtk::Output_Options tOutputOptions;
+        //        moris::xtk::Output_Options tOutputOptions;
         //        tOutputOptions.mAddNodeSets = false;
         //        tOutputOptions.mAddSideSets = true;
         //        tOutputOptions.mAddClusters = false;

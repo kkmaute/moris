@@ -99,7 +99,7 @@ namespace moris
     // define free function for properties
     inline void
     tPropConstFunc_MDLTransient( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&       aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
             moris::fem::Field_Interpolator_Manager*              aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -108,7 +108,7 @@ namespace moris
     inline void
     tPropTimeFunc_MDLTransient(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         real tTime  = aFIManager->get_IP_geometry_interpolator()->valt()( 0 );
@@ -128,7 +128,7 @@ namespace moris
             uint tLagrangeMeshIndex = 0;
 
             // empty container for B-Spline meshes
-            moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             moris::hmr::Parameters tParameters;
@@ -246,7 +246,7 @@ namespace moris
             tIQITEMP->set_output_type_index( 0 );
 
             // define set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 3 );
+            Vector< fem::Set_User_Info > tSetInfo( 3 );
 
             tSetInfo( 0 ).set_mesh_index( 0 );
             tSetInfo( 0 ).set_IWGs( { tIWGDiffusionBulk } );
@@ -531,7 +531,7 @@ namespace moris
         tIQITEMP->set_output_type_index( 0 );
 
         // define set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 5 );
+        Vector< fem::Set_User_Info > tSetInfo( 5 );
 
         tSetInfo( 0 ).set_mesh_set_name( "HMR_dummy_c_p2" );
         tSetInfo( 0 ).set_IWGs( { tIWGDiffusionBulk } );

@@ -146,7 +146,7 @@ namespace moris
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
 
-            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
+            Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             // Communicate IQIs
             for ( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
@@ -225,7 +225,7 @@ namespace moris
         }
 
         void
-        Workflow_STK_XTK::create_stk( Cell< Cell< ParameterList > >& aParameterLists )
+        Workflow_STK_XTK::create_stk( Vector< Vector< ParameterList > >& aParameterLists )
         {
             Tracer            tTracer( "STK", "Mesh", "InitializeMesh" );
             std::string       tMeshFile     = aParameterLists( 0 )( 0 ).get< std::string >( "input_file" );

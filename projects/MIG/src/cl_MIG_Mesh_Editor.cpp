@@ -128,13 +128,13 @@ namespace moris::mig
 
     void
     Periodic_Mesh_Editor::construct_periodic_data_base(
-        moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
+        Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
         Matrix< DDRMat >                           aVerticesCoords,
-        moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-        moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
-        moris::Cell< moris_index >&                aSideClusterToIPCell,
+        Vector< Vector< moris_index > >& aSideClusterToCells,
+        Vector< Vector< moris_index > >& aCellToVertexIndices,
+        Vector< moris_index >&                aSideClusterToIPCell,
         Matrix< DDRMat >&                          aVertexParametricCoords,
-        moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
+        Vector< moris_index >&                aDoubleSidedClustersIndex,
         uint                                       mNumDblSideCluster,
         uint                                       aNumGeometry )
     {

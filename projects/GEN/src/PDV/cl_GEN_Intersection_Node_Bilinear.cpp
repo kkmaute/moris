@@ -23,7 +23,7 @@ namespace moris::gen
 
     Intersection_Node_Bilinear::Intersection_Node_Bilinear(
             uint                     aNodeIndex,
-            const Cell< Background_Node* >& aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -43,7 +43,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Intersection_Node_Bilinear::get_field_basis_nodes() const
+    const Vector< Basis_Node >& Intersection_Node_Bilinear::get_field_basis_nodes() const
     {
         return this->get_background_nodes();
     }
@@ -119,7 +119,7 @@ namespace moris::gen
         Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
         // get level set values of corner nodes
-        const Cell< Basis_Node >& tBackgroundNodes = this->get_background_nodes();
+        const Vector< Basis_Node >& tBackgroundNodes = this->get_background_nodes();
         for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
             tPhiBCNodes( iBackgroundNodeIndex ) = mInterfaceGeometry.get_field_value(

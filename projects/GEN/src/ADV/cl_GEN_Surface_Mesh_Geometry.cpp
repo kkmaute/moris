@@ -68,7 +68,7 @@ namespace moris::gen
 
     Intersection_Node* Surface_Mesh_Geometry::create_intersection_node(
             uint                     aNodeIndex,
-            const Cell< Background_Node* >& aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -88,7 +88,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
     
     real Surface_Mesh_Geometry::compute_intersection_local_coordinate(
-            const Cell< Background_Node* >& aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&   aFirstParentNode,
             const Parent_Node&   aSecondParentNode )
     {
@@ -98,7 +98,7 @@ namespace moris::gen
         // Compute the distance to the facets
         Matrix< DDRMat > tCastPoint( this->get_dimension(), 1 );
         tCastPoint.fill( 0.0 );
-        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, tRotatedAxis );
+        Vector< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, tRotatedAxis );
 
         // shift local coordinate to be between -1 and 1
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
@@ -130,7 +130,7 @@ namespace moris::gen
     {
         // step 1: shift the object so the first parent is at the origin
         Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
-        Cell< real > tShift( this->get_dimension() );
+        Vector< real > tShift( this->get_dimension() );
         MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size() , "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
         for( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
         {
@@ -189,7 +189,7 @@ namespace moris::gen
         this->rotate( tTransformationMatrix );
 
         // step 3: scale the object
-        Cell< real > tScaling( this->get_dimension(), 2.0 / tParentVectorNorm );
+        Vector< real > tScaling( this->get_dimension(), 2.0 / tParentVectorNorm );
         this->scale( tScaling );
 
         // Return rotation axis
@@ -199,7 +199,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
+    Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
     {
         // TODO BRENDAN: maybe?
         return {};
@@ -252,7 +252,7 @@ namespace moris::gen
     Surface_Mesh_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Cell< real >& aOutputDesignInfo )
+            Vector< real >& aOutputDesignInfo )
     {
         // TODO BRENDAN
         aOutputDesignInfo.resize( 0 );

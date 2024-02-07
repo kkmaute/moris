@@ -52,7 +52,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, false );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 14, 43 };
+    Vector< uint > tReferenceNodeId = { 14, 43 };
 
     if ( gPrintReferenceValues )
     {
@@ -79,9 +79,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2, 2 };
-    Cell< uint > tReferenceNumNodes = { 49241, 49241 };
-    Cell< uint > tReferenceNumElems = { 48000, 48000 };
+    Vector< uint > tReferenceNumDims  = { 2, 2 };
+    Vector< uint > tReferenceNumNodes = { 49241, 49241 };
+    Vector< uint > tReferenceNumElems = { 48000, 48000 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -106,7 +106,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { 0.00175 }, { 0.00000 } } );
     tReferenceCoordinate.push_back( { { 0.00525 }, { 0.00025 } } );
@@ -128,7 +128,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-5 );
 
     // check temperature at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
-    Cell< Matrix< DDRMat > > tReferenceDisplacement;
+    Vector< Matrix< DDRMat > > tReferenceDisplacement;
 
     if ( aTestCaseIndex == 0 )
     {

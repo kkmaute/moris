@@ -17,7 +17,7 @@
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"                          //MTK/src
 #include "cl_MSI_Equation_Object.hpp"               //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                         //FEM/INT/src
@@ -62,7 +62,7 @@ namespace moris
                     const std::shared_ptr< IWG >      &aReqIWG,
                     real                               aWStar,
                     Matrix< DDSMat >                  &aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
+                    Vector< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
             void ( Element::*m_compute_dQIdu )(
                     const std::shared_ptr< IQI > &aReqIQI,
                     real                          aWStar ) = nullptr;
@@ -70,7 +70,7 @@ namespace moris
                     const std::shared_ptr< IQI >      &aReqIQI,
                     real                               aWStar,
                     Matrix< DDSMat >                  &aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
+                    Vector< Matrix< IndexMat > > &aVertexIndices ) = nullptr;
 
             // finite difference scheme type for jacobian and dQIdu
             fem::FDScheme_Type mFAFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
@@ -255,7 +255,7 @@ namespace moris
                     const std::shared_ptr< IWG >      &aReqIWG,
                     real                               aWStar,
                     Matrix< DDSMat >                  &aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > &aVertexIndices )
+                    Vector< Matrix< IndexMat > > &aVertexIndices )
             {
                 // compute dRdpMat at evaluation point
                 aReqIWG->compute_dRdp( aWStar );
@@ -266,7 +266,7 @@ namespace moris
                     const std::shared_ptr< IWG >      &aReqIWG,
                     real                               aWStar,
                     Matrix< DDSMat >                  &aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > &aVertexIndices )
+                    Vector< Matrix< IndexMat > > &aVertexIndices )
             {
                 // compute dRdpMat at evaluation point
                 aReqIWG->compute_dRdp_FD_material(
@@ -298,7 +298,7 @@ namespace moris
                     const std::shared_ptr< IQI >      &aReqIQI,
                     real                               aWStar,
                     Matrix< DDSMat >                  &aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > &aVertexIndices )
+                    Vector< Matrix< IndexMat > > &aVertexIndices )
             {
                 // compute Jacobian
                 aReqIQI->compute_dQIdp( aWStar );
@@ -309,7 +309,7 @@ namespace moris
                     const std::shared_ptr< IQI >      &aReqIQI,
                     real                               aWStar,
                     Matrix< DDSMat >                  &aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > &aVertexIndices )
+                    Vector< Matrix< IndexMat > > &aVertexIndices )
             {
                 // compute dQIdpMat at evaluation point
                 aReqIQI->compute_dQIdp_FD_material(

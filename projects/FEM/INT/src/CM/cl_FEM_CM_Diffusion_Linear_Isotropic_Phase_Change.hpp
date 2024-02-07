@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                          //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -89,8 +89,8 @@ namespace moris
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 void set_dof_type_list(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                        moris::Cell< std::string >                  aDofStrings );
+                        Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                        Vector< std::string >                  aDofStrings );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -99,8 +99,8 @@ namespace moris
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
-                        moris::Cell< moris::Cell< gen::PDV_Type > > aDvTypes,
-                        moris::Cell< std::string >             aDvStrings )
+                        Vector< Vector< gen::PDV_Type > > aDvTypes,
+                        Vector< std::string >             aDvStrings )
                 {
                     Constitutive_Model::set_dv_type_list( aDvTypes );
                 }
@@ -141,7 +141,7 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * dEnergydDOF ( 1 x numDerDof )
                  */
-                void eval_dEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dEnergydDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -149,7 +149,7 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * dEnergyDotdDOF ( 1 x numDerDof )
                  */
-                void eval_dEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dEnergyDotdDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -157,7 +157,7 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * dGradEnergydDOF ( mSpaceDim x numDerDof )
                  */
-                void eval_dGradEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dGradEnergydDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -165,7 +165,7 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * dgradEnergyDotdDOF ( mSpaceDim x numDerDof )
                  */
-                void eval_dGradEnergyDotdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dGradEnergyDotdDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
         };
         //------------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 
 #include "cl_XTK_Child_Mesh.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     /* full_flood_fill runs a floodfill algorithm traversing the element to element connectivity returning subphases
      * values at each index on a subdomain indicated by aActiveElements
@@ -34,16 +34,16 @@ namespace xtk
      * @param[out] Element Subphase Indices
      *
      */
-    inline moris::Matrix< moris::IndexMat >
+    inline Matrix< IndexMat >
     flood_fill(
-            moris::Matrix< moris::IndexMat > const & aElementToElement,
-            moris::Matrix< moris::IndexMat > const & aElementPhaseIndex,
-            moris::Matrix< moris::IndexMat > const & aActiveElements,
-            moris::Matrix< moris::IndexMat > const & aElementsToInclude,
-            moris::size_t                            aNumPhases,
-            moris::moris_index                       aDummyValue,
-            moris::moris_index&                      aMaxValueAssigned,
-            bool                                     aIncludeAllElements = false )
+            Matrix< IndexMat > const & aElementToElement,
+            Matrix< IndexMat > const & aElementPhaseIndex,
+            Matrix< IndexMat > const & aActiveElements,
+            Matrix< IndexMat > const & aElementsToInclude,
+            moris::size_t              aNumPhases,
+            moris::moris_index         aDummyValue,
+            moris::moris_index&        aMaxValueAssigned,
+            bool                       aIncludeAllElements = false )
     {
         // Active phase index
         moris::size_t tPhaseIndex = 0;
@@ -70,15 +70,15 @@ namespace xtk
         moris::size_t tCurrentSubphase = 0;
 
         // Track which elements have their phase set
-        moris::Matrix< moris::DDBMat > tPhaseSet( 1, tNumElements, 0 );
+        Matrix< moris::DDBMat > tPhaseSet( 1, tNumElements, 0 );
 
         // Initialize element sub-phases
-        moris::Matrix< moris::IndexMat > tElementSubphase( tNumElements, 1, aDummyValue );
+        Matrix< IndexMat > tElementSubphase( tNumElements, 1, aDummyValue );
 
         // Initialize Active Front
-        moris::size_t                    tActiveFrontCount   = 0;
-        moris::size_t                    tActiveFrontElement = 0;
-        moris::Matrix< moris::IndexMat > tActiveFront( 1, 10 * tNumElements + 1, 0 );
+        moris::size_t      tActiveFrontCount   = 0;
+        moris::size_t      tActiveFrontElement = 0;
+        Matrix< IndexMat > tActiveFront( 1, 10 * tNumElements + 1, 0 );
 
         // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
         // key   - Element Index
@@ -253,6 +253,6 @@ namespace xtk
 
         return tElementSubphase;
     }
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_ */

@@ -297,7 +297,7 @@ namespace moris
 //        // a factory to create the elements
 //        fem::Element_Factory tElementFactory;
 //
-//        moris::Cell< moris_index > tSideSetIndex( mColorListSideSet( 0 ).numel() );
+//        Vector< moris_index > tSideSetIndex( mColorListSideSet( 0 ).numel() );
 //        for( luint Ii = 0; Ii<mColorListSideSet( 0 ).numel(); ++Ii)
 //        {
 //            tSideSetIndex( Ii ) = mColorListSideSet( 0 )( Ii );

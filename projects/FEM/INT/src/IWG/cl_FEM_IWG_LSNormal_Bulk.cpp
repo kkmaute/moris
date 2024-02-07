@@ -114,8 +114,8 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-        void IWG_LSNormal_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                               moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_LSNormal_Bulk::compute_jacobian_and_residual( Vector< Vector< Matrix< DDRMat > > > & aJacobians,
+                                                               Vector< Matrix< DDRMat > >                & aResidual )
         {
 //            // check leader field interpolators
 //            this->check_dof_field_interpolators();

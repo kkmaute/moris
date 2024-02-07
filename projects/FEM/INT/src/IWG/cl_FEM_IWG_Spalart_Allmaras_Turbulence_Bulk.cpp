@@ -203,7 +203,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -419,7 +419,7 @@ namespace moris
 
         void
         IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian_strong_form(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   aJ )
         {
             // get the residual viscosity FI

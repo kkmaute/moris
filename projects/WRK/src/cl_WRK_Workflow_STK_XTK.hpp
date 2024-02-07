@@ -13,7 +13,7 @@
 
 #include "cl_WRK_Workflow.hpp"
 #include "moris_typedefs.hpp"                       //MRS/COR/src
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -79,7 +79,7 @@ namespace moris
                 create_xtk();
 
                 void
-                create_stk(Cell< Cell<ParameterList> > & aParameterLists);
+                create_stk( Vector< Vector<ParameterList> > & aParameterLists);
 
         };
         //------------------------------------------------------------------------------
