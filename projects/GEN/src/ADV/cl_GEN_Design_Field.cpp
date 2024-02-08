@@ -77,7 +77,7 @@ namespace moris::ge
                     aMeshPair.get_interpolation_mesh(),
                     mField );
         }
-        mField->mMeshPairForAnalytic = aMeshPair;
+        mField->mMeshPairForAnalytic = aMeshPair; 
     }
 
     //--------------------------------------------------------------------------------------------------------------

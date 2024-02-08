@@ -36,7 +36,7 @@ namespace moris
             MORIS_ERROR( aOffsets.size() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
 
             // check the file extension
-            auto tFileExt = aFilePath.substr( aFilePath.find_last_of( "." ) + 1, aFilePath.length() );
+            std::string tFileExt = aFilePath.substr( aFilePath.find_last_of( "." ) + 1, aFilePath.length() );
 
             if ( tFileExt == "obj" )
             {
@@ -48,7 +48,7 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR( false, "Object(), file type is not supported" );
+                MORIS_ERROR( false, "sdf::Object(), file type of %s is not supported", tFileExt.c_str() );
             }
             MORIS_ASSERT( mNumberOfFacets == mFacets.size(), "SDF - Object(): number of facets not consistent" );
         }
