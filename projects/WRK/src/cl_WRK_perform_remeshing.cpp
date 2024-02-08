@@ -788,7 +788,7 @@ namespace moris
         void
         Remeshing_Mini_Performer::create_refinement_input_list(
                 moris::ParameterList&                  aRefinementParameterlist,
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 uint                                   aPattern )
         {
             std::string tFieldNames;
@@ -818,7 +818,7 @@ namespace moris
         void
         Remeshing_Mini_Performer::create_refinement_input_list_2(
                 moris::ParameterList&                  aRefinementParameterlist,
-                Cell< std::shared_ptr< mtk::Field > >& aFields )
+                Vector< std::shared_ptr< mtk::Field > >& aFields )
         {
             std::string tFieldNames               = "";
             std::string tRefFunctionForFieldNames = "";

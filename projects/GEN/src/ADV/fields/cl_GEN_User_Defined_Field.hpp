@@ -19,17 +19,17 @@ namespace moris::gen
     // User-defined field functions
     typedef real ( *Field_Function )(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&     aParameters );
+            const Vector< real >&     aParameters );
     typedef void ( *Sensitivity_Function )(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&     aParameters,
+            const Vector< real >&     aParameters,
             Matrix< DDRMat >&       aSensitivities );
 
     class User_Defined_Field : public Field_Analytic< 0 >    // TODO consider templating user-defined field against reference dimensions as well
     {
 
       private:
-        Cell< real >         mFieldVariables;
+        Vector< real >         mFieldVariables;
         Field_Function       get_field_value_user_defined;
         Sensitivity_Function get_dfield_dadvs_user_defined;
 
@@ -114,7 +114,7 @@ namespace moris::gen
          */
         static void no_sensitivities(
                 const Matrix< DDRMat >& aCoordinates,
-                const Cell< real >&     aParameters,
+                const Vector< real >&     aParameters,
                 Matrix< DDRMat >&       aSensitivities );
     };
 }

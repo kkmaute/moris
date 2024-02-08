@@ -55,7 +55,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet::scale( const moris::Cell< real >& aScaling )
+        Facet::scale( const Vector< real >& aScaling )
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {
@@ -69,7 +69,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet::shift( const moris::Cell< real >& aShift )
+        Facet::shift( const Vector< real >& aShift )
         {
             for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
             {

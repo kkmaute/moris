@@ -134,7 +134,7 @@ namespace moris
                     const moris::Matrix< IndexMat >& aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
                     Vector<moris::Matrix< DDRMat > >&  aDvValues,
-                    Vector< Cell< bool > >&            aIsActiveDv )
+                    Vector< Vector< bool > >&            aIsActiveDv )
             {
                 // Get the number of node indices requested
                 uint tNumIndices = aNodeIndices.length();

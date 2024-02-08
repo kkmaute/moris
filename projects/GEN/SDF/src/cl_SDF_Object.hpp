@@ -37,8 +37,8 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             Object( const std::string&      aFilePath,
-                    const moris::Cell< real >& aOffsets = { 0, 0, 0 },
-                    const moris::Cell< real>& aScale = { 1.0, 1.0, 1.0 } );
+                    const Vector< real >& aOffsets = { 0, 0, 0 },
+                    const Vector< real>& aScale = { 1.0, 1.0, 1.0 } );
 
 
             //-------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ namespace moris
              * @param aShift shift in each coordinate direction that is added to the objects coordinates.
              */
             void
-            shift( const moris::Cell< real >& aShift );
+            shift( const Vector< real >& aShift );
 
             //-------------------------------------------------------------------------------
 
@@ -142,7 +142,7 @@ namespace moris
              * Facets are either lines in 2D or triangles in 3D
              */
             void
-            load_from_object_file( const std::string& aFilePath, const moris::Cell< real >& aOffsets, const moris::Cell< real >& aScale );
+            load_from_object_file( const std::string& aFilePath, const Vector< real >& aOffsets, const Vector< real >& aScale );
 
             //-------------------------------------------------------------------------------
 

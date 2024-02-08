@@ -48,11 +48,11 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Property::update_dependencies( Cell< std::shared_ptr< Design > > aAllUpdatedFields )
+    void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedFields )
     {
         // Set up dependency fields
         uint                             tNumDependencies = mParameters.mDependencyNames.size();
-        Cell< std::shared_ptr< Field > > tDependencyFields( tNumDependencies );
+        Vector< std::shared_ptr< Field > > tDependencyFields( tNumDependencies );
 
         // Grab dependencies
         for ( uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++ )
@@ -86,13 +86,13 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< uint > Property::get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh )
+    Vector< uint > Property::get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh )
     {
         // Number of mesh set names
         uint tNumMeshSetNames = mParameters.mPDVMeshSetNames.size();
 
         // Create new cell of indices from names
-        Cell< uint > tMeshSetIndicesFromNames( tNumMeshSetNames );
+        Vector< uint > tMeshSetIndicesFromNames( tNumMeshSetNames );
 
         // Set for each property index the list of mesh set indices
         for ( uint iSetNameIndex = 0; iSetNameIndex < tNumMeshSetNames; iSetNameIndex++ )
@@ -112,7 +112,7 @@ namespace moris::gen
     void Property::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Cell< real >& aOutputDesignInfo )
+            Vector< real >& aOutputDesignInfo )
     {
         aOutputDesignInfo.resize( 1 );
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );

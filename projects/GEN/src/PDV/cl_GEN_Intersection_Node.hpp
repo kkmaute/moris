@@ -23,7 +23,7 @@ namespace moris::gen
     class Intersection_Node : public Derived_Node
     {
       private:
-        Cell< Basis_Node > mParentNodes;
+        Vector< Basis_Node > mParentNodes;
         moris_id mPDVStartingID;
         moris_id mNodeID    = -1;
         moris_index mNodeOwner = -1;
@@ -42,7 +42,7 @@ namespace moris::gen
          */
         Intersection_Node(
                 uint                        aNodeIndex,
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&          aFirstParentNode,
                 const Parent_Node&          aSecondParentNode,
                 real                        aLocalCoordinate,
@@ -62,7 +62,7 @@ namespace moris::gen
          *
          * @return Locator nodes
          */
-        const Cell< Basis_Node >& get_locator_nodes() const override;
+        const Vector< Basis_Node >& get_locator_nodes() const override;
 
         /**
          * Gets if this intersection node can be determined that it is on a specific interface without any field evaluation.

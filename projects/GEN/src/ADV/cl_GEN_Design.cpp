@@ -40,14 +40,14 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< uint >& Design::get_num_refinements()
+    const Vector< uint >& Design::get_num_refinements()
     {
         return mParameters.mNumberOfRefinements;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< uint >&
+    const Vector< uint >&
     Design::get_refinement_mesh_indices()
     {
         return mParameters.mRefinementMeshIndices;

@@ -70,7 +70,7 @@ namespace moris::gen
          *
          * @return Locator nodes
          */
-        const Cell< Basis_Node >& get_locator_nodes() const;
+        const Vector< Basis_Node >& get_locator_nodes() const;
 
         /**
          * Gets if the underlying node's position depends on ADVs.

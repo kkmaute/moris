@@ -144,7 +144,7 @@ namespace moris::fem
             mConstitutiveModels( iCM )->set_dof_type_list( tDofTypes, tDofTypeNames );
 
             // set CM dv dependencies
-            Vector< Vector< PDV_Type > > tDvTypes;
+            Vector< Vector< gen::PDV_Type > > tDvTypes;
             string_to_cell_of_cell(
                     std::get< 0 >( tCMParameterList( iCM ).get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                     tDvTypes,
@@ -285,7 +285,7 @@ namespace moris::fem
                 mStabilizationParameters( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                 // set dv dependencies
-                Vector< Vector< PDV_Type > > tDvTypes;
+                Vector< Vector< gen::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                         tDvTypes,
@@ -640,7 +640,7 @@ namespace moris::fem
                 mIQIs( iIQI )->set_dof_type_list( tDofTypes, tIsLeader );
 
                 // set dv dependencies
-                Vector< Vector< PDV_Type > > tDvTypes;
+                Vector< Vector< gen::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         tIQIParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
                         tDvTypes,

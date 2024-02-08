@@ -52,7 +52,7 @@ namespace moris::gen
             Background_Node            tSecondBase( tNodeIndex++, tSecondParentGlobalCoordinates );
             Background_Node            tThirdBase( tNodeIndex++, { { 0.25, 0.15 } } );
             Background_Node            tFourthBase( tNodeIndex++, { { 0.1, 0.2 } } );
-            moris::Cell< Background_Node* >       tBackgroundNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
+            Vector< Background_Node* >       tBackgroundNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
 
             Matrix< DDRMat > tFirstParentParametricCoordinates  = { { -1.0, 1.0 } };
             Matrix< DDRMat > tSecondParentParametricCoordinates = { { 1.0, 1.0 } };

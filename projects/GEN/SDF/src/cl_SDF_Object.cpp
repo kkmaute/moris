@@ -28,8 +28,8 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         Object::Object( const std::string& aFilePath,
-                const Cell< real >&        aOffsets,
-                const Cell< real >&        aScale )
+                const Vector< real >&        aOffsets,
+                const Vector< real >&        aScale )
                 : mNumberOfFacets( 0 )
         {
             MORIS_ERROR( aOffsets.size() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
@@ -55,7 +55,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::load_from_object_file( const std::string& aFilePath, const moris::Cell< real >& aOffsets, const moris::Cell< real >& aScale )
+        Object::load_from_object_file( const std::string& aFilePath, const Vector< real >& aOffsets, const Vector< real >& aScale )
         {
             // copy file into buffer
             Vector< std::string > tBuffer;
@@ -102,7 +102,7 @@ namespace moris
             }
 
             // step 2: create vertices
-            moris::Cell< std::shared_ptr< Facet_Vertex > > tVertices( tNumberOfVertices );
+            Vector< std::shared_ptr< Facet_Vertex > > tVertices( tNumberOfVertices );
 
             // reset counter
 
@@ -321,7 +321,7 @@ namespace moris
             // step 2: create vertices
             // - - - - - - - - - - - - -
 
-            moris::Cell< std::shared_ptr< Facet_Vertex > > tVertices( 3 * tTriangleCount );
+            Vector< std::shared_ptr< Facet_Vertex > > tVertices( 3 * tTriangleCount );
 
             // initialize vertex counter
             uint tVertexCount = 0;
@@ -415,7 +415,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::scale( const moris::Cell< real >& aScaling )
+        Object::scale( const Vector< real >& aScaling )
         {
             MORIS_ASSERT( aScaling.size() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
 
@@ -438,7 +438,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::shift( const moris::Cell< real >& aShift )
+        Object::shift( const Vector< real >& aShift )
         {
             MORIS_ASSERT( aShift.size() == mDimension, "SDF_Object::shift_object() - Shift must be equal to object dimension." );
 

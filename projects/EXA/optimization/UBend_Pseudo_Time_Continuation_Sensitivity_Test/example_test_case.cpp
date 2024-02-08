@@ -52,7 +52,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 1991, 735 };
+    Vector< uint > tReferenceNodeId = { 1991, 735 };
 
     // perturbation of denominator when building relative error
     real tDeltaEps = 1.0e-14;
@@ -101,9 +101,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2, 2 };
-    Cell< uint > tReferenceNumNodes = { 2916, 848 };
-    Cell< uint > tReferenceNumElems = { 2607, 772 };
+    Vector< uint > tReferenceNumDims  = { 2, 2 };
+    Vector< uint > tReferenceNumNodes = { 2916, 848 };
+    Vector< uint > tReferenceNumElems = { 2607, 772 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -128,7 +128,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { 6.991440000000001e+00 }, { 3.486625000000000e+00 } } );
     tReferenceCoordinate.push_back( { { 6.991440000000001e+00 }, { 3.486625000000000e+00 } } );
@@ -150,7 +150,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-8 );
 
     // check time value for time step index 0
-    Cell< real > tReferenceTime;
+    Vector< real > tReferenceTime;
     tReferenceTime.push_back( 1.100000000000000e+01 );
     tReferenceTime.push_back( 1.100000000000000e+01 );
 
@@ -166,7 +166,7 @@ check_results(
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
     // check velocity at node aNodeId in first time step (velocities are 3rd and 4th  nodal field, first time step has index 0)
-    Cell< Matrix< DDRMat > > tReferenceVelocity;
+    Vector< Matrix< DDRMat > > tReferenceVelocity;
     tReferenceVelocity.push_back( { { -2.621985520118972e-01 }, { -1.223821117360914e-01 } } );
     tReferenceVelocity.push_back( { { -2.621994928927610e-01 }, { -1.223827050341624e-01 } } );
 
@@ -185,7 +185,7 @@ check_results(
     REQUIRE( tRelVelocityDifference < 1.0e-4 );
 
     // check pressure at node aNodeId in first time step (pressure is 5th nodal field, first time step has index 0)
-    Cell< real > tReferencePressure;
+    Vector< real > tReferencePressure;
     tReferencePressure.push_back( 6.600450821884006e-01 );
     tReferencePressure.push_back( 6.600454151170850e-01 );
 
@@ -201,7 +201,7 @@ check_results(
     REQUIRE( tRelPressureDifference < 1.0e-4 );
 
     // check Viscosity at node aNodeId in first time step (Viscosity is 6th nodal field, first time step has index 0)
-    Cell< real > tReferenceViscosity;
+    Vector< real > tReferenceViscosity;
     tReferenceViscosity.push_back( 1.967343367455367e-02 );
     tReferenceViscosity.push_back( 1.967348194097030e-02 );
 
@@ -229,7 +229,7 @@ check_results(
     moris::real tToleranceSensivities = 0.001;
 
     // Check constraint values
-    Cell< Matrix< DDRMat > > tReferenceConstraints;
+    Vector< Matrix< DDRMat > > tReferenceConstraints;
 
     tReferenceConstraints.push_back( { { 1.158612227050382e+01 },
             { 2.120790687504068e+01 },
@@ -258,7 +258,7 @@ check_results(
     load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus );
 
     // Read FD sensitivities and compare
-    Cell< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
+    Vector< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
     for ( uint tFDIndex = 0; tFDIndex < tFDTypes.size(); tFDIndex++ )
     {
         load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 epsilon_1-1 " + tFDTypes( tFDIndex ), tConstraintsFD, tStatus );

@@ -128,7 +128,7 @@ namespace moris
             /**
              * @brief Get the leader vertex pairs, used for double sided cluster
              *
-             * @return moris::Cell< moris::mtk::Vertex const *> const& cell of vertices on the leader side
+             * @return Vector< moris::mtk::Vertex const *> const& cell of vertices on the leader side
              */
 
             virtual Vector< moris::mtk::Vertex const * > const &

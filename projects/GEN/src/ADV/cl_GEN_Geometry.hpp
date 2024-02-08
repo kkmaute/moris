@@ -16,7 +16,7 @@
 #include "cl_GEN_Design.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 
-#include "cl_Cell.hpp"    // TODO remove
+#include "cl_Vector.hpp"    // TODO remove
 
 // Forward declarations
 namespace moris
@@ -98,7 +98,7 @@ namespace moris::gen
          */
         virtual Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
@@ -113,7 +113,7 @@ namespace moris::gen
          * @return Parent edge local coordinate, between -1 and 1
          */
         virtual real compute_intersection_local_coordinate(
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&   aFirstParentNode,
                 const Parent_Node&   aSecondParentNode ) = 0;
 
@@ -122,7 +122,7 @@ namespace moris::gen
          *
          * @return Cell of MTK fields for remeshing
          */
-        virtual Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() = 0;
+        virtual Vector< std::shared_ptr< mtk::Field > > get_mtk_fields() = 0;
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.

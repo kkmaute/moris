@@ -101,7 +101,7 @@ namespace moris::fem
         Vector< fem::Set_User_Info >                     mSetInfo;
 
         moris::map< std::string, MSI::Dof_Type >   mMSIDofTypeMap = moris::MSI::get_msi_dof_type_map();
-        moris::map< std::string, PDV_Type >        mMSIDvTypeMap  = get_pdv_type_map();
+        moris::map< std::string, gen::PDV_Type >   mMSIDvTypeMap  = gen::get_pdv_type_map();
         moris::map< std::string, mtk::Field_Type > mFieldTypeMap  = mtk::get_field_type_map();
         Vector< moris::sint >                      mFieldTypes;
 

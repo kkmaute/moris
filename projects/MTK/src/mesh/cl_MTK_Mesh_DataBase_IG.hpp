@@ -281,7 +281,7 @@ namespace moris
             /**
              * @brief Get the block set names object
              *
-             * @return moris::Cell< std::string > block set names
+             * @return Vector< std::string > block set names
              */
 
             virtual Vector< std::string >
@@ -293,7 +293,7 @@ namespace moris
              * @brief Get the cell clusters in set
              *
              * @param aBlockSetOrdinal
-             * @return moris::Cell< Cluster const* > cell clusters
+             * @return Vector< Cluster const* > cell clusters
              */
 
             virtual Vector< Cluster const * >
@@ -305,7 +305,7 @@ namespace moris
              * @brief Get the side set cluster
              *
              * @param aSideSetOrdinal
-             * @return moris::Cell< Cluster const* > side clusters
+             * @return Vector< Cluster const* > side clusters
              */
 
             virtual Vector< Cluster const * >

@@ -136,14 +136,14 @@ namespace moris
 
             void create_refinement_input_list(
                     moris::ParameterList&                  aRefinementParameterlist,
-                    Cell< std::shared_ptr< mtk::Field > >& aFields,
+                    Vector< std::shared_ptr< mtk::Field > >& aFields,
                     uint                                   aPattern );
 
             //------------------------------------------------------------------------------
 
             void create_refinement_input_list_2(
                     moris::ParameterList&                  aRefinementParameterlist,
-                    Cell< std::shared_ptr< mtk::Field > >& aFields );
+                    Vector< std::shared_ptr< mtk::Field > >& aFields );
 
             //------------------------------------------------------------------------------
 

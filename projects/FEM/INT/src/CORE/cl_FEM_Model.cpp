@@ -256,7 +256,7 @@ namespace moris
 
             // TODO: MESHCLEANUP
             // load Mesh-GEN map
-            // moris::Cell<moris_index> tMesh_GEN_map;
+            // Vector<moris_index> tMesh_GEN_map;
             // tMesh_GEN_map.reserve(660);
             // aIGMesh->get_Mesh_GEN_map( tMesh_GEN_map );
 

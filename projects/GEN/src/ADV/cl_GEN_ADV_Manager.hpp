@@ -20,7 +20,7 @@ namespace moris::gen
     {
 
       private:
-        Cell< ADV >       mADVs;
+        Vector< ADV >       mADVs;
         Matrix< DDSMat >  mDeterminingADVIds;
         bool              mHasADVs;
         sol::Dist_Vector* mSharedADVs = nullptr;
@@ -65,8 +65,8 @@ namespace moris::gen
          */
         ADV_Manager(
                 const ADV_Manager& aCopyADVManager,
-                const Cell< uint >& aReplaceVariables = {},
-                const Cell< real >& aNewConstants = {{}} );
+                const Vector< uint >& aReplaceVariables = {},
+                const Vector< real >& aNewConstants = {{}} );
 
         /**
          * Destructor

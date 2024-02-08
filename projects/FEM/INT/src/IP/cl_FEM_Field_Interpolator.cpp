@@ -19,6 +19,7 @@
 #include "fn_sum.hpp"
 #include "fn_diag_vec.hpp"
 #include "op_times.hpp"
+#include "cl_Vector.hpp"
 #include "op_equal_equal.hpp"
 #include "op_less_equal.hpp"
 #include "op_greater_equal.hpp"

@@ -36,7 +36,7 @@ namespace moris::gen
          */
         Intersection_Node_Voxel(
                 uint                     aNodeIndex,
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,

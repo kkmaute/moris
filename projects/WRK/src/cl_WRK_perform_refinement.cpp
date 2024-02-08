@@ -628,8 +628,8 @@ namespace moris
             // Loop over fields
             for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const Cell< uint >& tNumRefinements      = aPerformer->get_num_refinements( iField );
-                const Cell< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
+                const Vector< uint >& tNumRefinements      = aPerformer->get_num_refinements( iField );
+                const Vector< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
                 for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.size(); iLagMesh++ )
@@ -671,7 +671,7 @@ namespace moris
             // Loop over fields
             for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const Cell< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
+                const Vector< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMesh indices // if aMeshIndex put in queue
                 for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.size(); iLagMesh++ )
@@ -722,7 +722,7 @@ namespace moris
                 // Loop over fields
                 for ( uint iField = 0; iField < tNumFields; iField++ )
                 {
-                    const Cell< uint >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
+                    const Vector< uint >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
 
                     for ( uint iRefinement = 0; iRefinement < tNumRefinements.size(); iRefinement++ )
                     {
@@ -753,7 +753,7 @@ namespace moris
                 // Loop over fields
                 for ( uint iRefineField = 0; iRefineField < tNumFields; iRefineField++ )
                 {
-                    const Cell< uint >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
+                    const Vector< uint >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
 
                     for ( uint iMesh = 0; iMesh < tRefinementMeshIndices.size(); iMesh++ )
                     {

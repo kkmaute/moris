@@ -21,7 +21,7 @@ namespace moris::gen
     private:
         std::shared_ptr< Field > mField;
         mtk::Mesh* mMesh;
-        Cell< real > mFieldValues;
+        Vector< real > mFieldValues;
 
     public:
 

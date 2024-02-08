@@ -367,7 +367,7 @@ namespace moris
          * @return Cell of values
          */
         template< typename T >
-        Cell< T > get_cell( const std::string& aKey ) const
+        Vector< T > get_cell( const std::string& aKey ) const
         {
             return string_to_cell< T >( this->get< std::string >( aKey ) );
         }

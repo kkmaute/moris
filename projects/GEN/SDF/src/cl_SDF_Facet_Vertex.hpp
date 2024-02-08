@@ -12,7 +12,7 @@
 
 #include "assert.hpp"
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Vertex.hpp"
 
 namespace moris
@@ -59,7 +59,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            scale_node_coords( const moris::Cell< real >& aScaling )
+            scale_node_coords( const Vector< real >& aScaling )
             {
                 for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
                 {
@@ -71,7 +71,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            shift_node_coords( const moris::Cell< real >& aShift )
+            shift_node_coords( const Vector< real >& aShift )
             {
                 for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
                 {

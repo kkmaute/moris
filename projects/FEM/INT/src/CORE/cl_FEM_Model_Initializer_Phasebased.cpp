@@ -216,7 +216,7 @@ namespace moris::fem
             tCM->set_dof_type_list( tDofTypes, tDofTypeNames );
 
             // set CM dv dependencies
-            Vector< Vector< PDV_Type > > tDvTypes;
+            Vector< Vector< gen::PDV_Type > > tDvTypes;
             string_to_cell_of_cell(
                     std::get< 0 >( tCMParameter.get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                     tDvTypes,
@@ -373,7 +373,7 @@ namespace moris::fem
                 mStabilizationParameters( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                 // set dv dependencies
-                Vector< Vector< PDV_Type > > tDvTypes;
+                Vector< Vector< gen::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                         tDvTypes,
@@ -727,7 +727,7 @@ namespace moris::fem
                     mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
             // get dof type list from leader phase
-            const Vector< Vector< PDV_Type > > &tLeaderPdvTypes =
+            const Vector< Vector< gen::PDV_Type > > &tLeaderPdvTypes =
                     mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
             // set leader dof dependencies
@@ -755,7 +755,7 @@ namespace moris::fem
                         mPhaseInfo( tFollowerPhaseIndex ).get_dof_type_list();
 
                 // get pdv type list from phase
-                const Vector< Vector< PDV_Type > > &tFollowerPdvTypes =
+                const Vector< Vector< gen::PDV_Type > > &tFollowerPdvTypes =
                         mPhaseInfo( tFollowerPhaseIndex ).get_dv_type_list();
 
                 // set follower dof dependencies
@@ -873,7 +873,7 @@ namespace moris::fem
                         mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
                 // get dof type list from phase
-                const Vector< Vector< PDV_Type > > &tDvTypes =
+                const Vector< Vector< gen::PDV_Type > > &tDvTypes =
                         mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                 // set leader dof dependencies

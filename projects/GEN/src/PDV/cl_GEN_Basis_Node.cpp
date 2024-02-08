@@ -57,7 +57,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Basis_Node::get_locator_nodes() const
+    const Vector< Basis_Node >& Basis_Node::get_locator_nodes() const
     {
         return mNode.get_locator_nodes();
     }

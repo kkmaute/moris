@@ -773,7 +773,7 @@ namespace moris
     template <>
     void string_to_cell< std::string >(
             const std::string&          aString,
-            moris::Cell< std::string >& aCell );
+            Vector< std::string >& aCell );
 
     /**
      * Converts an input string into a new cell to be returned.

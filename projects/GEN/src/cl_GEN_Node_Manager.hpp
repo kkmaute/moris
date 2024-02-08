@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Derived_Node.hpp"
 
@@ -28,8 +28,8 @@ namespace moris::gen
         bool mMeshGiven = false;
 
       private:
-        Cell< Background_Node > mBackgroundNodes;
-        Cell< Derived_Node* > mDerivedNodes;
+        Vector< Background_Node > mBackgroundNodes;
+        Vector< Derived_Node* > mDerivedNodes;
 
       public:
         /**
@@ -97,7 +97,7 @@ namespace moris::gen
          * @param aInterpolationOrder Interpolation order of the background element
          */
         void create_derived_node(
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Matrix< DDRMat >&  aParametricCoordinates,
                 mtk::Geometry_Type       aGeometryType,
                 mtk::Interpolation_Order aInterpolationOrder );
