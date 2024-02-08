@@ -3433,37 +3433,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG::perturb_and_update_geometry_interpolators(
-                real const                 aPerturbationAmount,
-                Matrix< DDRMat > const &   aCoefficients,
-                Matrix< DDRMat > const &   aParametricCoefficients,
-                uint const                 aNodeIndex,
-                uint const                 aSpatialDirIndex,
-                mtk::Leader_Follower const aLeaderFollowerType ) const
-        {
-            // get the leader GI for the IG and IP element considered
-            Geometry_Interpolator*        tIGGI = mSet->get_field_interpolator_manager( aLeaderFollowerType )->get_IG_geometry_interpolator();
-            Geometry_Interpolator const * tIPGI = mSet->get_field_interpolator_manager( aLeaderFollowerType )->get_IP_geometry_interpolator();
-
-            // leader
-            Matrix< DDRMat > tCoeffsPerturbed = aCoefficients;                          // reset the perturbed coefficients
-            tCoeffsPerturbed( aNodeIndex, aSpatialDirIndex ) += aPerturbationAmount;    // perturb the coefficient
-            tIGGI->set_space_coeff( tCoeffsPerturbed );                                 // setting the perturbed coefficients
-
-            // update parametric coordinates
-            Matrix< DDRMat > const tXCoords  = tCoeffsPerturbed.get_row( aNodeIndex );
-            Matrix< DDRMat >       tXiCoords = aParametricCoefficients.get_row( aNodeIndex );
-            tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
-
-            Matrix< DDRMat > tParametricCoefficientsPerturbed      = aParametricCoefficients;
-            tParametricCoefficientsPerturbed.get_row( aNodeIndex ) = tXiCoords.matrix_data();
-            tIGGI->set_space_param_coeff( tParametricCoefficientsPerturbed );
-            // std::cout << "Perturbed Coordinates: [["
-            //           << tCoeffsPerturbed( 0, 0 ) << ", " << tCoeffsPerturbed( 0, 1 ) << "], ["
-            //           << tCoeffsPerturbed( 1, 0 ) << ", " << tCoeffsPerturbed( 1, 1 ) << "]]"
-            //           << "\n";
-        }
-
         void
         IWG::select_dRdp_FD_geometry_double(
                 moris::real                   aWStar,
@@ -3552,7 +3521,7 @@ namespace moris
             uint const tNumDimensions = tLeaderIPGI->get_number_of_space_dimensions();
 
             // init FD scheme
-            Vector< Vector< real > > tFDScheme;
+            moris::Vector< moris::Vector< real > > tFDScheme;
 
             // loop over the IG nodes
             for ( uint iLeaderNode = 0; iLeaderNode < tNumBases; iLeaderNode++ )
@@ -3630,21 +3599,32 @@ namespace moris
                         // loop over point of FD scheme
                         for ( uint iFDPoint = tStartPoint; iFDPoint < tNumFDPoints; iFDPoint++ )
                         {
-                            this->perturb_and_update_geometry_interpolators(
-                                    tFDScheme( 0 )( iFDPoint ) * tDeltaH,
-                                    tLeaderCoeff,
-                                    tLeaderParamCoeff,
-                                    iLeaderNode,
-                                    iSpatialDir,
-                                    mtk::Leader_Follower::LEADER );
+                            // reset the perturbed coefficients
+                            Matrix< DDRMat > tLeaderCoeffPert   = tLeaderCoeff;
+                            Matrix< DDRMat > tFollowerCoeffPert = tFollowerCoeff;
 
-                            this->perturb_and_update_geometry_interpolators(
-                                    tFDScheme( 0 )( iFDPoint ) * tDeltaH,
-                                    tFollowerCoeff,
-                                    tFollowerParamCoeff,
-                                    iFollowerNode,
-                                    iSpatialDir,
-                                    mtk::Leader_Follower::FOLLOWER );
+                            // perturb the coefficient
+                            tLeaderCoeffPert( iLeaderNode, iSpatialDir ) += tFDScheme( 0 )( iFDPoint ) * tDeltaH;
+                            tFollowerCoeffPert( iFollowerNode, iSpatialDir ) += tFDScheme( 0 )( iFDPoint ) * tDeltaH;
+
+                            // setting the perturbed coefficients
+                            tLeaderIGGI->set_space_coeff( tLeaderCoeffPert );
+                            tFollowerIGGI->set_space_coeff( tFollowerCoeffPert );
+
+                            // update local coordinates
+                            Matrix< DDRMat > tXCoords  = tLeaderCoeffPert.get_row( iLeaderNode );
+                            Matrix< DDRMat > tXiCoords = tLeaderParamCoeff.get_row( iLeaderNode );
+                            tLeaderIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
+
+                            Matrix< DDRMat > tLeaderParamCoeffPert = tLeaderParamCoeff;
+                            tLeaderParamCoeffPert.get_row( iLeaderNode ) = tXiCoords.matrix_data();
+                            tLeaderIGGI->set_space_param_coeff( tLeaderParamCoeffPert );
+
+                            Matrix< DDRMat > tFollowerParamCoeffPert                   = tFollowerParamCoeff;
+                            tFollowerParamCoeffPert.get_row( iFollowerNode ) = tXiCoords.matrix_data();
+
+                            tLeaderIGGI->set_space_param_coeff( tLeaderParamCoeffPert );
+                            tFollowerIGGI->set_space_param_coeff( tFollowerParamCoeffPert );
 
                             // set evaluation point for interpolators (FIs and GIs)
                             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
