@@ -1569,7 +1569,7 @@ namespace moris
                     for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
                     {
                         tFieldNames( iFieldIndex ) = mGeometries( tGeometryIndex )->get_name();
-                        if ( tFieldNames( tGeometryIndex ) == "" )
+                        if ( tFieldNames( iGeometryFieldIndex ) == "" )
                         {
                             tFieldNames( tGeometryIndex ) = "Geometry " + std::to_string( tGeometryIndex ) + "Field " + std::to_string( iGeometryFieldIndex );
                         }
@@ -1624,7 +1624,7 @@ namespace moris
                         }
 
                         // Create field on mesh
-                        tWriter.write_nodal_field( tFieldNames( tGeometryIndex ), tFieldData );
+                        tWriter.write_nodal_field( tFieldNames( iGeometryFieldIndex ), tFieldData );
                     }
                 }
 
