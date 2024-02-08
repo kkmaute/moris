@@ -1320,9 +1320,8 @@ namespace moris
                 return;
             }
 
-
+#ifdef MORIS_HAVE_DEBUG
             Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
-
             // make sure this function is only called on double sided side clusters
             MORIS_ASSERT( tElementType != fem::Element_Type::NONCONFORMAL_SIDESET,
                     "Nodal Evaluation of QIs on Nonconformal Sidesets is not supported yet." );
@@ -1331,6 +1330,7 @@ namespace moris
                     tElementType == fem::Element_Type::DOUBLE_SIDESET,
                     "Interpolation_Element::compute_nodal_QIs_double_sided() - "
                     "This function can only be called on double sided side clusters." );
+#endif
 
             // get the VIS vertex indices on the mesh cluster
             Matrix< IndexMat > tLeaderVisVertexIndices;

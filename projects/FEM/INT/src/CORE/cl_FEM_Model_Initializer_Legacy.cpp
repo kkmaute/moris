@@ -3,8 +3,12 @@
 //
 
 #include "cl_FEM_Model_Initializer_Legacy.hpp"
+#include "cl_FEM_Model_Initializer.hpp"
 #include "cl_Vector.hpp"
 #include "cl_Param_List.hpp"
+#include "GEN_Data_Types.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_FEM_MM_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
@@ -353,9 +357,9 @@ namespace moris::fem
 
     void Model_Initializer_Legacy::create_iwgs()
     {
-        IWG_Factory                  tIWGFactory;
+        IWG_Factory             tIWGFactory;
         Vector< ParameterList > tIWGParameterList = mParameterList( 3 );
-        uint const                   tNumIWGs          = tIWGParameterList.size();
+        uint const              tNumIWGs          = tIWGParameterList.size();
         mIWGs.resize( tNumIWGs, nullptr );    // list of IWG pointers
 
         for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -533,24 +537,24 @@ namespace moris::fem
     void Model_Initializer_Legacy::set_iwg_field_types( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const
     {
         // get the prefix of the property name based on the leader or follower type (either "leader" or "follower")
-        std::string const tPrefix     = mtk::get_leader_follower_string( aLeaderFollowerType );
-        auto              tFieldTypes = property_to_vec_of_vec( aIWGParameter, tPrefix + "_field_types", mFieldTypeMap );
+        std::string const                          tPrefix     = mtk::get_leader_follower_string( aLeaderFollowerType );
+        Vector< Vector< moris::mtk::Field_Type > > tFieldTypes = property_to_vec_of_vec( aIWGParameter, tPrefix + "_field_types", mFieldTypeMap );
         aIWG->set_field_type_list( tFieldTypes, aLeaderFollowerType );
     }
 
     void Model_Initializer_Legacy::set_iwg_dof_dependencies( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower aLeaderFollowerType ) const
     {
         // get the prefix of the property based on the leader or follower type
-        std::string const tPrefix   = mtk::get_leader_follower_string( aLeaderFollowerType );
-        auto              tDofTypes = property_to_vec_of_vec( aIWGParameter, tPrefix + "_dof_dependencies", mMSIDofTypeMap );
+        std::string const                        tPrefix   = mtk::get_leader_follower_string( aLeaderFollowerType );
+        Vector< Vector< moris::MSI::Dof_Type > > tDofTypes = property_to_vec_of_vec( aIWGParameter, tPrefix + "_dof_dependencies", mMSIDofTypeMap );
         aIWG->set_dof_type_list( tDofTypes, aLeaderFollowerType );
     }
 
     void Model_Initializer_Legacy::set_iwg_dv_dependencies( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const
     {
         // get the prefix of the property based on the leader or follower type
-        std::string const tPrefix  = mtk::get_leader_follower_string( aLeaderFollowerType );
-        auto              tDvTypes = property_to_vec_of_vec( aIWGParameter, tPrefix + "_dv_dependencies", mMSIDvTypeMap );
+        std::string const                        tPrefix  = mtk::get_leader_follower_string( aLeaderFollowerType );
+        Vector< Vector< moris::gen::PDV_Type > > tDvTypes = property_to_vec_of_vec( aIWGParameter, tPrefix + "_dv_dependencies", mMSIDvTypeMap );
         aIWG->set_dv_type_list( tDvTypes, aLeaderFollowerType );
     }
 
