@@ -941,12 +941,6 @@ namespace moris
         // Close the file stream
         tOutFile.close();
     }
-
-    // Since 2024, the name Vector is deprecated and will be removed in the future.
-    // It is a relict from the time when MORIS was trying to mimic MATLAB as close as possible.
-    template<typename T>
-    using Vector [[deprecated( "moris::Vector is now Vector!" )]] = Vector< T >;
-
 }    // namespace moris
 
 #endif /* MORIS_CONTAINERS_CL_Vector_HPP_ */
