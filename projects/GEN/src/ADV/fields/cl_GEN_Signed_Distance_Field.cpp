@@ -19,7 +19,7 @@ namespace moris::gen
 
     Signed_Distance_Field::Signed_Distance_Field(
             std::string  aObjectPath,
-            Cell< real > aObjectOffset,
+            Vector< real > aObjectOffset,
             real         aSDFShift )
             : Field_Discrete_Integration( Matrix< DDRMat >( 1, 1, 0.0 ), 0 )
     {

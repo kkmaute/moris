@@ -84,11 +84,11 @@ namespace moris::hmr
 
     // ----------------------------------------------------------------------------
 
-    moris::Cell< mtk::Vertex* >
+    Vector< mtk::Vertex* >
     Facet::get_vertex_pointers() const
     {
         MORIS_ERROR( false, "get_vertex_pointers() not implemented for facet" );
-        return moris::Cell< mtk::Vertex* >( 0 );
+        return Vector< mtk::Vertex* >( 0 );
     }
 
     // ----------------------------------------------------------------------------

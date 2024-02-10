@@ -19,11 +19,11 @@ namespace moris
         MPI_Init(argc, argv);
 
         // Set MPI_COMM_WORLD as the default communicator
-        mComm = Cell<MPI_Comm>({MPI_COMM_WORLD});
+        mComm = Vector<MPI_Comm>({MPI_COMM_WORLD});
 
         // Give it a global name
         std::string tGlobCommName = "moris_glob";
-        mCommName = Cell<std::string>({tGlobCommName});
+        mCommName = Vector<std::string>({tGlobCommName});
 
         // save path to moris executable
         mMorisExec = std::string( *argv[ 0 ] );
@@ -34,13 +34,13 @@ namespace moris
     Comm_Manager::Comm_Manager(MPI_Comm & aComm)
     {
         // Set your communicator to the mComm as global
-        mComm = Cell<MPI_Comm>({aComm});
+        mComm = Vector<MPI_Comm>({aComm});
 
         // Give it a name
         std::string tGlobCommName = "moris_glob";
 
         // Set name
-        mCommName = Cell<std::string>({tGlobCommName});
+        mCommName = Vector<std::string>({tGlobCommName});
     }
 
     //--------------------------------------------------------------------------------
@@ -59,11 +59,11 @@ namespace moris
         MPI_Init(argc, argv);
 
         // Set MPI_COMM_WORLD as the default communicator
-        mComm = Cell<MPI_Comm>({MPI_COMM_WORLD});
+        mComm = Vector<MPI_Comm>({MPI_COMM_WORLD});
 
         // Give it a global name
         std::string tGlobCommName = "moris_glob";
-        mCommName = Cell<std::string>({tGlobCommName});
+        mCommName = Vector<std::string>({tGlobCommName});
 
         // save path to moris executable
         mMorisExec = std::string( *argv[ 0 ] );

@@ -33,16 +33,16 @@ namespace moris
     {
     private:
         //! List containing the prolongation operators
-        moris::Cell< sol::Dist_Matrix * > mProlongationList;
+        Vector< sol::Dist_Matrix * > mProlongationList;
 
         //! List of external indices for each level
-        moris::Cell< Matrix< DDUMat > > mListAdofExtIndMap;
+        Vector< Matrix< DDUMat > > mListAdofExtIndMap;
 
         //! List of type/time identifiers for each level
-        moris::Cell< Matrix< DDSMat > > mListAdofTypeTimeIdentifier;
+        Vector< Matrix< DDSMat > > mListAdofTypeTimeIdentifier;
 
         //! Map which maps external indices to internal MSI indices. List 1 = Level; List 2 = type/time;
-        moris::Cell< moris::Cell< Matrix< DDSMat > > > mMultigridMap;
+        Vector< Vector< Matrix< DDSMat > > > mMultigridMap;
 
         // Pointer to model solver interface
         Solver_Interface * mSolverInterface;
@@ -68,7 +68,7 @@ namespace moris
          * @param[out] mProlongationList    List with prolongation operators
          *
          */
-        moris::Cell< sol::Dist_Matrix * > & get_prolongation_list()
+        Vector< sol::Dist_Matrix * > & get_prolongation_list()
         {
             return mProlongationList;
         };

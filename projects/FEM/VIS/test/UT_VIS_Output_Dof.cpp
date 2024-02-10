@@ -93,7 +93,7 @@ PlaneVisTest( const moris::Matrix< moris::DDRMat >& aPoint )
 
 inline void
 tConstValFunc_OUTDOF( moris::Matrix< moris::DDRMat >&  aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -137,7 +137,7 @@ namespace moris
                 tParameters.set_refinement_buffer( 1 );
                 tParameters.set_staircase_buffer( 1 );
 
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -163,7 +163,7 @@ namespace moris
                 hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
                 auto                                    tField          = std::make_shared< moris::gen::Plane >( 0.11, 0.11, 1.0, 0.0 );
-                Cell< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
+                Vector< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
                 size_t                                tModelDimension = 2;
                 moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -174,7 +174,7 @@ namespace moris
                 tXTKModel.mVerbose = false;
 
                 // Specify decomposition Method and Cut Mesh ---------------------------------------
-                Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+                Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
                 tXTKModel.decompose( tDecompositionMethods );
 
                 tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -188,7 +188,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 // create residual dof types
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tResDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
+                Vector< Vector< MSI::Dof_Type > > tResDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
 
                 // create the properties
                 std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property >();
@@ -324,7 +324,7 @@ namespace moris
                 tSetInterface.set_IWGs( { tIWGInterface } );
 
                 // create a cell of set info
-                moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+                Vector< fem::Set_User_Info > tSetInfo( 7 );
                 tSetInfo( 0 ) = tSetBulk1;
                 tSetInfo( 1 ) = tSetBulk2;
                 tSetInfo( 2 ) = tSetBulk3;
@@ -358,7 +358,7 @@ namespace moris
 
                 // --------------------------------------------------------------------------------------
                 // Define Solver
-                moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+                Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
                 tDofTypesU( 0 ) = MSI::Dof_Type::UX;
                 tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 

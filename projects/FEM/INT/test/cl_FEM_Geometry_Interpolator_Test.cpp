@@ -451,7 +451,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( ttCheckBool );
 
         // check the parametric coordinates of a space side
-        Cell< moris_index > tAllSpaceOrdinals = { 0, 1, 2, 3 };
+        Vector< moris_index > tAllSpaceOrdinals = { 0, 1, 2, 3 };
 
         // loop over the sides
         for( uint iSide = 0; iSide < tAllSpaceOrdinals.size(); iSide++ )
@@ -729,7 +729,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
         REQUIRE( ttCheckBool );
 
         // check the parametric coordinates of a space side
-        Cell< moris_index > tAllSpaceOrdinals = { 0, 1, 2, 3, 4, 5 };
+        Vector< moris_index > tAllSpaceOrdinals = { 0, 1, 2, 3, 4, 5 };
 
         // loop over the sides
         for( uint iSide = 0; iSide < tAllSpaceOrdinals.size(); iSide++ )

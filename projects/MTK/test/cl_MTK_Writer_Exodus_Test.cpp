@@ -297,7 +297,7 @@ namespace moris
             writer.write_mesh("", "test_write.exo", "", "test_temp.exo");
 
             // Nodal fields
-            moris::Cell<std::string> tNodalFieldNames(3);
+            Vector<std::string> tNodalFieldNames(3);
             tNodalFieldNames(0) = "ux";
             tNodalFieldNames(1) = "uy";
             tNodalFieldNames(2) = "uz";
@@ -312,13 +312,13 @@ namespace moris
             }
 
             // Elemental fields
-            moris::Cell<std::string> tElementalFieldNames(1);
+            Vector<std::string> tElementalFieldNames(1);
             tElementalFieldNames(0) = "pressure";
             moris::Matrix<moris::DDRMat> tetField(32, 1, 4);
             moris::Matrix<moris::DDRMat> hexField(3, 1, 5);
 
             // Global Fields
-            moris::Cell<std::string> tGlobalVariableNames(2);
+            Vector<std::string> tGlobalVariableNames(2);
             tGlobalVariableNames(0) = "mass";
             tGlobalVariableNames(1) = "time";
             moris::Matrix<DDRMat> tGlobalVariableValues(2,1);

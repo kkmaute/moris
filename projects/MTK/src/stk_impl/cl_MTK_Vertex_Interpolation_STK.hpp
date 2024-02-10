@@ -12,7 +12,7 @@
 #define PROJECTS_HMR_SRC_CL_MTK_VERTEX_INTERPOLATION_STK_HPP_
 
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
 
@@ -59,14 +59,14 @@ namespace moris
              * sets the coefficients of this basis
              */
             void
-            set_coefficients( moris::Cell< mtk::Vertex* > & aCoefficients );
+            set_coefficients( Vector< mtk::Vertex* > & aCoefficients );
 
             // ----------------------------------------------------------------------------
 
             /**
              * returns the coefficients of this basis
              */
-            moris::Cell< mtk::Vertex* > &
+            Vector< mtk::Vertex* > &
             get_coefficients();
 
             // ----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ namespace moris
             /**
              * returns the coefficients of this basis ( const version )
              */
-            const moris::Cell< mtk::Vertex* > &
+            const Vector< mtk::Vertex* > &
             get_coefficients() const;
 
             // ----------------------------------------------------------------------------

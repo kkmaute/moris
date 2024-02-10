@@ -93,7 +93,7 @@ namespace moris
 
 void tConstValFunction
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -101,7 +101,7 @@ void tConstValFunction
 
 void tMValFunction
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
@@ -172,7 +172,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         //-----------------------------------------------------------------------------------------------
 
         auto tCircle = std::make_shared< moris::gen::Circle >( -100.0, -100.0, 0.001 );
-        Cell<std::shared_ptr<moris::gen::Geometry>> tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
+        Vector<std::shared_ptr<moris::gen::Geometry>> tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;
@@ -183,7 +183,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
         tXTKModel.perform_basis_enrichment(mtk::EntityRank::BSPLINE,0);
@@ -301,7 +301,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+        Vector< fem::Set_User_Info > tSetInfo( 4 );
         tSetInfo( 0 ) = tSetBulk4;
         tSetInfo( 1 ) = tSetDirichletFixed;
         tSetInfo( 2 ) = tSetDirichlet;
@@ -318,7 +318,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+        Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
         tDofTypesU( 0 ) = MSI::Dof_Type::UX;    tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
         dla::Solver_Factory  tSolFactory;

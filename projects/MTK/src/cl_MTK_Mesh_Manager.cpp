@@ -145,7 +145,7 @@ namespace moris
         //-------------------------------------------------------------------------
 
         void
-        Mesh_Manager::update_mesh_pairs( const moris::Cell< std::string >& aMeshPairNames )
+        Mesh_Manager::update_mesh_pairs( const Vector< std::string >& aMeshPairNames )
         {
             for ( uint Ik = 0; Ik < aMeshPairNames.size(); Ik++ )
             {

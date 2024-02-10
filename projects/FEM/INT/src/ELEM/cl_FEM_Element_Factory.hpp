@@ -68,8 +68,8 @@ namespace moris
                  */
                 MSI::Equation_Object * create_interpolation_element(
                         Element_Type                             aElementType,
-                        const moris::Cell< const mtk::Cell * > & aInterpolationCell,
-                        moris::Cell< Node_Base* >              & aNodes,
+                        const Vector< const mtk::Cell * > & aInterpolationCell,
+                        Vector< Node_Base* >              & aNodes,
                         Set                                    * aSet );
 
                 //------------------------------------------------------------------------------

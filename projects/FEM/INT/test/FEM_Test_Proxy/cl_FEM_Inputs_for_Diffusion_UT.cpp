@@ -19,7 +19,7 @@ using namespace moris;
 inline void
 tConstValFunc_Diff(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -28,7 +28,7 @@ tConstValFunc_Diff(
 inline void
 tTEMPFIValFunc_Diff(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
@@ -37,7 +37,7 @@ tTEMPFIValFunc_Diff(
 inline void
 tTEMPFIDerFunc_Diff(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();

@@ -11,18 +11,15 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_INPUT_GENERATOR_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_INPUT_GENERATOR_HPP_
 
-namespace xtk
+namespace moris::xtk
 {
-class Input_Generator
-{
-    Input_Generator( std::string aXMLFile)
+    class Input_Generator
     {
+        Input_Generator( std::string aXMLFile )
+        {
+        }
+    };
 
-    }
-
-};
-
-}
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_INPUT_GENERATOR_HPP_ */
-

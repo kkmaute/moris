@@ -34,7 +34,7 @@ namespace moris::hmr
         // Matrix< DDRMat >   mTMatrix;
 
         //! interpolator object
-        moris::Cell< Lagrange_Node_Interpolation * > mInterpolations;
+        Vector< Lagrange_Node_Interpolation * > mInterpolations;
 
         //! bitset telling if interpolation is set
         Bitset< gNumberOfMeshes > mHaveInterpolation;
@@ -205,7 +205,7 @@ namespace moris::hmr
           * set the DOFs
           */
          void set_coefficients( const uint                   aBSplineMeshIndex,
-                                      Cell< mtk::Vertex* > & aDOFs )
+                 Vector< mtk::Vertex* > & aDOFs )
          {
              mInterpolations( aBSplineMeshIndex )->set_coefficients( aDOFs );
          }

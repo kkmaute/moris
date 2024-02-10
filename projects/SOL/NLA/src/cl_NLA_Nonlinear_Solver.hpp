@@ -12,7 +12,7 @@
 
 // MORIS header files.
 #include "moris_typedefs.hpp"    // CON/src
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include <memory>
 #include "cl_Param_List.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -39,16 +39,16 @@ namespace moris
         {
           private:
             //! List of list of dof types
-            Cell< Cell< enum MSI::Dof_Type > > mStaggeredDofTypeList;
+            Vector< Vector< enum MSI::Dof_Type > > mStaggeredDofTypeList;
 
             //! List of secondary dependencies
-            Cell< Cell< enum MSI::Dof_Type > > mSecondaryDofTypeList;
+            Vector< Vector< enum MSI::Dof_Type > > mSecondaryDofTypeList;
 
             //! List with nonlinear solvers
-            Cell< std::shared_ptr< Nonlinear_Algorithm > > mNonlinearSolverAlgorithmList;
+            Vector< std::shared_ptr< Nonlinear_Algorithm > > mNonlinearSolverAlgorithmList;
 
             //! List with nonlinear solvers
-            Cell< Nonlinear_Solver* > mNonLinearSubSolverList;
+            Vector< Nonlinear_Solver* > mNonLinearSubSolverList;
 
             //! Pointer to solver database
             sol::SOL_Warehouse* mSolverWarehouse = nullptr;
@@ -115,7 +115,7 @@ namespace moris
              * @param[in] aNonLinSolverType Nonlinear solver type. Default is Newton
              */
             Nonlinear_Solver(
-                    Cell< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
+                    Vector< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
                     const enum NonlinearSolverType                  aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
 
             //--------------------------------------------------------------------------------------------------
@@ -135,12 +135,12 @@ namespace moris
              * @param[in] aLevel                Solver level in the block structure. Default is 0
              */
             void set_dof_type_list(
-                    const Cell< enum MSI::Dof_Type > aStaggeredDofTypeList,
+                    const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList,
                     const sint                       aLevel = 0 );
 
             //--------------------------------------------------------------------------------------------------
 
-            void set_secondary_dof_type_list( const Cell< enum MSI::Dof_Type > aStaggeredDofTypeList );
+            void set_secondary_dof_type_list( const Vector< enum MSI::Dof_Type > aStaggeredDofTypeList );
 
             //--------------------------------------------------------------------------------------------------
 
@@ -231,7 +231,7 @@ namespace moris
              *
              * @param[out] rListOfListsOfDofTypes Returns the nonlinear solver managers list of list of dof types
              */
-            Cell< Cell< enum MSI::Dof_Type > >
+            Vector< Vector< enum MSI::Dof_Type > >
             get_dof_type_list()
             {
                 return mStaggeredDofTypeList;
@@ -244,7 +244,7 @@ namespace moris
              *
              * @param[out] rUnionListOfDofTypes Returns the union list of this nonlinear solver managers dof types
              */
-            Cell< enum MSI::Dof_Type > get_dof_type_union();
+            Vector< enum MSI::Dof_Type > get_dof_type_union();
 
             //--------------------------------------------------------------------------------------------------
 
@@ -253,7 +253,7 @@ namespace moris
              *
              * @param[out] rUnionListOfDofTypes Returns the union list of this nonlinear solver managers dof types
              */
-            Cell< Cell< enum MSI::Dof_Type > >
+            Vector< Vector< enum MSI::Dof_Type > >
             get_secondary_dof_type_list()
             {
                 return mSecondaryDofTypeList;
@@ -261,7 +261,7 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------
 
-            Cell< enum MSI::Dof_Type > get_sec_dof_type_union();
+            Vector< enum MSI::Dof_Type > get_sec_dof_type_union();
 
             //--------------------------------------------------------------------------------------------------
 

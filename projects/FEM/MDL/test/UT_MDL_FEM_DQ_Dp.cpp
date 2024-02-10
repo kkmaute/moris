@@ -93,7 +93,7 @@ namespace moris
 
 void tPropValConstFunc_MDLFEM_DQ_DP
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -115,7 +115,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //        uint tLagrangeMeshIndex = 0;
 //
 //        // empty container for B-Spline meshes
-//        moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+//        Vector< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 //
 //        // create settings object
 //        moris::hmr::Parameters tParameters;
@@ -158,7 +158,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //
 //        tField->evaluate_scalar_function( tPlane_MDLFEM_DQ_DP );
 //
-//        moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
+//        Vector< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 //
 //        for( uint k=0; k<0; ++k )
 //        {
@@ -176,7 +176,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //
 //        moris::gen::GEN_Geom_Field tFieldAsGeom(tField);
 //
-//        moris::Cell<moris::gen::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
+//        Vector<moris::gen::GEN_Geometry*> tGeometryVector = {&tFieldAsGeom};
 //
 //        size_t tModelDimension = 3;
 //        moris::gen::GEN_Phase_Table  tPhaseTable( tGeometryVector.size());
@@ -227,7 +227,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //       tPropNeumann->set_val_function( tPropValConstFunc_MDLFEM_DQ_DP );
 //
 //       // working do types
-//       moris::Cell< moris::MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
+//       Vector< moris::MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
 //
 //       // define constitutive models
 //       fem::CM_Factory tCMFactory;
@@ -342,7 +342,7 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //       tSetInterface.set_IWGs( { tIWGInterface } );
 //
 //       // create a cell of set info
-//       moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+//       Vector< fem::Set_User_Info > tSetInfo( 7 );
 //       tSetInfo( 0 ) = tSetBulk1;
 //       tSetInfo( 1 ) = tSetBulk2;
 //       tSetInfo( 2 ) = tSetBulk3;

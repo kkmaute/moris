@@ -103,7 +103,7 @@ namespace moris::hmr
                 Lagrange_Mesh_Base * aLagrangeMesh,
                 const uint aDiscretizationMeshIndex,
                 Matrix< DDLUMat > & aElementCounterPerLevelAndPattern,
-                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern );
+                Vector< Matrix< DDLUMat > > & aElementPerPattern );
 
         //-------------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ namespace moris::hmr
                 Background_Mesh_Base             * aBackgroundMesh,
                 const moris::Matrix< DDUMat >    & tPatternToSave,
                 Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern);
+                Vector< Matrix< DDLUMat > > & aElementPerPattern);
 
 //-------------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ namespace moris::hmr
         void load_refinement_pattern(
                 Background_Mesh_Base             * aMesh,
                 Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern);
+                Vector< Matrix< DDLUMat > > & aElementPerPattern);
 
 //-------------------------------------------------------------------------------
 

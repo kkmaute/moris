@@ -18,7 +18,7 @@
 
 // using namespace moris;
 
-// namespace xtk
+// namespace moris::xtk
 // {
 
 // TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
@@ -89,9 +89,9 @@
 //         CHECK(tNumNodesAfterDecompositionXTK == 10); /* two duplicates from the shared nodes*/
 //         CHECK(tNumElementsAfterDecompositionXTK == 8);
 
-//         moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//         moris::Matrix< DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
-//         moris::Matrix< moris::DDRMat > tExpectedNodeCoordinates = {{0.0, 0.0},
+//         moris::Matrix< DDRMat > tExpectedNodeCoordinates = {{0.0, 0.0},
 //                                                                    {1.0, 0.0},
 //                                                                    {1.0, 1.0},
 //                                                                    {0.0, 1.0},
@@ -258,7 +258,7 @@
 //         CHECK(tNumNodesAfterDecompositionXTK == 10); /* two duplicates from the shared nodes*/
 //         CHECK(tNumElementsAfterDecompositionXTK == 8);
 
-//         moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//         moris::Matrix< DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
 //         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 //         std::string tMeshOutputFile    = "./xtk_exo/xtk_test_output_regular_subdivision_2d.e";
@@ -352,7 +352,7 @@
 //         CHECK(tNumNodesAfterDecompositionXTK == 16);
 //         CHECK(tNumElementsAfterDecompositionXTK == 16);
 
-//         moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//         moris::Matrix< DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
 //         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 //         std::string tMeshOutputFile    = "./xtk_exo/xtk_test_output_conformal_quad_2d.e";
@@ -363,4 +363,3 @@
 //     }
 //                 }
 // }
-

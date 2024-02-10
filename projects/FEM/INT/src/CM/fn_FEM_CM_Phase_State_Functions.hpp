@@ -12,7 +12,7 @@
 #define PROJECTS_FEM_INT_SRC_FN_FEM_CM_PHASE_STATE_FUNCTIONS_HPP_
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src

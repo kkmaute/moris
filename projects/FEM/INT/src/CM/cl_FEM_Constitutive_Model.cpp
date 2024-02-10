@@ -137,7 +137,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
+                Vector< Vector< MSI::Dof_Type > > aDofTypes )
         {
             // set the dof types
             mDofTypes = aDofTypes;
@@ -148,7 +148,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Constitutive_Model::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        void Constitutive_Model::set_parameters( Vector< Matrix< DDRMat > > aParameters )
         {
             // set parameters
             mParameters = aParameters;
@@ -260,7 +260,7 @@ namespace moris
                 }
             }
             mGlobalDofTypes.resize( tCounterMax );
-            moris::Cell< sint > tCheckList( tCounterMax, -1 );
+            Vector< sint > tCheckList( tCounterMax, -1 );
 
             // initialize total dof counter
             uint tCounter = 0;
@@ -278,7 +278,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get active dof types
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                    const Vector< Vector< MSI::Dof_Type > > & tActiveDofType =
                             tProperty->get_dof_type_list();
 
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -354,7 +354,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris::Cell< MSI::Dof_Type > > & Constitutive_Model::get_global_dof_type_list()
+        const Vector< Vector< MSI::Dof_Type > > & Constitutive_Model::get_global_dof_type_list()
         {
             if( mGlobalDofBuild )
             {
@@ -431,7 +431,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool Constitutive_Model::check_dof_dependency(
-                const moris::Cell< MSI::Dof_Type > & aDofType )
+                const Vector< MSI::Dof_Type > & aDofType )
         {
             // set bool for dependency
             bool tDofDependency = false;
@@ -453,7 +453,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::set_dv_type_list(
-                moris::Cell< moris::Cell< gen::PDV_Type > > aDvTypes )
+                Vector< Vector< gen::PDV_Type > > aDvTypes )
         {
             // set the dv types
             mDvTypes = aDvTypes;
@@ -506,7 +506,7 @@ namespace moris
                 }
             }
             mGlobalDvTypes.resize( tCounterMax );
-            moris::Cell< sint > tCheckList( tCounterMax, -1 );
+            Vector< sint > tCheckList( tCounterMax, -1 );
 
             // initialize total dv counter
             uint tCounter = 0;
@@ -524,7 +524,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get active dv types
-                    moris::Cell< moris::Cell< gen::PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
+                    Vector< Vector< gen::PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
 
                     for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
                     {
@@ -577,7 +577,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris::Cell< gen::PDV_Type > > & Constitutive_Model::get_global_dv_type_list()
+        const Vector< Vector< gen::PDV_Type > > & Constitutive_Model::get_global_dv_type_list()
         {
             if( mGlobalDvBuild )
             {
@@ -623,7 +623,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool Constitutive_Model::check_dv_dependency(
-                const moris::Cell< gen::PDV_Type > & aDvType )
+                const Vector< gen::PDV_Type > & aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -644,7 +644,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::set_field_type_list(
-                moris::Cell< moris::Cell< mtk::Field_Type > > aFieldTypes )
+                Vector< Vector< mtk::Field_Type > > aFieldTypes )
         {
             // set the field types
             mFieldTypes = aFieldTypes;
@@ -697,7 +697,7 @@ namespace moris
                 }
             }
             mGlobalFieldTypes.resize( tCounterMax );
-            moris::Cell< sint > tCheckList( tCounterMax, -1 );
+            Vector< sint > tCheckList( tCounterMax, -1 );
 
             // initialize total dv counter
             uint tCounter = 0;
@@ -715,7 +715,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get active Field types
-                    moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType = tProperty->get_field_type_list();
+                    Vector< Vector< mtk::Field_Type > > tActiveFieldType = tProperty->get_field_type_list();
 
                     for ( uint iField = 0; iField < tActiveFieldType.size(); iField++ )
                     {
@@ -746,7 +746,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris::Cell< mtk::Field_Type > > & Constitutive_Model::get_global_field_type_list()
+        const Vector< Vector< mtk::Field_Type > > & Constitutive_Model::get_global_field_type_list()
         {
             if( mGlobalFieldBuild )
             {
@@ -823,7 +823,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool Constitutive_Model::check_field_dependency(
-                const moris::Cell< mtk::Field_Type > & aFieldType )
+                const Vector< mtk::Field_Type > & aFieldType )
         {
             // set bool for dependency
             bool tFieldDependency = false;
@@ -874,7 +874,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::get_non_unique_dof_types(
-                moris::Cell< MSI::Dof_Type > & aDofTypes )
+                Vector< MSI::Dof_Type > & aDofTypes )
         {
             // initialize dof counter
             uint tCounter = 0;
@@ -892,7 +892,7 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property dof type list
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                    const Vector< Vector< MSI::Dof_Type > > & tActiveDofType =
                             tProperty->get_dof_type_list();
 
                     // loop over property dof types
@@ -910,7 +910,7 @@ namespace moris
                 if ( tMM != nullptr )
                 {
                     // get MM dof type list
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                    const Vector< Vector< MSI::Dof_Type > > & tActiveDofType =
                             tMM->get_dof_type_list();
 
                     // loop over MM dof types
@@ -938,7 +938,7 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property dof type list
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                    const Vector< Vector< MSI::Dof_Type > > & tActiveDofType =
                             tProperty->get_dof_type_list();
 
                     // loop over property dof types
@@ -956,7 +956,7 @@ namespace moris
                 if ( tMM != nullptr )
                 {
                     // get MM dof type list
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                    const Vector< Vector< MSI::Dof_Type > > & tActiveDofType =
                             tMM->get_dof_type_list();
 
                     // loop over MM dof types
@@ -972,9 +972,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::get_non_unique_dof_dv_and_field_types(
-                moris::Cell< MSI::Dof_Type > & aDofTypes,
-                moris::Cell< gen::PDV_Type >      & aDvTypes,
-                moris::Cell< mtk::Field_Type > & aFieldTypes )
+                Vector< MSI::Dof_Type > & aDofTypes,
+                Vector< gen::PDV_Type >      & aDvTypes,
+                Vector< mtk::Field_Type > & aFieldTypes )
         {
             // initialize dof counter
             uint tDofCounter = 0;
@@ -1008,9 +1008,9 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property dof type list
-                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< gen::PDV_Type >        tActiveDvTypes;
-                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
+                    Vector< MSI::Dof_Type >   tActiveDofTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< mtk::Field_Type > tActiveFieldTypes;
                     tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
                             tActiveDvTypes,
@@ -1029,7 +1029,7 @@ namespace moris
                 if ( tMM != nullptr )
                 {
                     // get MM dof type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    Vector< MSI::Dof_Type > tActiveDofTypes;
 
                     tMM->get_non_unique_dof_types( tActiveDofTypes );
 
@@ -1070,9 +1070,9 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property dof and dv type list
-                    moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< gen::PDV_Type >        tActiveDvTypes;
-                    moris::Cell< mtk::Field_Type > tActiveFieldTypes;
+                    Vector< MSI::Dof_Type >   tActiveDofTypes;
+                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -1092,7 +1092,7 @@ namespace moris
                 if ( tMM != nullptr )
                 {
                     // get MM dof and dv type list
-                    moris::Cell< MSI::Dof_Type > tActiveDofTypes;
+                    Vector< MSI::Dof_Type > tActiveDofTypes;
 
                     tMM->get_non_unique_dof_types( tActiveDofTypes );
 
@@ -1108,9 +1108,9 @@ namespace moris
         Constitutive_Model::eval_derivative_FD(
                 enum CM_Request_Type                aCMRequestType,
                 Matrix< DDRMat >&                   aDerivativeFD,
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 real                                aPerturbation,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 const Matrix< DDRMat >&             aNormal,
                 const Matrix< DDRMat >&             aJump,
                 fem::FDScheme_Type                  aFDSchemeType,
@@ -1121,7 +1121,7 @@ namespace moris
                     "Constitutive_Model::eval_derivative_FD - aCMRequestType needs to be defined." );
 
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -1224,7 +1224,7 @@ namespace moris
         const Matrix< DDRMat >&
         Constitutive_Model::select_derivative_FD(
                 enum CM_Request_Type                aCMRequestType,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 const Matrix< DDRMat >&             aNormal,
                 const Matrix< DDRMat >&             aJump,
                 enum CM_Function_Type               aCMFunctionType )
@@ -1262,8 +1262,8 @@ namespace moris
         Constitutive_Model::set_derivative_FD(
                 enum CM_Request_Type                aCMRequestType,
                 Matrix< DDRMat >&                   aDerivativeFD,
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // get the dof index
@@ -1306,14 +1306,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dFluxdDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adFluxdDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType)
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -1405,7 +1405,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dtractiondu_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adtractiondu_FD,
                 real                                 aPerturbation,
                 Matrix< DDRMat >                   & aNormal,
@@ -1413,7 +1413,7 @@ namespace moris
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -1506,8 +1506,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dtesttractiondu_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aTestDofTypes,
                 Matrix< DDRMat >                   & adtesttractiondu_FD,
                 real                                 aPerturbation,
                 const Matrix< DDRMat >             & aNormal,
@@ -1516,7 +1516,7 @@ namespace moris
                 enum CM_Function_Type                aCMFunctionType )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -1615,8 +1615,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dtesttractiondu_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aTestDofTypes,
                 Matrix< DDRMat >                   & adtesttractiondu_FD,
                 real                                 aPerturbation,
                 const Matrix< DDRMat >             & aNormal,
@@ -1624,7 +1624,7 @@ namespace moris
                 enum CM_Function_Type                aCMFunctionType )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -1723,14 +1723,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_ddivfluxdu_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & addivfluxdu_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -1824,14 +1824,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_ddivstraindu_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & addivstraindu_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -1924,14 +1924,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dEnergydDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adEnergydDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType)
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -2023,14 +2023,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dEnergyDotdDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adEnergyDotdDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -2122,14 +2122,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dGradEnergydDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradEnergydDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -2221,14 +2221,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dGradEnergyDotdDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradEnergyDotdDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -2321,14 +2321,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dGradDivFluxdDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adGradDivFluxdDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -2421,14 +2421,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dStraindDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adStraindDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -2521,14 +2521,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dFluxdDV_FD(
-                const moris::Cell< gen::PDV_Type > & aDvTypes,
+                const Vector< gen::PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adFluxdDV_FD,
                 real                            aPerturbation,
                 fem::FDScheme_Type              aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
 
             // get the field interpolator for type
@@ -2596,14 +2596,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dStraindDV_FD(
-                const moris::Cell< gen::PDV_Type > & aDvTypes,
+                const Vector< gen::PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adStraindDV_FD,
                 real                            aPerturbation,
                 fem::FDScheme_Type              aFDSchemeType,
                 enum CM_Function_Type                aCMFunctionType  )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
 
             // get the field interpolator for type
@@ -2705,7 +2705,7 @@ namespace moris
 
         const Matrix< DDRMat > &
         Constitutive_Model::dTestStraindDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2862,7 +2862,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::ddivfluxdu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2918,7 +2918,7 @@ namespace moris
 
         const Matrix< DDRMat > & Constitutive_Model::testTraction(
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                const Vector< MSI::Dof_Type > & aTestDofTypes,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2947,7 +2947,7 @@ namespace moris
         const Matrix< DDRMat >&
         Constitutive_Model::testTraction_trans(
                 const Matrix< DDRMat >&             aNormal,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
 
         {
@@ -3035,7 +3035,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::ddivstraindu(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3157,7 +3157,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dFluxdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3189,7 +3189,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dEnergydDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3221,7 +3221,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dEnergyDotdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3253,7 +3253,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dGradEnergydDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3285,7 +3285,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dGradEnergyDotdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3317,7 +3317,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3349,7 +3349,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -3382,9 +3382,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                const Vector< MSI::Dof_Type > & aTestDofTypes,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3419,10 +3419,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 const Matrix< DDRMat >             & aNormal,
                 const Matrix< DDRMat >             & aJump,
-                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                const Vector< MSI::Dof_Type > & aTestDofTypes,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3485,7 +3485,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dStressdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type                aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3517,7 +3517,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dStraindDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3549,7 +3549,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dConstdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
+                const Vector< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3581,7 +3581,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dFluxdDV(
-                const moris::Cell< gen::PDV_Type > & aDvType,
+                const Vector< gen::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3613,7 +3613,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dStraindDV(
-                const moris::Cell< gen::PDV_Type > & aDvType,
+                const Vector< gen::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3645,7 +3645,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dConstdDV(
-                const moris::Cell< gen::PDV_Type > & aDvType,
+                const Vector< gen::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"

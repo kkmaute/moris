@@ -24,7 +24,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::tuple<
+        Vector< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
                 mtk::Leader_Follower > >
@@ -59,7 +59,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Reciprocal_Total_Volume::eval_dSPdLeaderDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        SP_Reciprocal_Total_Volume::eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type >& aDofTypes )
         {
             MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdLeaderDOF(), not implemented for this SP" );
         }
@@ -67,7 +67,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Reciprocal_Total_Volume::eval_dSPdFollowerDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        SP_Reciprocal_Total_Volume::eval_dSPdFollowerDOF( const Vector< MSI::Dof_Type >& aDofTypes )
         {
             MORIS_ERROR( false, "SP_Volume_Fraction::eval_dSPdFollowerDOF(), not implemented for this SP" );
         }

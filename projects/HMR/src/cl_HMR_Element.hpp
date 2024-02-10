@@ -16,7 +16,7 @@
 #include "cl_HMR_Background_Element.hpp"    //HMR/src
 #include "moris_typedefs.hpp"                     //COR/src
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"    //MTK/src
 
 namespace moris::hmr
@@ -408,7 +408,7 @@ namespace moris::hmr
          * @return Number of created bases
          */
         virtual luint create_basis_on_level_zero(
-                moris::Cell< Element* >& aAllElementsOnProc ) = 0;
+                Vector< Element* >& aAllElementsOnProc ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -419,7 +419,7 @@ namespace moris::hmr
          * @return Number of created bases
          */
         virtual luint create_basis_for_children(
-                moris::Cell< Element* >& aAllElementsOnProc ) = 0;
+                Vector< Element* >& aAllElementsOnProc ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -432,7 +432,7 @@ namespace moris::hmr
          * @param[in] aNeighborNumber    desired neighbor of element
          */
         Element* get_neighbor(
-                moris::Cell< Element* >& aAllElementsOnProc,
+                Vector< Element* >& aAllElementsOnProc,
                 luint                    aNeighborNumber );
 
         //------------------------------------------------------------------------------
@@ -441,7 +441,7 @@ namespace moris::hmr
          * returns a child if it exists
          */
         Element* get_child(
-                moris::Cell< Element* >& aAllElementsOnProc,
+                Vector< Element* >& aAllElementsOnProc,
                 uint                     aChildIndex );
 
         //------------------------------------------------------------------------------
@@ -469,7 +469,7 @@ namespace moris::hmr
          * @return void
          */
         virtual void
-        link_basis_with_neighbors( moris::Cell< Element* >& aAllElementsOnProc )
+        link_basis_with_neighbors( Vector< Element* >& aAllElementsOnProc )
         {
             MORIS_ERROR( false, "Link basis with neighbors not available for this element." );
         }
@@ -477,7 +477,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         virtual luint
-        refine( moris::Cell< Element* >& aAllElementsOnProc )
+        refine( Vector< Element* >& aAllElementsOnProc )
         {
             MORIS_ERROR( false, "refine() not available for this element." );
             return 0;
@@ -501,11 +501,11 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        virtual moris::Cell< mtk::Vertex* >
+        virtual Vector< mtk::Vertex* >
         get_vertex_pointers() const
         {
             MORIS_ERROR( false, "get_vertex_pointers() not available for this element." );
-            return moris::Cell< mtk::Vertex* >( 0 );
+            return Vector< mtk::Vertex* >( 0 );
         }
 
         //------------------------------------------------------------------------------

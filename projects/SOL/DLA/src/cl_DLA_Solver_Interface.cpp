@@ -67,7 +67,7 @@ Solver_Interface::fill_matrix_and_RHS(
 
     moris::Matrix< DDSMat >  tElementTopology;
     Matrix< DDRMat >         tElementMatrix;
-    Cell< Matrix< DDRMat > > tElementRHS;
+    Vector< Matrix< DDRMat > > tElementRHS;
 
     // Loop over all local elements to fill matrix and RHS
     for ( moris::uint Ii = 0; Ii < numLocElements; Ii++ )
@@ -117,7 +117,7 @@ Solver_Interface::assemble_RHS(
 
     moris::uint tNumRHS = this->get_num_rhs();
 
-    Cell< Matrix< DDRMat > > tElementRHS;
+    Vector< Matrix< DDRMat > > tElementRHS;
     Matrix< DDSMat >         tElementTopology;
 
     // Loop over all local elements to build matrix graph
@@ -171,7 +171,7 @@ Solver_Interface::assemble_staggered_RHS_contribution( moris::sol::Dist_Vector* 
     moris::uint tNumRHS = this->get_num_rhs();
 
     Matrix< DDSMat >         tElementTopology;
-    Cell< Matrix< DDRMat > > tElementRHS;
+    Vector< Matrix< DDRMat > > tElementRHS;
 
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii = 0; Ii < tNumBlocks; Ii++ )
@@ -222,7 +222,7 @@ Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Ve
     moris::uint tNumRHS = this->get_num_rhs();
 
     Matrix< DDSMat >         tElementTopology;
-    Cell< Matrix< DDRMat > > tElementRHS;
+    Vector< Matrix< DDRMat > > tElementRHS;
 
     this->report_beginning_of_assembly();
 
@@ -343,7 +343,7 @@ Solver_Interface::fill_matrix_and_RHS(
             this->get_element_topology( Ii, Ik, tElementTopology );
 
             Matrix< DDRMat >         tElementMatrix;
-            Cell< Matrix< DDRMat > > tElementRHS;
+            Vector< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_operator_and_rhs( Ii, Ik, tElementMatrix, tElementRHS );
 
             // Fill element in distributed matrix
@@ -389,7 +389,7 @@ Solver_Interface::fill_matrix_and_RHS(
 
 void
 Solver_Interface::get_adof_ids_based_on_criteria(
-        moris::Cell< moris::Matrix< IdMat > >& aCriteriaIds,
+        Vector< moris::Matrix< IdMat > >& aCriteriaIds,
         const moris::real                      aThreshold )    // FIXME find better name
 {
     // Get number of Sets
@@ -423,7 +423,7 @@ Solver_Interface::get_adof_ids_based_on_criteria(
                 this->calculate_criteria( Ii, Ik );
 
                 // get criteria
-                const moris::Cell< moris::Matrix< DDRMat > >& tCriteria = this->get_criteria( Ii );
+                const Vector< moris::Matrix< DDRMat > >& tCriteria = this->get_criteria( Ii );
 
                 // if criteria meets requirement
                 if ( tCriteria( 0 )( 0 ) < aThreshold )

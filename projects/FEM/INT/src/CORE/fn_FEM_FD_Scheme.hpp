@@ -24,7 +24,7 @@ namespace moris
         inline
         void fd_scheme(
                 enum fem::FDScheme_Type              aFDSchemeType,
-                moris::Cell< moris::Cell< real > > & aFDScheme )
+                Vector< Vector< real > > & aFDScheme )
         {
             // set size for aFDScheme
             aFDScheme.resize( 3 );

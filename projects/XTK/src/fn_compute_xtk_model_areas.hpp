@@ -17,7 +17,7 @@
 #include "cl_XTK_Model.hpp"
 #include "fn_tet_volume.hpp"
 #include "fn_hex_8_volume.hpp"
-namespace xtk
+namespace moris::xtk
 {
 
     /*
@@ -29,21 +29,21 @@ namespace xtk
      */
     inline moris::real
     compute_non_intersected_parent_element_volume_by_phase(
-            moris::moris_index                     aPhaseIndex,
-            moris::Matrix< moris::DDRMat > const & aNodeCoordinates,
-            Model const &                          aXTKModel )
+            moris::moris_index      aPhaseIndex,
+            Matrix< DDRMat > const &aNodeCoordinates,
+            Model const            &aXTKModel )
     {
         // Proc Rank
         moris_index tParRank = par_rank();
 
         // Get a reference to the XTK Mesh from the Model
-        Background_Mesh const & tXTKBMesh = aXTKModel.get_background_mesh();
+        Background_Mesh const &tXTKBMesh = aXTKModel.get_background_mesh();
 
         // Get the underlying background mesh data
-        moris::mtk::Mesh const & tBMMeshData = tXTKBMesh.get_mesh_data();
+        moris::mtk::Mesh const &tBMMeshData = tXTKBMesh.get_mesh_data();
 
         // Get the non intersected background elements
-        moris::Matrix< moris::IndexMat > tUnintersectedElements = tXTKBMesh.get_all_non_intersected_elements_loc_inds();
+        Matrix< IndexMat > tUnintersectedElements = tXTKBMesh.get_all_non_intersected_elements_loc_inds();
 
         // Determine parent element topology (note: this assumes a uniform background mesh)
         mtk::CellTopology tParentTopo = tXTKBMesh.get_parent_cell_topology();
@@ -56,7 +56,7 @@ namespace xtk
                     tBMMeshData.get_entity_owner( tUnintersectedElements( i ), mtk::EntityRank::ELEMENT ) == tParRank )
             {
 
-                moris::Matrix< moris::IndexMat > tElementToNode =
+                Matrix< IndexMat > tElementToNode =
                         tBMMeshData.get_entity_connected_to_entity_loc_inds( i, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
 
                 if ( tParentTopo == mtk::CellTopology::HEX8 )
@@ -78,6 +78,6 @@ namespace xtk
 
         return tVolume;
     }
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_FN_COMPUTE_XTK_MODEL_VOLUMES_HPP_ */

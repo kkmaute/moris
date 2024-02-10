@@ -21,7 +21,7 @@ using namespace moris;
 inline void
 tConstValFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -33,7 +33,7 @@ tConstValFunc(
 inline void
 Func_Heat_Load_Distribution(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     // get x-coordinate

@@ -145,12 +145,12 @@ namespace moris
 
             // NOTE:  this is done in order to be able to use native functions on the input data that will be passed on to Fortran
             // algorithm inputs in terms of cell
-            moris::Cell< int >    nbdCell( tNumAdvs, 2 );    // This algorithm parameter is hard-coded to assume that the variables are bounded
-            moris::Cell< double > gCell( tNumAdvs );
-            moris::Cell< double > waCell( ( 2 * mNumCorrections + 5 ) * tNumAdvs + 11 * mNumCorrections * mNumCorrections + 8 * mNumCorrections );
-            moris::Cell< int >    iwaCell( 3 * tNumAdvs );
-            moris::Cell< int >    isaveCell( 44 );
-            moris::Cell< double > dsaveCell( 29 );
+            Vector< int >    nbdCell( tNumAdvs, 2 );    // This algorithm parameter is hard-coded to assume that the variables are bounded
+            Vector< double > gCell( tNumAdvs );
+            Vector< double > waCell( ( 2 * mNumCorrections + 5 ) * tNumAdvs + 11 * mNumCorrections * mNumCorrections + 8 * mNumCorrections );
+            Vector< int >    iwaCell( 3 * tNumAdvs );
+            Vector< int >    isaveCell( 44 );
+            Vector< double > dsaveCell( 29 );
 
             // initialize and allocate memory for algorithm inputs/outputs
             int*    nbd = nbdCell.memptr();

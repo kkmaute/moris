@@ -20,35 +20,33 @@ namespace moris
 {
     namespace mtk
     {
-    class Vertex;
+        class Vertex;
     }
-}
+}    // namespace moris
 
-namespace xtk
+namespace moris::xtk
 {
 
-class Interpolation_Cell: public mtk::Cell
-{
-public:
-    Interpolation_Cell(moris_id                  aCellId,
-                       moris_index               aCellIndex,
-                       moris_id                  aCellOwner,
-                       std::shared_ptr<moris::mtk::Cell_Info> aConnectivity)
-                       :Cell(aCellId,aCellIndex,aCellOwner,aConnectivity)
+    class Interpolation_Cell : public mtk::Cell
     {
-    }
+      public:
+        Interpolation_Cell( moris_id                     aCellId,
+                moris_index                              aCellIndex,
+                moris_id                                 aCellOwner,
+                std::shared_ptr< moris::mtk::Cell_Info > aConnectivity )
+                : Cell( aCellId, aCellIndex, aCellOwner, aConnectivity )
+        {
+        }
 
-    Interpolation_Cell(){};
+        Interpolation_Cell(){};
 
-    virtual moris::Cell< mtk::Vertex* >
-    get_vertex_pointers() const = 0;
+        virtual Vector< mtk::Vertex* >
+        get_vertex_pointers() const = 0;
 
-    virtual Matrix< DDRMat >
-    get_vertex_coords() const = 0;
+        virtual Matrix< DDRMat >
+        get_vertex_coords() const = 0;
+    };
 
-};
-
-}
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_CELL_HPP_ */
-

@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_SET_USER_INFO_HPP_
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                          //MRS/CNT/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
 #include "cl_FEM_IWG.hpp"                 //FEM/MSI/src
 #include "cl_FEM_IQI.hpp"                 //FEM/MSI/src
@@ -33,10 +33,10 @@ namespace moris
             protected :
 
                 // cell of IWG pointers
-                moris::Cell< std::shared_ptr< IWG > > mIWGs;
+                Vector< std::shared_ptr< IWG > > mIWGs;
 
                 // cell of IQIs pointers
-                moris::Cell< std::shared_ptr< IQI > > mIQIs;
+                Vector< std::shared_ptr< IQI > > mIQIs;
 
                 // set mesh index
                 uint mMeshIndex;
@@ -347,7 +347,7 @@ namespace moris
                  * set IWGs
                  * @param[ in ] aIWGs list of IWG pointers
                  */
-                void set_IWGs( const moris::Cell< std::shared_ptr< fem::IWG > > & aIWGs )
+                void set_IWGs( const Vector< std::shared_ptr< fem::IWG > > & aIWGs )
                 {
                     mIWGs = aIWGs;
                 }
@@ -368,7 +368,7 @@ namespace moris
                  * @param[ out ] mIWGs list of IWG pointers
                  */
                 const
-                moris::Cell< std::shared_ptr< fem::IWG > > & get_IWGs() const
+                Vector< std::shared_ptr< fem::IWG > > & get_IWGs() const
                 {
                     return mIWGs;
                 }
@@ -378,7 +378,7 @@ namespace moris
                  * set IQIs
                  * @param[ in ] aIQIs list of IQI pointers
                  */
-                void set_IQIs( const moris::Cell< std::shared_ptr< fem::IQI > > & aIQIs )
+                void set_IQIs( const Vector< std::shared_ptr< fem::IQI > > & aIQIs )
                 {
                     mIQIs = aIQIs;
                 }
@@ -399,7 +399,7 @@ namespace moris
                  * @param[ out ] mIQIs list of IQI pointers
                  */
                 const
-                moris::Cell< std::shared_ptr< fem::IQI > > & get_IQIs() const
+                Vector< std::shared_ptr< fem::IQI > > & get_IQIs() const
                 {
                     return mIQIs;
                 }

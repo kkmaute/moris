@@ -42,7 +42,7 @@ namespace moris::hmr
     Lagrange_Mesh_Base::Lagrange_Mesh_Base(
             Parameters const *          aParameters,
             Background_Mesh_Base*       aBackgroundMesh,
-            Cell< BSpline_Mesh_Base* >& aBSplineMeshes,
+            Vector< BSpline_Mesh_Base* >& aBSplineMeshes,
             uint                        aOrder,
             uint                        aActivationPattern )
             : Mesh_Base( aParameters,
@@ -156,7 +156,7 @@ namespace moris::hmr
         for ( uint l = 0; l < tMaxLevel; ++l )
         {
             // get all elements from this level
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             mBackgroundMesh->collect_elements_on_level_including_aura( l, tElements );
 
@@ -268,7 +268,7 @@ namespace moris::hmr
         Matrix< DDLUMat > tNumberOfElementsPerDirection = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
 
         // assign Cell for nodes to be deleted
-        Cell< Basis* > tNodes( mNumberOfAllBasis - tCount, nullptr );
+        Vector< Basis* > tNodes( mNumberOfAllBasis - tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -608,7 +608,7 @@ namespace moris::hmr
 
             // create cell of matrices to send
             Matrix< DDLUMat >         tEmpty;
-            Cell< Matrix< DDLUMat > > tSendID( tNumberOfProcNeighbors, tEmpty );
+            Vector< Matrix< DDLUMat > > tSendID( tNumberOfProcNeighbors, tEmpty );
 
             // loop over all proc neighbors
             for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
@@ -618,7 +618,7 @@ namespace moris::hmr
                 if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                 {
                     // cell with basis in aura
-                    Cell< Basis* > tNodes;
+                    Vector< Basis* > tNodes;
 
                     // collect nodes within aura
                     this->collect_basis_from_aura( p, 0, tNodes );
@@ -677,7 +677,7 @@ namespace moris::hmr
                 }    // end neighbor exists
             }        // end loop over all neighbors
 
-            Cell< Matrix< DDLUMat > > tReceiveID;
+            Vector< Matrix< DDLUMat > > tReceiveID;
 
             // communicate node IDs to neighbors
             communicate_mats( tProcNeighbors,
@@ -687,7 +687,7 @@ namespace moris::hmr
             // clear memory
             tSendID.clear();
 
-            Cell< Matrix< DDLUMat > > tSendIndex( tNumberOfProcNeighbors, tEmpty );
+            Vector< Matrix< DDLUMat > > tSendIndex( tNumberOfProcNeighbors, tEmpty );
 
             // loop over all proc neighbors
             for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
@@ -697,7 +697,7 @@ namespace moris::hmr
                 if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                 {
                     // cell with basis in aura
-                    Cell< Basis* > tNodes;
+                    Vector< Basis* > tNodes;
 
                     // collect nodes within inverse aura
                     this->collect_basis_from_aura( p, 1, tNodes );
@@ -727,7 +727,7 @@ namespace moris::hmr
                 }
             }
 
-            Cell< Matrix< DDLUMat > > tReceiveIndex;
+            Vector< Matrix< DDLUMat > > tReceiveIndex;
 
             // communicate node IDs to neighbors
             communicate_mats( tProcNeighbors,
@@ -745,7 +745,7 @@ namespace moris::hmr
                 if ( tNeighbor < tNumberOfProcs && tNeighbor != tMyRank )
                 {
                     // cell with basis in aura
-                    Cell< Basis* > tNodes;
+                    Vector< Basis* > tNodes;
 
                     // collect nodes within aura
                     this->collect_basis_from_aura( p, 0, tNodes );
@@ -808,7 +808,7 @@ namespace moris::hmr
                 }
             }
 
-            Cell< Basis* > tBasisWithoutId( tCounter );
+            Vector< Basis* > tBasisWithoutId( tCounter );
             tCounter = 0;
 
             for ( auto tBasis : mAllBasisOnProc )
@@ -823,9 +823,9 @@ namespace moris::hmr
             Matrix< DDLUMat > tEmptyLuint;
             Matrix< DDUMat >  tEmptyUint;
 
-            Cell< Matrix< DDLUMat > > tSendAncestor( tNumberOfProcNeighbors, tEmptyLuint );
-            Cell< Matrix< DDUMat > >  tSendPedigree( tNumberOfProcNeighbors, tEmptyUint );
-            Cell< Matrix< DDUMat > >  tSendBasisIndex( tNumberOfProcNeighbors, tEmptyUint );
+            Vector< Matrix< DDLUMat > > tSendAncestor( tNumberOfProcNeighbors, tEmptyLuint );
+            Vector< Matrix< DDUMat > >  tSendPedigree( tNumberOfProcNeighbors, tEmptyUint );
+            Vector< Matrix< DDUMat > >  tSendBasisIndex( tNumberOfProcNeighbors, tEmptyUint );
 
             // get my rank
             moris_id tMyRank = par_rank();
@@ -848,7 +848,7 @@ namespace moris::hmr
             }
 
             // send basis indices
-            Cell< Matrix< DDUMat > > tReceiveBasisIndex;
+            Vector< Matrix< DDUMat > > tReceiveBasisIndex;
 
             // communicate basis indices
             communicate_mats(
@@ -860,7 +860,7 @@ namespace moris::hmr
             tSendBasisIndex.clear();
 
             // ancestors to receive
-            Cell< Matrix< DDLUMat > > tReceiveAncestor;
+            Vector< Matrix< DDLUMat > > tReceiveAncestor;
 
             // communicate ancestor list
             communicate_mats(
@@ -872,7 +872,7 @@ namespace moris::hmr
             tSendAncestor.clear();
 
             // communicate pedigree list
-            Cell< Matrix< DDUMat > > tReceivePedigree;
+            Vector< Matrix< DDUMat > > tReceivePedigree;
 
             communicate_mats(
                     tProcNeighbors,
@@ -883,7 +883,7 @@ namespace moris::hmr
             tSendPedigree.clear();
 
             // matrix with owners to send
-            Cell< Matrix< DDUMat > > tSendId( tNumberOfProcNeighbors, tEmptyUint );
+            Vector< Matrix< DDUMat > > tSendId( tNumberOfProcNeighbors, tEmptyUint );
 
             // loop over all proc neighbors
             for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
@@ -921,7 +921,7 @@ namespace moris::hmr
             tReceivePedigree.clear();
 
             // communicate owners
-            Cell< Matrix< DDUMat > > tReceiveId;
+            Vector< Matrix< DDUMat > > tReceiveId;
 
             communicate_mats(
                     tProcNeighbors,
@@ -984,8 +984,8 @@ namespace moris::hmr
             uint tNeighborProcRank = 0;
 
             // Initialize an inverse aura flag
-            Cell< Basis* > tAuraNodes;
-            Cell< Basis* > tInverseAuraNodes;
+            Vector< Basis* > tAuraNodes;
+            Vector< Basis* > tInverseAuraNodes;
             bool           tInverseAuraFlag = true;
 
             // Counter
@@ -1015,9 +1015,9 @@ namespace moris::hmr
                 // Get all the ids for the aura and inverse aura nodes
                 // The intersection  of the two sets is the nodes on the boundary
                 // Cells instead of moris matrix for intersection operation on std::vector
-                Cell< moris_id > tAuraNodeMemoryIndex( tAuraNodes.size() );
-                Cell< moris_id > tInverseAuraNodeMemoryIndex( tInverseAuraNodes.size() );
-                Cell< moris_id > tBoundaryNodeMemoryIndex( std::max( tAuraNodes.size(), tInverseAuraNodes.size() ) );
+                Vector< moris_id > tAuraNodeMemoryIndex( tAuraNodes.size() );
+                Vector< moris_id > tInverseAuraNodeMemoryIndex( tInverseAuraNodes.size() );
+                Vector< moris_id > tBoundaryNodeMemoryIndex( std::max( tAuraNodes.size(), tInverseAuraNodes.size() ) );
 
                 // Reset count
                 tCount = 0;
@@ -2294,14 +2294,14 @@ namespace moris::hmr
 
             // create cell of matrices to send
             Matrix< DDLUMat >         tEmptyLuint;
-            Cell< Matrix< DDLUMat > > tAncestorListSend;
+            Vector< Matrix< DDLUMat > > tAncestorListSend;
             tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
             Matrix< DDUMat >         tEmptyUint;
-            Cell< Matrix< DDUMat > > tPedigreeListSend;
+            Vector< Matrix< DDUMat > > tPedigreeListSend;
             tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
-            Cell< Matrix< DDUMat > > tEdgeIndexListSend;
+            Vector< Matrix< DDUMat > > tEdgeIndexListSend;
             tEdgeIndexListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
             // step 3: create matrices to send
@@ -2336,7 +2336,7 @@ namespace moris::hmr
 
             // communicate edge Indices to neighbors
 
-            Cell< Matrix< DDUMat > > tEdgeIndexListReceive;
+            Vector< Matrix< DDUMat > > tEdgeIndexListReceive;
             communicate_mats( tProcNeighbors,
                     tEdgeIndexListSend,
                     tEdgeIndexListReceive );
@@ -2345,7 +2345,7 @@ namespace moris::hmr
             tEdgeIndexListSend.clear();
 
             // communicate ancestors to neighbors
-            Cell< Matrix< DDLUMat > > tAncestorListReceive;
+            Vector< Matrix< DDLUMat > > tAncestorListReceive;
             communicate_mats( tProcNeighbors,
                     tAncestorListSend,
                     tAncestorListReceive );
@@ -2354,7 +2354,7 @@ namespace moris::hmr
             tAncestorListSend.clear();
 
             // communicate path to neighbors
-            Cell< Matrix< DDUMat > > tPedigreeListReceive;
+            Vector< Matrix< DDUMat > > tPedigreeListReceive;
             communicate_mats( tProcNeighbors,
                     tPedigreeListSend,
                     tPedigreeListReceive );
@@ -2362,7 +2362,7 @@ namespace moris::hmr
             // clear memory
             tPedigreeListSend.clear();
 
-            Cell< Matrix< DDUMat > > tOwnerListSend;
+            Vector< Matrix< DDUMat > > tOwnerListSend;
             tOwnerListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
             // loop over all received lists
@@ -2402,7 +2402,7 @@ namespace moris::hmr
             tPedigreeListReceive.clear();
             tEdgeIndexListReceive.clear();
 
-            Cell< Matrix< DDUMat > > tOwnerListReceive;
+            Vector< Matrix< DDUMat > > tOwnerListReceive;
 
             // communicate mats
             // note: this is a lot of communication. A more elegant way
@@ -2524,14 +2524,14 @@ namespace moris::hmr
 
         // create cell of matrices to send
         Matrix< DDLUMat >         tEmptyLuint;
-        Cell< Matrix< DDLUMat > > tAncestorListSend;
+        Vector< Matrix< DDLUMat > > tAncestorListSend;
         tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
         Matrix< DDUMat >         tEmptyUint;
-        Cell< Matrix< DDUMat > > tPedigreeListSend;
+        Vector< Matrix< DDUMat > > tPedigreeListSend;
         tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
-        Cell< Matrix< DDUMat > > tFacetIndexListSend;
+        Vector< Matrix< DDUMat > > tFacetIndexListSend;
         tFacetIndexListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
         // loop over all proc neighbors
@@ -2597,9 +2597,9 @@ namespace moris::hmr
         } /* end loop over all procs */
 
         // initialize matrices for receiving
-        Cell< Matrix< DDLUMat > > tAncestorListReceive;
-        Cell< Matrix< DDUMat > >  tPedigreeListReceive;
-        Cell< Matrix< DDUMat > >  tFacetIndexListReceive;
+        Vector< Matrix< DDLUMat > > tAncestorListReceive;
+        Vector< Matrix< DDUMat > >  tPedigreeListReceive;
+        Vector< Matrix< DDUMat > >  tFacetIndexListReceive;
 
         // communicate ancestor IDs
         communicate_mats( tProcNeighbors,
@@ -2737,14 +2737,14 @@ namespace moris::hmr
 
         // create cell of matrices to send
         Matrix< DDLUMat >         tEmptyLuint;
-        Cell< Matrix< DDLUMat > > tAncestorListSend;
+        Vector< Matrix< DDLUMat > > tAncestorListSend;
         tAncestorListSend.resize( tNumberOfNeighbors, { tEmptyLuint } );
 
         Matrix< DDUMat >         tEmptyUint;
-        Cell< Matrix< DDUMat > > tPedigreeListSend;
+        Vector< Matrix< DDUMat > > tPedigreeListSend;
         tPedigreeListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
-        Cell< Matrix< DDUMat > > tEdgeIndexListSend;
+        Vector< Matrix< DDUMat > > tEdgeIndexListSend;
         tEdgeIndexListSend.resize( tNumberOfNeighbors, { tEmptyUint } );
 
         // loop over all proc neighbors
@@ -2814,9 +2814,9 @@ namespace moris::hmr
         } /* end loop over all procs */
 
         // initialize matrices for receiving
-        Cell< Matrix< DDLUMat > > tAncestorListReceive;
-        Cell< Matrix< DDUMat > >  tPedigreeListReceive;
-        Cell< Matrix< DDUMat > >  tEdgeIndexListReceive;
+        Vector< Matrix< DDLUMat > > tAncestorListReceive;
+        Vector< Matrix< DDUMat > >  tPedigreeListReceive;
+        Vector< Matrix< DDUMat > >  tEdgeIndexListReceive;
 
         // communicate ancestor IDs
         communicate_mats( tProcNeighbors,
@@ -3642,7 +3642,7 @@ namespace moris::hmr
     Lagrange_Mesh_Base::get_elements_in_bspline_element(
             moris_index const          aBspElementIndex,
             moris_index const          aDiscretizationMeshIndex,
-            moris::Cell< mtk::Cell* >& aCells )
+            Vector< mtk::Cell* >& aCells )
     {
         // get pointer to b-spline and background elements
         Element*                 tBsplineElement    = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( aBspElementIndex );
@@ -3659,7 +3659,7 @@ namespace moris::hmr
 
         // collect the active Lagrange elements
         tNumActiveLagrangeElements = 0;
-        moris::Cell< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
+        Vector< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
         tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElements );
 
         // initialize output cell with correct size
@@ -3678,11 +3678,11 @@ namespace moris::hmr
     void
     Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements(
             moris_index const                          aDiscretizationMeshIndex,
-            moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
-            moris::Cell< moris::Cell< moris_index > >& aCellIndices,
-            moris::Cell< moris_index >&                aLagToBspCellIndices,
-            moris::Cell< uint >&                       aBspCellRefineLevels,
-            moris::Cell< mtk::Cell* >&                 aBsplineCells )
+            Vector< Vector< mtk::Cell* > >&  aCells,
+            Vector< Vector< moris_index > >& aCellIndices,
+            Vector< moris_index >&                aLagToBspCellIndices,
+            Vector< uint >&                       aBspCellRefineLevels,
+            Vector< mtk::Cell* >&                 aBsplineCells )
     {
         // get B-Spline pattern of this mesh
         uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -3735,7 +3735,7 @@ namespace moris::hmr
 
             // collect the active Lagrange elements
             luint                                   tNumActiveLagrangeElementsCheck = 0;
-            moris::Cell< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
+            Vector< Background_Element_Base* > tActiveElements( tNumActiveLagrangeElements, nullptr );
             tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElementsCheck );
 
             // sanity check that the number of descendants in list matches number reported
@@ -3773,7 +3773,7 @@ namespace moris::hmr
     Lagrange_Mesh_Base::get_elements_in_interpolation_cluster(
             moris_index const          aElementIndex,
             moris_index const          aDiscretizationMeshIndex,
-            moris::Cell< mtk::Cell* >& aCells )
+            Vector< mtk::Cell* >& aCells )
     {
         // get B-Spline pattern of this mesh
         auto tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -3803,7 +3803,7 @@ namespace moris::hmr
 
         tBackgroundElement->get_number_of_active_descendants( tLagrangePattern, tCount );
 
-        moris::Cell< Background_Element_Base* > tActiveElements( tCount, nullptr );
+        Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -3827,7 +3827,7 @@ namespace moris::hmr
             moris_index const          aBsplineElementIndex,
             moris_index const          aDiscretizationMeshIndex,
             moris_index const          aSideOrdinal,
-            moris::Cell< mtk::Cell* >& aCells )
+            Vector< mtk::Cell* >& aCells )
     {
         // get pattern of the current B-spline mesh
         uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -3894,7 +3894,7 @@ namespace moris::hmr
         }
 
         // initialize list of background elements on side ordinal
-        moris::Cell< Background_Element_Base* > tActiveElements( tCount, nullptr );
+        Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -3959,7 +3959,7 @@ namespace moris::hmr
             moris_index const          aElementIndex,
             moris_index const          aDiscretizationMeshIndex,
             moris_index const          aSideOrdinal,
-            moris::Cell< mtk::Cell* >& aCells )
+            Vector< mtk::Cell* >& aCells )
     {
         // get B-Spline pattern of this mesh
         auto tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -4023,7 +4023,7 @@ namespace moris::hmr
             }
         }
 
-        moris::Cell< Background_Element_Base* > tActiveElements( tCount, nullptr );
+        Vector< Background_Element_Base* > tActiveElements( tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -4107,7 +4107,7 @@ namespace moris::hmr
         Matrix< DDSMat > tReverseIndexMap( tMaxID + 1, 1, -1 );
         Matrix< DDSMat > tReverseIDMap( tMaxID + 1, 1, -1 );
 
-        moris::Cell< Basis* > tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
+        Vector< Basis* > tNonBSplineBasis( mAllBasisOnProc.size(), nullptr );
 
         this->calculate_t_matrices( false );
 

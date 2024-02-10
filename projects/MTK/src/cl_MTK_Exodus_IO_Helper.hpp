@@ -68,8 +68,8 @@ namespace moris
                 Matrix<IdMat> mElemCmapIds;
                 Matrix<IdMat> mElemCmapElemCnts;
 
-                moris::Cell<Matrix<IdMat>> mNodeCmapNodeIds;
-                moris::Cell<Matrix<IdMat>> mNodeCmapProcIds;
+                Vector<Matrix<IdMat>> mNodeCmapNodeIds;
+                Vector<Matrix<IdMat>> mNodeCmapProcIds;
 
                 std::vector<int> mGlobalNodesetIds;
                 std::vector<int> mNumGlobalNodeCounts;

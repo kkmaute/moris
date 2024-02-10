@@ -15,7 +15,7 @@
 #include <mpi.h>
 
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_Matrix.hpp"
 
@@ -33,8 +33,8 @@ namespace moris
     template <typename T>
     inline
     void gather(
-            moris::Cell<T> & aBuffer,
-            moris::Cell<T> & aResult,
+            Vector<T> & aBuffer,
+            Vector<T> & aResult,
             int              aRootProc = 0)
     {
         // get processor rank and size
@@ -80,8 +80,8 @@ namespace moris
     template <typename T>
     inline
     void scatter(
-            moris::Cell<T> & aBuffer,
-            moris::Cell<T> & aResult,
+            Vector<T> & aBuffer,
+            Vector<T> & aResult,
             int              aRootProc = 0)
     {
         // get processor rank and size

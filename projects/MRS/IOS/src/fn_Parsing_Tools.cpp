@@ -14,12 +14,12 @@ namespace moris
 {
     // -----------------------------------------------------------------------------
 
-    Cell<std::string> split_string(
+    Vector<std::string> split_string(
                     const std::string  & aString,
                     const std::string  & aDelim )
     {
         // create empty cell of strings
-        Cell<std::string> tCellOfStrings;
+        Vector<std::string> tCellOfStrings;
 
         size_t start;
         size_t end = 0;
@@ -157,7 +157,7 @@ namespace moris
     template <>
     void string_to_cell< std::string >(
             const std::string&          aString,
-            moris::Cell< std::string >& aCell )
+            Vector< std::string >& aCell )
     {
         // convert string to string stream and a sub string
         std::stringstream tStringStream( aString );

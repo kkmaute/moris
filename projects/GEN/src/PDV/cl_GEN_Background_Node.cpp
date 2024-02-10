@@ -40,8 +40,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< Basis_Node >        Background_Node::mDummyLocatorNodes = {};
-    const Cell< Basis_Node >& Background_Node::get_locator_nodes() const
+    Vector< Basis_Node >        Background_Node::mDummyLocatorNodes = {};
+    const Vector< Basis_Node >& Background_Node::get_locator_nodes() const
     {
         return mDummyLocatorNodes;
     }

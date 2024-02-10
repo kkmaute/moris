@@ -27,7 +27,7 @@ namespace moris
 
         Side_Cluster_ISC::Side_Cluster_ISC( moris::mtk::Cell const *                        aInterpCell,
                 moris::mtk::Cell const *                        aIntegrationCell,
-                moris::Cell<moris::mtk::Vertex const *> const & aVerticesInCluster,
+                Vector<moris::mtk::Vertex const *> const & aVerticesInCluster,
                 moris_index aSideOrdinal):
                     mTrivial(true),
                     mInterpolationCell(aInterpCell),
@@ -51,9 +51,9 @@ namespace moris
         Side_Cluster_ISC::Side_Cluster_ISC(
                 bool                                            aTrivial,
                 moris::mtk::Cell const *                       aInterpolationCell,
-                moris::Cell<moris::mtk::Cell const *>   const & aIntegrationCells,
+                Vector<moris::mtk::Cell const *>   const & aIntegrationCells,
                 moris::Matrix<moris::IndexMat>          const & aIntegrationCellSideOrdinals,
-                moris::Cell<moris::mtk::Vertex const *> const & aVerticesInCluster,
+                Vector<moris::mtk::Vertex const *> const & aVerticesInCluster,
                 moris::Matrix<moris::DDRMat>            const & aVertexParamCoords):
                     mTrivial(aTrivial),
                     mInterpolationCell(aInterpolationCell),
@@ -89,7 +89,7 @@ namespace moris
 
         //----------------------------------------------------------------
 
-        moris::Cell<moris::mtk::Cell const *> const &
+        Vector<moris::mtk::Cell const *> const &
         Side_Cluster_ISC::get_cells_in_side_cluster() const
         {
             return mIntegrationCells;
@@ -116,7 +116,7 @@ namespace moris
 
         //----------------------------------------------------------------
 
-        moris::Cell<moris::mtk::Vertex const *>
+        Vector<moris::mtk::Vertex const *>
         Side_Cluster_ISC::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
         {
             return mVerticesInCluster;
@@ -148,7 +148,7 @@ namespace moris
         {
             moris_index tSideOrd = mIntegrationCellSideOrdinals(aCellIndexInCluster);
 
-            moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = mIntegrationCells(aCellIndexInCluster)->get_vertices_on_side_ordinal(tSideOrd);
+            Vector<moris::mtk::Vertex const *> tVerticesOnSide = mIntegrationCells(aCellIndexInCluster)->get_vertices_on_side_ordinal(tSideOrd);
 
             // iterate through vertices and see if the ids match
             for(moris::moris_index i = 0; i < (moris_index)tVerticesOnSide.size(); i++)

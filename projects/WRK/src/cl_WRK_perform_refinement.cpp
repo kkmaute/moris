@@ -36,7 +36,7 @@ namespace moris
                 : mLibrary( aLibrary )
         {
             // set field names
-            moris::Cell< std::string > tFieldNames;
+            Vector< std::string > tFieldNames;
             string_to_cell(
                     aParameterlist.get< std::string >( "field_names" ),
                     mParameters.mFieldNames );
@@ -71,7 +71,7 @@ namespace moris
 
         void
         Refinement_Mini_Performer::perform_refinement(
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 std::shared_ptr< hmr::HMR >            aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform refinement" );
@@ -83,11 +83,11 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Cell< moris_index >                                      tPattern;
-            moris::Cell< moris::Cell< std::string > >                tFieldNames;
-            moris::Cell< moris::Cell< uint > >                       tRefinements;
-            moris::Cell< sint >                                      tMaxRefinementPerLevel;
-            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< moris_index >                                      tPattern;
+            Vector< Vector< std::string > >                tFieldNames;
+            Vector< Vector< uint > >                       tRefinements;
+            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -148,7 +148,7 @@ namespace moris
 
         void
         Refinement_Mini_Performer::perform_refinement_2(
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 std::shared_ptr< hmr::HMR >            aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform advanced refinement" );
@@ -160,11 +160,11 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Cell< moris_index >                                      tPattern;
-            moris::Cell< moris::Cell< std::string > >                tFieldNames;
-            moris::Cell< moris::Cell< uint > >                       tRefinements;
-            moris::Cell< sint >                                      tMaxRefinementPerLevel;
-            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< moris_index >                                      tPattern;
+            Vector< Vector< std::string > >                tFieldNames;
+            Vector< Vector< uint > >                       tRefinements;
+            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -191,7 +191,7 @@ namespace moris
             // create a map with ids
             std::unordered_map< moris_index, luint > tMap;
 
-            moris::Cell< hmr::Background_Element_Base* > tBGElements;
+            Vector< hmr::Background_Element_Base* > tBGElements;
             aHMR->get_database()->get_background_mesh()->collect_all_elements( tBGElements );
 
             for ( uint Ib = 0; Ib < tBGElements.size(); Ib++ )
@@ -310,7 +310,7 @@ namespace moris
 
         void
         Refinement_Mini_Performer::perform_refinement_based_on_working_pattern(
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 std::shared_ptr< hmr::HMR >            aHMR )
         {
             // create field name to index map
@@ -358,7 +358,7 @@ namespace moris
 
         uint
         Refinement_Mini_Performer::perform_refinement_low_level_elements(
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 std::shared_ptr< hmr::HMR >            aHMR )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform refinement of low level elements" );
@@ -372,11 +372,11 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            Cell< moris_index >                                      tPattern;
-            moris::Cell< moris::Cell< std::string > >                tFieldNames;
-            moris::Cell< moris::Cell< uint > >                       tRefinements;
-            moris::Cell< sint >                                      tMaxRefinementPerLevel;
-            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > tRefinementFunctions;
+            Vector< moris_index >                                      tPattern;
+            Vector< Vector< std::string > >                tFieldNames;
+            Vector< Vector< uint > >                       tRefinements;
+            Vector< sint >                                      tMaxRefinementPerLevel;
+            Vector< Vector< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
@@ -417,11 +417,11 @@ namespace moris
 
         void
         Refinement_Mini_Performer::prepare_input_for_refinement(
-                Cell< moris_index >&                                      aPatternForRefinement,
-                moris::Cell< moris::Cell< std::string > >&                aFieldsForRefinement,
-                moris::Cell< moris::Cell< uint > >&                       aRefinements,
-                moris::Cell< sint >&                                      aMaxRefinementPerPattern,
-                moris::Cell< moris::Cell< hmr::Refinement_Function_2 > >& aRefinementFunctions )
+                Vector< moris_index >&                                      aPatternForRefinement,
+                Vector< Vector< std::string > >&                aFieldsForRefinement,
+                Vector< Vector< uint > >&                       aRefinements,
+                Vector< sint >&                                      aMaxRefinementPerPattern,
+                Vector< Vector< hmr::Refinement_Function_2 > >& aRefinementFunctions )
         {
 
             // produce unique list of pattern which will be refined
@@ -485,7 +485,7 @@ namespace moris
         void
         Refinement_Mini_Performer::perform_refinement_old(
                 std::shared_ptr< hmr::HMR >          aHMR,
-                Cell< std::shared_ptr< Performer > > aPerformers,
+                Vector< std::shared_ptr< Performer > > aPerformers,
                 bool                                 aSimultaneous )
         {
             Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform GEN refinement" );
@@ -628,8 +628,8 @@ namespace moris
             // Loop over fields
             for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const Cell< uint >& tNumRefinements      = aPerformer->get_num_refinements( iField );
-                const Cell< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
+                const Vector< uint >& tNumRefinements      = aPerformer->get_num_refinements( iField );
+                const Vector< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
                 for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.size(); iLagMesh++ )
@@ -671,7 +671,7 @@ namespace moris
             // Loop over fields
             for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const Cell< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
+                const Vector< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMesh indices // if aMeshIndex put in queue
                 for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.size(); iLagMesh++ )
@@ -711,7 +711,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         uint
-        Refinement_Mini_Performer::get_max_refinement_level( const Cell< std::shared_ptr< Performer > >& aPerformers )
+        Refinement_Mini_Performer::get_max_refinement_level( const Vector< std::shared_ptr< Performer > >& aPerformers )
         {
             uint tMaxNumRefinements = 0;
 
@@ -722,7 +722,7 @@ namespace moris
                 // Loop over fields
                 for ( uint iField = 0; iField < tNumFields; iField++ )
                 {
-                    const Cell< uint >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
+                    const Vector< uint >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
 
                     for ( uint iRefinement = 0; iRefinement < tNumRefinements.size(); iRefinement++ )
                     {
@@ -738,7 +738,7 @@ namespace moris
 
         void
         Refinement_Mini_Performer::get_all_refinement_mesh_indices(
-                const Cell< std::shared_ptr< Performer > >& aPerformers,
+                const Vector< std::shared_ptr< Performer > >& aPerformers,
                 moris::Matrix< DDSMat >&                    aAllPatternMap,
                 moris::uint&                                aNumPattern )
         {
@@ -753,7 +753,7 @@ namespace moris
                 // Loop over fields
                 for ( uint iRefineField = 0; iRefineField < tNumFields; iRefineField++ )
                 {
-                    const Cell< uint >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
+                    const Vector< uint >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
 
                     for ( uint iMesh = 0; iMesh < tRefinementMeshIndices.size(); iMesh++ )
                     {

@@ -8,8 +8,8 @@
  *
  */
 
-#include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Logger.hpp" // MRS/IOS/src
+#include "cl_Communication_Manager.hpp"    // COM/src
+#include "cl_Logger.hpp"                   // MRS/IOS/src
 #include "paths.hpp"
 
 moris::Comm_Manager gMorisComm;
@@ -48,13 +48,12 @@ using namespace xtk;
  * This tutorial shows how to create an XTK model with
  * multiple immersed geometries.
  */
-int
-main( int    argc,
-      char * argv[] )
+int main( int argc,
+        char* argv[] )
 {
 
     // Initialize the communication manager
-    gMorisComm.initialize(&argc, &argv);
+    gMorisComm.initialize( &argc, &argv );
 
     // Severity level 0 - all outputs
     gLogger.initialize( 0 );
@@ -83,10 +82,10 @@ main( int    argc,
      * \endcode
      *
      */
-    std::string tPrefix = moris::get_base_moris_dir();
+    std::string tPrefix       = moris::get_base_moris_dir();
     std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
 
-    std::cout<<"Mesh input name = "<< tMeshFileName<<std::endl;
+    std::cout << "Mesh input name = " << tMeshFileName << std::endl;
 
     /*!
      * Load the mesh into the MTK library which provides an API to mesh functions. Allowing, for
@@ -98,7 +97,7 @@ main( int    argc,
      * In this example a mesh file called sandwich.e which has multiple block sets, side sets and node sets is used.
      * @image html ./figures/sandwich_base_mesh.png "Sandwich Background Mesh"
      */
-    std::shared_ptr<moris::mtk::Interpolation_Mesh> tBackgroundMesh = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName );
+    std::shared_ptr< moris::mtk::Interpolation_Mesh > tBackgroundMesh = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName );
 
     /*!
      * \subsection geometry_vector_sectup 2.) Geometry Vector Setup
@@ -135,11 +134,11 @@ main( int    argc,
      * \endcode
      *
      */
-    real r1  = 5.3;
-    real xc1 = 0.0;
-    real yc1 = 0.0;
-    real zc1 = 0.0;
-    Sphere tLevelSetSphere1(r1,xc1,yc1,zc1);
+    real   r1  = 5.3;
+    real   xc1 = 0.0;
+    real   yc1 = 0.0;
+    real   zc1 = 0.0;
+    Sphere tLevelSetSphere1( r1, xc1, yc1, zc1 );
 
     /*!
      * Similarly, the second sphere is defined with \f$r = 3.1\f$ and centered at the
@@ -152,11 +151,11 @@ main( int    argc,
      *     Sphere tLevelSetSphere2(r2,xc2,yc2,zc2);
      *\endcode
      */
-    real r2  = 3.1;
-    real xc2 = 0.0;
-    real yc2 = 0.0;
-    real zc2 = 0.0;
-    Sphere tLevelSetSphere2(r2,xc2,yc2,zc2);
+    real   r2  = 3.1;
+    real   xc2 = 0.0;
+    real   yc2 = 0.0;
+    real   zc2 = 0.0;
+    Sphere tLevelSetSphere2( r2, xc2, yc2, zc2 );
 
     /*!
      * The spheres are placed into a geometry vector, this works because the sphere
@@ -164,12 +163,11 @@ main( int    argc,
      * class.
      *
      * \code{.cpp}
-     *  moris::Cell<Geometry*> tGeometryVector =
+     *  Vector<Geometry*> tGeometryVector =
      *    {&tLevelSetSphere1, &tLevelSetSphere2};
      * \endcode
      */
-        moris::Cell<Geometry*> tGeometryVector =
-    {&tLevelSetSphere1, &tLevelSetSphere2};
+    Vector< Geometry* > tGeometryVector = { &tLevelSetSphere1, &tLevelSetSphere2 };
 
     /*!
      * \subsection geom_eng_setup  4.) Geometry Engine Setup
@@ -180,7 +178,7 @@ main( int    argc,
      *  Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable);
      * \endcode
      */
-    Geometry_Engine tGeometryEngine(tGeometryVector);
+    Geometry_Engine tGeometryEngine( tGeometryVector );
 
     /*!
      * Specify the isocontour, \f$\phi_0\f$ of the level set field.
@@ -191,7 +189,7 @@ main( int    argc,
      * \endcode
      */
     tGeometryEngine.mThresholdValue = 0.0;
-    tGeometryEngine.mComputeDxDp = true;
+    tGeometryEngine.mComputeDxDp    = true;
 
     /*!
      * \subsection xtk_setup 5.) XTK Model Setup
@@ -206,8 +204,8 @@ main( int    argc,
      *  \endcode
      */
     size_t tModelDimension = 3;
-    Model tXTKModel(tModelDimension, tBackgroundMesh.get(), tGeometryEngine);
-    tXTKModel.mVerbose  =  false;
+    Model  tXTKModel( tModelDimension, tBackgroundMesh.get(), tGeometryEngine );
+    tXTKModel.mVerbose = false;
 
     /*!
      * \section XTKCapabilities Core Capabilities
@@ -242,9 +240,8 @@ main( int    argc,
      *  @image html ./figures/conformal_subdivision.png "Conformal subdivision colored by level set field with contour at threshold$"
      *
      */
-    moris::Cell<enum Subdivision_Method> tDecompositionMethods
-            = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
-               Subdivision_Method::C_HIERARCHY_TET4};
+    Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,
+        Subdivision_Method::C_HIERARCHY_TET4 };
 
     /*!
      * With the decomposition methods specified, calling decompose through the XTK model generates the geometry aware domain decomposition.
@@ -252,13 +249,13 @@ main( int    argc,
      * tXTKModel.decompose(tDecompositionMethods);
      * \endcode
      */
-    tXTKModel.decompose(tDecompositionMethods);
+    tXTKModel.decompose( tDecompositionMethods );
 
     /*!
      * Beyond the geometry aware discretization created, XTK has produced and inheritance of all entities to the background mesh and all child
      * element are aware in which part of the domain they belong. To access the discretized mesh, the user is referred to the Cut_Mesh and
      * Background_Mesh classes.
-    * \code{.cpp}
+     * \code{.cpp}
      * Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
      * Background_Mesh const & tXTKMesh = tXTKModel.get_background_mesh();
      * \endcode
@@ -266,22 +263,22 @@ main( int    argc,
      * Other tutorials will go into more detail about using these data structures.
      */
 
-      /*!
-       * \subsection unzip 4.) Interface unzipping
-       */
+    /*!
+     * \subsection unzip 4.) Interface unzipping
+     */
 
-//      tXTKModel.unzip_interface();
+    //      tXTKModel.unzip_interface();
 
-      /*!
-       * \subsection enrichment 4.) Basis Enrichment
-       * For XFEM, a basis enrichment strategy is needed. Enrichment is performed by XTK
-       * through the call to perform_basis_enrichment.
-       * \code{.cpp}
-       *  tXTKModel.perform_basis_enrichment();
-       * \endcode
-       *
-       */
-//      tXTKModel.perform_basis_enrichment();
+    /*!
+     * \subsection enrichment 4.) Basis Enrichment
+     * For XFEM, a basis enrichment strategy is needed. Enrichment is performed by XTK
+     * through the call to perform_basis_enrichment.
+     * \code{.cpp}
+     *  tXTKModel.perform_basis_enrichment();
+     * \endcode
+     *
+     */
+    //      tXTKModel.perform_basis_enrichment();
 
     /*!
      *
@@ -298,13 +295,11 @@ main( int    argc,
      *
      * @image html ./figures/output_mesh.png "Output mesh. Red line - isocontour surface of Sphere 1. Blue line - isocontour surface of Sphere 2$
      */
-    moris::mtk::Mesh* tOutputMesh = tXTKModel.get_output_mesh();
-    std::string tMeshOutputFile = "./xtk_exo/XTK_Tutorial_Multi.e";
-    tOutputMesh->create_output_mesh(tMeshOutputFile);
+    moris::mtk::Mesh* tOutputMesh     = tXTKModel.get_output_mesh();
+    std::string       tMeshOutputFile = "./xtk_exo/XTK_Tutorial_Multi.e";
+    tOutputMesh->create_output_mesh( tMeshOutputFile );
 
     delete tOutputMesh;
 
     gMorisComm.finalize();
-
 }
-

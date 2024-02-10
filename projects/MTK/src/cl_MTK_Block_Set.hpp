@@ -162,7 +162,7 @@ namespace moris
                 if ( mSetClusters.size() > 0 )
                 {
                     // get list of primary IG cells in cluster
-                    moris::Cell< mtk::Cell const * > const &tPrimaryIgCellsInCluster = mSetClusters( 0 )->get_primary_cells_in_cluster();
+                    Vector< mtk::Cell const * > const &tPrimaryIgCellsInCluster = mSetClusters( 0 )->get_primary_cells_in_cluster();
 
                     // set interpolation order for IG cells fixme
                     if ( tPrimaryIgCellsInCluster.size() > 0 )
@@ -191,7 +191,7 @@ namespace moris
              * trivial constructor
              */
             Block_Set( std::string const                     &aName,
-                    moris::Cell< Cluster const * > const &aBlockSetClusters,
+                    Vector< Cluster const * > const &aBlockSetClusters,
                     Matrix< IndexMat > const             &aColors,
                     uint const                           &aSpatialDim )
                     : Set( aName, aBlockSetClusters, aColors, aSpatialDim )
@@ -299,7 +299,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            moris::Cell< Cluster const * >
+            Vector< Cluster const * >
             get_clusters_on_set() const override
             {
                 return mSetClusters;

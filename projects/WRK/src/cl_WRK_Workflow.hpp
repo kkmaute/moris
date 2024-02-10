@@ -13,7 +13,7 @@
 
 #include "cl_OPT_Criteria_Interface.hpp"
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -61,7 +61,7 @@ namespace moris
           protected:
             wrk::Performer_Manager* mPerformerManager;
 
-            Cell< mtk::Field* >                    Fields;
+            Vector< mtk::Field* >                    Fields;
             moris::map< std::string, moris_index > tFieldNameTiIndexMap;
 
             uint mNumCriteria = MORIS_UINT_MAX;

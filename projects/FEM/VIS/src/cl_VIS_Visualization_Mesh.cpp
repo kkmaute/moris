@@ -85,7 +85,7 @@ namespace moris::vis
 
     // ----------------------------------------------------------------------------
 
-    moris::Cell< std::string >
+    Vector< std::string >
     Visualization_Mesh::get_set_names( mtk::EntityRank aSetEntityRank ) const
     {
         if ( aSetEntityRank == mtk::EntityRank::ELEMENT )
@@ -95,7 +95,7 @@ namespace moris::vis
         else if ( aSetEntityRank == mtk::EntityRank::EDGE || aSetEntityRank == mtk::EntityRank::FACE )
         {
             // concatenate list of side set and dbl side sets
-            Cell< std::string > tAllOutputSideSetNames = mSideSetNames;
+            Vector< std::string > tAllOutputSideSetNames = mSideSetNames;
             tAllOutputSideSetNames.append( mDoubleSideSetNames );
 
             // return the list of all side set names to be outputted
@@ -133,7 +133,7 @@ namespace moris::vis
 
     // ----------------------------------------------------------------------------
 
-    moris::Cell< mtk::Cell const * >
+    Vector< mtk::Cell const * >
     Visualization_Mesh::get_set_cells( std::string aSetName ) const
     {
         // get the set's position in the list of all sets
@@ -149,7 +149,7 @@ namespace moris::vis
 
         // initialize list of cells on set to return
         uint                            tNumCellsOnSet = tSet->get_num_cells_on_set( mOnlyPrimary );
-        moris::Cell< const mtk::Cell* > tCellsOnSet( tNumCellsOnSet );
+        Vector< const mtk::Cell* > tCellsOnSet( tNumCellsOnSet );
 
         // collect cells on set
         uint tCellIndexOnSet = 0;
@@ -183,10 +183,10 @@ namespace moris::vis
 
     // ----------------------------------------------------------------------------
 
-    moris::Cell< moris::mtk::Vertex const * >
+    Vector< moris::mtk::Vertex const * >
     Visualization_Mesh::get_all_vertices() const
     {
-        moris::Cell< moris::mtk::Vertex const * > tVerticesCopy( mVertices.size() );
+        Vector< moris::mtk::Vertex const * > tVerticesCopy( mVertices.size() );
         for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
         {
             tVerticesCopy( iVertex ) = mVertices( iVertex );
@@ -427,7 +427,7 @@ namespace moris::vis
         const mtk::Set* tSet = mListOfAllSets( tSetIndex );
 
         // access the list of side clusters on the current set
-        Cell< mtk::Cluster const * > tClustersOnSideSet( 0 );
+        Vector< mtk::Cluster const * > tClustersOnSideSet( 0 );
 
         // depending on the set type, get the list of clusters for the given set
         switch ( tSet->get_set_type() )

@@ -220,7 +220,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -244,7 +244,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
@@ -303,7 +303,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -329,7 +329,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );

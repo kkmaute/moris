@@ -14,7 +14,7 @@
 #include "fn_assert.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Enums.hpp"
 
 namespace moris
@@ -130,7 +130,7 @@ struct Matrix_Field_Info
      */
     void
     add_field_data( Matrix<IdMat>*                    aEntityIds,
-                    moris::Cell<Matrix<Matrix_Type>*> aFieldDataPtr)
+                    Vector<Matrix<Matrix_Type>*> aFieldDataPtr)
     {
         MORIS_ASSERT(!field_has_data(),"Field already has data on it");
         MORIS_ASSERT(aEntityIds->numel() == aFieldDataPtr.size(),"Mismatch dimension between provided entity ids and field data");
@@ -155,7 +155,7 @@ struct Matrix_Field_Info
         return *mEntityIds;
     }
 
-    moris::Cell<Matrix<Matrix_Type>*> const &
+    Vector<Matrix<Matrix_Type>*> const &
     get_field_data() const
     {
         return mFieldData;
@@ -212,7 +212,7 @@ private:
     // Field Data
     const uint mNumCols;
     const uint mNumRows;
-    moris::Cell<Matrix<Matrix_Type>*> mFieldData;
+    Vector<Matrix<Matrix_Type>*> mFieldData;
 
     // Field Entity Ids associated with mFieldData (ordering here matters)
     Matrix<IdMat>* mEntityIds;

@@ -23,8 +23,8 @@ namespace moris::gen
      */
     struct Surface_Mesh_Parameters : public Field_Parameters, public Design_Parameters
     {
-        Cell< real > mOffsets;
-        Cell< real > mScale;
+        Vector< real > mOffsets;
+        Vector< real > mScale;
         std::string  mFilePath;
 
         /**
@@ -76,7 +76,7 @@ namespace moris::gen
          */
         Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
@@ -91,7 +91,7 @@ namespace moris::gen
          * @return Parent edge local coordinate, between -1 and 1
          */
         virtual real compute_intersection_local_coordinate(
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&   aFirstParentNode,
                 const Parent_Node&   aSecondParentNode ) override;
 
@@ -112,7 +112,7 @@ namespace moris::gen
          *
          * @return MTK field
          */
-        Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+        Vector< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -174,7 +174,7 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Cell< real >&           aOutputDesignInfo ) override;
+                Vector< real >&           aOutputDesignInfo ) override;
 
         /**
          * Gets the number of fields the surface mesh has

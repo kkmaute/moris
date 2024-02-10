@@ -14,10 +14,10 @@
 // XTKL: Linear Algebra includes
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // XTKL: Mesh includes
-#include "cl_MTK_Enums.hpp" // For entity rank
+#include "cl_MTK_Enums.hpp"    // For entity rank
 #include "cl_MTK_Mesh.hpp"
 
 // XTKL: Xtk includes
@@ -29,7 +29,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     // forward declaration
     class Model;
@@ -37,21 +37,21 @@ namespace xtk
 
     class Cut_Mesh
     {
-    public:
+      public:
         // ----------------------------------------------------------------------------------
 
         Cut_Mesh();
 
         // ----------------------------------------------------------------------------------
 
-        Cut_Mesh(Model *aModel,
-                 moris::uint aModelDim);
+        Cut_Mesh( Model    *aModel,
+                moris::uint aModelDim );
 
         // ----------------------------------------------------------------------------------
 
-        Cut_Mesh(Model *aModel,
-                 moris::size_t aNumSimpleMesh,
-                 moris::size_t aModelDim);
+        Cut_Mesh( Model      *aModel,
+                moris::size_t aNumSimpleMesh,
+                moris::size_t aModelDim );
 
         // ----------------------------------------------------------------------------------
 
@@ -66,8 +66,8 @@ namespace xtk
          */
         void
         inititalize_new_child_meshes(
-            moris::size_t aNumNewChildMesh,
-            moris::size_t aModelDim);
+                moris::size_t aNumNewChildMesh,
+                moris::size_t aModelDim );
 
         // ----------------------------------------------------------------------------------
 
@@ -80,8 +80,8 @@ namespace xtk
          */
         void
         generate_templated_mesh(
-            moris::size_t aChildMeshIndex,
-            enum TemplateType aTemplate);
+                moris::size_t     aChildMeshIndex,
+                enum TemplateType aTemplate );
 
         // ----------------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ namespace xtk
          */
         void
         generate_templated_mesh(
-            enum TemplateType aTemplate);
+                enum TemplateType aTemplate );
 
         // ----------------------------------------------------------------------------------
 
@@ -101,8 +101,8 @@ namespace xtk
          */
         void
         generate_templated_mesh(
-            Matrix<IndexMat> const &aChildMeshIndices,
-            enum TemplateType aTemplate);
+                Matrix< IndexMat > const &aChildMeshIndices,
+                enum TemplateType         aTemplate );
 
         // ----------------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
         void
         set_child_mesh( moris_index aCMIndex,
-                        Child_Mesh* aChildMesh);
+                Child_Mesh         *aChildMesh );
         /**
          * @ brief Sets up template ancestry with parametric information
          * @param[in] aChildMeshIndex        - simple mesh index
@@ -125,18 +125,18 @@ namespace xtk
          */
         void
         initialize_new_mesh_from_parent_element(
-            moris::size_t aChildMeshIndex,
-            enum TemplateType aTemplate,
-            Matrix<IndexMat> &aNodeIndices,
-            Cell<Matrix<IndexMat>> &aParentEntities);
+                moris::size_t                 aChildMeshIndex,
+                enum TemplateType             aTemplate,
+                Matrix< IndexMat >           &aNodeIndices,
+                Vector< Matrix< IndexMat > > &aParentEntities );
 
         // ----------------------------------------------------------------------------------
 
-        //Modify Template mesh is only useful for unit tests without node vars
+        // Modify Template mesh is only useful for unit tests without node vars
         void
         modify_templated_mesh(
-            moris::size_t aChildMeshIndex,
-            enum TemplateType aTemplate);
+                moris::size_t     aChildMeshIndex,
+                enum TemplateType aTemplate );
 
         // ----------------------------------------------------------------------------------
         /**
@@ -147,10 +147,10 @@ namespace xtk
          */
         void
         add_entity_to_intersect_connectivity(
-            moris::size_t aChildMeshIndex,
-            moris::size_t aDPrime1Ind,
-            moris::size_t aDPrime2Ind,
-            moris::size_t aReturnType);
+                moris::size_t aChildMeshIndex,
+                moris::size_t aDPrime1Ind,
+                moris::size_t aDPrime2Ind,
+                moris::size_t aReturnType );
 
         // ----------------------------------------------------------------------------------
 
@@ -159,14 +159,14 @@ namespace xtk
          */
         void
         add_interface_element(
-            Interface_Element const & aInterfaceElement);
+                Interface_Element const &aInterfaceElement );
 
         // ----------------------------------------------------------------------------------
 
         /*!
          * Get all interface elements
          */
-        moris::Cell<Interface_Element> &
+        Vector< Interface_Element > &
         get_interface_elements();
 
         // ----------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ namespace xtk
         /*!
          * Get the ids of all interface elements
          */
-        moris::Matrix<moris::IdMat>
+        Matrix< IdMat >
         get_interface_element_ids();
 
         // ----------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ namespace xtk
         /*!
          * Get index of extracted (prism) interface elements
          */
-        moris::Matrix<moris::IndexMat>
+        Matrix< IndexMat >
         get_extracted_interface_elements_loc_inds();
 
         // ----------------------------------------------------------------------------------
@@ -194,8 +194,8 @@ namespace xtk
          */
         void
         set_node_index(
-            moris::size_t const &aChildMeshIndex,
-            Matrix<IndexMat> &aNodeInd);
+                moris::size_t const &aChildMeshIndex,
+                Matrix< IndexMat >  &aNodeInd );
 
         // ----------------------------------------------------------------------------------
 
@@ -206,8 +206,8 @@ namespace xtk
          */
         void
         set_node_ids(
-            moris::size_t const &aChildMeshIndex,
-            moris::Matrix<moris::IdMat> &aNodeIds);
+                moris::size_t const &aChildMeshIndex,
+                Matrix< IdMat >     &aNodeIds );
 
         // ----------------------------------------------------------------------------------
 
@@ -218,8 +218,8 @@ namespace xtk
          */
         void
         add_node_ids(
-            moris::size_t const &aChildMeshIndex,
-            Matrix<IdMat> &aNodeIds);
+                moris::size_t const &aChildMeshIndex,
+                Matrix< IdMat >     &aNodeIds );
 
         // ----------------------------------------------------------------------------------
 
@@ -230,8 +230,8 @@ namespace xtk
          */
         void
         set_child_element_ids(
-            moris::size_t const &aChildMeshIndex,
-            moris::moris_id &aElementIdOffset);
+                moris::size_t const &aChildMeshIndex,
+                moris::moris_id     &aElementIdOffset );
 
         // ----------------------------------------------------------------------------------
 
@@ -242,24 +242,24 @@ namespace xtk
          */
         void
         set_child_element_inds(
-            moris::size_t const &aChildMeshIndex,
-            moris::moris_index &aElementIndOffset);
+                moris::size_t const &aChildMeshIndex,
+                moris::moris_index  &aElementIndOffset );
 
         // ----------------------------------------------------------------------------------
 
         /*!
          * Get element Ids in a child mesh
          */
-        moris::Matrix<moris::IdMat> const &
+        Matrix< IdMat > const &
         get_element_ids(
-            moris::size_t const &aChildMeshIndex);
+                moris::size_t const &aChildMeshIndex );
 
         // ----------------------------------------------------------------------------------
 
         /*!
          * Get all element ids in cut mesh
          */
-        moris::Matrix<moris::IdMat>
+        Matrix< IdMat >
         get_all_element_ids();
 
         // ----------------------------------------------------------------------------------
@@ -267,7 +267,7 @@ namespace xtk
         /*!
          * Get all element indices in cut mesh
          */
-        moris::Matrix<moris::IndexMat>
+        Matrix< IndexMat >
         get_all_element_inds();
 
         // ----------------------------------------------------------------------------------
@@ -275,34 +275,34 @@ namespace xtk
         /*!
          * Get element Ids in the cut mesh of a given id
          */
-        Cell<moris::Matrix<moris::IdMat>>
+        Vector< Matrix< IdMat > >
         get_child_elements_by_phase(
-            uint aNumPhases,
-            moris::mtk::Mesh const &aBackgroundMeshData);
+                uint                    aNumPhases,
+                moris::mtk::Mesh const &aBackgroundMeshData );
 
         // ----------------------------------------------------------------------------------
 
         /*!
          * Get element Inds from a child mesh
          */
-        moris::Matrix<moris::IndexMat> const &
+        Matrix< IndexMat > const &
         get_element_inds(
-            moris::size_t const &aChildMeshIndex) const;
+                moris::size_t const &aChildMeshIndex ) const;
 
         // ----------------------------------------------------------------------------------
 
         /*!
          * Get node indices for a given child mesh
          */
-        moris::Matrix<moris::IndexMat> const &
+        Matrix< IndexMat > const &
         get_node_indices(
-            moris::size_t aChildMeshIndex);
+                moris::size_t aChildMeshIndex );
 
         // ----------------------------------------------------------------------------------
 
         void
         set_child_element_topology(
-            mtk::CellTopology aChildCellTopo);
+                mtk::CellTopology aChildCellTopo );
 
         // ----------------------------------------------------------------------------------
 
@@ -318,67 +318,67 @@ namespace xtk
 
         moris::size_t
         get_num_entities(
-            moris::size_t aChildMeshIndex,
-            mtk::EntityRank aEntityRank) const;
+                moris::size_t   aChildMeshIndex,
+                mtk::EntityRank aEntityRank ) const;
 
         // ----------------------------------------------------------------------------------
 
         moris::size_t
         get_num_entities(
-            mtk::EntityRank aEntityRank) const;
+                mtk::EntityRank aEntityRank ) const;
 
         // ----------------------------------------------------------------------------------
 
         moris::moris_index
         get_parent_element_index(
-            moris::size_t aChildMeshIndex);
+                moris::size_t aChildMeshIndex );
 
         // ----------------------------------------------------------------------------------
 
         /*!
-        * Returns all the children elements connected to a provided face index in a single child mesh
-        *
-        * @param[in]  aChildMeshIndex         - Child Mesh Index
-        * @param[in]  aParentFaceIndex        - Parent Face Index
-        * @param[out] aChildrenElementId      - Children Element Global Id
-        * @param[out] aChildrenElementCMInd   - Child element index local to child mesh
-        * @param[out] aFaceOrdinal            - Face Ordinal relative to element
-        */
+         * Returns all the children elements connected to a provided face index in a single child mesh
+         *
+         * @param[in]  aChildMeshIndex         - Child Mesh Index
+         * @param[in]  aParentFaceIndex        - Parent Face Index
+         * @param[out] aChildrenElementId      - Children Element Global Id
+         * @param[out] aChildrenElementCMInd   - Child element index local to child mesh
+         * @param[out] aFaceOrdinal            - Face Ordinal relative to element
+         */
         void get_child_elements_connected_to_parent_facet(
-            moris::moris_index const &aChildMeshIndex,
-            moris::moris_index const &aParentFaceIndex,
-            moris::Matrix<moris::IdMat> &aChildrenElementId,
-            moris::Matrix<moris::IndexMat> &aChildrenElementCMInd,
-            moris::Matrix<moris::IndexMat> &aFaceOrdinal) const;
+                moris::moris_index const &aChildMeshIndex,
+                moris::moris_index const &aParentFaceIndex,
+                Matrix< IdMat >          &aChildrenElementId,
+                Matrix< IndexMat >       &aChildrenElementCMInd,
+                Matrix< IndexMat >       &aFaceOrdinal ) const;
 
         // Outputting Mesh information
 
         // ----------------------------------------------------------------------------------
 
         void pack_cut_mesh_by_phase(
-            moris::size_t const &aMeshIndex,
-            moris::size_t const &aNumPhases,
-            Cell<moris::Matrix<moris::IdMat>> &aElementIds,
-            Cell<moris::Matrix<moris::IdMat>> &aElementCMInds) const;
+                moris::size_t const       &aMeshIndex,
+                moris::size_t const       &aNumPhases,
+                Vector< Matrix< IdMat > > &aElementIds,
+                Vector< Matrix< IdMat > > &aElementCMInds ) const;
 
         // ----------------------------------------------------------------------------------
 
         /*!
-        * pack interface side sets, if phase index not provided all are packaged
-        * flag  = 0 - ids
-        * flag  = 1- indices
-        * flag  = other - cm indices
-        */
-        moris::Matrix<moris::IdMat>
+         * pack interface side sets, if phase index not provided all are packaged
+         * flag  = 0 - ids
+         * flag  = 1- indices
+         * flag  = other - cm indices
+         */
+        Matrix< IdMat >
         pack_interface_sides(
-            moris_index aGeometryIndex,
-            moris_index aPhaseIndex0,
-            moris_index aPhaseIndex1,
-            moris_index aIndexFlag = 0) const;
+                moris_index aGeometryIndex,
+                moris_index aPhaseIndex0,
+                moris_index aPhaseIndex1,
+                moris_index aIndexFlag = 0 ) const;
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix<moris::IndexMat>
+        Matrix< IndexMat >
         pack_interface_sides_loc_inds() const;
 
         // ----------------------------------------------------------------------------------
@@ -386,50 +386,50 @@ namespace xtk
         /*
          * Get full element to node connectivity (ids). Full here means for all children meshes
          */
-        moris::Matrix<moris::IdMat>
+        Matrix< IdMat >
         get_full_element_to_node_glob_ids();
 
         // ----------------------------------------------------------------------------------
 
         /*
-        * Get full element to node connectivity (indices). Full here means for all children meshes
-        */
-        moris::Matrix<moris::IdMat>
+         * Get full element to node connectivity (indices). Full here means for all children meshes
+         */
+        Matrix< IdMat >
         get_full_element_to_node_loc_inds();
 
         // ----------------------------------------------------------------------------------
 
         /*
-        * Get full element to node glob ids by phase
-        */
-        moris::Cell<moris::Matrix<moris::IdMat>>
+         * Get full element to node glob ids by phase
+         */
+        Vector< Matrix< IdMat > >
         get_full_element_to_node_by_phase_glob_ids(
-            moris::uint aNumPhases,
-            moris::mtk::Mesh &aBackgroundMeshData);
+                moris::uint       aNumPhases,
+                moris::mtk::Mesh &aBackgroundMeshData );
 
         // ----------------------------------------------------------------------------------
 
         /*
-        * Get a child mesh reference
-        */
+         * Get a child mesh reference
+         */
         Child_Mesh const &
         get_child_mesh(
-            moris::size_t const &aChildMeshIndex) const;
+                moris::size_t const &aChildMeshIndex ) const;
 
         // ----------------------------------------------------------------------------------
 
         /*
-        * non const version
-        */
+         * non const version
+         */
         Child_Mesh &
         get_child_mesh(
-            moris::size_t const &aChildMeshIndex);
+                moris::size_t const &aChildMeshIndex );
 
         // ----------------------------------------------------------------------------------
 
         void
         set_num_subphases(
-            moris::uint aNumSubPhases);
+                moris::uint aNumSubPhases );
 
         // ----------------------------------------------------------------------------------
 
@@ -443,26 +443,26 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        Matrix<IndexMat> const &
+        Matrix< IndexMat > const &
         get_subphase_to_child_mesh_connectivity();
 
         // ----------------------------------------------------------------------------------
 
         moris_id
         get_subphase_id(
-            moris_index aSubphaseIndex);
+                moris_index aSubphaseIndex );
 
         // ----------------------------------------------------------------------------------
 
         uint
         get_bulk_phase_index(
-            moris_index aSubPhaseIndex);
+                moris_index aSubPhaseIndex );
 
         // ----------------------------------------------------------------------------------
 
         void
         populate_subphase_vector(
-            moris::Matrix<moris::IndexMat> &aSubphase);
+                Matrix< IndexMat > &aSubphase );
         // ----------------------------------------------------------------------------------
 
         moris::Memory_Map
@@ -470,57 +470,57 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-    protected:
+      protected:
         /*!
          * Tell cut mesh about groupings of its children meshes
          */
         void
         add_child_mesh_groups(
-            Cell<Child_Mesh *> &tOwnedChildrenMeshes,
-            Cell<Child_Mesh *> &tNotOwnedChildrenMeshes,
-            Cell<moris_id> &tNotOwnedOwningProc);
+                Vector< Child_Mesh * > &tOwnedChildrenMeshes,
+                Vector< Child_Mesh * > &tNotOwnedChildrenMeshes,
+                Vector< moris_id >     &tNotOwnedOwningProc );
 
         // ----------------------------------------------------------------------------------
         /*!
-             * Get the child meshes which are owned and not shared
-             */
-        Cell<Child_Mesh *> &
+         * Get the child meshes which are owned and not shared
+         */
+        Vector< Child_Mesh * > &
         get_owned_child_meshes();
 
         // ----------------------------------------------------------------------------------
 
         /*!
-             * Get the child mesh which are not owned
-             */
-        Cell<Child_Mesh *> &
+         * Get the child mesh which are not owned
+         */
+        Vector< Child_Mesh * > &
         get_not_owned_child_meshes();
 
         // ----------------------------------------------------------------------------------
 
         /*
-             * Get the not owned children mesh owners
-             */
-        Cell<moris_id> &
+         * Get the not owned children mesh owners
+         */
+        Vector< moris_id > &
         get_not_owned_child_owners();
 
         // ----------------------------------------------------------------------------------
 
         void
-        remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
-                                             Cell<moris::uint> const & aMeshesToDelete,
-                                             Cell<moris_index>       & aCellsToRemoveFromMesh);
+        remove_all_child_meshes_but_selected( Vector< moris::uint > const &aMeshesToKeep,
+                Vector< moris::uint > const                               &aMeshesToDelete,
+                Vector< moris_index >                                     &aCellsToRemoveFromMesh );
 
         // ----------------------------------------------------------------------------------
 
         void
-        reindex_cells(Cell<moris_index> & aOldIndexToNewCellIndex);
+        reindex_cells( Vector< moris_index > &aOldIndexToNewCellIndex );
 
         // ----------------------------------------------------------------------------------
 
         friend Model;
         friend Mesh_Cleanup;
 
-    private:
+      private:
         Model *mModel;
 
         // ----------------------------------------------------------------------------------
@@ -531,37 +531,36 @@ namespace xtk
         moris::size_t mNumberOfChildrenMesh;
 
         // All children meshes
-        Cell<Child_Mesh*> mChildrenMeshes;
+        Vector< Child_Mesh * > mChildrenMeshes;
 
         // Groupings of children meshes determined by parent cell information (pointers to the mChildrenMeshes data)
-        Cell<Child_Mesh *> mOwnedChildrenMeshes;    /* All children meshes which are fully owned by this processor and not shared with another processor */
-        Cell<Child_Mesh *> mNotOwnedChildrenMeshes; /* All children meshes which are shared with another processors and not owned by this processor */
-        Cell<moris_id>     mNotOwnedOwningProc;         /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
+        Vector< Child_Mesh * > mOwnedChildrenMeshes;    /* All children meshes which are fully owned by this processor and not shared with another processor */
+        Vector< Child_Mesh * > mNotOwnedChildrenMeshes; /* All children meshes which are shared with another processors and not owned by this processor */
+        Vector< moris_id >     mNotOwnedOwningProc;     /* For the mOwnedSharedChildrenMeshes, the other processes which share this mesh */
 
         // Interface elements
-        Cell<Interface_Element> mInterfaceElements;
+        Vector< Interface_Element > mInterfaceElements;
 
         // Number of entities total in child meshes and if current count is accurate
         // mutable because some const function need this information, and if the counts
         // are not consistent we need to be able to update these vars
-        mutable bool mConsistentCounts;
-        mutable Cell<moris::size_t> mNumEntities;
+        mutable bool                    mConsistentCounts;
+        mutable Vector< moris::size_t > mNumEntities;
 
         // topology of child elements (i.e. TET4)
         mtk::CellTopology mChildElementTopo;
 
         // number of subphases
-        moris::uint mNumSubPhases;
-        Matrix<IndexMat> mSubPhaseIndexToChildMesh;
-        Matrix<IndexMat> mSubPhaseIndexToChildMeshSubphaseIndex;
+        moris::uint        mNumSubPhases;
+        Matrix< IndexMat > mSubPhaseIndexToChildMesh;
+        Matrix< IndexMat > mSubPhaseIndexToChildMeshSubphaseIndex;
 
-    private:
+      private:
         // ----------------------------------------------------------------------------------
 
         void
         get_entity_counts() const;
     };
-} // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_XTK_CL_XTK_CUT_MESH_HPP_ */
-

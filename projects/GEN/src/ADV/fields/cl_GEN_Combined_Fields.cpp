@@ -17,7 +17,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Combined_Fields::Combined_Fields(
-            Cell< std::shared_ptr< Field > > aFields,
+            Vector< std::shared_ptr< Field > > aFields,
             bool                             aUseMinimum,
             std::string                      aName )
             : Field( Matrix< DDRMat >{{}}, aName )

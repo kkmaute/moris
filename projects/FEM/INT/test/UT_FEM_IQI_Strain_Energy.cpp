@@ -41,7 +41,7 @@
 
 void tConstValFunction_UTIQISTRAINENERGY
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -49,7 +49,7 @@ void tConstValFunction_UTIQISTRAINENERGY
 
 void tFIValDvFunction_UTIQISTRAINENERGY
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::gen::PDV_Type::DENSITY )->val();
@@ -57,7 +57,7 @@ void tFIValDvFunction_UTIQISTRAINENERGY
 
 void tFIDerDvFunction_UTIQISTRAINENERGY
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::gen::PDV_Type::DENSITY )->N();
@@ -145,7 +145,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     fill_uhat_Elast( tDOFHat, 3, 1 );
 
     // create a cell of field interpolators for IWG
-    moris::Cell< Field_Interpolator* > tFIs( 1 );
+    Vector< Field_Interpolator* > tFIs( 1 );
 
     // create the field interpolator
     tFIs( 0 ) = new Field_Interpolator( 3, tFIRule, &tGI, { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
@@ -161,7 +161,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     fill_phat_Elast( tDvHat, 3, 1 );
 
     // create a cell of field interpolators for IWG
-    moris::Cell< Field_Interpolator* > tDvFIs( 1 );
+    Vector< Field_Interpolator* > tDvFIs( 1 );
 
     // create the field interpolator
     tDvFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, { gen::PDV_Type::DENSITY } );
@@ -177,7 +177,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
 
     // FEM parameter lists
-    Cell<Cell<ParameterList>> tParameterList;
+    Vector< Vector<ParameterList>> tParameterList;
     tParameterList.resize( 8 );
 
     tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
@@ -250,13 +250,13 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     // populate the requested leader dof type
     tIQI->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::UX }};
 
-    moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
+    Vector< Vector< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
     tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
 
     tSet->create_requested_IQI_type_map();
 
     // create a field interpolator manager
-    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
+    Vector< Vector< enum MSI::Dof_Type > > tDummy;
     Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
     // populate the field interpolator manager

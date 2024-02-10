@@ -50,14 +50,14 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Cell< Vertex* >
+    Vector< Vertex* >
     Cell_DataBase::get_vertex_pointers() const
     {
         // get number of vertices to obtain how much need to be marched in the coordinate list
         uint tNumVertices = this->get_number_of_vertices();
 
         // initialize the vertices cell
-        moris::Cell< mtk::Vertex* > tVertexPtrs;
+        Vector< mtk::Vertex* > tVertexPtrs;
 
         Vertex** tVertices = mMesh->get_cell_vertices( mCellIndex2 );
         // std::copy( mVertices, mVertices + tNumVertices, ( tVertexPtrs.data() ).data() );

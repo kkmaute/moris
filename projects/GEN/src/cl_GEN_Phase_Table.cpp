@@ -19,7 +19,7 @@ namespace moris::gen
     Phase_Table::Phase_Table(
             uint                aNumGeometries,
             Matrix< DDUMat >    aBulkPhases,
-            Cell< std::string > aPhaseNames )
+            Vector< std::string > aPhaseNames )
             : mNumGeometries( aNumGeometries )
             , mBulkPhases( aBulkPhases )
             , mPhaseNames( aPhaseNames )
@@ -45,7 +45,7 @@ namespace moris::gen
 
     Phase_Table::Phase_Table(
             uint                aNumGeometries,
-            Cell< std::string > aPhaseNames )
+            Vector< std::string > aPhaseNames )
             : Phase_Table(
                     aNumGeometries,
                     linspace< uint >( 0, std::pow( 2, aNumGeometries ) - 1, std::pow( 2, aNumGeometries ) ),
@@ -58,7 +58,7 @@ namespace moris::gen
     Phase_Table::Phase_Table(
             PHASE_FUNCTION      aPhaseFunction,
             uint                aNumPhases,
-            Cell< std::string > aPhaseNames )
+            Vector< std::string > aPhaseNames )
             : Phase_Table( 0, { { aNumPhases - 1 } }, aPhaseNames )
     {
         mPhaseFunction = aPhaseFunction;
@@ -164,7 +164,7 @@ namespace moris::gen
     void
     Phase_Table::set_default_phase_names()
     {
-        mPhaseNames       = Cell< std::string >( mNumPhases );
+        mPhaseNames       = Vector< std::string >( mNumPhases );
         std::string tBase = "p_";
 
         for ( uint tPhaseIndex = 0; tPhaseIndex < mNumPhases; tPhaseIndex++ )
@@ -179,7 +179,7 @@ namespace moris::gen
     Phase_Table::set_phase_function(
             PHASE_FUNCTION      aPhaseFunction,
             uint                aNumPhases,
-            Cell< std::string > aPhaseNames )
+            Vector< std::string > aPhaseNames )
     {
         mNumGeometries = 0;
         mBulkPhases    = { { aNumPhases - 1 } };

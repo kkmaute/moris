@@ -10,7 +10,7 @@
 
 #include "cl_XTK_Field.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     Field::Field( std::string  aFieldLabel,
             moris::moris_index aFieldPhase )
@@ -21,4 +21,4 @@ namespace xtk
         // do nothing besides initializing the member data
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk

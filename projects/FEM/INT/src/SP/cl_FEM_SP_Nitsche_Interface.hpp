@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -85,8 +85,8 @@ namespace moris
              */
             void
             set_dof_type_list(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                    moris::Cell< std::string >&                  aDofStrings,
+                    Vector< Vector< MSI::Dof_Type > >& aDofTypes,
+                    Vector< std::string >&                  aDofStrings,
                     mtk::Leader_Follower                            aIsLeader = mtk::Leader_Follower::LEADER )
             {
                 Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsLeader );
@@ -101,8 +101,8 @@ namespace moris
              */
             void
             set_dv_type_list(
-                    moris::Cell< moris::Cell< gen::PDV_Type > >& aDvTypes,
-                    moris::Cell< std::string >&             aDvStrings,
+                    Vector< Vector< gen::PDV_Type > >& aDvTypes,
+                    Vector< std::string >&             aDvStrings,
                     mtk::Leader_Follower                       aIsLeader = mtk::Leader_Follower::LEADER )
             {
                 Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
@@ -113,7 +113,7 @@ namespace moris
              * get cluster measure tuples
              * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
              */
-            moris::Cell< std::tuple<
+            Vector< std::tuple<
                     fem::Measure_Type,
                     mtk::Primary_Void,
                     mtk::Leader_Follower > >
@@ -131,7 +131,7 @@ namespace moris
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              * dSPdLeaderDOF ( 1 x numDerDof )
              */
-            void eval_dSPdLeaderDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dSPdLeaderDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -139,7 +139,7 @@ namespace moris
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              * dSPdFollowerDOF ( 1 x numDerDof )
              */
-            void eval_dSPdFollowerDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dSPdFollowerDOF( const Vector< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -148,7 +148,7 @@ namespace moris
              * dPPdLeaderDV ( 1 x numDerDv )
              */
             void
-            eval_dSPdLeaderDV( const moris::Cell< gen::PDV_Type >& aDvTypes )
+            eval_dSPdLeaderDV( const Vector< gen::PDV_Type >& aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdLeaderDV: not implemented." );
             }
@@ -160,7 +160,7 @@ namespace moris
              * dSPdFollowerDV ( 1 x numDerDv )
              */
             void
-            eval_dSPdFollowerDV( const moris::Cell< gen::PDV_Type >& aDvTypes )
+            eval_dSPdFollowerDV( const Vector< gen::PDV_Type >& aDvTypes )
             {
                 MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdFollowerDV: not implemented." );
             }

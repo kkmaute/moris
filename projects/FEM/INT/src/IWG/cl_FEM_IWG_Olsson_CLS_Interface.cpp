@@ -94,8 +94,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void IWG_Olsson_CLS_Interface::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
-                                                                      moris::Cell< Matrix< DDRMat > >                & aResidual )
+        void IWG_Olsson_CLS_Interface::compute_jacobian_and_residual( Vector< Vector< Matrix< DDRMat > > > & aJacobians,
+                                                                      Vector< Matrix< DDRMat > >                & aResidual )
         {
             MORIS_ERROR( false, "IWG_Olsson_CLS_Bulk::compute_jacobian_and_residual - Not implemented." );
         }

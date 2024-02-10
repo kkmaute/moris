@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HEX27_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HEX27_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -116,7 +116,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
-            moris::Cell< moris_index >
+            Vector< moris_index >
             get_vertex_path_to_entity_rank_and_ordinal(
                     moris_index aVertexOrdinal,
                     moris_index aOtherEntityOrdinal,
@@ -124,7 +124,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
-            moris::Cell< moris_index >
+            Vector< moris_index >
             get_edge_path_to_entity_rank_and_ordinal(
                     moris_index aEdgeOrdinal,
                     moris_index aOtherEntityOrdinal,

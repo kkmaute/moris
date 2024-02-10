@@ -44,12 +44,12 @@ namespace moris::gen
         real mSpacingZ;
 
         // Additional arguments to pass to the field copy constructor
-        Cell< uint > mVariableIndices;
-        Cell< real > mCoordinates;
+        Vector< uint > mVariableIndices;
+        Vector< real > mCoordinates;
 
         // Copy field and created fields
         std::shared_ptr< Field > mCopyField;
-        Cell< std::shared_ptr< Field > > mCreatedFields;
+        Vector< std::shared_ptr< Field > > mCreatedFields;
 
       public:
 

@@ -111,7 +111,7 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
       protected:
-        moris::Cell< Cluster const * > mDoubleSideSetClusters;
+        Vector< Cluster const * > mDoubleSideSetClusters;
 
         //------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ namespace moris::mtk
          */
         Double_Side_Set(
                 std::string const                    &aName,
-                moris::Cell< Cluster const * > const &aDoubleSideSetClusters,
+                Vector< Cluster const * > const &aDoubleSideSetClusters,
                 Matrix< IndexMat > const             &aColors,
                 uint const                           &aSpatialDim )
                 : Set( aName, aDoubleSideSetClusters, aColors, aSpatialDim )
@@ -210,7 +210,7 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< Cluster const * >
+        Vector< Cluster const * >
         get_clusters_on_set() const override
         {
             return mSetClusters;

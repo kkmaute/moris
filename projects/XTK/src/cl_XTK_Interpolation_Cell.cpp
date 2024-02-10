@@ -20,8 +20,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
 
 }
-

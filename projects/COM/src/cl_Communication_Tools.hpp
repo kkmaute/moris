@@ -22,7 +22,7 @@
 #include "fn_isvector.hpp"
 
 // #include "cl_Bitset.hpp" // CON/src
-#include "cl_Cell.hpp"    // CON/src
+#include "cl_Vector.hpp"    // CON/src
 
 // Mesh specific headers
 // #include "cl_MTK_Enums.hpp" // MTK/src
@@ -459,7 +459,7 @@ namespace moris
      * @param aCommunicationTable List of processors to communicate with
      * @return Map going from processor to position in the communication table
      */
-    Cell< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable );
+    Vector< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable );
 
     //------------------------------------------------------------------------------
 
@@ -474,9 +474,9 @@ namespace moris
     template< typename T >
     void
     communicate_scalars(
-            const Cell< moris_index >& aCommunicationList,
-            const Cell< T >&           aScalarsToSend,
-            Cell< T >&                 aScalarsToReceive )
+            const Vector< moris_index >& aCommunicationList,
+            const Vector< T >&           aScalarsToSend,
+            Vector< T >&                 aScalarsToReceive )
     {
         // only call this when we are in parallel mode
         if ( par_size() > 1 )
@@ -560,8 +560,8 @@ namespace moris
     void
     communicate_mats(
             const Matrix< IdMat >&     aCommunicationList,
-            const Cell< Matrix< T > >& aMatsToSend,
-            Cell< Matrix< T > >&       aMatsToReceive )
+            const Vector< Matrix< T > >& aMatsToSend,
+            Vector< Matrix< T > >&       aMatsToReceive )
     {
         moris_id tParSize = par_size();
         // only call this when we are in parallel mode
@@ -860,7 +860,7 @@ namespace moris
     void
     all_gather_vector(
             Matrix< MatrixType > const &  aMatToGather,
-            Cell< Matrix< MatrixType > >& aGatheredMats,
+            Vector< Matrix< MatrixType > >& aGatheredMats,
             moris_index                   aTag,
             moris_index                   aFixedDim,
             moris_index                   aBaseProc = 0 )
@@ -961,8 +961,8 @@ namespace moris
      */
     void
     all_gather_cell_of_str(
-            Cell< std::string > const &  aCellToGather,
-            Cell< Cell< std::string > >& aGatheredCells,
+            Vector< std::string > const &  aCellToGather,
+            Vector< Vector< std::string > >& aGatheredCells,
             moris_index                  aTag,
             moris_index                  aBaseProc = 0 );
 
@@ -1028,8 +1028,8 @@ namespace moris
         if ( tMyRank == 0 )
         {
             // create the
-            moris::Cell< Matrix< T > > tMats( tParSize );
-            moris::Cell< moris::uint > tNumRows( tParSize );
+            Vector< Matrix< T > > tMats( tParSize );
+            Vector< moris::uint > tNumRows( tParSize );
 
             tNumRows( tMyRank ) = aMat.n_rows();
             tMats( tMyRank )    = aMat;
@@ -1091,7 +1091,7 @@ namespace moris
 
     template< typename T >
     void
-    print_cell( const Cell< T >& aCell, std::string aString, std::function< void( Cell< T > const &, std::string ) > aPrintFunc = print )
+    print_cell( const Vector< T >& aCell, std::string aString, std::function< void( Vector< T > const &, std::string ) > aPrintFunc = print )
     {
         // define tag
         int tRowCommTag  = 10;
@@ -1102,14 +1102,14 @@ namespace moris
         moris_id tMyRank  = par_rank();
 
         // get data type
-        MPI_Datatype tDataType = get_comm_datatype( (typename Cell< T >::value_type)0 );
+        MPI_Datatype tDataType = get_comm_datatype( (typename Vector< T >::value_type)0 );
 
         // send everything to processor zero
         if ( tMyRank == 0 )
         {
             // create the
-            moris::Cell< moris::Cell< T > > tCells( tParSize );
-            moris::Cell< moris::uint >      tCellSizes( tParSize );
+            Vector< Vector< T > > tCells( tParSize );
+            Vector< moris::uint >      tCellSizes( tParSize );
 
             tCellSizes( tMyRank ) = aCell.size();
             tCells( tMyRank )     = aCell;
@@ -1158,9 +1158,9 @@ namespace moris
     template< typename T >
     void
     communicate_cells(
-            const Cell< moris_index >& aCommunicationList,
-            const Cell< Cell< T > >&   aCellsToSend,
-            Cell< Cell< T > >&         aCellsToReceive )
+            const Vector< moris_index >& aCommunicationList,
+            const Vector< Vector< T > >&   aCellsToSend,
+            Vector< Vector< T > >&         aCellsToReceive )
     {
         moris_id tParSize = par_size();
         // only call this when we are in parallel mode
@@ -1252,12 +1252,12 @@ namespace moris
             }
 
             // clear output matrix
-            Cell< T > tEmpty;
+            Vector< T > tEmpty;
             aCellsToReceive.clear();
             aCellsToReceive.resize( tNumberOfProcs, tEmpty );
 
             // get data type
-            MPI_Datatype tDataType = get_comm_datatype( (typename Cell< T >::value_type)0 );
+            MPI_Datatype tDataType = get_comm_datatype( (typename Vector< T >::value_type)0 );
 
             // send and receive matrices
             for ( moris_id k = 0; k < tNumberOfProcs; ++k )

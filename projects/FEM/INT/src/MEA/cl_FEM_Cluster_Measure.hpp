@@ -14,7 +14,7 @@
 //MRS/COR/src
 #include "moris_typedefs.hpp"
 //#include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 //LNA/src
 #include "cl_Matrix.hpp"
 #include "cl_FEM_Enums.hpp"

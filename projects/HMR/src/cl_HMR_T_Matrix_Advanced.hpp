@@ -16,7 +16,7 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "moris_typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
-#include "cl_Cell.hpp" //CNT/src
+#include "cl_Vector.hpp"       //CNT/src
 #include "cl_HMR_T_Matrix.hpp" //CNT/src
 
 namespace moris::hmr
@@ -133,7 +133,7 @@ namespace moris::hmr
 
                     // calculate the B-Spline T-Matrix
                     Matrix< DDRMat > tB;
-                    Cell< Basis* > tDOFs;
+                    Vector< Basis* > tDOFs;
 
                     this->calculate_t_matrix(
                             tBackgroundElement->get_memory_index(),
@@ -174,7 +174,7 @@ namespace moris::hmr
                             uint tCount = 0;
 
                             // reserve DOF cell
-                            Cell< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
+                            Vector< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
 
                             // reserve matrix with coefficients
                             Matrix< DDRMat > tCoefficients( tNCols, 1 );

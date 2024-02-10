@@ -19,7 +19,7 @@ namespace moris::gen
 {
     Intersection_Node_Level_Set::Intersection_Node_Level_Set(
             uint                     aNodeIndex,
-            const Cell< Background_Node* >& aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -53,7 +53,7 @@ namespace moris::gen
 
         // Get sensitivity values from other ancestors
         Matrix< DDRMat > tSensitivitiesToAdd;
-        const Cell< Basis_Node >& tFieldBasisNodes = this->get_field_basis_nodes();
+        const Vector< Basis_Node >& tFieldBasisNodes = this->get_field_basis_nodes();
         for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs
@@ -107,7 +107,7 @@ namespace moris::gen
         Matrix< DDSMat > tCoordinateDeterminingADVIDs;
 
         // Get sensitivity values from other ancestors
-        const Cell< Basis_Node >& tFieldBasisNodes = this->get_field_basis_nodes();
+        const Vector< Basis_Node >& tFieldBasisNodes = this->get_field_basis_nodes();
         for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
         {
             // Get geometry field sensitivity with respect to ADVs

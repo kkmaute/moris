@@ -11,7 +11,7 @@
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_CELL_HPP_
 #define PROJECTS_GEN_SDF_SRC_CL_SDF_CELL_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Vertex.hpp"
 
@@ -30,7 +30,7 @@ namespace moris
             const moris_id    mID;
 
             // cell with MTK vertices
-            moris::Cell< Vertex * > mVertices;
+            Vector< Vertex * > mVertices;
 
             // flag telling if element is in volume
             bool mElementIsInVolume = false;
@@ -48,7 +48,7 @@ namespace moris
             Cell(   const moris_index          aIndex,
                     const moris_id             aID,
                     const Matrix< IndexMat > & aIndices,
-                    moris::Cell< Vertex * >  & aAllVertices );
+                    Vector< Vertex * >  & aAllVertices );
 
 //-------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            moris::Cell< Vertex * > &
+            Vector< Vertex * > &
             get_vertices()
             {
                 return mVertices;

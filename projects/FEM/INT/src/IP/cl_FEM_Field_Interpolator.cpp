@@ -39,7 +39,7 @@ namespace moris
                 const uint&                        aNumberOfFields,
                 const mtk::Interpolation_Rule&     aFieldInterpolationRule,
                 Geometry_Interpolator*             aGeometryInterpolator,
-                const moris::Cell< MSI::Dof_Type > aDofType )
+                const Vector< MSI::Dof_Type > aDofType )
                 : mNumberOfFields( aNumberOfFields )
                 , mGeometryInterpolator( aGeometryInterpolator )
                 , mDofType( aDofType )
@@ -82,7 +82,7 @@ namespace moris
                 const uint&                    aNumberOfFields,
                 const mtk::Interpolation_Rule& aFieldInterpolationRule,
                 Geometry_Interpolator*         aGeometryInterpolator,
-                const moris::Cell< gen::PDV_Type >  aDvType )
+                const Vector< gen::PDV_Type >  aDvType )
                 : mNumberOfFields( aNumberOfFields )
                 , mGeometryInterpolator( aGeometryInterpolator )
                 , mDvType( aDvType )
@@ -125,7 +125,7 @@ namespace moris
                 const uint&                          aNumberOfFields,
                 const mtk::Interpolation_Rule&       aFieldInterpolationRule,
                 Geometry_Interpolator*               aGeometryInterpolator,
-                const moris::Cell< mtk::Field_Type > aFieldType )
+                const Vector< mtk::Field_Type > aFieldType )
                 : mNumberOfFields( aNumberOfFields )
                 , mGeometryInterpolator( aGeometryInterpolator )
                 , mFieldType( aFieldType )

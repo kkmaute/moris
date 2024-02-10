@@ -229,7 +229,7 @@ namespace moris
 
         void
         IQI_Heat_Method_Penalty::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type >& aDofType,
+                Vector< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&             adQIdu )
         {
             // check whether to compute derivatives

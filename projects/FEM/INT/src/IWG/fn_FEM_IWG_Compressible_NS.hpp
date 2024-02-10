@@ -22,14 +22,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool check_residual_dof_types(
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes );
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes );
 
         //------------------------------------------------------------------------------
 
         bool check_dof_dependencies(
                 fem::Set                                           * aFemSet,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >  & aResidualDofTypes,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >  & aRequestedDofTypeList );
+                const Vector< Vector< MSI::Dof_Type > >  & aResidualDofTypes,
+                const Vector< Vector< MSI::Dof_Type > >  & aRequestedDofTypeList );
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -38,8 +38,8 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & aAMats );
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                Vector< Matrix< DDRMat > >                   & aAMats );
 
         //------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
                 const uint                                          aAind,
                 const uint                                          aYind,
                 Matrix< DDRMat >                                  & adAdY );
@@ -56,7 +56,7 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
                 const Matrix< DDRMat >                            & aVL,
                 const uint                                          aI,
                 Matrix< DDRMat >                                  & aVLdAdY );
@@ -65,7 +65,7 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
                 const Matrix< DDRMat >                            & aVR,
                 const uint                                          aI,
                 Matrix< DDRMat >                                  & adAdYVR );
@@ -76,29 +76,29 @@ namespace moris
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & adA0dDOF );
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                Vector< Matrix< DDRMat > >                   & adA0dDOF );
 
         void eval_A1_DOF(
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & adA1dDOF );
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                Vector< Matrix< DDRMat > >                   & adA1dDOF );
 
         void eval_A2_DOF(
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & adA2dDOF );
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                Vector< Matrix< DDRMat > >                   & adA2dDOF );
 
         void eval_A3_DOF(
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                moris::Cell< Matrix< DDRMat > >                   & adA3dDOF );
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                Vector< Matrix< DDRMat > >                   & adA3dDOF );
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -107,24 +107,24 @@ namespace moris
                 std::shared_ptr< Property >                      aPropDynamicViscosity,
                 std::shared_ptr< Property >                      aPropThermalConductivity,
                 Field_Interpolator_Manager                     * aLeaderFIManager,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > & aK );
+                Vector< Vector< Matrix< DDRMat > > > & aK );
 
         void eval_dKijdxi(
                 std::shared_ptr< Property >       aPropDynamicViscosity,
                 std::shared_ptr< Property >       aPropThermalConductivity,
                 Field_Interpolator_Manager      * aLeaderFIManager,
-                moris::Cell< Matrix< DDRMat > > & adKijdxi );
+                Vector< Matrix< DDRMat > > & adKijdxi );
 
         void eval_KijYj(
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
                 Matrix< DDRMat >                                  & aKijYj );
 
         void eval_KijYji(
                 std::shared_ptr< Constitutive_Model >                aCM,
                 Field_Interpolator_Manager                         * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >  & aResidualDofTypes,
+                const Vector< Vector< MSI::Dof_Type > >  & aResidualDofTypes,
                 Matrix< DDRMat >                                   & aKijYji );
 
         //------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ namespace moris
                 std::shared_ptr< Property >                       aPropThermalConductivity,
                 Field_Interpolator_Manager                      * aLeaderFIManager,
                 const uint                                        aYind,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > >  & adKdY );
+                Vector< Vector< Matrix< DDRMat > > >  & adKdY );
 
         void eval_VL_dKdY(
                 std::shared_ptr< Property >   aPropDynamicViscosity,
@@ -160,7 +160,7 @@ namespace moris
                 Field_Interpolator_Manager      * aLeaderFIManager,
                 const Matrix< DDRMat >          & aVR,
                 const uint                        aJ,
-                moris::Cell< Matrix< DDRMat > > & aVLdKijidY );
+                Vector< Matrix< DDRMat > > & aVLdKijidY );
 
         void eval_dKijidY_VR(
                 std::shared_ptr< Property >       aPropDynamicViscosity,
@@ -168,22 +168,22 @@ namespace moris
                 Field_Interpolator_Manager      * aLeaderFIManager,
                 const Matrix< DDRMat >          & aVR,
                 const uint                        aJ,
-                moris::Cell< Matrix< DDRMat > > & adKijidYVR );
+                Vector< Matrix< DDRMat > > & adKijidYVR );
 
         //------------------------------------------------------------------------------
 
         void eval_KijYjDOF(
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                const moris::Cell< MSI::Dof_Type >                & aDofType,
-                moris::Cell< Matrix< DDRMat > >                   & aKijYjDOF );
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                const Vector< MSI::Dof_Type >                & aDofType,
+                Vector< Matrix< DDRMat > >                   & aKijYjDOF );
 
         void eval_KijYjiDOF(
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aLeaderFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                const moris::Cell< MSI::Dof_Type >                & aDofType,
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                const Vector< MSI::Dof_Type >                & aDofType,
                 Matrix< DDRMat >                                  & aKijYjiDOF );
 
         //------------------------------------------------------------------------------

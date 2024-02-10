@@ -37,7 +37,7 @@ namespace moris
         {
           private:
             //! Field type. Identifier for a field interpolator. Similar to dof type or dv type
-            Cell< mtk::Field_Type > mFieldType;
+            Vector< mtk::Field_Type > mFieldType;
 
             //! Name of IQI which is used to populate field
             std::string mIQIName;
@@ -64,7 +64,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void set_field_type( const moris::Cell< mtk::Field_Type >& aType );
+            void set_field_type( const Vector< mtk::Field_Type >& aType );
 
             //-----------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ namespace moris
             void get_values(
                     Matrix< IndexMat > const &      aIndex,
                     Matrix< DDRMat >&               aValues,
-                    Cell< mtk::Field_Type > const & aFieldTypes );
+                    Vector< mtk::Field_Type > const & aFieldTypes );
 
             //-----------------------------------------------------------------------------
 

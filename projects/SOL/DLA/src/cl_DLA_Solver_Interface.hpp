@@ -12,7 +12,7 @@
 #define SRC_DISTLINALG_CL_SOLVER_INPUT_HPP_
 
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Enums.hpp"
 
@@ -49,17 +49,17 @@ namespace moris
         // Dummy member variable
         moris::Matrix< DDUMat >                        mMat1;
         moris::Matrix< DDSMat >                        mMat5;
-        moris::Cell< Matrix< DDUMat > >                mMat2;
-        moris::Cell< Matrix< DDSMat > >                mMat3;
-        moris::Cell< Matrix< DDRMat > >                mMat6;
-        moris::Cell< moris::Cell< Matrix< DDSMat > > > mMat4;
-        moris::Cell< enum MSI::Dof_Type >              mDummyDofs;
+        Vector< Matrix< DDUMat > >                mMat2;
+        Vector< Matrix< DDSMat > >                mMat3;
+        Vector< Matrix< DDRMat > >                mMat6;
+        Vector< Vector< Matrix< DDSMat > > > mMat4;
+        Vector< enum MSI::Dof_Type >              mDummyDofs;
 
         bool mIsForwardAnalysis = true;
 
       protected:
-        moris::Cell< moris_id > mNonZeroDigonal;
-        moris::Cell< moris_id > mNonZeroOffDigonal;
+        Vector< moris_id > mNonZeroDigonal;
+        Vector< moris_id > mNonZeroOffDigonal;
 
       public:
         /** Destructor */
@@ -249,7 +249,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+        set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::set_requested_dof_types: not set." );
         };
@@ -257,14 +257,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_secondary_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+        set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::set_secondary_dof_types: not set." );
         };
 
         //------------------------------------------------------------------------------
 
-        virtual const moris::Cell< enum MSI::Dof_Type >&
+        virtual const Vector< enum MSI::Dof_Type >&
         get_requested_dof_types()
         {
             MORIS_ERROR( false, "Solver_Interface::get_requested_dof_types: not set." );
@@ -331,7 +331,7 @@ namespace moris
 
         // FIXME pass return value in as reference
         virtual moris::Matrix< DDSMat >
-        get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes )
+        get_my_local_global_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::get_my_local_global_map: not set." );
             return Matrix< DDSMat >( 0, 0 );
@@ -357,7 +357,7 @@ namespace moris
          */
 
         virtual moris::Matrix< DDSMat >
-        get_my_local_global_overlapping_map( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes )
+        get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::get_my_local_global_overlapping_map(): Virtual class not overwritten" );
             return Matrix< DDSMat >( 0, 0 );
@@ -397,14 +397,14 @@ namespace moris
 
         virtual void get_equation_object_rhs(
                 const moris::uint&        aMyElementInd,
-                Cell< Matrix< DDRMat > >& aElementRHS ) = 0;
+                Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void get_equation_object_rhs(
                 const moris::uint&        aMyBlockInd,
                 const moris::uint&        aMyElementInd,
-                Cell< Matrix< DDRMat > >& aElementRHS ) = 0;
+                Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -413,7 +413,7 @@ namespace moris
         get_equation_object_off_diag_rhs(
                 const moris::uint&        aMyBlockInd,
                 const moris::uint&        aMyElementInd,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             MORIS_ERROR( false, "not implemented" );
         };
@@ -424,7 +424,7 @@ namespace moris
         get_equation_object_staggered_rhs(
                 const moris::uint&        aMyEquSetInd,
                 const moris::uint&        aMyElementInd,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             MORIS_ERROR( false, "not implemented" );
         };
@@ -434,7 +434,7 @@ namespace moris
         virtual void get_equation_object_operator_and_rhs(
                 const moris::uint&        aMyElementInd,
                 moris::Matrix< DDRMat >&  aElementMatrix,
-                Cell< Matrix< DDRMat > >& aElementRHS ) = 0;
+                Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -442,7 +442,7 @@ namespace moris
                 const moris::uint&        aMyBlockInd,
                 const moris::uint&        aMyElementInd,
                 moris::Matrix< DDRMat >&  aElementMatrix,
-                Cell< Matrix< DDRMat > >& aElementRHS ) = 0;
+                Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------
 
@@ -494,7 +494,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        virtual const moris::Cell< Matrix< DDUMat > >&
+        virtual const Vector< Matrix< DDUMat > >&
         get_lists_of_ext_index_multigrid()
         {
             MORIS_ERROR( false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid" );
@@ -503,7 +503,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        virtual const moris::Cell< Matrix< DDSMat > >&
+        virtual const Vector< Matrix< DDSMat > >&
         get_lists_of_multigrid_identifiers()
         {
             MORIS_ERROR( false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid" );
@@ -512,7 +512,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        virtual const moris::Cell< moris::Cell< Matrix< DDSMat > > >&
+        virtual const Vector< Vector< Matrix< DDSMat > > >&
         get_multigrid_map()
         {
             MORIS_ERROR( false, "Solver_Interface::get_multigrid_map, Only works with MSI and multigrid" );
@@ -610,7 +610,7 @@ namespace moris
         //---------------------------------------------------------------------------------------------------------
 
         void get_adof_ids_based_on_criteria(
-                moris::Cell< moris::Matrix< IdMat > >& aCriteriaIds,
+                Vector< moris::Matrix< IdMat > >& aCriteriaIds,
                 const moris::real                      aThreshold );
 
         //---------------------------------------------------------------------------------------------------------
@@ -625,7 +625,7 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------
 
-        virtual const moris::Cell< moris::Matrix< DDRMat > >&
+        virtual const Vector< moris::Matrix< DDRMat > >&
         get_criteria( const moris::uint& aMySetInd )
         {
             MORIS_ERROR( false, "Solver_Interface::get_criteria(), not implemented for base class" );
@@ -635,7 +635,7 @@ namespace moris
         //---------------------------------------------------------------------------------------------------------
 
         virtual void
-        set_requested_IQI_names( const moris::Cell< std::string >& aIQINames )
+        set_requested_IQI_names( const Vector< std::string >& aIQINames )
         {
             MORIS_ERROR( false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class" );
         };

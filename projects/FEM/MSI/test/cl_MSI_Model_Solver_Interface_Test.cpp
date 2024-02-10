@@ -204,21 +204,21 @@ namespace moris
 //             * Create list with node pointers which will be assigned to a equation object
 //             *
 //             * \code{.cpp}
-//             * moris::Cell< fem::Node_Base* > tNodeIds_1( 2 );
+//             * Vector< fem::Node_Base* > tNodeIds_1( 2 );
 //             * tNodeIds_1( 0 ) = Node1;       tNodeIds_1( 1 ) = Node2;
 //             * \endcode
 //             */
-//            moris::Cell< fem::Node_Base* > tNodeIds_1( 2 );
+//            Vector< fem::Node_Base* > tNodeIds_1( 2 );
 //            tNodeIds_1( 0 ) = Node1;       tNodeIds_1( 1 ) = Node2;
 //
-//            moris::Cell< fem::Node_Base* > tNodeIds_2( 2 );
+//            Vector< fem::Node_Base* > tNodeIds_2( 2 );
 //            tNodeIds_2( 0 ) = Node1;       tNodeIds_2( 1 ) = Node2;
 //
 //            /*!
 //             * Create  equation objects. Equation objects have a list with nodes assigned
 //             *
 //             * \code{.cpp}
-//             * moris::Cell < Equation_Object* > tListEqnObj( 2, nullptr );
+//             * Vector < Equation_Object* > tListEqnObj( 2, nullptr );
 //             * Equation_Object EquObj_1( tNodeIds_1 );    Equation_Object EquObj_2( tNodeIds_2 );
 //             * \endcode
 //             */
@@ -263,11 +263,11 @@ namespace moris
 //             * Set a list with equation object pointers. This particular list has a size of 2 and 2 equation objects assigned
 //             *
 //             * \code{.cpp}
-//             * moris::Cell < Equation_Object* > tListEqnObj( 2, nullptr );
+//             * Vector < Equation_Object* > tListEqnObj( 2, nullptr );
 //             * tListEqnObj( 0 ) = & EquObj_1;      tListEqnObj( 1 ) = & EquObj_2;
 //             * \endcode
 //             */
-//            moris::Cell < Equation_Object* > tListEqnObj( 2, nullptr );
+//            Vector < Equation_Object* > tListEqnObj( 2, nullptr );
 //            tListEqnObj( 0 ) = EquObj_1;      tListEqnObj( 1 ) = EquObj_2;
 //
 //            /*!
@@ -379,9 +379,9 @@ namespace moris
 //            Matrix< IdMat > tCommTable( 2, 1 );
 //            moris::uint tNumEquationObjects;
 //            moris::uint tNumNodes;
-//            moris::Cell < Equation_Object* >tListEqnObj;
-//            moris::Cell< fem::Node_Base* > tNodeIds_1;
-//            moris::Cell< fem::Node_Base* > tNodeIds_2;
+//            Vector < Equation_Object* >tListEqnObj;
+//            Vector< fem::Node_Base* > tNodeIds_1;
+//            Vector< fem::Node_Base* > tNodeIds_2;
 //
 //            moris::map< moris::sint, moris::sint >  tAdofGlobaltoLocalMap;
 //

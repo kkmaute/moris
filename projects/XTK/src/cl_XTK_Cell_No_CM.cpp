@@ -11,19 +11,20 @@
 #include "cl_XTK_Cell_No_CM.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
-    Cell_XTK_No_CM::Cell_XTK_No_CM(moris::moris_id                 aElementId,
-                                   moris::moris_index              aElementIndex,
-                                   moris::moris_index              aElementOwner,
-                                   std::shared_ptr<mtk::Cell_Info> aCellInfo,
-                                   moris::Cell< mtk::Vertex* >     aVertices)
-    : Cell(aElementId,aElementIndex,aElementOwner, aCellInfo),
-      mCellVertices(aVertices)
-    {}
+    Cell_XTK_No_CM::Cell_XTK_No_CM( moris::moris_id aElementId,
+            moris::moris_index                      aElementIndex,
+            moris::moris_index                      aElementOwner,
+            std::shared_ptr< mtk::Cell_Info >       aCellInfo,
+            Vector< mtk::Vertex* >                  aVertices )
+            : Cell( aElementId, aElementIndex, aElementOwner, aCellInfo )
+            , mCellVertices( aVertices )
+    {
+    }
 
     // ----------------------------------------------------------------------------------
     // Cell get functions
@@ -32,20 +33,19 @@ namespace xtk
     Matrix< DDRMat >
     Cell_XTK_No_CM::get_vertex_coords() const
     {
-        size_t tNumVertices = this->get_number_of_vertices();
+        size_t           tNumVertices = this->get_number_of_vertices();
         Matrix< DDRMat > tVertexCoords;
-        for(size_t i = 0; i<tNumVertices; i++)
+        for ( size_t i = 0; i < tNumVertices; i++ )
         {
-            Matrix<DDRMat> tVertCoord = mCellVertices(i)->get_coords();
+            Matrix< DDRMat > tVertCoord = mCellVertices( i )->get_coords();
 
-            if(i == 0 )
+            if ( i == 0 )
             {
-                tVertexCoords.resize(tNumVertices,tVertCoord.numel());
+                tVertexCoords.resize( tNumVertices, tVertCoord.numel() );
             }
 
-            tVertexCoords.set_row(i,tVertCoord);
+            tVertexCoords.set_row( i, tVertCoord );
         }
         return tVertexCoords;
     }
-}
-
+}    // namespace moris::xtk

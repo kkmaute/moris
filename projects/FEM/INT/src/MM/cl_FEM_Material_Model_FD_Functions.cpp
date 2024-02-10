@@ -21,13 +21,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_EintDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & aEintDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType)
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -113,13 +113,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_EintDotDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & aEintDotDOF_FD,
                 real                                 aPerturbation,
                 fem::FDScheme_Type                   aFDSchemeType)
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -205,14 +205,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_dnEintdxnDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adnEintdxnDOF_FD,
                 real                                 aPerturbation,
                 uint                                 aOrder,
                 fem::FDScheme_Type                   aFDSchemeType)
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -299,14 +299,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_TDvarDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & aTDvarDOF_FD,
                 real                                 aPerturbation,
                 MSI::Dof_Type                        aTDvar,
                 fem::FDScheme_Type                   aFDSchemeType )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -458,14 +458,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_TDvarDotDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & aTDvarDotDOF_FD,
                 real                                 aPerturbation,
                 MSI::Dof_Type                        aTDvar,
                 fem::FDScheme_Type                   aFDSchemeType )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -617,7 +617,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_dnTDvardxnDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adnTDvardxnDOF_FD,
                 real                                 aPerturbation,
                 MSI::Dof_Type                        aTDvar,
@@ -625,7 +625,7 @@ namespace moris
                 fem::FDScheme_Type                   aFDSchemeType )
         {
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 
@@ -777,7 +777,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::eval_QuantityDOF_FD(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & aQuantityDOF_FD,
                 std::string                          aQuantityString,
                 real                                 aPerturbation,
@@ -811,7 +811,7 @@ namespace moris
             }
 
             // get the FD scheme info
-            moris::Cell< moris::Cell< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumPoints = tFDScheme( 0 ).size();
 

@@ -14,7 +14,7 @@
 #include <iostream>
 
 // MORIS header files.
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Param_List.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -51,7 +51,7 @@ namespace moris
             //! Pointer to solver interface
             Solver_Interface* mSolverInterface = nullptr;
 
-            moris::Cell< Time_Solver* > mTimeSolverList;
+            Vector< Time_Solver* > mTimeSolverList;
 
             //!  Pointer to time solver
             Time_Solver* mMyTimeSolver;
@@ -115,7 +115,7 @@ namespace moris
              *
              * @param[in] aFullVector     Solution Vector
              */
-            virtual void solve( moris::Cell< sol::Dist_Vector* >& aFullVector ){};
+            virtual void solve( Vector< sol::Dist_Vector* >& aFullVector ){};
 
             //-------------------------------------------------------------------------------
             /**

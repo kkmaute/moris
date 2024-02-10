@@ -14,7 +14,7 @@
 #include <map>
 //MRS/COR/src
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 //LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -61,9 +61,9 @@ namespace moris
 
                 // storage for chi
                 moris::real mChi;
-                moris::Cell< Matrix< DDRMat > > mdChidu;
-                moris::Cell< Matrix< DDRMat > > mdChidx;
-                moris::Cell< Cell< Matrix< DDRMat > > > mdChidxdu;
+                Vector< Matrix< DDRMat > > mdChidu;
+                Vector< Matrix< DDRMat > > mdChidx;
+                Vector< Vector< Matrix< DDRMat > > > mdChidxdu;
 
                 // flags for fv1 related evaluation
                 bool mFv1Eval = true;
@@ -73,9 +73,9 @@ namespace moris
 
                 // storage for fv1
                 moris::real mFv1;
-                moris::Cell< Matrix< DDRMat > > mdFv1du;
-                moris::Cell< Matrix< DDRMat > > mdFv1dx;
-                moris::Cell< Cell< Matrix< DDRMat > > > mdFv1dxdu;
+                Vector< Matrix< DDRMat > > mdFv1du;
+                Vector< Matrix< DDRMat > > mdFv1dx;
+                Vector< Vector< Matrix< DDRMat > > > mdFv1dxdu;
 
                 // flags for turbulence dynamic viscosity related evaluation
                 bool mTurbDynViscEval = true;
@@ -85,9 +85,9 @@ namespace moris
 
                 // storage for turbulence dynamic viscosity related evaluation
                 Matrix< DDRMat > mTurbDynVisc;
-                moris::Cell< Matrix< DDRMat > > mdTurbDynViscdu;
-                moris::Cell< Matrix< DDRMat > > mdTurbDynViscdx;
-                moris::Cell< Cell< Matrix< DDRMat > > > mdTurbDynViscdxdu;
+                Vector< Matrix< DDRMat > > mdTurbDynViscdu;
+                Vector< Matrix< DDRMat > > mdTurbDynViscdx;
+                Vector< Vector< Matrix< DDRMat > > > mdTurbDynViscdxdu;
 
                 // flags for effective conductivity related evaluation
                 bool mEffDynViscEval = true;
@@ -97,9 +97,9 @@ namespace moris
 
                 // storage for effective conductivity related evaluation
                 Matrix< DDRMat > mEffDynVisc;
-                moris::Cell< Matrix< DDRMat > > mdEffDynViscdu;
-                moris::Cell< Matrix< DDRMat > > mdEffDynViscdx;
-                moris::Cell< Cell< Matrix< DDRMat > > > mdEffDynViscdxdu;
+                Vector< Matrix< DDRMat > > mdEffDynViscdu;
+                Vector< Matrix< DDRMat > > mdEffDynViscdx;
+                Vector< Vector< Matrix< DDRMat > > > mdEffDynViscdxdu;
 
             protected:
 
@@ -151,8 +151,8 @@ namespace moris
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 void set_dof_type_list(
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                        moris::Cell< std::string >                  aDofStrings );
+                        Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                        Vector< std::string >                  aDofStrings );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -161,8 +161,8 @@ namespace moris
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
-                        moris::Cell< moris::Cell< gen::PDV_Type > > aDvTypes,
-                        moris::Cell< std::string >             aDvStrings )
+                        Vector< Vector< gen::PDV_Type > > aDvTypes,
+                        Vector< std::string >             aDvStrings )
                 {
                     Constitutive_Model::set_dv_type_list( aDvTypes );
                 }
@@ -189,7 +189,7 @@ namespace moris
                 /**
                  * evaluate the derivative of the divergence of the flux wrt dof type
                  */
-                void eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_ddivfluxdu( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -212,14 +212,14 @@ namespace moris
                  */
                 void eval_testTraction(
                         const Matrix< DDRMat >             & aNormal,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model flux derivative wrt to a dof type
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  */
-                void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dFluxdDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -228,7 +228,7 @@ namespace moris
                  * @param[ in ] aNormal   normal
                  */
                 void eval_dTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -238,10 +238,10 @@ namespace moris
                  * @param[ in ] aNormal   normal
                  */
                 void eval_dTestTractiondDOF(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal,
                         const Matrix< DDRMat >             & aJump,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * get the the turbulent dynamic viscosity mu_t = rho * vtilde * tf1
@@ -269,7 +269,7 @@ namespace moris
                  * @param[ out ] mdeffconddu derivative of the effective dynamic viscosity wrt dof types
                  */
                 const Matrix< DDRMat > & deffdynviscdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ namespace moris
                  * evaluate the effective dynamic viscosity derivative wrt to dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  */
-                void eval_deffdynviscdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_deffdynviscdu( const Vector< MSI::Dof_Type > & aDofTypes );
 
 
                 //------------------------------------------------------------------------------
@@ -313,7 +313,7 @@ namespace moris
                  * @param[ in ] aOrder order of the space derivative
                  */
                 void eval_deffdynviscdxdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         uint                                 aOrder);
 
                 /**
@@ -324,7 +324,7 @@ namespace moris
                  * @param[ out ] mdeffconddxdu derivative of the effective dynamic viscosity wrt dof types
                  */
                 const Matrix< DDRMat > & deffdynviscdxdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         uint                                 aOrder,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
@@ -348,7 +348,7 @@ namespace moris
                  * evaluate the turbulent dynamic viscosity derivative wrt to dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  */
-                void eval_dturbdynviscdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dturbdynviscdu( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 /**
                  * get the derivative of the turbulent dynamic viscosity wrt dof type
@@ -357,7 +357,7 @@ namespace moris
                  * @param[ out ] mdturbdynviscdu derivative of the turbulent dynamic viscosity wrt dof types
                  */
                 const Matrix< DDRMat > & dturbdynviscdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
@@ -384,7 +384,7 @@ namespace moris
                  * @param[ in ] aOrder order of the space derivative
                  */
                 void eval_dturbdynviscdxdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         uint                                 aOrder);
 
                 /**
@@ -395,7 +395,7 @@ namespace moris
                  * @param[ out ] mdeffconddxdu derivative of the turbulent dynamic viscosity wrt dof types
                  */
                 const Matrix< DDRMat > & dturbdynviscdxdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         uint                                 aOrder,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
@@ -415,7 +415,7 @@ namespace moris
                  * @param[ out ] mdchidu derivative of the chi wrt dof types
                  */
                 const Matrix< DDRMat > & dchidu(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 /**
@@ -436,7 +436,7 @@ namespace moris
                  * @param[ out ] mdchidxdu derivative of the chi wrt dof types
                  */
                 const Matrix< DDRMat > & dchidxdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         uint                                 aOrder,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
@@ -456,7 +456,7 @@ namespace moris
                  * @param[ out ] mdfv1du derivative of fv1 wrt dof types
                  */
                 const Matrix< DDRMat > & dfv1du(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 /**
@@ -477,7 +477,7 @@ namespace moris
                  * @param[ out ] mdfv1dxdu derivative of the fv1 wrt dof types
                  */
                 const Matrix< DDRMat > & dfv1dxdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        const Vector< MSI::Dof_Type > & aDofType,
                         uint                                 aOrder,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
         };

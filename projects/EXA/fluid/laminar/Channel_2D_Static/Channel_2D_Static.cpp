@@ -68,7 +68,7 @@ extern "C"
         // Constant function for properties
         void Func_Const(
                 moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-                moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                 moris::fem::Field_Interpolator_Manager         * aFIManager )
         {
             aPropMatrix = aParameters( 0 );
@@ -77,7 +77,7 @@ extern "C"
         // Inlet velocity function
         void Func_Inlet_U(
                 moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-                moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                 moris::fem::Field_Interpolator_Manager         * aFIManager )
         {
             // unpack parameters
@@ -104,7 +104,7 @@ extern "C"
 
         moris::real Func_Plane(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< real > & aGeometryParameters )
+                const Vector< real > & aGeometryParameters )
         {
             moris::real tXNormal = aGeometryParameters( 0 );
             moris::real tYNormal = aGeometryParameters( 1 );
@@ -117,7 +117,7 @@ extern "C"
             return aReturnValue;
         }
 
-        void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+        void OPTParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -127,7 +127,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false);
         }
 
-        void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+        void HMRParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -163,7 +163,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "adaptive_refinement_level", 0 );
         }
 
-        void XTKParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+        void XTKParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -180,7 +180,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", false );
         }
 
-        void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+        void GENParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 3 );
             tParameterlist( 0 ).resize( 1 );
@@ -215,7 +215,7 @@ extern "C"
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.0,0.0," + std::to_string(tPlaneRight) + ",0.0");
         }
 
-        void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
+        void FEMParameterList( Vector< Vector< ParameterList > > & tParameterList )
         {
             // create a cell of cell of parameter list for fem
             tParameterList.resize( 8 );
@@ -500,7 +500,7 @@ extern "C"
             tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
         }
 
-        void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+        void SOLParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 8 );
             for( uint Ik = 0; Ik < 8; Ik ++ )
@@ -533,7 +533,7 @@ extern "C"
             tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE);
         }
 
-        void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+        void MSIParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -541,7 +541,7 @@ extern "C"
             tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
         }
 
-        void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+        void VISParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -556,7 +556,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "Save_Frequency",1);
         }
 
-        void MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+        void MORISGENERALParameterList( Vector< Vector< ParameterList > > & tParameterlist )
         {
 
         }

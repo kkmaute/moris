@@ -86,7 +86,7 @@ namespace moris::mtk
             mtk::Cell const & tCell = mInputMesh->get_mtk_cell( iCell );
 
             // get the vertex pointers to extract the
-            moris::Cell< Vertex* > tVertexPointers = tCell.get_vertex_pointers();
+            Vector< Vertex* > tVertexPointers = tCell.get_vertex_pointers();
 
             // use the transform to transfer vertex to index and write them in the correct spot of the connectivity info
             std::transform( tVertexPointers.begin(),
@@ -211,9 +211,9 @@ namespace moris::mtk
             Cell_Cluster const & tCluster = mInputMesh->get_cell_cluster( iCluster );
 
             // get the primary , void and vertex pointer of the cells to extact their index
-            moris::Cell< moris::mtk::Cell const * > const & tPrimaryCells = tCluster.get_primary_cells_in_cluster();
-            moris::Cell< moris::mtk::Cell const * > const & tVoidCells    = tCluster.get_void_cells_in_cluster();
-            moris::Cell< moris::mtk::Vertex const * >       tVertex       = tCluster.get_vertices_in_cluster();
+            Vector< moris::mtk::Cell const * > const & tPrimaryCells = tCluster.get_primary_cells_in_cluster();
+            Vector< moris::mtk::Cell const * > const & tVoidCells    = tCluster.get_void_cells_in_cluster();
+            Vector< moris::mtk::Vertex const * >       tVertex       = tCluster.get_vertices_in_cluster();
 
             // fill out the index of the connectivity
             std::transform(
@@ -264,7 +264,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::initialize_side_cluster_data()
     {
         // get the side sets from th mesh
-        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
+        Vector< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         // initialize side set info offSet
         mIGMeshInfo->mSideSetToSideClusterOffset.resize( tSideSets.size() + 1 );
@@ -306,7 +306,7 @@ namespace moris::mtk
         // loop over sets
         for ( auto const & iSet : tSideSets.data() )
         {
-            moris::Cell< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
+            Vector< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
 
             // loop over clusters to populate them with the index
             for ( auto iCluster : tSideClusters )
@@ -345,14 +345,14 @@ namespace moris::mtk
         this->initialize_side_cluster_data();
 
         // get the sets
-        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
+        Vector< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         // initialize the cluster counter
         uint iCounter = 0;
 
         for ( auto&& iSet : tSideSets.data() )
         {
-            moris::Cell< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
+            Vector< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
 
             // loop over the clusters
             for ( const auto& iCluster : tSideClusters )
@@ -362,8 +362,8 @@ namespace moris::mtk
 
                 // get the member data
                 moris::Matrix< moris::IndexMat >                tSideOrdinal  = iCluster->get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCells = iCluster->get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertex       = iCluster->get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCells = iCluster->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertex       = iCluster->get_vertices_in_cluster();
                 uint                                            tIPCellIndex  = iCluster->get_interpolation_cell_index();
 
                 // convert them to indices and append them to the big cell of data
@@ -400,7 +400,7 @@ namespace moris::mtk
         this->initialize_double_sided_cluster_data();
 
         // get the old data of the side sets
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // counter for the double sided cluster
         size_t iCounter = 0;
@@ -415,7 +415,7 @@ namespace moris::mtk
             }
 
             // get the clusters
-            moris::Cell< Cluster const * > tClusters = iSet->get_clusters_on_set();
+            Vector< Cluster const * > tClusters = iSet->get_clusters_on_set();
 
             // loop over the clusters
             for ( const auto& iCluster : tClusters )
@@ -432,7 +432,7 @@ namespace moris::mtk
                 mIGMeshInfo->mDoubleSidedClusterToNewSideClusterIndex( iCounter ) = std::make_pair( tLeaderSideIndex, tFollowerSideIndex );
 
                 // get the leader vertex pairs
-                moris::Cell< moris::mtk::Vertex const * > const & tVertexPairs = iCluster->get_leader_vertex_pairs();
+                Vector< moris::mtk::Vertex const * > const & tVertexPairs = iCluster->get_leader_vertex_pairs();
 
                 // transfer of vertices to the index
                 std::transform( tVertexPairs.cbegin(),
@@ -455,7 +455,7 @@ namespace moris::mtk
         size_t tNumDoubleSidedCluster = 0;
 
         // get the double side set
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tSideSets = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tSideSets = mInputMesh->get_double_side_sets();
 
         // set counter
         uint iCounterSet = 0;
@@ -504,7 +504,7 @@ namespace moris::mtk
             }
 
             // clusters on the set
-            moris::Cell< Cluster const * > tClusters = iSet->get_clusters_on_set();
+            Vector< Cluster const * > tClusters = iSet->get_clusters_on_set();
 
             // loop over the clusters
             for ( mtk::Cluster const * iCluster : tClusters )
@@ -529,7 +529,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::initialize_ghost_data()
     {
         // get double sided sets
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // number of ghost dbl sided sets
         size_t tNumberOfGhostSideSets = 0;
@@ -575,7 +575,7 @@ namespace moris::mtk
             if ( std::strstr( iSet->get_set_name().c_str(), "ghost" ) )
             {
                 // clusters on the set
-                moris::Cell< Cluster const * > tClusters = iSet->get_clusters_on_set();
+                Vector< Cluster const * > tClusters = iSet->get_clusters_on_set();
 
                 // update double sided clusters number
                 tNumDoubleSidedCluster += tClusters.size();
@@ -665,7 +665,7 @@ namespace moris::mtk
             if ( std::strstr( iSet->get_set_name().c_str(), "ghost" ) )
             {
                 // clusters on the set
-                moris::Cell< Cluster const * > tClusters = iSet->get_clusters_on_set();
+                Vector< Cluster const * > tClusters = iSet->get_clusters_on_set();
 
                 // loop over the clusters
                 for ( mtk::Cluster const * iCluster : tClusters )
@@ -698,7 +698,7 @@ namespace moris::mtk
         this->initialize_ghost_data();
 
         // get the double sided sets
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // initialize the counters
         size_t      iDblSideCluster    = 0;
@@ -713,7 +713,7 @@ namespace moris::mtk
             if ( std::strstr( iSet->get_set_name().c_str(), "ghost" ) )
             {
                 // get clusters on the ghost set
-                moris::Cell< Cluster const * > tClusters = iSet->get_clusters_on_set();
+                Vector< Cluster const * > tClusters = iSet->get_clusters_on_set();
 
                 // loop over the double sided clusters
                 for ( const auto& iCluster : tClusters )
@@ -735,11 +735,11 @@ namespace moris::mtk
                     mOutputMesh->mGhostLeaderFollowerOrd.push_back( tFollowerSideCluster.get_cell_side_ordinals()( 0 ) );
 
                     // get the vertex data of each cluster
-                    moris::Cell< moris::mtk::Vertex const * > tGhostLeaderVertices   = tLeaderSideCluster.get_vertices_in_cluster();
-                    moris::Cell< moris::mtk::Vertex const * > tGhostFollowerVertices = tFollowerSideCluster.get_vertices_in_cluster();
+                    Vector< moris::mtk::Vertex const * > tGhostLeaderVertices   = tLeaderSideCluster.get_vertices_in_cluster();
+                    Vector< moris::mtk::Vertex const * > tGhostFollowerVertices = tFollowerSideCluster.get_vertices_in_cluster();
 
                     // get the leader vertex pairs
-                    moris::Cell< moris::mtk::Vertex const * > const & tVertexPairs = iCluster->get_leader_vertex_pairs();
+                    Vector< moris::mtk::Vertex const * > const & tVertexPairs = iCluster->get_leader_vertex_pairs();
 
                     // transfer vertex pointers to indices
                     std::transform( tVertexPairs.cbegin(),
@@ -811,7 +811,7 @@ namespace moris::mtk
         this->initialize_block_set_data();
 
         // get the block sets
-        moris::Cell< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
+        Vector< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // set the counter
         uint iCounter = 0;
@@ -820,7 +820,7 @@ namespace moris::mtk
         for ( auto const & iSet : tBlockSets.data() )
         {
             // get the clusters
-            moris::Cell< Cluster const * > tClustersOnBlock = iSet->get_clusters_on_set();
+            Vector< Cluster const * > tClustersOnBlock = iSet->get_clusters_on_set();
 
             // generate the indices of the cell cluster
             std::transform( tClustersOnBlock.begin(),
@@ -841,7 +841,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::initialize_block_set_data()
     {
         // get tge block sets from the mesh
-        moris::Cell< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
+        Vector< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // resize the connectivity
         mIGMeshInfo->mBlockSetToCellClusterOffSet.resize( tBlockSets.size() + 1 );
@@ -1168,7 +1168,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_block_sets()
     {
         // call the block sets from the old mesh
-        moris::Cell< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
+        Vector< moris::mtk::Block_Set* > const & tBlockSets = mInputMesh->get_block_sets();
 
         // resize the new list of block sets for the new mesh
         mOutputMesh->mListOfBlocks.resize( tBlockSets.size() );
@@ -1180,7 +1180,7 @@ namespace moris::mtk
         for ( const auto& iSet : tBlockSets.data() )
         {
             // create the list of clusters inside the block sets
-            moris::Cell< Cluster const * > aBlockSetClusters;
+            Vector< Cluster const * > aBlockSetClusters;
 
             // resize the cluster list on the set
             aBlockSetClusters.resize( mIGMeshInfo->mBlockSetToCellClusterOffSet( iCounter + 1 ) - mIGMeshInfo->mBlockSetToCellClusterOffSet( iCounter ) );
@@ -1214,7 +1214,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_side_sets()
     {
         // call the old side sets
-        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
+        Vector< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         // resize the new side set list
         mOutputMesh->mListOfSideSets.resize( tSideSets.size() );
@@ -1226,7 +1226,7 @@ namespace moris::mtk
         for ( const auto& iSet : tSideSets.data() )
         {
             // create the list of clusters inside the side set
-            moris::Cell< Cluster const * > aSideSetClusters;
+            Vector< Cluster const * > aSideSetClusters;
 
             // starting index of the side clusters
             uint tStartIndex = mIGMeshInfo->mSideSetToSideClusterOffset( iCounter );
@@ -1235,7 +1235,7 @@ namespace moris::mtk
             aSideSetClusters.resize( mIGMeshInfo->mSideSetToSideClusterOffset( iCounter + 1 ) - mIGMeshInfo->mSideSetToSideClusterOffset( iCounter ) );
 
             // create a cell with the indices of the side clusters within the set
-            moris::Cell< moris_index > tIndexOfSideClusters( mIGMeshInfo->mSideSetToSideClusterOffset( iCounter + 1 ) - mIGMeshInfo->mSideSetToSideClusterOffset( iCounter ) );
+            Vector< moris_index > tIndexOfSideClusters( mIGMeshInfo->mSideSetToSideClusterOffset( iCounter + 1 ) - mIGMeshInfo->mSideSetToSideClusterOffset( iCounter ) );
 
             // populate the indices of the side clusters,  they are consecutive by construction in the IG data base
             std::iota( tIndexOfSideClusters.begin(), tIndexOfSideClusters.end(), tStartIndex );
@@ -1280,7 +1280,7 @@ namespace moris::mtk
             mtk::Cluster const * tFollowerCluster = &mOutputMesh->mSideClusters( mIGMeshInfo->mDoubleSidedClusterToNewSideClusterIndex( iDblCluster ).second );
 
             // initialize the vertex pairs of the double sided clusters with the right size
-            moris::Cell< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster + 1 ) - mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ) );
+            Vector< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster + 1 ) - mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ) );
 
             // transform the vertex pairs indices to the pointers
             std::transform( mIGMeshInfo->mDoubleSidedClusterToPairedVerticesIndex.begin() + mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ),
@@ -1302,7 +1302,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_double_sided_sets()
     {
         // get the old double sided sets
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // resize the new double sided sets
         mOutputMesh->mListOfDoubleSideSets.resize( tDoubleSideSets.size() );
@@ -1320,7 +1320,7 @@ namespace moris::mtk
             }
 
             // create the list of clusters inside the set
-            moris::Cell< Cluster const * > aSideSetClusters;
+            Vector< Cluster const * > aSideSetClusters;
 
             // starting index of the side clusters
             uint tStartIndex = mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter );
@@ -1329,7 +1329,7 @@ namespace moris::mtk
             aSideSetClusters.resize( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
 
             // create a cell with the indices of the side clusters within the set
-            moris::Cell< moris_index > tIndexOfSideClusters( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
+            Vector< moris_index > tIndexOfSideClusters( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
 
             // populate the indices of the side clusters,  they are consecutive by construction in the IG data base
             std::iota( tIndexOfSideClusters.begin(), tIndexOfSideClusters.end(), tStartIndex );
@@ -1418,7 +1418,7 @@ namespace moris::mtk
             mOutputMesh->mGhostFollower( iCluster ) = tFollowerSideCluster;
 
             // initialize the vertexpair list for the double sided cluster
-            moris::Cell< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mGhostToVertexOffset( iCluster + 1 ) - mIGMeshInfo->mGhostToVertexOffset( iCluster ) );
+            Vector< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mGhostToVertexOffset( iCluster + 1 ) - mIGMeshInfo->mGhostToVertexOffset( iCluster ) );
 
             // transform indices to pointers
             std::transform( mIGMeshInfo->mGhostToVertexPairIndices.begin() + mIGMeshInfo->mGhostToVertexOffset( iCluster ),
@@ -1440,7 +1440,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_ghost_sets()
     {
         // get the double sided sets for the mesh
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // find the start index of the double sided ghost to be added to the list
         size_t iCounterGlobal = tDoubleSideSets.size() - mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset.size() + 1;
@@ -1460,7 +1460,7 @@ namespace moris::mtk
             }
 
             // create the list of clusters inside the set
-            moris::Cell< Cluster const * > aSideSetClusters;
+            Vector< Cluster const * > aSideSetClusters;
 
             // starting index of the side clusters
             uint tStartIndex = mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset( iCounterLocal );
@@ -1469,7 +1469,7 @@ namespace moris::mtk
             aSideSetClusters.resize( mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset( iCounterLocal + 1 ) - mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset( iCounterLocal ) );
 
             // create a cell with the indices of the side clusters within the set
-            moris::Cell< moris_index > tIndexOfSideClusters( mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset( iCounterLocal + 1 ) - mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset( iCounterLocal ) );
+            Vector< moris_index > tIndexOfSideClusters( mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset( iCounterLocal + 1 ) - mIGMeshInfo->mDoubleSidedGhostToSideClusterGhostOffset( iCounterLocal ) );
 
             // populate the indices of the side clusters,  they are consecutive by construction in the IG data base
             std::iota( tIndexOfSideClusters.begin(), tIndexOfSideClusters.end(), tStartIndex );
@@ -1532,7 +1532,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Editor::add_vertices( moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices, Matrix< DDRMat > aVerticesCoords )
+    Integration_Mesh_Editor::add_vertices( Vector< Vector< moris_index > >& aSideClusterToVertexIndices, Matrix< DDRMat > aVerticesCoords )
     {
         // get number of previous vertices from the mesh
         uint tNumPreviousVertices = mOutputMesh->mVertices.size();
@@ -1544,7 +1544,7 @@ namespace moris::mtk
         uint tNumNewVertices2 = std::accumulate( aSideClusterToVertexIndices.data().begin(),
                 aSideClusterToVertexIndices.data().end(),
                 tNumNewVertices,
-                []( uint aContainter, moris::Cell< moris::moris_index > aVertexGroup ) -> uint { return aContainter + aVertexGroup.size(); } );
+                []( uint aContainter, Vector< moris::moris_index > aVertexGroup ) -> uint { return aContainter + aVertexGroup.size(); } );
 
 
         // sum up all the vertices to resize the data
@@ -1625,8 +1625,8 @@ namespace moris::mtk
 
 
     void
-    Integration_Mesh_Editor::add_cells( moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-            moris::Cell< moris::Cell< moris_index > >&                             aCellToVertexIndices )
+    Integration_Mesh_Editor::add_cells( Vector< Vector< moris_index > >& aSideClusterToCells,
+            Vector< Vector< moris_index > >&                             aCellToVertexIndices )
     {
         // get number of previous cells
         uint tNumPreviousCells = mOutputMesh->mCells.size();
@@ -1637,7 +1637,7 @@ namespace moris::mtk
         tNumNewCells      = std::accumulate( aSideClusterToCells.begin(),
                 aSideClusterToCells.end(),
                 tNumNewCells,
-                []( uint aContainter, moris::Cell< moris_index > aVertexGroup ) -> uint { return aContainter + aVertexGroup.size(); } );
+                []( uint aContainter, Vector< moris_index > aVertexGroup ) -> uint { return aContainter + aVertexGroup.size(); } );
 
         // obtain total number of cells after adding cells
         uint tNumAllCells = tNumPreviousCells + tNumNewCells;
@@ -1656,7 +1656,7 @@ namespace moris::mtk
         tNumNewCellToVertex      = std::accumulate( aCellToVertexIndices.begin(),
                 aCellToVertexIndices.end(),
                 tNumNewCellToVertex,
-                []( uint aContainter, moris::Cell< moris::moris_index > aVertexGroup ) -> uint { return aContainter + aVertexGroup.size(); } );
+                []( uint aContainter, Vector< moris::moris_index > aVertexGroup ) -> uint { return aContainter + aVertexGroup.size(); } );
 
         // obtain the previous cell to vertex connectivity size
         uint tNumPreviousCellToVertex    = mOutputMesh->mCellToVertices.size();
@@ -1715,13 +1715,13 @@ namespace moris::mtk
 
     void
     Integration_Mesh_Editor::construct_periodic_data_base(
-            moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
+            Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
             Matrix< DDRMat >                           aVerticesCoords,
-            moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-            moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
-            moris::Cell< moris_index >&                aSideClusterToIPCell,
+            Vector< Vector< moris_index > >& aSideClusterToCells,
+            Vector< Vector< moris_index > >& aCellToVertexIndices,
+            Vector< moris_index >&                aSideClusterToIPCell,
             Matrix< DDRMat >&                          aVertexParametricCoords,
-            moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
+            Vector< moris_index >&                aDoubleSidedClustersIndex,
             uint                                       mNumDblSideCluster,
             uint                                       aNumGeometry )
     {
@@ -1755,10 +1755,10 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Editor::add_side_clusters( moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-            moris::Cell< moris_index >&                                                    aSideClusterToIPCell,
+    Integration_Mesh_Editor::add_side_clusters( Vector< Vector< moris_index > >& aSideClusterToCells,
+            Vector< moris_index >&                                                    aSideClusterToIPCell,
             Matrix< DDRMat >&                                                              aVertexParametricCoords,
-            moris::Cell< moris::Cell< moris_index > >&                                     aSideClusterToVertexIndices )
+            Vector< Vector< moris_index > >&                                     aSideClusterToVertexIndices )
     {
         // get number of parametric coordinates
         uint mNumParamCoords = aVertexParametricCoords.n_rows();
@@ -1772,7 +1772,7 @@ namespace moris::mtk
         tNewSideClusterToIGCell      = std::accumulate( aSideClusterToCells.begin(),
                 aSideClusterToCells.end(),
                 tNewSideClusterToIGCell,
-                []( uint aContainter, moris::Cell< moris::moris_index > aCellGroup ) -> uint { return aContainter + aCellGroup.size(); } );
+                []( uint aContainter, Vector< moris::moris_index > aCellGroup ) -> uint { return aContainter + aCellGroup.size(); } );
 
         // resize the side cluster to ig cell and their side ordinal connectivity
         mOutputMesh->mSideClusterToPrimaryIGCell.resize( tPerviousSideClusterToIGCell + tNewSideClusterToIGCell );
@@ -1909,7 +1909,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Editor::add_double_sided_clusters( uint mNumDblSideCluster, moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices )
+    Integration_Mesh_Editor::add_double_sided_clusters( uint mNumDblSideCluster, Vector< Vector< moris_index > >& aSideClusterToVertexIndices )
     {
         // resize the dbl sided cluster
         mOutputMesh->mDblSideClusters.reserve( mNumDblSideCluster + mOutputMesh->mDblSideClusters.size() );
@@ -1918,7 +1918,7 @@ namespace moris::mtk
         for ( uint iDblSideCluster = 0; iDblSideCluster < mNumDblSideCluster; iDblSideCluster++ )
         {
             // initialize the vertex pairs of the double sided clusters with the right size
-            moris::Cell< mtk::Vertex const * > tVertexPair( aSideClusterToVertexIndices( iDblSideCluster * 2 + 1 ).size() - 1 );
+            Vector< mtk::Vertex const * > tVertexPair( aSideClusterToVertexIndices( iDblSideCluster * 2 + 1 ).size() - 1 );
 
             // transform the vertex pairs indices to the pointers
             std::transform( aSideClusterToVertexIndices( iDblSideCluster * 2 + 1 ).begin(),
@@ -1942,10 +1942,10 @@ namespace moris::mtk
     //------------------------------------------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Editor::add_double_sided_set( moris::Cell< moris_index >& aDoubleSidedClustersIndex, uint aNumGeometry )
+    Integration_Mesh_Editor::add_double_sided_set( Vector< moris_index >& aDoubleSidedClustersIndex, uint aNumGeometry )
     {
         // get number of geometries from the geometry engine
-        moris::Cell< moris::Cell< moris_index > > tDoubleSideSetIndices( aNumGeometry * aNumGeometry );
+        Vector< Vector< moris_index > > tDoubleSideSetIndices( aNumGeometry * aNumGeometry );
 
         // constrcut the phase to phase interaction table
         Matrix< IndexMat > tPhaseInteractionTable( aNumGeometry, aNumGeometry );
@@ -2005,7 +2005,7 @@ namespace moris::mtk
                     moris::Matrix< moris::IndexMat > tColors = { { 0 } };
 
                     // create the list of clusters inside the set
-                    moris::Cell< Cluster const * > tDoubleSideSetClusters( tDoubleSideSetIndices( tPhaseToPhaseIndex ).size() );
+                    Vector< Cluster const * > tDoubleSideSetClusters( tDoubleSideSetIndices( tPhaseToPhaseIndex ).size() );
 
                     // transform with a unary operations indicies to pointers
                     std::transform( tDoubleSideSetIndices( tPhaseToPhaseIndex ).begin(),
@@ -2135,7 +2135,7 @@ namespace moris::mtk
             mOutputMesh->mGhostFollower( iCluster ).set_outward_data();
 
             // initialize the vertexpair list for the double sided cluster
-            moris::Cell< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mGhostToVertexOffset( iCluster + 1 ) - mIGMeshInfo->mGhostToVertexOffset( iCluster ) );
+            Vector< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mGhostToVertexOffset( iCluster + 1 ) - mIGMeshInfo->mGhostToVertexOffset( iCluster ) );
 
             // transform indices to pointers
             std::transform( mIGMeshInfo->mGhostToVertexPairIndices.begin() + mIGMeshInfo->mGhostToVertexOffset( iCluster ),
@@ -2171,7 +2171,7 @@ namespace moris::mtk
             mtk::Cluster const * tFollowerCluster = &mOutputMesh->mSideClusters( mIGMeshInfo->mDoubleSidedClusterToNewSideClusterIndex( iDblCluster ).second );
 
             // initialize the vertex pairs of the double sided clusters with the right size
-            moris::Cell< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster + 1 ) - mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ) );
+            Vector< mtk::Vertex const * > tVertexPair( mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster + 1 ) - mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ) );
 
             // transform the vertex pairs indices to the pointers
             std::transform( mIGMeshInfo->mDoubleSidedClusterToPairedVerticesIndex.begin() + mIGMeshInfo->mDoubleSidedClusterToVertexOffSet( iDblCluster ),
@@ -2189,7 +2189,7 @@ namespace moris::mtk
         // // Double Sided Set Data
 
         // get the old double sided sets
-        moris::Cell< moris::mtk::Double_Side_Set* > tDoubleSideSets = mOutputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > tDoubleSideSets = mOutputMesh->get_double_side_sets();
 
         // counter for the DoubleSidedSets
         size_t iCounter = 0;
@@ -2211,7 +2211,7 @@ namespace moris::mtk
             }
 
             // create the list of clusters inside the set
-            moris::Cell< Cluster const * > aSideSetClusters;
+            Vector< Cluster const * > aSideSetClusters;
 
             // starting index of the side clusters
             uint tStartIndex = mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter );
@@ -2220,7 +2220,7 @@ namespace moris::mtk
             aSideSetClusters.resize( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
 
             // create a cell with the indices of the side clusters within the set
-            moris::Cell< moris_index > tIndexOfSideClusters( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
+            Vector< moris_index > tIndexOfSideClusters( mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter + 1 ) - mIGMeshInfo->mDobleSideSetToDoubleSidedClusterOffset( iCounter ) );
 
             // populate the indices of the side clusters,  they are consecutive by construction in the IG data base
             std::iota( tIndexOfSideClusters.begin(), tIndexOfSideClusters.end(), tStartIndex );
@@ -2263,7 +2263,7 @@ namespace moris::mtk
     Integration_Mesh_Editor::recreate_side_sets()
     {
         // call the old side sets
-        moris::Cell< moris::mtk::Side_Set* > tSideSets = mOutputMesh->get_side_sets();
+        Vector< moris::mtk::Side_Set* > tSideSets = mOutputMesh->get_side_sets();
 
         // resize the new side set list
         mOutputMesh->mListOfSideSets.resize( tSideSets.size() );
@@ -2275,7 +2275,7 @@ namespace moris::mtk
         for ( const auto& iSet : tSideSets.data() )
         {
             // create the list of clusters inside the side set
-            moris::Cell< Cluster const * > aSideSetClusters;
+            Vector< Cluster const * > aSideSetClusters;
 
             // starting index of the side clusters
             uint tStartIndex = mIGMeshInfo->mSideSetToSideClusterOffset( iCounter );
@@ -2284,7 +2284,7 @@ namespace moris::mtk
             aSideSetClusters.resize( mIGMeshInfo->mSideSetToSideClusterOffset( iCounter + 1 ) - mIGMeshInfo->mSideSetToSideClusterOffset( iCounter ) );
 
             // create a cell with the indices of the side clusters within the set
-            moris::Cell< moris_index > tIndexOfSideClusters( mIGMeshInfo->mSideSetToSideClusterOffset( iCounter + 1 ) - mIGMeshInfo->mSideSetToSideClusterOffset( iCounter ) );
+            Vector< moris_index > tIndexOfSideClusters( mIGMeshInfo->mSideSetToSideClusterOffset( iCounter + 1 ) - mIGMeshInfo->mSideSetToSideClusterOffset( iCounter ) );
 
             // populate the indices of the side clusters,  they are consecutive by construction in the IG data base
             std::iota( tIndexOfSideClusters.begin(), tIndexOfSideClusters.end(), tStartIndex );
@@ -2410,8 +2410,8 @@ namespace moris::mtk
             bool tSameCellId = tCellOldMesh.get_id() == tCellNewMesh.get_id();
 
             // get vertices of the cells
-            moris::Cell< Vertex* > tOldVertices = tCellOldMesh.get_vertex_pointers();
-            moris::Cell< Vertex* > tNewVertices = tCellNewMesh.get_vertex_pointers();
+            Vector< Vertex* > tOldVertices = tCellOldMesh.get_vertex_pointers();
+            Vector< Vertex* > tNewVertices = tCellNewMesh.get_vertex_pointers();
 
             // check if the vertices of the cell have the same id and index
             bool tVertexIdAndIndexEqual = std::equal( tOldVertices.begin(),
@@ -2459,16 +2459,16 @@ namespace moris::mtk
             moris::mtk::Cell const & tNewIPCell = tCellClusterNewMesh.get_interpolation_cell();
 
             // extract the primary cells of the clusters
-            moris::Cell< moris::mtk::Cell const * > const & tOldPrimaryCells = tCellClusterOldMesh.get_primary_cells_in_cluster();
-            moris::Cell< moris::mtk::Cell const * > const & tNewPrimaryCells = tCellClusterNewMesh.get_primary_cells_in_cluster();
+            Vector< moris::mtk::Cell const * > const & tOldPrimaryCells = tCellClusterOldMesh.get_primary_cells_in_cluster();
+            Vector< moris::mtk::Cell const * > const & tNewPrimaryCells = tCellClusterNewMesh.get_primary_cells_in_cluster();
 
             // extract the void cells of the clusters
-            moris::Cell< moris::mtk::Cell const * > const & tOldVoidCells = tCellClusterOldMesh.get_void_cells_in_cluster();
-            moris::Cell< moris::mtk::Cell const * > const & tNewVoidCells = tCellClusterNewMesh.get_void_cells_in_cluster();
+            Vector< moris::mtk::Cell const * > const & tOldVoidCells = tCellClusterOldMesh.get_void_cells_in_cluster();
+            Vector< moris::mtk::Cell const * > const & tNewVoidCells = tCellClusterNewMesh.get_void_cells_in_cluster();
 
             // extract the vertices of the clusters
-            moris::Cell< moris::mtk::Vertex const * > tOldVertices = tCellClusterOldMesh.get_vertices_in_cluster();
-            moris::Cell< moris::mtk::Vertex const * > tNewVertices = tCellClusterNewMesh.get_vertices_in_cluster();
+            Vector< moris::mtk::Vertex const * > tOldVertices = tCellClusterOldMesh.get_vertices_in_cluster();
+            Vector< moris::mtk::Vertex const * > tNewVertices = tCellClusterNewMesh.get_vertices_in_cluster();
 
             // compute the cell cluster measures
             moris::real tMeasureLeaderOld = tCellClusterOldMesh.compute_cluster_cell_measure();
@@ -2559,7 +2559,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the side sets
-        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
+        Vector< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         // counter for clusters
         uint iCounter = 0;
@@ -2575,22 +2575,22 @@ namespace moris::mtk
             }
 
             // get the cluster of the old mesh
-            moris::Cell< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
+            Vector< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
 
             // loop over the clusters
             for ( const auto& iCluster : tSideClusters )
             {
                 // get old side cluster data
                 moris::Matrix< moris::IndexMat >                tSideOrdinalOld  = iCluster->get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellsOld = iCluster->get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertexOld       = iCluster->get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCellsOld = iCluster->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertexOld       = iCluster->get_vertices_in_cluster();
                 uint                                            tIPCellIndexOld  = iCluster->get_interpolation_cell_index();
                 Matrix< DDRMat >                                tOldLocalCoords  = iCluster->get_vertices_local_coordinates_wrt_interp_cell();
 
                 // get new side cluster data
                 moris::Matrix< moris::IndexMat >                tSideOrdinalNew = mOutputMesh->mSideClusters( iCounter ).get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellNew = mOutputMesh->mSideClusters( iCounter ).get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertexNew      = mOutputMesh->mSideClusters( iCounter ).get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCellNew = mOutputMesh->mSideClusters( iCounter ).get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertexNew      = mOutputMesh->mSideClusters( iCounter ).get_vertices_in_cluster();
                 uint                                            tIPCellIndexNew = mOutputMesh->mSideClusters( iCounter ).get_interpolation_cell_index();
                 Matrix< DDRMat >                                tNewLocalCoords = mOutputMesh->mSideClusters( iCounter ).get_vertices_local_coordinates_wrt_interp_cell();
 
@@ -2690,14 +2690,14 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old block sets
-        moris::Cell< moris::mtk::Block_Set* > const & tBlocks = mInputMesh->get_block_sets();
+        Vector< moris::mtk::Block_Set* > const & tBlocks = mInputMesh->get_block_sets();
 
         // loop over the blocks
         for ( uint iSet = 0; iSet < mOutputMesh->mListOfBlocks.size(); iSet++ )
         {
             // clusters on the set from the mesh
-            moris::Cell< Cluster const * > tClustersOldMesh = tBlocks( iSet )->get_clusters_on_set();
-            moris::Cell< Cluster const * > tClustersNewMesh = mOutputMesh->mListOfBlocks( iSet )->get_clusters_on_set();
+            Vector< Cluster const * > tClustersOldMesh = tBlocks( iSet )->get_clusters_on_set();
+            Vector< Cluster const * > tClustersNewMesh = mOutputMesh->mListOfBlocks( iSet )->get_clusters_on_set();
 
             // skip check for sets only used for visualization purposes
             if ( !std::strstr( tBlocks( iSet )->get_set_name().c_str(), "Vis" ) )
@@ -2706,14 +2706,14 @@ namespace moris::mtk
                 for ( uint iCluster = 0; iCluster < tClustersNewMesh.size(); iCluster++ )
                 {
                     // member data for the old cluster mesh
-                    moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellsOld  = tClustersOldMesh( iCluster )->get_primary_cells_in_cluster();
-                    moris::Cell< moris::mtk::Vertex const * >       tVertexOld        = tClustersOldMesh( iCluster )->get_vertices_in_cluster();
+                    Vector< moris::mtk::Cell const * > const & tPrimaryCellsOld  = tClustersOldMesh( iCluster )->get_primary_cells_in_cluster();
+                    Vector< moris::mtk::Vertex const * >       tVertexOld        = tClustersOldMesh( iCluster )->get_vertices_in_cluster();
                     uint                                            tIPCellIndexOld   = tClustersOldMesh( iCluster )->get_interpolation_cell_index();
                     moris::real                                     tMeasureLeaderOld = tClustersOldMesh( iCluster )->compute_cluster_cell_measure();
 
                     // member data for the new cluster mesh
-                    moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellNew   = tClustersNewMesh( iCluster )->get_primary_cells_in_cluster();
-                    moris::Cell< moris::mtk::Vertex const * >       tVertexNew        = tClustersNewMesh( iCluster )->get_vertices_in_cluster();
+                    Vector< moris::mtk::Cell const * > const & tPrimaryCellNew   = tClustersNewMesh( iCluster )->get_primary_cells_in_cluster();
+                    Vector< moris::mtk::Vertex const * >       tVertexNew        = tClustersNewMesh( iCluster )->get_vertices_in_cluster();
                     uint                                            tIPCellIndexNew   = tClustersNewMesh( iCluster )->get_interpolation_cell_index();
                     moris::real                                     tMeasureLeaderNew = tClustersNewMesh( iCluster )->compute_cluster_cell_measure();
 
@@ -2772,7 +2772,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old side sets
-        moris::Cell< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
+        Vector< moris::mtk::Side_Set* > const & tSideSets = mInputMesh->get_side_sets();
 
         for ( uint iSet = 0; iSet < mOutputMesh->mListOfSideSets.size(); iSet++ )
         {
@@ -2784,20 +2784,20 @@ namespace moris::mtk
             }
 
             // obtain old and new clusters
-            moris::Cell< Cluster const * > tSideClustersOldMesh = tSideSets( iSet )->get_clusters_on_set();
-            moris::Cell< Cluster const * > tSideClustersNewMesh = mOutputMesh->mListOfSideSets( iSet )->get_clusters_on_set();
+            Vector< Cluster const * > tSideClustersOldMesh = tSideSets( iSet )->get_clusters_on_set();
+            Vector< Cluster const * > tSideClustersNewMesh = mOutputMesh->mListOfSideSets( iSet )->get_clusters_on_set();
 
             for ( uint iCluster = 0; iCluster < tSideClustersNewMesh.size(); iCluster++ )
             {
                 // moris::Matrix< moris::IndexMat >              tSideOrdinalOld  = iCluster->get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellsOld = tSideClustersOldMesh( iCluster )->get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertexOld       = tSideClustersOldMesh( iCluster )->get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCellsOld = tSideClustersOldMesh( iCluster )->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertexOld       = tSideClustersOldMesh( iCluster )->get_vertices_in_cluster();
                 uint                                            tIPCellIndexOld  = tSideClustersOldMesh( iCluster )->get_interpolation_cell_index();
 
 
                 // moris::Matrix< moris::IndexMat >              tSideOrdinalNew = mSideClusters( iCounter ).get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellNew = tSideClustersNewMesh( iCluster )->get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertexNew      = tSideClustersNewMesh( iCluster )->get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCellNew = tSideClustersNewMesh( iCluster )->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertexNew      = tSideClustersNewMesh( iCluster )->get_vertices_in_cluster();
                 uint                                            tIPCellIndexNew = tSideClustersNewMesh( iCluster )->get_interpolation_cell_index();
 
                 // compare the primary ig cell id and index
@@ -2849,7 +2849,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old side sets
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // counter for the clusters
         uint iCounter = 0;
@@ -2864,7 +2864,7 @@ namespace moris::mtk
             }
 
             // get clusters on the set
-            moris::Cell< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
+            Vector< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
 
             for ( const auto& iCluster : tSideClusters )
             {
@@ -2873,14 +2873,14 @@ namespace moris::mtk
 
                 // get the member data of the old mesh
                 moris::Matrix< moris::IndexMat >                tSideOrdinalOld  = tLeaderSideCluster.get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellsOld = tLeaderSideCluster.get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertexOld       = tLeaderSideCluster.get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCellsOld = tLeaderSideCluster.get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertexOld       = tLeaderSideCluster.get_vertices_in_cluster();
                 uint                                            tIPCellIndexOld  = tLeaderSideCluster.get_interpolation_cell_index();
 
                 // get the member data of the new mesh
                 moris::Matrix< moris::IndexMat >                tSideOrdinalNew = mOutputMesh->mDblSideClusters( iCounter ).get_leader_side_cluster().get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellNew = mOutputMesh->mDblSideClusters( iCounter ).get_leader_side_cluster().get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertexNew      = mOutputMesh->mDblSideClusters( iCounter ).get_leader_side_cluster().get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCellNew = mOutputMesh->mDblSideClusters( iCounter ).get_leader_side_cluster().get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertexNew      = mOutputMesh->mDblSideClusters( iCounter ).get_leader_side_cluster().get_vertices_in_cluster();
                 uint                                            tIPCellIndexNew = mOutputMesh->mDblSideClusters( iCounter ).get_leader_side_cluster().get_interpolation_cell_index();
 
                 // compare the local coordinates
@@ -2946,7 +2946,7 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get list of double sided sets
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tDoubleSideSets = mInputMesh->get_double_side_sets();
 
         // counter for number of clusters
         uint iCounter = 0;
@@ -2961,7 +2961,7 @@ namespace moris::mtk
             }
 
             // get clusters from the old mesh
-            moris::Cell< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
+            Vector< Cluster const * > tSideClusters = iSet->get_clusters_on_set();
 
             for ( const auto& iCluster : tSideClusters )
             {
@@ -2970,14 +2970,14 @@ namespace moris::mtk
 
                 // memebr data for the old mesh
                 moris::Matrix< moris::IndexMat >                tSideOrdinalOld  = tLeaderSideCluster.get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellsOld = tLeaderSideCluster.get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertexOld       = tLeaderSideCluster.get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCellsOld = tLeaderSideCluster.get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertexOld       = tLeaderSideCluster.get_vertices_in_cluster();
                 uint                                            tIPCellIndexOld  = tLeaderSideCluster.get_interpolation_cell_index();
 
                 // member data for the new mesh
                 moris::Matrix< moris::IndexMat >                tSideOrdinalNew = mOutputMesh->mGhostDblSidedSet( iCounter ).get_leader_side_cluster().get_cell_side_ordinals();
-                moris::Cell< moris::mtk::Cell const * > const & tPrimaryCellNew = mOutputMesh->mGhostDblSidedSet( iCounter ).get_leader_side_cluster().get_primary_cells_in_cluster();
-                moris::Cell< moris::mtk::Vertex const * >       tVertexNew      = mOutputMesh->mGhostDblSidedSet( iCounter ).get_leader_side_cluster().get_vertices_in_cluster();
+                Vector< moris::mtk::Cell const * > const & tPrimaryCellNew = mOutputMesh->mGhostDblSidedSet( iCounter ).get_leader_side_cluster().get_primary_cells_in_cluster();
+                Vector< moris::mtk::Vertex const * >       tVertexNew      = mOutputMesh->mGhostDblSidedSet( iCounter ).get_leader_side_cluster().get_vertices_in_cluster();
                 uint                                            tIPCellIndexNew = mOutputMesh->mGhostDblSidedSet( iCounter ).get_leader_side_cluster().get_interpolation_cell_index();
 
                 // compare the local coordinates
@@ -3037,8 +3037,8 @@ namespace moris::mtk
         bool tOutput = true;
 
         // get the old and new sets
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tSideSetsOld = mInputMesh->get_double_side_sets();
-        moris::Cell< moris::mtk::Double_Side_Set* > const & tSideSetsNew = mOutputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tSideSetsOld = mInputMesh->get_double_side_sets();
+        Vector< moris::mtk::Double_Side_Set* > const & tSideSetsNew = mOutputMesh->get_double_side_sets();
 
         // loop over the sets
         for ( uint iSet = 0; iSet < tSideSetsOld.size(); iSet++ )
@@ -3050,8 +3050,8 @@ namespace moris::mtk
             MORIS_ASSERT( tSideSetNameOld == tSideSetNameNew, "SideSet Names are not matching" );
 
             // get the old and new clusters
-            moris::Cell< Cluster const * > tSideClustersOldMesh = tSideSetsOld( iSet )->get_clusters_on_set();
-            moris::Cell< Cluster const * > tSideClustersNewMesh = tSideSetsNew( iSet )->get_clusters_on_set();
+            Vector< Cluster const * > tSideClustersOldMesh = tSideSetsOld( iSet )->get_clusters_on_set();
+            Vector< Cluster const * > tSideClustersNewMesh = tSideSetsNew( iSet )->get_clusters_on_set();
 
             // loop over the clusters
             for ( uint iCluster = 0; iCluster < tSideClustersNewMesh.size(); iCluster++ )

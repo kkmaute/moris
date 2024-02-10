@@ -99,7 +99,7 @@
 //                uint tNumOfNodes = tMesh->get_num_nodes();
 //
 //                //create a cell of fem nodes
-//                moris::Cell< fem::Node_Base* > tNodes( tNumOfNodes, nullptr );
+//                Vector< fem::Node_Base* > tNodes( tNumOfNodes, nullptr );
 //
 //                // loop over the mesh nodes
 //                for( uint k = 0; k < tNumOfNodes; k++ )
@@ -122,7 +122,7 @@
 //                fem::IWG_Factory tIWGFactory;
 //
 //                // create a cell of IWGs for the problem considered
-//                moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
+//                Vector< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
 //
 //                // loop over the IWG types
 //                for( uint i = 0; i < tNumOfIWGs; i++)
@@ -142,10 +142,10 @@
 //                tElements.reserve( tNumOfElements );
 //
 //                // get the block names from the mesh
-//                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( mtk::EntityRank::ELEMENT);
+//                Vector<std::string> tBlockSetsNames = tMesh->get_set_names( mtk::EntityRank::ELEMENT);
 //
 //                // Cell containing the block mesh cell ( a cell of mesh cells )
-//                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( mtk::EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+//                Vector<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( mtk::EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
 //
 //                // loop on the blocks
 //                std::cout<<tBlockSetsNames.size()<<std::endl;

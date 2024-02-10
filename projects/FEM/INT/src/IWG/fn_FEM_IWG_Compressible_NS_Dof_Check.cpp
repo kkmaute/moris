@@ -22,7 +22,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool check_residual_dof_types(
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes )
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes )
         {
             // initialize
             bool tCheck = true;
@@ -58,8 +58,8 @@ namespace moris
 
         bool check_dof_dependencies(
                 fem::Set                                          * aFemSet,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aRequestedDofTypeList )
+                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
+                const Vector< Vector< MSI::Dof_Type > > & aRequestedDofTypeList )
         {
             // get and check the number of dof dependencies
             uint tNumDofDependencies = aRequestedDofTypeList.size();

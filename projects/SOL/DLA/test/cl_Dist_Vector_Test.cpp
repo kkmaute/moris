@@ -52,7 +52,7 @@ TEST_CASE("Dist Vector","[Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Cell< Matrix< DDRMat > > tElementRHS;
+            Vector< Matrix< DDRMat > > tElementRHS;
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
@@ -117,7 +117,7 @@ TEST_CASE("Sum Dist Vector","[Sum Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Cell< Matrix< DDRMat > > tElementRHS;
+            Vector< Matrix< DDRMat > > tElementRHS;
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
@@ -188,7 +188,7 @@ TEST_CASE("Scale Dist Vector","[Scale Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Cell< Matrix< DDRMat > > tElementRHS;
+            Vector< Matrix< DDRMat > > tElementRHS;
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
@@ -251,7 +251,7 @@ TEST_CASE("Norm/Length Dist Vector","[Norm Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Cell< Matrix< DDRMat > > tElementRHS;
+            Vector< Matrix< DDRMat > > tElementRHS;
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS
@@ -261,7 +261,7 @@ TEST_CASE("Norm/Length Dist Vector","[Norm Dist Vector],[DistLinAlg]")
         tVectorA->vector_global_assembly();
 
         // Get Vector norm
-        moris::Cell< moris::real > tNorm = tVectorA->vec_norm2();
+        Vector< moris::real > tNorm = tVectorA->vec_norm2();
         // Get local vector lengt
         moris::uint tLocLength = tVectorA->vec_local_length();
         // Get global vector lengt
@@ -316,7 +316,7 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
             Matrix< DDSMat > tElementTopology;
             tSolverInput->get_element_topology(Ii, tElementTopology );
 
-            Cell< Matrix< DDRMat >> tElementRHS;
+            Vector< Matrix< DDRMat >> tElementRHS;
             tSolverInput->get_equation_object_rhs(Ii, tElementRHS );
 
             // Fill elementRHS in distributed RHS

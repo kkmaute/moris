@@ -30,7 +30,7 @@ namespace moris
             private:
             std::shared_ptr<Mesh_Manager>             mMeshManager;
             moris_index                               mMeshIndex;
-            moris::Cell< moris::Cell< std::string > > mMeshSideSetPairs;
+            Vector< Vector< std::string > > mMeshSideSetPairs;
         };
     }
 }

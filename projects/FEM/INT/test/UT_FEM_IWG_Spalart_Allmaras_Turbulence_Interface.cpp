@@ -59,14 +59,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -75,8 +75,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -286,7 +286,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
             fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
@@ -297,7 +297,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
             fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
@@ -330,8 +330,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
             tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager                         tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -426,14 +426,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -442,8 +442,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -654,7 +654,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
             tLeaderDOFHatVis = -1.0 * tLeaderDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
@@ -666,7 +666,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
             tFollowerDOFHatVis = -1.0 * tFollowerDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
@@ -699,8 +699,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
             tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager                         tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -795,14 +795,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -811,8 +811,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1020,7 +1020,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
             fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
@@ -1031,7 +1031,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
             fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
@@ -1064,8 +1064,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
             tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager                         tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -1160,14 +1160,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -1176,8 +1176,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVisDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -1386,7 +1386,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
             tLeaderDOFHatVis = -1.0 * tLeaderDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
@@ -1398,7 +1398,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
             tFollowerDOFHatVis = -1.0 * tFollowerDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
@@ -1431,8 +1431,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
             tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager                         tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

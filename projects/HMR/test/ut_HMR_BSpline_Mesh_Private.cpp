@@ -76,7 +76,7 @@ namespace moris::hmr
                             tParameters.set_refinement_buffer( tOrder );
                             tParameters.set_staircase_buffer( tOrder );
 
-                            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
                             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -103,7 +103,7 @@ namespace moris::hmr
 
                             BSpline_Mesh_Base* tMesh = tHMR.mDatabase->mBSplineMeshes( 0 );
 
-                            Cell< Basis* >& mActiveBasisOnProc = tMesh->mActiveBasisOnProc;
+                            Vector< Basis* >& mActiveBasisOnProc = tMesh->mActiveBasisOnProc;
 
                             tActiveBasis.set_size( mActiveBasisOnProc.size(), 1 );
 
@@ -115,7 +115,7 @@ namespace moris::hmr
 
                             if ( tParameters.use_multigrid() )
                             {
-                                Cell< Basis* >& mRefinedBasisOnProc = tMesh->mRefinedBasisOnProc;
+                                Vector< Basis* >& mRefinedBasisOnProc = tMesh->mRefinedBasisOnProc;
 
                                 tCount = 0;
                                 tRefinedBasis.set_size( mRefinedBasisOnProc.size(), 1 );

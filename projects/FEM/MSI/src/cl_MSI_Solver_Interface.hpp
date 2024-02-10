@@ -53,8 +53,8 @@ namespace moris
             Matrix< DDRMat > mTime;
             Matrix< DDRMat > mPrevTime;
 
-            moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
-            moris::Cell< enum MSI::Dof_Type > mListOfSecondaryDofTypes;
+            Vector< enum MSI::Dof_Type > mListOfDofTypes;
+            Vector< enum MSI::Dof_Type > mListOfSecondaryDofTypes;
 
             mdl::Model* mModel = nullptr;
 
@@ -111,8 +111,8 @@ namespace moris
 
             sol::Dist_Vector*
             get_solution_vector(
-                    const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
-                    moris::Cell< moris_index > const &       aLocalCoefficientsIndices );
+                    const Vector< enum MSI::Dof_Type >& aListOfDofTypes,
+                    Vector< moris_index > const &       aLocalCoefficientsIndices );
 
             //------------------------------------------------------------------------------
 
@@ -200,7 +200,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void
-            set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+            set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
@@ -208,14 +208,14 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void
-            set_secondary_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+            set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
             {
                 mListOfSecondaryDofTypes = aListOfDofTypes;
             };
 
             //------------------------------------------------------------------------------
 
-            const moris::Cell< enum MSI::Dof_Type >&
+            const Vector< enum MSI::Dof_Type >&
             get_requested_dof_types()
             {
                 return mListOfDofTypes;
@@ -223,7 +223,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            const moris::Cell< enum MSI::Dof_Type >&
+            const Vector< enum MSI::Dof_Type >&
             get_secondary_dof_types()
             {
                 return mListOfSecondaryDofTypes;
@@ -317,7 +317,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat >
-            get_my_local_global_map( const moris::Cell< enum Dof_Type >& aListOfDofTypes )
+            get_my_local_global_map( const Vector< enum Dof_Type >& aListOfDofTypes )
             {
                 return mDofMgn->get_local_adof_ids( aListOfDofTypes );
             };
@@ -332,7 +332,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Matrix< DDSMat >
-            get_my_local_global_overlapping_map( const moris::Cell< enum Dof_Type >& aListOfDofTypes )
+            get_my_local_global_overlapping_map( const Vector< enum Dof_Type >& aListOfDofTypes )
             {
                 return mDofMgn->get_local_overlapping_adof_ids( aListOfDofTypes );
             };
@@ -392,7 +392,7 @@ namespace moris
             void
             get_equation_object_rhs(
                     const moris::uint&        aMyElementInd,
-                    Cell< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 mMSI->get_eqn_obj( aMyElementInd )->get_equation_obj_residual( aElementRHS );
             };
@@ -403,7 +403,7 @@ namespace moris
             get_equation_object_rhs(
                     const moris::uint&        aMyEquSetInd,
                     const moris::uint&        aMyElementInd,
-                    Cell< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_residual( aElementRHS );
             };
@@ -412,7 +412,7 @@ namespace moris
             get_equation_object_staggered_rhs(
                     const moris::uint&        aMyEquSetInd,
                     const moris::uint&        aMyElementInd,
-                    Cell< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_staggered_equation_obj_residual( aElementRHS );
             };
@@ -423,7 +423,7 @@ namespace moris
             get_equation_object_off_diag_rhs(
                     const moris::uint&        aMyEquSetInd,
                     const moris::uint&        aMyElementInd,
-                    Cell< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_equation_obj_off_diagonal_residual( aElementRHS );
             };
@@ -434,7 +434,7 @@ namespace moris
             get_equation_object_operator_and_rhs(
                     const moris::uint&        aMyElementInd,
                     Matrix< DDRMat >&         aElementMatrix,
-                    Cell< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 // mMSI->get_eqn_obj( aMyElementInd )->set_time( mTime );
                 mMSI->get_eqn_obj( aMyElementInd )->get_egn_obj_jacobian_and_residual( aElementMatrix, aElementRHS );
@@ -447,7 +447,7 @@ namespace moris
                     const moris::uint&        aMyEquSetInd,
                     const moris::uint&        aMyElementInd,
                     Matrix< DDRMat >&         aElementMatrix,
-                    Cell< Matrix< DDRMat > >& aElementRHS )
+                    Vector< Matrix< DDRMat > >& aElementRHS )
             {
                 // mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->set_time( mTime );
                 mMSI->get_equation_set( aMyEquSetInd )->get_equation_object_list()( aMyElementInd )->get_egn_obj_jacobian_and_residual( aElementMatrix, aElementRHS );
@@ -475,7 +475,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            const moris::Cell< Matrix< DDSMat > >&
+            const Vector< Matrix< DDSMat > >&
             get_lists_of_multigrid_identifiers()
             {
                 return mMSI->get_msi_multigrid_pointer()->get_lists_of_multigrid_identifiers();
@@ -483,7 +483,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            const moris::Cell< Matrix< DDUMat > >&
+            const Vector< Matrix< DDUMat > >&
             get_lists_of_ext_index_multigrid()
             {
                 return mMSI->get_msi_multigrid_pointer()->get_lists_of_ext_index_multigrid();
@@ -491,7 +491,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            const moris::Cell< moris::Cell< Matrix< DDSMat > > >&
+            const Vector< Vector< Matrix< DDSMat > > >&
             get_multigrid_map()
             {
                 return mMSI->get_msi_multigrid_pointer()->get_multigrid_map();
@@ -533,11 +533,11 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            const moris::Cell< moris::Matrix< DDRMat > >& get_criteria( const moris::uint& aMySetInd );
+            const Vector< moris::Matrix< DDRMat > >& get_criteria( const moris::uint& aMySetInd );
 
             //------------------------------------------------------------------------------
 
-            void set_requested_IQI_names( const moris::Cell< std::string >& aIQINames );
+            void set_requested_IQI_names( const Vector< std::string >& aIQINames );
 
             //------------------------------------------------------------------------------
 
@@ -581,10 +581,10 @@ namespace moris
              */
 
             void communicate_shared_adof_connectivity(
-                    moris::Cell< moris::Cell< moris::Cell< uint > > > const & aSharedAdofConn,
-                    moris::Cell< moris::Cell< uint > >&                       aAdofConnectivityReceive,
-                    moris::Cell< moris::Cell< uint > >&                       aAdofConnectivityOffsetReceive,
-                    moris::Cell< moris_index > const &                        aCommCell );
+                    Vector< Vector< Vector< uint > > > const & aSharedAdofConn,
+                    Vector< Vector< uint > >&                       aAdofConnectivityReceive,
+                    Vector< Vector< uint > >&                       aAdofConnectivityOffsetReceive,
+                    Vector< moris_index > const &                        aCommCell );
         };
     }    // namespace MSI
 }    // namespace moris

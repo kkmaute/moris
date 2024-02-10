@@ -44,7 +44,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -62,12 +62,12 @@ namespace moris::hmr
             mtk::Cell_Info_Hex8 tConn;
             Matrix< IndexMat > tVertexToSideMap = tConn.get_node_to_face_map();
 
-            Cell< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
+            Vector< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
 
             // verify vertices on side ordinals
             for ( uint i = 0; i < 6; i++ )
             {
-                Cell< mtk::Vertex const* > tVertsOnSide = tCell.get_vertices_on_side_ordinal( i );
+                Vector< mtk::Vertex const* > tVertsOnSide = tCell.get_vertices_on_side_ordinal( i );
 
                 for ( uint j = 0; j < 4; j++ )
                 {
@@ -111,7 +111,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -129,12 +129,12 @@ namespace moris::hmr
             mtk::Cell_Info_Hex27 tConn;
             Matrix< IndexMat > tVertexToSideMap = tConn.get_node_to_face_map();
 
-            Cell< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
+            Vector< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
 
             // verify vertices on side ordinals
             for ( uint i = 0; i < 6; i++ )
             {
-                Cell< mtk::Vertex const* > tVertsOnSide = tCell.get_vertices_on_side_ordinal( i );
+                Vector< mtk::Vertex const* > tVertsOnSide = tCell.get_vertices_on_side_ordinal( i );
 
                 CHECK( tVertsOnSide.size() == 9 );
 
@@ -180,7 +180,7 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -196,12 +196,12 @@ namespace moris::hmr
             mtk::Cell_Info_Hex64 tConn;
             Matrix< IndexMat > tVertexToSideMap = tConn.get_node_to_face_map();
 
-            Cell< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
+            Vector< mtk::Vertex* > tCellVertices = tCell.get_vertex_pointers();
 
             // verify vertices on side ordinals
             for ( uint i = 0; i < 6; i++ )
             {
-                Cell< mtk::Vertex const* > tVertsOnSide = tCell.get_vertices_on_side_ordinal( i );
+                Vector< mtk::Vertex const* > tVertsOnSide = tCell.get_vertices_on_side_ordinal( i );
 
                 CHECK( tVertsOnSide.size() == 16 );
 

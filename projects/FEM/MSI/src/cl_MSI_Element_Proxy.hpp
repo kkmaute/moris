@@ -37,7 +37,7 @@ namespace moris
              * constructor
              *
              */
-            Element_Proxy( const moris::Cell< moris::Cell< fem::Node_Base * > > & aNodeObjs,
+            Element_Proxy( const Vector< Vector< fem::Node_Base * > > & aNodeObjs,
                            Matrix< DDRMat > ( *aFunction )(       Matrix< DDRMat > tMyValues,
                                                                   const moris::uint      aEquationObjectInd  ) ) : Equation_Object( aNodeObjs )
             {
@@ -64,7 +64,7 @@ namespace moris
                 //            Matrix< DDRMat > tTMatrix;
                 //            this->build_PADofMap( tTMatrix );
                 //
-                //            moris::Cell< Matrix< DDRMat > > tMyValues;
+                //            Vector< Matrix< DDRMat > > tMyValues;
                 //
                 //            mSolVec->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
                 //

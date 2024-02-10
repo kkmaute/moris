@@ -182,7 +182,7 @@ namespace moris::hmr
     void
     Database::load_refinement_pattern(
             Matrix< DDLUMat >&                aElementCounterPerLevelAndPattern,
-            moris::Cell< Matrix< DDLUMat > >& aElementPerPattern,
+            Vector< Matrix< DDLUMat > >& aElementPerPattern,
             Matrix< DDUMat >&                 aPatternListUniqueMat )
     {
         uint tNumPattern = aElementPerPattern.size();
@@ -202,7 +202,7 @@ namespace moris::hmr
             for ( uint l = 0; l < tNumberOfLevels; ++l )
             {
                 // cell which contains elements
-                Cell< Background_Element_Base* > tElements;
+                Vector< Background_Element_Base* > tElements;
 
                 // collect elements from this level
                 mBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -353,7 +353,7 @@ namespace moris::hmr
             Matrix< DDSMat > tBsplineMeshIndices = mParameters->get_lagrange_to_bspline_mesh( iLagMesh );
 
             // create a cell containing B-Spline meshes associated with current Lagrange mesh
-            Cell< BSpline_Mesh_Base* > tBsplineMeshes( tBsplineMeshIndices.numel() );
+            Vector< BSpline_Mesh_Base* > tBsplineMeshes( tBsplineMeshIndices.numel() );
 
             // pick out B-Spline meshes associated with current Lagrange mesh from HMR-global
             // list of B-Spline meshes and fill container with them
@@ -570,7 +570,7 @@ namespace moris::hmr
         // remember active pattern
         auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
-        const Cell< Matrix< DDUMat > >& tOutputMeshIndices = mParameters->get_output_mesh();
+        const Vector< Matrix< DDUMat > >& tOutputMeshIndices = mParameters->get_output_mesh();
 
         // finalize each of the output meshes
         for ( uint iOutputMesh = 0; iOutputMesh < tOutputMeshIndices( 0 ).numel(); iOutputMesh++ )
@@ -752,10 +752,10 @@ namespace moris::hmr
             Matrix< IdMat > tCommTable;
 
             // matrices to send
-            Cell< Matrix< IdMat > > tSend;
+            Vector< Matrix< IdMat > > tSend;
 
             // matrices to receive
-            Cell< Matrix< IdMat > > tRecv;
+            Vector< Matrix< IdMat > > tRecv;
 
             if ( tMyRank != 0 )
             {
@@ -998,7 +998,7 @@ namespace moris::hmr
         for ( uint l = 0; l < tMinLevel; ++l )
         {
             // container for elements on this level
-            Cell< Background_Element_Base* > tElementList;
+            Vector< Background_Element_Base* > tElementList;
 
             // collect all elements on this level ( without aura )
             mBackgroundMesh->collect_elements_on_level( l, tElementList );
@@ -1023,7 +1023,7 @@ namespace moris::hmr
         for ( uint l = tMinLevel; l <= tMaxLevel; ++l )
         {
             // container for elements on this level
-            Cell< Background_Element_Base* > tElementList;
+            Vector< Background_Element_Base* > tElementList;
 
             // collect all elements on this level ( without aura )
             mBackgroundMesh->collect_elements_on_level( l, tElementList );
@@ -1417,7 +1417,7 @@ namespace moris::hmr
     Matrix< DDUMat >
     Database::create_output_pattern_list()
     {
-        const Cell< Matrix< DDUMat > >& OutputMeshIndex = mParameters->get_output_mesh();
+        const Vector< Matrix< DDUMat > >& OutputMeshIndex = mParameters->get_output_mesh();
 
         Matrix< DDUMat > tPatternList( OutputMeshIndex( 0 ).numel(), 1, MORIS_UINT_MAX );
 
@@ -1480,7 +1480,7 @@ namespace moris::hmr
                 uint tSet = tSideSets( s );
 
                 // collect elements from background mesh
-                Cell< Background_Element_Base* > tBackElements;
+                Vector< Background_Element_Base* > tBackElements;
 
                 mBackgroundMesh->collect_side_set_elements(
                         tPatternList( 0 ),
@@ -1683,7 +1683,7 @@ namespace moris::hmr
     Database::create_extra_refinement_buffer_for_level( const uint aLevel )
     {
         // collect elements from level
-        Cell< Background_Element_Base* > tElementsOfLevel;
+        Vector< Background_Element_Base* > tElementsOfLevel;
 
         // uint tActivationPatter = mParameters->get_working_pattern();
 
@@ -1701,7 +1701,7 @@ namespace moris::hmr
         }
 
         // create container for elements
-        Cell< Background_Element_Base* > tElements( tCount, nullptr );
+        Vector< Background_Element_Base* > tElements( tCount, nullptr );
 
         // reset counter
         tCount = 0;
@@ -1726,7 +1726,7 @@ namespace moris::hmr
                 Background_Element_Base* tParent = tElement->get_parent();
 
                 // container for neighbors
-                Cell< Background_Element_Base* > tNeighbors;
+                Vector< Background_Element_Base* > tNeighbors;
 
                 // get neighbors of parent ( because of the staircase buffer, they must exist )
                 tParent->get_neighbors_from_same_level( tBuffer, tNeighbors );
@@ -1760,7 +1760,7 @@ namespace moris::hmr
         {
             // get element neighbors
             // container for neighbors
-            Cell< Background_Element_Base* > tNeighbors;
+            Vector< Background_Element_Base* > tNeighbors;
 
             // get neighbors of element
             tElement->get_neighbors_from_same_level( tBuffer, tNeighbors );

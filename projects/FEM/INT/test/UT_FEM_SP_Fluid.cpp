@@ -61,14 +61,14 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -77,11 +77,11 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+    Vector< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    Vector< Vector< MSI::Dof_Type > > tVelDofTypes = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropFluidDensity = std::make_shared< fem::Property >();
@@ -322,7 +322,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                     fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
                     // create a cell of field interpolators
-                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+                    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
                     tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -353,8 +353,8 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                     tSPSUPGSA->set_interpolation_order( iInterpOrder );
 
                     // create a field interpolator manager
-                    moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-                    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+                    Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+                    Vector< Vector< enum mtk::Field_Type > > tDummyField;
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
@@ -392,14 +392,14 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         tSPIncFlow->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                         // populate the requested leader dof type for SP
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
                                 tSPIncFlow->get_global_dof_type_list();
 
                         // loop over requested dof type
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPIncFlow->dSPdLeaderDOF( tDofDerivative );
@@ -420,7 +420,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPNitsche->dSPdLeaderDOF( tDofDerivative );
@@ -441,7 +441,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPViscousGhost->dSPdLeaderDOF( tDofDerivative );
@@ -462,7 +462,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPConvectiveGhost->dSPdLeaderDOF( tDofDerivative );
@@ -483,7 +483,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPPressureGhost->dSPdLeaderDOF( tDofDerivative );
@@ -504,7 +504,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
+                            Vector< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
                             Matrix< DDRMat > tdspdu = tSPSUPGSA->dSPdLeaderDOF( tDofDerivative );

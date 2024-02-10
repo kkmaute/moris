@@ -66,12 +66,12 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
-    moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
-    moris::Cell< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
+    Vector< MSI::Dof_Type > tPressureDof = { MSI::Dof_Type::P };
+    Vector< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
+    Vector< MSI::Dof_Type > tTempDof     = { MSI::Dof_Type::TEMP };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
+    Vector< Vector< MSI::Dof_Type > > tDofTypes         = { tPressureDof, tVelocityDof, tTempDof };
+    Vector< Vector< MSI::Dof_Type > > tResidualDofTypes = tDofTypes;
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -285,7 +285,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
             mtk::Interpolation_Order::LINEAR );
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+    Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
     // create the field interpolator density
     tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
@@ -333,8 +333,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
     // create a field interpolator manager
-    moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
-    moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+    Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+    Vector< Vector< enum mtk::Field_Type > > tDummyField;
     Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
     // populate the field interpolator manager
@@ -413,16 +413,16 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
 
     // A - Flux Matrices
     std::cout << "\nChecking A-Matrices ... \n" << std::flush;
-    Cell< Matrix< DDRMat > > tA     = { tChildIWG->A( 0 ), tChildIWG->A( 1 ), tChildIWG->A( 2 ) };
-    Cell< Matrix< DDRMat > > tA_ref = get_reference_A();
+    Vector< Matrix< DDRMat > > tA     = { tChildIWG->A( 0 ), tChildIWG->A( 1 ), tChildIWG->A( 2 ) };
+    Vector< Matrix< DDRMat > > tA_ref = get_reference_A();
     REQUIRE( fem::check( tA( 0 ), tA_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( tA( 1 ), tA_ref( 1 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( tA( 2 ), tA_ref( 2 ), tEpsilon, true, true, tAbsTol ) );
 
     // K - Flux Matrices
     std::cout << "\nChecking K-Matrices ... \n" << std::flush;
-    Cell< Matrix< DDRMat > > tK     = { tChildIWG->K( 0, 0 ), tChildIWG->K( 0, 1 ), tChildIWG->K( 1, 0 ), tChildIWG->K( 1, 1 ) };
-    Cell< Matrix< DDRMat > > tK_ref = get_reference_K();
+    Vector< Matrix< DDRMat > > tK     = { tChildIWG->K( 0, 0 ), tChildIWG->K( 0, 1 ), tChildIWG->K( 1, 0 ), tChildIWG->K( 1, 1 ) };
+    Vector< Matrix< DDRMat > > tK_ref = get_reference_K();
     REQUIRE( fem::check( tK( 0 ), tK_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( tK( 1 ), tK_ref( 1 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( tK( 2 ), tK_ref( 2 ), tEpsilon, true, true, tAbsTol ) );
@@ -430,8 +430,8 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
 
     // K - Flux Matrix derivatives
     std::cout << "\nChecking Kij,i ... \n" << std::flush;
-    Cell< Matrix< DDRMat > > tKiji     = { tChildIWG->Kiji( 0 ), tChildIWG->Kiji( 1 ) };
-    Cell< Matrix< DDRMat > > tKiji_ref = get_reference_Kiji();
+    Vector< Matrix< DDRMat > > tKiji     = { tChildIWG->Kiji( 0 ), tChildIWG->Kiji( 1 ) };
+    Vector< Matrix< DDRMat > > tKiji_ref = get_reference_Kiji();
     REQUIRE( fem::check( tKiji( 0 ), tKiji_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( tKiji( 1 ), tKiji_ref( 1 ), tEpsilon, true, true, tAbsTol ) );
 
@@ -477,16 +477,16 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     REQUIRE( fem::check( tGLS, tGLS_ref, tEpsilon, true, true, tAbsTol ) );
 
     std::cout << "\nChecking dMdY ... \n" << std::flush;
-    Cell< Matrix< DDRMat > > dMdY     = { tChildIWG->dMdY( 0 ), tChildIWG->dMdY( 1 ), tChildIWG->dMdY( 2 ), tChildIWG->dMdY( 3 ) };
-    Cell< Matrix< DDRMat > > dMdY_ref = get_reference_dMdY();
+    Vector< Matrix< DDRMat > > dMdY     = { tChildIWG->dMdY( 0 ), tChildIWG->dMdY( 1 ), tChildIWG->dMdY( 2 ), tChildIWG->dMdY( 3 ) };
+    Vector< Matrix< DDRMat > > dMdY_ref = get_reference_dMdY();
     REQUIRE( fem::check( dMdY( 0 ), dMdY_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( dMdY( 1 ), dMdY_ref( 1 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( dMdY( 2 ), dMdY_ref( 2 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( dMdY( 3 ), dMdY_ref( 3 ), tEpsilon, true, true, tAbsTol ) );
 
     std::cout << "\nChecking dTaudDof ... \n" << std::flush;
-    Cell< Matrix< DDRMat > > dTaudDof_ref = get_reference_dTaudDof();
-    Cell< Matrix< DDRMat > > dTaudDof( 4 );
+    Vector< Matrix< DDRMat > > dTaudDof_ref = get_reference_dTaudDof();
+    Vector< Matrix< DDRMat > > dTaudDof( 4 );
     Matrix< DDRMat > tSelectVec;
     for ( uint j = 0; j < 4; j++ )
     {

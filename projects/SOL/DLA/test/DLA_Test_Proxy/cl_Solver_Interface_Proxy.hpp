@@ -32,9 +32,9 @@ namespace moris
         moris::Matrix< DDRMat >           mElementMatrixValues;            // dense element matrix entries
         moris::uint                       mNumDofsPerElement;              // dofs per element
         moris::Matrix< DDUMat >           mMyConstraintDofs;               // constraint dofs
-        Cell< moris::Matrix< DDRMat > >   mMyRHSValues;                    // Vector with RHS values
+        Vector< moris::Matrix< DDRMat > >   mMyRHSValues;                    // Vector with RHS values
         uint                              mNumRHS = 1;
-        moris::Cell< enum MSI::Dof_Type > mDummyDofs;
+        Vector< enum MSI::Dof_Type > mDummyDofs;
         moris::Matrix< DDRMat >           mElementMassMatrixValues;    // RHS Matrix for Eigen Problem
 
         bool mUseMatrixMarketFiles;    // determines is matrix and RHS comes from MatrixMarket files
@@ -215,7 +215,7 @@ namespace moris
         void
         get_equation_object_rhs(
                 const uint&               aMyElementInd,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             aElementRHS.resize( mNumRHS );
 
@@ -231,7 +231,7 @@ namespace moris
         get_equation_object_rhs(
                 const uint&               aMyBlockInd,
                 const uint&               aMyElementInd,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             aElementRHS.resize( mNumRHS );
 
@@ -247,7 +247,7 @@ namespace moris
         get_equation_object_operator_and_rhs(
                 const moris::uint&        aMyElementInd,
                 Matrix< DDRMat >&         aElementMatrix,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             aElementMatrix = mElementMatrixValues;
 
@@ -266,7 +266,7 @@ namespace moris
                 const moris::uint&        aMyEquSetInd,
                 const moris::uint&        aMyElementInd,
                 Matrix< DDRMat >&         aElementMatrix,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             aElementMatrix = mElementMatrixValues;
 
@@ -304,7 +304,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------------------
 
-        virtual const moris::Cell< enum MSI::Dof_Type >&
+        virtual const Vector< enum MSI::Dof_Type >&
         get_requested_dof_types()
         {
             return mDummyDofs;

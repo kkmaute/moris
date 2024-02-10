@@ -14,7 +14,7 @@
 #include <map>
 //MRS/COR/src
 #include "moris_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 //LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

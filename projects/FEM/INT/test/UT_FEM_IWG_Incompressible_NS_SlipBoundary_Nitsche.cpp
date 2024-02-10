@@ -58,13 +58,13 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC};
             //mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -72,11 +72,11 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+    Vector< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    Vector< Vector< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -316,7 +316,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
             fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -356,8 +356,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
             tIWGVelocity->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum gen::PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -443,13 +443,13 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -457,11 +457,11 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+    Vector< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    Vector< Vector< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -697,7 +697,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
             fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -739,8 +739,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
             tIWGVelocity->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -827,13 +827,13 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -841,11 +841,11 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+    Vector< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    Vector< Vector< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -1046,7 +1046,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
             fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -1088,8 +1088,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
             tIWGPressure->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -1175,13 +1175,13 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -1189,11 +1189,11 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
+    Vector< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    Vector< Vector< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
@@ -1394,7 +1394,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
             fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
@@ -1436,8 +1436,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
             tIWGPressure->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum gen::PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

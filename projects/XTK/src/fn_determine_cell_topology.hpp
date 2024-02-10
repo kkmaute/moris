@@ -15,7 +15,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "fn_MTK_Interpolation_Enum_Int_Conversion.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
 
@@ -185,9 +185,9 @@ namespace xtk
 
     inline mtk::CellTopology
     determine_cell_topology(
-            uint                          aNumSpatialDims,
+            uint                     aNumSpatialDims,
             mtk::Interpolation_Order aInterpolationOrder,
-            mtk::CellShape                aCellShape )
+            mtk::CellShape           aCellShape )
     {
         // call the above function with the enum replaced by integer
         return determine_cell_topology( aNumSpatialDims, mtk::ip_order_enum_to_uint( aInterpolationOrder ), aCellShape );
@@ -373,15 +373,15 @@ namespace xtk
 
     inline uint
     determine_num_nodes(
-            uint                          aNumSpatialDims,
+            uint                     aNumSpatialDims,
             mtk::Interpolation_Order aInterpolationOrder,
-            mtk::CellShape                aCellShape )
+            mtk::CellShape           aCellShape )
     {
         // call the above function with the enum replaced by integer
         return determine_num_nodes( aNumSpatialDims, mtk::ip_order_enum_to_uint( aInterpolationOrder ), aCellShape );
     }
 
     //------------------------------------------------------------------------------
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* fn_determine_cell_topology.hpp */

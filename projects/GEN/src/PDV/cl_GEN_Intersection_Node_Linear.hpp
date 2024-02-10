@@ -32,7 +32,7 @@ namespace moris::gen
          */
         Intersection_Node_Linear(
                 uint                     aNodeIndex,
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
@@ -47,7 +47,7 @@ namespace moris::gen
          *
          * @return Basis nodes for interpolating sensitivities
          */
-        const Cell< Basis_Node >& get_field_basis_nodes() const override;
+        const Vector< Basis_Node >& get_field_basis_nodes() const override;
 
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field

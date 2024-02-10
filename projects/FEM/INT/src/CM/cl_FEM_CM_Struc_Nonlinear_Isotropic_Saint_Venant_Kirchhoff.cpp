@@ -215,7 +215,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_d1PKStressdDOF_2d(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -280,7 +280,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_d1PKStressdDOF_3d(
-        const Cell< MSI::Dof_Type > & aDofTypes )
+        const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -366,7 +366,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_d2PKStressdDOF(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -406,7 +406,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dCauchyStressdDOF(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -465,7 +465,7 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_first_piola_kirchhoff(
                 const Matrix< DDRMat >      & aNormal,
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -484,7 +484,7 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_second_piola_kirchhoff(
                 const Matrix< DDRMat >      & aNormal,
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -503,7 +503,7 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_cauchy(
                 const Matrix< DDRMat >      & aNormal,
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             // FIXME need to implement traction based on cauchy stress with normal in current configuration
             MORIS_ASSERT( false, "CM_Struc_Nonlinear_Isotropic::eval_dTractiondDOF_cauchy - Not implemented yet." );
@@ -514,7 +514,7 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_first_piola_kirchhoff(
                 const Matrix< DDRMat >      & aNormal,
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -530,7 +530,7 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_second_piola_kirchhoff(
                 const Matrix< DDRMat >      & aNormal,
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -546,7 +546,7 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_cauchy(
                 const Matrix< DDRMat >      & aNormal,
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // FIXME need to implement traction based on cauchy stress with normal in current configuration
             MORIS_ASSERT( false, "CM_Struc_Nonlinear_Isotropic::eval_testTraction_cauchy - Not implemented yet." );
@@ -556,10 +556,10 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_first_piola_kirchhoff(
-                const Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >      & aNormal,
                 const Matrix< DDRMat >      & aJump,
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -652,10 +652,10 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_second_piola_kirchhoff(
-                const Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >      & aNormal,
                 const Matrix< DDRMat >      & aJump,
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -692,10 +692,10 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_cauchy(
-                const Cell< MSI::Dof_Type > & aDofTypes,
+                const Vector< MSI::Dof_Type > & aDofTypes,
                 const Matrix< DDRMat >      & aNormal,
                 const Matrix< DDRMat >      & aJump,
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Vector< MSI::Dof_Type > & aTestDofTypes )
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dTestTractiondDOF_cauchy - Not implemented." );
         }
@@ -704,7 +704,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dConstdDOF(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Vector< MSI::Dof_Type > & aDofTypes )
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dConstdDOF - Not implemented." );
         }

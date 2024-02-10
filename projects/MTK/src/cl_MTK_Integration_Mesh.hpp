@@ -30,21 +30,21 @@ namespace moris::mtk
         // class Cluster_Group;
 
       protected:
-        moris::Cell< moris::mtk::Block_Set * >       mListOfBlocks;
-        moris::Cell< moris::mtk::Side_Set * >        mListOfSideSets;
-        moris::Cell< moris::mtk::Double_Side_Set * > mListOfDoubleSideSets;
-        moris::Cell< moris::mtk::Set * >             mListOfAllSets;
+        Vector< moris::mtk::Block_Set * >       mListOfBlocks;
+        Vector< moris::mtk::Side_Set * >        mListOfSideSets;
+        Vector< moris::mtk::Double_Side_Set * > mListOfDoubleSideSets;
+        Vector< moris::mtk::Set * >             mListOfAllSets;
 
-        moris::Cell< mtk::Double_Side_Cluster * > mDoubleSideClusters;
+        Vector< mtk::Double_Side_Cluster * > mDoubleSideClusters;
 
         map< std::string, moris_index > mSetNameToIndexMap;
 
         // set by color
         moris_index                                                 mMaxColor{};
-        moris::Cell< moris::Cell< moris::mtk::Block_Set * > >       mColorToBlockSet;         // outer cell: color | inner cell: block set index
-        moris::Cell< moris::Cell< moris::mtk::Side_Set * > >        mColorToSideSet;          // outer cell: color | inner cell: side set index
-        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > mColorToDoubleSideSet;    // outer cell: color | inner cell: double side set index
-        moris::Cell< moris::Cell< moris::mtk::Set * > >             mColorToAllSets;          // outer cell: color | inner cell: set index
+        Vector< Vector< moris::mtk::Block_Set * > >       mColorToBlockSet;         // outer cell: color | inner cell: block set index
+        Vector< Vector< moris::mtk::Side_Set * > >        mColorToSideSet;          // outer cell: color | inner cell: side set index
+        Vector< Vector< moris::mtk::Double_Side_Set * > > mColorToDoubleSideSet;    // outer cell: color | inner cell: double side set index
+        Vector< Vector< moris::mtk::Set * > >             mColorToAllSets;          // outer cell: color | inner cell: set index
 
         // ----------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ namespace moris::mtk
 
         // ----------------------------------------------------------------------------
 
-        void get_Mesh_GEN_map( moris::Cell< moris_index > &aMesh_GEN_map ) override;
+        void get_Mesh_GEN_map( Vector< moris_index > &aMesh_GEN_map ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ namespace moris::mtk
          * @brief Get block sets with color
          * @param[in] aColor Set color
          */
-        moris::Cell< moris::mtk::Block_Set * > const &get_block_sets_with_color( moris_index const &aColor );
+        Vector< moris::mtk::Block_Set * > const &get_block_sets_with_color( moris_index const &aColor );
 
         // ----------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ namespace moris::mtk
          */
         void get_block_set_names_with_color(
                 moris_index const          &aColor,
-                moris::Cell< std::string > &aSetNames );
+                Vector< std::string > &aSetNames );
 
         // ----------------------------------------------------------------------------
 
@@ -138,7 +138,7 @@ namespace moris::mtk
          * @brief Get side sets with color
          * @param[in] aColor Set color
          */
-        moris::Cell< moris::mtk::Side_Set * > const &get_side_sets_with_color( moris_index const &aColor );
+        Vector< moris::mtk::Side_Set * > const &get_side_sets_with_color( moris_index const &aColor );
 
         // ----------------------------------------------------------------------------
 
@@ -146,7 +146,7 @@ namespace moris::mtk
          * @brief Get double side sets with color
          * @param[in] aColor Set color
          */
-        moris::Cell< moris::mtk::Double_Side_Set * > const &get_double_side_sets_with_color( moris_index const &aColor );
+        Vector< moris::mtk::Double_Side_Set * > const &get_double_side_sets_with_color( moris_index const &aColor );
 
         // ----------------------------------------------------------------------------
 
@@ -154,7 +154,7 @@ namespace moris::mtk
          * @brief Get all sets with color
          * @param[in] aColor Set color
          */
-        moris::Cell< moris::mtk::Set * > const &get_all_sets_with_color( moris_index const &aColor );
+        Vector< moris::mtk::Set * > const &get_all_sets_with_color( moris_index const &aColor );
 
         // ----------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ namespace moris::mtk
         /**
          * Get block set names
          */
-        virtual moris::Cell< std::string > get_block_set_names() const = 0;
+        virtual Vector< std::string > get_block_set_names() const = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ namespace moris::mtk
         /*
          * Get cell clusters within a block set
          */
-        virtual moris::Cell< Cluster const * > get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const = 0;
+        virtual Vector< Cluster const * > get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -247,7 +247,7 @@ namespace moris::mtk
         /**
          * Get side clusters within a side set
          */
-        virtual moris::Cell< Cluster const * > get_side_set_cluster( moris_index aSideSetOrdinal ) const = 0;
+        virtual Vector< Cluster const * > get_side_set_cluster( moris_index aSideSetOrdinal ) const = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -300,7 +300,7 @@ namespace moris::mtk
         /**
          * Returns the double side clusters in the side set
          */
-        virtual moris::Cell< Cluster const * > get_double_side_set_cluster( moris_index aSideSetOrdinal ) const = 0;
+        virtual Vector< Cluster const * > get_double_side_set_cluster( moris_index aSideSetOrdinal ) const = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -332,8 +332,8 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         void build_hanging_node_MPC(
-                moris::Cell< Matrix< IdMat > >  &tBSToIPIds,
-                moris::Cell< Matrix< DDRMat > > &tBSToIPWeights,
+                Vector< Matrix< IdMat > >  &tBSToIPIds,
+                Vector< Matrix< DDRMat > > &tBSToIPWeights,
                 const Matrix< IdMat >           &tBSToIPMap,
                 const Matrix< IdMat >           &tIPToIGMap );
 
@@ -360,16 +360,16 @@ namespace moris::mtk
 
         // elemental
         void get_IG_to_IP_elemental_T_matrices(
-                moris::Cell< moris_id >           &aIgCellIds,
-                moris::Cell< Matrix< IndexMat > > &aIgToIpIndices,
-                moris::Cell< Matrix< DDRMat > >   &aIgToIpTmatrices );
+                Vector< moris_id >           &aIgCellIds,
+                Vector< Matrix< IndexMat > > &aIgToIpIndices,
+                Vector< Matrix< DDRMat > >   &aIgToIpTmatrices );
 
         // ----------------------------------------------------------------------------
 
         // global
         void get_IG_to_IP_nodal_T_matrices(
-                moris::Cell< Matrix< IdMat > >  &aIGtoIPIds,
-                moris::Cell< Matrix< DDRMat > > &aIGtoIPWeights,
+                Vector< Matrix< IdMat > >  &aIGtoIPIds,
+                Vector< Matrix< DDRMat > > &aIGtoIPWeights,
                 uint                             aSetIndex );
 
 
@@ -377,39 +377,39 @@ namespace moris::mtk
 
         // elemental
         void get_IP_to_BS_nodal_T_matrices(
-                moris::Cell< moris::Cell< Matrix< IdMat > > >  &aIPtoBSIds,
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > &aIPtoBSWeights,
+                Vector< Vector< Matrix< IdMat > > >  &aIPtoBSIds,
+                Vector< Vector< Matrix< DDRMat > > > &aIPtoBSWeights,
                 uint                                            aNumBsplineMeshes );
 
         // ----------------------------------------------------------------------------
 
         // global
         void get_IP_to_BS_nodal_T_matrices(
-                moris::Cell< Matrix< IdMat > >  &aIPtoBSIds,
-                moris::Cell< Matrix< DDRMat > > &aIPtoBSWeights,
+                Vector< Matrix< IdMat > >  &aIPtoBSIds,
+                Vector< Matrix< DDRMat > > &aIPtoBSWeights,
                 uint                             aSetIndex );
 
         // ----------------------------------------------------------------------------
 
         // elemental
         void get_elemental_IG_to_BS_T_matrices(
-                moris::Cell< Matrix< IndexMat > > const              &aIgToIpIndices,      // outer cell: IG cell index
-                moris::Cell< Matrix< DDRMat > > const                &aIgToIpTmatrices,    // outer cell: IG cell index
-                moris::Cell< moris::Cell< Matrix< IdMat > > > const  &aIPtoBSIds,          // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > const &aIPtoBSWeights,      // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
-                moris::Cell< moris::Cell< Matrix< IdMat > > >        &aIGtoBSIds,          // outer cell: B-spline mesh index | inner cell: IG cell index
-                moris::Cell< moris::Cell< Matrix< DDRMat > > >       &aIGtoBSWeights );          // outer cell: B-spline mesh index | inner cell: IG cell index
+                Vector< Matrix< IndexMat > > const              &aIgToIpIndices,      // outer cell: IG cell index
+                Vector< Matrix< DDRMat > > const                &aIgToIpTmatrices,    // outer cell: IG cell index
+                Vector< Vector< Matrix< IdMat > > > const  &aIPtoBSIds,          // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
+                Vector< Vector< Matrix< DDRMat > > > const &aIPtoBSWeights,      // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
+                Vector< Vector< Matrix< IdMat > > >        &aIGtoBSIds,          // outer cell: B-spline mesh index | inner cell: IG cell index
+                Vector< Vector< Matrix< DDRMat > > >       &aIGtoBSWeights );          // outer cell: B-spline mesh index | inner cell: IG cell index
 
         // ----------------------------------------------------------------------------
 
         // global
         void get_IG_to_BS_nodal_T_matrices(
-                moris::Cell< Matrix< IdMat > >  &aIGtoBSIds,
-                moris::Cell< Matrix< DDRMat > > &aIGtoBSWeights,
-                moris::Cell< Matrix< IdMat > >  &aIPtoBSIds,
-                moris::Cell< Matrix< DDRMat > > &aIPtoBSWeights,
-                moris::Cell< Matrix< IdMat > >  &aIGtoIPIds,
-                moris::Cell< Matrix< DDRMat > > &aIGtoIPWeights );
+                Vector< Matrix< IdMat > >  &aIGtoBSIds,
+                Vector< Matrix< DDRMat > > &aIGtoBSWeights,
+                Vector< Matrix< IdMat > >  &aIPtoBSIds,
+                Vector< Matrix< DDRMat > > &aIPtoBSWeights,
+                Vector< Matrix< IdMat > >  &aIGtoIPIds,
+                Vector< Matrix< DDRMat > > &aIGtoIPWeights );
 
         // ----------------------------------------------------------------------------
 
@@ -422,8 +422,8 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         void build_sparse_extraction_operator(
-                moris::Cell< Matrix< IdMat > >  &aIGtoBSIds,
-                moris::Cell< Matrix< DDRMat > > &aIGtoBSWeights,
+                Vector< Matrix< IdMat > >  &aIGtoBSIds,
+                Vector< Matrix< DDRMat > > &aIGtoBSWeights,
                 Matrix< DDUMat >                &aSparseIndices,
                 Matrix< DDRMat >                &aWeights );
 
@@ -436,16 +436,16 @@ namespace moris::mtk
          */
         [[deprecated(
                 "Use the more expressive getter methods get_sets (without arguments), get_block_sets, "
-                "get_side_sets or get_double_side_sets" )]] moris::Cell< moris::mtk::Set * > const &
+                "get_side_sets or get_double_side_sets" )]] Vector< moris::mtk::Set * > const &
         get_list_of_sets( SetType aSetType = SetType::UNDEFINED ) const;
 
-        moris::Cell< moris::mtk::Set * > const &get_sets() const;
+        Vector< moris::mtk::Set * > const &get_sets() const;
 
-        moris::Cell< moris::mtk::Block_Set * > const &get_block_sets() const;
+        Vector< moris::mtk::Block_Set * > const &get_block_sets() const;
 
-        moris::Cell< moris::mtk::Side_Set * > const &get_side_sets() const;
+        Vector< moris::mtk::Side_Set * > const &get_side_sets() const;
 
-        moris::Cell< moris::mtk::Double_Side_Set * > const &get_double_side_sets() const;
+        Vector< moris::mtk::Double_Side_Set * > const &get_double_side_sets() const;
 
         // ----------------------------------------------------------------------------
 
@@ -454,16 +454,16 @@ namespace moris::mtk
          * by default it return all set to color list
          */
 
-        moris::Cell< moris::Cell< moris::mtk::Set * > > const &
+        Vector< Vector< moris::mtk::Set * > > const &
         get_color_to_sets() const;
 
-        moris::Cell< moris::Cell< moris::mtk::Block_Set * > > const &
+        Vector< Vector< moris::mtk::Block_Set * > > const &
         get_color_to_block_sets() const;
 
-        moris::Cell< moris::Cell< moris::mtk::Side_Set * > > const &
+        Vector< Vector< moris::mtk::Side_Set * > > const &
         get_color_to_side_sets() const;
 
-        moris::Cell< moris::Cell< moris::mtk::Double_Side_Set * > > const &
+        Vector< Vector< moris::mtk::Double_Side_Set * > > const &
         get_color_to_double_side_sets() const;
 
 

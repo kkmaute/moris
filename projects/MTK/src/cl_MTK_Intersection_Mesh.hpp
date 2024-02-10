@@ -62,7 +62,7 @@ namespace moris
                  * adds side sets and block sets created in the process of intersection to the mesh
                  * @param[ in ] aEntityRank Rank of the entity
                  */
-                moris::Cell< std::string >
+                Vector< std::string >
                 get_set_names(enum EntityRank aSetEntityRank) const;
 
                 // ----------------------------------------------------------------------------
@@ -181,11 +181,11 @@ namespace moris
                 /**
                  * Get block set names
                  */
-                moris::Cell<std::string>
+                Vector<std::string>
                 get_block_set_names() const
                 {
                     MORIS_ERROR( false, "Not Implemented for Intersection Mesh");
-                    return moris::Cell< std::string > (0);
+                    return Vector< std::string > (0);
                 }
 
                 // ----------------------------------------------------------------------------
@@ -194,11 +194,11 @@ namespace moris
                  * Get cell clusters in set
                  * @param[ in ] aBlockSetOrdinal Ordinal of the block set
                  */
-                moris::Cell<Cluster const *>
+                Vector<Cluster const *>
                 get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const
                 {
                     MORIS_ERROR( false, "Not Implemented for Intersection Mesh");
-                    return moris::Cell< Cluster const * >(0);
+                    return Vector< Cluster const * >(0);
                 }
 
                 // ----------------------------------------------------------------------------
@@ -206,11 +206,11 @@ namespace moris
                  * Get side clusters within a side set
                  * @param[ in ] aSideSetOrdinal Ordinal of the side set
                  */
-                moris::Cell<Cluster const *>
+                Vector<Cluster const *>
                 get_side_set_cluster(moris_index aSideSetOrdinal) const
                 {
                     MORIS_ERROR( false, "Not Implemented for Intersection Mesh");
-                    return moris::Cell< Cluster const *>(0);
+                    return Vector< Cluster const *>(0);
                 }
 
                 // ----------------------------------------------------------------------------
@@ -363,11 +363,11 @@ namespace moris
                  * Get double sided cluster
                  * @param[ in ] aSideSetOrdinal Ordinal of the side set
                  */
-                moris::Cell<Cluster const*>
+                Vector<Cluster const*>
                 get_double_side_set_cluster(moris_index aSideSetOrdinal) const
                 {
                     MORIS_ERROR( false, "get_double_sided_set_label, Not Implemented for Intersection Mesh");
-                    return moris::Cell<Cluster const*>(0);
+                    return Vector<Cluster const*>(0);
                 }
 
                 // ----------------------------------------------------------------------------

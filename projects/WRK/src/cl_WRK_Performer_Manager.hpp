@@ -12,17 +12,12 @@
 #define PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
 
 #include "moris_typedefs.hpp"                       //MRS/COR/src
-#include "cl_Cell.hpp"                        //MRS/CNT/src
+#include "cl_Vector.hpp"                            //MRS/CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_Communication_Tools.hpp"
-
-namespace xtk
-{
-    class Model;
-}
 
 namespace moris
 {
@@ -39,6 +34,10 @@ namespace moris
     namespace gen
     {
         class Geometry_Engine;
+    }
+    namespace xtk
+    {
+        class Model;
     }
     namespace mdl
     {
@@ -65,16 +64,16 @@ namespace moris
         {
                 std::shared_ptr< Library_IO > mLibrary = nullptr;
 
-                moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
-                moris::Cell< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
-                moris::Cell< std::shared_ptr< gen::Geometry_Engine > >      mGENPerformer;
-                moris::Cell< std::shared_ptr< xtk::Model > >               mXTKPerformer;
-                moris::Cell< std::shared_ptr< mdl::Model > >               mMDLPerformer;
-                moris::Cell< std::shared_ptr< opt::Manager > >             mOPTPerformer;
+                Vector< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
+                Vector< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
+                Vector< std::shared_ptr< gen::Geometry_Engine > >      mGENPerformer;
+                Vector< std::shared_ptr< xtk::Model > >               mXTKPerformer;
+                Vector< std::shared_ptr< mdl::Model > >               mMDLPerformer;
+                Vector< std::shared_ptr< opt::Manager > >             mOPTPerformer;
 
-                moris::Cell< std::shared_ptr< wrk::Remeshing_Mini_Performer > > mRemeshingMiniPerformer;
-                moris::Cell< std::shared_ptr< wrk::Reinitialize_Performer > >   mReinitializePerformer;
-                moris::Cell< std::shared_ptr< wrk::DataBase_Performer > >       mDataBasePerformer;
+                Vector< std::shared_ptr< wrk::Remeshing_Mini_Performer > > mRemeshingMiniPerformer;
+                Vector< std::shared_ptr< wrk::Reinitialize_Performer > >   mReinitializePerformer;
+                Vector< std::shared_ptr< wrk::DataBase_Performer > >       mDataBasePerformer;
 
                 friend class wrk::Workflow;
                 friend class wrk::Workflow_HMR_XTK;

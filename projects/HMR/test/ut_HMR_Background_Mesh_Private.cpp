@@ -654,7 +654,7 @@ namespace moris::hmr
                 // pick element in the middle
                 Background_Element_Base* tElement = tBackgroundMesh->get_element( 81 );
 
-                Cell< Background_Element_Base* > tNeighbors;
+                Vector< Background_Element_Base* > tNeighbors;
 
                 for ( uint tOrder = 1; tOrder <= 2; ++tOrder )
                 {
@@ -761,7 +761,7 @@ namespace moris::hmr
                 // pick an element in the middle
                 Background_Element_Base* tElement = tBackgroundMesh->get_element( 1025 );
 
-                Cell< Background_Element_Base* > tNeighbors;
+                Vector< Background_Element_Base* > tNeighbors;
 
                 for ( uint tOrder = 1; tOrder <= 2; ++tOrder )
                 {

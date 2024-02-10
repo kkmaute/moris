@@ -31,7 +31,7 @@ namespace moris
         Double_Side_Cluster::Double_Side_Cluster(
                 moris::mtk::Cluster const                       *aLeaderSideCluster,
                 moris::mtk::Cluster const                       *aFollowerSideCluster,
-                moris::Cell< moris::mtk::Vertex const * > const &aLeftToRightVertexPair )
+                Vector< moris::mtk::Vertex const * > const &aLeftToRightVertexPair )
                 : mLeaderSideCluster( aLeaderSideCluster )
                 , mFollowerSideCluster( aFollowerSideCluster )
         {
@@ -129,7 +129,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const * > const &
+        Vector< moris::mtk::Vertex const * > const &
         Double_Side_Cluster::get_leader_vertex_pairs() const
         {
             return mLeaderToFollowerVertexPairs;
@@ -202,7 +202,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell< mtk::Cell const * > const &
+        Vector< mtk::Cell const * > const &
         Double_Side_Cluster::get_primary_cells_in_cluster(
                 const mtk::Leader_Follower aIsLeader ) const
         {
@@ -219,14 +219,14 @@ namespace moris
                 MORIS_ERROR( false, "get_primary_cells_in_cluster(): can only be LEADER and FOLLOWER" );
 
                 // create a dummy cell that never will be generated
-                moris::Cell< mtk::Cell const * > *tDummyCell = new moris::Cell< mtk::Cell const * >( 0 );
+                Vector< mtk::Cell const * > *tDummyCell = new Vector< mtk::Cell const * >( 0 );
                 return *tDummyCell;
             }
         }
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell< mtk::Cell const * > const &
+        Vector< mtk::Cell const * > const &
         Double_Side_Cluster::get_leader_integration_cells() const
         {
             return this->get_leader_side_cluster().get_primary_cells_in_cluster();
@@ -234,7 +234,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell< mtk::Cell const * > const &
+        Vector< mtk::Cell const * > const &
         Double_Side_Cluster::get_follower_integration_cells() const
         {
             return this->get_follower_side_cluster().get_primary_cells_in_cluster();
@@ -320,7 +320,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Double_Side_Cluster::get_vertices_in_cluster(
                 const mtk::Leader_Follower aIsLeader ) const
         {
@@ -336,13 +336,13 @@ namespace moris
             {
                 MORIS_ERROR( false, "Double_Side_Cluster::get_vertices_in_cluster() - Can only be LEADER or FOLLOWER" );
 
-                return moris::Cell< moris::mtk::Vertex const * >( 0 );
+                return Vector< moris::mtk::Vertex const * >( 0 );
             }
         }
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Double_Side_Cluster::get_leader_vertices_in_cluster() const
         {
             return this->get_leader_side_cluster().get_vertices_in_cluster();
@@ -350,7 +350,7 @@ namespace moris
 
         //----------------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Double_Side_Cluster::get_follower_vertices_in_cluster() const
         {
             return this->get_follower_side_cluster().get_vertices_in_cluster();
@@ -409,8 +409,8 @@ namespace moris
                     uint tFollowerNumVertices = mFollowerSideCluster->get_num_vertices_in_cluster();
 
                     // access the vertices in a side cluster
-                    moris::Cell< moris::mtk::Vertex const * > const &tLeaderVertices   = mLeaderSideCluster->get_vertices_in_cluster();
-                    moris::Cell< moris::mtk::Vertex const * > const &tFollowerVertices = mFollowerSideCluster->get_vertices_in_cluster();
+                    Vector< moris::mtk::Vertex const * > const &tLeaderVertices   = mLeaderSideCluster->get_vertices_in_cluster();
+                    Vector< moris::mtk::Vertex const * > const &tFollowerVertices = mFollowerSideCluster->get_vertices_in_cluster();
 
                     // initialize output
                     Matrix< IndexMat > tVertexIndices( 1, tLeaderNumVertices + tFollowerNumVertices );

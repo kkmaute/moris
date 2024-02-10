@@ -293,7 +293,7 @@ namespace moris
                 if ( par_size() == 4 or par_size() == 8 )
                 {
                     // Create interfaces
-                    Cell< std::shared_ptr< Criteria_Interface > > tInterfaces( 4 );
+                    Vector< std::shared_ptr< Criteria_Interface > > tInterfaces( 4 );
                     tInterfaces( 0 ) = std::make_shared< Interface_User_Defined >(
                             &initialize_test_1,
                             &get_criteria_test,

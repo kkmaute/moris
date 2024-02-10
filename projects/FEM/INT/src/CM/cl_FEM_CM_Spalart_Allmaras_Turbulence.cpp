@@ -52,7 +52,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::set_parameters(
-                moris::Cell< Matrix< DDRMat > > aParameters )
+                Vector< Matrix< DDRMat > > aParameters )
         {
             // FIXME not necessary
             // set mParameters
@@ -112,8 +112,8 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes,
-                moris::Cell< std::string >                  aDofStrings )
+                Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                Vector< std::string >                  aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -320,7 +320,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_ddivfluxdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -379,7 +379,7 @@ namespace moris
         void
         CM_Spalart_Allmaras_Turbulence::eval_testTraction(
                 const Matrix< DDRMat >&             aNormal,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes )
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get the test FI
             Field_Interpolator* tFITest =
@@ -412,7 +412,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&             aNormal )
         {
             // get the dof type as a uint
@@ -449,9 +449,9 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dTestTractiondDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&             aNormal,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes )
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -560,7 +560,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dproductioncoeffdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -609,7 +609,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dproductioncoeffdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -681,7 +681,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dproductiontermdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -723,7 +723,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dproductiontermdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -811,7 +811,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -938,7 +938,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dwalldestructioncoeffdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1010,7 +1010,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dwalldestructiontermdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1052,7 +1052,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dwalldestructiontermdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1137,7 +1137,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_ddiffusioncoeffdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1210,7 +1210,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::ddiffusioncoeffdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1317,7 +1317,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_ddiffusioncoeffdxdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 uint                                aOrder )
         {
             // get the dof type as a uint
@@ -1394,7 +1394,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::ddiffusioncoeffdxdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 uint                                aOrder,
                 enum CM_Function_Type               aCMFunctionType )
         {
@@ -1466,7 +1466,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dmodvelocitydu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1514,7 +1514,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dmodvelocitydu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1587,7 +1587,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dmodvelocitylinearizeddu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1635,7 +1635,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dmodvelocitylinearizeddu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1694,7 +1694,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dchidu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1764,7 +1764,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dchidxdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 uint                                aOrder,
                 enum CM_Function_Type               aCMFunctionType )
         {
@@ -1840,7 +1840,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dft2du(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // check that function is only called if ft2 is considered
             MORIS_ERROR( mUseFt2,
@@ -1870,7 +1870,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dft2du(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check that function is only called if ft2 is considered
@@ -1977,7 +1977,7 @@ namespace moris
         // FIXME function pointer for 2D, 3D
         void
         CM_Spalart_Allmaras_Turbulence::eval_dwdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -2061,7 +2061,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dwdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2128,7 +2128,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dsdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -2159,7 +2159,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dsdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2218,7 +2218,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfv1du(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2291,7 +2291,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfv2du(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -2329,7 +2329,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfv2du(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2404,7 +2404,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dsbardu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -2459,7 +2459,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dsbardu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2527,7 +2527,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dsmoddu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -2572,7 +2572,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dsmoddu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2648,7 +2648,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dstildedu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -2686,7 +2686,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dstildedu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2764,7 +2764,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_drdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -2839,7 +2839,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::drdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -2904,7 +2904,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dgdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -2930,7 +2930,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dgdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3000,7 +3000,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfwdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -3043,7 +3043,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfwdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3111,7 +3111,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfndu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -3150,7 +3150,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfndu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3243,7 +3243,7 @@ namespace moris
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfndxdu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 uint                                aOrder )
         {
             // get the dof type as a uint
@@ -3281,7 +3281,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfndxdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 uint                                aOrder,
                 enum CM_Function_Type               aCMFunctionType )
         {

@@ -111,26 +111,26 @@ namespace moris::gen
             tPDVHostManager.mPDVTypeMap( 5 ) = 2;
 
             // Node indices per set
-            Cell< Cell< uint > > tNodeIndicesPerSet = { { 0, 1, 2, 3 }, { 2, 3, 4, 5 } };
+            Vector< Vector< uint > > tNodeIndicesPerSet = { { 0, 1, 2, 3 }, { 2, 3, 4, 5 } };
 
             // Node indices per set to request
-            Cell< Matrix< IndexMat > > tRequestNodeIndicesPerSet( 2 );
+            Vector< Matrix< IndexMat > > tRequestNodeIndicesPerSet( 2 );
             tRequestNodeIndicesPerSet( 0 ) = { { 0, 1, 2, 3 } };
             tRequestNodeIndicesPerSet( 1 ) = { { 2, 3, 4, 5 } };
 
             // Node IDs per set
-            Cell< Cell< sint > > tNodeIdsPerSet = { { 0, 1, 2, 3 }, { 2, 3, 4, 5 } };
+            Vector< Vector< sint > > tNodeIdsPerSet = { { 0, 1, 2, 3 }, { 2, 3, 4, 5 } };
 
             // Node ownership per set
-            Cell< Cell< uint > > tNodeOwnersPerSet = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
+            Vector< Vector< uint > > tNodeOwnersPerSet = { { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
 
             // Node coordinates per set
-            Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 2 );
+            Vector< Matrix< DDRMat > > tNodeCoordinatesPerSet( 2 );
             tNodeCoordinatesPerSet( 0 ).set_size( 4, 3, 0.0 );
             tNodeCoordinatesPerSet( 1 ).set_size( 4, 3, 0.0 );
 
             // PDV_Type types per set
-            Cell< Cell< Cell< PDV_Type > > > tIpPDVTypes( 2 );
+            Vector< Vector< Vector< PDV_Type > > > tIpPDVTypes( 2 );
             tIpPDVTypes( 0 ) = { { PDV_Type::DENSITY }, { PDV_Type::TEMPERATURE } };
             tIpPDVTypes( 1 ) = { { PDV_Type::TEMPERATURE }, { PDV_Type::ELASTIC_MODULUS } };
 
@@ -161,7 +161,7 @@ namespace moris::gen
             tPDVHostManager.create_pdv_ids();
 
             // Check PDVs
-            Cell< Matrix< DDRMat > > tPDVValues;
+            Vector< Matrix< DDRMat > > tPDVValues;
             for ( uint tMeshSetIndex = 0; tMeshSetIndex < 2; tMeshSetIndex++ )
             {
                 for ( uint tPDVIndex = 0; tPDVIndex < 2; tPDVIndex++ )
@@ -202,11 +202,11 @@ namespace moris::gen
             tPDVHostManager.mPDVTypeMap( 4 ) = 1;
 
             // ----------------- Interpolation PDVs ---------------------- //
-            Cell< Cell< uint > > tNodeIndicesPerSet( 2 );
-            Cell< Cell< sint > > tNodeIdsPerSet( 2 );
-            Cell< Cell< uint > > tNodeOwnersPerSet( 2 );
-            Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 2 );
-            Cell< Cell< Cell< PDV_Type > > > tIpPDVTypes( 2 );
+            Vector< Vector< uint > > tNodeIndicesPerSet( 2 );
+            Vector< Vector< sint > > tNodeIdsPerSet( 2 );
+            Vector< Vector< uint > > tNodeOwnersPerSet( 2 );
+            Vector< Matrix< DDRMat > > tNodeCoordinatesPerSet( 2 );
+            Vector< Vector< Vector< PDV_Type > > > tIpPDVTypes( 2 );
 
             // Get my rank and other rank
             uint tMyRank = par_rank();
@@ -376,7 +376,7 @@ namespace moris::gen
             }
 
             // Loop over all node indices
-            Cell< Background_Node* > tTemporaryBackgroundNodes;
+            Vector< Background_Node* > tTemporaryBackgroundNodes;
             for ( uint tNodeIndex = 0; tNodeIndex < tIpNodeIdsPerSet.length(); tNodeIndex++ )
             {
                 // Go around a circle to create parent coordinates
@@ -395,7 +395,7 @@ namespace moris::gen
                 tTemporaryBackgroundNodes.push_back( tSecondNode );
 
                 // Assign as base nodes
-                Cell< Background_Node* > tBackgroundNodes( { tFirstNode, tSecondNode } );
+                Vector< Background_Node* > tBackgroundNodes( { tFirstNode, tSecondNode } );
 
                 // Create intersection node
                 auto tIntersectionNode = new Intersection_Node_Linear(
@@ -515,7 +515,7 @@ namespace moris::gen
         Matrix< DDRMat > tADVs( tNumADVs, 1 );
 
         // Create constant properties
-        Cell< std::shared_ptr< Property > > tProperties( tNumADVs );
+        Vector< std::shared_ptr< Property > > tProperties( tNumADVs );
         for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
         {
             tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ) );
@@ -524,10 +524,10 @@ namespace moris::gen
         }
 
         // Node indices, IDs, ownership and coordinates per set
-        Cell< Cell< uint > > tNodeIndicesPerSet( 1 );
-        Cell< Cell< sint > > tNodeIdsPerSet( 1 );
-        Cell< Cell< uint > > tNodeOwnersPerSet( 1 );
-        Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 1 );
+        Vector< Vector< uint > > tNodeIndicesPerSet( 1 );
+        Vector< Vector< sint > > tNodeIdsPerSet( 1 );
+        Vector< Vector< uint > > tNodeOwnersPerSet( 1 );
+        Vector< Matrix< DDRMat > > tNodeCoordinatesPerSet( 1 );
 
         tNodeIndicesPerSet( 0 ).resize( gNumPDVs, 1 );
         tNodeIdsPerSet( 0 ).resize( gNumPDVs, 1 );
@@ -544,7 +544,7 @@ namespace moris::gen
         tNodeCoordinatesPerSet( 0 ).fill( 0.0 );
 
         // PDV_Type types per set
-        Cell< Cell< Cell< PDV_Type > > > tIpPDVTypes( 1 );
+        Vector< Vector< Vector< PDV_Type > > > tIpPDVTypes( 1 );
         tIpPDVTypes( 0 ).resize( 1 );
         tIpPDVTypes( 0 )( 0 ).resize( 1 );
         tIpPDVTypes( 0 )( 0 )( 0 ) = PDV_Type::DENSITY;

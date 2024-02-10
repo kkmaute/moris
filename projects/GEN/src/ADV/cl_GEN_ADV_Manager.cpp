@@ -74,8 +74,8 @@ namespace moris::gen
 
     ADV_Manager::ADV_Manager(
             const ADV_Manager& aCopyADVManager,
-            const Cell< uint >& aReplaceVariables,
-            const Cell< real >& aNewConstants )
+            const Vector< uint >& aReplaceVariables,
+            const Vector< real >& aNewConstants )
             : mADVs( aCopyADVManager.mADVs )
             , mDeterminingADVIds( aCopyADVManager.mDeterminingADVIds )
             , mHasADVs( aCopyADVManager.mHasADVs )

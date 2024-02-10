@@ -16,11 +16,11 @@
 #include "fn_norm.hpp"
 #include "op_div.hpp"
 using namespace moris;
-namespace xtk
+namespace moris::xtk
 {
 
     inline moris::real
-    area_tri( moris::Matrix< moris::DDRMat >& aCoords )
+    area_tri( Matrix< DDRMat >& aCoords )
     {
         MORIS_ASSERT( aCoords.n_rows() == 3, " triangle needs three node coordinates" );
 
@@ -33,7 +33,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     inline moris::real
-    area_tri_2D( moris::Matrix< moris::DDRMat >& aCoords )
+    area_tri_2D( Matrix< DDRMat >& aCoords )
     {
         MORIS_ASSERT( aCoords.n_rows() == 3, " triangle needs three node coordinates" );
 
@@ -42,6 +42,6 @@ namespace xtk
 
         return std::abs( tABVec( 0, 0 ) * tACVec( 0, 1 ) - tABVec( 0, 1 ) * tACVec( 0, 0 ) ) / 2;
     }
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_TOOLS_FN_TRI_AREA_HPP_ */

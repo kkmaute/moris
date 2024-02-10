@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_MTK_Reader_Exodus_HPP
-#define MORIS_CL_MTK_Reader_Exodus_HPP
+#pragma once
 
 #include <exodusII.h>
 #include "cl_MTK_Mesh_Core.hpp"
@@ -17,7 +16,7 @@
 #include "cl_MTK_Mesh_Data_Input.hpp"
 
 // TODO
-#include "cl_MTK_Mesh.hpp" // MTK/src
+#include "cl_MTK_Mesh.hpp"    // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
@@ -29,69 +28,69 @@
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Sets_Info.hpp"
 
-class Reader_Exodus
+namespace moris::mtk
 {
-public:
-    moris::mtk::Mesh*                           mMesh;
-    int                                         mExoID;
-    moris::uint                                 mNumSpatialDimensions;
-    moris::Matrix<moris::DDRMat>                mNodeCoordinates;
-    moris::Matrix<moris::IdMat>                 mNodeMap;
-    moris::Matrix<moris::IdMat>                 mNodeOwner;
-    moris::mtk::MtkSetsInfo                     mMtkMeshSets;
-    moris::Cell<moris::mtk::MtkBlockSetInfo>    mBlockSetInfo;
-    moris::Cell<std::string>                    mBlockDescription;
-    moris::Cell<moris::Matrix<moris::IndexMat>> mElemConn;
-    moris::Cell<moris::Matrix<moris::IdMat>>    mLocaltoGlobalElemMap;
-    moris::Cell<moris::mtk::MtkSideSetInfo>     mSideSetInfo;
-    moris::Cell<moris::Matrix<moris::IndexMat>> mSideSetElements;
-    moris::Cell<std::string>                    mSideSetNames;
 
-    /**
-    * Constructor
-    */
-    Reader_Exodus();
+    class Reader_Exodus
+    {
+      public:
+        Mesh*                        mMesh;
+        int                          mExoID;
+        uint                         mNumSpatialDimensions;
+        Matrix< DDRMat >             mNodeCoordinates;
+        Matrix< IdMat >              mNodeMap;
+        Matrix< IdMat >              mNodeOwner;
+        MtkSetsInfo                  mMtkMeshSets;
+        Vector< MtkBlockSetInfo >    mBlockSetInfo;
+        Vector< std::string >        mBlockDescription;
+        Vector< Matrix< IndexMat > > mElemConn;
+        Vector< Matrix< IdMat > >    mLocaltoGlobalElemMap;
+        Vector< MtkSideSetInfo >     mSideSetInfo;
+        Vector< Matrix< IndexMat > > mSideSetElements;
+        Vector< std::string >        mSideSetNames;
 
-    /** Destructor */
-    ~Reader_Exodus();
+        /**
+         * Constructor
+         */
+        Reader_Exodus();
 
-    /**
-     * Changes how Exodus handles errors
-     * @param abort Causes fatal errors to force program exit.
-     * @param debug Causes certain messages to print for debugging use.
-     * @param verbose Causes all error messages to print when true, otherwise no error messages will print.
-     */
-    void set_error_options( bool abort, bool debug, bool verbose );
+        /** Destructor */
+        ~Reader_Exodus();
 
-    /**
-     * Reads an Exodus file and dumps the result into a specified mesh.
-     * @param aFileName The name of the file to be read from
-     */
-    void read_file( std::string aFileName );
+        /**
+         * Changes how Exodus handles errors
+         * @param abort Causes fatal errors to force program exit.
+         * @param debug Causes certain messages to print for debugging use.
+         * @param verbose Causes all error messages to print when true, otherwise no error messages will print.
+         */
+        void set_error_options( bool abort, bool debug, bool verbose );
 
-private:
-    /**
-     *  Opens an Exodus file and stores the ID for future operations
-     *  @param aExodusFileName Name of the Exodus file.
-     *  @param aVersion Version of the database. Current version is 4.72 as of programming.
-     */
-    void open_file( std::string aExodusFileName, float aVersion = 4.72 );
+        /**
+         * Reads an Exodus file and dumps the result into a specified mesh.
+         * @param aFileName The name of the file to be read from
+         */
+        void read_file( std::string aFileName );
 
-    /**
-     * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
-     * must be called in order for the Exodus file to be able to be read properly.
-     */
-    void close_file();
+      private:
+        /**
+         *  Opens an Exodus file and stores the ID for future operations
+         *  @param aExodusFileName Name of the Exodus file.
+         *  @param aVersion Version of the database. Current version is 4.72 as of programming.
+         */
+        void open_file( std::string aExodusFileName, float aVersion = 4.72 );
 
-    /**
-     * Gets the CellTopology from a character array describing the element type.
-     * @param const char* the element type written to the Exodus file from Writer_Exodus
-     * @return aCellTopology the type of element in MTK.
-     */
-    moris::mtk::CellTopology get_cell_topology( char* aElementType );
+        /**
+         * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
+         * must be called in order for the Exodus file to be able to be read properly.
+         */
+        void close_file();
 
-protected:
-};
+        /**
+         * Gets the CellTopology from a character array describing the element type.
+         * @param const char* the element type written to the Exodus file from Writer_Exodus
+         * @return aCellTopology the type of element in MTK.
+         */
+        CellTopology get_cell_topology( char* aElementType );
+    };
 
-#endif //MORIS_CL_MTK_Reader_Exodus_HPP
-
+}

@@ -133,10 +133,10 @@ namespace moris
 
         void
         Remeshing_Mini_Performer::perform_remeshing(
-                moris::Cell< std::shared_ptr< mtk::Field > >         aSourceFields,
-                moris::Cell< std::shared_ptr< hmr::HMR > >&          aHMRPerformers,
-                moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >& aMTKPerformer,
-                moris::Cell< std::shared_ptr< mtk::Field > >&        aNewFields )
+                Vector< std::shared_ptr< mtk::Field > >         aSourceFields,
+                Vector< std::shared_ptr< hmr::HMR > >&          aHMRPerformers,
+                Vector< std::shared_ptr< mtk::Mesh_Manager > >& aMTKPerformer,
+                Vector< std::shared_ptr< mtk::Field > >&        aNewFields )
         {
             Tracer tTracer( "WRK", "Remeshing Mini Performer", "Perform remeshing" );
 
@@ -180,10 +180,10 @@ namespace moris
             // extract pattern from mesh on which this field id based on
             // both Lagrange and discretization order if they are not the same
             Matrix< DDLUMat >                tElementCounterPerLevelAndPattern;
-            moris::Cell< Matrix< DDLUMat > > tElementPerPattern;
+            Vector< Matrix< DDLUMat > > tElementPerPattern;
 
             // create list of fields
-            Cell< std::shared_ptr< mtk::Field > > tOldFields;
+            Vector< std::shared_ptr< mtk::Field > > tOldFields;
 
             // copy HMR parameters from old HMR performer
             hmr::Parameters* tParameters = aHMRPerformers( 0 )->get_parameters();
@@ -367,7 +367,7 @@ namespace moris
         void
         Remeshing_Mini_Performer::perform_refinement(
                 std::shared_ptr< hmr::HMR >           aHMRPerformer,
-                Cell< std::shared_ptr< mtk::Field > > aSourceFields )
+                Vector< std::shared_ptr< mtk::Field > > aSourceFields )
         {
             // switch based on mode index
             switch ( mParameters.mModeIndex )
@@ -400,7 +400,7 @@ namespace moris
         void
         Remeshing_Mini_Performer::perform_refinement_mode_0(
                 std::shared_ptr< hmr::HMR >            aHMRPerformer,
-                Cell< std::shared_ptr< mtk::Field > >& aSourceFields )
+                Vector< std::shared_ptr< mtk::Field > >& aSourceFields )
         {
             // perform initial uniform refinement
             aHMRPerformer->perform_initial_refinement();
@@ -432,9 +432,9 @@ namespace moris
 
             std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
 
-            Cell< moris_index >                       tRefinementPattern;
-            moris::Cell< moris::Cell< uint > >        tRefinements;
-            moris::Cell< sint >                       tMaxRefinementPerLevel;
+            Vector< moris_index >                       tRefinementPattern;
+            Vector< Vector< uint > >        tRefinements;
+            Vector< sint >                       tMaxRefinementPerLevel;
 
             this->prepare_input_for_refinement(
                     tRefinementPattern,
@@ -461,7 +461,7 @@ namespace moris
 
                     mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
 
-                    Cell< std::shared_ptr< mtk::Field > > aTargetFields;
+                    Vector< std::shared_ptr< mtk::Field > > aTargetFields;
 
                     this->map_fields(
                             aSourceFields,
@@ -496,7 +496,7 @@ namespace moris
 
                         mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
 
-                        Cell< std::shared_ptr< mtk::Field > > aTargetFields;
+                        Vector< std::shared_ptr< mtk::Field > > aTargetFields;
 
                         this->map_fields(
                                 aSourceFields,
@@ -533,7 +533,7 @@ namespace moris
         void
         Remeshing_Mini_Performer::perform_refinement_mode_1(
                 std::shared_ptr< hmr::HMR >           aHMRPerformer,
-                Cell< std::shared_ptr< mtk::Field > > aSourceFields )
+                Vector< std::shared_ptr< mtk::Field > > aSourceFields )
         {
             uint tNumPattern = mParameters.mRefinementPatternMode_1.numel();
 
@@ -594,7 +594,7 @@ namespace moris
 
                     mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
 
-                    Cell< std::shared_ptr< mtk::Field > > aTargetFields;
+                    Vector< std::shared_ptr< mtk::Field > > aTargetFields;
 
                     this->map_fields(
                             aSourceFields,
@@ -641,7 +641,7 @@ namespace moris
         void
         Remeshing_Mini_Performer::perform_refinement_mode_2(
                 std::shared_ptr< hmr::HMR >           aHMRPerformer,
-                Cell< std::shared_ptr< mtk::Field > > aSourceFields )
+                Vector< std::shared_ptr< mtk::Field > > aSourceFields )
         {
             // perform initial uniform refinement
             // should not do anything for this remeshing mode
@@ -665,8 +665,8 @@ namespace moris
 
         void
         Remeshing_Mini_Performer::map_fields(
-                Cell< std::shared_ptr< mtk::Field > >& aSourceFields,
-                Cell< std::shared_ptr< mtk::Field > >& aTargetFields,
+                Vector< std::shared_ptr< mtk::Field > >& aSourceFields,
+                Vector< std::shared_ptr< mtk::Field > >& aTargetFields,
                 mtk::Mesh_Pair&                        aMeshPair,
                 uint                                   aDiscretizationMeshIndex,
                 bool                                   aMapFields )
@@ -726,9 +726,9 @@ namespace moris
 
         void
         Remeshing_Mini_Performer::prepare_input_for_refinement(
-                Cell< moris_index >&                       aPatternForRefinement,
-                moris::Cell< moris::Cell< uint > >&        aRefinements,
-                moris::Cell< sint >&                       aMaxRefinementPerPattern )
+                Vector< moris_index >&                       aPatternForRefinement,
+                Vector< Vector< uint > >&        aRefinements,
+                Vector< sint >&                       aMaxRefinementPerPattern )
         {
             // produce unique list of pattern which will be refined
             for ( uint Ik = 0; Ik < mParameters.mRefinementPatternMode_0.size(); Ik++ )
@@ -788,7 +788,7 @@ namespace moris
         void
         Remeshing_Mini_Performer::create_refinement_input_list(
                 moris::ParameterList&                  aRefinementParameterlist,
-                Cell< std::shared_ptr< mtk::Field > >& aFields,
+                Vector< std::shared_ptr< mtk::Field > >& aFields,
                 uint                                   aPattern )
         {
             std::string tFieldNames;
@@ -818,7 +818,7 @@ namespace moris
         void
         Remeshing_Mini_Performer::create_refinement_input_list_2(
                 moris::ParameterList&                  aRefinementParameterlist,
-                Cell< std::shared_ptr< mtk::Field > >& aFields )
+                Vector< std::shared_ptr< mtk::Field > >& aFields )
         {
             std::string tFieldNames               = "";
             std::string tRefFunctionForFieldNames = "";
@@ -942,7 +942,7 @@ namespace moris
             {
                 uint tActivePattern = aHMRPerformer->get_database()->get_background_mesh()->get_activation_pattern();
 
-                Cell< uint > tPatterns( tNumPattern );
+                Vector< uint > tPatterns( tNumPattern );
 
                 for ( uint Ik = 0; Ik < tNumPattern; Ik++ )
                 {

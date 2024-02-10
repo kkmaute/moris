@@ -64,7 +64,7 @@ namespace moris::gen
          */
         Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
@@ -79,7 +79,7 @@ namespace moris::gen
          * @return Parent edge local coordinate, between -1 and 1
          */
         virtual real compute_intersection_local_coordinate(
-                const Cell< Background_Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&   aFirstParentNode,
                 const Parent_Node&   aSecondParentNode ) override;
 
@@ -88,7 +88,7 @@ namespace moris::gen
          *
          * @return Empty vector
          */
-        Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+        Vector< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
         
         /**
          * Gets the number of fields that the design has
@@ -200,6 +200,6 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Cell< real >&           aOutputDesignInfo ) override;
+                Vector< real >&           aOutputDesignInfo ) override;
     };
 }

@@ -806,7 +806,7 @@ namespace moris
             // using cell and resize
             tsum = 0;
 
-            Cell< real > C( iStart * tMaxNumRow + 1, 1 );
+            Vector< real > C( iStart * tMaxNumRow + 1, 1 );
 
             tTimeStamp = std::clock();
 
@@ -829,7 +829,7 @@ namespace moris
             // using cell and pushback
             tsum = 0;
 
-            Cell< real > D( iStart * tMaxNumRow + 1, 1 );
+            Vector< real > D( iStart * tMaxNumRow + 1, 1 );
 
             tTimeStamp = std::clock();
 
