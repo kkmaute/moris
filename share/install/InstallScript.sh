@@ -6,7 +6,7 @@
 # tested on: ubuntu; OpenSUSE 15.5 
 
 # For special cases, such as building openmpi with scheduler, 
-# see moris/share/isntall/Install_Step_By_Step.txt
+# see moris/share/install/Install_Step_By_Step.txt
 
 #------------------------------------------------------------
 # edit the following lines
@@ -15,7 +15,7 @@
 # set spack and moris installation directory
 export WORKSPACE=$HOME/codes
 
-# define developper mode: 0 for users; 1 for developpers
+# define developer mode: 0 for users; 1 for developers
 export DEVELOPPER_MODE=0
 
 # define blas and lapack provider:
