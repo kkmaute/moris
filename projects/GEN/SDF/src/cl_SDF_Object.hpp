@@ -28,10 +28,14 @@ namespace moris
             const real                              mMeshHighPass = 1e-9;
             moris::Cell< std::shared_ptr< Facet > > mFacets;
 
-            uint mDimension;
             uint mNumberOfFacets;
 
             real mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object
+
+          protected:
+            uint                                           mDimension;
+            moris::Cell< std::shared_ptr< Facet_Vertex > > mVertices;    // vertices of all facets, can be modified by ADVs
+
 
             //-------------------------------------------------------------------------------
 
@@ -48,7 +52,7 @@ namespace moris
 
             /**
              * Performs a coordinate rotation of the object's facets and vertices
-             * NOTE: This action itself cannot be undone without using reset_object_coordinates, which will also remove any applied scaling or translation.
+             * NOTE: This action itself can be undone by calling reset_coordinates(), but will remove any scaling or shift that may have occurred
              *
              * @param aRotationMatrix the direction cosine matrix defining the rotation
              */
@@ -59,7 +63,7 @@ namespace moris
 
             /**
              * Scales all the coordinates of the object.
-             * NOTE: This action can be undone by calling scale_object( aScaling^-1 )
+             * NOTE: This action can be undone by calling reset_coordinates(), but will remove any shift or rotation that may have occurred
              *
              * @param aScaling factor to scale in each coordinate direction
              */
@@ -70,7 +74,7 @@ namespace moris
 
             /**
              * Moves the object's spatial position.
-             * NOTE: This action can be undone by calling translate_object( -aShift )
+             * NOTE: This action can be undone by calling reset_coordinates(), but will remove any scaling or rotation that may have occurred
              *
              * @param aShift shift in each coordinate direction that is added to the objects coordinates.
              */
@@ -111,6 +115,8 @@ namespace moris
             {
                 return mDimension;
             }
+
+            //-------------------------------------------------------------------------------
 
             real
             get_intersection_tolerance()
@@ -171,6 +177,15 @@ namespace moris
             void
             load_ascii_to_buffer( const std::string& aFilePath,
                     moris::Cell< std::string >&      aBuffer );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Updates all member data for each facet of the object such as Hesse distance, normal, and center
+             *
+             */
+            void
+            update_all_facets();
 
             //-------------------------------------------------------------------------------
         };

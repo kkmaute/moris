@@ -90,47 +90,6 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
-             * Performs a coordinate rotation of the object's facets and vertices
-             * NOTE: This action itself cannot be undone without using reset_object_coordinates, which will also remove any applied scaling or translation.
-             *
-             * @param aRotationMatrix the direction cosine matrix defining the rotation
-             */
-            void
-            rotate( const Matrix< DDRMat >& aRotationMatrix );
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * Scales all the coordinates of the object.
-             * NOTE: This action can be undone by calling scale_object( aScaling^-1 )
-             *
-             * @param aScaling factor to scale in each coordinate direction
-             */
-            void
-            scale( const moris::Cell< real >& aScaling );
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * Moves the object's spatial position.
-             * NOTE: This action can be undone by calling translate_object( -aShift )
-             *
-             * @param aShift shift in each coordinate direction that is added to the objects coordinates.
-             */
-            void
-            shift( const moris::Cell< real >& aShift );
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * Resets all the transformed flags for each vertex of the facet
-             */
-            void
-            reset_vertex_transformed_flags();
-
-            //-------------------------------------------------------------------------------
-
-            /**
              * Resets the object back to its attitude when it was constructed,
              * removing any rotation, scaling, or translation that was applied
              *

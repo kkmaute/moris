@@ -103,10 +103,9 @@ namespace moris
             }
 
             // step 2: create vertices
-            moris::Cell< std::shared_ptr< Facet_Vertex > > tVertices( tNumberOfVertices );
+            mVertices.resize( tNumberOfVertices );
 
             // reset counter
-
             uint tCount = 0;
             // loop over all lines
             for ( uint k = 0; k < tBufferLength; ++k )
@@ -155,7 +154,7 @@ namespace moris
                     }
 
                     // create vertex
-                    tVertices( tCount ) = std::make_shared< Facet_Vertex >( tCount, tNodeCoords );
+                    mVertices( tCount ) = std::make_shared< Facet_Vertex >( tCount, tNodeCoords );
 
                     // increment counter
                     ++tCount;
@@ -210,7 +209,7 @@ namespace moris
                                 "Invalid vertex ID in object file" );
 
                         // copy vertex into cell
-                        tNodes( i ) = tVertices( tNodeIndices( i ) - 1 );
+                        tNodes( i ) = mVertices( tNodeIndices( i ) - 1 );
                     }
 
                     // create facet pointer
@@ -233,7 +232,6 @@ namespace moris
                             MORIS_ERROR( false, "Facet implementation for %dD facets not implemented yet.", mDimension );
                         }
                     }
-
 
                     // increment counter
                     ++tCount;
@@ -322,7 +320,7 @@ namespace moris
             // step 2: create vertices
             // - - - - - - - - - - - - -
 
-            moris::Cell< std::shared_ptr< Facet_Vertex > > tVertices( 3 * tTriangleCount );
+            mVertices.resize( 3 * tTriangleCount );
 
             // initialize vertex counter
             uint tVertexCount = 0;
@@ -346,7 +344,7 @@ namespace moris
                         tNodeCoords( 2 ) = stod( tWords( 3 ) );
 
                         // create vertex
-                        tVertices( tVertexCount ) = std::make_shared< Facet_Vertex >( tVertexCount, tNodeCoords );
+                        mVertices( tVertexCount ) = std::make_shared< Facet_Vertex >( tVertexCount, tNodeCoords );
 
                         // increment vertex counter
                         ++tVertexCount;
@@ -355,7 +353,7 @@ namespace moris
             }
 
             // make sure that number of triangles is correct
-            MORIS_ERROR( tVertexCount == tVertices.size(), "Number of vertices does not match" );
+            MORIS_ERROR( tVertexCount == mVertices.size(), "Number of vertices does not match" );
 
             // - - - - - - - - - - - - -
             // step 3: create triangles
@@ -373,9 +371,9 @@ namespace moris
             // create triangles
             for ( uint iTriangle = 0; iTriangle < tNumberOfTriangles; ++iTriangle )
             {
-                tNodes( 0 ) = tVertices( tTriangleCount++ );
-                tNodes( 1 ) = tVertices( tTriangleCount++ );
-                tNodes( 2 ) = tVertices( tTriangleCount++ );
+                tNodes( 0 ) = mVertices( tTriangleCount++ );
+                tNodes( 1 ) = mVertices( tTriangleCount++ );
+                tNodes( 2 ) = mVertices( tTriangleCount++ );
 
                 // create triangle pointer
                 mFacets( iTriangle ) = std::make_shared< Triangle >( iTriangle, tNodes );
@@ -397,20 +395,12 @@ namespace moris
         void
         Object::rotate( const Matrix< DDRMat >& aRotationMatrix )
         {
-            // go through each facet and rotate its vertices
-            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
+            for ( uint iVertexIndex = 0; iVertexIndex < mVertices.size(); iVertexIndex++ )
             {
-                mFacets( iFacet )->rotate( aRotationMatrix );
-
-                // recompute information about the facet (normal, center, etc.)
-                mFacets( iFacet )->update_data();
+                mVertices( iVertexIndex )->rotate_node_coords( aRotationMatrix );
             }
 
-            // reset the transformed flags for all the vertices
-            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-            {
-                mFacets( iFacet )->reset_vertex_transformed_flags();
-            }
+            this->update_all_facets();
         }
 
         //-------------------------------------------------------------------------------
@@ -420,20 +410,12 @@ namespace moris
         {
             MORIS_ASSERT( aScaling.size() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
 
-            // go through each facet and scale its vertices
-            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
+            for ( uint iVertexIndex = 0; iVertexIndex < mVertices.size(); iVertexIndex++ )
             {
-                mFacets( iFacet )->scale( aScaling );
-
-                // recompute information about the facet (normal, center, etc.)
-                mFacets( iFacet )->update_data();
+                mVertices( iVertexIndex )->scale_node_coords( aScaling );
             }
 
-            // reset the transformed flags for all the vertices
-            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-            {
-                mFacets( iFacet )->reset_vertex_transformed_flags();
-            }
+            this->update_all_facets();
         }
 
         //-------------------------------------------------------------------------------
@@ -443,34 +425,34 @@ namespace moris
         {
             MORIS_ASSERT( aShift.size() == mDimension, "SDF_Object::shift_object() - Shift must be equal to object dimension." );
 
-            // go through each facet and shift its vertices
-            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
+            for ( uint iVertexIndex = 0; iVertexIndex < mVertices.size(); iVertexIndex++ )
             {
-                mFacets( iFacet )->shift( aShift );
-
-                // recompute information about the facet (normal, center, etc.)
-                mFacets( iFacet )->update_data();
+                mVertices( iVertexIndex )->shift_node_coords( aShift, false );
             }
 
-            // reset the transformed flags for all the vertices
-            for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
-            {
-                mFacets( iFacet )->reset_vertex_transformed_flags();
-            }
+            this->update_all_facets();
         }
 
         //-------------------------------------------------------------------------------
 
+        void Object::reset_coordinates()
+        {
+            for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
+            {
+                mVertices( iVertex )->reset_node_coords();
+            }
+
+            this->update_all_facets();
+        }
+
+        //-------------------------------------------------------------------------------
 
         void
-        Object::reset_coordinates()
+        Object::update_all_facets()
         {
-            // go through each facet and reset its coordinates
+            // update information about the facets (normal, center, etc.)
             for ( uint iFacet = 0; iFacet < mFacets.size(); iFacet++ )
             {
-                mFacets( iFacet )->reset_coordinates();
-
-                // recompute information about the facet (normal, center, etc.)
                 mFacets( iFacet )->update_data();
             }
         }

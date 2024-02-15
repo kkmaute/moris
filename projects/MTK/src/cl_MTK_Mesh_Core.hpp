@@ -224,7 +224,7 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             /**
-             * Returns lagrange elements inside the same B-Spline elements as the input lagragne element
+             * Returns lagrange elements inside the same B-Spline elements as the input lagrange element
              *
              * @param aElementIndex Lagrange element Index
              * @param aDiscretizationMeshIndex dicretization mesh index
@@ -257,7 +257,7 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             /**
-             * Returns lagrange elements inside the same B-Spline elements as the input lagragne element and side ordinal
+             * Returns lagrange elements inside the same B-Spline elements as the input lagrange element and side ordinal
              *
              * @param aElementIndex Lagrange element Index
              * @param aDiscretizationMeshIndex dicretization mesh index

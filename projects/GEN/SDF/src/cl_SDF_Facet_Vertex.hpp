@@ -24,18 +24,17 @@ namespace moris
         class Triangle;
 
         //-------------------------------------------------------------------------------
-        class Facet_Vertex : public mtk::Vertex, std::enable_shared_from_this< Facet_Vertex >
+        class Facet_Vertex : public mtk::Vertex
+                , std::enable_shared_from_this< Facet_Vertex >
         {
 
             const moris_index mIndex;
 
-            bool mIsTransformed = false;
-
             //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat > mNodeCoords;
+            Matrix< DDRMat > mNodeCoords;                    // can be changed through coordinate transformations in raycasts
+            Matrix< DDRMat > mCurrentIterationNodeCoords;    // only changed in optimization iterations through ADVs
 
-            const Matrix< DDRMat > mOriginalNodeCoords;
             //-------------------------------------------------------------------------------
 
           public:
@@ -59,26 +58,14 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            scale_node_coords( const moris::Cell< real >& aScaling )
-            {
-                for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
-                {
-                    mNodeCoords( iAxis ) *= aScaling( iAxis );
-                }
-                mIsTransformed = true;
-            }
+            scale_node_coords( const moris::Cell< real >& aScaling );
+
 
             //-------------------------------------------------------------------------------
 
             void
-            shift_node_coords( const moris::Cell< real >& aShift )
-            {
-                for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
-                {
-                    mNodeCoords( iAxis ) += aShift( iAxis );
-                }
-                mIsTransformed = true;
-            }
+            shift_node_coords( const moris::Cell< real >& aShift, bool aIsPermanent );
+
 
             //-------------------------------------------------------------------------------
 
@@ -87,19 +74,19 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            void
-            reset_transformed_flag()
-            {
-                mIsTransformed = false;
-            }
+            // void BRENDAN
+            // reset_transformed_flag()
+            // {
+            //     mIsTransformed = false;
+            // }
 
             //-------------------------------------------------------------------------------
 
-            bool
-            is_transformed()
-            {
-                return mIsTransformed;
-            }
+            // bool BRENDAN
+            // is_transformed()
+            // {
+            //     return mIsTransformed;
+            // }
 
             //-------------------------------------------------------------------------------
             // MTK API functions

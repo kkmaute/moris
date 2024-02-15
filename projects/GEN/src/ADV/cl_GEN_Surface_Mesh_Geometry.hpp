@@ -13,6 +13,7 @@
 #include "fn_SDF_Raycast.hpp"
 
 #include "cl_GEN_Design_Field.hpp"
+#include "cl_GEN_Field.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "GEN_Data_Types.hpp"
 
@@ -21,12 +22,13 @@ namespace moris::ge
     /**
      * This is a struct used to simplify \ref moris::ge::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Surface_Mesh_Parameters : public Field_Parameters, public Design_Parameters
+    struct Surface_Mesh_Parameters : public Field_Parameters
+            , public Design_Parameters
     {
-        Cell< real > mOffsets;          // Initial shift of surface mesh coordinates
-        Cell< real > mScale;            // Option to scale each axis of the surface mesh
-        std::string  mFilePath;         // Surface mesh file path
-        real mIntersectionTolerance;    // Interface tolerance based on intersection distance
+        Cell< real > mOffsets;                  // Initial shift of surface mesh coordinates
+        Cell< real > mScale;                    // Option to scale each axis of the surface mesh
+        std::string  mFilePath;                 // Surface mesh file path
+        real         mIntersectionTolerance;    // Interface tolerance based on intersection distance
 
         /**
          * Constructor with a given parameter list
@@ -36,11 +38,15 @@ namespace moris::ge
         explicit Surface_Mesh_Parameters( const ParameterList& aParameterList = prm::create_surface_mesh_geometry_parameter_list() );
     };
 
-    class Surface_Mesh_Geometry : public Geometry, public sdf::Object
+    class Surface_Mesh_Geometry : public Geometry
+            , public sdf::Object
     {
       private:
         Surface_Mesh_Parameters mParameters;
-        std::string mName;
+        std::string             mName;
+        mtk::Mesh*              mMesh;
+
+        Cell< std::shared_ptr< Field > > mPerturbationFields;    // Vector of perturbation fields
 
       public:
         /**
@@ -49,7 +55,13 @@ namespace moris::ge
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
+        Surface_Mesh_Geometry( mtk::Mesh* aMesh, Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
+
+        /**
+         * Deletes the mtk mesh pointer
+         *
+         */
+        ~Surface_Mesh_Geometry();
 
         /**
          * Gets the geometric region of a node, based on this geometry.
@@ -189,7 +201,7 @@ namespace moris::ge
         /**
          * Allows for access to the GEN field
          *
-         * @return Underlying field
+         * @return Underlying field'
          */
         std::shared_ptr< Field > get_field()
         {
@@ -202,11 +214,7 @@ namespace moris::ge
          *
          * @param aADVs ADVs
          */
-        void set_advs( sol::Dist_Vector* aAVS ) override
-        {
-            // TODO BRENDAN
-            return;
-        }
+        void set_advs( sol::Dist_Vector* aADVs ) override;
 
         /**
          * Gets if this field is to be used for seeding a B-spline field.
@@ -238,16 +246,33 @@ namespace moris::ge
 
         /**
          * Gets the intersection tolerance for creating intersection nodes
-         * 
+         *
          */
         real get_intersection_tolerance() override
         {
             return this->Geometry::get_intersection_tolerance();
         }
 
-        private:
+      private:
         void transform_surface_mesh_to_local_coordinate(
-            const Parent_Node& aFirstParentNode,
-            const Parent_Node& aSecondParentNode );
+                const Parent_Node& aFirstParentNode,
+                const Parent_Node& aSecondParentNode );
+
+        /**
+         * Finds the background elemenent in aField that contains aCoordinates
+         *
+         * @param aField The discretized field that will be interpolated from once the element is found
+         * @param aCoordinates The global location to be searched. The returned element is guaranteed to have aCoordinates in the bounding box
+         *
+         * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
+         */
+        moris_index find_background_element_from_global_coordinates(
+                const Matrix< DDRMat >& aCoordinate,
+                Cell< Cell< real > >&   aBoundingBox );
+
+        real interpolate_perturbation_from_background_element(
+                mtk::Cell*              aBackgroundElement,
+                uint                    aFieldIndex,
+                const Matrix< DDRMat >& aParametricCoordinates );
     };
 }    // namespace moris::ge

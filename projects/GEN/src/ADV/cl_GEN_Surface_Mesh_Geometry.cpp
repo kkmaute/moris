@@ -13,9 +13,17 @@
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 #include "cl_GEN_Parent_Node.hpp"
+
+#include "cl_GEN_BSpline_Field.hpp"
+#include "cl_GEN_Stored_Field.hpp"
+#include "cl_GEN_Constant_Field.hpp"
+
 #include "fn_cross.hpp"
 #include "fn_eye.hpp"
 
+#include "cl_MTK_Interpolation_Function_Base.hpp"
+#include "cl_MTK_Interpolation_Function_Factory.hpp"
+#include "cl_MTK_Enums.hpp"
 namespace moris::ge
 {
 
@@ -33,12 +41,35 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Surface_Mesh_Geometry::Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters )
+    Surface_Mesh_Geometry::Surface_Mesh_Geometry( mtk::Mesh* aMesh, Surface_Mesh_Parameters aParameters )
             : Geometry( aParameters, aParameters.mIntersectionTolerance )
             , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
+            , mMesh( aMesh )
     {
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );
+
+        // initialize displacement fields as zeros
+        Matrix< DDRMat > tADVs;
+        Matrix< DDUMat > tFieldVariableIndices;
+        Matrix< DDUMat > tADVIndices;
+        Matrix< DDRMat > tInitialDisplacement( Object::get_dimension(), 1 );
+        for ( uint iFieldIndex = 0; iFieldIndex < Object::get_dimension(); iFieldIndex++ )
+        {
+            mPerturbationFields( iFieldIndex ) = std::make_shared< Constant_Field >(
+                    tADVs,
+                    tFieldVariableIndices,
+                    tADVIndices,
+                    tInitialDisplacement,
+                    mName + "_PERT_" + std::to_string( iFieldIndex ) );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Surface_Mesh_Geometry::~Surface_Mesh_Geometry()
+    {
+        delete mMesh;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -104,7 +135,7 @@ namespace moris::ge
         this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
 
         // Compute the distance to the facets
-        Matrix< DDRMat > tCastPoint( this->get_dimension(), 1 );
+        Matrix< DDRMat > tCastPoint( Object::mDimension, 1 );
         tCastPoint.fill( 0.0 );
         Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0 );
 
@@ -144,8 +175,9 @@ namespace moris::ge
     {
         // step 1: shift the object so the first parent is at the origin
         Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
-        Cell< real >     tShift( this->get_dimension() );
-        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(), "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
+        Cell< real >     tShift( Object::mDimension );
+        MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(),
+                "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
         for ( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
         {
             tShift( iCoord ) = -1.0 * tFirstParentNodeGlobalCoordinates( iCoord );
@@ -190,10 +222,11 @@ namespace moris::ge
         }
 
         // check that the rotation matrix is correct by ensuring the parent vector was rotated to the x axis
-        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < this->get_intersection_tolerance(), "Rotation matrix should rotate the parent vector to the x axis." );
+        MORIS_ASSERT( norm( tRotationMatrix * tParentVector - tCastAxis ) < this->get_intersection_tolerance(),
+                "Rotation matrix should rotate the parent vector to the x axis." );
 
         // trim the transformation matrix if 2D
-        if ( this->get_dimension() == 2 )
+        if ( Object::mDimension == 2 )
         {
             tRotationMatrix.resize( 2, 2 );
         }
@@ -202,7 +235,7 @@ namespace moris::ge
         this->rotate( tRotationMatrix );
 
         // step 3: scale the object
-        Cell< real > tScaling( this->get_dimension(), 2.0 / tParentVectorNorm );
+        Cell< real > tScaling( Object::mDimension, 2.0 / tParentVectorNorm );
         this->scale( tScaling );
     }
 
@@ -220,7 +253,62 @@ namespace moris::ge
     void
     Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
-        // TODO BRENDAN
+        // Have each field import the advs
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
+        }
+
+        // update the surface mesh with the new field data
+        Cell< Cell< real > > tElementBoundingBox( 2, Object::mDimension );
+        Matrix< DDRMat >     tVertexParametricCoordinates( Object::mDimension, 1 );
+        for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
+        {
+            // Initialize perturbation vector
+            Cell< real > tVertexPerturbation( Object::mDimension );
+
+            // Determine which element this vertex lies in, will be the same for every field
+            int tElementIndex = this->find_background_element_from_global_coordinates(
+                    Object::mVertices( iVertexIndex )->get_coords(),
+                    tElementBoundingBox );
+
+            // determine the local coordinates of the vertex inside the mtk::Cell
+            for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
+            {
+                tVertexParametricCoordinates( iDimensionIndex, 1 ) = ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex )
+                                                                          - tElementBoundingBox( 1 )( iDimensionIndex ) )
+                                                                / ( tElementBoundingBox( 2 )( iDimensionIndex )
+                                                                        - tElementBoundingBox( 1 )( iDimensionIndex ) );
+            }
+
+            // Loop through each field and interpolate its displacement value at the vertex's location
+            // FIXME: this assumes every dimension is discretized or not. we may want to allow for only some dimensions to be discretized.
+            // In this case, we'd need to search the field by name first to associate it with a dimension,
+            // and then fill the rest of the perturbation vector with 0s
+            for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+            {
+                // Interpolate the bspline field value at the facet vertex location
+                real tInterpolatedFieldValue = interpolate_perturbation_from_background_element( &mMesh->get_mtk_cell( tElementIndex ), iFieldIndex, tVertexParametricCoordinates );
+
+                // Add the perturbation to the list
+                tVertexPerturbation( iFieldIndex ) = tInterpolatedFieldValue;
+            }
+
+            // Displace the vertex by the total perturbation
+            Object::mVertices( iVertexIndex )->shift_node_coords( tVertexPerturbation, true );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Surface_Mesh_Geometry::set_advs( sol::Dist_Vector* aADVs )
+    {
+        // Have each field import the advs
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            mPerturbationFields( iFieldIndex )->set_advs( aADVs );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -228,7 +316,14 @@ namespace moris::ge
     void
     Surface_Mesh_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
     {
-        // TODO BRENDAN
+        // update the perturbation fields with the new mesh
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            mPerturbationFields( iFieldIndex )->reset_nodal_data( aInterpolationMesh );
+        }
+
+        // update the stored mtk interpolation mesh with the new mesh
+        mMesh = aInterpolationMesh;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -240,7 +335,31 @@ namespace moris::ge
             const Matrix< DDSMat >& aSharedADVIds,
             uint                    aADVOffsetID )
     {
-        // TODO BRENDAN
+        // for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        // {
+        //     if ( mParameters.mDiscretizationIndex >= 0 )
+        //     {
+        //         // Create a B-spline field
+        //         mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
+        //                 aMeshPair,
+        //                 aOwnedADVs,
+        //                 aSharedADVIds,
+        //                 aADVOffsetID,
+        //                 mParameters.mDiscretizationIndex + iFieldIndex,    // BRENDAN, this might mess up something if fields have indices that weren't explicitly specified
+        //                 mPerturbationFields( iFieldIndex ) );
+
+        //         // Set analytic field index, for now
+        //         Field::gDiscretizationIndex = mParameters.mDiscretizationIndex + iFieldIndex;
+        //     }
+        //     else if ( mParameters.mDiscretizationIndex == -1 )
+        //     {
+        //         // Just store nodal values
+        //         mPerturbationFields( iFieldIndex ) = std::make_shared< Stored_Field >(
+        //                 aMeshPair.get_interpolation_mesh(),
+        //                 mPerturbationFields( iFieldIndex ) );
+        //     }
+        //     mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
+        // }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -253,7 +372,26 @@ namespace moris::ge
             const Matrix< DDSMat >&       aSharedADVIds,
             uint                          aADVOffsetID )
     {
-        // TODO BRENDAN
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            if ( mParameters.mDiscretizationIndex >= 0 )
+            {
+                // Create a B-spline field
+                mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
+                        aOwnedADVs,
+                        aSharedADVIds,
+                        aADVOffsetID,
+                        mParameters.mDiscretizationIndex,
+                        aMTKField,
+                        aMeshPair );
+            }
+            else if ( mParameters.mDiscretizationIndex == -1 )
+            {
+                // TODO
+                MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
+            }
+            mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -264,8 +402,14 @@ namespace moris::ge
             const Matrix< DDRMat >& aCoordinates,
             Cell< real >&           aOutputDesignInfo )
     {
-        // TODO BRENDAN
-        aOutputDesignInfo.resize( 0 );
+        // fit the output to the number of fields the surface mesh has
+        aOutputDesignInfo.resize( mPerturbationFields.size() );
+
+        // store the displacement value in every direction in the output
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            aOutputDesignInfo( iFieldIndex ) = mPerturbationFields( iFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -300,6 +444,133 @@ namespace moris::ge
     Surface_Mesh_Geometry::get_discretization_upper_bound()
     {
         return mParameters.mDiscretizationUpperBound;
+    }
+
+    moris_index
+    Surface_Mesh_Geometry::find_background_element_from_global_coordinates(
+            const Matrix< DDRMat >& aCoordinate,
+            Cell< Cell< real > >&   aBoundingBox )
+    {
+        // Loop through each mtk::Cell
+        for ( uint iElementIndex = 0; iElementIndex < mMesh->get_num_elems(); iElementIndex++ )
+        {
+            // Get the vertices of the mtk::Cell at this index
+            Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = mMesh->get_mtk_cell( iElementIndex ).get_vertex_coords();
+
+            // Build bounding box for this mtk::Cell
+            // Loop over dimensions
+            for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
+            {
+                // Loop over vertices
+                for ( uint iVertexIndex = 0; iVertexIndex < tCurrentSearchElementVertexCoordinates.n_rows(); iVertexIndex++ )
+                {
+                    // check if the entry is less than the minimum
+                    if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) < aBoundingBox( 1 )( iDimensionIndex ) )
+                    {
+                        aBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
+                    }
+                    // check if the entry is greater than the maximum
+                    if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) > aBoundingBox( 2 )( iDimensionIndex ) )
+                    {
+                        aBoundingBox( 2 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
+                    }
+                }
+            }
+
+            // Check if the query point is inside the bounding box
+            bool tInsideBoundingBox = true;
+
+            // Loop over dimensions
+            for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
+            {
+                // Check if the point is outside the bounding box
+                if ( aCoordinate( iDimensionIndex ) < aBoundingBox( 1 )( iDimensionIndex )
+                        or aCoordinate( iDimensionIndex ) > aBoundingBox( 2 )( iDimensionIndex ) )
+                {
+                    // if outside, set flag to false
+                    tInsideBoundingBox = false;
+                }
+            }
+
+            // if the element has been found, return its index
+            if ( tInsideBoundingBox )
+            {
+                return iElementIndex;
+            }
+        }
+
+        // if no element found, return -1
+        return -1;
+    }
+
+    real
+    Surface_Mesh_Geometry::interpolate_perturbation_from_background_element(
+            mtk::Cell*              aBackgroundElement,
+            uint                    aFieldIndex,
+            const Matrix< DDRMat >& aParametricCoordinates )
+    {
+        // number of nodes to be used for interpolation
+        uint tNumBases = aBackgroundElement->get_number_of_vertices();
+
+        // build interpolator
+        mtk::Interpolation_Function_Factory tFactory;
+        mtk::Interpolation_Function_Base*   tInterpolation;
+
+        // create interpolation function based on spatial dimension  of problem
+        switch ( tNumBases )
+        {
+            case 4:
+            {
+                tInterpolation = tFactory.create_interpolation_function(
+                        mtk::Geometry_Type::QUAD,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Order::LINEAR );
+                break;
+            }
+            case 8:
+            {
+                tInterpolation = tFactory.create_interpolation_function(
+                        mtk::Geometry_Type::HEX,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Order::LINEAR );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false,
+                        "Surface_Mesh_Geometry::interpolate_perturbation - Interpolation type not implemented." );
+            }
+        }
+
+        // compute basis function at the vertices
+        Matrix< DDRMat > tBasis;
+        tInterpolation->eval_N( aParametricCoordinates, tBasis );
+
+        // get the indices and coordinates of the background element vertices
+        Matrix< IndexMat > tVertexIndices        = aBackgroundElement->get_vertex_inds();
+        Matrix< DDRMat >   tAllVertexCoordinates = aBackgroundElement->get_vertex_coords();
+
+        // initialize field value at the node location
+        real tPerturbation = 0.0;
+
+        // get perturbation values at the vertices
+        for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
+        {
+            // FIXME: get vertex coordinates for this vertex
+            Matrix< DDRMat > tVertexCoordinates( 1, Object::mDimension );
+            for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+            {
+                tVertexCoordinates( 1, iDimension ) = tAllVertexCoordinates( iBackgroundNodeIndex, iDimension );
+            }
+
+            // add this vertex's field value to the value
+            tPerturbation += tBasis( iBackgroundNodeIndex ) * mPerturbationFields( aFieldIndex )->get_field_value( tVertexIndices( iBackgroundNodeIndex ), tVertexCoordinates );
+        }
+
+        // clean up
+        delete tInterpolation;
+
+        return tPerturbation;
     }
 
     //--------------------------------------------------------------------------------------------------------------

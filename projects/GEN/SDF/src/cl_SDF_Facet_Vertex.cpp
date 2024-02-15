@@ -22,7 +22,7 @@ namespace moris
                 const Matrix< DDRMat > &aNodeCoords )
                 : mIndex( aIndex )
                 , mNodeCoords( aNodeCoords )
-                , mOriginalNodeCoords( aNodeCoords )
+                , mCurrentIterationNodeCoords( aNodeCoords )
         {
         }
 
@@ -31,16 +31,41 @@ namespace moris
         void
         Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > &aRotationMatrix )
         {
-            mNodeCoords = aRotationMatrix * mNodeCoords;
-            mIsTransformed = true;
+            mNodeCoords    = aRotationMatrix * mNodeCoords;
         }
 
         //-------------------------------------------------------------------------------
 
         void
+        Facet_Vertex::scale_node_coords( const moris::Cell< real > &aScaling )
+        {
+            for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
+            {
+                mNodeCoords( iAxis ) *= aScaling( iAxis );
+            }
+        }
+        
+        //-------------------------------------------------------------------------------
+
+        void
+        Facet_Vertex::shift_node_coords( const moris::Cell< real > &aShift, bool aIsPermanent )
+        {
+            for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
+            {
+                mNodeCoords( iAxis ) += aShift( iAxis );
+                if( aIsPermanent )
+                {
+                    mCurrentIterationNodeCoords( iAxis ) += aShift( iAxis );
+                }
+            }
+        }
+        
+        //-------------------------------------------------------------------------------
+
+        void
         Facet_Vertex::reset_node_coords()
         {
-            mNodeCoords = mOriginalNodeCoords;
+            mNodeCoords = mCurrentIterationNodeCoords;
         }
 
         //-------------------------------------------------------------------------------

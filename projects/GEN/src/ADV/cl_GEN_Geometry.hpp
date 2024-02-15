@@ -174,7 +174,7 @@ namespace moris::ge
         /**
          * Used to print geometry information to exodus files and print debug information.
          *
-         *  @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
+         * @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
          * @param aCoordinates The field location to get the value from.
          * @return the value of the property field at the requested location
          */
@@ -185,7 +185,7 @@ namespace moris::ge
 
         /**
          * Gets the intersection tolerance for this geometry
-         * 
+         *
          * @return tolerance for creating intersection nodes
          */
         virtual real get_intersection_tolerance()
