@@ -1173,8 +1173,8 @@ namespace moris
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();    // linear problem index 0
         tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
-        tParameterlist( 1 )( 0 ).set( "DLA_operator_condition_number_with_moris", true );
-        tParameterlist( 1 )( 0 ).set( "DLA_prec_operator_condition_number_with_moris", true );
+        tParameterlist( 1 )( 0 ).set( "DLA_operator_condition_number_with_moris", "dense" );
+        tParameterlist( 1 )( 0 ).set( "DLA_prec_operator_condition_number_with_moris", "dense" );
 
         tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list(); // eigen problem index 1
         tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );

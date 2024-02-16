@@ -99,7 +99,7 @@ namespace moris
              *
              */
 
-            virtual void compute_operator_condition_number_with_moris(){};
+            virtual void compute_operator_condition_number_with_moris( std::string tComputationMode ){};
 
             //-----------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ namespace moris
              *
              */
 
-            virtual void compute_preconditioned_operator_condition_number_with_moris(){};
+            virtual void compute_preconditioned_operator_condition_number_with_moris( std::string tComputationMode ){};
         };
     }    // namespace dla
 }    // namespace moris

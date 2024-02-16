@@ -612,8 +612,8 @@ namespace moris
             tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
 
             // operaotr and precondioned opeartor condition number with arma/eigen
-            tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", false );
-            tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", false );
+            tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", "" );         // "" : do not compute, "dense", "sparse"
+            tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", "" );    // "" : do not compute, "dense", "sparse"
 
             return tLinSolverParameterList;
         }
