@@ -191,16 +191,16 @@ void Linear_Solver::solver_linear_system(
         MORIS_LOG( "Linear Solver status absolute value = %i", tErrorStatus );
         MORIS_LOG( "Linear Solver did not exit with status 0!" );
     }
-    
-    // write out condition numbers of the matrix with and without preconditioner
-    if ( mParameterListLinearSolver.get< bool >( "DLA_operator_condition_number_with_moris" ) )
+
+    if ( !mParameterListLinearSolver.get< std::string >( "DLA_prec_operator_condition_number_with_moris" ).empty() )
     {
-        mLinearSolverList( 0 )->compute_operator_condition_number_with_moris();
+        mLinearSolverList( 0 )->compute_preconditioned_operator_condition_number_with_moris( mParameterListLinearSolver.get< std::string >( "DLA_prec_operator_condition_number_with_moris" ) );
     }
 
-    if ( mParameterListLinearSolver.get< bool >( "DLA_prec_operator_condition_number_with_moris" ) )
+    // write out condition numbers of the matrix with and without preconditioner
+    if ( !mParameterListLinearSolver.get< std::string >( "DLA_operator_condition_number_with_moris" ).empty() )
     {
-        mLinearSolverList( 0 )->compute_preconditioned_operator_condition_number_with_moris();
+        mLinearSolverList( 0 )->compute_operator_condition_number_with_moris( mParameterListLinearSolver.get< std::string >( "DLA_operator_condition_number_with_moris" ) );
     }
 }
 
@@ -219,6 +219,6 @@ void Linear_Solver::set_linear_solver_manager_parameters()
     // RHS matrix type ( for eigen analysis )
     mParameterListLinearSolver.insert( "RHS_Matrix_Type", "" );
 
-    mParameterListLinearSolver.insert( "DLA_operator_condition_number_with_moris", false );
-    mParameterListLinearSolver.insert( "DLA_prec_operator_condition_number_with_moris", false );
+    mParameterListLinearSolver.insert( "DLA_operator_condition_number_with_moris", "" );
+    mParameterListLinearSolver.insert( "DLA_prec_operator_condition_number_with_moris", "" );
 }

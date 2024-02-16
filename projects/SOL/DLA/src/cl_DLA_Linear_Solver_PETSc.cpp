@@ -69,7 +69,7 @@ Linear_Solver_PETSc::~Linear_Solver_PETSc()
 }
 
 //----------------------------------------------------------------------------------------
-void
+void 
 Linear_Solver_PETSc::set_solver_parameters()
 {
     // Create parameter list and set default values for solver parameters
@@ -141,7 +141,7 @@ Linear_Solver_PETSc::solve_linear_system(
     // VecView( static_cast< Vector_PETSc * >( aLinearSystem->get_solver_RHS() )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
     // VecView( static_cast< Vector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
 
-    this->compute_eigenspectrum(aLinearSystem);
+    this->compute_eigenspectrum( aLinearSystem );
 
     // Solve System
     KSPSolve(
@@ -154,12 +154,14 @@ Linear_Solver_PETSc::solve_linear_system(
 
     mSolverInterface = nullptr;
 
+    KSPDestroy( &mPetscKSPProblem );
+
     return 0;
 }
 
 //----------------------------------------------------------------------------------------
 
-void
+void 
 Linear_Solver_PETSc::set_solver_analysis_options()
 {
     KSPMonitorSet( mPetscKSPProblem,
@@ -170,7 +172,7 @@ Linear_Solver_PETSc::set_solver_analysis_options()
 
 //----------------------------------------------------------------------------------------
 
-void
+void 
 Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinearSystem )
 {
     // set flag whether solver is defined
@@ -343,8 +345,8 @@ Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinea
     KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
 }
 
-void
-Linear_Solver_PETSc::compute_eigenspectrum(Linear_Problem* aLinearSystem)
+void 
+Linear_Solver_PETSc::compute_eigenspectrum( Linear_Problem *aLinearSystem )
 {
     uint tNumEigenValues = mParameterList.get< uint >( "ouput_eigenspectrum" );
     if ( tNumEigenValues == 0 )
@@ -368,9 +370,9 @@ Linear_Solver_PETSc::compute_eigenspectrum(Linear_Problem* aLinearSystem)
     KSPComputeOperator( mPetscKSPProblem, tMatType, &tBA );
 
     // set up the eigen problem
-    EPS eps;
-    moris::real tTolerance; 
-    moris::sint   tMaxIter; 
+    EPS         eps;
+    moris::real tTolerance;
+    moris::sint tMaxIter;
     SlepcInitializeNoArguments();
     EPSCreate( PETSC_COMM_WORLD, &eps );
     EPSSetOperators( eps, tBA, NULL );
