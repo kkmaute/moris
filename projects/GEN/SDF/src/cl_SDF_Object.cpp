@@ -427,7 +427,7 @@ namespace moris
 
             for ( uint iVertexIndex = 0; iVertexIndex < mVertices.size(); iVertexIndex++ )
             {
-                mVertices( iVertexIndex )->shift_node_coords( aShift, false );
+                mVertices( iVertexIndex )->shift_node_coords_from_current( aShift );
             }
 
             this->update_all_facets();
@@ -464,9 +464,6 @@ namespace moris
                 uint aFacetIndex,
                 uint aAxis )
         {
-            MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_min_coord() - aFacetIndex must be >= 0. Current index: %u", aFacetIndex );
-            MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_min_coord() - aAxis must be >= 0. Current index: %u", aAxis );
-
             return mFacets( aFacetIndex )->get_min_coord( aAxis );
         }
 
@@ -478,9 +475,6 @@ namespace moris
                 uint aAxis )
 
         {
-            MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_max_coord() - aFacetIndex must be >= 0. Current index: %u", aFacetIndex );
-            MORIS_ASSERT( aFacetIndex >= 0, "SDF_Object:get_facet_max_coord() - aAxis must be >= 0. Current index: %u", aAxis );
-
             return mFacets( aFacetIndex )->get_max_coord( aAxis );
         }
 

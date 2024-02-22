@@ -45,6 +45,7 @@ namespace moris::ge
         Surface_Mesh_Parameters mParameters;
         std::string             mName;
         mtk::Mesh*              mMesh;
+        Cell< Cell< real > >    mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
 
         Cell< std::shared_ptr< Field > > mPerturbationFields;    // Vector of perturbation fields
 
@@ -55,10 +56,10 @@ namespace moris::ge
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        Surface_Mesh_Geometry( mtk::Mesh* aMesh, Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
+        Surface_Mesh_Geometry( mtk::Mesh* aMesh, Matrix< DDRMat > aADVs, Surface_Mesh_Parameters aParameters = Surface_Mesh_Parameters() );
 
         /**
-         * Deletes the mtk mesh pointer
+         * Default destructor
          *
          */
         ~Surface_Mesh_Geometry();

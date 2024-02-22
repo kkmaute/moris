@@ -22,7 +22,7 @@ namespace moris
                 const Matrix< DDRMat > &aNodeCoords )
                 : mIndex( aIndex )
                 , mNodeCoords( aNodeCoords )
-                , mCurrentIterationNodeCoords( aNodeCoords )
+                , mIterationNodeCoords( aNodeCoords )
         {
         }
 
@@ -31,7 +31,7 @@ namespace moris
         void
         Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > &aRotationMatrix )
         {
-            mNodeCoords    = aRotationMatrix * mNodeCoords;
+            mNodeCoords = aRotationMatrix * mNodeCoords;
         }
 
         //-------------------------------------------------------------------------------
@@ -44,31 +44,42 @@ namespace moris
                 mNodeCoords( iAxis ) *= aScaling( iAxis );
             }
         }
-        
+
         //-------------------------------------------------------------------------------
 
         void
-        Facet_Vertex::shift_node_coords( const moris::Cell< real > &aShift, bool aIsPermanent )
+        Facet_Vertex::set_node_coords( const moris::Cell< real > &aCoordinates )
+        {
+            for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
+            {
+                mNodeCoords( iAxis ) = aCoordinates( iAxis );
+            }
+        }
+
+        void
+        Facet_Vertex::shift_node_coords_from_current( const moris::Cell< real > &aShift )
         {
             for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
             {
                 mNodeCoords( iAxis ) += aShift( iAxis );
-                if( aIsPermanent )
-                {
-                    mCurrentIterationNodeCoords( iAxis ) += aShift( iAxis );
-                }
             }
         }
-        
+
         //-------------------------------------------------------------------------------
 
         void
         Facet_Vertex::reset_node_coords()
         {
-            mNodeCoords = mCurrentIterationNodeCoords;
+            mNodeCoords = mIterationNodeCoords;
         }
 
         //-------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        Facet_Vertex::get_coords() const
+        {
+            return mNodeCoords;
+        }
 
     } /* namespace sdf */
 } /* namespace moris */

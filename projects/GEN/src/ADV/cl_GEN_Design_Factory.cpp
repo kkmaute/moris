@@ -180,7 +180,7 @@ namespace moris::ge
                         }
                         else if ( tGeometryType == "surface_mesh" )
                         {
-                            mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >( aMesh, Surface_Mesh_Parameters( iParameterList ) );
+                            mGeometries( tGeometryIndex++ ) = std::make_shared< Surface_Mesh_Geometry >( aMesh, aADVs, Surface_Mesh_Parameters( iParameterList ) );
                             tSomethingHasBeenBuilt = true;
                         }
                         else

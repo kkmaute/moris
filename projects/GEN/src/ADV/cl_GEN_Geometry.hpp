@@ -56,11 +56,6 @@ namespace moris::ge
         explicit Geometry( Design_Parameters aParameters, real aIntersectionTolerance );
 
         /**
-         * Default destructor
-         */
-        ~Geometry() override = default;
-
-        /**
          * Sets a new node manager (from the geometry engine, if it was created after this geometry).
          * Default implementation does nothing.
          *

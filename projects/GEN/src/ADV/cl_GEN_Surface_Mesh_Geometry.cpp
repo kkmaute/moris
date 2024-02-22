@@ -41,26 +41,39 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Surface_Mesh_Geometry::Surface_Mesh_Geometry( mtk::Mesh* aMesh, Surface_Mesh_Parameters aParameters )
+    Surface_Mesh_Geometry::Surface_Mesh_Geometry( mtk::Mesh* aMesh, Matrix< DDRMat > aADVs, Surface_Mesh_Parameters aParameters )
             : Geometry( aParameters, aParameters.mIntersectionTolerance )
             , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
             , mMesh( aMesh )
+            , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
+            , mPerturbationFields( Object::mDimension )
     {
+        // set name of this geometry as the file name
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );
 
+        // copy original vertex coords from Object base class for perturbation
+        for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
+        {
+            for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+            {
+                mOriginalVertexCoordinates( iVertexIndex )( iDimension ) = Object::mVertices( iVertexIndex )->get_coord( iDimension );
+            }
+        }
+
         // initialize displacement fields as zeros
-        Matrix< DDRMat > tADVs;
-        Matrix< DDUMat > tFieldVariableIndices;
-        Matrix< DDUMat > tADVIndices;
+        Matrix< DDUMat > tFieldVariableIndices = { { 0 } };
+        Matrix< DDRMat > tConstants            = { {} };
         Matrix< DDRMat > tInitialDisplacement( Object::get_dimension(), 1 );
         for ( uint iFieldIndex = 0; iFieldIndex < Object::get_dimension(); iFieldIndex++ )
         {
+            Matrix< DDUMat > tADVIndices       = { { iFieldIndex } };
+            Matrix< DDRMat > tADVs             = { { aADVs( iFieldIndex ) } };
             mPerturbationFields( iFieldIndex ) = std::make_shared< Constant_Field >(
-                    tADVs,
+                    aADVs,
                     tFieldVariableIndices,
                     tADVIndices,
-                    tInitialDisplacement,
+                    tConstants,
                     mName + "_PERT_" + std::to_string( iFieldIndex ) );
         }
     }
@@ -69,7 +82,6 @@ namespace moris::ge
 
     Surface_Mesh_Geometry::~Surface_Mesh_Geometry()
     {
-        delete mMesh;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -239,7 +251,6 @@ namespace moris::ge
         this->scale( tScaling );
     }
 
-
     //--------------------------------------------------------------------------------------------------------------
 
     Cell< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
@@ -254,9 +265,9 @@ namespace moris::ge
     Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         // Have each field import the advs
-        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        for ( auto tPerturbationField : mPerturbationFields )
         {
-            mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
+            tPerturbationField->import_advs( aOwnedADVs );
         }
 
         // update the surface mesh with the new field data
@@ -265,38 +276,40 @@ namespace moris::ge
         for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
         {
             // Initialize perturbation vector
-            Cell< real > tVertexPerturbation( Object::mDimension );
+            Cell< real > tNewVertexCoordinates( Object::mDimension );
 
             // Determine which element this vertex lies in, will be the same for every field
             int tElementIndex = this->find_background_element_from_global_coordinates(
                     Object::mVertices( iVertexIndex )->get_coords(),
                     tElementBoundingBox );
 
-            // determine the local coordinates of the vertex inside the mtk::Cell
-            for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
-            {
-                tVertexParametricCoordinates( iDimensionIndex, 1 ) = ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex )
-                                                                          - tElementBoundingBox( 1 )( iDimensionIndex ) )
-                                                                / ( tElementBoundingBox( 2 )( iDimensionIndex )
-                                                                        - tElementBoundingBox( 1 )( iDimensionIndex ) );
+            if ( tElementIndex != -1 )
+            {    // determine the local coordinates of the vertex inside the mtk::Cell
+                for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
+                {
+                    tVertexParametricCoordinates( iDimensionIndex, 0 ) = ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex )
+                                                                                 - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                       / ( tElementBoundingBox( 1 )( iDimensionIndex )
+                                                                               - tElementBoundingBox( 1 )( iDimensionIndex ) );
+                }
+
+                // Loop through each field and interpolate its displacement value at the vertex's location
+                for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+                {
+                    // Interpolate the bspline field value at the facet vertex location
+                    real tInterpolatedPerturbation = interpolate_perturbation_from_background_element( &mMesh->get_mtk_cell( tElementIndex ), iFieldIndex, tVertexParametricCoordinates );
+
+                    // Add the perturbation to the list
+                    tNewVertexCoordinates( iFieldIndex ) = tInterpolatedPerturbation + mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex );
+                }
+
+                // Displace the vertex by the total perturbation
+                Object::mVertices( iVertexIndex )->set_node_coords( tNewVertexCoordinates );
             }
-
-            // Loop through each field and interpolate its displacement value at the vertex's location
-            // FIXME: this assumes every dimension is discretized or not. we may want to allow for only some dimensions to be discretized.
-            // In this case, we'd need to search the field by name first to associate it with a dimension,
-            // and then fill the rest of the perturbation vector with 0s
-            for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
-            {
-                // Interpolate the bspline field value at the facet vertex location
-                real tInterpolatedFieldValue = interpolate_perturbation_from_background_element( &mMesh->get_mtk_cell( tElementIndex ), iFieldIndex, tVertexParametricCoordinates );
-
-                // Add the perturbation to the list
-                tVertexPerturbation( iFieldIndex ) = tInterpolatedFieldValue;
-            }
-
-            // Displace the vertex by the total perturbation
-            Object::mVertices( iVertexIndex )->shift_node_coords( tVertexPerturbation, true );
         }
+
+        // Update all facet data
+        this->Object::update_all_facets();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -372,26 +385,26 @@ namespace moris::ge
             const Matrix< DDSMat >&       aSharedADVIds,
             uint                          aADVOffsetID )
     {
-        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
-        {
-            if ( mParameters.mDiscretizationIndex >= 0 )
-            {
-                // Create a B-spline field
-                mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
-                        aOwnedADVs,
-                        aSharedADVIds,
-                        aADVOffsetID,
-                        mParameters.mDiscretizationIndex,
-                        aMTKField,
-                        aMeshPair );
-            }
-            else if ( mParameters.mDiscretizationIndex == -1 )
-            {
-                // TODO
-                MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
-            }
-            mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
-        }
+        // for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        // {
+        //     if ( mParameters.mDiscretizationIndex >= 0 )
+        //     {
+        //         // Create a B-spline field
+        //         mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
+        //                 aOwnedADVs,
+        //                 aSharedADVIds,
+        //                 aADVOffsetID,
+        //                 mParameters.mDiscretizationIndex,
+        //                 aMTKField,
+        //                 aMeshPair );
+        //     }
+        //     else if ( mParameters.mDiscretizationIndex == -1 )
+        //     {
+        //         // TODO
+        //         MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
+        //     }
+        //     mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
+        // }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -465,14 +478,14 @@ namespace moris::ge
                 for ( uint iVertexIndex = 0; iVertexIndex < tCurrentSearchElementVertexCoordinates.n_rows(); iVertexIndex++ )
                 {
                     // check if the entry is less than the minimum
-                    if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) < aBoundingBox( 1 )( iDimensionIndex ) )
+                    if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) < aBoundingBox( 0 )( iDimensionIndex ) )
                     {
-                        aBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
+                        aBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
                     }
                     // check if the entry is greater than the maximum
-                    if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) > aBoundingBox( 2 )( iDimensionIndex ) )
+                    if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) > aBoundingBox( 1 )( iDimensionIndex ) )
                     {
-                        aBoundingBox( 2 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
+                        aBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
                     }
                 }
             }
@@ -484,8 +497,8 @@ namespace moris::ge
             for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
             {
                 // Check if the point is outside the bounding box
-                if ( aCoordinate( iDimensionIndex ) < aBoundingBox( 1 )( iDimensionIndex )
-                        or aCoordinate( iDimensionIndex ) > aBoundingBox( 2 )( iDimensionIndex ) )
+                if ( aCoordinate( iDimensionIndex ) < aBoundingBox( 0 )( iDimensionIndex )
+                        or aCoordinate( iDimensionIndex ) > aBoundingBox( 1 )( iDimensionIndex ) )
                 {
                     // if outside, set flag to false
                     tInsideBoundingBox = false;
@@ -517,30 +530,10 @@ namespace moris::ge
         mtk::Interpolation_Function_Base*   tInterpolation;
 
         // create interpolation function based on spatial dimension  of problem
-        switch ( tNumBases )
-        {
-            case 4:
-            {
-                tInterpolation = tFactory.create_interpolation_function(
-                        mtk::Geometry_Type::QUAD,
-                        mtk::Interpolation_Type::LAGRANGE,
-                        mtk::Interpolation_Order::LINEAR );
-                break;
-            }
-            case 8:
-            {
-                tInterpolation = tFactory.create_interpolation_function(
-                        mtk::Geometry_Type::HEX,
-                        mtk::Interpolation_Type::LAGRANGE,
-                        mtk::Interpolation_Order::LINEAR );
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR( false,
-                        "Surface_Mesh_Geometry::interpolate_perturbation - Interpolation type not implemented." );
-            }
-        }
+        tInterpolation = tFactory.create_interpolation_function(
+                aBackgroundElement->get_geometry_type(),
+                mtk::Interpolation_Type::LAGRANGE,
+                aBackgroundElement->get_interpolation_order() );
 
         // compute basis function at the vertices
         Matrix< DDRMat > tBasis;
@@ -556,11 +549,11 @@ namespace moris::ge
         // get perturbation values at the vertices
         for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
-            // FIXME: get vertex coordinates for this vertex
+            // FIXME: get vertex coordinates for this vertex. This copy is slow to have to do for every surface mesh vertex
             Matrix< DDRMat > tVertexCoordinates( 1, Object::mDimension );
             for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
             {
-                tVertexCoordinates( 1, iDimension ) = tAllVertexCoordinates( iBackgroundNodeIndex, iDimension );
+                tVertexCoordinates( 0, iDimension ) = tAllVertexCoordinates( iBackgroundNodeIndex, iDimension );
             }
 
             // add this vertex's field value to the value

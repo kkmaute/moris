@@ -162,11 +162,11 @@ namespace moris::prm
     inline ParameterList
     create_level_set_geometry_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tLevelSetParameterList = create_geometry_parameter_list();   // Inserts all geometry parameters
-        insert_design_field_parameters( tLevelSetParameterList, aIncludeField );   // Inserts all design parameters
-        tLevelSetParameterList.set( "geometry_type", "level_set" );                // Sets the geometry type to level set
-        tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );              // Level set isocontour level
-        tLevelSetParameterList.insert( "isocontour_tolerance", 1e-12 );            // Interface tolerance based on geometry value
+        ParameterList tLevelSetParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
+        insert_design_field_parameters( tLevelSetParameterList, aIncludeField );    // Inserts all design parameters
+        tLevelSetParameterList.set( "geometry_type", "level_set" );                 // Sets the geometry type to level set
+        tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );               // Level set isocontour level
+        tLevelSetParameterList.insert( "isocontour_tolerance", 1e-12 );             // Interface tolerance based on geometry value
         return tLevelSetParameterList;
     }
 
@@ -186,9 +186,11 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert( "offset", "0,0,0" );                         // offset all points in the geometry by this much
         tSurfaceMeshParameterList.insert( "scale", "1.0,1.0,1.0" );                    // scaling factor for all points in the geometry
         tSurfaceMeshParameterList.insert( "file_path", "" );                           // path to .obj file
+        tSurfaceMeshParameterList.insert( "adv_indices", "" );                         // ADVs used to fill in variables
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );              // set the geometry type to surface mesh
-        tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-8 );             // interface tolerance for raycast computations
+        tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-8 );               // interface tolerance for raycast computations
         tSurfaceMeshParameterList.erase( "field_type" );
+
 
         return tSurfaceMeshParameterList;
     }

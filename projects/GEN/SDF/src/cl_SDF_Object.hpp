@@ -149,6 +149,16 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+          protected:
+            /**
+             * Updates all member data for each facet of the object such as Hesse distance, normal, and center
+             *
+             */
+            void
+            update_all_facets();
+
+            //-------------------------------------------------------------------------------
+
           private:
             //-------------------------------------------------------------------------------
 
@@ -177,15 +187,6 @@ namespace moris
             void
             load_ascii_to_buffer( const std::string& aFilePath,
                     moris::Cell< std::string >&      aBuffer );
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * Updates all member data for each facet of the object such as Hesse distance, normal, and center
-             *
-             */
-            void
-            update_all_facets();
 
             //-------------------------------------------------------------------------------
         };

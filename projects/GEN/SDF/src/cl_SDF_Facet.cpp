@@ -41,16 +41,6 @@ namespace moris
         {
         }
 
-        //-------------------------------------------------------------------------------
-
-        void
-        Facet::reset_coordinates()
-        {
-            for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
-            {
-                mVertices( iVertex )->reset_node_coords();
-            }
-        }
 
         //-------------------------------------------------------------------------------
         // SDF Functions

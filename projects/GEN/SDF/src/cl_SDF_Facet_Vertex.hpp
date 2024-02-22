@@ -32,8 +32,8 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat > mNodeCoords;                    // can be changed through coordinate transformations in raycasts
-            Matrix< DDRMat > mCurrentIterationNodeCoords;    // only changed in optimization iterations through ADVs
+            Matrix< DDRMat > mNodeCoords;             // can be changed through coordinate transformations in raycasts and design iterations
+            Matrix< DDRMat > mIterationNodeCoords;    // Can only be changed by design iterations
 
             //-------------------------------------------------------------------------------
 
@@ -63,30 +63,32 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            /**
+             * Sets the coordinates of this node
+             * 
+             * @param aCoordinates new coordinates to be set to
+             */
             void
-            shift_node_coords( const moris::Cell< real >& aShift, bool aIsPermanent );
+            set_node_coords( const moris::Cell< real >& aCoordinates );
+            
+            //-------------------------------------------------------------------------------
 
+            /**
+             * Shifts only the node coordinates. Used for raycasts and coordinate transformations
+             *
+             * @param aShift Perturbation applied to the coordinates. size of mNodeCoords
+             */
+            void
+            shift_node_coords_from_current( const moris::Cell< real >& aShift );
 
             //-------------------------------------------------------------------------------
 
+            /**
+             * Sets the coordinates of the node back to the coordinates at the start of the design iteration
+             * 
+             */
             void
             reset_node_coords();
-
-            //-------------------------------------------------------------------------------
-
-            // void BRENDAN
-            // reset_transformed_flag()
-            // {
-            //     mIsTransformed = false;
-            // }
-
-            //-------------------------------------------------------------------------------
-
-            // bool BRENDAN
-            // is_transformed()
-            // {
-            //     return mIsTransformed;
-            // }
 
             //-------------------------------------------------------------------------------
             // MTK API functions
@@ -98,6 +100,11 @@ namespace moris
                 MORIS_ASSERT( aAxis <= mNodeCoords.numel(), "SDF_Facet_Vertex::get_coord() - Provided axis of %u exceeds the dimension of the vertex.", aAxis );
                 return mNodeCoords( aAxis );
             }
+
+            //-------------------------------------------------------------------------------
+
+            Matrix< DDRMat > 
+            get_coords() const override;
 
             //-------------------------------------------------------------------------------
 
