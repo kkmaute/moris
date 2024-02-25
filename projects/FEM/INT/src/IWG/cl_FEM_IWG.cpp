@@ -14,13 +14,15 @@
 #include "cl_FEM_Cluster_Measure.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Model.hpp"
-
+#include "cl_Vector.hpp"
 #include "fn_max.hpp"
 #include "fn_min.hpp"
 #include "fn_trans.hpp"
+#include "fn_eye.hpp"
 
 
 #include <cl_MTK_Ray_Line_Intersection.hpp>
+#include <iomanip>
 
 namespace moris
 {
@@ -508,7 +510,7 @@ namespace moris
         void
         IWG::set_dv_type_list(
                 const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-                mtk::Leader_Follower                aIsLeader )
+                mtk::Leader_Follower                     aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -785,7 +787,7 @@ namespace moris
         void
         IWG::get_non_unique_dof_dv_and_field_types(
                 Vector< Vector< MSI::Dof_Type > >&   aDofTypes,
-                Vector< Vector< gen::PDV_Type > >&        aDvTypes,
+                Vector< Vector< gen::PDV_Type > >&   aDvTypes,
                 Vector< Vector< mtk::Field_Type > >& aFieldTypes )
         {
             // init counters for dof and dv types
@@ -839,7 +841,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -862,7 +864,7 @@ namespace moris
                     // get property non unique dof and dv type lists
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -884,7 +886,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< gen::PDV_Type >      tActiveDvTypes;
+                    Vector< gen::PDV_Type > tActiveDvTypes;
 
                     tMM->get_non_unique_dof_types( tActiveDofTypes );
 
@@ -915,7 +917,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -937,7 +939,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -958,7 +960,7 @@ namespace moris
                 {
                     // get SP non unique dof type list
                     Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< gen::PDV_Type >      tActiveDvTypes;
+                    Vector< gen::PDV_Type > tActiveDvTypes;
 
                     tSP->get_non_unique_dof_and_dv_types(
                             tActiveDofTypes,
@@ -1031,7 +1033,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -1053,7 +1055,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -1105,7 +1107,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -1127,7 +1129,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >        tActiveDvTypes;
+                    Vector< gen::PDV_Type >   tActiveDvTypes;
                     Vector< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -1152,7 +1154,7 @@ namespace moris
                 {
                     // get SP non unique leader dof type list
                     Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< gen::PDV_Type >      tActiveDvTypes;
+                    Vector< gen::PDV_Type > tActiveDvTypes;
 
                     tSP->get_non_unique_dof_and_dv_types(
                             tActiveDofTypes,
@@ -2146,6 +2148,9 @@ namespace moris
             // storage residual value
             Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
+            // if this is a nonconformal sideset, some things will be handled differently!
+            bool const tIsNonconformal = ( mSet->get_element_type() == Element_Type::NONCONFORMAL_SIDESET );
+
             // get the FD scheme info
             Vector< Vector< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
@@ -2190,27 +2195,26 @@ namespace moris
                 uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tLeaderDepDofIndex, 0 );
 
                 // get field interpolator for dependency dof type
-                Field_Interpolator* tFI =
-                        mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator* tLeaderFI = mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
-                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-                uint tDerNumFields = tFI->get_number_of_fields();
+                uint const tDerNumBases  = tLeaderFI->get_number_of_space_time_bases();    // coefficients for the interpolation of the field (number of shape functions)
+                uint const tDerNumFields = tLeaderFI->get_number_of_fields();              // e.g. UX, UY, UZ
 
                 // coefficients for dof type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = tFI->get_coeff();
+                Matrix< DDRMat > tFieldCoefficients = tLeaderFI->get_coeff();
 
                 // loop over the coefficient column
-                for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+                for ( uint iField = 0; iField < tDerNumFields; iField++ )
                 {
                     // loop over the coefficient row
-                    for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                    for ( uint iBase = 0; iBase < tDerNumBases; iBase++ )
                     {
                         // compute the perturbation absolute value
                         real tDeltaH = aPerturbation;
                         if ( !aUseAbsolutePerturbations )
                         {
-                            tDeltaH = tDeltaH * tCoeff( iCoeffRow, iCoeffCol );
+                            tDeltaH = tDeltaH * tFieldCoefficients( iBase, iField );
                         }
 
                         // check that perturbation is not zero
@@ -2243,16 +2247,26 @@ namespace moris
                         }
 
                         // loop over the points for FD
-                        for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                        for ( uint iFDPoint = tStartPoint; iFDPoint < tNumFDPoints; iFDPoint++ )
                         {
                             // reset the perturbed coefficients
-                            Matrix< DDRMat > tCoeffPert = tCoeff;
+                            Matrix< DDRMat > tCoeffPert = tFieldCoefficients;
 
                             // perturb the coefficient
-                            tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+                            tCoeffPert( iBase, iField ) += tFDScheme( 0 )( iFDPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
-                            tFI->set_coeff( tCoeffPert );
+                            tLeaderFI->set_coeff( tCoeffPert );
+
+                            // If this is a nonconformal side set and the dof type is a displacement field, we need to remap the integration point on the follower side!
+                            // For this, we need to use the perturbed displacement field to map the leader integration point and the follower element into the current configuration.
+                            // To obtain the new normal, we currently limit the implementation to line elements to directly calculate the normal vector from the deformed coordinates of the leader element.
+                            if ( tIsNonconformal && ( tDofType( 0 ) == MSI::Dof_Type::UX ) )
+                            {
+                                Field_Interpolator*    tFollowerFI             = mFollowerFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                                Matrix< DDRMat > const tRemappedFollowerCoords = this->remap_nonconformal_rays( tLeaderFI, tFollowerFI, true );
+                                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+                            }
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
@@ -2267,7 +2281,7 @@ namespace moris
                             mSet->get_jacobian()(
                                     { tLeaderResStartIndex, tLeaderResStopIndex },
                                     { tLeaderDepStartIndex + tDofCounter, tLeaderDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    tFDScheme( 1 )( iFDPoint ) *                                                              //
                                     mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) /    //
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
@@ -2275,7 +2289,7 @@ namespace moris
                             mSet->get_jacobian()(
                                     { tFollowerResStartIndex, tFollowerResStopIndex },
                                     { tLeaderDepStartIndex + tDofCounter, tLeaderDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) *                                                                    //
+                                    tFDScheme( 1 )( iFDPoint ) *                                                                  //
                                     mSet->get_residual()( 0 )( { tFollowerResStartIndex, tFollowerResStopIndex }, { 0, 0 } ) /    //
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
@@ -2284,7 +2298,7 @@ namespace moris
                     }
                 }
                 // reset the coefficients values
-                tFI->set_coeff( tCoeff );
+                tLeaderFI->set_coeff( tFieldCoefficients );
             }
 
             // get follower number of dof types
@@ -2304,15 +2318,14 @@ namespace moris
                 uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tFollowerDepDofIndex, 0 );
 
                 // get field interpolator for dependency dof type
-                Field_Interpolator* tFI =
-                        mFollowerFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator* tFollowerFI = mFollowerFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
-                uint tDerNumBases  = tFI->get_number_of_space_time_bases();
-                uint tDerNumFields = tFI->get_number_of_fields();
+                uint tDerNumBases  = tFollowerFI->get_number_of_space_time_bases();
+                uint tDerNumFields = tFollowerFI->get_number_of_fields();
 
                 // coefficients for dof type wrt which derivative is computed
-                Matrix< DDRMat > tCoeff = tFI->get_coeff();
+                Matrix< DDRMat > tCoeff = tFollowerFI->get_coeff();
 
                 // loop over the coefficient column
                 for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
@@ -2366,7 +2379,17 @@ namespace moris
                             tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
 
                             // set the perturbed coefficients to FI
-                            tFI->set_coeff( tCoeffPert );
+                            tFollowerFI->set_coeff( tCoeffPert );
+
+                            // If this is a nonconformal side set and the dof type is a displacement field, we need to remap the integration point on the follower side!
+                            // For this, we need to use the perturbed displacement field to map the leader integration point and the follower element into the current configuration.
+                            // To obtain the new normal, we currently limit the implementation to line elements to directly calculate the normal vector from the deformed coordinates of the leader element.
+                            if ( tIsNonconformal && ( tDofType( 0 ) == MSI::Dof_Type::UX ) )
+                            {
+                                Field_Interpolator*    tLeaderFI               = mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                                Matrix< DDRMat > const tRemappedFollowerCoords = this->remap_nonconformal_rays( tLeaderFI, tFollowerFI, true );
+                                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+                            }
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
@@ -2398,11 +2421,126 @@ namespace moris
                     }
                 }
                 // reset the coefficients values
-                tFI->set_coeff( tCoeff );
+                tFollowerFI->set_coeff( tCoeff );
             }
 
             // reset the value of the residual
             mSet->get_residual()( 0 ) = tResidualStore;
+        }
+
+        Matrix< DDRMat > IWG::remap_nonconformal_rays( Field_Interpolator* aLeaderFieldInterpolator, Field_Interpolator* aFollowerFieldInterpolator, bool aDebugOutput ) const
+        {
+            uint const tDim = aLeaderFieldInterpolator->get_space_dim();
+
+            // Get the integration point on the leader side and add the perturbed displacement
+            // The leader IG point is the point from which the mapping to the follower cell is performed
+            Geometry_Interpolator* tLeaderIGGI = this->mLeaderFIManager->get_IG_geometry_interpolator();
+
+            // Get the nodes of the leader element and add the perturbed displacement on each of them
+            // The first column contains the x coordinates, the second column contains the y coordinates
+            Matrix< DDRMat > const tLeaderCoords = this->get_deformed_node_coordinates( tLeaderIGGI, aLeaderFieldInterpolator );
+            MORIS_ASSERT( tLeaderCoords.n_rows() == 2 && tLeaderCoords.n_cols() == 2, "IWG::select_jacobian_FD_double - Nonconformal FD scheme is only implemented for line elements." );
+
+            // calculate the integration point on the leader side based on the parametric coordinate
+            //            Matrix< DDRMat >       tLeaderIGParametric = tLeaderIGGI->get_space_time();
+            //            Matrix< DDRMat > const tLeaderIGPoint = tLeaderCoords.get_row( 0 ) + ( 0.5 + tLeaderIGParametric( 0 ) / 2 ) * ( tLeaderCoords.get_row( 1 ) - tLeaderCoords.get_row( 0 ) );
+            Matrix< DDRMat > const tLeaderIGPoint = tLeaderIGGI->valx() + trans( aLeaderFieldInterpolator->val() );
+
+            // Calculate the normal vector based on the deformed coordinates
+            Matrix< DDRMat > const tL1 = tLeaderCoords.get_row( 0 );
+            Matrix< DDRMat > const tL2 = tLeaderCoords.get_row( 1 );
+            Matrix< DDRMat >       tNormal{ { tL2( 1 ) - tL1( 1 ) }, { -( tL2( 0 ) - tL1( 0 ) ) } };
+            tNormal = tNormal / norm( tNormal );
+
+            //            Matrix< DDRMat > tNormal = tLeaderIGGI->get_normal();
+
+            //            Matrix< DDRMat > tNormal = ( eye( tDim, tDim ) + aLeaderFieldInterpolator->gradx( 1 ) ) * tLeaderIGGI->get_normal();
+
+
+            // Get the nodes of the follower element and add the perturbed displacement on each of them
+            Geometry_Interpolator* tFollowerIGGI        = this->mFollowerFIManager->get_IG_geometry_interpolator();
+            Matrix< DDRMat > const tFollowerCoordinates = this->get_deformed_node_coordinates( tFollowerIGGI, aFollowerFieldInterpolator );
+
+            // Perform the mapping
+            mtk::Ray_Line_Intersection tRLI( tDim );
+            tRLI.set_ray_origin( trans( tLeaderIGPoint ) );
+            tRLI.set_ray_direction( tNormal );
+            tRLI.set_target_origin( trans( tFollowerCoordinates.get_row( 0 ) ) );
+            tRLI.set_target_span( trans( tFollowerCoordinates.get_row( 1 ) - tFollowerCoordinates.get_row( 0 ) ) );
+            tRLI.perform_raytracing();
+            //                                MORIS_ASSERT( tRLI.has_intersection(), "Perturbed point could not be mapped onto the follower cell... this case is currently not handled" );
+
+            Matrix< DDRMat > tFollowerSpaceTime;
+            Matrix< DDRMat > tFollowerPhysical = tNormal;
+            [[maybe_unused]] uint             tSuccess          = 0;
+            tFollowerIGGI->get_space_time( tFollowerSpaceTime );
+            if ( tRLI.has_intersection() )
+            {
+                // the evaluation point also contains the time coordinate in index 1, thus, we update only the first index
+                tFollowerSpaceTime( 0 ) = tRLI.get_intersection_parametric()( 0 );
+                tFollowerPhysical       = tRLI.get_intersection_physical();
+                tSuccess                = 1;
+            }
+            else
+            {
+                //
+                //                MORIS_LOG_WARNING( "Perturbed point with coordinates (%f, %f) could not be mapped in FD scheme.", tLeaderIGPoint( 0 ), tLeaderIGPoint( 1 ) );
+                // do nothing???
+                // TODO: What can I do in this case?
+            }
+
+            if ( aDebugOutput )
+            {
+                // O     = Original point on leader
+                // L1/L2 = leader point 1/2
+                // F1/F2 = follower point 1/2
+                // I     = integration point on leader
+                // M     = mapped point on follower (or end of normal, if no intersection found)
+                // SUCC/FAIL = success or failure of the mapping (1 or 0)
+                // Order of output: Ox, Oy, L1x, L1y, L2x, L2y, F1x, F1y, F2x, F2y, Ix, Iy, Mx, My, SUCC/FAIL
+//                std::cout << "FD-REMAPPING: "
+//                          << std::setprecision( 15 )
+//                          << tLeaderIGGI->valx()( 0 ) << ","
+//                          << tLeaderIGGI->valx()( 1 ) << ","
+//                          << tLeaderCoords( 0, 0 ) << ","
+//                          << tLeaderCoords( 0, 1 ) << ","
+//                          << tLeaderCoords( 1, 0 ) << ","
+//                          << tLeaderCoords( 1, 1 ) << ","
+//                          << tFollowerCoordinates( 0, 0 ) << ","
+//                          << tFollowerCoordinates( 0, 1 ) << ","
+//                          << tFollowerCoordinates( 1, 0 ) << ","
+//                          << tFollowerCoordinates( 1, 1 ) << ","
+//                          << tLeaderIGPoint( 0 ) << ","
+//                          << tLeaderIGPoint( 1 ) << ","
+//                          << tFollowerPhysical( 0 ) << ","
+//                          << tFollowerPhysical( 1 ) << ","
+//                          << tSuccess
+//                          << "\n";
+            }
+
+            return tFollowerSpaceTime;
+        }
+
+        Matrix< DDRMat > IWG::get_deformed_node_coordinates(
+                Geometry_Interpolator* aGeometryInterpolator,
+                Field_Interpolator*    aFieldInterpolator ) const
+        {
+            Matrix< DDRMat > const tPhysicalCoordinates   = aGeometryInterpolator->get_space_coeff();
+            Matrix< DDRMat > const tParametricCoordinates = aGeometryInterpolator->get_space_param_coeff();
+            Matrix< DDRMat >       tResultCoordinates( tPhysicalCoordinates.n_rows(), tPhysicalCoordinates.n_cols() );
+            Matrix< DDRMat > const tPreviousSpace = aFieldInterpolator->get_space_time();
+            for ( size_t iNode = 0; iNode < tPhysicalCoordinates.n_rows(); ++iNode )
+            {
+                // Set the Field Interpolator to the parametric coordinates of the current follower node.
+                // This is required to get the value of the displacement field for this node.
+                Matrix< DDRMat > tSpaceTime( tParametricCoordinates.n_cols() + 1, 1 );
+                tSpaceTime( { 0, tParametricCoordinates.n_cols() - 1 }, { 0, 0 } ) = trans( tParametricCoordinates.get_row( iNode ) );
+                aFieldInterpolator->set_space_time( tSpaceTime );
+                tResultCoordinates.set_row( iNode, tPhysicalCoordinates.get_row( iNode ) + trans( aFieldInterpolator->val() ) );
+            }
+            // Reset the Field Interpolator to the previous space coordinates.
+            aFieldInterpolator->set_space_time( tPreviousSpace );
+            return tResultCoordinates;
         }
 
         //------------------------------------------------------------------------------
@@ -3599,13 +3737,19 @@ namespace moris
                         // loop over point of FD scheme
                         for ( uint iFDPoint = tStartPoint; iFDPoint < tNumFDPoints; iFDPoint++ )
                         {
+                            bool const tIsNonconformal = ( mSet->get_element_type() == Element_Type::NONCONFORMAL_SIDESET );
+
                             // reset the perturbed coefficients
                             Matrix< DDRMat > tLeaderCoeffPert   = tLeaderCoeff;
                             Matrix< DDRMat > tFollowerCoeffPert = tFollowerCoeff;
 
-                            // perturb the coefficient
+                            // perturb the coefficients of the leader side.
+                            // The follower side will not be perturbed in the nonconformal case!
                             tLeaderCoeffPert( iLeaderNode, iSpatialDir ) += tFDScheme( 0 )( iFDPoint ) * tDeltaH;
-                            tFollowerCoeffPert( iFollowerNode, iSpatialDir ) += tFDScheme( 0 )( iFDPoint ) * tDeltaH;
+                            if ( !tIsNonconformal )
+                            {
+                                tFollowerCoeffPert( iFollowerNode, iSpatialDir ) += tFDScheme( 0 )( iFDPoint ) * tDeltaH;
+                            }
 
                             // setting the perturbed coefficients
                             tLeaderIGGI->set_space_coeff( tLeaderCoeffPert );
@@ -3616,11 +3760,11 @@ namespace moris
                             Matrix< DDRMat > tXiCoords = tLeaderParamCoeff.get_row( iLeaderNode );
                             tLeaderIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
 
-                            Matrix< DDRMat > tLeaderParamCoeffPert = tLeaderParamCoeff;
+                            Matrix< DDRMat > tLeaderParamCoeffPert       = tLeaderParamCoeff;
                             tLeaderParamCoeffPert.get_row( iLeaderNode ) = tXiCoords.matrix_data();
                             tLeaderIGGI->set_space_param_coeff( tLeaderParamCoeffPert );
 
-                            Matrix< DDRMat > tFollowerParamCoeffPert                   = tFollowerParamCoeff;
+                            Matrix< DDRMat > tFollowerParamCoeffPert         = tFollowerParamCoeff;
                             tFollowerParamCoeffPert.get_row( iFollowerNode ) = tXiCoords.matrix_data();
 
                             tLeaderIGGI->set_space_param_coeff( tLeaderParamCoeffPert );
@@ -3639,19 +3783,19 @@ namespace moris
 
                             // In the nonconformal case, the follower integration point will move due to the perturbed leader side (i.e. the normal of the leader has changed)
                             // The mapping from leader to follower has to be redone!
-                            if ( mSet->get_element_type() == Element_Type::NONCONFORMAL_SIDESET )
+                            if ( tIsNonconformal )
                             {
                                 mtk::Ray_Line_Intersection tRLI( tNumDimensions );
 
                                 tRLI.set_ray_origin( trans( tLeaderIGGI->valx() ) );
                                 tRLI.set_ray_direction( tNormalPert );
 
-                                Matrix< DDRMat > tPerturbedFollowerCoefficients = tFollowerIGGI->get_space_coeff();
+                                Matrix< DDRMat > tFollowerCoefficients = tFollowerIGGI->get_space_coeff();
                                 MORIS_ASSERT(
-                                        tPerturbedFollowerCoefficients.n_rows() == 2,
+                                        tFollowerCoefficients.n_rows() == 2,
                                         "IWG::compute_dRdp_FD_geometry_double - Remapping can currently only be done on 2D line elements during FD perturbation!" );
-                                tRLI.set_target_origin( trans( tPerturbedFollowerCoefficients.get_row( 1 ) ) );
-                                tRLI.set_target_span( trans( tPerturbedFollowerCoefficients.get_row( 0 ) - tPerturbedFollowerCoefficients.get_row( 1 ) ) );
+                                tRLI.set_target_origin( trans( tFollowerCoefficients.get_row( 1 ) ) );
+                                tRLI.set_target_span( trans( tFollowerCoefficients.get_row( 0 ) - tFollowerCoefficients.get_row( 1 ) ) );
                                 tRLI.perform_raytracing();
                                 MORIS_ASSERT( tRLI.has_intersection(), "Perturbed point could not be mapped onto the follower cell... this case is currently not handled" );
                                 // std::cout << "Follower eval point: [" << tRLI.get_intersection_physical()( 0 ) << ", " << tRLI.get_intersection_physical()( 1 ) << "]\n";
@@ -3679,8 +3823,8 @@ namespace moris
                                     mSet->get_residual()( 0 )( { tLeaderResDofAssemblyStart, tLeaderResDofAssemblyStop }, { 0, 0 } ) /    //
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
-                            // evaluate dFollowerRdpGeo
-                            if ( tFollowerResDofIndex != -1 )
+                            // evaluate dFollowerRdpGeo (not needed in the nonconformal case)
+                            if ( tFollowerResDofIndex != -1 && !tIsNonconformal )
                             {
                                 mSet->get_drdpgeo()(
                                         { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
