@@ -182,6 +182,7 @@ namespace moris
                     const moris::fem::Time_Continuity_Flag aTimeContinuityOnlyFlag               = moris::fem::Time_Continuity_Flag::DEFAULT,
                     const bool                             aIsAdjointOffDiagonalTimeContribution = false );
 
+            void update_model() override;
             //------------------------------------------------------------------------------
 
             void report_beginning_of_assembly();
@@ -243,9 +244,9 @@ namespace moris
 
             // number of elements blocks on proc
             moris::uint
-            get_num_my_blocks()
+            get_num_sets()
             {
-                return mMSI->get_num_eqn_blocks();
+                return mMSI->get_num_equation_sets();
             };
 
             //------------------------------------------------------------------------------

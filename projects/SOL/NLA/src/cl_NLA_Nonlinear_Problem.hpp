@@ -119,9 +119,10 @@ namespace moris
             set_nonlinear_solver( Nonlinear_Solver* aNonlinearSolver )
             {
                 mMyNonLinSolver = aNonlinearSolver;
-            };
+            }
 
-            //--------------------------------------------------------------------------------------------------
+
+            void update_fem_model();
 
             void build_linearized_problem(
                     const bool& aRebuildJacobian,

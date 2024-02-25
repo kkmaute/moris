@@ -196,8 +196,13 @@ Nonlinear_Problem::delete_pointers()
 
 //-----------------------------------------------------------------------------
 
-void
-Nonlinear_Problem::build_linearized_problem(
+void Nonlinear_Problem::update_fem_model()
+{
+    mSolverInterface->update_model();
+}
+
+
+void Nonlinear_Problem::build_linearized_problem(
         const bool& aRebuildJacobian,
         const bool& aCombinedResJacAssembly,
         const sint  aNonLinearIt )
@@ -275,9 +280,9 @@ Nonlinear_Problem::get_full_vector()
 
 void
 Nonlinear_Problem::extract_my_values(
-        const moris::uint&                      aNumIndices,
-        const moris::Matrix< DDSMat >&          aGlobalBlockRows,
-        const moris::uint&                      aBlockRowOffsets,
+        const moris::uint&                 aNumIndices,
+        const moris::Matrix< DDSMat >&     aGlobalBlockRows,
+        const moris::uint&                 aBlockRowOffsets,
         Vector< moris::Matrix< DDRMat > >& LHSValues )
 {
     mFullVector->extract_my_values(
