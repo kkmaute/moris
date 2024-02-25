@@ -28,11 +28,15 @@
 #include "fn_trans.hpp"
 #include "fn_det.hpp"
 #include "fn_inv.hpp"
+#include <optional>
+
+using std::optional;
 
 namespace moris
 {
     namespace fem
     {
+        class Field_Interpolator;
         //------------------------------------------------------------------------------
         /**
          * \brief a special interpolation class for geometry
@@ -77,7 +81,7 @@ namespace moris
             bool mTimeSideset = false;
 
             // flag for evaluation
-            bool mValtEval = true;
+            //            bool mValtEval = true;
 
             bool mNTauEval     = true;
             bool mdNdTauEval   = true;
@@ -89,7 +93,7 @@ namespace moris
             bool mInvTimeJacEval = true;
 
             // storage
-            Matrix< DDRMat > mValt;
+            optional< Matrix< DDRMat > > mValt;
 
             Matrix< DDRMat > mNTau;
             Matrix< DDRMat > mdNdTau;
@@ -101,6 +105,12 @@ namespace moris
             real             mTimeDetJ;
 
             Matrix< DDRMat > mMappedPoint;
+
+            /* @brief The coordinates of the element nodes in the deformed configuration.
+             * Is used to evaluate the current coordinates of the evaluation point. If the value has not been calculated, the
+             * container is empty. Otherwise, the values will be cached here. The container is emptied in the reset_eval_flags method
+             */
+            optional< Matrix< DDRMat > > mDeformedNodes;
 
           private:
             // flag for mapping evaluation point
@@ -314,6 +324,14 @@ namespace moris
                 return mSpaceInterpolator->get_space_coeff();
             }
 
+            /**
+             * @brief Returns the coefficients of the geometry (i.e. coordinates of the nodes) in the @em current configuration (i.e. after the displacement field has been applied).
+             * @param aFieldInterpolator
+             * @return A (n_nodes x n_dim) matrix with the coefficients (coordinates) of the geometry in the current configuration
+             */
+            const Matrix< DDRMat >&
+            get_space_coeff_current( Field_Interpolator* aFieldInterpolator );
+
             //------------------------------------------------------------------------------
             /**
              * get the time coefficients of the geometry field tHat
@@ -405,6 +423,13 @@ namespace moris
 
                 // setting time portion
                 aParamPoint( mNumSpaceParamDim ) = mTauLocal( 0 );
+            }
+
+            Matrix< DDRMat > get_space_time()
+            {
+                Matrix< DDRMat > tParamPoint;
+                get_space_time( tParamPoint );
+                return tParamPoint;
             }
 
             //------------------------------------------------------------------------------
@@ -551,6 +576,24 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * evaluates the normal to the side
+             * in the case of a space side interpolation
+             * at given space and time evaluation point
+             * @param[ in ]  aNormal normal to be filled
+             */
+            Matrix< DDRMat > get_normal();
+
+            /**
+             * @brief Returns the normal to the side in the @em current configuration.
+             * @details This is not the same as F * this->get_normal() (F being the deformation gradient)! This method will return the
+             * normal to the side after the <em>nodes of the element</em> have been moved to their respective deformed locations.
+             * @param aFieldInterpolator The field interpolator that holds the displacement field.
+             * @return a (n x 1) matrix containing the normal to the side in the current configuration.
+             */
+            Matrix< DDRMat > get_normal_current( Field_Interpolator* aFieldInterpolator );
+
+            //------------------------------------------------------------------------------
+            /**
              * evaluates the geometry Jacobian and the matrices needed for the second
              * derivatives wrt to space in physical space
              * @param[ in ]  aJt      transposed of geometry Jacobian
@@ -617,6 +660,17 @@ namespace moris
              * @param[ out ] aX   location in space
              */
             const Matrix< DDRMat >& valx();
+
+            /**
+             * @brief Returns the coordinate of the evaluation point on the element in the @em current configuration.
+             * @details This is not the same as F * this->valx() with F being the deformation gradient! This method will return the
+             * coordinates of the evaluation point after the <em>nodes of the element</em> have been moved to their respective deformed locations.
+             * I.e. the transformation is applied on the element coefficients, afterwards, the current coordinate is evaluated using the same
+             * parametric coordinates as before.
+             * @param aFieldInterpolator The field interpolator that holds the displacement field.
+             * @return A (1 x n) matrix containing the current coordinates of the evaluation point (x, y [,z]).
+             */
+            Matrix< DDRMat > valx_current( Field_Interpolator* aFieldInterpolator );
 
             //------------------------------------------------------------------------------
             /**

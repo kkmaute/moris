@@ -8,6 +8,8 @@
  *
  */
 
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
 #include "fn_norm.hpp"
 #include "fn_cross.hpp"
 #include "fn_dot.hpp"
@@ -17,6 +19,7 @@
 #include "fn_linsolve.hpp"
 
 #include "cl_FEM_Geometry_Interpolator.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
 
 namespace moris
 {
@@ -135,7 +138,8 @@ namespace moris
         Geometry_Interpolator::reset_eval_flags()
         {
             // reset booleans for evaluation
-            mValtEval = true;
+            //            mValtEval = true;
+            mValt.reset();
 
             mNTauEval     = true;
             mdNdTauEval   = true;
@@ -152,7 +156,9 @@ namespace moris
         void
         Geometry_Interpolator::reset_eval_flags_coordinates()
         {
-            mValtEval = true;
+            //            mValtEval = true;
+            mValt.reset();
+            mDeformedNodes.reset();
 
             mTimeDetJEval   = true;
             mTimeJacEval    = true;
@@ -754,6 +760,27 @@ namespace moris
             mSpaceInterpolator->get_normal( aNormal );
         }
 
+        Matrix< DDRMat >
+        Geometry_Interpolator::get_normal()
+        {
+            // call space interpolator
+            Matrix< DDRMat > tNormal;
+            mSpaceInterpolator->get_normal( tNormal );
+            return tNormal;
+        }
+
+        Matrix< DDRMat >
+        Geometry_Interpolator::get_normal_current( Field_Interpolator* aFieldInterpolator )
+        {
+            Matrix< DDRMat > const tPreviousSpaceCoeffs = mSpaceInterpolator->get_space_coeff();           // store the previous state
+            mSpaceInterpolator->set_space_coeff( this->get_space_coeff_current( aFieldInterpolator ) );    // set the deformed coefficients
+            Matrix< DDRMat > tNormal;
+            mSpaceInterpolator->get_normal( tNormal );
+            mSpaceInterpolator->set_space_coeff( tPreviousSpaceCoeffs );    // reset the space interpolator to the previous state
+            return tNormal;
+        }
+
+
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
@@ -763,12 +790,49 @@ namespace moris
             return mSpaceInterpolator->valx();
         }
 
+        Matrix< DDRMat > Geometry_Interpolator::valx_current( Field_Interpolator* aFieldInterpolator )
+        {
+            // get the current parametric space coordinate
+            Matrix< DDRMat > const tPreviousSpaceCoeffs = mSpaceInterpolator->get_space_coeff();
+            mSpaceInterpolator->set_space_coeff( this->get_space_coeff_current( aFieldInterpolator ) );
+            Matrix< DDRMat > const tXCurrent = mSpaceInterpolator->valx();
+            mSpaceInterpolator->set_space_coeff( tPreviousSpaceCoeffs );
+            return tXCurrent;
+        }
+
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::get_space_coeff_current( Field_Interpolator* aFieldInterpolator )
+        {
+            // calculate the current coordinates of the element nodes (if not cached)
+            if ( !mDeformedNodes.has_value() )
+            {
+                // Since the internal state of the field interpolator is changed for each evaluation of the element node,
+                // we have to store the previous state and restore it after the evaluation
+                Matrix< DDRMat > const tPreviousFIPoint = aFieldInterpolator->get_space_time();
+
+                Matrix< DDRMat > const tXhat  = mSpaceInterpolator->get_space_coeff();          // the physical coordinates of the element nodes (n_nodes x n_dim)
+                Matrix< DDRMat > const tXiHat = mSpaceInterpolator->get_space_param_coeff();    // the parametric coordinates of the element nodes (n_nodes x n_dim)
+                mDeformedNodes                = Matrix< DDRMat >( tXhat.n_rows(), tXhat.n_cols() );
+                for ( size_t iNode = 0; iNode < tXhat.n_rows(); ++iNode )
+                {
+                    // Set the Field Interpolator to the parametric coordinates of the current node to get the value of the displacement field for this node.
+                    Matrix< DDRMat > tSpaceTime( tXiHat.n_cols() + 1, 1 );
+                    tSpaceTime( { 0, tXiHat.n_cols() - 1 }, { 0, 0 } ) = trans( tXiHat.get_row( iNode ) );
+                    aFieldInterpolator->set_space_time( tSpaceTime );
+                    mDeformedNodes->set_row( iNode, tXhat.get_row( iNode ) + trans( aFieldInterpolator->val() ) );
+                }
+                // Reset the Field Interpolator to the previous space coordinates.
+                aFieldInterpolator->set_space_time( tPreviousFIPoint );
+            }
+            return mDeformedNodes.value();
+        }
+
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         Geometry_Interpolator::valt()
         {
-            if ( mValtEval )
+            if ( !mValt.has_value() )
             {
                 // check that mTHat is set
                 MORIS_ASSERT( mTHat.numel() > 0,
@@ -778,7 +842,7 @@ namespace moris
                 mValt = this->NTau() * mTHat;
             }
 
-            return mValt;
+            return mValt.value();
         }
 
         //------------------------------------------------------------------------------
@@ -947,7 +1011,6 @@ namespace moris
                 }
             }
         }
-
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
