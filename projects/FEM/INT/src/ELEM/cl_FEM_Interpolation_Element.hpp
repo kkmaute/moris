@@ -82,10 +82,10 @@ namespace moris
              * @param[ in ] aSet         a fem set
              */
             Interpolation_Element(
-                    const Element_Type                     aElementType,
+                    const Element_Type                aElementType,
                     const Vector< const mtk::Cell* >& aInterpolationCell,
                     const Vector< Node_Base* >&       aNodes,
-                    Set*                                   aSet );
+                    Set*                              aSet );
 
             //------------------------------------------------------------------------------
             /**
@@ -135,6 +135,12 @@ namespace moris
              * @ return   const reference to shared pointer of cluster
              */
             const std::shared_ptr< fem::Cluster >& get_cluster( const uint aIndex );
+
+            size_t get_num_clusters() const
+            {
+                return mFemCluster.size();
+            };
+
 
             //------------------------------------------------------------------------------
             /**
@@ -248,7 +254,6 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-          protected:
             //------------------------------------------------------------------------------
             /**
              * set the field interpolators coefficients
