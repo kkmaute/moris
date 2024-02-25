@@ -26,8 +26,8 @@ namespace moris::fem
         virtual ~Model_Initializer_Legacy() = default;
 
       private:
-        void create_fem_set_info_from_iwgs( bool aIsAnalyticalSA, FDScheme_Type const &aFDSchemeForSA, real const aFDPerturbation, std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex );
-        void create_fem_set_info_from_iqis( bool const aIsAnalyticalSA, FDScheme_Type const &aFDSchemeForSA, real const aFDPerturbation, std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex );
+        void create_fem_set_info_from_iwgs( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex );
+        void create_fem_set_info_from_iqis( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex );
 
         void set_iwg_dof_dependencies( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower aLeaderFollowerType ) const;
         void set_iwg_dv_dependencies( ParameterList const &aIWGParameter, std::shared_ptr< IWG > &aIWG, mtk::Leader_Follower const &aLeaderFollowerType ) const;

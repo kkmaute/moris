@@ -755,26 +755,29 @@ namespace moris::fem
 
     void Model_Initializer_Legacy::create_set_info()
     {
-        // get fem computation type parameter list
+        // create a map of the set
+        std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSetIndex;
+        this->create_fem_set_info_from_iwgs( tMeshToFemSetIndex );
+        this->create_fem_set_info_from_iqis( tMeshToFemSetIndex );
+    }
+
+    // TODO: This method has a similar logic as create_fem_set_info_from_iqis. Proper refactoring could merge the two methods.
+    void Model_Initializer_Legacy::create_fem_set_info_from_iwgs( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex )
+    {
         ParameterList const tComputationParameterList = mParameterList( 5 )( 0 );
 
+        // forward analysis
+        bool const         tIsAnalyticalFA   = tComputationParameterList.get< bool >( "is_analytical_forward" );
+        fem::FDScheme_Type tFDSchemeForFA    = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
+        real               tFDPerturbationFA = tComputationParameterList.get< real >( "finite_difference_perturbation_size_forward" );
+
+        // sensitivity analysis
         bool const tIsAnalyticalSA = tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
         auto const tFDSchemeForSA  = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
         real const tFDPerturbation = tComputationParameterList.get< real >( "finite_difference_perturbation_size" );
 
-        // create a map of the set
-        std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSetIndex;
-        this->create_fem_set_info_from_iwgs( tIsAnalyticalSA, tFDSchemeForSA, tFDPerturbation, tMeshToFemSetIndex );
-        this->create_fem_set_info_from_iqis( tIsAnalyticalSA, tFDSchemeForSA, tFDPerturbation, tMeshToFemSetIndex );
-    }
+        fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >( tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
 
-    // TODO: This method has a similar logic as create_fem_set_info_from_iqis. Proper refactoring could merge the two methods.
-    void Model_Initializer_Legacy::create_fem_set_info_from_iwgs(
-            bool                                                     aIsAnalyticalSA,
-            FDScheme_Type const                                     &aFDSchemeForSA,
-            real const                                               aFDPerturbation,
-            std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex )
-    {
         Vector< ParameterList > tIWGParameterLists = this->mParameterList( 3 );
         for ( uint iIWG = 0; iIWG < tIWGParameterLists.size(); iIWG++ )
         {
@@ -810,9 +813,17 @@ namespace moris::fem
                     aSetUserInfo.set_mesh_set_name( tMeshSetName );
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
                     aSetUserInfo.set_time_boundary( tTimeBoundary );
-                    aSetUserInfo.set_is_analytical_sensitivity_analysis( aIsAnalyticalSA );
-                    aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( aFDSchemeForSA );
-                    aSetUserInfo.set_finite_difference_perturbation_size( aFDPerturbation );
+
+                    aSetUserInfo.set_is_analytical_forward_analysis( tIsAnalyticalFA );
+                    aSetUserInfo.set_finite_difference_scheme_for_forward_analysis( tFDSchemeForFA );
+                    aSetUserInfo.set_finite_difference_perturbation_size_for_forward_analysis( tFDPerturbationFA );
+
+                    aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
+                    aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
+                    aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
+
+                    aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
+
                     aSetUserInfo.add_IWG( tIWG );
                     this->mSetInfo.push_back( aSetUserInfo );
                 }
@@ -826,12 +837,22 @@ namespace moris::fem
     }
 
     // TODO: This method has a similar logic as create_fem_set_info_from_iwgs. Proper refactoring could merge the two methods.
-    void Model_Initializer_Legacy::create_fem_set_info_from_iqis(
-            bool const                                               aIsAnalyticalSA,
-            FDScheme_Type const                                     &aFDSchemeForSA,
-            real const                                               aFDPerturbation,
-            std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex )
+    void Model_Initializer_Legacy::create_fem_set_info_from_iqis( std::map< std::tuple< std::string, bool, bool >, uint > &aMeshToFemSetIndex )
     {
+        ParameterList const tComputationParameterList = mParameterList( 5 )( 0 );
+
+        // forward analysis
+        bool const         tIsAnalyticalFA   = tComputationParameterList.get< bool >( "is_analytical_forward" );
+        fem::FDScheme_Type tFDSchemeForFA    = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme_forward" ) );
+        real               tFDPerturbationFA = tComputationParameterList.get< real >( "finite_difference_perturbation_size_forward" );
+
+        // sensitivity analysis
+        bool const tIsAnalyticalSA = tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
+        auto const tFDSchemeForSA  = static_cast< fem::FDScheme_Type >( tComputationParameterList.get< uint >( "finite_difference_scheme" ) );
+        real const tFDPerturbation = tComputationParameterList.get< real >( "finite_difference_perturbation_size" );
+
+        fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >( tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
+
         Vector< ParameterList > tIQIParameterLists = this->mParameterList( 4 );
         for ( uint iIQI = 0; iIQI < tIQIParameterLists.size(); iIQI++ )
         {
@@ -858,11 +879,18 @@ namespace moris::fem
                     aSetUserInfo.set_mesh_set_name( tMeshSetName );
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
                     aSetUserInfo.set_time_boundary( tTimeBoundary );
-                    aSetUserInfo.set_is_analytical_sensitivity_analysis( aIsAnalyticalSA );
-                    aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( aFDSchemeForSA );
-                    aSetUserInfo.set_finite_difference_perturbation_size( aFDPerturbation );
-                    aSetUserInfo.add_IQI( tIQI );
 
+                    aSetUserInfo.set_is_analytical_forward_analysis( tIsAnalyticalFA );
+                    aSetUserInfo.set_finite_difference_scheme_for_forward_analysis( tFDSchemeForFA );
+                    aSetUserInfo.set_finite_difference_perturbation_size_for_forward_analysis( tFDPerturbationFA );
+
+                    aSetUserInfo.set_is_analytical_sensitivity_analysis( tIsAnalyticalSA );
+                    aSetUserInfo.set_finite_difference_scheme_for_sensitivity_analysis( tFDSchemeForSA );
+                    aSetUserInfo.set_finite_difference_perturbation_size( tFDPerturbation );
+
+                    aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
+
+                    aSetUserInfo.add_IQI( tIQI );
                     // add it to the list of fem set info
                     this->mSetInfo.push_back( aSetUserInfo );
                 }
