@@ -156,7 +156,7 @@ namespace moris::mtk
         Matrix< DDRMat > const tVertexNormals = aSurfaceMesh.get_vertex_normals_of_cell( aCellIndex );
         aNormalInterpolator.set_space_coeff( tVertexNormals );
 
-        // Matrix< DDRMat > const tNormals = aSurfaceMesh.get_facet_normals();
+        Matrix< DDRMat > const tNormals = aSurfaceMesh.get_facet_normals();
 
         for ( uint iPoint = 0; iPoint < tNumRays; iPoint++ )
         {
@@ -166,8 +166,10 @@ namespace moris::mtk
 
             // map the parametric coordinate to the surface mesh
             aMappingResult.mSourcePhysicalCoordinate.set_column( tStartIndex + iPoint, tVertexCoordinates * trans( aCoordinateInterpolator.NXi() ) );
-            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tVertexNormals * trans( aNormalInterpolator.NXi() ) );
-            // aMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( aCellIndex ) );
+            // using the next line would lead to a smooth normal (interpolated between the vertices)
+            // this is not consistent with the facet normal of the element but could be considered in the future to get a smoother result
+            //            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tVertexNormals * trans( aNormalInterpolator.NXi() ) );
+            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( aCellIndex ) );
         }
     }
 
@@ -387,4 +389,4 @@ namespace moris::mtk
             }
         }
     }
-    } // namespace moris::mtk
+}    // namespace moris::mtk
