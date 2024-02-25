@@ -9,6 +9,7 @@
  */
 
 #include <map>
+#include <set>
 #ifdef WITHGPERFTOOLS
 #include <gperftools/profiler.h>
 #endif
@@ -20,6 +21,7 @@
 #include "fn_sum.hpp"    // for check
 #include "fn_iscol.hpp"
 #include "fn_trans.hpp"
+#include "moris_typedefs.hpp"
 #include "op_equal_equal.hpp"
 // MTK/src
 #include "MTK_Tools.hpp"
@@ -56,6 +58,9 @@
 #include "cl_MTK_Mesh_DataBase_IP.hpp"
 #include "cl_MTK_Mesh_DataBase_IG.hpp"
 
+
+#include <cl_MTK_Json_Debug_Output.hpp>
+
 namespace moris
 {
     namespace fem
@@ -63,7 +68,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                moris::Vector< fem::Set_User_Info >   &aSetInfo )
+                moris::Vector< fem::Set_User_Info > &aSetInfo )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
         {
@@ -96,7 +101,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                moris::Vector< fem::Set_User_Info >   &aSetInfo,
+                moris::Vector< fem::Set_User_Info > &aSetInfo,
                 MSI::Design_Variable_Interface      *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -142,10 +147,10 @@ namespace moris
 
 
         FEM_Model::FEM_Model(
-                std::shared_ptr< mtk::Mesh_Manager >               aMeshManager,
-                const moris_index                                 &aMeshPairIndex,
+                std::shared_ptr< mtk::Mesh_Manager >     aMeshManager,
+                const moris_index                       &aMeshPairIndex,
                 const Vector< Vector< ParameterList > > &aParameterList,
-                std::shared_ptr< Library_IO >                      aLibrary )
+                std::shared_ptr< Library_IO >            aLibrary )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
                 , mParameterList( aParameterList )
@@ -180,10 +185,10 @@ namespace moris
 
 
         FEM_Model::FEM_Model(
-                std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-                const moris_index                          &aMeshPairIndex,
-                Vector< Vector< ParameterList > > aParameterList,
-                MSI::Design_Variable_Interface             *aDesignVariableInterface )
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                const moris_index                   &aMeshPairIndex,
+                Vector< Vector< ParameterList > >    aParameterList,
+                MSI::Design_Variable_Interface      *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
                 , mParameterList( aParameterList )
@@ -272,9 +277,9 @@ namespace moris
                     uint tVertexIndex = mIGNodes( iNode )->get_index();
 
                     // get the pdv values from the MSI/GEN interface
-                    Matrix< IndexMat >              tVertexIndices( 1, 1, tVertexIndex );
+                    Matrix< IndexMat >         tVertexIndices( 1, 1, tVertexIndex );
                     Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
-                    Vector< Vector< bool > > tIsActiveDv;
+                    Vector< Vector< bool > >   tIsActiveDv;
 
                     this->get_design_variable_interface()->get_ig_pdv_value(
                             tVertexIndices,
@@ -321,8 +326,8 @@ namespace moris
 
         void
         FEM_Model::create_fem_sets(
-                mtk::Interpolation_Mesh           *aIPMesh,
-                mtk::Integration_Mesh             *aIGMesh,
+                mtk::Interpolation_Mesh      *aIPMesh,
+                mtk::Integration_Mesh        *aIGMesh,
                 Vector< fem::Set_User_Info > &aSetInfo )
         {
             // get the number of sets
@@ -389,6 +394,95 @@ namespace moris
 
             // print output
             MORIS_LOG_SPEC( "IP elements", tGlobalNumElements );
+        }
+
+        void FEM_Model::update_equation_sets()
+        {
+            // get the side set names that get used by the contact mesh editor to build nonconformal sets
+            std::set< moris_index > tRequestedIGNodes;
+            std::set< moris_index > tRequestedIPNodes;
+
+            // TODO: Debug only
+            for ( auto const &tFemSet : mFemSets )
+            {
+                if ( tFemSet->is_empty_set() || tFemSet->get_set_name().find( "ghost" ) != std::string::npos )
+                {
+                    continue;
+                }
+                auto const &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
+                for ( auto const &tCluster : tMeshSet->get_clusters_on_set() )
+                {
+                    for ( auto const &tCell : tCluster->get_primary_cells_in_cluster() )
+                    {
+                        for ( auto const &tVertex : tCell->get_vertex_pointers() )
+                        {
+                            tRequestedIGNodes.insert( tVertex->get_index() );
+                        }
+                    }
+                    for ( auto const &tVertex : tCluster->get_interpolation_cell().get_vertex_pointers() )
+                    {
+                        tRequestedIPNodes.insert( tVertex->get_index() );
+                    }
+                }
+            }
+
+            std::map< moris_index, Vector< real > > tNodalDisplacements;
+            for ( auto const &tSet : mFemSets )
+            {
+                if ( !tSet->is_empty_set() && !tRequestedIGNodes.empty() && tSet->get_set_name().find( "ghost" ) == std::string::npos)
+                {
+                    // skip ghost sets
+                    std::map< moris::moris_index, Vector< moris::real > > tNewNodes = tSet->get_nodal_displacements( tRequestedIGNodes );
+                    for ( auto const &[ tIndex, _ ] : tNewNodes )
+                    {
+                        tRequestedIGNodes.erase( tIndex );
+                    }
+                    tNodalDisplacements.merge( tNewNodes );
+                }
+            }
+            MORIS_ASSERT( tRequestedIGNodes.size() == 0, "Not all requested nodal displacements could be found!" );
+
+
+            mtk::Json_Debug_Output tDebugOutput( mMeshManager->get_integration_mesh( 0 ) );
+            tDebugOutput.set_ig_vertex_displacements( tNodalDisplacements );
+            uint const        tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
+            std::string const tFileName  = "debug_mesh_" + std::to_string( tIteration ) + ".json";
+            tDebugOutput.write_to_json( tFileName );
+
+
+            // store the names of the mesh sets that are stored in each FEM set. This is necessary to update the newly created
+            // nonconformal sets.
+            Vector< std::string > tMeshSetNames;
+            tMeshSetNames.reserve( mFemSets.size() );
+            for ( auto const &tSet : mFemSets )
+            {
+                if ( tSet->is_empty_set() )
+                {
+                    tMeshSetNames.push_back( "" );
+                }
+                else
+                {
+                    tMeshSetNames.push_back( tSet->get_set_name() );
+                }
+            }
+
+            for ( auto const &tContactMeshEditor : mMeshManager->get_contact_mesh_editors() )
+            {
+                tContactMeshEditor->update_displacements( tNodalDisplacements );
+                tContactMeshEditor->update_nonconformal_side_sets();
+            }
+
+            // loop over each fem set and check if it needs to be updated (i.e. only nonconformal sets!)
+            for ( size_t iFemSet = 0; iFemSet < mFemSets.size(); ++iFemSet )
+            {
+                auto *const tFemSet      = dynamic_cast< fem::Set      *>( mFemSets( iFemSet ) );
+                auto const &tMeshSetName = tMeshSetNames( iFemSet );
+                if ( tFemSet->get_is_update_required() )
+                {
+                    tFemSet->set_mesh_set( mMeshManager->get_integration_mesh( 0 )->get_set_by_name( tMeshSetName ) );
+                    tFemSet->update();
+                }
+            }
         }
 
 
@@ -623,9 +717,9 @@ namespace moris
 
         void
         FEM_Model::set_integration_xyz_pdv_assembly_index(
-                moris_index   aNodeIndex,
+                moris_index        aNodeIndex,
                 enum gen::PDV_Type aPdvType,
-                moris_index   aXYZPdvAssemblyIndex )
+                moris_index        aXYZPdvAssemblyIndex )
         {
             // get the index of the underlying node
             moris_index tIgNodeIndex = mIGNodes( aNodeIndex )->get_index();
@@ -969,7 +1063,7 @@ namespace moris
 
         void
         FEM_Model::set_vertex_xyz_active_flags(
-                moris_index                      aVertexIndex,
+                moris_index               aVertexIndex,
                 Vector< Vector< bool > > &aIsActiveDv )
         {
             // get num of pdv
@@ -985,7 +1079,7 @@ namespace moris
 
         void
         FEM_Model::set_vertex_xyz_pdv_ids(
-                moris_index                      aVertexIndex,
+                moris_index                 aVertexIndex,
                 Vector< Matrix< DDSMat > > &aXYZPvIds )
         {
             // get num of pdv

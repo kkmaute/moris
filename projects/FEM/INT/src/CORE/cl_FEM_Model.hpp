@@ -346,6 +346,11 @@ namespace moris
                     Vector< fem::Set_User_Info > &aSetInfo );
 
             /**
+             * @brief Method to update the fem sets that need to be reinitialized in every newton iteration
+             */
+            void update_equation_sets() override;
+
+            /**
              * @brief set parameter list
              * @param[ in ] aParameterList a list of parameter for the FEM model
              */

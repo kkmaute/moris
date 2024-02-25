@@ -8,6 +8,7 @@
  *
  */
 #include <iostream>
+#include <set>
 
 #include "cl_MSI_Model_Solver_Interface.hpp"        //FEM/MSI/src
 #include "cl_MSI_Solver_Interface.hpp"              //FEM/MSI/src
@@ -21,7 +22,9 @@
 #include "cl_FEM_Cluster.hpp"                       //FEM/INT/src
 #include "cl_MTK_Set.hpp"                           //FEM/INT/src
 #include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Vertex.hpp"
 #include "fn_equal_to.hpp"
+#include "fn_trans.hpp"
 
 namespace moris
 {
@@ -36,6 +39,7 @@ namespace moris
                 const Vector< Node_Base* >& aIPNodes )
                 : mFemModel( aFemModel )
                 , mMeshSet( aMeshSet )
+                , mIPNodes( aIPNodes )
                 , mIWGs( aSetInfo.get_IWGs() )
                 , mIQIs( aSetInfo.get_IQIs() )
                 , mTimeContinuity( aSetInfo.get_time_continuity() )
@@ -49,6 +53,11 @@ namespace moris
         {
             // get the set type (BULK, SIDESET, DOUBLE_SIDESET, TIME_SIDESET)
             this->determine_set_type();
+
+            if ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+            {
+                mIsUpdateRequired = true;    // nonconformal sets get remapped in every iteration
+            }
 
             // loop over the IWGs on the set
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
@@ -64,72 +73,7 @@ namespace moris
                 tIQI->set_set_pointer( this );
             }
 
-            // get mesh clusters on set
-            Vector< mtk::Cluster const * > tMeshClusterList = mMeshSet->get_clusters_on_set();
-
-            // get number of mesh clusters on set
-            uint tNumMeshClusters = tMeshClusterList.size();
-
-            // set size for the equation objects list
-            mEquationObjList.resize( tNumMeshClusters, nullptr );
-
-            // get cluster measures used on set
-            this->build_cluster_measure_tuples_and_map();
-
-            // create a fem cluster factory
-            fem::Element_Factory tClusterFactory;
-
-            // loop over mesh clusters on set
-            for ( luint iCluster = 0; iCluster < tNumMeshClusters; iCluster++ )
-            {
-                // init list of pointers to IP mesh cell
-                Vector< const mtk::Cell* > tInterpolationCell;
-
-                // switch on set type
-                switch ( mElementType )
-                {
-                    // if bulk or sideset
-                    case fem::Element_Type::BULK:
-                    case fem::Element_Type::SIDESET:
-                    case fem::Element_Type::TIME_SIDESET:
-                    case fem::Element_Type::TIME_BOUNDARY:
-                    {
-                        tInterpolationCell.resize( 1, &tMeshClusterList( iCluster )->get_interpolation_cell() );
-                        break;
-                    }
-                    // if double sideset
-                    case fem::Element_Type::DOUBLE_SIDESET:
-                    case fem::Element_Type::NONCONFORMAL_SIDESET:
-                    {
-                        tInterpolationCell.resize( 2 );
-                        tInterpolationCell( 0 ) = &( tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Leader_Follower::LEADER ) );
-                        tInterpolationCell( 1 ) = &( tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ) );
-                        break;
-                    }
-                    // if none of the above
-                    default:
-                    {
-                        MORIS_ERROR( false, "Set::Set - unknown element type" );
-                    }
-                }
-
-                // create an interpolation element
-                mEquationObjList( iCluster ) = new fem::Interpolation_Element(
-                        mElementType,
-                        tInterpolationCell,
-                        aIPNodes,
-                        this );
-
-                // create a fem cluster
-                std::shared_ptr< fem::Cluster > tCluster = std::make_shared< fem::Cluster >(
-                        mElementType,
-                        tMeshClusterList( iCluster ),
-                        this,
-                        mEquationObjList( iCluster ) );
-
-                // set the cluster to the interpolation element
-                reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( iCluster ) )->set_cluster( tCluster, 0 );
-            }
+            this->create_fem_clusters();
 
             // geometry and interpolation info----------------------------------------------
             //------------------------------------------------------------------------------
@@ -223,6 +167,17 @@ namespace moris
             }
         }
 
+        void Set::update()
+        {
+            if ( !mIsUpdateRequired )
+            {
+                return;
+            }
+            mEquationObjList.clear();
+
+            mBuildClusterMEA = false;    // force rebuild of cluster measures
+            this->create_fem_clusters();
+        }
         //------------------------------------------------------------------------------
 
         void
@@ -296,6 +251,59 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        void Set::create_fem_clusters()
+        {
+            Vector< mtk::Cluster const * > tMeshClusterList = mMeshSet->get_clusters_on_set();
+            uint                           tNumMeshClusters = tMeshClusterList.size();
+            mEquationObjList.resize( tNumMeshClusters, nullptr );
+
+            // get cluster measures used on set
+            this->build_cluster_measure_tuples_and_map();
+
+            // create a fem cluster factory
+            fem::Element_Factory tClusterFactory;
+
+            // loop over mesh clusters on set
+            for ( luint iCluster = 0; iCluster < tNumMeshClusters; iCluster++ )
+            {
+                // init list of pointers to IP mesh cell
+                Vector< const mtk::Cell* > tInterpolationCell;
+
+                mtk::Cluster const * const tMeshCluster = tMeshClusterList( iCluster );
+
+                // switch on set type
+                switch ( mElementType )
+                {
+                    case fem::Element_Type::BULK:
+                    case fem::Element_Type::SIDESET:
+                    case fem::Element_Type::TIME_SIDESET:
+                    case fem::Element_Type::TIME_BOUNDARY:
+                    {
+                        tInterpolationCell.resize( 1, &( tMeshCluster->get_interpolation_cell() ) );
+                        break;
+                    }
+                    case fem::Element_Type::DOUBLE_SIDESET:
+                    case fem::Element_Type::NONCONFORMAL_SIDESET:
+                    {
+                        tInterpolationCell.resize( 2 );
+                        tInterpolationCell( 0 ) = &( tMeshCluster->get_interpolation_cell( mtk::Leader_Follower::LEADER ) );
+                        tInterpolationCell( 1 ) = &( tMeshCluster->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ) );
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "Set::Set - unknown element type" );
+                    }
+                }
+
+                // create an interpolation element and fem cluster
+                auto const tInterpolationElement = new fem::Interpolation_Element( mElementType, tInterpolationCell, mIPNodes, this );
+                auto const tCluster              = std::make_shared< fem::Cluster >( mElementType, tMeshCluster, this, tInterpolationElement );
+                tInterpolationElement->set_cluster( tCluster, 0 );
+
+                mEquationObjList( iCluster ) = tInterpolationElement;
+            }
+        }
 
         void
         Set::create_integrator( MSI::Model_Solver_Interface* aModelSolverInterface )
@@ -384,7 +392,7 @@ namespace moris
             {
                 // get an IWG non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >   tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -403,7 +411,7 @@ namespace moris
             {
                 // get an IWG non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >   tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -438,7 +446,7 @@ namespace moris
             {
                 // get non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >   tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -464,7 +472,7 @@ namespace moris
             {
                 // get non unique dof and dv types
                 Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
-                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< gen::PDV_Type > >   tActiveDvType;
                 Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
@@ -1360,8 +1368,7 @@ namespace moris
             for ( auto tIWG : mIWGs )
             {
                 // get the SP from the IWG
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
-                        tIWG->get_stabilization_parameters();
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs = tIWG->get_stabilization_parameters();
 
                 // loop over the SP
                 for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
@@ -1374,8 +1381,7 @@ namespace moris
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
                                 mtk::Leader_Follower > >
-                                tClusterMEASPTuples =
-                                        tSP->get_cluster_measure_tuple_list();
+                                tClusterMEASPTuples = tSP->get_cluster_measure_tuple_list();
 
                         // add number of cluster measure tuple to counter
                         tCMEACounter += tClusterMEASPTuples.size();
@@ -1387,8 +1393,7 @@ namespace moris
             for ( auto tIQI : mIQIs )
             {
                 // get the SP from the IQI
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
-                        tIQI->get_stabilization_parameters();
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs = tIQI->get_stabilization_parameters();
 
                 // loop over the SPs
                 for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
@@ -1401,14 +1406,18 @@ namespace moris
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
                                 mtk::Leader_Follower > >
-                                tClusterMEASPTuples =
-                                        tSP->get_cluster_measure_tuple_list();
+                                tClusterMEASPTuples = tSP->get_cluster_measure_tuple_list();
 
                         // add number of cluster measure tuple to counter
                         tCMEACounter += tClusterMEASPTuples.size();
                     }
                 }
             }
+
+            // reset in case the fem set is rebuilt
+            mClusterMEATuples.clear();
+            mClusterMEAMap.clear();
+
             // init size for cell of cluster measure tuples
             mClusterMEATuples.resize( tCMEACounter );
 
@@ -1419,8 +1428,7 @@ namespace moris
             for ( auto tIWG : mIWGs )
             {
                 // get the SP from the IWG
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
-                        tIWG->get_stabilization_parameters();
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs = tIWG->get_stabilization_parameters();
 
                 // loop over the SP
                 for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
@@ -1433,8 +1441,7 @@ namespace moris
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
                                 mtk::Leader_Follower > >
-                                tClusterMEASPTuples =
-                                        tSP->get_cluster_measure_tuple_list();
+                                tClusterMEASPTuples = tSP->get_cluster_measure_tuple_list();
 
                         // loop over the cluster measure tuples from SP
                         for ( uint iCMEA = 0; iCMEA < tClusterMEASPTuples.size(); iCMEA++ )
@@ -1497,7 +1504,7 @@ namespace moris
                 }
             }
             // shrink to fit as list of tuples shorter than what was reserved
-            mClusterMEATuples.resize( tCMEACounter );
+            // mClusterMEATuples.resize( tCMEACounter );
 
             // set build bool to true
             mBuildClusterMEA = true;
@@ -2118,7 +2125,7 @@ namespace moris
 
             // get the geo dv types requested by the opt
             moris::Vector< enum gen::PDV_Type > tRequestedDvTypes;
-            moris_index                    tMeshSetIndex = mMeshSet->get_set_index();
+            moris_index                         tMeshSetIndex = mMeshSet->get_set_index();
             tDVInterface->get_ig_unique_dv_types_for_set(
                     tMeshSetIndex,
                     tRequestedDvTypes );
@@ -2393,6 +2400,64 @@ namespace moris
 
                 mIQINameToIndexMap[ tIQIName ] = tCounter++;
             }
+        }
+
+        std::map< moris_index, Vector< real > > Set::get_nodal_displacements( std::set< moris_index > aRequestedNodes )
+        {
+            std::map< moris_index, Vector< real > > tNodalDisplacements;
+            for ( auto* tEquationObject : mEquationObjList )
+            {
+                auto* const tInterpElement = dynamic_cast< fem::Interpolation_Element* >( tEquationObject );
+
+                std::shared_ptr< Cluster > const tCluster     = tInterpElement->get_cluster( 0 );
+                mtk::Cluster const * const       tMeshCluster = tCluster->get_mesh_cluster();
+
+                // get only the primary vertices! If you get all vertices you might interpolate vertices of a follower side that reside in the same cluster with the wrong interpolation element
+                Matrix< IndexMat > const            tPrimaryVertexIndexMat = tMeshCluster->get_primary_vertices_inds_in_cluster();
+                std::set< moris_index > const       tPrimaryVertexIndexSet( tPrimaryVertexIndexMat.begin(), tPrimaryVertexIndexMat.end() );    // convert to set for faster "is in" check
+                Vector< mtk::Vertex const * > const tVerticesOnCluster = tMeshCluster->get_vertices_in_cluster();
+                Matrix< DDRMat >                    tLocalCoords       = tMeshCluster->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::LEADER );
+
+                tInterpElement->compute_my_pdof_values();
+                tInterpElement->set_field_interpolators_coefficients();
+
+                // loop over the vertices on the treated mesh cluster
+                uint const tNumNodes = tLocalCoords.n_rows();
+                MORIS_ASSERT( tNumNodes == tVerticesOnCluster.size(),
+                        "FEM::Set::get_nodal_displacements() - "
+                        "Number of nodes in the interpolation element and number of nodes in the local coordinates "
+                        "matrix are different." );
+                for ( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
+                {
+                    moris_index tVertexIndex = tVerticesOnCluster( iVertex )->get_index();
+                    // if the vertex is not requested, or if it is already in the map, or if it is not a primary vertex, skip it
+                    if ( aRequestedNodes.count( tVertexIndex ) == 0 || tNodalDisplacements.count( tVertexIndex ) != 0 || tPrimaryVertexIndexSet.count( tVertexIndex ) == 0 )
+                    {
+                        continue;
+                    }
+
+                    // get the ith vertex coordinates in the IP param space
+                    Matrix< DDRMat > tVertexCoord = tLocalCoords.get_row( iVertex );
+
+                    tVertexCoord.resize( 1, tVertexCoord.numel() + 1 );
+                    tVertexCoord( tVertexCoord.numel() - 1 ) = -1.0;    // adding time coordinate
+                    tVertexCoord                             = trans( tVertexCoord );
+
+                    // set vertex coordinates for field interpolator
+                    this->get_field_interpolator_manager()->set_space_time( tVertexCoord );
+
+                    Field_Interpolator* tFiX = get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
+                                                       ->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+
+                    Vector< real > tDisp( 2 );
+                    tDisp( 0 ) = tFiX->val()( 0 );
+                    tDisp( 1 ) = tFiX->val()( 1 );
+                    // tDisp( 1 ) = tFiY->val()( 0 );
+
+                    tNodalDisplacements[ tVertexIndex ] = tDisp;
+                }
+            }
+            return tNodalDisplacements;
         }
 
         //------------------------------------------------------------------------------
@@ -3483,12 +3548,15 @@ namespace moris
 
             this->gather_requested_IQIs( aQINames, mRequestedNodalIQIs, mRequestedNodalIQIsGlobalIndices );
 
-            // loop over equation objects
-            uint tNumElements = mEquationObjList.size();
-            for ( uint iElement = 0; iElement < tNumElements; iElement++ )
+            if ( mRequestedNodalIQIs.size() > 0 )
             {
-                // compute quantity of interest
-                mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, vis::Field_Type::NODAL );
+                // loop over equation objects
+                uint tNumElements = mEquationObjList.size();
+                for ( uint iElement = 0; iElement < tNumElements; iElement++ )
+                {
+                    // compute quantity of interest
+                    mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, vis::Field_Type::NODAL );
+                }
             }
         }
 
@@ -3532,12 +3600,15 @@ namespace moris
 
             this->gather_requested_IQIs( aQINames, mRequestedGlobalIQIs, mRequestedGlobalIQIsGlobalIndices );
 
-            // loop over equation objects
-            uint tNumEqObjs = mEquationObjList.size();
-            for ( uint iElement = 0; iElement < tNumEqObjs; iElement++ )
+            if ( mRequestedGlobalIQIs.size() > 0 )
             {
-                // compute quantity of interest
-                mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, vis::Field_Type::GLOBAL );
+                // loop over equation objects
+                uint tNumEqObjs = mEquationObjList.size();
+                for ( uint iElement = 0; iElement < tNumEqObjs; iElement++ )
+                {
+                    // compute quantity of interest
+                    mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, vis::Field_Type::GLOBAL );
+                }
             }
         }
 
@@ -3597,19 +3668,22 @@ namespace moris
 
             this->gather_requested_IQIs( aQINames, mRequestedElementalIQIs, mRequestedElementalIQIsGlobalIndices );    // get the used IQIs on the current set
 
-            // compute averages if requested by user
-            vis::Field_Type tOutputType = vis::Field_Type::ELEMENTAL_INT;
-            if ( aOutputAverageValue )
+            if ( mRequestedElementalIQIs.size() > 0 )
             {
-                tOutputType = vis::Field_Type::ELEMENTAL_AVG;
-            }
+                // compute averages if requested by user
+                vis::Field_Type tOutputType = vis::Field_Type::ELEMENTAL_INT;
+                if ( aOutputAverageValue )
+                {
+                    tOutputType = vis::Field_Type::ELEMENTAL_AVG;
+                }
 
-            // loop over equation objects
-            uint tNumEqObjs = mEquationObjList.size();
-            for ( uint iElement = 0; iElement < tNumEqObjs; iElement++ )
-            {
-                // compute quantity of interest
-                mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, tOutputType );
+                // loop over equation objects
+                uint tNumEqObjs = mEquationObjList.size();
+                for ( uint iElement = 0; iElement < tNumEqObjs; iElement++ )
+                {
+                    // compute quantity of interest
+                    mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, tOutputType );
+                }
             }
         }
 
@@ -3776,10 +3850,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+
         void
         Set::get_ip_dv_types_for_set(
                 moris::Vector< moris::Vector< enum gen::PDV_Type > >& aMatPdvType,
-                mtk::Leader_Follower                             aIsLeader )
+                mtk::Leader_Follower                                  aIsLeader )
         {
             // choose based on the leader, follower type
             // the output here is gather from fem

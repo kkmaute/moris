@@ -67,11 +67,14 @@ namespace moris
             // pointer to the corresponding mesh set
             moris::mtk::Set* mMeshSet = nullptr;
 
+          private:
             // interpolation mesh geometry type
             mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
 
             // integration mesh geometry type
             mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
+
+            Vector< Node_Base* > mIPNodes;
 
             // space interpolation order for IP cells
             mtk::Interpolation_Order mIPSpaceInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
@@ -129,8 +132,8 @@ namespace moris
             Matrix< DDSMat > mUniqueFieldTypeMap;
 
             // map visualization cell id to position in vector
-            Vector< Matrix< DDSMat > > mCellAssemblyMap;     // input: VIS mesh index, VIS cell index || output: position of cell within list of cells on VIS set
-            Vector< uint >             mNumIgCellsOnSet;     // input: VIS mesh index || output: number of IG cells in that VIS set
+            Vector< Matrix< DDSMat > > mCellAssemblyMap;    // input: VIS mesh index, VIS cell index || output: position of cell within list of cells on VIS set
+            Vector< uint >             mNumIgCellsOnSet;    // input: VIS mesh index || output: number of IG cells in that VIS set
 
             Vector< Matrix< DDSMat > > mFacetAssemblyMap;    // input: VIS mesh index, IG cell index, side ordinal  || output: position of facet within the output (dbl) side set
             Vector< uint >             mNumFacetsOnSet;      // input: VIS mesh index || output: number of facets in that VIS (dbl) side set
@@ -201,6 +204,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
           public:
+            void create_fem_clusters();
             //------------------------------------------------------------------------------
             /**
              * constructor
@@ -210,9 +214,9 @@ namespace moris
              * @param[ in ] aIPNodes  cell of node pointers
              */
             Set(
-                    fem::FEM_Model*                  aFemModel,
-                    moris::mtk::Set*                 aMeshSet,
-                    const fem::Set_User_Info&        aSetInfo,
+                    fem::FEM_Model*             aFemModel,
+                    moris::mtk::Set*            aMeshSet,
+                    const fem::Set_User_Info&   aSetInfo,
                     const Vector< Node_Base* >& aIPNodes );
 
             //------------------------------------------------------------------------------
@@ -246,6 +250,8 @@ namespace moris
                     const bool                 aIsStaggered            = false,
                     const Time_Continuity_Flag aTimeContinuityOnlyFlag = Time_Continuity_Flag::DEFAULT );
 
+            void update() override;
+
             //------------------------------------------------------------------------------
 
             fem::FEM_Model*
@@ -276,7 +282,15 @@ namespace moris
 
             void set_custom_integration_rule( MSI::Model_Solver_Interface* aModelSolverInterface );
 
+            [[nodiscard]] moris::mtk::Set* get_mesh_set() const
+            {
+                return mMeshSet;
+            }
 
+            void set_mesh_set( moris::mtk::Set* const aMeshSet )
+            {
+                mMeshSet = aMeshSet;
+            }
             //------------------------------------------------------------------------------
             /**
              * set visualization mesh set
@@ -572,6 +586,8 @@ namespace moris
              * building an IQI name to set local index map
              */
             void create_IQI_map();
+
+            std::map< moris_index, Vector< real > > get_nodal_displacements( std::set< moris_index > aRequestedNodes ) override;
 
             //------------------------------------------------------------------------------
             /**
@@ -943,8 +959,8 @@ namespace moris
              * @param[ in ] aQINames          list of IQI names to be evaluated
              */
             void compute_quantity_of_interest_nodal(
-                    const uint                        aVisMeshIndex,
-                    Matrix< DDRMat >*                 aNodalFieldValues,
+                    const uint                   aVisMeshIndex,
+                    Matrix< DDRMat >*            aNodalFieldValues,
                     const Vector< std::string >& aQINames );
 
             //------------------------------------------------------------------------------
@@ -975,8 +991,8 @@ namespace moris
              * @param[ in ] aQINames           list of IQI names to be evaluated
              */
             void compute_quantity_of_interest_global(
-                    const uint                        aVisMeshIndex,
-                    Matrix< DDRMat >*                 aGlobalFieldValues,
+                    const uint                   aVisMeshIndex,
+                    Matrix< DDRMat >*            aGlobalFieldValues,
                     const Vector< std::string >& aQINames );
 
             //------------------------------------------------------------------------------
@@ -1008,10 +1024,10 @@ namespace moris
              * @param[ in ] aOutputAverageValue   whether the value is an average on the element, or the integrated quantity on the element
              */
             void compute_quantity_of_interest_elemental(
-                    const uint                        aVisMeshIndex,
-                    Matrix< DDRMat >*                 aElementalFieldValues,
+                    const uint                   aVisMeshIndex,
+                    Matrix< DDRMat >*            aElementalFieldValues,
                     const Vector< std::string >& aQINames,
-                    const bool                        aOutputAverageValue = true );
+                    const bool                   aOutputAverageValue = true );
 
             //------------------------------------------------------------------------------
             /**

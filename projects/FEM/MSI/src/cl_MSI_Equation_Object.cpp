@@ -120,6 +120,7 @@ namespace moris
             }
 
             // set size of vector containing this equation objects free pdofs
+            mFreePdofs.clear();
             mFreePdofs.reserve( tNumMyFreePdofs );
 
             // loop over pdof systems. Is one except for double sided clusters
@@ -148,6 +149,7 @@ namespace moris
             //----------------------------------------------------------------------------------------------------------
 
             // Ask the first pdof host for the number of pdof types //FIXME
+            mFreePdofList.clear();
             mFreePdofList.resize( mNumPdofSystems );
 
             for ( uint Ia = 0; Ia < mNumPdofSystems; Ia++ )
@@ -232,7 +234,7 @@ namespace moris
             }
 
             //---------------------------------------------------------------------------
-
+            mUniqueAdofTypeList.clear();
             mUniqueAdofTypeList.resize( mFreePdofList.size() );
 
             for ( uint Ik = 0; Ik < mFreePdofList.size(); Ik++ )

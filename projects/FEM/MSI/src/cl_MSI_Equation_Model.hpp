@@ -12,7 +12,7 @@
 #define PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Vector.hpp"     //MRS/CNT/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -451,9 +451,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             virtual void get_integration_xyz_active_flags(
-                    const Matrix< IndexMat >&      aNodeIndices,
+                    const Matrix< IndexMat >& aNodeIndices,
                     const Vector< gen::PDV_Type >& aPdvTypes,
-                    Matrix< DDSMat >&              aIsActiveDv ) = 0;
+                    Matrix< DDSMat >&         aIsActiveDv ) = 0;
 
             /**
              * @brief get integration xyz pdv ids
@@ -463,9 +463,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             virtual void get_integration_xyz_pdv_ids(
-                    const Matrix< IndexMat >&      aNodeIndices,
+                    const Matrix< IndexMat >& aNodeIndices,
                     const Vector< gen::PDV_Type >& aPdvTypes,
-                    Matrix< DDSMat >&              aXYZPdvIds ) = 0;
+                    Matrix< DDSMat >&         aXYZPdvIds ) = 0;
 
             /**
              * @brief get integration xyz pdv ids
@@ -477,10 +477,10 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             virtual void get_integration_xyz_pdv_active_flags_and_ids(
-                    const Matrix< IndexMat >&      aNodeIndices,
+                    const Matrix< IndexMat >& aNodeIndices,
                     const Vector< gen::PDV_Type >& aRequestedPdvTypes,
-                    Matrix< DDSMat >&              aIsActiveDv,
-                    Matrix< DDSMat >&              aXYZPdvIds ) = 0;
+                    Matrix< DDSMat >&         aIsActiveDv,
+                    Matrix< DDSMat >&         aXYZPdvIds ) = 0;
 
             /**
              * @brief reset integration xyz pdv local cluster assembly indices
@@ -511,9 +511,9 @@ namespace moris
              */
             virtual void
             get_integration_xyz_pdv_assembly_indices(
-                    const Matrix< IndexMat >&      aNodeIndices,
+                    const Matrix< IndexMat >& aNodeIndices,
                     const Vector< gen::PDV_Type >& aRequestedPdvTypes,
-                    Matrix< DDSMat >&              aXYZPdvAssemblyIndices ) = 0;
+                    Matrix< DDSMat >&         aXYZPdvAssemblyIndices ) = 0;
 
 
             virtual void
@@ -524,6 +524,11 @@ namespace moris
              */
             virtual Vector< std::shared_ptr< mtk::Field > >
             get_fields() = 0;
+
+            /**
+             * @brief Method to update the fem sets that need to be reinitialized in every newton iteration
+             */
+            virtual void update_equation_sets(){};
 
             /**
              * @brief initialize the FEM model from parameter lists + create the interpolation nodes & FEM sets
