@@ -47,7 +47,7 @@ namespace moris::ge
             , mParameters( aParameters )
             , mMesh( aMesh )
             , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
-            , mPerturbationFields( Object::mDimension )
+            , mPerturbationFields( 0 )
     {
         // set name of this geometry as the file name
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );
@@ -61,20 +61,26 @@ namespace moris::ge
             }
         }
 
-        // initialize displacement fields as zeros
-        Matrix< DDUMat > tFieldVariableIndices = { { 0 } };
-        Matrix< DDRMat > tConstants            = { {} };
-        Matrix< DDRMat > tInitialDisplacement( Object::get_dimension(), 1 );
-        for ( uint iFieldIndex = 0; iFieldIndex < Object::get_dimension(); iFieldIndex++ )
+        if ( aADVs.numel() > 0 )
         {
-            Matrix< DDUMat > tADVIndices       = { { iFieldIndex } };
-            Matrix< DDRMat > tADVs             = { { aADVs( iFieldIndex ) } };
-            mPerturbationFields( iFieldIndex ) = std::make_shared< Constant_Field >(
-                    aADVs,
-                    tFieldVariableIndices,
-                    tADVIndices,
-                    tConstants,
-                    mName + "_PERT_" + std::to_string( iFieldIndex ) );
+            // Allocate memory for perturbation fields
+            mPerturbationFields.resize( Object::mDimension );
+
+            // initialize displacement fields as zeros
+            Matrix< DDUMat > tFieldVariableIndices = { { 0 } };
+            Matrix< DDRMat > tConstants            = { {} };
+            Matrix< DDRMat > tInitialDisplacement( Object::get_dimension(), 1 );
+            for ( uint iFieldIndex = 0; iFieldIndex < Object::get_dimension(); iFieldIndex++ )
+            {
+                Matrix< DDUMat > tADVIndices       = { { iFieldIndex } };
+                Matrix< DDRMat > tADVs             = { { aADVs( iFieldIndex ) } };
+                mPerturbationFields( iFieldIndex ) = std::make_shared< Constant_Field >(
+                        aADVs,
+                        tFieldVariableIndices,
+                        tADVIndices,
+                        tConstants,
+                        mName + "_PERT_" + std::to_string( iFieldIndex ) );
+            }
         }
     }
 
