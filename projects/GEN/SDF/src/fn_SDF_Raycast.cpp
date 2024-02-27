@@ -156,12 +156,17 @@ namespace moris::sdf
                 moris::Cell< Facet* > tCandidateFacets;
                 Preselection_Result   tPreselectionResult = preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tCandidateFacets );
 
-                // if the cast point was close to a vertex, cast again
+                // the ray will intersect a vertex, cast again in another direction
                 if ( tPreselectionResult == Preselection_Result::FAIL_CAST_TO_VERTEX )
                 {
                     return UNSURE;
                 }
-                // if there are no candidates and no intersected facets, the point is outside
+                // the ray originates from a vertex, return interface
+                if( tPreselectionResult == Preselection_Result::FAIL_ON_VERTEX )
+                {
+                    return INTERFACE;
+                }
+                // the ray will hit nothing and the does not originate from inside a facet's bounding box
                 else if ( tIntersectedFacets.size() == 0 && tCandidateFacets.size() == 0 )
                 {
                     return OUTSIDE;
@@ -325,10 +330,6 @@ namespace moris::sdf
                     or ( std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance()
                             and std::abs( tMinCoordAxisDifference ) < aObject.get_intersection_tolerance() ) )
             {
-                // give only the facet whose vertex the cast point lies on
-                aCandidateFacets( 0 ) = &aObject.get_facet( iLineIndex );
-                aCandidateFacets.resize( 1 );
-                aIntersectedFacets.resize( 0 );
                 return FAIL_ON_VERTEX;
             }
             // the ray will hit a vertex, but the cast point is not on a vertex
