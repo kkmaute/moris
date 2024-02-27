@@ -22,6 +22,7 @@
 
 #include "fn_stringify_matrix.hpp"
 #include "fn_determine_cell_topology.hpp"
+#include <unordered_set>
 
 namespace moris::xtk
 {
@@ -807,6 +808,71 @@ namespace moris::xtk
                     "Request arrays sent to and answers received from proc #%i have different size.",
                     mXTKModel->get_communication_table()( iProc ) );
 
+            // initialize lists in which the new received basis functions are collected
+            Vector< moris_id > tNewBasisFnctIDs;
+            Vector< moris_id > tNewBasisFnctOwners;
+            Vector< moris_index > tNewBasisFnctBulkPhases;
+            std::unordered_set< moris_id > tBasisIdsAlreadyAdded;
+
+            // collect basis function IDs that need to be added to the current processor subdomain
+            for ( uint iVert = 0; iVert < tNumReceivedEntityIds; iVert++ )
+            {
+                // get the size of the T-matrix received
+                moris_index tStart = aReceivedTMatrixOffsets( iProc )( iVert );
+                moris_index tEnd   = aReceivedTMatrixOffsets( iProc )( iVert + 1 ) - 1;
+                uint        tSize  = (uint)( tEnd - tStart + 1 );
+
+                // extract the information from the linear communication arrays
+                Matrix< IdMat >  tBasisIds     = aReceivedTMatrixIds( iProc )( { tStart, tEnd }, { 0, 0 } );
+                Matrix< IdMat >  tBasisOwners  = aReceivedTMatrixOwners( iProc )( { tStart, tEnd }, { 0, 0 } );
+
+                // collect the indices for the basis IDs received
+                for ( uint iBF = 0; iBF < tSize; iBF++ )
+                {
+                    // check that this basis is indeed owned by another proc
+                    moris_id tBasisOwner = tBasisOwners( iBF );
+
+                    // get the current BF's ID
+                    moris_id tBasisId = tBasisIds( iBF );
+
+                    // only add basis functions that are not already being added from some previous vertex
+                    if ( tBasisIdsAlreadyAdded.find( tBasisId ) != tBasisIdsAlreadyAdded.end() )
+                    {
+                        continue;
+                    }
+
+                    // add this basis to the mesh if it does not exists on the current partition
+                    if ( !tEnrInterpMesh.basis_exists_on_partition( aMeshIndex, tBasisId ) )
+                    {
+                        // get the bulk-phase the basis interpolates into
+                        moris_index                  tUipcIndexInNotOwnedData = aNotOwnedIPVertIndsInNotOwnedList( iProc )( iVert );
+                        moris_index                  tUipcIndex               = aGhostIpCellConnectedToVertex( tUipcIndexInNotOwnedData )->get_index();
+                        Interpolation_Cell_Unzipped* tEnrIpCell               = tEnrInterpMesh.get_enriched_interpolation_cells()( tUipcIndex );
+                        moris_index                  tBulkPhase               = tEnrIpCell->get_bulkphase_index();
+                
+                        // store the basis IDs
+                        tNewBasisFnctIDs.push_back( tBasisId );
+                        tNewBasisFnctOwners.push_back( tBasisOwner );
+                        tNewBasisFnctBulkPhases.push_back( tBulkPhase );
+
+                        // store the basis ID in the set of IDs already added
+                        tBasisIdsAlreadyAdded.insert( tBasisId );
+                    }
+
+                    // if the basis has an owning proc that is not in the comm table, add it to the comm table
+                    if ( tBasisOwner != par_rank() && tProcIdToCommTableIndex.find( tBasisOwner ) == tProcIdToCommTableIndex.end() )
+                    {
+                        tEnrInterpMesh.add_proc_to_comm_table( tBasisOwner );
+                        tProcIdToCommTableIndex = mXTKModel->mCutIntegrationMesh->get_communication_map();
+                    }
+
+                } // end for: each basis function interpolating into the current vertex
+
+            } // end for: each vertex communicated with current proc to collect received new basis functions
+
+            // add basis functions received and not already part of the mesh to mesh
+            tEnrInterpMesh.add_basis_functions( aMeshIndex, tNewBasisFnctIDs, tNewBasisFnctOwners, tNewBasisFnctBulkPhases );
+
             // assign IDs to each communicated entity
             for ( uint iVert = 0; iVert < tNumReceivedEntityIds; iVert++ )
             {
@@ -827,38 +893,15 @@ namespace moris::xtk
                 Matrix< IdMat >  tBasisOwners  = aReceivedTMatrixOwners( iProc )( { tStart, tEnd }, { 0, 0 } );
                 Matrix< DDRMat > tBasisWeights = aReceivedTMatrixWeights( iProc )( { tStart, tEnd }, { 0, 0 } );
 
-                // collect the indices for the basis IDs received
+                // collect the indices for the basis functions in the current T-matrix
                 Matrix< IndexMat > tBasisIndices( tSize, 1, -1 );
                 for ( uint iBF = 0; iBF < tSize; iBF++ )
                 {
-                    // check that this basis is indeed owned by another proc
-                    moris_id tBasisOwner = tBasisOwners( iBF );
-
                     // get the current BF's ID
                     moris_id tBasisId = tBasisIds( iBF );
 
-                    // add this basis to the mesh if it does not exists on the current partition
-                    if ( !tEnrInterpMesh.basis_exists_on_partition( aMeshIndex, tBasisId ) )
-                    {
-                        // get the bulk-phase the basis interpolates into
-                        moris_index                  tUipcIndexInNotOwnedData = aNotOwnedIPVertIndsInNotOwnedList( iProc )( iVert );
-                        moris_index                  tUipcIndex               = aGhostIpCellConnectedToVertex( tUipcIndexInNotOwnedData )->get_index();
-                        Interpolation_Cell_Unzipped* tEnrIpCell               = tEnrInterpMesh.get_enriched_interpolation_cells()( tUipcIndex );
-                        moris_index                  tBulkPhase               = tEnrIpCell->get_bulkphase_index();
-
-                        // add basis ID to partition
-                        tEnrInterpMesh.add_basis_function( aMeshIndex, tBasisId, tBasisOwner, tBulkPhase );
-                    }
-
                     // find and store the basis index local to the executing processor
                     tBasisIndices( iBF ) = tEnrInterpMesh.get_enr_basis_index_from_enr_basis_id( aMeshIndex, tBasisId );
-
-                    // if the basis has an owning proc that is not in the comm table, add it to the comm table
-                    if ( tProcIdToCommTableIndex.find( tBasisOwner ) == tProcIdToCommTableIndex.end() && tBasisOwner != par_rank() )
-                    {
-                        tEnrInterpMesh.add_proc_to_comm_table( tBasisOwner );
-                        tProcIdToCommTableIndex = mXTKModel->mCutIntegrationMesh->get_communication_map();
-                    }
                 }
 
                 // Setup the basis index to ID map for the T-matrix
@@ -874,7 +917,7 @@ namespace moris::xtk
                 tEnrTMat->add_basis_weights( tBasisIndices, tBasisWeights );
                 tEnrTMat->add_basis_owners( tBasisIndices, tBasisOwners );
                 tEnrTMat->add_base_vertex_interpolation( nullptr );
-                // base vertex interpolation does not exists (other  proc)
+                // Note: base vertex interpolation does not exist (other proc), which is why it isn't added here
 
             }    // end for: each vertex communicated with current proc
 

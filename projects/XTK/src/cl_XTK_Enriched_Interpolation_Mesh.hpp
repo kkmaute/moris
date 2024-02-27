@@ -469,6 +469,23 @@ namespace moris::xtk
                 moris_index const & aBasisOwner,
                 moris_index const & aBasisBulkPhase );
 
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Add a set of basis functions to the mesh. this is used by ghost to add basis functions in the aura returns the index
+         *
+         * @param aMeshIndex 
+         * @param aBfIdsToAdd 
+         * @param aBfOwners 
+         * @param aBfBulkPhases 
+         */
+        void
+        add_basis_functions(
+                moris_index const & aMeshIndex,
+                Vector< moris_id > const & aBfIdsToAdd,
+                Vector< moris_id > const & aBfOwners,
+                Vector< moris_index > const & aBfBulkPhases );
+
 
       protected:
         //------------------------------------------------------------------------------

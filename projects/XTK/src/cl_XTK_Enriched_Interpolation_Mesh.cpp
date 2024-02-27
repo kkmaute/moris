@@ -1032,6 +1032,58 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------
 
+    void
+    Enriched_Interpolation_Mesh::add_basis_functions(
+            moris_index const & aMeshIndex,
+            Vector< moris_id > const & aBfIdsToAdd,
+            Vector< moris_id > const & aBfOwners,
+            Vector< moris_index > const & aBfBulkPhases )
+    {
+        // perform some checks on the inputs
+        uint tNumBfs = aBfIdsToAdd.size();
+        MORIS_ASSERT( aBfOwners.size() == tNumBfs && aBfBulkPhases.size() == tNumBfs,
+                "xtk::Enriched_Interpolation_Mesh::add_basis_functions() - "
+                "Input arrays not of equal size" );
+
+        // get the discretization mesh index
+        moris_index tLocMesh  = this->get_local_mesh_index_xtk( aMeshIndex );
+        moris_index tFirstNewIndex = mEnrichCoeffLocToGlob( tLocMesh ).numel();
+
+        // add a size of 1
+        mEnrichCoeffLocToGlob( tLocMesh ).resize( 1, tFirstNewIndex + tNumBfs );
+        mEnrichCoeffOwnership( tLocMesh ).resize( 1, tFirstNewIndex + tNumBfs );
+        mEnrichCoeffBulkPhase( tLocMesh ).resize( 1, tFirstNewIndex + tNumBfs ); 
+
+        for ( uint iBf = 0; iBf< tNumBfs; iBf++ )
+        {
+            // get the current BF's index
+            moris_index tBfIndex = tFirstNewIndex + iBf;
+
+            // get the info
+            moris_id tBfId = aBfIdsToAdd( iBf );
+            moris_id tBfOwner = aBfOwners( iBf );
+            moris_index tBfBulkPhase = aBfBulkPhases( iBf );
+
+            // check that the BF doesn't already exist
+            MORIS_ASSERT( 
+                    !this->basis_exists_on_partition( aMeshIndex, tBfId ),
+                    "Enriched_Interpolation_Mesh::add_basis_functions() - "
+                    "The basis function (ID: %i) to be added already exists in this mesh.",
+                    tBfId );
+
+            // add the local to glb map
+            mEnrichCoeffLocToGlob( tLocMesh )( tBfIndex ) = tBfId;
+            mEnrichCoeffOwnership( tLocMesh )( tBfIndex ) = tBfOwner;
+            mEnrichCoeffBulkPhase( tLocMesh )( tBfIndex ) = tBfBulkPhase;
+
+            // add to glb to local map
+            mGlobalToLocalBasisMaps( tLocMesh )[ tBfId ] = tBfIndex;
+        }
+
+    } // end function: Enriched_Interpolation_Mesh::add_basis_functions()
+
+    // ----------------------------------------------------------------------------
+
     Vector< Interpolation_Cell_Unzipped const * >
     Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cells(
             Vector< moris::mtk::Cell const * > const & aBaseCells ) const
