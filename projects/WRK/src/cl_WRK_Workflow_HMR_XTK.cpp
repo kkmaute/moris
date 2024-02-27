@@ -358,13 +358,14 @@ namespace moris
                 mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
             }
 
-            // stop workflow if T-Matrices have been outputted
+            // stop workflow if only pre-processing output is requested
             if ( tXTKPerformer->only_generate_xtk_temp() )
             {
                 MORIS_LOG( "------------------------------------------------------------------------------" );
                 MORIS_LOG( "Only output of the foreground mesh requested. Stopping workflow after XTK/MTK." );
                 MORIS_LOG( "------------------------------------------------------------------------------" );
                 moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
+                delete tXTKPerformer;
                 return tMat;
             }
 
@@ -378,6 +379,7 @@ namespace moris
                 MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );
                 MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
                 moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
+                delete tXTKPerformer;
                 return tMat;
             }
 
