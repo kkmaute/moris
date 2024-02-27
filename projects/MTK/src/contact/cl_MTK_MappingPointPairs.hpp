@@ -2,8 +2,7 @@
 // Created by frank on 12/13/23.
 //
 
-#ifndef CL_MTK_INTEGRATIONPOINTPAIRS_HPP
-#define CL_MTK_INTEGRATIONPOINTPAIRS_HPP
+#pragma once
 
 #include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -12,14 +11,14 @@
 namespace moris::mtk
 {
     /**
-     * \brief This struct stores information about one or multiple integration points that got mapped from the leader side to the follower side.
+     * \brief This struct stores information about one or multiple points that got mapped from the leader side to the follower side.
      * To uniquely identify the mapping, the information about the leader and follower cell index is stored.
-     * Additional information about
+     * Additional information about the points e.g. the integration weights (if it is a quadrature point) and the normal that was used to perform the mapping is stored.
      */
-    class IntegrationPointPairs
+    class MappingPointPairs
     {
       public:
-        IntegrationPointPairs(
+        MappingPointPairs(
                 moris_index const      &aLeaderCellIndex,
                 Matrix< DDRMat > const &aLeaderCoordinates,
                 moris_index const      &aFollowerCellIndex,
@@ -31,7 +30,7 @@ namespace moris::mtk
                 , mLeaderCoordinates( aLeaderCoordinates )
                 , mFollowerCellIndex( aFollowerCellIndex )
                 , mFollowerCoordinates( aFollowerCoordinates )
-                , aIntegrationPointDistances( aIntegrationPointDistances )
+                , mPointDistances( aIntegrationPointDistances )
                 , mNormals( aNormals )
                 , mIntegrationWeights( aIntegrationWeights ){};
 
@@ -40,7 +39,7 @@ namespace moris::mtk
         [[nodiscard]] moris_index             get_follower_cell_index() const { return mFollowerCellIndex; }
         [[nodiscard]] const Matrix< DDRMat > &get_follower_coordinates() const { return mFollowerCoordinates; }
         [[nodiscard]] const Matrix< DDRMat > &get_normals() const { return mNormals; }
-        [[nodiscard]] const Vector< real >   &get_integration_point_distances() const { return aIntegrationPointDistances; }
+        [[nodiscard]] const Vector< real >   &get_point_distances() const { return mPointDistances; }
         [[nodiscard]] const Vector< real >   &get_integration_weights() const { return mIntegrationWeights; }
 
       private:
@@ -69,7 +68,7 @@ namespace moris::mtk
         /**
          * \brief The distances between the integration points on the leader side and the integration points on the follower side.
          */
-        Vector< real > aIntegrationPointDistances;
+        Vector< real > mPointDistances;
 
         /**
          * \brief The normal that was used to perform the mapping from the leader side to the follower side.
@@ -83,5 +82,3 @@ namespace moris::mtk
         Vector< real > mIntegrationWeights;
     };
 }    // namespace moris::mtk
-
-#endif    // CL_MTK_INTEGRATIONPOINTPAIRS_HPP

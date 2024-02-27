@@ -64,7 +64,7 @@ set(HEADERS
 
         contact/cl_MTK_Contact_Mesh_Editor.hpp
         contact/cl_MTK_MappingResult.hpp
-        contact/cl_MTK_IntegrationPointPairs.hpp
+        contact/cl_MTK_MappingPointPairs.hpp
         contact/cl_MTK_QuadraturePointMapper.hpp
         contact/cl_MTK_QuadraturePointMapper_Ray.hpp
         contact/cl_MTK_Spatial_Indexer.h
@@ -243,7 +243,6 @@ set(LIB_SOURCES
 
         contact/cl_MTK_Contact_Mesh_Editor.cpp
         contact/cl_MTK_MappingResult.cpp
-        contact/cl_MTK_IntegrationPointPairs.cpp
         contact/cl_MTK_QuadraturePointMapper.cpp
         contact/cl_MTK_QuadraturePointMapper_Ray.cpp
         contact/cl_MTK_Spatial_Indexer.cpp

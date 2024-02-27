@@ -206,7 +206,7 @@ namespace moris
             void
             populate_double_side_interface_vertices( mtk::Cluster const & aLeaderCluster, Side_Cluster_Visualization* tVisLeaderSideCluster, mtk::Cluster const & aFollowerCluster, Side_Cluster_Visualization* tVisFollowerSideCluster );
 
-            Vector< mtk::IntegrationPointPairs >
+            Vector< mtk::MappingPointPairs >
             populate_integration_point_pairs( mtk::Nonconformal_Side_Cluster const * tFemNcSideCluster ) const;
 
             /**

@@ -20,13 +20,13 @@ namespace moris::fem
                 Cluster                          *aCluster,
                 moris::moris_index                aLeaderCellIndexInCluster,
                 moris::moris_index                aFollowerCellIndexInCluster,
-                mtk::IntegrationPointPairs const &aIntegrationPointPairs )
+                mtk::MappingPointPairs const &aIntegrationPointPairs )
                 : Element_Double_Sideset( aLeftIGCell, aRightIGCell, aSet, aCluster, aLeaderCellIndexInCluster )
                 , mFollowerCellIndexInCluster( aFollowerCellIndexInCluster )
                 , mLeaderIntegrationPoints( aIntegrationPointPairs.get_leader_coordinates() )
                 , mFollowerIntegrationPoints( aIntegrationPointPairs.get_follower_coordinates() )
                 , mIntegrationPointWeights( aIntegrationPointPairs.get_integration_weights() )
-                , mIntegrationPointDistances( aIntegrationPointPairs.get_integration_point_distances() )
+                , mIntegrationPointDistances( aIntegrationPointPairs.get_point_distances() )
         {
         }
 

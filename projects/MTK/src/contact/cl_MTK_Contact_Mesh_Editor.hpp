@@ -80,15 +80,14 @@ namespace moris::mtk
         static std::map< ClusterPair, std::map< CellPair, ResultIndices > > extract_cluster_and_cell_pairing( MappingResult const &aResult );
 
         /**
-         * \brief Performs the mapping (i.e. ray tracing) from the follower side to the leader side. The follower side will also be called the source side, while the leader side (where the ray hits) will be called the target side. The mapping will be performed for all source sides of the candidate pairs.
+         * \brief Performs the mapping (i.e. ray tracing) from the follower side to the leader side. The follower side will also be called the source side,
+         * while the leader side (where the ray hits) will be called the target side. The mapping will be performed for all source sides of the candidate pairs.
          * \return Returns a mapping result for each source side of the candidate pairs.
          */
         Vector< MappingResult > perform_mapping() const;
 
         std::map< SetPair, Vector< Nonconformal_Side_Cluster > >
         convert_mapping_result_to_nonconformal_side_clusters( MappingResult const &aMappingResult ) const;
-
-        void update_ig_mesh_database( const Vector< Nonconformal_Side_Cluster > &aNonconformalSideClusters, std::string const &aSetName, const Matrix< IndexMat > &aSetColor ) const;
 
         std::string get_nonconformal_side_set_name( SetPair const &tSetPair ) const;
 

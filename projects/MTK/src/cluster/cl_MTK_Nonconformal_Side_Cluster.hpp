@@ -19,7 +19,7 @@ namespace moris::mtk
         Nonconformal_Side_Cluster(
                 Cluster const                         *aLeaderSideCluster,
                 Cluster const                         *aFollowerSideCluster,
-                Vector< IntegrationPointPairs > const &aIntegrationPointPairs )
+                Vector< MappingPointPairs > const &aIntegrationPointPairs )
                 : Double_Side_Cluster( aLeaderSideCluster, aFollowerSideCluster, {} )
                 , mIntegrationPointPairs( aIntegrationPointPairs ){};
 
@@ -51,7 +51,7 @@ namespace moris::mtk
         moris::Matrix< moris::IndexMat >
         get_nonconforming_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const;
 
-        [[nodiscard]] Vector< IntegrationPointPairs > const &get_integration_point_pairs() const;
+        [[nodiscard]] Vector< MappingPointPairs > const &get_integration_point_pairs() const;
 
         /**
          * \brief This utility method returns a mask of indices that are consistent with the integration point pairs.
@@ -65,7 +65,7 @@ namespace moris::mtk
         Vector< moris_index > get_cell_local_indices( const mtk::Leader_Follower aIsLeader ) const;
 
       private:
-        Vector< IntegrationPointPairs > mIntegrationPointPairs;
+        Vector< MappingPointPairs > mIntegrationPointPairs;
     };
 
 

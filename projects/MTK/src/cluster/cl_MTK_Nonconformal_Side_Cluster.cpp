@@ -44,7 +44,7 @@ namespace moris::mtk
         return tCellOrdinals;
     }
 
-    Vector< IntegrationPointPairs > const &Nonconformal_Side_Cluster::get_integration_point_pairs() const
+    Vector< MappingPointPairs > const &Nonconformal_Side_Cluster::get_integration_point_pairs() const
     {
         return mIntegrationPointPairs;
     }

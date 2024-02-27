@@ -12,8 +12,15 @@
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_MTK_IntegrationPointPairs.hpp"
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
+#include "cl_Matrix_Arma_Dynamic.hpp"
+#include "cl_Vector.hpp"
 #include <algorithm>
 #include <iterator>
+#include <string>
+#include <numeric>
+#include <utility>
+#include <tuple>
+#include <map>
 
 namespace moris::mtk
 {
@@ -62,7 +69,7 @@ namespace moris::mtk
         for ( const auto &[ tClusterPair, tCellMaps ] : tClusterPairs )
         {
             // the integration point pairs will store the bundles of integration points that were mapped from the leader side to the follower side cells
-            Vector< IntegrationPointPairs > tIntegrationPointPairs;
+            Vector< MappingPointPairs > tIntegrationPointPairs;
 
             // the cell map contains all pairs of source and target cells that were mapped onto each other
             // the values of this map are the list of indices to get access to the correct entries of the mapping result
@@ -144,7 +151,7 @@ namespace moris::mtk
 
         for ( auto const &tSourceSideSet : tSourceSideSets )
         {
-            Matrix< DDRMat > const tQuadPoints = mIntegrator.get_points().get_row( 0 );    // TODO: for some reason, the parametric coordinates are 2d instead of 1d
+            Matrix< DDRMat > const tQuadPoints = mIntegrator.get_points().get_row( 0 );
             MappingResult          tResult     = mPointMapper.map( tSourceSideSet, tQuadPoints );
             tMappingResults.push_back( tResult );
             tMappingResultsJson.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() );
