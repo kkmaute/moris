@@ -328,6 +328,11 @@ namespace moris::sdf
                     or ( std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance()
                             and std::abs( tMinCoordAxisDifference ) < aObject.get_intersection_tolerance() ) )
             {
+                // give only the facet whose vertex the cast point lies on
+                aCandidateFacets( 0 ) = &aObject.get_facet( iLineIndex );
+                aCandidateFacets.resize( 1 );
+                aIntersectedFacets.resize( 0 );
+                
                 return FAIL_ON_VERTEX;
             }
             // the ray will hit a vertex, but the cast point is not on a vertex
