@@ -87,15 +87,6 @@ namespace moris
             get_distance_to_point(
                     const Matrix< DDRMat >& aPoint ) = 0;
 
-            //-------------------------------------------------------------------------------
-
-            /**
-             * Resets the object back to its attitude when it was constructed,
-             * removing any rotation, scaling, or translation that was applied
-             *
-             */
-            void
-            reset_coordinates();
 
             //-------------------------------------------------------------------------------
             // SDF functions

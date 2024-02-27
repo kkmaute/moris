@@ -35,19 +35,17 @@ namespace moris::sdf
         bool tRotation = false;
         while ( tPointIsInside == UNSURE )
         {
-            // perform voxelizing algorithm in x-direction
-            tPointIsInside = voxelize( aObject, tPoint, 0 );
-            if ( tPointIsInside == UNSURE )
+            // loop over dimensions
+            for( uint iAxis = 0; iAxis < aObject.get_dimension(); iAxis++ )
             {
-                // perform voxelizing algorithm in y-direction
-                tPointIsInside = voxelize( aObject, tPoint, 1 );
-
-                // perform voxelizing algorithm in z-direction if 3D
-                if ( tPointIsInside == UNSURE && aObject.get_dimension() == 3 )
+                // check to make sure the region was not determined by the previous iteration
+                if( tPointIsInside == UNSURE )
                 {
-                    tPointIsInside = voxelize( aObject, tPoint, 2 );
+                    // resolve the region of the point by calling voxelizing algorithm in iAxis direction
+                    tPointIsInside = voxelize( aObject, tPoint, iAxis );
                 }
             }
+
             // if still unsure, rotate and cast again
             if ( tPointIsInside == UNSURE )
             {
