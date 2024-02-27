@@ -565,7 +565,7 @@ namespace moris::xtk
          * @return moris_index
          */
         moris_index
-        get_local_mesh_index( moris_index const & aMeshIndex ) const;
+        get_local_mesh_index_xtk( moris_index const & aMeshIndex ) const;
 
         //------------------------------------------------------------------------------
 

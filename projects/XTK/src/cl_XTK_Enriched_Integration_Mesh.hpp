@@ -185,7 +185,7 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
         void                                                        setup_mesh_index_map();
-        moris_index                                                 get_local_mesh_index( const moris_index aDiscretizationMeshIndex ) const;
+        moris_index                                                 get_local_mesh_index_xtk( moris_index const & aDiscretizationMeshIndex ) const;
         Matrix< IndexMat >                                          get_enriched_mesh_indices() const;
         uint                                                        get_num_interpolation_types() const;
         uint                                                        get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;

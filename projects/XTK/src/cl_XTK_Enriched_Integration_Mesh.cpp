@@ -185,11 +185,11 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------
 
     moris_index
-    Enriched_Integration_Mesh::get_local_mesh_index( const moris_index aDiscretizationMeshIndex ) const
+    Enriched_Integration_Mesh::get_local_mesh_index_xtk( moris_index const & aDiscretizationMeshIndex ) const
     {
         auto tIter = mMeshIndexToLocMeshIndex.find( aDiscretizationMeshIndex );
 
-        MORIS_ASSERT( tIter != mMeshIndexToLocMeshIndex.end(), "Enriched_Integration_Mesh::get_local_mesh_index() - Mesh index not in map" );
+        MORIS_ASSERT( tIter != mMeshIndexToLocMeshIndex.end(), "Enriched_Integration_Mesh::get_local_mesh_index_xtk() - Mesh index not in map" );
 
         return tIter->second;
     }
@@ -216,7 +216,7 @@ namespace moris::xtk
     Enriched_Integration_Mesh::get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
     {
         // get the list index for the discretization mesh index
-        moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+        moris_index tBsplineMeshListIndex = this->get_local_mesh_index_xtk( aDiscretizationMeshIndex );
 
         // get the number of cluster groups for the current B-spline mesh index
         return mCellClusterGroups( tBsplineMeshListIndex ).size();
@@ -228,7 +228,7 @@ namespace moris::xtk
     Enriched_Integration_Mesh::get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
     {
         // get the list index for the discretization mesh index
-        moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+        moris_index tBsplineMeshListIndex = this->get_local_mesh_index_xtk( aDiscretizationMeshIndex );
 
         // get the number of cluster groups for the current B-spline mesh index
         return mDblSideClusterGroups( tBsplineMeshListIndex ).size();
@@ -240,7 +240,7 @@ namespace moris::xtk
     Enriched_Integration_Mesh::get_num_dbl_side_single_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
     {
         // get the list index for the discretization mesh index
-        moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+        moris_index tBsplineMeshListIndex = this->get_local_mesh_index_xtk( aDiscretizationMeshIndex );
 
         // get the number of cluster groups for the current B-spline mesh index
         return mDblSideClusterGroups( tBsplineMeshListIndex ).size();
@@ -252,7 +252,7 @@ namespace moris::xtk
     Enriched_Integration_Mesh::get_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
     {
         // get the list index for the discretization mesh index
-        moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+        moris_index tBsplineMeshListIndex = this->get_local_mesh_index_xtk( aDiscretizationMeshIndex );
 
         // get the number of cluster groups for the current B-spline mesh index
         return mCellClusterGroups( tBsplineMeshListIndex );
@@ -264,7 +264,7 @@ namespace moris::xtk
     Enriched_Integration_Mesh::get_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
     {
         // get the list index for the discretization mesh index
-        moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+        moris_index tBsplineMeshListIndex = this->get_local_mesh_index_xtk( aDiscretizationMeshIndex );
 
         // get the number of cluster groups for the current B-spline mesh index
         return mDblSideClusterGroups( tBsplineMeshListIndex );

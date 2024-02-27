@@ -109,7 +109,7 @@ namespace moris::xtk
     uint
     Enriched_Interpolation_Mesh::get_max_num_coeffs_on_proc( const uint aBSplineMeshIndex ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aBSplineMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aBSplineMeshIndex );
 
         return mEnrichCoeffLocToGlob( tLocalMeshIndex ).numel();
     }
@@ -557,7 +557,7 @@ namespace moris::xtk
         aAdofMap.clear();
 
         // get the index of the current mesh in the list of B-spline mesh indices
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aBSplineIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aBSplineIndex );
 
         // get the array mapping proc local enr. basis indices to their IDs
         Matrix< IdMat > const & tEnrBfIndToIdMap = mEnrichCoeffLocToGlob( tLocalMeshIndex );
@@ -590,7 +590,7 @@ namespace moris::xtk
             moris_index const & aMeshIndex,
             moris_index         aBackgroundCoeffIndex ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         MORIS_ASSERT( aBackgroundCoeffIndex < (moris_index)mCoeffToEnrichCoeffs( tLocalMeshIndex ).size(),
                 "Background coefficient index out of bounds. Be sure this is not an enriched coefficient index passed in." );
@@ -603,7 +603,7 @@ namespace moris::xtk
     Vector< Matrix< IndexMat > > const &
     Enriched_Interpolation_Mesh::get_enriched_coefficients_to_background_coefficients( moris_index const & aMeshIndex ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
         return mCoeffToEnrichCoeffs( tLocalMeshIndex );
     }
 
@@ -612,7 +612,7 @@ namespace moris::xtk
     Matrix< IndexMat > const &
     Enriched_Interpolation_Mesh::get_enriched_coefficient_local_to_global_map( moris_index const & aMeshIndex ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         return mEnrichCoeffLocToGlob( tLocalMeshIndex );
     }
@@ -664,7 +664,7 @@ namespace moris::xtk
     uint
     Enriched_Interpolation_Mesh::get_num_background_coefficients( moris_index const & aMeshIndex ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
         return mCoeffToEnrichCoeffs( tLocalMeshIndex ).size();
     }
 
@@ -678,7 +678,7 @@ namespace moris::xtk
             bool&               aNewVertex )
     {
         // get index of B-spline mesh index in local list of associated B-spline meshes
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         // vertex index of the base interpolation vertex
         moris_index tBaseVertIndex = aBaseInterpVertex->get_index();
@@ -751,7 +751,7 @@ namespace moris::xtk
             bool&               aNewVertex )
     {
         // get index of B-spline mesh index in local list of associated B-spline meshes
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         // vertex index of the base interpolation vertex
         moris_index tBaseVertIndex = aBaseInterpVertex->get_index();
@@ -945,7 +945,7 @@ namespace moris::xtk
             moris_index const & aMeshIndex,
             moris_index const & aVertexEnrichmentIndex )
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         MORIS_ASSERT( aVertexEnrichmentIndex < (moris_index)mInterpVertEnrichment( tLocalMeshIndex ).size(),
                 "Provided vertex enrichment index out of bounds" );
@@ -962,7 +962,7 @@ namespace moris::xtk
             moris_index const & aMeshIndex,
             moris_index         aVertexEnrichmentIndex ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         MORIS_ASSERT( aVertexEnrichmentIndex < (moris_index)mVertexEnrichmentParentVertexIndex( tLocalMeshIndex ).size(),
                 "Provided vertex enrichment index out of bounds" );
@@ -973,7 +973,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------
 
     moris_index
-    Enriched_Interpolation_Mesh::get_local_mesh_index( moris_index const & aMeshIndex ) const
+    Enriched_Interpolation_Mesh::get_local_mesh_index_xtk( moris_index const & aMeshIndex ) const
     {
         auto tIter = mMeshIndexToLocMeshIndex.find( aMeshIndex );
 
@@ -989,7 +989,7 @@ namespace moris::xtk
             moris_index const & aMeshIndex,
             moris_index const & aBasisId )
     {
-        moris_index tMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         if ( mGlobalToLocalBasisMaps( tMeshIndex ).find( aBasisId ) == mGlobalToLocalBasisMaps( tMeshIndex ).end() )
         {
@@ -1011,7 +1011,7 @@ namespace moris::xtk
         MORIS_ASSERT( !this->basis_exists_on_partition( aMeshIndex, aBasisIdToAdd ),
                 "Basis that you are trying to add already exists in this mesh" );
 
-        moris_index tLocMesh  = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocMesh  = this->get_local_mesh_index_xtk( aMeshIndex );
         moris_index tNewIndex = mEnrichCoeffLocToGlob( tLocMesh ).numel();
 
         // add a size of 1
@@ -1142,7 +1142,7 @@ namespace moris::xtk
             moris_index aBasisIndex,
             moris_index aMeshIndex )
     {
-        moris_index tLocMesh = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocMesh = this->get_local_mesh_index_xtk( aMeshIndex );
 
         return mEnrichCoeffOwnership( tLocMesh )( aBasisIndex );
     }
@@ -1153,7 +1153,7 @@ namespace moris::xtk
     Enriched_Interpolation_Mesh::get_basis_bulk_phase( moris_index const & aBasisIndex,
             moris_index const &                                            aMeshIndex ) const
     {
-        moris_index tLocMesh = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocMesh = this->get_local_mesh_index_xtk( aMeshIndex );
 
         return mEnrichCoeffBulkPhase( tLocMesh )( aBasisIndex );
     }
@@ -1244,7 +1244,7 @@ namespace moris::xtk
             moris_index const & aMeshIndex,
             moris_index const & aBasisId ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         auto tIter = mGlobalToLocalBasisMaps( tLocalMeshIndex ).find( aBasisId );
 
@@ -1262,7 +1262,7 @@ namespace moris::xtk
             moris_index const & aMeshIndex,
             moris_index const & aBasisIndex ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         return mEnrichCoeffLocToGlob( tLocalMeshIndex )( aBasisIndex );
     }
@@ -1362,7 +1362,7 @@ namespace moris::xtk
             Matrix< IndexMat > const & aEnrichedIndices,
             Matrix< IdMat >&           aEnrichedIds ) const
     {
-        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+        moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( aMeshIndex );
 
         aEnrichedIds.resize( aEnrichedIndices.n_rows(), aEnrichedIndices.n_cols() );
 
@@ -2838,7 +2838,7 @@ namespace moris::xtk
         for ( auto const & iMeshIndex : mUnenrichedMeshIndices )
         {
             // get the local mesh index
-            moris::moris_index tLocalMeshIndex = this->get_local_mesh_index( iMeshIndex );
+            moris::moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( iMeshIndex );
 
             // get the global to local basis map from HMR that corresponds to the unenriched version
             map< moris_id, moris_index > tGlobalToLocalHMRBasisMap;
@@ -2883,7 +2883,7 @@ namespace moris::xtk
         // loop over the unenriched mesh indices
         for ( auto const & iMeshIndex : mUnenrichedMeshIndices )
         {
-            moris_index tLocalMeshIndex = this->get_local_mesh_index( iMeshIndex );
+            moris_index tLocalMeshIndex = this->get_local_mesh_index_xtk( iMeshIndex );
 
             // loop over the vertex enrichments to change their id and index
             for ( Vertex_Enrichment* iVertexEnrichment : mInterpVertEnrichment( tLocalMeshIndex ) )
