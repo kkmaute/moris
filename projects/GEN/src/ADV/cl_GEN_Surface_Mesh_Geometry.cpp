@@ -96,6 +96,7 @@ namespace moris::ge
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aNodeCoordinates )
     {
+        // Raycast from the point
         sdf::Object_Region tRegion = raycast_point( *this, aNodeCoordinates );
 
         switch ( tRegion )
@@ -277,12 +278,13 @@ namespace moris::ge
         }
 
         // update the surface mesh with the new field data
+        // FIXME: Put this in the above loop so it doesn't get called unless necessary
         Cell< Cell< real > > tElementBoundingBox( 2, Object::mDimension );
         Matrix< DDRMat >     tVertexParametricCoordinates( Object::mDimension, 1 );
         for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
         {
             // Initialize perturbation vector
-            Cell< real > tNewVertexCoordinates( Object::mDimension );
+            Cell< real > tNewVertexCoordinates = mOriginalVertexCoordinates( iVertexIndex );
 
             // Determine which element this vertex lies in, will be the same for every field
             int tElementIndex = this->find_background_element_from_global_coordinates(
@@ -296,7 +298,7 @@ namespace moris::ge
                     tVertexParametricCoordinates( iDimensionIndex, 0 ) = ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex )
                                                                                  - tElementBoundingBox( 0 )( iDimensionIndex ) )
                                                                        / ( tElementBoundingBox( 1 )( iDimensionIndex )
-                                                                               - tElementBoundingBox( 1 )( iDimensionIndex ) );
+                                                                               - tElementBoundingBox( 0 )( iDimensionIndex ) );
                 }
 
                 // Loop through each field and interpolate its displacement value at the vertex's location
@@ -306,7 +308,7 @@ namespace moris::ge
                     real tInterpolatedPerturbation = interpolate_perturbation_from_background_element( &mMesh->get_mtk_cell( tElementIndex ), iFieldIndex, tVertexParametricCoordinates );
 
                     // Add the perturbation to the list
-                    tNewVertexCoordinates( iFieldIndex ) = tInterpolatedPerturbation + mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex );
+                    tNewVertexCoordinates( iFieldIndex ) += tInterpolatedPerturbation;
                 }
 
                 // Displace the vertex by the total perturbation
@@ -316,6 +318,9 @@ namespace moris::ge
 
         // Update all facet data
         this->Object::update_all_facets();
+
+        // BRENDAN
+        std::cout << "surface mesh imported ADVs\n";
     }
 
     //--------------------------------------------------------------------------------------------------------------

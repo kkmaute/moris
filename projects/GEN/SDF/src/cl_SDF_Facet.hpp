@@ -186,6 +186,18 @@ namespace moris
                     bool&                   aError );
 
             //-------------------------------------------------------------------------------
+
+            /**
+             * Gets the specified axis coordinate of the specified vertex 
+             * 
+             * @param aVertexIndex Vertex to get the coord of
+             * @param aAxis Component of the vertex to retrieve
+             * @return global coordinate of the vertex
+             */
+            real
+            get_vertex_coord( uint aVertexIndex, uint aAxis );
+
+            //-------------------------------------------------------------------------------
             // MTK API functions
             //-------------------------------------------------------------------------------
 

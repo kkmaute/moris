@@ -64,7 +64,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
-             * Sets the coordinates of this node
+             * Sets the coordinates of this node. Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
              * 
              * @param aCoordinates new coordinates to be set to
              */

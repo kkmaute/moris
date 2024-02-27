@@ -53,6 +53,7 @@ namespace moris
             for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
             {
                 mNodeCoords( iAxis ) = aCoordinates( iAxis );
+                mIterationNodeCoords( iAxis ) = aCoordinates( iAxis );
             }
         }
 

@@ -36,10 +36,10 @@ namespace moris::sdf
         while ( tPointIsInside == UNSURE )
         {
             // loop over dimensions
-            for( uint iAxis = 0; iAxis < aObject.get_dimension(); iAxis++ )
+            for ( uint iAxis = 0; iAxis < aObject.get_dimension(); iAxis++ )
             {
                 // check to make sure the region was not determined by the previous iteration
-                if( tPointIsInside == UNSURE )
+                if ( tPointIsInside == UNSURE )
                 {
                     // resolve the region of the point by calling voxelizing algorithm in iAxis direction
                     tPointIsInside = voxelize( aObject, tPoint, iAxis );
@@ -160,7 +160,7 @@ namespace moris::sdf
                     return UNSURE;
                 }
                 // the ray originates from a vertex, return interface
-                if( tPreselectionResult == Preselection_Result::FAIL_ON_VERTEX )
+                if ( tPreselectionResult == Preselection_Result::FAIL_ON_VERTEX )
                 {
                     return INTERFACE;
                 }
@@ -313,26 +313,39 @@ namespace moris::sdf
         // loop over all lines in the aAxis direction
         for ( uint iLineIndex = 0; iLineIndex < aObject.get_num_facets(); iLineIndex++ )
         {
+            // Get the coordinates of the vertices of this facet
+            real tVertex1AxisCoordinate    = aObject.get_facet( iLineIndex ).get_vertex_coord( 0, aAxis );
+            real tVertex1OffAxisCoordinate = aObject.get_facet( iLineIndex ).get_vertex_coord( 0, tOtherAxis );
+
+            real tVertex2AxisCoordinate    = aObject.get_facet( iLineIndex ).get_vertex_coord( 1, aAxis );
+            real tVertex2OffAxisCoordinate = aObject.get_facet( iLineIndex ).get_vertex_coord( 1, tOtherAxis );
+
+            // Determine the bounding box of the facet
+            real tMaxAxisCoordinate = tVertex1AxisCoordinate > tVertex2AxisCoordinate ? tVertex1AxisCoordinate : tVertex2AxisCoordinate;
+            real tMinAxisCoordinate = tVertex1AxisCoordinate < tVertex2AxisCoordinate ? tVertex1AxisCoordinate : tVertex2AxisCoordinate;
+
+            real tMaxOffAxisCoordinate = tVertex1OffAxisCoordinate > tVertex2OffAxisCoordinate ? tVertex1OffAxisCoordinate : tVertex2OffAxisCoordinate;
+            real tMinOffAxisCoordinate = tVertex1OffAxisCoordinate < tVertex2OffAxisCoordinate ? tVertex1OffAxisCoordinate : tVertex2OffAxisCoordinate;
+
             // get the difference of the cast point and the facet min and max coords in the !aAxis direction
-            real tMaxCoordOffAxisDifference = aObject.get_facet_max_coord( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis );
-            real tMinCoordOffAxisDifference = aObject.get_facet_min_coord( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis );
+            real tMaxCoordOffAxisDifference = tMaxOffAxisCoordinate - aPoint( tOtherAxis );
+            real tMinCoordOffAxisDifference = tMinOffAxisCoordinate - aPoint( tOtherAxis );
 
             // get the difference of the cast point and the facet min and max coords in the aAxis direction
-            real tMaxCoordAxisDifference = aObject.get_facet_max_coord( iLineIndex, aAxis ) - aPoint( aAxis );
-            real tMinCoordAxisDifference = aObject.get_facet_min_coord( iLineIndex, aAxis ) - aPoint( aAxis );
-
+            real tMaxCoordAxisDifference = tMaxAxisCoordinate - aPoint( aAxis );
+            real tMinCoordAxisDifference = tMinAxisCoordinate - aPoint( aAxis );
 
             // the cast point is very close to a vertex
-            if ( ( std::abs( tMaxCoordOffAxisDifference ) < aObject.get_intersection_tolerance()
-                         and std::abs( tMaxCoordAxisDifference ) < aObject.get_intersection_tolerance() )
-                    or ( std::abs( tMinCoordOffAxisDifference ) < aObject.get_intersection_tolerance()
-                            and std::abs( tMinCoordAxisDifference ) < aObject.get_intersection_tolerance() ) )
+            if ( ( std::abs( tVertex1AxisCoordinate - aPoint( aAxis ) ) < aObject.get_intersection_tolerance()
+                         and std::abs( tVertex1OffAxisCoordinate - aPoint( tOtherAxis ) ) < aObject.get_intersection_tolerance() )
+                    or ( std::abs( tVertex2AxisCoordinate - aPoint( aAxis ) ) < aObject.get_intersection_tolerance()
+                            and std::abs( tVertex2OffAxisCoordinate - aPoint( tOtherAxis ) ) < aObject.get_intersection_tolerance() ) )
             {
                 // give only the facet whose vertex the cast point lies on
                 aCandidateFacets( 0 ) = &aObject.get_facet( iLineIndex );
                 aCandidateFacets.resize( 1 );
                 aIntersectedFacets.resize( 0 );
-                
+
                 return FAIL_ON_VERTEX;
             }
             // the ray will hit a vertex, but the cast point is not on a vertex
