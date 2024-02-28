@@ -19,22 +19,22 @@ namespace moris::fem
 {
     Matrix< DDRMat > Element_Nonconformal_Sideset::get_leader_integration_point( uint const aGPIndex ) const
     {
-        return mLeaderIntegrationPoints.get_column( aGPIndex );
+        return mIntegrationPointPairs.get_leader_coordinates().get_column( aGPIndex );
     }
 
     Matrix< DDRMat > Element_Nonconformal_Sideset::get_follower_integration_point( uint const aGPIndex ) const
     {
-        return mFollowerIntegrationPoints.get_column( aGPIndex );
+        return mIntegrationPointPairs.get_follower_coordinates().get_column( aGPIndex );
     }
 
     real Element_Nonconformal_Sideset::get_integration_weight( uint aGPIndex ) const
     {
-        return mIntegrationPointWeights( aGPIndex );
+        return mIntegrationPointPairs.get_integration_weights()( aGPIndex );
     }
 
     uint Element_Nonconformal_Sideset::get_number_of_integration_points() const
     {
-        return mIntegrationPointWeights.size();
+        return mIntegrationPointPairs.get_integration_weights().size();
     }
 
     void Element_Nonconformal_Sideset::compute_jacobian_and_residual()

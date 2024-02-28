@@ -9,6 +9,9 @@
 #include "cl_Vector.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
+#include <map>
+#include <map>
+#include <utility>
 
 namespace moris::mtk
 {
@@ -63,15 +66,21 @@ namespace moris::mtk
         }
 
         /**
-         * \brief This utility method returns a mask of indices that are consistent with the integration point pairs.
-         * This can be useful to index into the cells of the cluster in the same order as the integration point pairs.
-         * \details E.g. if the leader/follower sides of the integration point pairs are the cells 2, 4, 1, 1 (in this order) and the cells in the cluster are
-         * 1, 2, 3, 4 (i.e cell 3 does not get paired with any other cell and 1 is paired twice), the mask would be [1, 3, 0, 0] (corresponding to the 1st, 3rd and
-         * 0th cell, thus giving the cells with indices 2, 4, 1 and 1). This works for both leader and follower (primary) cells.
-         * \param aIsLeader
-         * \return
+         * @brief This type is used to describe the cell pairings and the corresponding entries of the integration point pairs and nodal point pairs.
          */
-        Vector< moris_index > get_cell_local_indices( const mtk::Leader_Follower aIsLeader ) const;
+        using NonconformalCellPairing = std::map<std::pair<moris_index, moris_index>, std::pair<moris_index, moris_index>>;
+
+        /**
+         * @brief Returns the nonconformal cell pairing and the correct indices of the integration point pairs and nodal point pairs that are used for the pairing.
+         * @details Each cell might be paired up with none, one or multiple other cells on the follower side. The pairing between the two cells is given in the
+         * first pair (key) of the map in the order <local_leader_cell_index, local_follower_cell_index> (it is given as the <em>local index</em>, i.e. at which
+         * position in the list of cells in the cluster, the corresponding entry is stored). The second pair (value) gives the corresponding entries of the
+         * integration point pairs and nodal point pairs respectively that are used (reason) for the pairing of the two cells. If either the integration point pairs
+         * or the nodal point pairs are not used for the pairing, the corresponding entry is -1.
+         * @param aIsLeader
+         * @return
+         */
+        NonconformalCellPairing get_nonconformal_cell_pairing(  ) const;
 
       private:
         /**

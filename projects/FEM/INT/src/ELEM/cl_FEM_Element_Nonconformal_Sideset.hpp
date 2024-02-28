@@ -18,15 +18,14 @@ namespace moris::fem
                 mtk::Cell const                  *aRightIGCell,
                 Set                              *aSet,
                 Cluster                          *aCluster,
-                moris::moris_index                aLeaderCellIndexInCluster,
-                moris::moris_index                aFollowerCellIndexInCluster,
-                mtk::IntegrationPointPairs const &aIntegrationPointPairs )
+                moris_index                       aLeaderCellIndexInCluster,
+                moris_index                       aFollowerCellIndexInCluster,
+                mtk::IntegrationPointPairs const &aIntegrationPointPairs,
+                mtk::NodalPointPairs const       &aNodalPointPairs )
                 : Element_Double_Sideset( aLeftIGCell, aRightIGCell, aSet, aCluster, aLeaderCellIndexInCluster )
                 , mFollowerCellIndexInCluster( aFollowerCellIndexInCluster )
-                , mLeaderIntegrationPoints( aIntegrationPointPairs.get_leader_coordinates() )
-                , mFollowerIntegrationPoints( aIntegrationPointPairs.get_follower_coordinates() )
-                , mIntegrationPointWeights( aIntegrationPointPairs.get_integration_weights() )
-                , mIntegrationPointDistances( aIntegrationPointPairs.get_point_distances() )
+                , mIntegrationPointPairs( aIntegrationPointPairs )
+                , mNodalPointPairs( aNodalPointPairs )
         {
         }
 
@@ -42,11 +41,9 @@ namespace moris::fem
         moris_index get_follower_local_cell_index() const override;
 
       private:
-        moris_index      mFollowerCellIndexInCluster;
-        Matrix< DDRMat > mLeaderIntegrationPoints;
-        Matrix< DDRMat > mFollowerIntegrationPoints;
-        Vector< real >   mIntegrationPointWeights;
-        Vector< real >   mIntegrationPointDistances;
+        moris_index                mFollowerCellIndexInCluster;
+        mtk::IntegrationPointPairs mIntegrationPointPairs;
+        mtk::NodalPointPairs       mNodalPointPairs;
     };
 }    // namespace moris::fem
 

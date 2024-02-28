@@ -340,10 +340,10 @@ namespace moris::mtk
 
     Matrix< DDRMat > Contact_Mesh_Editor::get_nodal_parametric_coordinates() const
     {
-        auto const &tCluster     = dynamic_cast< mtk::Side_Cluster const     *>( mSideSets( 0 )->get_clusters_on_set()( 0 ) );
-        auto const &tCell        = tCluster->get_primary_cells_in_cluster()( 0 );
-        auto const  tSideOrdinal = tCluster->get_cell_side_ordinal( tCell->get_index() );
-        auto const &tVertices    = tCell->get_vertices_on_side_ordinal( tSideOrdinal );
+        auto const &tCluster      = dynamic_cast< mtk::Side_Cluster const      *>( mSideSets( 0 )->get_clusters_on_set()( 0 ) );
+        auto const &tCell         = tCluster->get_primary_cells_in_cluster()( 0 );
+        auto const &tSideOrdinals = tCluster->get_cell_side_ordinals();
+        auto const &tVertices     = tCell->get_vertices_on_side_ordinal( tSideOrdinals( 0 ) );
         MORIS_ASSERT( tVertices.size() == 2, "Currently, only Line elements are supported in the nonconformal mapping!" );
         return { { -1.0, 1.0 } };    // has to be generalized for different cell types
     }

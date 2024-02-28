@@ -19,6 +19,10 @@ namespace moris::mtk
     class MappingPointPairs
     {
       public:
+        MappingPointPairs()
+                : mLeaderCellIndex( -1 )
+                , mFollowerCellIndex( -1 ){};
+
         MappingPointPairs(
                 moris_index const      &aLeaderCellIndex,
                 moris_index const      &aFollowerCellIndex,
@@ -29,7 +33,9 @@ namespace moris::mtk
                 , mFollowerCellIndex( aFollowerCellIndex )
                 , mFollowerCoordinates( aFollowerCoordinates )
                 , mPointDistances( aPointDistances )
-                , mNormals( aNormals ){};
+                , mNormals( aNormals )
+        {
+        }
 
         virtual ~MappingPointPairs() = default;
 
@@ -71,6 +77,8 @@ namespace moris::mtk
     class IntegrationPointPairs : public MappingPointPairs
     {
       public:
+        IntegrationPointPairs() = default;
+
         IntegrationPointPairs(
                 moris_index const      &aLeaderCellIndex,
                 Matrix< DDRMat > const &aLeaderCoordinates,
@@ -104,6 +112,8 @@ namespace moris::mtk
     class NodalPointPairs : public MappingPointPairs
     {
       public:
+        NodalPointPairs() = default;
+
         NodalPointPairs(
                 moris_index const           &aLeaderCellIndex,
                 Vector< moris_index > const &aLeaderNodeIndices,

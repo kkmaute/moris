@@ -74,6 +74,11 @@ namespace moris
             // || output: list of indices of VIS vertices in element local order
             Vector< Vector< Vector< moris_index > > > mBlockAndFemCellIndexToVisVertexIndices;
 
+            /**
+             * @brief maps FEM/MTK vertex index to VIS vertex index
+             */
+            std::map< moris_index, moris_index > mFemVertexIndexToVisVertexIndex;
+
             /// @brief map relating the fem cell index to the vis cell index
             // || input: index of IG cell from FEM mesh
             // || output: index of the corresponding VIS cell which is primary material

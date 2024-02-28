@@ -15,57 +15,61 @@
 
 namespace moris::mtk
 {
-    Vector< mtk::Cell const * >
-    Nonconformal_Side_Cluster::get_nonconforming_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
+    std::pair< moris_index, moris_index > get_leader_follower_index_pair(
+            std::map< moris_index, moris_index > aLeaderCellIndexToStoringIndex,
+            std::map< moris_index, moris_index > aFollowerCellIndexToStoringIndex,
+            MappingPointPairs                    aMappingPointPairs )
     {
-        Vector< moris_index >       tCellMask     = get_cell_local_indices( aIsLeader );
-        Vector< mtk::Cell const * > tPrimaryCells = get_primary_cells_in_cluster( aIsLeader );
-        Vector< mtk::Cell const * > tNonconformingPrimaryCells;
-        tNonconformingPrimaryCells.reserve( tCellMask.size() );
-        for ( auto const &tCellIndex : tCellMask )
-        {
-            tNonconformingPrimaryCells.push_back( tPrimaryCells( tCellIndex ) );
-        }
-        return tNonconformingPrimaryCells;
+        moris_index const tLeaderCellIndex    = aMappingPointPairs.get_leader_cell_index();
+        moris_index const tFollowerCellIndex  = aMappingPointPairs.get_follower_cell_index();
+        moris_index const tLocalLeaderIndex   = aLeaderCellIndexToStoringIndex[ tLeaderCellIndex ];
+        moris_index const tLocalFollowerIndex = aFollowerCellIndexToStoringIndex[ tFollowerCellIndex ];
+        return std::make_pair( tLocalLeaderIndex, tLocalFollowerIndex );
     }
 
-    moris::Matrix< moris::IndexMat > Nonconformal_Side_Cluster::get_nonconforming_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const
+    std::map< moris_index, moris_index > get_cell_index_to_storing_index( Vector< mtk::Cell const * > aListOfCells )
     {
-        Vector< moris_index >    tCellMask     = get_cell_local_indices( aIsLeader );
-        Matrix< IndexMat > const tSideOrdinals = get_cell_side_ordinals( aIsLeader );
-
-        moris::Matrix< moris::IndexMat > tCellOrdinals( 1, tCellMask.size() );
-        for ( size_t iIndex = 0; iIndex < tCellMask.size(); ++iIndex )
-        {
-            // the tCellLocalIndex is the index at which the cell is stored in the vector of primary cells in this cluster, it is not the index of the cell itself!
-            moris_index const tCellLocalIndex = tCellMask( iIndex );
-            tCellOrdinals( 0, iIndex )        = tSideOrdinals( tCellLocalIndex );
-        }
-        return tCellOrdinals;
-    }
-
-    Vector< moris_index > Nonconformal_Side_Cluster::get_cell_local_indices( const mtk::Leader_Follower aIsLeader ) const
-    {
-        // this map stores the index of the cell in the cluster to the index of the cell in the vector of primary cells
         std::map< moris_index, moris_index > tCellIndexToStoringIndex;
-        Vector< mtk::Cell const * >          tPrimaryCells = get_primary_cells_in_cluster( aIsLeader );
-        for ( size_t iStoringIndex = 0; iStoringIndex < tPrimaryCells.size(); ++iStoringIndex )
+        for ( size_t iStoringIndex = 0; iStoringIndex < aListOfCells.size(); ++iStoringIndex )
         {
-            tCellIndexToStoringIndex[ tPrimaryCells( iStoringIndex )->get_index() ] = iStoringIndex;
+            tCellIndexToStoringIndex[ aListOfCells( iStoringIndex )->get_index() ] = iStoringIndex;
+        }
+        return tCellIndexToStoringIndex;
+    }
+
+    Nonconformal_Side_Cluster::NonconformalCellPairing Nonconformal_Side_Cluster::get_nonconformal_cell_pairing() const
+    {
+        std::map< moris_index, moris_index > tLeaderCellIndexToStoringIndex   = get_cell_index_to_storing_index( get_primary_cells_in_cluster( Leader_Follower::LEADER ) );
+        std::map< moris_index, moris_index > tFollowerCellIndexToStoringIndex = get_cell_index_to_storing_index( get_primary_cells_in_cluster( Leader_Follower::FOLLOWER ) );
+
+        NonconformalCellPairing tNonconformalCellPairing;
+        for ( size_t iIPPIndex = 0; iIPPIndex < mIntegrationPointPairs.size(); iIPPIndex++ )
+        {
+            auto const &tIntegrationPointPair = mIntegrationPointPairs( iIPPIndex );
+
+            std::pair< moris_index, moris_index > tLocalLeaderFollowerIndexPair = get_leader_follower_index_pair(
+                    tLeaderCellIndexToStoringIndex, tFollowerCellIndexToStoringIndex, tIntegrationPointPair );
+
+            tNonconformalCellPairing[ tLocalLeaderFollowerIndexPair ] = std::make_pair( iIPPIndex, -1 );
         }
 
-        Vector< moris_index > tCellMask;
-        tCellMask.reserve( mIntegrationPointPairs.size() );
-        for ( auto const &tIntegrationPointPair : mIntegrationPointPairs )
+        for ( size_t iNPPIndex = 0; iNPPIndex < mNodalPointPairs.size(); iNPPIndex++ )
         {
-            moris_index const tCellIndex =
-                    ( aIsLeader == mtk::Leader_Follower::LEADER )
-                            ? tIntegrationPointPair.get_leader_cell_index()
-                            : tIntegrationPointPair.get_follower_cell_index();
-            tCellMask.push_back( tCellIndexToStoringIndex[ tCellIndex ] );
-        }
+            auto const &tNodalPointPair = mNodalPointPairs( iNPPIndex );
 
-        return tCellMask;
+            std::pair< moris_index, moris_index > const tLocalLeaderFollowerIndexPair = get_leader_follower_index_pair(
+                    tLeaderCellIndexToStoringIndex, tFollowerCellIndexToStoringIndex, tNodalPointPair );
+
+            if ( tNonconformalCellPairing.find( tLocalLeaderFollowerIndexPair ) != tNonconformalCellPairing.end() )
+            {
+                tNonconformalCellPairing[ tLocalLeaderFollowerIndexPair ].second = iNPPIndex;
+            }
+            else
+            {
+                tNonconformalCellPairing[ tLocalLeaderFollowerIndexPair ] = std::make_pair( -1, iNPPIndex );
+            }
+        }
+        return tNonconformalCellPairing;
     }
 
 }    // namespace moris::mtk

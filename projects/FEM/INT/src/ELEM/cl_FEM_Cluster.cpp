@@ -16,6 +16,7 @@
 
 #include "cl_MSI_Equation_Model.hpp"
 
+#include "cl_MTK_PointPairs.hpp"
 #include "fn_norm.hpp"
 #include "fn_sort.hpp"
 #include "fn_sum.hpp"
@@ -119,15 +120,14 @@ namespace moris
                 case fem::Element_Type::NONCONFORMAL_SIDESET:
                 {
                     const auto *tNonconformalSideCluster = dynamic_cast< mtk::Nonconformal_Side_Cluster const * >( aMeshCluster );
-                    auto        tIntegrationPointPairs   = tNonconformalSideCluster->get_integration_point_pairs();
-
-                    // the nonconformal side set provides different cell-pairs (i.e. one follower-cell might be paired with multiple leader-cells)
-                    mElements.resize( tIntegrationPointPairs.size(), nullptr );
+                    auto const  tIntegrationPointPairs   = tNonconformalSideCluster->get_integration_point_pairs();
+                    auto const  tNodalPointPairs         = tNonconformalSideCluster->get_nodal_point_pairs();
 
                     // the same cells might be used multiple times (i.e. they are paired with multiple leader cells)
-                    // This map stores the local indices (i.e. at wich position the cell is stored in the vector of primary cells in the cluster) of the cells
-                    Vector< moris_index > tLeaderCellLocalIndices   = tNonconformalSideCluster->get_cell_local_indices( mtk::Leader_Follower::LEADER );
-                    Vector< moris_index > tFollowerCellLocalIndices = tNonconformalSideCluster->get_cell_local_indices( mtk::Leader_Follower::FOLLOWER );
+                    mtk::Nonconformal_Side_Cluster::NonconformalCellPairing const &tNonconformalPairing = tNonconformalSideCluster->get_nonconformal_cell_pairing();
+
+                    // the nonconformal side set provides different cell-pairs (i.e. one follower-cell might be paired with multiple leader-cells)
+                    mElements.resize( tNonconformalPairing.size(), nullptr );
 
                     // fill the follower integration cells
                     mLeaderIntegrationCells   = tNonconformalSideCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
@@ -137,23 +137,25 @@ namespace moris
                     mLeaderListOfSideOrdinals   = tNonconformalSideCluster->get_cell_side_ordinals( mtk::Leader_Follower::LEADER );
                     mFollowerListOfSideOrdinals = tNonconformalSideCluster->get_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
 
-                    // loop over the IG cells
-                    for ( moris::uint iIGCell = 0; iIGCell < tIntegrationPointPairs.size(); iIGCell++ )
+                    // loop over the nonconformal pairings
+                    size_t iElementIndex = 0;
+                    for ( auto const &tNonconformalPair : tNonconformalPairing )
                     {
-                        // create element
-                        moris_index const tLeaderCellLocalIndex   = tLeaderCellLocalIndices( iIGCell );
-                        moris_index const tFollowerCellLocalIndex = tFollowerCellLocalIndices( iIGCell );
+                        auto [ tLeaderCellLocalIndex, tFollowerCellLocalIndex ] = tNonconformalPair.first;
+                        auto [ tIntegrationPairIndex, tNodalPairIndex ]         = tNonconformalPair.second;
 
-                        mElements( iIGCell ) = new Element_Nonconformal_Sideset(
-                                mLeaderIntegrationCells( tLeaderCellLocalIndex ),
-                                mFollowerIntegrationCells( tFollowerCellLocalIndex ),
-                                aSet,
-                                this,
-                                tLeaderCellLocalIndex,
-                                tFollowerCellLocalIndex,
-                                tIntegrationPointPairs( iIGCell ) );
+                        mElements( iElementIndex ) =
+                                new Element_Nonconformal_Sideset(
+                                        mLeaderIntegrationCells( tLeaderCellLocalIndex ),
+                                        mFollowerIntegrationCells( tFollowerCellLocalIndex ),
+                                        aSet,
+                                        this,
+                                        tLeaderCellLocalIndex,
+                                        tFollowerCellLocalIndex,
+                                        tIntegrationPairIndex == -1 ? mtk::IntegrationPointPairs() : tIntegrationPointPairs( tIntegrationPairIndex ),
+                                        tNodalPairIndex == -1 ? mtk::NodalPointPairs() : tNodalPointPairs( tNodalPairIndex ) );
+                        iElementIndex++;
                     }
-
                     break;
                 }
                 default:

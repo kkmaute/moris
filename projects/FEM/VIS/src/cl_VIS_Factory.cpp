@@ -421,6 +421,7 @@ namespace moris
 
                         // fill map
                         mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex )( iVertexOnCell ) = tVisVertexIndex;
+                        mFemVertexIndexToVisVertexIndex[ tFemVertexIndex ]                                     = tVisVertexIndex;
                     }
 
                 }    // end for: each IG cell on current block set
@@ -1428,9 +1429,16 @@ namespace moris
 
             for ( auto const & tNPP : tFemNodalPointPairs )
             {
+                Vector< moris_index > tLeaderVisNodeIndices;
+                tLeaderVisNodeIndices.reserve( tNPP.get_leader_node_indices().size() );
+                for ( auto const & tNodeIndex : tNPP.get_leader_node_indices() )
+                {
+                    tLeaderVisNodeIndices.push_back( mFemVertexIndexToVisVertexIndex.at( tNodeIndex ) );
+                }
+
                 auto tVNPP = mtk::NodalPointPairs(
                         mPrimaryFemCellIndexToVisCellIndex( tNPP.get_leader_cell_index() ),
-                        tNPP.get_leader_node_indices(),
+                        tLeaderVisNodeIndices,
                         mPrimaryFemCellIndexToVisCellIndex( tNPP.get_follower_cell_index() ),
                         tNPP.get_follower_coordinates(),
                         tNPP.get_point_distances(),
