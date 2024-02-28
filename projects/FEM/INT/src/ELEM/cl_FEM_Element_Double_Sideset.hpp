@@ -120,6 +120,7 @@ namespace moris
              */
             real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) override;
 
+            void init_ig_geometry_interpolator() const;
 
           protected:
             /**
@@ -127,11 +128,8 @@ namespace moris
              * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
              * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
              */
-            void init_ig_geometry_interpolator(
-                    moris_index const aLeaderSideOrdinal,
-                    moris_index const aFollowerSideOrdinal ) const;
 
-            virtual void initialize_leader_follower_ig_interpolator( const mtk::Cell *aCell, moris_index const aSideOrdinal, moris_index const aLocalCellIndex, mtk::Leader_Follower const aLeaderFollowerType ) const;
+            virtual void initialize_leader_follower_ig_interpolator( mtk::Leader_Follower const aLeaderFollowerType ) const;
 
             Matrix< DDSMat > get_local_cluster_assembly_indices( moris_index const aLeaderSideOrdinal, moris_index const aFollowerSideOrdinal ) const;
 
