@@ -139,6 +139,12 @@ namespace moris
                 return mElementType;
             }
 
+            Vector< fem::Element * >
+            get_elements() const
+            {
+                return mElements;
+            }
+
             //------------------------------------------------------------------------------
 
             /**

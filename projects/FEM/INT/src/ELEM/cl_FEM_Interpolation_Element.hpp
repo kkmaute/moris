@@ -235,6 +235,9 @@ namespace moris
             void
             compute_nodal_QIs_double_sided( const uint aMeshIndex );
 
+            void
+            compute_nodal_QIs_nonconformal_side( uint const tMapElement );
+
             //------------------------------------------------------------------------------
             /**
              * FIXME get rid of mNodalWeakBCs
@@ -261,7 +264,6 @@ namespace moris
             void set_field_interpolators_coefficients();
 
             //------------------------------------------------------------------------------
-
         };    // class FEM::Interpolation_Element
 
         //------------------------------------------------------------------------------

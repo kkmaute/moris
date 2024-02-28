@@ -19,11 +19,15 @@
 #include "cl_FEM_Model.hpp"
 #include "cl_FEM_Field.hpp"
 // SOL/src
+#include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 // LINALG/src
 #include "fn_isfinite.hpp"
+#include "cl_FEM_Element_Nonconformal_Sideset.hpp"
 
 
+#include <iterator>
+#include <map>
 #include <ml_utils.h>
 
 namespace moris
@@ -1187,10 +1191,13 @@ namespace moris
 
                 // compute the nodal values of the requested QIs
                 // double sided clusters require additional treatment of the follower side and therefore need special consideration
-                if ( ( tElementType == fem::Element_Type::DOUBLE_SIDESET )
-                        || ( tElementType == fem::Element_Type::NONCONFORMAL_SIDESET ) )
+                if ( tElementType == fem::Element_Type::DOUBLE_SIDESET )
                 {
                     this->compute_nodal_QIs_double_sided( aFemMeshIndex );
+                }
+                else if ( tElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+                {
+                    this->compute_nodal_QIs_nonconformal_side( aFemMeshIndex );
                 }
                 else    // on BULK or SIDESET elements use the default
                 {
@@ -1309,6 +1316,108 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
+        Interpolation_Element::compute_nodal_QIs_nonconformal_side( const uint aFemMeshIndex )
+        {
+            uint                            tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
+            std::shared_ptr< fem::Cluster > tVisCluster   = mFemCluster( aFemMeshIndex );
+
+            Vector< Element* > const                                    tElements = tVisCluster->get_elements();
+            std::map< std::pair< moris_index, moris_index >, Element* > tCellIndicesToElementMap;
+            for ( auto const & tElement : tVisCluster->get_elements() )
+            {
+                moris_index tLeaderIndex   = tElement->get_mtk_cell( mtk::Leader_Follower::LEADER )->get_index();
+                moris_index tFollowerIndex = tElement->get_mtk_cell( mtk::Leader_Follower::FOLLOWER )->get_index();
+
+                tCellIndicesToElementMap[ std::make_pair( tLeaderIndex, tFollowerIndex ) ] = tElement;
+            }
+
+            MORIS_ASSERT( tVisCluster->get_element_type() == fem::Element_Type::NONCONFORMAL_SIDESET,
+                    "Interpolation_Element::compute_nodal_QIs_nonconformal_side() - "
+                    "This function can only be called on nonconformal sideset clusters." );
+            const auto* const tNCSCluster = dynamic_cast< mtk::Nonconformal_Side_Cluster const * >( tVisCluster->get_mesh_cluster() );
+
+            // get the vertices' local coordinates and the indices on the respective mesh clusters (they are both ordered in the same way)
+            Matrix< IndexMat > const tLeaderVisVertexIndices  = tNCSCluster->get_leader_vertex_indices_in_cluster();
+            Matrix< DDRMat > const   tLeaderVertexLocalCoords = tNCSCluster->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::LEADER );
+            uint const               tNumSpatialDims          = tLeaderVertexLocalCoords.n_cols();
+
+            for ( auto const & tNodalPointPair : tNCSCluster->get_nodal_point_pairs() )
+            {
+                moris_index      tLeaderCellIndex     = tNodalPointPair.get_leader_cell_index();
+                moris_index      tFollowerCellIndex   = tNodalPointPair.get_follower_cell_index();
+                Matrix< DDRMat > tFollowerCoordinates = tNodalPointPair.get_follower_coordinates();
+
+                auto const & tFoundElement = std::find_if(
+                        tCellIndicesToElementMap.begin(),
+                        tCellIndicesToElementMap.end(),
+                        [ &tLeaderCellIndex, &tFollowerCellIndex ]( auto const & tMapElement ) {
+                            return tMapElement.first.first == tLeaderCellIndex && tMapElement.first.second == tFollowerCellIndex;
+                        } );
+
+                MORIS_ASSERT( tFoundElement != tCellIndicesToElementMap.end(),
+                        "Interpolation_Element::compute_nodal_QIs_nonconformal_side() - "
+                        "Could not find the element for the given leader and follower cell indices." );
+
+                // prepare the geometry interpolators
+                auto const * tNCElement = dynamic_cast< Element_Nonconformal_Sideset const * >( tFoundElement->second );
+                tNCElement->init_ig_geometry_interpolator();
+
+                for ( size_t iNode = 0; iNode < tNodalPointPair.get_leader_node_indices().size(); iNode++ )
+                {
+                    // find the position at which the leader node index is located in the list of leader vertex indices and therefore also the row in which the coordinate is stored in the leader vertex local coordinates
+                    moris_index const tLeaderNodeIndex  = tNodalPointPair.get_leader_node_indices()( iNode );
+                    auto* const       tFoundLeaderIndex = std::find( tLeaderVisVertexIndices.begin(), tLeaderVisVertexIndices.end(), tLeaderNodeIndex );
+                    MORIS_ASSERT( tFoundLeaderIndex != tLeaderVisVertexIndices.end(), "Interpolation_Element::compute_nodal_QIs_nonconformal_side(): Could not find the leader node index in the leader vertex indices." );
+                    moris_index const tLeaderIndexPosition = std::distance( tLeaderVisVertexIndices.begin(), tFoundLeaderIndex );
+
+                    // get the local coordinates of the leader node
+                    Matrix< DDRMat > tNodalPointLeaderLocalCoords = tLeaderVertexLocalCoords.get_row( tLeaderIndexPosition );
+                    tNodalPointLeaderLocalCoords.resize( 1, tNumSpatialDims + 1 );    // add time dimension
+                    tNodalPointLeaderLocalCoords( tNumSpatialDims ) = -1.0;           // set time location to -1
+                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->set_space_time( trans( tNodalPointLeaderLocalCoords ) );
+
+                    // the coordinate of the follower side is known from the mapper
+                    // it is not a IG point, but the method can still be used (a parametric point on the follower side geometry)
+                    mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                            ->set_space_time_from_local_IG_point( tFollowerCoordinates.get_column( iNode ) );
+
+                    // set vertex coordinates for field interpolator of eigen vectors
+                    if ( mSet->mNumEigenVectors )
+                    {
+                        mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )
+                                ->set_space_time( tNodalPointLeaderLocalCoords );
+                        mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::FOLLOWER )
+                                ->set_space_time_from_local_IG_point( tFollowerCoordinates.get_column( iNode ) );
+                    }
+
+                    // loop over IQI
+                    for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+                    {
+                        // get requested IQI
+                        const std::shared_ptr< IQI >& tReqIQI =
+                                mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
+
+                        // get IQI global index
+                        moris_index tGlobalIqiIndex =
+                                mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
+
+                        // reset the requested IQI
+                        tReqIQI->reset_eval_flags();
+
+                        // compute quantity of interest at evaluation point
+                        Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
+                        tReqIQI->compute_QI( tQINodal );
+
+                        // assemble the nodal QI value on the set
+                        // NOTE: output of the dbl. sided elements by the VIS mesh is defined on the leader side; hence, the nodal value is outputted to the leader vertex
+                        ( *mSet->mSetNodalValues )( tLeaderNodeIndex, tGlobalIqiIndex ) = tQINodal( 0 );
+                    }
+                }
+            }
+        }
+
+
+        void
         Interpolation_Element::compute_nodal_QIs_double_sided( const uint aFemMeshIndex )
         {
             // get number of active local IQIs
@@ -1319,18 +1428,6 @@ namespace moris
             {
                 return;
             }
-
-#ifdef MORIS_HAVE_DEBUG
-            Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
-            // make sure this function is only called on double sided side clusters
-            MORIS_ASSERT( tElementType != fem::Element_Type::NONCONFORMAL_SIDESET,
-                    "Nodal Evaluation of QIs on Nonconformal Sidesets is not supported yet." );
-
-            MORIS_ASSERT(
-                    tElementType == fem::Element_Type::DOUBLE_SIDESET,
-                    "Interpolation_Element::compute_nodal_QIs_double_sided() - "
-                    "This function can only be called on double sided side clusters." );
-#endif
 
             // get the VIS vertex indices on the mesh cluster
             Matrix< IndexMat > tLeaderVisVertexIndices;
