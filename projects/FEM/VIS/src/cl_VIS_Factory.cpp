@@ -29,7 +29,7 @@
 #include "cl_Tracer.hpp"
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 #include "cl_MTK_Nonconformal_Side_Set.hpp"
-#include "cl_MTK_IntegrationPointPairs.hpp"
+#include "cl_MTK_PointPairs.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -1399,15 +1399,15 @@ namespace moris
             return tActiveVerticesOnSideFacet;
         }
 
-        Vector< mtk::MappingPointPairs > VIS_Factory::populate_integration_point_pairs( mtk::Nonconformal_Side_Cluster const * tFemNcSideCluster ) const
+        Vector< mtk::IntegrationPointPairs > VIS_Factory::populate_integration_point_pairs( mtk::Nonconformal_Side_Cluster const * tFemNcSideCluster ) const
         {
-            Vector< mtk::MappingPointPairs > tFemIntegrationPointPairs = tFemNcSideCluster->get_integration_point_pairs();
-            Vector< mtk::MappingPointPairs > tVisIntegrationPointPairs;
+            Vector< mtk::IntegrationPointPairs > tFemIntegrationPointPairs = tFemNcSideCluster->get_integration_point_pairs();
+            Vector< mtk::IntegrationPointPairs > tVisIntegrationPointPairs;
             tVisIntegrationPointPairs.reserve( tFemIntegrationPointPairs.size() );
 
             for ( auto const & tIPP : tFemIntegrationPointPairs )
             {
-                auto tVIPP = mtk::MappingPointPairs(
+                auto tVIPP = mtk::IntegrationPointPairs(
                         mPrimaryFemCellIndexToVisCellIndex( tIPP.get_leader_cell_index() ),
                         tIPP.get_leader_coordinates(),
                         mPrimaryFemCellIndexToVisCellIndex( tIPP.get_follower_cell_index() ),
@@ -1419,6 +1419,27 @@ namespace moris
             }
             return tVisIntegrationPointPairs;
         }
+
+        Vector< mtk::NodalPointPairs > VIS_Factory::populate_nodal_point_pairs( mtk::Nonconformal_Side_Cluster const * tFemNcSideCluster ) const
+        {
+            Vector< mtk::NodalPointPairs > tFemNodalPointPairs = tFemNcSideCluster->get_nodal_point_pairs();
+            Vector< mtk::NodalPointPairs > tVisNodalPointPairs;
+            tVisNodalPointPairs.reserve( tFemNodalPointPairs.size() );
+
+            for ( auto const & tNPP : tFemNodalPointPairs )
+            {
+                auto tVNPP = mtk::NodalPointPairs(
+                        mPrimaryFemCellIndexToVisCellIndex( tNPP.get_leader_cell_index() ),
+                        tNPP.get_leader_node_indices(),
+                        mPrimaryFemCellIndexToVisCellIndex( tNPP.get_follower_cell_index() ),
+                        tNPP.get_follower_coordinates(),
+                        tNPP.get_point_distances(),
+                        tNPP.get_normals() );
+                tVisNodalPointPairs.push_back( tVNPP );
+            }
+            return tVisNodalPointPairs;
+        }
+
         //-----------------------------------------------------------------------------------------------------------
         void VIS_Factory::create_visualization_nonconformal_side_clusters()
         {
@@ -1467,12 +1488,14 @@ namespace moris
                     populate_leader_follower_interface_vertices( tFemFollowerSideCluster, tVisFollowerSideCluster, tFemVertexIndicesOnFollowerCluster );
 
                     // with the new numbering of cells, the integration point pairs are no longer valid and have to be updated as well
-                    Vector< mtk::MappingPointPairs > tVisIntegrationPointPairs = populate_integration_point_pairs( tFemNcSideCluster );
+                    Vector< mtk::IntegrationPointPairs > tVisIntegrationPointPairs = populate_integration_point_pairs( tFemNcSideCluster );
+                    Vector< mtk::NodalPointPairs >       tVisNodalPointPairs       = populate_nodal_point_pairs( tFemNcSideCluster );
 
                     mtk::Nonconformal_Side_Cluster const * tVisNcSideCluster = new mtk::Nonconformal_Side_Cluster(
                             tVisLeaderSideCluster,
                             tVisFollowerSideCluster,
-                            tVisIntegrationPointPairs );
+                            tVisIntegrationPointPairs,
+                            tVisNodalPointPairs );
 
                     // store away the dbl sided side cluster
                     mVisMesh->mClustersOnNonconformalSideSets( iNcSideSet )( iNcSideClusterOnSet ) = tVisNcSideCluster;

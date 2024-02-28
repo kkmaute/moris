@@ -6,7 +6,7 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_IntegrationPointPairs.hpp"
+#include "cl_MTK_PointPairs.hpp"
 #include "cl_Vector.hpp"
 #include "moris_typedefs.hpp"
 
@@ -42,11 +42,6 @@ namespace moris::mtk
             tCellOrdinals( 0, iIndex )        = tSideOrdinals( tCellLocalIndex );
         }
         return tCellOrdinals;
-    }
-
-    Vector< MappingPointPairs > const &Nonconformal_Side_Cluster::get_integration_point_pairs() const
-    {
-        return mIntegrationPointPairs;
     }
 
     Vector< moris_index > Nonconformal_Side_Cluster::get_cell_local_indices( const mtk::Leader_Follower aIsLeader ) const

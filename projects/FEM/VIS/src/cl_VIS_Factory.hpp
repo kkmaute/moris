@@ -15,7 +15,7 @@
 #include "cl_Vector.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "cl_Communication_Manager.hpp"
-#include "cl_MTK_IntegrationPointPairs.hpp"
+#include "cl_MTK_PointPairs.hpp"
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 
 #include "cl_VIS_Vertex_Visualization.hpp"
@@ -206,8 +206,11 @@ namespace moris
             void
             populate_double_side_interface_vertices( mtk::Cluster const & aLeaderCluster, Side_Cluster_Visualization* tVisLeaderSideCluster, mtk::Cluster const & aFollowerCluster, Side_Cluster_Visualization* tVisFollowerSideCluster );
 
-            Vector< mtk::MappingPointPairs >
+            Vector< mtk::IntegrationPointPairs >
             populate_integration_point_pairs( mtk::Nonconformal_Side_Cluster const * tFemNcSideCluster ) const;
+
+            Vector< mtk::NodalPointPairs >
+            populate_nodal_point_pairs( mtk::Nonconformal_Side_Cluster const * tFemNcSideCluster ) const;
 
             /**
              * @brief Generate the double sided side clusters in the VIS mesh to interface with FEM for evaluation

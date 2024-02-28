@@ -6,7 +6,7 @@
 #define CL_FEM_ELEMENT_NONCONFORMAL_SIDESET_HPP
 #include <cl_FEM_Element_Double_Sideset.hpp>
 
-#include <cl_MTK_IntegrationPointPairs.hpp>
+#include <cl_MTK_PointPairs.hpp>
 
 namespace moris::fem
 {
@@ -20,7 +20,7 @@ namespace moris::fem
                 Cluster                          *aCluster,
                 moris::moris_index                aLeaderCellIndexInCluster,
                 moris::moris_index                aFollowerCellIndexInCluster,
-                mtk::MappingPointPairs const &aIntegrationPointPairs )
+                mtk::IntegrationPointPairs const &aIntegrationPointPairs )
                 : Element_Double_Sideset( aLeftIGCell, aRightIGCell, aSet, aCluster, aLeaderCellIndexInCluster )
                 , mFollowerCellIndexInCluster( aFollowerCellIndexInCluster )
                 , mLeaderIntegrationPoints( aIntegrationPointPairs.get_leader_coordinates() )

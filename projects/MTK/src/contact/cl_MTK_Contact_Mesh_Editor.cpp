@@ -9,13 +9,19 @@
  */
 
 #include "cl_MTK_Contact_Mesh_Editor.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_MappingResult.hpp"
-#include "cl_MTK_IntegrationPointPairs.hpp"
+#include "cl_MTK_PointPairs.hpp"
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 #include "cl_Matrix_Arma_Dynamic.hpp"
 #include "cl_Vector.hpp"
+#include "fn_assert.hpp"
+#include "fn_join_horiz.hpp"
+#include "linalg_typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include <algorithm>
 #include <iterator>
+#include <set>
 #include <string>
 #include <numeric>
 #include <utility>
@@ -52,13 +58,6 @@ namespace moris::mtk
     std::map< Contact_Mesh_Editor::SetPair, Vector< Nonconformal_Side_Cluster > >
     Contact_Mesh_Editor::convert_mapping_result_to_nonconformal_side_clusters( MappingResult const &aMappingResult ) const
     {
-        Matrix< DDRMat > tQWeights = mIntegrator.get_weights();
-        Matrix< DDRMat > tQPoints  = mIntegrator.get_points();
-        // Matrix< DDRMat > tQPoints              = tQPointsWithTime.get_row( 0 );
-        size_t const tNumIntegrationPoints = mIntegrator.get_number_of_points();
-
-        MORIS_ASSERT( tQPoints.n_rows() == 2 && sum( tQPoints.get_row( 1 ) ) < MORIS_REAL_EPS, "Currently, only 1D parametric coordinates with a constant time dimension are supported!" );
-
         // extract the cluster pairs and the corresponding cell pairs from the mapping result this will act as a basis to create the nonconformal side clusters
         auto tClusterPairs = extract_cluster_and_cell_pairing( aMappingResult );
 
@@ -69,53 +68,38 @@ namespace moris::mtk
         for ( const auto &[ tClusterPair, tCellMaps ] : tClusterPairs )
         {
             // the integration point pairs will store the bundles of integration points that were mapped from the leader side to the follower side cells
-            Vector< MappingPointPairs > tIntegrationPointPairs;
+            Vector< IntegrationPointPairs > tIntegrationPointPairs;
+
+            // node point pairs store the mapped points of all nodes on the leader side to the follower side
+            Vector< NodalPointPairs > tNodePointPairs;
 
             // the cell map contains all pairs of source and target cells that were mapped onto each other
             // the values of this map are the list of indices to get access to the correct entries of the mapping result
             for ( auto const &[ tCellMap, tResultColumns ] : tCellMaps )
             {
-                Vector< real >   tWeights( tResultColumns.size() );
-                Vector< real >   tDistances( tResultColumns.size() );
-                Matrix< DDRMat > tNormals( aMappingResult.mNormals.n_rows(), tResultColumns.size() );
-                Matrix< DDRMat > tLeaderParametricCoords( tQPoints.n_rows(), tResultColumns.size() );
-                Matrix< DDRMat > tFollowerParametricCoords( tQPoints.n_rows(), tResultColumns.size(), 0.0 );
-
-                // loop over each index in the mapping result for this pair of cells
-                for ( uint iIndex = 0; iIndex < tResultColumns.size(); ++iIndex )
+                Vector< moris_index > tNodalResultColumns;
+                Vector< moris_index > tIntegrationPointResultColumns;
+                for ( uint iResult = 0; iResult < tResultColumns.size(); iResult++ )
                 {
-                    /* To get the correct column in the mapping result, we have to index into the list of result columns.
-                     * E.g. for a cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
-                     * mapping results of the first integration point (that got mapped successfully on the other cell) is stored in column 3, the second in column 6 and so on. */
-                    size_t const tMappingResultColumn = tResultColumns( iIndex );
-
-                    /* Depending on the index in the mapping result, the correct column in the list of integration points (tQPoints) has to be determined.
-                     * Since the integration points are repeated for each cell, the index is the remainder of the division by the number of integration points.
-                     * E.g we have 4 integration points per cell and 3 cells. The results in the mapping will refer to the integration points in columns
-                     * [ 0, 1, 2, 3, 0, 1, 2, 3, 0, 1 ,2 ,3 ] and so on. */
-                    size_t const tIntegrationPointColumn = tMappingResultColumn % tNumIntegrationPoints;
-                    tWeights( iIndex )                   = tQWeights( tIntegrationPointColumn );
-                    tDistances( iIndex )                 = aMappingResult.mDistances( tMappingResultColumn );
-                    tLeaderParametricCoords.set_column( iIndex, tQPoints.get_column( tIntegrationPointColumn ) );
-
-                    // Since the integration points have a constant time dimension, we can leave a zero to the parametric coordinates.
-                    auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
-                    for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
+                    size_t const tMappingResultColumn = tResultColumns( iResult );
+                    if ( is_integration_point_result_index( tMappingResultColumn ) )
                     {
-                        tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
+                        tIntegrationPointResultColumns.push_back( tMappingResultColumn );
                     }
-                    tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
+                    else
+                    {
+                        tNodalResultColumns.push_back( tMappingResultColumn );
+                    }
                 }
 
-                auto const &[ tLeaderCellIndex, tFollowerCellIndex ] = tCellMap;
-                tIntegrationPointPairs.emplace_back(
-                        tLeaderCellIndex,
-                        tLeaderParametricCoords,
-                        tFollowerCellIndex,
-                        tFollowerParametricCoords,
-                        tWeights,
-                        tDistances,
-                        tNormals );
+                if ( tIntegrationPointResultColumns.size() > 0 )
+                {
+                    tIntegrationPointPairs.push_back( create_integration_point_pairs_from_results( tIntegrationPointResultColumns, aMappingResult ) );
+                }
+                if ( tNodalResultColumns.size() > 0 )
+                {
+                    tNodePointPairs.push_back( create_nodal_point_pairs_from_results( tNodalResultColumns, aMappingResult ) );
+                }
             }
 
             auto const &[ tSourceClusterIndex, tTargetClusterIndex, tTargetMeshIndex ] = tClusterPair;
@@ -128,14 +112,133 @@ namespace moris::mtk
             Cluster const *tFollowerCluster = mSideSets( tTargetMeshIndex )->get_clusters_by_index( tTargetClusterIndex );
 
             // append a new nonconformal side cluster
-            tNonconformalSideClusters[ tSetPair ].emplace_back( tLeaderCluster, tFollowerCluster, tIntegrationPointPairs );
+            tNonconformalSideClusters[ tSetPair ].emplace_back( tLeaderCluster, tFollowerCluster, tIntegrationPointPairs, tNodePointPairs );
         }
 
         return tNonconformalSideClusters;
     }
 
+    IntegrationPointPairs Contact_Mesh_Editor::create_integration_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const
+    {
+        size_t const tNumResults = aResultIndices.size();
 
-    Vector< MappingResult > Contact_Mesh_Editor::perform_mapping() const
+        Matrix< DDRMat > tQWeights = mIntegrator.get_weights();
+        Matrix< DDRMat > tQPoints  = mIntegrator.get_points();
+        MORIS_ASSERT( tQPoints.n_rows() == 2 && sum( tQPoints.get_row( 1 ) ) < MORIS_REAL_EPS, "Currently, only 1D parametric coordinates with a constant time dimension are supported!" );
+
+        // the leader and follower cell indices are the same for each result in this method!
+        moris_index const tLeaderCellIndex   = aMappingResult.mSourceCellIndex( aResultIndices( 0 ) );
+        moris_index const tFollowerCellIndex = aMappingResult.mTargetCellIndices( aResultIndices( 0 ) );
+        Vector< real >    tWeights( tNumResults );
+        Vector< real >    tDistances( tNumResults );
+        Matrix< DDRMat >  tNormals( aMappingResult.mNormals.n_rows(), tNumResults );
+        Matrix< DDRMat >  tLeaderParametricCoords( tQPoints.n_rows(), tNumResults );
+        Matrix< DDRMat >  tFollowerParametricCoords( tQPoints.n_rows(), tNumResults, -1.0 );
+
+        // loop over each index in the mapping result for this pair of cells
+        for ( uint iIndex = 0; iIndex < tNumResults; ++iIndex )
+        {
+            /* To get the correct column in the mapping result, we have to index into the list of result columns.
+             * E.g. for a cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
+             * mapping results of the first integration point (that got mapped successfully on the other cell) is stored in column 3, the second in column 6 and so on. */
+            size_t const tMappingResultColumn = aResultIndices( iIndex );
+
+            /* Depending on the index in the mapping result, the correct column in the list of integration points (tQPoints) has to be determined.
+             * Since the integration points are repeated for each cell, the index is the remainder of the division by the number of integration points.
+             * E.g we have 4 integration points per cell and 3 cells. The results in the mapping will refer to the integration points in columns
+             * [ 0, 1, 2, 3, 0, 1, 2, 3, 0, 1 ,2 ,3 ] and so on. */
+            size_t const tIntegrationPointIndex = get_integration_point_index( tMappingResultColumn );
+            tWeights( iIndex )                  = tQWeights( tIntegrationPointIndex );
+            tDistances( iIndex )                = aMappingResult.mDistances( tMappingResultColumn );
+            tLeaderParametricCoords.set_column( iIndex, tQPoints.get_column( tIntegrationPointIndex ) );
+            MORIS_ASSERT(
+                    tLeaderCellIndex == aMappingResult.mSourceCellIndex( tMappingResultColumn ),
+                    "Leader cell index does not match! This means that the pre-filtering of result indices did not work correctly!" );
+            MORIS_ASSERT(
+                    tFollowerCellIndex == aMappingResult.mTargetCellIndices( tMappingResultColumn ),
+                    "Follower cell index does not match! This means that the pre-filtering of result indices did not work correctly!" );
+
+            // Since the integration points have a constant time dimension, we can leave a -1.0 to the parametric coordinates.
+            auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
+            for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
+            {
+                tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
+            }
+            tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
+        }
+
+        return {
+            tLeaderCellIndex,
+            tLeaderParametricCoords,
+            tFollowerCellIndex,
+            tFollowerParametricCoords,
+            tWeights,
+            tDistances,
+            tNormals
+        };
+    }
+
+
+    NodalPointPairs Contact_Mesh_Editor::create_nodal_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const
+    {
+        size_t const tNumResults = aResultIndices.size();
+
+        // the leader and follower cluster and cell indices are the same for each result in this method!
+        moris_index const tLeaderClusterIndex = aMappingResult.mSourceClusterIndex( aResultIndices( 0 ) );
+        moris_index const tLeaderCellIndex    = aMappingResult.mSourceCellIndex( aResultIndices( 0 ) );
+        moris_index const tFollowerCellIndex  = aMappingResult.mTargetCellIndices( aResultIndices( 0 ) );
+
+        Vector< real >        tDistances( tNumResults );
+        Vector< moris_index > tLeaderNodeIndices( tNumResults );
+        Matrix< DDRMat >      tNormals( aMappingResult.mNormals.n_rows(), tNumResults );
+        Matrix< DDRMat >      tFollowerParametricCoords( mIntegrator.get_points().n_rows(), tNumResults, -1.0 );
+
+        auto const            &tSideSet         = mSideSets( aMappingResult.mSourceMeshIndex );
+        auto const            &tCluster         = dynamic_cast< mtk::Side_Cluster const                    *>( tSideSet->get_clusters_by_index( tLeaderClusterIndex ) );
+        Matrix< IdMat >        tSideOrdinals    = tCluster->get_cell_side_ordinals();
+        Vector< const Cell * > tCells           = tCluster->get_primary_cells_in_cluster();
+        auto                   tHasCorrectIndex = [ &tLeaderCellIndex ]( const Cell *const &aCell ) { return aCell->get_index() == tLeaderCellIndex; };
+        auto const            &tCell            = std::find_if( tCells.begin(), tCells.end(), tHasCorrectIndex );
+        MORIS_ASSERT( tCell != tCells.end(), "Contact_Mesh_Editor::create_nodal_point_pairs_from_results: Could not find cell with index %d in cluster %d!", tLeaderCellIndex, tLeaderClusterIndex );
+        size_t      tCellIndex = std::distance( tCells.begin(), tCell );
+        auto const &tVertices  = tCells( tCellIndex )->get_vertices_on_side_ordinal( tSideOrdinals( tCellIndex ) );
+
+        // loop over each index in the mapping result for this pair of cells
+        for ( uint iIndex = 0; iIndex < tNumResults; ++iIndex )
+        {
+            /* To get the correct column in the mapping result, we have to index into the list of result columns.
+             * E.g. for a cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
+             * mapping results of the first integration point (that got mapped successfully on the other cell) is stored in column 3, the second in column 6 and so on. */
+            size_t const tMappingResultColumn = aResultIndices( iIndex );
+
+            /* The next line provides the local index of the node that has been mapped in the result. E.g. if we have a 2 node line cell, the two nodal points
+             * will correspond to the node at the parametric coordinate (-1.0) and (1.0) at the local indices 0 and 1 respectively.
+             * It is up to this function to determine the global index of the node in the mesh! */
+            size_t const tNodeIndex      = get_node_coordinate_index( tMappingResultColumn );
+            tLeaderNodeIndices( iIndex ) = tVertices( tNodeIndex )->get_index();
+
+            // Since the integration points have a constant time dimension, we can leave a -1.0 to the parametric coordinates.
+            auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
+            for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
+            {
+                tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
+            }
+            tDistances( iIndex ) = aMappingResult.mDistances( tMappingResultColumn );
+            tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
+        }
+
+        return {
+            tLeaderCellIndex,
+            tLeaderNodeIndices,
+            tFollowerCellIndex,
+            tFollowerParametricCoords,
+            tDistances,
+            tNormals
+        };
+    }
+
+
+    Vector< MappingResult > Contact_Mesh_Editor::perform_mapping( Matrix< DDRMat > aPointsToMap ) const
     {
         // get all possible source side sets that have been specified in the candidate pairings
         std::set< moris_index > tSourceSideSets;
@@ -151,8 +254,7 @@ namespace moris::mtk
 
         for ( auto const &tSourceSideSet : tSourceSideSets )
         {
-            Matrix< DDRMat > const tQuadPoints = mIntegrator.get_points().get_row( 0 );
-            MappingResult          tResult     = mPointMapper.map( tSourceSideSet, tQuadPoints );
+            MappingResult tResult = mPointMapper.map( tSourceSideSet, aPointsToMap );
             tMappingResults.push_back( tResult );
             tMappingResultsJson.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() );
         }
@@ -168,8 +270,9 @@ namespace moris::mtk
         // removes all nonconformal sidesets and clusters from the IGMesh
         mIGMesh->reset_nonconformal_side_set();
 
-        // each mapping result will contain the mapping results for one source side set to many target side sets
-        Vector< MappingResult > const tMappingResults = perform_mapping();
+
+        // each MappingResult will contain the mapping results for one source (leader) side set to many target (follower) side sets
+        Vector< MappingResult > const tMappingResults = perform_mapping( get_points_to_map() );
 
         // we convert each mapping result to a list of nonconformal side clusters, grouped by the source- and target side sets
         std::map< SetPair, Vector< Nonconformal_Side_Cluster > > tConvertedResults;
@@ -235,5 +338,42 @@ namespace moris::mtk
         return mSideSets;
     }
 
+    Matrix< DDRMat > Contact_Mesh_Editor::get_nodal_parametric_coordinates() const
+    {
+        auto const &tCluster     = dynamic_cast< mtk::Side_Cluster const     *>( mSideSets( 0 )->get_clusters_on_set()( 0 ) );
+        auto const &tCell        = tCluster->get_primary_cells_in_cluster()( 0 );
+        auto const  tSideOrdinal = tCluster->get_cell_side_ordinal( tCell->get_index() );
+        auto const &tVertices    = tCell->get_vertices_on_side_ordinal( tSideOrdinal );
+        MORIS_ASSERT( tVertices.size() == 2, "Currently, only Line elements are supported in the nonconformal mapping!" );
+        return { { -1.0, 1.0 } };    // has to be generalized for different cell types
+    }
+
+    Matrix< DDRMat > Contact_Mesh_Editor::get_points_to_map() const
+    {
+        Matrix< DDRMat > const tNodalParametricCoordinates = get_nodal_parametric_coordinates();
+        Matrix< DDRMat > const tIntegrationPoints          = mIntegrator.get_points().get_row( 0 );    // only use the spatial parametric coordinates, not the time dimension
+        return join_horiz( tNodalParametricCoordinates, tIntegrationPoints );
+    }
+
+
+    bool Contact_Mesh_Editor::is_integration_point_result_index( moris_index aMappingResultColumnIndex ) const
+    {
+        size_t const nNodalPoints       = get_nodal_parametric_coordinates().n_cols();
+        size_t const nIntegrationPoints = mIntegrator.get_number_of_points();
+        size_t const nLocalIndex        = aMappingResultColumnIndex % ( nNodalPoints + nIntegrationPoints );
+        return nLocalIndex >= nNodalPoints;
+    }
+
+    moris_index Contact_Mesh_Editor::get_integration_point_index( moris_index aMappingResultColumnIndex ) const
+    {
+        size_t const nNodalPoints = get_nodal_parametric_coordinates().n_cols();
+        return aMappingResultColumnIndex % ( nNodalPoints + mIntegrator.get_number_of_points() ) - nNodalPoints;
+    }
+
+    moris_index Contact_Mesh_Editor::get_node_coordinate_index( moris_index aMappingResultColumnIndex ) const
+    {
+        size_t const nNodalPoints = get_nodal_parametric_coordinates().n_cols();
+        return aMappingResultColumnIndex % ( nNodalPoints + mIntegrator.get_number_of_points() );
+    }
 
 }    // namespace moris::mtk

@@ -2,11 +2,10 @@
 // Created by frank on 11/30/23.
 //
 
-#ifndef MORIS_CL_MTK_NONCONFORMAL_SIDE_CLUSTER_HPP
-#define MORIS_CL_MTK_NONCONFORMAL_SIDE_CLUSTER_HPP
+#pragma once
 
 #include "cl_MTK_Double_Side_Cluster.hpp"
-#include "cl_MTK_IntegrationPointPairs.hpp"
+#include "cl_MTK_PointPairs.hpp"
 #include "cl_Vector.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
@@ -19,9 +18,11 @@ namespace moris::mtk
         Nonconformal_Side_Cluster(
                 Cluster const                         *aLeaderSideCluster,
                 Cluster const                         *aFollowerSideCluster,
-                Vector< MappingPointPairs > const &aIntegrationPointPairs )
+                Vector< IntegrationPointPairs > const &aIntegrationPointPairs,
+                Vector< NodalPointPairs > const        &aNodalPointPairs )
                 : Double_Side_Cluster( aLeaderSideCluster, aFollowerSideCluster, {} )
-                , mIntegrationPointPairs( aIntegrationPointPairs ){};
+                , mIntegrationPointPairs( aIntegrationPointPairs )
+                , mNodalPointPairs( aNodalPointPairs ){};
 
 
         /**
@@ -51,7 +52,15 @@ namespace moris::mtk
         moris::Matrix< moris::IndexMat >
         get_nonconforming_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const;
 
-        [[nodiscard]] Vector< MappingPointPairs > const &get_integration_point_pairs() const;
+        [[nodiscard]] Vector< IntegrationPointPairs > const &get_integration_point_pairs() const
+        {
+            return mIntegrationPointPairs;
+        }
+
+        [[nodiscard]] Vector< NodalPointPairs > const &get_nodal_point_pairs() const
+        {
+            return mNodalPointPairs;
+        }
 
         /**
          * \brief This utility method returns a mask of indices that are consistent with the integration point pairs.
@@ -65,11 +74,17 @@ namespace moris::mtk
         Vector< moris_index > get_cell_local_indices( const mtk::Leader_Follower aIsLeader ) const;
 
       private:
-        Vector< MappingPointPairs > mIntegrationPointPairs;
+        /**
+         * @brief The pairs of points that will be used for integration. Each point on the leader side will be paired with a point on the follower side.
+         */
+        Vector< IntegrationPointPairs > mIntegrationPointPairs;
+
+        /**
+         * @brief Maps each node of the cells of the leader side to a corresponding cell and coordinate on the follower side.
+         * This is required for the nodal evaluation of IQIs on nonconforming interfaces.
+         */
+        Vector< NodalPointPairs > mNodalPointPairs;
     };
 
 
 }    // namespace moris::mtk
-
-
-#endif    // MORIS_CL_MTK_NONCONFORMAL_SIDE_CLUSTER_HPP

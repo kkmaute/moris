@@ -11,7 +11,7 @@
 #ifndef SRC_MTK_CL_MTK_INTEGRATOR_HPP_
 #define SRC_MTK_CL_MTK_INTEGRATOR_HPP_
 
-#include "moris_typedefs.hpp"                     //MRS/COR/src
+#include "moris_typedefs.hpp"               //MRS/COR/src
 #include "cl_Matrix.hpp"                    //LNA/src
 #include "cl_MTK_Enums.hpp"                 //MTK/src
 #include "cl_MTK_Integration_Rule.hpp"      //MTK/src
@@ -26,10 +26,10 @@ namespace moris
         class Integrator
         {
             // pointer to space rule, if specified
-            std::unique_ptr<Integration_Coeffs_Base> mSpaceCoeffs;
+            std::unique_ptr< Integration_Coeffs_Base > mSpaceCoeffs;
 
             // pointer to time rule, if specified
-            std::unique_ptr<Integration_Coeffs_Base> mTimeCoeffs;
+            std::unique_ptr< Integration_Coeffs_Base > mTimeCoeffs;
 
             // number of points in space
             uint mNumOfSpacePoints;
@@ -76,10 +76,17 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * get the integration points as a (d x n) matrix, where d is the dimension of the space
+             * @brief get the integration points as a (d x n) matrix, where d is the dimension of the space
              * and n is the number of integration points (each column contains one point)
-             **/
-            void             get_points( Matrix< DDRMat > &aIntegrationPoints ) const;
+             * @param aIntegrationPoints
+             */
+            void get_points( Matrix< DDRMat > &aIntegrationPoints ) const;
+
+            /**
+             * @brief get the integration points as a (d x n) matrix, where d is the dimension of the space
+             * and n is the number of integration points (each column contains one point)
+             * @return
+             */
             Matrix< DDRMat > get_points() const;
 
             //------------------------------------------------------------------------------

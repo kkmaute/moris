@@ -84,7 +84,7 @@ namespace moris::mtk
          * while the leader side (where the ray hits) will be called the target side. The mapping will be performed for all source sides of the candidate pairs.
          * \return Returns a mapping result for each source side of the candidate pairs.
          */
-        Vector< MappingResult > perform_mapping() const;
+        Vector< MappingResult > perform_mapping( Matrix< DDRMat > aPointsToMap ) const;
 
         std::map< SetPair, Vector< Nonconformal_Side_Cluster > >
         convert_mapping_result_to_nonconformal_side_clusters( MappingResult const &aMappingResult ) const;
@@ -93,13 +93,47 @@ namespace moris::mtk
 
         static std::pair< std::string, std::string > get_leaderphase_from_set_name( std::string const &aSideSetName );
 
+        /**
+         * @brief The mapper has to map the nodes as well as the integration points. This function returns a combined matrix of the nodal parametric coordinates
+         * (e.g. -1.0 and 1.0 for a line) as the first n_node columns and the integration points as the last n_ig columns.
+         * @return
+         */
+        Matrix< DDRMat > get_points_to_map() const;
+
+        /**
+         * @brief The mapping does not know if a point is a nodal point or an integration point. It will return a continuous list of results that contains all requested
+         * points for each cell in order. This method is used to determine if a result index belongs to a requested nodal coordinate or one of the integration points.
+         * E.g. for a line element with 3 Integration points, the list of requested points is [ n1, n2, q1, q2, q3 ]. Thus the results would be ordered (for each source cell c):
+         *
+         * @verbatim
+         *|--------------- c1 ---------------| |-------------- c2 ---------------|
+         *[ c1_n1, c1_n2, c1_q1, c1_q2, c1_q3, c2_n1, c2_n2, c2_q1, c2_q2, c2_q3 ]
+         *    0      1      2      3      4      5      6      7      8      9
+         * @endverbatim
+         *
+         * This function would return false for indices 0, 1, 5 and 6 and true for 2, 3, 4, 7, 8 and 9.
+         * @param aMappingResultColumnIndex
+         * @return
+         */
+        bool is_integration_point_result_index( moris_index aMappingResultColumnIndex ) const;
+
+        Matrix< DDRMat > get_nodal_parametric_coordinates() const;
+
+        moris_index get_integration_point_index( moris_index aResultIndex ) const;
+
+        moris_index get_node_coordinate_index( moris_index aMappingResultColumnIndex ) const;
+
+        IntegrationPointPairs create_integration_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const;
+
+        NodalPointPairs create_nodal_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const;
+
         Integration_Mesh_DataBase_IG                   *mIGMesh;
         Interpolation_Mesh_DataBase_IP                 *mIPMesh;
         Integrator                                      mIntegrator;
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
         QuadraturePointMapper_Ray                       mPointMapper;
-        int mIteration = 0;
+        int                                             mIteration = 0;
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP
