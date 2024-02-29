@@ -25,17 +25,17 @@ class Cluster_Proxy: public Cluster
 private:
     bool                                    mTrivial;
     moris::mtk::Cell const *                mInterpolationCell;
-    moris::Cell<moris::mtk::Cell const *>   mPrimaryIntegrationCells;
-    moris::Cell<moris::mtk::Cell const *>   mVoidIntegrationCells;
-    moris::Cell<moris::mtk::Vertex const *> mVerticesInCluster;
+    Vector<moris::mtk::Cell const *>   mPrimaryIntegrationCells;
+    Vector<moris::mtk::Cell const *>   mVoidIntegrationCells;
+    Vector<moris::mtk::Vertex const *> mVerticesInCluster;
     moris::Matrix<moris::DDRMat>            mVertexParamCoords;
 
     // map from vertex id to local index
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;   // FIXME should be ordered map. about 1000 times faster
 
 public:
-    Cluster_Proxy( moris::Cell<moris::mtk::Cell const *> aPrimaryCells,
-                   moris::Cell<moris::mtk::Cell const *> aVoidCells,
+    Cluster_Proxy( Vector<moris::mtk::Cell const *> aPrimaryCells,
+                   Vector<moris::mtk::Cell const *> aVoidCells,
                    moris::Matrix<moris::DDRMat>          aLocalCoords   ) : mTrivial(true),
                       mInterpolationCell(nullptr),
                       mPrimaryIntegrationCells(aPrimaryCells),
@@ -72,7 +72,7 @@ public:
     //----------------------------------------------------------------
 
     void
-    add_vertex_to_cluster(moris::Cell<moris::mtk::Vertex const *> const & aVertex){};
+    add_vertex_to_cluster(Vector<moris::mtk::Vertex const *> const & aVertex){};
 
     //----------------------------------------------------------------
 
@@ -85,7 +85,7 @@ public:
     // Required Access Functions
     //##############################################
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    Vector<moris::mtk::Cell const *> const &
     get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const
 	{
     	return mPrimaryIntegrationCells;
@@ -93,7 +93,7 @@ public:
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    Vector<moris::mtk::Cell const *> const &
     get_void_cells_in_cluster() const
 	{
     	return mVoidIntegrationCells;
@@ -108,7 +108,7 @@ public:
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Vertex const *> const &
+    Vector<moris::mtk::Vertex const *> const &
     get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const
 	{     	MORIS_ERROR( false, "not implemented for proxy");
 	return mVerticesInCluster;};

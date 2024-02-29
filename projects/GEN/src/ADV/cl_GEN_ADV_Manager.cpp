@@ -12,7 +12,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
@@ -74,8 +74,8 @@ namespace moris::ge
 
     ADV_Manager::ADV_Manager(
             const ADV_Manager& aCopyADVManager,
-            const Cell< uint >& aReplaceVariables,
-            const Cell< real >& aNewConstants )
+            const Vector< uint >& aReplaceVariables,
+            const Vector< real >& aNewConstants )
             : mADVs( aCopyADVManager.mADVs )
             , mDeterminingADVIds( aCopyADVManager.mDeterminingADVIds )
             , mHasADVs( aCopyADVManager.mHasADVs )

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Bitset.hpp"
 #include "linalg_typedefs.hpp"
@@ -222,7 +222,7 @@ namespace moris
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< real >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -241,7 +241,7 @@ namespace moris
     moris::real
     Func_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< real >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -263,7 +263,7 @@ namespace moris
     void
     Func_Anal_Sol(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // intermeidate variables measuring the length of the solid domain
@@ -296,7 +296,7 @@ namespace moris
     void
     Func_HeatLoad(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get the constant heat flux and set it as output
@@ -308,7 +308,7 @@ namespace moris
     void
     Func_TempDistro(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix.set_size( 1, 1 );
@@ -325,7 +325,7 @@ namespace moris
     void
     Func_StoredThermalEnergy(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix.set_size( 1, 1 );
@@ -478,7 +478,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
@@ -499,7 +499,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    HMRParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
 
@@ -540,7 +540,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    XTKParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -567,7 +567,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    GENParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
@@ -608,7 +608,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    FEMParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
     {
 
         // create a cell of cell of parameter list for fem
@@ -945,7 +945,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
         for ( uint Ik = 0; Ik < 8; Ik++ )
@@ -1173,8 +1173,8 @@ namespace moris
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();    // linear problem index 0
         tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
-        tParameterlist( 1 )( 0 ).set( "DLA_operator_condition_number_with_moris", true );
-        tParameterlist( 1 )( 0 ).set( "DLA_prec_operator_condition_number_with_moris", true );
+        tParameterlist( 1 )( 0 ).set( "DLA_operator_condition_number_with_moris", "dense" );
+        tParameterlist( 1 )( 0 ).set( "DLA_prec_operator_condition_number_with_moris", "dense" );
 
         tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list(); // eigen problem index 1
         tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
@@ -1253,7 +1253,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -1264,7 +1264,7 @@ namespace moris
     }
 
     void
-    VISParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -1281,7 +1281,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
     }
 

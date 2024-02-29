@@ -12,8 +12,8 @@
 #define PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_
 
 #include "cl_MTK_Cell.hpp"
-#include "typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CNT/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src
@@ -25,13 +25,13 @@
 #include "fn_trans.hpp"
 #include "op_div.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     class Background_Mesh;
 }
 
 //------------------------------------------------------------------------------
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
 
@@ -77,10 +77,10 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         /**
-         * fills a moris::cell with pointers to connected vertices
+         * fills a Vector with pointers to connected vertices
          */
         // FIXME: SDF's Facet_Vertex causes this to not be able to return a reference.
-        moris::Cell< mtk::Vertex * >
+        Vector< mtk::Vertex * >
         get_vertex_pointers() const;
 
         //------------------------------------------------------------------------------
@@ -122,17 +122,17 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       private:
-        moris::moris_index mCMElementIndex; /* Needed to access connectivity (verts) */
+        moris::moris_index mCMElementIndex;       /* Needed to access connectivity (verts) */
 
         xtk::Child_Mesh      *mChildMeshPtr;      /* Needed to access connectivity (verts) */
         xtk::Background_Mesh *mBackgroundMeshPtr; /* Needed to access coordinates */
 
         //------------------------------------------------------------------------------
 
-    }; // class Cell_XTK_CM
+    };    // class Cell_XTK_CM
 
     //------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_ */

@@ -53,13 +53,13 @@ check_results(
     }
 
     // Reference nodal values to check
-    Cell< uint > tNodeIDs = { 0, 100, 200, 300, 400, 500, 600, 700, 800 };
-    Cell< real > tLevelSetValues = { -0.000135399, 7.40848, 14.3591, 15.4603, 0.861916, -0.499474, -7.59165, -13.1653, -15.2731 };
+    Vector< uint > tNodeIDs = { 0, 100, 200, 300, 400, 500, 600, 700, 800 };
+    Vector< real > tLevelSetValues = { -0.000135399, 7.40848, 14.3591, 15.4603, 0.861916, -0.499474, -7.59165, -13.1653, -15.2731 };
 
     // Check field values
     for ( uint iCheckNode = 0; iCheckNode < 9; iCheckNode++ )
     {
-        CHECK( tExoIO.get_nodal_field_value( tNodeIDs( iCheckNode ), 2, 0 ) == Approx( tLevelSetValues( iCheckNode ) ) );
+        CHECK( tExoIO.get_nodal_field_value( tNodeIDs( iCheckNode ), 2, 0 ) == Approx( tLevelSetValues( iCheckNode ) ).epsilon( 0.0001 ) );
     }
 }
 

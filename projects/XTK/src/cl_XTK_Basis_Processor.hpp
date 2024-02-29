@@ -11,14 +11,14 @@
 #pragma once
 
 #include <unordered_set>
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Param_List.hpp"
 
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     class Model;
     class HMR_Helper;
@@ -35,27 +35,27 @@ namespace xtk
     {
         // basis agglomeration information
         // input: enriched BF index || output: 1 if it is a follower basis , 0: leader basis
-        moris::Cell< moris::moris_index > mFollowerBasis;
+        Vector< moris::moris_index > mFollowerBasis;
 
         // The following maps are required to construct the follower basis in terms of leader basis
-        moris::Cell< moris::Cell< moris::moris_index > > mFollowerToLeaderBasis;           // input: enriched BF index || output: list of leader basis corresponding to the follower basis
-        moris::Cell< moris::Cell< moris::real > >        mFollowerToLeaderBasisWeights;    // input: enriched BF index || output: list of leader basis corresponding to the follower basis          // input: enriched BF index || output: list of leader basis corresponding to the follower basis
-        moris::Cell< moris::Cell< moris::real > >        mFollowerToLeaderBasisOwners;     // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< moris::moris_index > > mFollowerToLeaderBasis;           // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< moris::real > >        mFollowerToLeaderBasisWeights;    // input: enriched BF index || output: list of leader basis corresponding to the follower basis          // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< moris::real > >        mFollowerToLeaderBasisOwners;     // input: enriched BF index || output: list of leader basis corresponding to the follower basis
 
         // averaging weights for each enriched BF index
         // input: enriched BF index |  output: the list of weights corresponding to each SPGs that the basis is active
-        moris::Cell< moris::Cell< real > > mAveragingWeights;
+        Vector< Vector< real > > mAveragingWeights;
 
         // averaging weights for each enriched SPG indices
         // input: SPG index |  output: the list of weights corresponding to each enriched BF active on the SPG
-        std::unordered_map< moris_index, moris::Cell< real > > mAveragingWeightsSPGBased;
+        std::unordered_map< moris_index, Vector< real > > mAveragingWeightsSPGBased;
 
         // Subspaces that will be used for blocking in Schwartz method
         // input: # of block || output: list of enriched BFs  on the block
-        moris::Cell< moris::Cell< moris::moris_index > > mBasisInSubspace;
+        Vector< Vector< moris::moris_index > > mBasisInSubspace;
 
         // input: enriched BF index || output: Root SPG of that basis ( used for cell agglomeration )
-        moris::Cell< moris::moris_index > mFollowerBasisOwningCell;
+        Vector< moris::moris_index > mFollowerBasisOwningCell;
     };
 
     class Basis_Processor
@@ -65,7 +65,7 @@ namespace xtk
         xtk::Model* mXTKModelPtr = nullptr;
 
         // B-spline mesh indices
-        moris::Matrix< moris::IndexMat > mMeshIndices;
+        Matrix< IndexMat > mMeshIndices;
 
         moris::ParameterList* mParameterList;
 
@@ -74,17 +74,17 @@ namespace xtk
 
         // struct containing basis extension info
         // input: DMI
-        moris::Cell< Basis_Data > mBasisData;
+        Vector< Basis_Data > mBasisData;
 
         // input: SPG index || output: Root SPG index of the SPG
-        moris::Cell< moris_index > mRootSPGIds;
-        moris::Cell< moris_index > mRootSPGOwner;
+        Vector< moris_index > mRootSPGIds;
+        Vector< moris_index > mRootSPGOwner;
 
         // communication table
-        moris::Cell< moris_id > mCommTable;
+        Vector< moris_id > mCommTable;
 
         // hmr accessor object for each b-spline mesh
-        moris::Cell< HMR_Helper* > mHMRHelper;
+        Vector< HMR_Helper* > mHMRHelper;
 
       public:
         // ----------------------------------------------------------------------------------
@@ -299,8 +299,8 @@ namespace xtk
 
         void
         prepare_requests_for_not_owned_subphase_groups( moris_index const & aMeshIndex,
-                Cell< Cell< moris_index > >&                                aNotOwnedSpgsToProcs,
-                Cell< moris::Cell< moris_id > >&                            aSPGIDs );
+                Vector< Vector< moris_index > >&                            aNotOwnedSpgsToProcs,
+                Vector< Vector< moris_id > >&                               aSPGIDs );
 
         // ----------------------------------------------------------------------------------
 
@@ -315,9 +315,9 @@ namespace xtk
 
         void
         prepare_answers_for_owned_subphase_groups( moris_index const & aMeshIndex,
-                moris::Cell< moris::Cell< moris_id > >&                aSendSubphaseGroupRootIds,
-                moris::Cell< moris::Cell< moris_id > >&                aSendSubphaseGroupRootOwners,
-                moris::Cell< moris::Cell< moris_id > > const &         aReceivedSPGIds );
+                Vector< Vector< moris_id > >&                          aSendSubphaseGroupRootIds,
+                Vector< Vector< moris_id > >&                          aSendSubphaseGroupRootOwners,
+                Vector< Vector< moris_id > > const &                   aReceivedSPGIds );
 
         // ----------------------------------------------------------------------------------
 
@@ -331,9 +331,9 @@ namespace xtk
 
         void
         handle_requested_subphase_groups_answers(
-                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootIds,
-                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootOwners,
-                moris::Cell< moris::Cell< moris_id > > const & aNotOwnedSpgsToProcs );
+                Vector< Vector< moris_id > > const & aReceivedSubphaseGroupRootIds,
+                Vector< Vector< moris_id > > const & aReceivedSubphaseGroupRootOwners,
+                Vector< Vector< moris_id > > const & aNotOwnedSpgsToProcs );
 
         //-----------------------------------------------------------------------------------
 
@@ -370,8 +370,8 @@ namespace xtk
 
         void
         prepare_requests_for_not_owned_root_spg_projections( moris_index aMeshIndex,
-                Cell< Cell< moris_index > >&                             aNotOwnedSpgsToProcs,
-                Cell< moris::Cell< moris_id > >&                         aSPGIDs );
+                Vector< Vector< moris_index > >&                         aNotOwnedSpgsToProcs,
+                Vector< Vector< moris_id > >&                            aSPGIDs );
 
         // ----------------------------------------------------------------------------------
 
@@ -387,10 +387,10 @@ namespace xtk
 
         void
         prepare_answers_for_owned_root_spg_projections( moris_index const & aMeshIndex,
-                moris::Cell< moris::Cell< moris_id > >&                     aSendSubphaseGroupRootBsplineElementIds,
-                moris::Cell< moris::Cell< moris_id > >&                     aSendSubphaseGroupRootBsplineBasisIds,
-                moris::Cell< moris::Cell< moris_id > >&                     aSendSubphaseGroupRootBsplineBasisOwners,
-                moris::Cell< moris::Cell< moris_id > > const &              aReceivedSPGIds );
+                Vector< Vector< moris_id > >&                               aSendSubphaseGroupRootBsplineElementIds,
+                Vector< Vector< moris_id > >&                               aSendSubphaseGroupRootBsplineBasisIds,
+                Vector< Vector< moris_id > >&                               aSendSubphaseGroupRootBsplineBasisOwners,
+                Vector< Vector< moris_id > > const &                        aReceivedSPGIds );
 
         // ----------------------------------------------------------------------------------
 
@@ -404,11 +404,11 @@ namespace xtk
          * @param aNotOwnedSpgsToProcs list of SPG indices that the Bspline element IDs corresponding to ( identifier that was generated for in-processor data)
          */
         void
-        handle_requested_root_spg_projections( moris_index     aMeshIndex,
-                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineElementIds,
-                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineBasisIds,
-                moris::Cell< moris::Cell< moris_id > > const & aReceivedSubphaseGroupRootBsplineBasisOwners,
-                moris::Cell< moris::Cell< moris_id > > const & aNotOwnedSpgsToProcs );
+        handle_requested_root_spg_projections( moris_index aMeshIndex,
+                Vector< Vector< moris_id > > const &       aReceivedSubphaseGroupRootBsplineElementIds,
+                Vector< Vector< moris_id > > const &       aReceivedSubphaseGroupRootBsplineBasisIds,
+                Vector< Vector< moris_id > > const &       aReceivedSubphaseGroupRootBsplineBasisOwners,
+                Vector< Vector< moris_id > > const &       aNotOwnedSpgsToProcs );
 
         // ----------------------------------------------------------------------------------
 
@@ -434,12 +434,12 @@ namespace xtk
          */
         void
         construct_follower_to_leader_basis_relationship_for_spg(
-                moris_index                     aSubphaseGroupIndex,
-                moris_id                        aRootBsplineId,
-                moris::Cell< moris_id > const & aRootBsplineBasisId,
-                moris::Cell< moris_id > const & aRootBsplineBasisOwner,
-                uint                            aStartRange,
-                uint                            aMeshIndex );
+                moris_index                aSubphaseGroupIndex,
+                moris_id                   aRootBsplineId,
+                Vector< moris_id > const & aRootBsplineBasisId,
+                Vector< moris_id > const & aRootBsplineBasisOwner,
+                uint                       aStartRange,
+                uint                       aMeshIndex );
 
         //-----------------------------------------------------------------------------------
 
@@ -474,8 +474,8 @@ namespace xtk
          */
         void
         prepare_requests_for_shared_follower_basis( moris_index aMeshIndex,
-                Cell< Cell< moris_index > >&                    aBasisIndexToProcs,
-                Cell< moris::Cell< moris_id > >&                tSendBasisIds );
+                Vector< Vector< moris_index > >&                aBasisIndexToProcs,
+                Vector< Vector< moris_id > >&                   tSendBasisIds );
 
         //-----------------------------------------------------------------------------------
 
@@ -491,12 +491,12 @@ namespace xtk
          */
         void
         prepare_answers_for_follower_shared_basis(
-                moris_index const &                            aMeshIndex,
-                moris::Cell< moris::Cell< moris_id > >&        tSendFollowerToLeaderBasisIds,
-                moris::Cell< moris::Cell< moris_id > >&        tSendFollowerToLeaderBasisOwners,
-                moris::Cell< moris::Cell< real > >&            tSendFollowerToLeaderBasisWeights,
-                Cell< moris::Cell< moris_id > >&               tSendFollowerToLeaderOffset,
-                moris::Cell< moris::Cell< moris_id > > const & aReceivedBasisIds );
+                moris_index const &                  aMeshIndex,
+                Vector< Vector< moris_id > >&        tSendFollowerToLeaderBasisIds,
+                Vector< Vector< moris_id > >&        tSendFollowerToLeaderBasisOwners,
+                Vector< Vector< real > >&            tSendFollowerToLeaderBasisWeights,
+                Vector< Vector< moris_id > >&        tSendFollowerToLeaderOffset,
+                Vector< Vector< moris_id > > const & aReceivedBasisIds );
 
         //-----------------------------------------------------------------------------------
 
@@ -512,12 +512,12 @@ namespace xtk
          */
         void
         handle_requested_shared_follower_basis(
-                moris_index                                    aMeshIndex,
-                moris::Cell< moris::Cell< moris_id > > const & tReceivedFollowerToLeaderBasisIds,
-                moris::Cell< moris::Cell< moris_id > > const & tReceivedFollowerToLeaderBasisOwners,
-                moris::Cell< moris::Cell< real > > const &     tReceivedFollowerToLeaderBasisWeights,
-                Cell< moris::Cell< moris_id > > const &        tSendFollowerToLeaderOffset,
-                moris::Cell< moris::Cell< moris_id > > const & tBasisIndexToProcs );
+                moris_index                          aMeshIndex,
+                Vector< Vector< moris_id > > const & tReceivedFollowerToLeaderBasisIds,
+                Vector< Vector< moris_id > > const & tReceivedFollowerToLeaderBasisOwners,
+                Vector< Vector< real > > const &     tReceivedFollowerToLeaderBasisWeights,
+                Vector< Vector< moris_id > > const & tSendFollowerToLeaderOffset,
+                Vector< Vector< moris_id > > const & tBasisIndexToProcs );
 
         //-----------------------------------------------------------------------------------
 
@@ -529,4 +529,4 @@ namespace xtk
         update_comm_table();
     };
 
-}    // namespace xtk
+}    // namespace moris::xtk

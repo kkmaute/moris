@@ -14,7 +14,7 @@
 #include "paths.hpp"
 
 #include "cl_GEN_Geometry_Engine_Test.hpp"
-#include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_PDV_Host_Manager.hpp"
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
@@ -24,7 +24,7 @@
 #include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
@@ -52,8 +52,7 @@ namespace moris::ge
             Background_Node            tSecondBase( tNodeIndex++, tSecondParentGlobalCoordinates );
             Background_Node            tThirdBase( tNodeIndex++, { { 0.25, 0.15 } } );
             Background_Node            tFourthBase( tNodeIndex++, { { 0.1, 0.2 } } );
-            moris::Cell< Node* > tBaseNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
-
+            Vector< Background_Node* >       tBackgroundNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
 
             Matrix< DDRMat > tFirstParentParametricCoordinates  = { { -1.0, 1.0 } };
             Matrix< DDRMat > tSecondParentParametricCoordinates = { { 1.0, 1.0 } };
@@ -67,7 +66,7 @@ namespace moris::ge
             // create the intersection node
             Intersection_Node* tIntersectionNode = tSurfaceMeshPointer->create_intersection_node(
                     tNodeIndex++,
-                    tBaseNodes,
+                    tBackgroundNodes,
                     tFirstParentNode,
                     tSecondParentNode,
                     mtk::Geometry_Type::QUAD,
@@ -108,4 +107,4 @@ namespace moris::ge
     }
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+}    // namespace moris::gen

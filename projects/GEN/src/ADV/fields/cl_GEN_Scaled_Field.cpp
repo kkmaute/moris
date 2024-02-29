@@ -10,7 +10,7 @@
 
 #include "cl_GEN_Scaled_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Scaled_Field::set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields )
+    void Scaled_Field::set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields )
     {
         MORIS_ERROR( aDependencyFields.size() == 1, "A scaled field only depends on one field." );
         mField = aDependencyFields( 0 );

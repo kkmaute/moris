@@ -13,7 +13,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -103,7 +103,7 @@ Circle2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
 
 void tConstValFunction2MatMDL
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -140,7 +140,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -168,26 +168,26 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        auto tPlane = std::make_shared<moris::ge::Plane>(0.11, 0.11, 1.0, 0.0);
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+        auto tPlane = std::make_shared<moris::gen::Plane>(0.11, 0.11, 1.0, 0.0);
+        Vector< std::shared_ptr<moris::gen::Geometry> > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t tModelDimension = 2;
 
-        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+        moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
-        moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
-        xtk::Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
+        moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
+        moris::xtk::Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+        Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+        moris::xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        moris::xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
 //        moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
 //        tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
@@ -333,7 +333,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tSetInterface.set_IWGs( { tIWGInterface } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+        Vector< fem::Set_User_Info > tSetInfo( 7 );
         tSetInfo( 0 ) = tSetBulk1;
         tSetInfo( 1 ) = tSetBulk2;
         tSetInfo( 2 ) = tSetBulk3;
@@ -348,7 +348,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
                                                tSetInfo,
                                                0, false );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -431,7 +431,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         // output solution and meshes
         // FIXME add with output if needed
 
-//        xtk::Output_Options tOutputOptions;
+//        moris::xtk::Output_Options tOutputOptions;
 //        tOutputOptions.mAddNodeSets = false;
 //        tOutputOptions.mAddSideSets = true;
 //        tOutputOptions.mAddClusters = false;

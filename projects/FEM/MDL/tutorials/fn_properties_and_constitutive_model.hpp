@@ -36,9 +36,9 @@ Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
                     - (mRadius * mRadius);
 }
 
-Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
-                                           moris::Cell< fem::Field_Interpolator* > & aDofFI,
-                                           moris::Cell< fem::Field_Interpolator* > & aDvFI,
+Matrix< DDRMat > tConstValFunction2MatMDL( Vector< Matrix< DDRMat > >         & aParameters,
+                                           Vector< fem::Field_Interpolator* > & aDofFI,
+                                           Vector< fem::Field_Interpolator* > & aDvFI,
                                            fem::Geometry_Interpolator              * aGeometryInterpolator )
 {
     return aParameters( 0 );

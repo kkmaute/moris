@@ -130,7 +130,6 @@ spack create --name snopt --skip-editor
 * libraries even if you do not want to install them
 
 cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
-cp $WORKSPACE/moris/share/spack/mumps_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/mumps/package.py
 
 cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
 cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
@@ -252,12 +251,6 @@ spack add openmpi +legacylaunchers +pmi schedulers=slurm fabrics=auto
       - spec: slurm@22.05.2
         prefix: /usr
       buildable: false
-
-*------------------------------------------------------------
-
-* add latest version of cmake (needed by recent trilinos versions)
-
-spack add cmake@master
 
 *------------------------------------------------------------
 

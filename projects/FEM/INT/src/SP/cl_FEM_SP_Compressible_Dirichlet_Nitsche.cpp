@@ -44,8 +44,8 @@ namespace moris
 
         void
         SP_Compressible_Dirichlet_Nitsche::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > &aDofTypes,
-                moris::Cell< std::string >                  &aDofStrings,
+                Vector< Vector< MSI::Dof_Type > > &aDofTypes,
+                Vector< std::string >                  &aDofStrings,
                 mtk::Leader_Follower                         aIsLeader )
         {
             // switch on leader follower
@@ -130,7 +130,7 @@ namespace moris
 
         void
         SP_Compressible_Dirichlet_Nitsche::eval_dSPdLeaderDOF(
-                const moris::Cell< MSI::Dof_Type > &aDofTypes )
+                const Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

@@ -14,7 +14,7 @@
 // MORIS project header files.
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "op_times.hpp"
 #include "op_minus.hpp"
 #include "fn_qr.hpp"

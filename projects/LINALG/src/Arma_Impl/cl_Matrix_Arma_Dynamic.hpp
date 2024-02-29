@@ -29,10 +29,19 @@
 
 #include <armadillo>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {
+    template< typename Type >
+    __attribute__( ( optimize( "-O2" ) ) )
+    arma::Mat< Type >
+    createArmaMatrixWithoutOptimization( const std::initializer_list< std::initializer_list< Type > >& initList )
+    {
+        // Use the Matrix specialization constructor for arma::Mat.
+        return arma::Mat< Type >( initList );
+    }
+
     template< typename Type >
     class Matrix< arma::Mat< Type > >
     {
@@ -143,9 +152,10 @@ namespace moris
          *
          */
 
-        Matrix( std::initializer_list< std::initializer_list< Type > > const & aInitList )
-                : mMatrix( aInitList )
+        Matrix( const std::initializer_list< std::initializer_list< Type > >& aInitList )
         {
+            // call to create arma matrix suppressing aggressive optimization (-O3)
+            mMatrix = createArmaMatrixWithoutOptimization< Type >( aInitList );
         }
 
         // -----------------------------------------------------------------

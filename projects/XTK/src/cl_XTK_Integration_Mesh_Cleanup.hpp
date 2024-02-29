@@ -8,9 +8,9 @@
  *
  */
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 
 #ifndef SRC_cl_XTK_Integration_Mesh_Cleanup_HPP_
@@ -19,7 +19,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     // class Cut_Integration_Mesh;
 
@@ -33,28 +33,28 @@ namespace xtk
 
         // ----------------------------------------------------------------------------
 
-        moris::moris_index                mMergeNum;     // Number of vertices to merge
-        moris::Cell< moris::moris_index > mMergeInds;    // Indices of vertices of merge
-        moris::Cell< moris::moris_index > mMergeIndsV2;
-        moris::Cell< moris::moris_index > mCellMergeInds;    // Indices of cells merged
-        moris::Cell< moris::moris_index > mFacetMergeInds;
+        moris::moris_index           mMergeNum;         // Number of vertices to merge
+        Vector< moris::moris_index > mMergeInds;        // Indices of vertices of merge
+        Vector< moris::moris_index > mMergeIndsV2;
+        Vector< moris::moris_index > mCellMergeInds;    // Indices of cells merged
+        Vector< moris::moris_index > mFacetMergeInds;
 
-        moris::Cell< bool_t > mChildMeshBoundary;    // Flag if vertex index is on child mesh boundary
-        moris::Cell< bool_t > mBlkPhaseBoundary;     // Flag if vertex index is on material boundary
-        moris::Cell< bool_t > mOwnedVertices;        // Flag if vertex is owned by processor
+        Vector< bool_t > mChildMeshBoundary;    // Flag if vertex index is on child mesh boundary
+        Vector< bool_t > mBlkPhaseBoundary;     // Flag if vertex index is on material boundary
+        Vector< bool_t > mOwnedVertices;        // Flag if vertex is owned by processor
 
-        moris::Cell< moris_id > mNotOwnedIgCellIds;
+        Vector< moris_id > mNotOwnedIgCellIds;
 
         moris::uint mNumVerts;    // Total number of vertices
 
 
-        moris::Cell< std::shared_ptr< IG_Vertex_Group > > mVertexGroups;
-        moris::Cell< std::shared_ptr< IG_Cell_Group > >   mCellGroups;
+        Vector< std::shared_ptr< IG_Vertex_Group > > mVertexGroups;
+        Vector< std::shared_ptr< IG_Cell_Group > >   mCellGroups;
 
-        moris::Cell< moris::Cell< moris::moris_index > > mVertIndToCells;    // reference from a vertex index to all connected cells
-        moris::Cell< moris::Cell< moris::moris_index > > mVertIndToVerts;    // reference from a vertex index to all connected vertices
+        Vector< Vector< moris::moris_index > > mVertIndToCells;    // reference from a vertex index to all connected cells
+        Vector< Vector< moris::moris_index > > mVertIndToVerts;    // reference from a vertex index to all connected vertices
 
-        moris::Cell< moris::moris_index > mFlats;
+        Vector< moris::moris_index > mFlats;
 
         moris::uint mNumVertGroups;
         moris::uint mNumCellGroups;
@@ -65,7 +65,6 @@ namespace xtk
         // ----------------------------------------------------------------------------
 
       public:
-
         // ----------------------------------------------------------------------------
 
         Integration_Mesh_Cleanup() = default;
@@ -132,7 +131,7 @@ namespace xtk
          * @param aNotOwnedCellVerts not owned cell vertices
          */
         void
-        communicate_merged_cells( moris::Matrix< IdMat > aNotOwnedCellVerts );
+        communicate_merged_cells( Matrix< IdMat > aNotOwnedCellVerts );
 
         // ----------------------------------------------------------------------------
 
@@ -141,7 +140,7 @@ namespace xtk
          * @param aGeometryEngine link between XTK and FEM
          */
         void
-        make_GenMeshMap( moris::ge::Geometry_Engine* aGeometryEngine );
+        make_GenMeshMap( moris::gen::Geometry_Engine* aGeometryEngine );
 
         // ----------------------------------------------------------------------------
 
@@ -179,8 +178,8 @@ namespace xtk
          */
         void
         perform(
-                moris::Cell< moris::mtk::Cell* >& aActiveIgCells,
-                moris::ge::Geometry_Engine*       aGeometryEngine );
+                Vector< moris::mtk::Cell* >& aActiveIgCells,
+                moris::gen::Geometry_Engine* aGeometryEngine );
 
         // ----------------------------------------------------------------------------
 
@@ -220,9 +219,9 @@ namespace xtk
          */
         double_t
         minAngle2D(
-                moris::Matrix< DDRMat > C1,
-                moris::Matrix< DDRMat > C2,
-                moris::Matrix< DDRMat > C3 );
+                Matrix< DDRMat > C1,
+                Matrix< DDRMat > C2,
+                Matrix< DDRMat > C3 );
 
         // ----------------------------------------------------------------------------
 
@@ -236,10 +235,10 @@ namespace xtk
          */
         double_t
         minAngle3D(
-                moris::Matrix< DDRMat > C1,
-                moris::Matrix< DDRMat > C2,
-                moris::Matrix< DDRMat > C3,
-                moris::Matrix< DDRMat > C4 );
+                Matrix< DDRMat > C1,
+                Matrix< DDRMat > C2,
+                Matrix< DDRMat > C3,
+                Matrix< DDRMat > C4 );
 
         // ----------------------------------------------------------------------------
 
@@ -253,10 +252,10 @@ namespace xtk
          */
         double_t
         solidAngle(
-                moris::Matrix< DDRMat > nodeO,
-                moris::Matrix< DDRMat > nodeA,
-                moris::Matrix< DDRMat > nodeB,
-                moris::Matrix< DDRMat > nodeC );
+                Matrix< DDRMat > nodeO,
+                Matrix< DDRMat > nodeA,
+                Matrix< DDRMat > nodeB,
+                Matrix< DDRMat > nodeC );
 
         // ----------------------------------------------------------------------------
 
@@ -268,8 +267,8 @@ namespace xtk
          */
         double_t
         angle(
-                moris::Matrix< DDRMat > nodeA,
-                moris::Matrix< DDRMat > nodeB );
+                Matrix< DDRMat > nodeA,
+                Matrix< DDRMat > nodeB );
 
         // ----------------------------------------------------------------------------
 
@@ -289,7 +288,7 @@ namespace xtk
          * @param aCoords rows of coordinates spanning the shape/volume
          */
         double_t
-        n_area( moris::Matrix< DDRMat > aCoords );
+        n_area( Matrix< DDRMat > aCoords );
 
         // ----------------------------------------------------------------------------
 
@@ -301,7 +300,7 @@ namespace xtk
          * @param aActiveIgCells group of cells to be altered
          */
         void
-        merge( moris_index Vert1, moris_index Vert2, moris::Cell< moris::mtk::Cell* >& aActiveIgCells );
+        merge( moris_index Vert1, moris_index Vert2, Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 
@@ -309,7 +308,7 @@ namespace xtk
          * @brief merges a list of vertices
          */
         void
-        merge_list( moris::Cell< moris::mtk::Cell* >& aActiveIgCells );
+        merge_list( Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 
@@ -317,14 +316,14 @@ namespace xtk
          * @brief corrects the indices of cells, vertices and facets
          */
         void
-        shift_indices( moris::Cell< moris::mtk::Cell* >& aActiveIgCells );
+        shift_indices( Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 
         /**
          * @brief returns index list of flat tris/tets
          */
-        moris::Cell< moris_index >
+        Vector< moris_index >
         check_flats();
 
         // ----------------------------------------------------------------------------
@@ -333,7 +332,7 @@ namespace xtk
          * @brief checks for coinciding vertices
          */
         void
-        check_coinc_verts( moris::Cell< moris_index > aFlats, moris::Cell< moris::mtk::Cell* >& aActiveIgCells );
+        check_coinc_verts( Vector< moris_index > aFlats, Vector< moris::mtk::Cell* >& aActiveIgCells );
 
         // ----------------------------------------------------------------------------
 
@@ -343,14 +342,13 @@ namespace xtk
          * @param aV2 Coordinates 2
          */
         double_t
-        dist( moris::Matrix< DDRMat > aV1, moris::Matrix< DDRMat > aV2 );
+        dist( Matrix< DDRMat > aV1, Matrix< DDRMat > aV2 );
 
         // ----------------------------------------------------------------------------
-
     };
 
     // ----------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif    // SRC_cl_XTK_Integration_Mesh_Cleanup_HPP_

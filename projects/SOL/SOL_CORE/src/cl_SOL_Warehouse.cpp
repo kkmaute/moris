@@ -77,16 +77,15 @@ SOL_Warehouse::~SOL_Warehouse()
     }
 #endif
 
-    for ( auto & iPreconditioner: mPreconditioners )
+    for ( auto& iPreconditioner : mPreconditioners )
     {
-        delete iPreconditioner; 
+        delete iPreconditioner;
     }
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::initialize()
+void SOL_Warehouse::initialize()
 {
     // Load parameters from parameterlist
     mTPLType = static_cast< moris::sol::MapType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "SOL_TPL_Type" ) );
@@ -128,8 +127,7 @@ SOL_Warehouse::initialize()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_preconditioner_algorithms()
+void SOL_Warehouse::create_preconditioner_algorithms()
 {
     uint tNumLinAlgorithms = mParameterlist( 7 ).size();
 
@@ -139,7 +137,6 @@ SOL_Warehouse::create_preconditioner_algorithms()
 
     for ( uint Ik = 0; Ik < tNumLinAlgorithms; Ik++ )
     {
-        std::cout << mParameterlist( 7 )( Ik ).get< moris::uint >( "Preconditioner_Implementation" ) << std::endl;
         mPreconditioners( Ik ) = tSolFactory.create_preconditioner(
                 static_cast< moris::sol::PreconditionerType >( mParameterlist( 7 )( Ik ).get< moris::uint >( "Preconditioner_Implementation" ) ),
                 mParameterlist( 7 )( Ik ) );
@@ -148,8 +145,7 @@ SOL_Warehouse::create_preconditioner_algorithms()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_linear_solver_algorithms()
+void SOL_Warehouse::create_linear_solver_algorithms()
 {
     uint tNumLinAlgorithms = mParameterlist( 0 ).size();
 
@@ -164,7 +160,7 @@ SOL_Warehouse::create_linear_solver_algorithms()
                 mParameterlist( 0 )( Ik ) );
 
         // get and set nonlinear sub-solvers for staggered methods
-        moris::Cell< uint > tPreconditionerIndices;
+        Vector< uint > tPreconditionerIndices;
         string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners" ),
                 tPreconditionerIndices );
 
@@ -190,8 +186,7 @@ SOL_Warehouse::create_linear_solver_algorithms()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_linear_solvers()
+void SOL_Warehouse::create_linear_solvers()
 {
     uint tNumLinSolvers = mParameterlist( 1 ).size();
 
@@ -204,7 +199,7 @@ SOL_Warehouse::create_linear_solvers()
     {
         mLinearSolvers( Ik ) = new dla::Linear_Solver( mParameterlist( 1 )( Ik ) );
 
-        moris::Cell< uint > tLinearSolverAlgorithmIndices;
+        Vector< uint > tLinearSolverAlgorithmIndices;
         string_to_cell( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
                 tLinearSolverAlgorithmIndices );
 
@@ -220,8 +215,7 @@ SOL_Warehouse::create_linear_solvers()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_nonlinear_solver_algorithms()
+void SOL_Warehouse::create_nonlinear_solver_algorithms()
 {
     uint tNumNonLinAlgorithms = mParameterlist( 2 ).size();
 
@@ -253,8 +247,7 @@ SOL_Warehouse::create_nonlinear_solver_algorithms()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_nonlinear_solvers()
+void SOL_Warehouse::create_nonlinear_solvers()
 {
     // get number of nonlinear solvers
     uint tNumNonLinSolvers = mParameterlist( 3 ).size();
@@ -290,7 +283,7 @@ SOL_Warehouse::create_nonlinear_solvers()
         }
 
         // get and set list of dof types
-        Cell< Cell< MSI::Dof_Type > > tCellOfCells;
+        Vector< Vector< MSI::Dof_Type > > tCellOfCells;
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
@@ -307,7 +300,7 @@ SOL_Warehouse::create_nonlinear_solvers()
         }
 
         // get and set secondary dof types
-        Cell< Cell< MSI::Dof_Type > > tCellOfCellsSecDofTypes;
+        Vector< Vector< MSI::Dof_Type > > tCellOfCellsSecDofTypes;
 
         string_to_cell_of_cell(
                 mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Secondary_DofTypes" ),
@@ -347,8 +340,7 @@ SOL_Warehouse::create_nonlinear_solvers()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_time_solver_algorithms()
+void SOL_Warehouse::create_time_solver_algorithms()
 {
     uint tNumTimeAlgorithms = mParameterlist( 4 ).size();
 
@@ -380,8 +372,7 @@ SOL_Warehouse::create_time_solver_algorithms()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::create_time_solvers()
+void SOL_Warehouse::create_time_solvers()
 {
     // get number if time solvers
     uint tNumTimeSolvers = mParameterlist( 5 ).size();
@@ -407,7 +398,7 @@ SOL_Warehouse::create_time_solvers()
         }
 
         // get requested dof types for this time solver
-        Cell< Cell< MSI::Dof_Type > > tCellOfCells;
+        Vector< Vector< MSI::Dof_Type > > tCellOfCells;
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
@@ -431,7 +422,7 @@ SOL_Warehouse::create_time_solvers()
             moris::Matrix< DDSMat > tOutputIndices;
             string_to_mat( tStringOutputInd, tOutputIndices );
 
-            moris::Cell< std::string > tOutputCriteria;
+            Vector< std::string > tOutputCriteria;
             string_to_cell( tStringOutputCriteria, tOutputCriteria );
 
             MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(),
@@ -461,10 +452,9 @@ SOL_Warehouse::create_time_solvers()
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void
-SOL_Warehouse::get_default_secondary_dof_types(
-        Cell< Cell< MSI::Dof_Type > >&        aCellOfCellsSecDofTypes,
-        Cell< Cell< MSI::Dof_Type > > const & aCellOfCellDofTypes )
+void SOL_Warehouse::get_default_secondary_dof_types(
+        Vector< Vector< MSI::Dof_Type > >&        aCellOfCellsSecDofTypes,
+        Vector< Vector< MSI::Dof_Type > > const & aCellOfCellDofTypes )
 {
     // reset list of secondary dof types
     for ( auto& tCell : aCellOfCellsSecDofTypes )
@@ -473,12 +463,12 @@ SOL_Warehouse::get_default_secondary_dof_types(
     }
     aCellOfCellsSecDofTypes.clear();
 
-    moris::Cell< MSI::Dof_Type > tListOfAllPossibleDofTypes;
+    Vector< MSI::Dof_Type > tListOfAllPossibleDofTypes;
 
     // get all possible used dof types from the time solver parameter list
     for ( uint Ik = 0; Ik < mParameterlist( 5 ).size(); Ik++ )
     {
-        Cell< Cell< MSI::Dof_Type > > tCellOfCells;
+        Vector< Vector< MSI::Dof_Type > > tCellOfCells;
 
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
 
@@ -505,7 +495,7 @@ SOL_Warehouse::get_default_secondary_dof_types(
     tListOfAllPossibleDofTypes.resize( pos );
 
     // make list of residual dof types
-    moris::Cell< MSI::Dof_Type > tResDofTypes;
+    Vector< MSI::Dof_Type > tResDofTypes;
     for ( uint Ik = 0; Ik < aCellOfCellDofTypes.size(); Ik++ )
     {
         tResDofTypes.append( aCellOfCellDofTypes( Ik ) );
@@ -544,7 +534,7 @@ SOL_Warehouse::get_default_secondary_dof_types(
 //     for ( uint Ik = 0 ; Ik < mListNonlinearSolverManagers.size(); Ik++ )
 //     {
 //         // Get the list of list of dof types in which this particular nonlinear solver manager is operating on
-//         moris::Cell< moris::Cell< enum MSI::Dof_Type > > tNonlinearSolverManagerDofTypeList = mListNonlinearSolverManagers( Ik )->get_dof_type_list();
+//         Vector< Vector< enum MSI::Dof_Type > > tNonlinearSolverManagerDofTypeList = mListNonlinearSolverManagers( Ik )->get_dof_type_list();
 //
 //         // Set the size of the dependency list for this nonlinear solver manager == number sub-solvers
 //         mListSolverManagerDependencies( Ik ).set_size( tNonlinearSolverManagerDofTypeList.size(), 1, -1 );
@@ -559,7 +549,7 @@ SOL_Warehouse::get_default_secondary_dof_types(
 //                 if( Ij != Ik )
 //                 {
 //                     // Get dof type union of the downward nonlinear solver manager
-//                     moris::Cell< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinearSolverManagers( Ij )->get_dof_type_union();
+//                     Vector< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinearSolverManagers( Ij )->get_dof_type_union();
 //
 //                     // Check if the subsystem doftype list and the downward solver union list are the same
 //                     if( tNonlinearSolverManagerDofTypeList( Ii ).data() == tUnionDofTypeList.data() )
@@ -609,7 +599,7 @@ SOL_Warehouse::get_default_secondary_dof_types(
 //     for ( uint Ik = 0 ; Ik < tNumberNonlinSolverManager; Ik++ )
 //     {
 //         // Get dof type union of the downward nonlinear solver manager
-//         moris::Cell< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinearSolverManagers( Ik )->get_dof_type_union();
+//         Vector< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinearSolverManagers( Ik )->get_dof_type_union();
 //
 //         // FIXME Set dof type on solver interface
 //         mSolverInterface->set_requested_dof_types( tUnionDofTypeList );

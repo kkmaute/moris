@@ -14,7 +14,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine_Test.hpp"
-#include "cl_GEN_Pdv_Host_Manager.hpp"
+#include "cl_GEN_PDV_Host_Manager.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Design_Factory.hpp"
 #include "fn_check_equal.hpp"
@@ -24,16 +24,16 @@
 
 #include "fn_PRM_GEN_Parameters.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    static Cell< Matrix< DDRMat > > tQuadParametricCoordinates = {
-        {{ -1.0, -1.0 }},
-        {{ 1.0, -1.0 }},
-        {{ 1.0, 1.0 }},
-        {{ -1.0, 1.0 }}
+    static Vector< Matrix< DDRMat > > tQuadParametricCoordinates = {
+        { { -1.0, -1.0 } },
+        { { 1.0, -1.0 } },
+        { { 1.0, 1.0 } },
+        { { -1.0, 1.0 } }
     };
 
     //--------------------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ namespace moris::ge
             // Circle
             ParameterList tCircleParameterList = prm::create_level_set_geometry_parameter_list();
             tCircleParameterList.set( "field_type", "circle" );
-            tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" ); // Not close enough to snap
+            tCircleParameterList.set( "constant_parameters", "-0.25, 0.0, 0.7499999999" );    // Not close enough to snap
             tCircleParameterList.set( "discretization_mesh_index", 0 );
 
             // Plane 1
@@ -85,36 +85,37 @@ namespace moris::ge
             tGeometryEngine.output_fields_on_mesh( tMesh, "intersection_test.exo" );
 
             // Solution for is_intersected() per geometry and per element
-            Cell< Cell< bool > > tIsElementIntersected = {
-                { true, true, true, true },    // Geometry 0
-                { false, true, false, true },  // Geometry 1
-                { false, true, false, true }}; // Geometry 2
+            Vector< Vector< bool > > tIsElementIntersected = {
+                { true, true, true, true },      // Geometry 0
+                { false, true, false, true },    // Geometry 1
+                { false, true, false, true }
+            };    // Geometry 2
 
             // Per geometry, per element, per edge
-            Cell< Cell< Cell< bool > > > tIsEdgeIntersected = {
+            Vector< Vector< Vector< bool > > > tIsEdgeIntersected = {
                 // Geometry 0
-                {{ false, true, true, false },   // Element 0
-                { false, false, true, true },    // Element 1
-                { true, true, false, false },    // Element 2
-                { true, false, false, true }},   // Element 3
+                { { false, true, true, false },            // Element 0
+                        { false, false, true, true },      // Element 1
+                        { true, true, false, false },      // Element 2
+                        { true, false, false, true } },    // Element 3
                 // Geometry 1
-                {{ false, false, false, false },
-                { true, false, true, false },
-                { false, false, false, false },
-                { true, false, true, false }},
+                { { false, false, false, false },
+                        { true, false, true, false },
+                        { false, false, false, false },
+                        { true, false, true, false } },
                 // Geometry 2
-                {{ false, false, false, false },
-                { true, true, true, false },
-                { false, false, false, false },
-                { true, true, true, false }}};
+                { { false, false, false, false },
+                        { true, true, true, false },
+                        { false, false, false, false },
+                        { true, true, true, false } }
+            };
 
             // Intersection coordinates
             real tFrac = 2.0 / ( 3.0 + sqrt( 17.0 ) );
 
-            Matrix< DDRMat > tIntersectionLocalCoordinates =
-                    {{ -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5, 0.0000000002, -0.0000000002, 1.0, 0.0, -1.0, 1.0, 0.0, -1.0 }};
+            Matrix< DDRMat > tIntersectionLocalCoordinates = { { -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5, 0.0000000002, -0.0000000002, 1.0, 0.0, -1.0, 1.0, 0.0, -1.0 } };
 
-            Cell< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
+            Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
                 { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
                 { { -1.0, 0.0 } },
                 { { 0.5, 0.0 } },
@@ -145,7 +146,7 @@ namespace moris::ge
                 {
                     // Node indices per element
                     Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( tElementIndex );
-                    Matrix< DDUMat > tNodeIndices( 4, 1 );
+                    Matrix< DDUMat >   tNodeIndices( 4, 1 );
                     for ( uint iNode = 0; iNode < 4; iNode++ )
                     {
                         tNodeIndices( iNode ) = tSignedNodeIndices( iNode );
@@ -192,7 +193,7 @@ namespace moris::ge
 
                             // See if local coordinate is a number
                             real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
-                            if ( not isnan( tLocalCoordinate ) )
+                            if ( not std::isnan( tLocalCoordinate ) )
                             {
                                 // Check local coordinate; note reference values are for radius of exactly 0.75; thus higher margin needed
                                 CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
@@ -224,9 +225,9 @@ namespace moris::ge
                     bool tIntersectionQueued = tGeometryEngine.queue_intersection(
                             9,
                             11,
-                            {{ -1.0, -tFrac }},
-                            {{ 0.0, 1.0 }},
-                            {{ 1, 4, 5, 2 }},
+                            { { -1.0, -tFrac } },
+                            { { 0.0, 1.0 } },
+                            { { 1, 4, 5, 2 } },
                             mtk::Geometry_Type::QUAD,
                             mtk::Interpolation_Order::LINEAR );
 
@@ -247,9 +248,9 @@ namespace moris::ge
                     tIntersectionQueued = tGeometryEngine.queue_intersection(
                             11,
                             14,
-                            {{ 0.0, -1.0 }},
-                            {{ -1.0, tFrac }},
-                            {{ 2, 5, 8, 6 }},
+                            { { 0.0, -1.0 } },
+                            { { -1.0, tFrac } },
+                            { { 2, 5, 8, 6 } },
                             mtk::Geometry_Type::QUAD,
                             mtk::Interpolation_Order::LINEAR );
 
@@ -298,15 +299,15 @@ namespace moris::ge
             CHECK( tGeometryEngine.get_geometric_region( 0, 28, { {} } ) == Geometric_Region::POSITIVE );
 
             // Get the PDV host manager
-            auto tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
+            auto tPDVHostManager = dynamic_cast< PDV_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
 
             // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
-            Cell< Matrix< DDRMat > > tPdvValues( 0 );
-            Cell< Cell< bool > > tIsActive( 0 );
+            Vector< Matrix< DDRMat > > tPDVValues( 0 );
+            Vector< Vector< bool > >     tIsActive( 0 );
             tPDVHostManager->get_ig_pdv_value(
                     { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 } },
                     { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE },
-                    tPdvValues,
+                    tPDVValues,
                     tIsActive );
 
             // Background nodes
@@ -325,8 +326,8 @@ namespace moris::ge
                 CHECK( tIsActive( 1 )( tNodeIndex ) == true );
 
                 // Check for node coordinates as PDV values
-                CHECK( tPdvValues( 0 )( tNodeIndex ) == Approx( tIntersectionGlobalCoordinates( tNodeIndex - 9 )( 0 ) ) );
-                CHECK( tPdvValues( 1 )( tNodeIndex ) == Approx( tIntersectionGlobalCoordinates( tNodeIndex - 9 )( 1 ) ) );
+                CHECK( tPDVValues( 0 )( tNodeIndex ) == Approx( tIntersectionGlobalCoordinates( tNodeIndex - 9 )( 0 ) ) );
+                CHECK( tPDVValues( 1 )( tNodeIndex ) == Approx( tIntersectionGlobalCoordinates( tNodeIndex - 9 )( 1 ) ) );
             }
 
             // Nodes on the second plane interface (inactive)
@@ -338,7 +339,7 @@ namespace moris::ge
             }
 
             // Check sensitivities
-            Cell< Matrix< DDRMat > > tIntersectionSensitivities = {
+            Vector< Matrix< DDRMat > > tIntersectionSensitivities = {
                 { { 0.0, 0.0 }, { ( 9 + sqrt( 17 ) ) / 16, ( 3 * sqrt( 17 ) - 5 ) / 16 } },
                 { { 0.0, 2.0 }, { 0.0, 0.0 } },
                 { { -0.5, -0.5 }, { 0.0, 0.0 } },
@@ -355,7 +356,7 @@ namespace moris::ge
                 { { 0.5, 0.0, -0.125, 0.0, 0.5, 0.0, 0.125, -( 1 + sqrt( 17 ) ) / 16, 0.0, 0.0, 0.0, 0.0 }, { -( 1 + sqrt( 17 ) ) / 8, 0.0, ( 1 + sqrt( 17 ) ) / 32, 0.0, -( 1 + sqrt( 17 ) ) / 8, 0.0, -( 1 + sqrt( 17 ) ) / 32, ( 9 + sqrt( 17 ) ) / 32, -( 1 + sqrt( 17 ) ) / 16, -( 1 + sqrt( 17 ) ) / 16, -( 3 * sqrt( 17 ) - 5 ) / 32, -( 9 + sqrt( 17 ) ) / 32 } }
             };
 
-            Cell< Matrix< DDSMat > > tIntersectionIDs = {
+            Vector< Matrix< DDSMat > > tIntersectionIDs = {
                 { { 6, 9 } },
                 { { 9, 8 } },
                 { { 10, 9 } },
@@ -374,7 +375,7 @@ namespace moris::ge
 
             Matrix< DDRMat > tHostADVSensitivities;
             Matrix< DDRMat > tI;
-            Node_Manager& tNodeManager = tGeometryEngine.get_node_manager();
+            Node_Manager&    tNodeManager = tGeometryEngine.get_node_manager();
             for ( uint iNodeIndex = 9; iNodeIndex < 23; iNodeIndex++ )
             {
                 tHostADVSensitivities.set_size( 0.0, 0.0 );
@@ -395,36 +396,38 @@ namespace moris::ge
 
             // Set new ADVs, level set field now has no intersections
             mtk::Mesh_Pair tMeshPair( tMesh, create_integration_mesh_from_interpolation_mesh( mtk::MeshType::HMR, tMesh ) );
-            tADVs = {{ 0.25, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }};
+            tADVs = { { 0.25, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
             tGeometryEngine.set_advs( tADVs );
             tGeometryEngine.reset_mesh_information( tMeshPair.get_interpolation_mesh() );
 
             // Solution for is_intersected() per geometry and per element
             tIsElementIntersected = {
-                { false, false, false, false }, // Geometry 0
-                { false, true, false, true },   // Geometry 1
-                { false, true, false, true }};  // Geometry 2
+                { false, false, false, false },    // Geometry 0
+                { false, true, false, true },      // Geometry 1
+                { false, true, false, true }
+            };    // Geometry 2
 
             // Per geometry, per element, per edge
             tIsEdgeIntersected = {
                 // Geometry 0
-                {{ false, false, false, false }, // Element 0
-                { false, false, false, false },  // Element 1
-                { false, false, false, false },  // Element 2
-                { false, false, false, false }}, // Element 3
+                { { false, false, false, false },            // Element 0
+                        { false, false, false, false },      // Element 1
+                        { false, false, false, false },      // Element 2
+                        { false, false, false, false } },    // Element 3
                 // Geometry 1
-                {{ false, false, false, false },
-                { true, false, true, false },
-                { false, false, false, false },
-                { true, false, true, false }},
+                { { false, false, false, false },
+                        { true, false, true, false },
+                        { false, false, false, false },
+                        { true, false, true, false } },
                 // Geometry 2
-                {{ false, false, false, false },
-                { true, true, true, false },
-                { false, false, false, false },
-                { true, true, true, false }}};
+                { { false, false, false, false },
+                        { true, true, true, false },
+                        { false, false, false, false },
+                        { true, true, true, false } }
+            };
 
             // Intersection coordinates
-            tIntersectionLocalCoordinates = {{ -0.5, 0.5, -0.5, 0.5, 1.0, 0.0, -1.0, 1.0, 0.0, -1.0 }};
+            tIntersectionLocalCoordinates  = { { -0.5, 0.5, -0.5, 0.5, 1.0, 0.0, -1.0, 1.0, 0.0, -1.0 } };
             tIntersectionGlobalCoordinates = {
                 { { 0.25, -1.0 } },
                 { { 0.25, 0.0 } },
@@ -435,7 +438,8 @@ namespace moris::ge
                 { { 1.0, 0.0 } },
                 { { 1.0, 0.0 } },
                 { { 1.0, 0.0 } },
-                { { 1.0, 1.0 } }};
+                { { 1.0, 1.0 } }
+            };
 
             // Check element intersections
             tIntersectionCount = 0;
@@ -445,7 +449,7 @@ namespace moris::ge
                 {
                     // Node indices per element
                     Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( tElementIndex );
-                    Matrix< DDUMat > tNodeIndices( 4, 1 );
+                    Matrix< DDUMat >   tNodeIndices( 4, 1 );
                     for ( uint iNode = 0; iNode < 4; iNode++ )
                     {
                         tNodeIndices( iNode ) = tSignedNodeIndices( iNode );
@@ -491,7 +495,7 @@ namespace moris::ge
 
                             // See if local coordinate is a number
                             real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
-                            if ( not isnan( tLocalCoordinate ) )
+                            if ( not std::isnan( tLocalCoordinate ) )
                             {
                                 // Check local coordinate
                                 CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ) );
@@ -528,7 +532,7 @@ namespace moris::ge
             // Test the new child nodes on the level set field (geometry 0)
             for ( uint iNodeIndex = 9; iNodeIndex < 19; iNodeIndex++ )
             {
-                CHECK( tGeometryEngine.get_geometric_region( 0, iNodeIndex, {{}} ) == Geometric_Region::POSITIVE );
+                CHECK( tGeometryEngine.get_geometric_region( 0, iNodeIndex, { {} } ) == Geometric_Region::POSITIVE );
             }
 
             // Clean up
@@ -556,19 +560,20 @@ namespace moris::ge
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
+            Design_Factory             tDesignFactory( { tCircleParameterList }, tADVs );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // Solution for is_intersected() per geometry and per element
-            Cell< bool > tIsElementIntersected = { true, true, true, true };
+            Vector< bool > tIsElementIntersected = { true, true, true, true };
 
             // Per element, per edge
-            Cell< Cell< bool > > tIsEdgeIntersected = {
-                { false, true, true, false },  // Element 0
-                { false, false, true, true },  // Element 1
-                { true, true, false, false },  // Element 2
-                { true, false, false, true }}; // Element 3
+            Vector< Vector< bool > > tIsEdgeIntersected = {
+                { false, true, true, false },    // Element 0
+                { false, false, true, true },    // Element 1
+                { true, true, false, false },    // Element 2
+                { true, false, false, true }
+            };    // Element 3
 
             // Intersection coordinates
             real tFrac = 2.0 / ( 3.0 + sqrt( 17.0 ) );
@@ -577,7 +582,7 @@ namespace moris::ge
                 { -tFrac, 1.0, 0.0, tFrac, -1.0, tFrac, 0.0, -tFrac, -0.5, 0.5, -0.5, 0.5 }
             };
 
-            Cell< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
+            Vector< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
                 { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
                 { { -1.0, 0.0 } },
                 { { 0.5, 0.0 } },
@@ -589,7 +594,7 @@ namespace moris::ge
             };
 
             // Initialize sensitivity variables
-            real tEpsilon = 1E-12;
+            real             tEpsilon = 1E-12;
             Matrix< DDRMat > tHostADVSensitivities;
             Matrix< DDRMat > tI;
             eye( 2, 2, tI );
@@ -603,7 +608,7 @@ namespace moris::ge
                 Matrix< DDUMat >   tNodeIndices( 4, 1 );
                 for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
                 {
-                    tNodeIndices( tNodeNumber )     = tSignedNodeIndices( tNodeNumber );
+                    tNodeIndices( tNodeNumber ) = tSignedNodeIndices( tNodeNumber );
                 }
 
                 // Check edges for properly queued intersections
@@ -628,8 +633,7 @@ namespace moris::ge
                         CHECK( not tGeometryEngine.queued_intersection_second_parent_on_interface() );
 
                         // Check local coordinates
-                        CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() ==
-                                Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
+                        CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
 
                         // Check global coordinates
                         CHECK_EQUAL( tGeometryEngine.get_queued_intersection_global_coordinates(), tIntersectionGlobalCoordinates( tIntersectionCount ), );
@@ -709,9 +713,9 @@ namespace moris::ge
             CHECK( tGeometryEngine.get_geometric_region( 0, 16, { {} } ) == Geometric_Region::INTERFACE );
 
             // Get full element info for element 0
-            Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );
-            Matrix< DDUMat >   tNodeIndices( 4, 1 );
-            Cell< Matrix< DDRMat > > tNodeCoordinates( 4 );
+            Matrix< IndexMat >       tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );
+            Matrix< DDUMat >         tNodeIndices( 4, 1 );
+            Vector< Matrix< DDRMat > > tNodeCoordinates( 4 );
             for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
             {
                 tNodeIndices( tNodeNumber )     = tSignedNodeIndices( tNodeNumber );
@@ -730,7 +734,7 @@ namespace moris::ge
 
             // Queue custom intersection 3 and check for bilinear intersection
             tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    9, 10, {{ 1.0, tFrac }}, {{ -1.0, 1.0 }}, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
+                    9, 10, { { 1.0, tFrac } }, { { -1.0, 1.0 } }, tNodeIndices, mtk::Geometry_Type::QUAD, mtk::Interpolation_Order::LINEAR );
             REQUIRE( tIntersectionQueued );
 
             // Clean up
@@ -801,14 +805,14 @@ namespace moris::ge
 
             tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, mtk::EntityRank::NODE, tLevelsetVal );
 
-            Cell< std::shared_ptr< ge::Geometry > > tGeometry( 1 );
-            Level_Set_Parameters tLevelSetParameters;
+            Vector< std::shared_ptr< gen::Geometry > > tGeometry( 1 );
+            Level_Set_Parameters                     tLevelSetParameters;
             tLevelSetParameters.mUseMultilinearInterpolation = true;
-            tLevelSetParameters.mIsocontourThreshold = 0.5;
-            tLevelSetParameters.mIsocontourTolerance = 1E-13;
-            auto tField = std::make_shared< Mesh_Field >( tMeshData, tLSFName );
-            tGeometry( 0 ) = std::make_shared< Level_Set_Geometry >( tField, tLevelSetParameters );
-            
+            tLevelSetParameters.mIsocontourThreshold         = 0.5;
+            tLevelSetParameters.mIsocontourTolerance         = 1E-13;
+            auto tField                                      = std::make_shared< Mesh_Field >( tMeshData, tLSFName );
+            tGeometry( 0 )                                   = std::make_shared< Level_Set_Geometry >( tField, tLevelSetParameters );
+
             Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
 
@@ -822,16 +826,13 @@ namespace moris::ge
 
             CHECK( tIsIntersected );
 
-            moris::Cell< Matrix< IndexMat > > tVertexIndices = { tCell.get_vertex_inds() };
+            Vector< Matrix< IndexMat > > tVertexIndices = { tCell.get_vertex_inds() };
 
-            moris::Cell< Matrix< DDRMat > > tLocalCoords( 1 );
+            Vector< Matrix< DDRMat > > tLocalCoords( 1 );
 
             tLocalCoords( 0 ) = { { +0.000000000000000e+00, +0.000000000000000e+00 } };
 
-            Cell< moris_index > tNewNodeIndices = { 4 };
-
             tGeometryEngine.create_new_derived_nodes(
-                    tNewNodeIndices,
                     tVertexIndices,
                     tLocalCoords,
                     mtk::Geometry_Type::QUAD,
@@ -841,7 +842,7 @@ namespace moris::ge
             Matrix< IndexMat > tVertexInds    = tCell.get_vertex_inds();
             Matrix< DDUMat >   tVertexIndsDDU = { { (uint)tVertexInds( 0 ), (uint)tVertexInds( 1 ), (uint)tVertexInds( 2 ), (uint)tVertexInds( 3 ) } };
 
-            Cell< Matrix< DDRMat > > tBGCellCoords( 4 );
+            Vector< Matrix< DDRMat > > tBGCellCoords( 4 );
             tBGCellCoords( 0 ) = tVertexCoords.get_row( 0 );
             tBGCellCoords( 1 ) = tVertexCoords.get_row( 1 );
             tBGCellCoords( 2 ) = tVertexCoords.get_row( 2 );
@@ -974,4 +975,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

@@ -10,7 +10,7 @@
 
 #include "GEN_Data_Types.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //------------------------------------------------------------------------------------------------------------------
 
@@ -29,20 +29,6 @@ namespace moris::ge
         tPdvTypeMap[""]                 = PDV_Type::UNDEFINED;
 
         return tPdvTypeMap;
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    moris::map< std::string, Intersection_Mode > get_intersection_mode_map()
-    {
-        moris::map< std::string, Intersection_Mode > IntersectionModeMap;
-
-        IntersectionModeMap["LEVEL_SET"]    = Intersection_Mode::LEVEL_SET;
-        IntersectionModeMap["COLORING"]     = Intersection_Mode::COLORING;
-        IntersectionModeMap["SURFACE_MESH"] = Intersection_Mode::SURFACE_MESH;
-        IntersectionModeMap[""]             = Intersection_Mode::END_ENUM;
-
-        return IntersectionModeMap;
     }
 
     //------------------------------------------------------------------------------------------------------------------

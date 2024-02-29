@@ -10,7 +10,7 @@
 
 #include "cl_GEN_Field_Array_Factory.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 

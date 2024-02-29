@@ -22,7 +22,7 @@ namespace moris
 
         Interface_Manager::Interface_Manager(
                 ParameterList                                 aParameterList,
-                Cell< std::shared_ptr< Criteria_Interface > > aInterfaces )
+                Vector< std::shared_ptr< Criteria_Interface > > aInterfaces )
                 : mInterfaces( aInterfaces )
         {
             // Set number of interfaces
@@ -134,7 +134,7 @@ namespace moris
             Matrix< DDRMat > tLocalADVs( 0, 0 );
 
             // Get criteria in parallel if requested
-            Cell< Matrix< DDRMat > > tReceiveMats;
+            Vector< Matrix< DDRMat > > tReceiveMats;
             if ( mParallel )
             {
                 // Assign new comm color and rank
@@ -157,7 +157,7 @@ namespace moris
 
                 // Set up communication list and cells of mats
                 Matrix< IdMat >          tCommunicationList( 0, 0 );
-                Cell< Matrix< DDRMat > > tSendMats( 0 );
+                Vector< Matrix< DDRMat > > tSendMats( 0 );
 
                 // Send to other procs if I was rank 0 after split
                 if ( !tKey )
@@ -240,7 +240,7 @@ namespace moris
             uint             tCurrentLocalADVs      = 0;
 
             // Get criteria gradients in parallel
-            Cell< Matrix< DDRMat > > tReceiveMats;
+            Vector< Matrix< DDRMat > > tReceiveMats;
             if ( mParallel )
             {
                 // Assign new comm color and rank
@@ -259,7 +259,7 @@ namespace moris
 
                 // Set up communication list and cells of mats
                 Matrix< IdMat >          tCommunicationList( 0, 0 );
-                Cell< Matrix< DDRMat > > tSendMats( 0 );
+                Vector< Matrix< DDRMat > > tSendMats( 0 );
 
                 // Send to other procs if I was rank 0 after split
                 if ( !tKey )

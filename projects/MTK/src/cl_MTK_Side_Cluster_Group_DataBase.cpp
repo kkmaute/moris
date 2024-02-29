@@ -19,7 +19,7 @@ namespace moris
 
     Side_Cluster_Group_DataBase::Side_Cluster_Group_DataBase( 
             const moris_index                  aDiscretizationMeshIndex,
-            moris::Cell< mtk::Cluster const* > aClusters,
+            Vector< mtk::Cluster const* > aClusters,
             mtk::Cluster_Group const*          aAssociatedCellClusterGroup )
             : mtk::Side_Cluster_Group( aDiscretizationMeshIndex )
             , mSideClusters( aClusters )
@@ -34,7 +34,7 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    const moris::Cell< mtk::Cluster const* >
+    const Vector< mtk::Cluster const* >
     Side_Cluster_Group_DataBase::get_side_clusters_in_group() const
     {
         return mSideClusters;

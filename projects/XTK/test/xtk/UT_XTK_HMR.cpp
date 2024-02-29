@@ -26,35 +26,35 @@ namespace moris
 {
 
     moris::real
-    LevelSetSphereCylinder( const moris::Matrix< moris::DDRMat >& aPoint )
+    LevelSetSphereCylinder( const moris::Matrix< DDRMat >& aPoint )
     {
-        moris::Matrix< moris::DDRMat > aCenter = { { 0.01 }, { 0.01 }, { 0.01 } };
-        moris::Matrix< moris::DDRMat > aAxis   = { { 0.0 }, { 1.0 }, { 0.0 } };
-        moris::real                    aRad    = 0.77;
-        moris::real                    aLength = 5;
+        moris::Matrix< DDRMat > aCenter = { { 0.01 }, { 0.01 }, { 0.01 } };
+        moris::Matrix< DDRMat > aAxis   = { { 0.0 }, { 1.0 }, { 0.0 } };
+        moris::real             aRad    = 0.77;
+        moris::real             aLength = 5;
 
         MORIS_ASSERT( aCenter.numel() == 3, "Centers need to have length 3" );
         MORIS_ASSERT( aAxis.numel() == 3, "axis need to have length 3" );
 
-        Cell< moris::real > relativePosition = { ( aPoint( 0 ) - aCenter( 0 ) ), ( aPoint( 1 ) - aCenter( 1 ) ), ( aPoint( 2 ) - aCenter( 2 ) ) };
-        moris::real         lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
-        moris::real         lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
+        Vector< moris::real > relativePosition = { ( aPoint( 0 ) - aCenter( 0 ) ), ( aPoint( 1 ) - aCenter( 1 ) ), ( aPoint( 2 ) - aCenter( 2 ) ) };
+        moris::real           lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
+        moris::real           lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
 
-        moris::real         axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
-        Cell< moris::real > radDir    = { ( relativePosition( 0 ) - aAxis( 0 ) * axialCrd ), ( relativePosition( 1 ) - aAxis( 1 ) * axialCrd ), ( relativePosition( 2 ) - aAxis( 2 ) * axialCrd ) };
-        moris::real         radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
-        moris::real         lsFromRad = radDist - aRad;
+        moris::real           axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
+        Vector< moris::real > radDir    = { ( relativePosition( 0 ) - aAxis( 0 ) * axialCrd ), ( relativePosition( 1 ) - aAxis( 1 ) * axialCrd ), ( relativePosition( 2 ) - aAxis( 2 ) * axialCrd ) };
+        moris::real           radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
+        moris::real           lsFromRad = radDist - aRad;
 
         return -std::max( std::max( lsFromLeft, lsFromRight ), lsFromRad );
     }
 
-    real LevelSetSphereCylinderGeometry( const Matrix< DDRMat >& aCoordinates, const Cell< real >& aParameters )
+    real LevelSetSphereCylinderGeometry( const Matrix< DDRMat >& aCoordinates, const Vector< real >& aParameters )
     {
         return LevelSetSphereCylinder( aCoordinates );
     }
 
     moris::real
-    LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat >& aPoint )
+    LevelSetPlaneFunction( const moris::Matrix< DDRMat >& aPoint )
     {
 
         real mXn = 0.0;
@@ -73,7 +73,7 @@ namespace moris
         for ( moris::uint iOrder = 1; iOrder < 2; iOrder++ )
         {
 
-            moris::Cell< moris::Cell< ParameterList > > tParameterlist;
+            Vector< Vector< ParameterList > > tParameterlist;
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
             tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
@@ -108,17 +108,17 @@ namespace moris
             tHMR->perform_initial_refinement();
             tHMR->perform();
 
-            auto                                              tField          = std::make_shared< moris::ge::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
-            Cell< std::shared_ptr< ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
+            auto                                       tField          = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
+            Vector< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
-            size_t                                tModelDimension = 3;
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            size_t                                 tModelDimension = 3;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
-            xtk::Model                 tXTKModel( tModelDimension, tMeshManager->get_interpolation_mesh( 0 ), &tGeometryEngine );
+            moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+            xtk::Model                  tXTKModel( tModelDimension, tMeshManager->get_interpolation_mesh( 0 ), &tGeometryEngine );
             tXTKModel.mVerbose = true;
 
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
 
             // Do the cutting
             tXTKModel.decompose( tDecompositionMethods );

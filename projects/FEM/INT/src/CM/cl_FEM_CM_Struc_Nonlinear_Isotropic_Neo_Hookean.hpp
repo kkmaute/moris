@@ -13,8 +13,8 @@
 
 #include <map>
 
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
+#include "cl_Vector.hpp"                          //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -53,7 +53,7 @@ namespace moris
 
                 // function pointers
                 void ( CM_Struc_Nonlinear_Isotropic_Neo_Hookean:: * m_eval_d1PKStressdDOF )(
-                        const Cell< MSI::Dof_Type > & aDofTypes ) = nullptr;
+                        const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
 
                 void ( CM_Struc_Nonlinear_Isotropic_Neo_Hookean:: * m_eval_symbolic_traction_derivs )(
                         const Matrix< DDRMat > & aDisplGrad,
@@ -73,7 +73,7 @@ namespace moris
                 bool m2PKTraction_symEval = true;
 
                 // storage for derivatives of traction  - based on a routine symbolically generated in MATLAB
-                moris::Cell< Matrix< DDRMat > > m2PKTraction_sym;
+                Vector< Matrix< DDRMat > > m2PKTraction_sym;
 
                 //--------------------------------------------------------------------------------------------------------------
             public:
@@ -152,27 +152,27 @@ namespace moris
                  * evaluate the derivative of first Piola-Kirchhoff stress tensor wrt dof
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
-                void eval_d1PKStressdDOF( const Cell< MSI::Dof_Type > & aDofTypes )
+                void eval_d1PKStressdDOF( const Vector< MSI::Dof_Type > & aDofTypes )
                 {
                     ( this->*m_eval_d1PKStressdDOF )( aDofTypes );
                 }
 
-                void eval_d1PKStressdDOF_2d( const Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_d1PKStressdDOF_3d( const Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_d1PKStressdDOF_2d( const Vector< MSI::Dof_Type > & aDofTypes );
+                void eval_d1PKStressdDOF_3d( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of second Piola-Kirchhoff stress tensor wrt dof
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
-                void eval_d2PKStressdDOF( const Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_d2PKStressdDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of cauchy stress tensor wrt dof
                  * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
                  */
-                void eval_dCauchyStressdDOF( const Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dCauchyStressdDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -208,7 +208,7 @@ namespace moris
                  */
                 void eval_dTractiondDOF_first_piola_kirchhoff(
                         const Matrix< DDRMat > & aNormal,
-                        const Cell< MSI::Dof_Type > & aDofTypes );
+                        const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -217,7 +217,7 @@ namespace moris
                  */
                 void eval_dTractiondDOF_second_piola_kirchhoff(
                         const Matrix< DDRMat > & aNormal,
-                        const Cell< MSI::Dof_Type > & aDofTypes );
+                        const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -226,7 +226,7 @@ namespace moris
                  */
                 void eval_dTractiondDOF_cauchy(
                         const Matrix< DDRMat > & aNormal,
-                        const Cell< MSI::Dof_Type > & aDofTypes );
+                        const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -235,7 +235,7 @@ namespace moris
                  */
                 void eval_testTraction_first_piola_kirchhoff(
                         const Matrix< DDRMat >      & aNormal,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -244,7 +244,7 @@ namespace moris
                  */
                 void eval_testTraction_second_piola_kirchhoff(
                         const Matrix< DDRMat >      & aNormal,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -253,7 +253,7 @@ namespace moris
                  */
                 void eval_testTraction_cauchy(
                         const Matrix< DDRMat >      & aNormal,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -263,10 +263,10 @@ namespace moris
                  * @param[ in ] aNormal   normal in the reference configuration
                  */
                 void eval_dTestTractiondDOF_first_piola_kirchhoff(
-                        const Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >      & aNormal,
                         const Matrix< DDRMat >      & aJump,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -276,10 +276,10 @@ namespace moris
                  * @param[ in ] aNormal   normal in the reference configuration
                  */
                 void eval_dTestTractiondDOF_second_piola_kirchhoff(
-                        const Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >      & aNormal,
                         const Matrix< DDRMat >      & aJump,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -289,10 +289,10 @@ namespace moris
                  * @param[ in ] aNormal   normal in the reference configuration
                  */
                 void eval_dTestTractiondDOF_cauchy(
-                        const Cell< MSI::Dof_Type > & aDofTypes,
+                        const Vector< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >      & aNormal,
                         const Matrix< DDRMat >      & aJump,
-                        const Cell< MSI::Dof_Type > & aTestDofTypes );
+                        const Vector< MSI::Dof_Type > & aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -300,7 +300,7 @@ namespace moris
                  * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
                  * @param[ in ] adConstdDOF a matrix to fill with derivative evaluation
                  */
-                void eval_dConstdDOF( const Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dConstdDOF( const Vector< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**

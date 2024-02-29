@@ -9,7 +9,7 @@
  */
 
 #include "catch.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -86,7 +86,7 @@ namespace moris
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { {0} };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -152,14 +152,14 @@ namespace moris
              tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Leader_Follower::LEADER );
 
              // define set info
-              moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+              Vector< fem::Set_User_Info > tSetInfo( 1 );
 //              tSetInfo( 0 ).set_mesh_index( 0 );
               tSetInfo( 0 ).set_mesh_set_name( "HMR_dummy_c_p0" );
               tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
 
              map< moris_id, moris_index >   tCoefficientsMap;
-             Cell< fem::Node_Base* >        tNodes;
-             Cell< MSI::Equation_Object* >  tElements;
+             Vector< fem::Node_Base* >        tNodes;
+             Vector< MSI::Equation_Object* >  tElements;
 
              // get map from mesh
              tInterpolationMesh->get_adof_map( tBSplineMeshIndex, tCoefficientsMap );
@@ -175,7 +175,7 @@ namespace moris
                  tNodes( k ) = new fem::Node( &tInterpolationMesh->get_mtk_vertex( k ) );
              }
 
-             Cell< MSI::Equation_Set * >      tElementBlocks(1,nullptr);
+             Vector< MSI::Equation_Set * >      tElementBlocks(1,nullptr);
 
              // init the fem set counter
              moris::uint tFemSetCounter = 0;

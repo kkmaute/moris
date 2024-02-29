@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_NEWTON_SOLVER_HPP_
 #define SRC_FEM_CL_NEWTON_SOLVER_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 namespace moris
@@ -67,7 +67,7 @@ namespace moris
                     const moris::uint&                      aNumIndices,
                     const moris::Matrix< DDSMat >&          aGlobalBlockRows,
                     const moris::uint&                      aBlockRowOffsets,
-                    moris::Cell< moris::Matrix< DDRMat > >& LHSValues );
+                    Vector< moris::Matrix< DDRMat > >& LHSValues );
         };
     }    // namespace NLA
 }    // namespace moris

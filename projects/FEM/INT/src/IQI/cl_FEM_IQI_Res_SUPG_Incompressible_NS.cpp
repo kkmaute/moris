@@ -109,7 +109,7 @@ namespace moris
 
         void
         IQI_Res_SUPG_Incompressible_NS::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type >& aDofType,
+                Vector< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&             adQIdu )
         {
             MORIS_ERROR( false,

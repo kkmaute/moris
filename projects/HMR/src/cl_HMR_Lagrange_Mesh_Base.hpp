@@ -25,7 +25,7 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Side_Set.hpp"
 #include "cl_HMR_STK.hpp" //HMR/src
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"
 
@@ -42,19 +42,19 @@ namespace moris::hmr
      */
     class Lagrange_Mesh_Base : public Mesh_Base
     {
-        Cell< bool >mBSplineMeshIsTrivialInterpoaltion;
+        Vector< bool >mBSplineMeshIsTrivialInterpoaltion;
 
         // @fixme: confirm that this is not identical to mAllNodesOnProc
         //! Cell containing used Nodes
-        Cell< Basis * > mNodes;
+        Vector< Basis * > mNodes;
 
         //! Cells containing real field data
 
-        Cell< std::string >      mRealScalarFieldLabels;
-        Cell< mtk::EntityRank >  mRealScalarFieldRanks;
-        Cell< Matrix< DDRMat > > mRealScalarFieldData;
-        Cell< Matrix< DDRMat > > mRealScalarFieldBSplineCoeffs;
-        Cell< uint >             mRealScalarFieldBSplineOrders;
+        Vector< std::string >      mRealScalarFieldLabels;
+        Vector< mtk::EntityRank >  mRealScalarFieldRanks;
+        Vector< Matrix< DDRMat > > mRealScalarFieldData;
+        Vector< Matrix< DDRMat > > mRealScalarFieldBSplineCoeffs;
+        Vector< uint >             mRealScalarFieldBSplineOrders;
 
         luint mNumberOfUsedAndOwnedNodes = 0;
         luint mNumberOfUsedNodes         = 0;
@@ -62,8 +62,8 @@ namespace moris::hmr
     protected:
 
         uint mNumBSplineMeshes = 0;
-        Cell< BSpline_Mesh_Base * > mBSplineMeshes;
-        Cell< Lagrange_Mesh_Base * > mLagrangeMeshForTMatrix;
+        Vector< BSpline_Mesh_Base * > mBSplineMeshes;
+        Vector< Lagrange_Mesh_Base * > mLagrangeMeshForTMatrix;
 
         //! IDs for MTK
         moris_id mMaxFacetDomainIndex = 0;
@@ -73,15 +73,15 @@ namespace moris::hmr
     public:
 
         //! Cell containing facets
-        Cell< Facet * > mFacets;
+      Vector< Facet * > mFacets;
 
     private:
 
         //! Cell containing edges. Only populated in 3D
-        Cell< Edge * >  mEdges;
+      Vector< Edge * >  mEdges;
 
         //! pointer to sidesets on database object
-        Cell< Side_Set > * mSideSets = nullptr;
+      Vector< Side_Set > * mSideSets = nullptr;
 
     public:
 
@@ -95,7 +95,7 @@ namespace moris::hmr
          */
         Lagrange_Mesh_Base ( const Parameters * aParameters,
                 Background_Mesh_Base          * aBackgroundMesh,
-                Cell< BSpline_Mesh_Base *  >  & aBSplineMeshes,
+              Vector< BSpline_Mesh_Base *  >  & aBSplineMeshes,
                 uint aOrder,
                 uint aActivationPattern );
 
@@ -139,7 +139,7 @@ namespace moris::hmr
         /**
          * Returns a pointer to the field Data Array. Needed for MTK output.
          */
-        Cell< Matrix< DDRMat > > & get_real_scalar_field_data()
+        Vector< Matrix< DDRMat > > & get_real_scalar_field_data()
         {
             return mRealScalarFieldData;
         }
@@ -611,7 +611,7 @@ namespace moris::hmr
                 this->get_num_active_elements( tBackgroundElement, tCount );
             }
 
-            Cell< Background_Element_Base * > tBackgroundActiveElements( tCount, nullptr );
+            Vector< Background_Element_Base * > tBackgroundActiveElements( tCount, nullptr );
 
             aElementIndices.set_size(  1, tCount, MORIS_SINT_MAX );
 
@@ -750,7 +750,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void get_active_elements( Background_Element_Base           * aBackgroundElement,
-                Cell< Background_Element_Base * > & aActiveBackgroundElements,
+                Vector< Background_Element_Base * > & aActiveBackgroundElements,
                 uint                              & aCounter )
         {
             bool tIsPadding = aBackgroundElement->is_padding();
@@ -799,7 +799,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void set_side_sets(  Cell< Side_Set > & aSideSets )
+        void set_side_sets( Vector< Side_Set > & aSideSets )
         {
             mSideSets = & aSideSets;
         }
@@ -808,7 +808,7 @@ namespace moris::hmr
 
         mtk::MtkSideSetInfo & get_side_set_info( const uint aIndex )
         {
-            Cell< Side_Set > & tSets = *mSideSets;
+            Vector< Side_Set > & tSets = *mSideSets;
 
             // set pointer of output object
             tSets( aIndex ).mInfo.mElemIdsAndSideOrds = & tSets( aIndex ).mElemIdsAndSideOrds;
@@ -842,7 +842,7 @@ namespace moris::hmr
         void get_elements_in_bspline_element(
                 moris_index const aBspElementIndex,
                 moris_index const aDiscretizationMeshIndex,
-                moris::Cell< mtk::Cell * > & aCells );
+                Vector< mtk::Cell * > & aCells );
 
         // -----------------------------------------------------------------------------
 
@@ -856,11 +856,11 @@ namespace moris::hmr
         void
         get_lagrange_elements_in_bspline_elements(
                 moris_index const                          aDiscretizationMeshIndex,
-                moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
-                moris::Cell< moris::Cell< moris_index > >& aCellIndices,
-                moris::Cell< moris_index >&                aLagToBspCellIndices,
-                moris::Cell< uint >&                       aBspCellRefineLevels,
-                moris::Cell< mtk::Cell* >&                 aBsplineCells );
+                Vector< Vector< mtk::Cell* > >&  aCells,
+                Vector< Vector< moris_index > >& aCellIndices,
+                Vector< moris_index >&                aLagToBspCellIndices,
+                Vector< uint >&                       aBspCellRefineLevels,
+                Vector< mtk::Cell* >&                 aBsplineCells );
 
         // -----------------------------------------------------------------------------
 
@@ -877,8 +877,8 @@ namespace moris::hmr
                 moris_index                                 aDiscretizationMeshIndex,
                 moris_index                                 aBSplineCellIndex,
                 Element&                                    aLagrangeCell,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& aBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            aWeights ) = 0;
+                Vector< Vector< mtk::Vertex* > >& aBsplineBasis,
+                Vector< Matrix< DDRMat > >&            aWeights ) = 0;
 
         // -----------------------------------------------------------------------------
 
@@ -896,9 +896,9 @@ namespace moris::hmr
                 moris_index                                 aDiscretizationMeshIndex,
                 const Element*                              aRootBSplineCell,
                 const Element*                              aExtendedBSplineCell,
-                moris::Cell< moris::Cell< const mtk::Vertex* > >& aRootBsplineBasis,
-                moris::Cell< const mtk::Vertex* >&                aExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            aWeights ) = 0;
+                Vector< Vector< const mtk::Vertex* > >& aRootBsplineBasis,
+                Vector< const mtk::Vertex* >&                aExtendedBsplineBasis,
+                Vector< Matrix< DDRMat > >&            aWeights ) = 0;
 
         // -----------------------------------------------------------------------------
 
@@ -909,7 +909,7 @@ namespace moris::hmr
         get_elements_in_interpolation_cluster(
                 moris_index const aElementIndex,
                 moris_index const aDiscretizationMeshIndex,
-                moris::Cell< mtk::Cell * > & aCells);
+                Vector< mtk::Cell * > & aCells);
 
         // ----------------------------------------------------------------------------
 
@@ -926,7 +926,7 @@ namespace moris::hmr
                 moris_index const            aBsplineElementIndex,
                 moris_index const            aDiscretizationMeshIndex,
                 moris_index const            aSideOrdinal,
-                moris::Cell< mtk::Cell * > & aCells );
+                Vector< mtk::Cell * > & aCells );
 
         /**
           * collect Lagrange elements on an BSpline interpolation element and side ordinal
@@ -936,7 +936,7 @@ namespace moris::hmr
                 moris_index const          aElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
                 moris_index const          aSideOrdinal,
-                moris::Cell< mtk::Cell* >& aCells );
+                Vector< mtk::Cell* >& aCells );
 
         // ----------------------------------------------------------------------------
 

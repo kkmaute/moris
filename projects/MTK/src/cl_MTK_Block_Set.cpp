@@ -9,7 +9,7 @@
  */
 
 #include "assert.hpp"
-#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Block_Set.hpp"
 
 namespace moris
 {

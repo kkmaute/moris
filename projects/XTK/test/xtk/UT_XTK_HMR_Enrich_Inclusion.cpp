@@ -13,7 +13,7 @@
 // #include "cl_Param_List.hpp"
 
 // #include "cl_XTK_Model.hpp"
-// #include "typedefs.hpp"
+// #include "moris_typedefs.hpp"
 // #include "cl_MTK_Mesh_Manager.hpp"
 
 // #include "cl_MTK_Vertex.hpp"    //MTK
@@ -95,7 +95,7 @@
 //         return tParameterlist
 // }
 // }
-// namespace xtk
+// namespace moris::xtk
 // {
 //     // Tests:
 //     // Enrichment of an inclusion with multiple mesh interpolations to enrich
@@ -112,4 +112,3 @@
 //         }
 //     }
 // }
-

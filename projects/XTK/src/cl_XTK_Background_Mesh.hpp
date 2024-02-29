@@ -43,7 +43,7 @@
 // general geometry engine class
 #include "cl_GEN_Geometry_Engine.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     class Background_Mesh
     {
@@ -54,7 +54,7 @@ namespace xtk
 
         Background_Mesh(
                 moris::mtk::Interpolation_Mesh* aMeshData,
-                moris::ge::Geometry_Engine*     aGeometryEngine );
+                moris::gen::Geometry_Engine*    aGeometryEngine );
 
         ~Background_Mesh();
         /*!
@@ -83,13 +83,13 @@ namespace xtk
         /*!
          * Get the vertex ownership of both background and XTK created nodes
          */
-        moris::Matrix< moris::IndexMat >
-        get_vertices_owner( moris::Matrix< moris::IndexMat > const & aVertexIndices ) const;
+        Matrix< IndexMat >
+        get_vertices_owner( Matrix< IndexMat > const & aVertexIndices ) const;
 
         /*!
          * Get an mtk vertex
          */
-        Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         get_mtk_vertices( Matrix< IndexMat > const & aVertexIndices );
 
         /*!
@@ -143,19 +143,19 @@ namespace xtk
          */
         void
         batch_create_new_nodes(
-                Cell< moris_index > const &                    aNewNodeIds,
-                Cell< moris_index > const &                    aNewNodeIndices,
-                Cell< moris_index > const &                    aNewNodeOwningProc,
-                Cell< moris::Matrix< moris::DDRMat > > const & aNewNodeCoordinates );
+                Vector< moris_index > const &      aNewNodeIds,
+                Vector< moris_index > const &      aNewNodeIndices,
+                Vector< moris_index > const &      aNewNodeOwningProc,
+                Vector< Matrix< DDRMat > > const & aNewNodeCoordinates );
 
         /*!
          * Batch create a copy node (used in unzipping)
          */
         void
         batch_create_new_nodes_as_copy_of_other_nodes(
-                moris::Matrix< moris::IndexMat > const & aExistingNodeIndices,
-                moris::Matrix< moris::IndexMat > const & aNewNodeIds,
-                moris::Matrix< moris::IndexMat > const & aNewNodeIndices );
+                Matrix< IndexMat > const & aExistingNodeIndices,
+                Matrix< IndexMat > const & aNewNodeIds,
+                Matrix< IndexMat > const & aNewNodeIndices );
 
         void
         allocate_external_node_to_child_mesh_associations();
@@ -167,15 +167,15 @@ namespace xtk
          */
         void
         associate_external_nodes_to_child_mesh(
-                moris::moris_index                       aChildMeshIndex,
-                moris::Matrix< moris::IndexMat > const & aNodeIndices );
+                moris::moris_index         aChildMeshIndex,
+                Matrix< IndexMat > const & aNodeIndices );
 
         /*!
          * Get the child mesh indices that a node belongs to.
          * Only implemented for nodes created during the decomposition process, called the
          * external nodes
          */
-        moris::Matrix< moris::IndexMat >
+        Matrix< IndexMat >
         get_node_child_mesh_assocation( moris::moris_index aNodeIndex ) const;
 
         /*!
@@ -189,17 +189,17 @@ namespace xtk
         /*!
          * From a vector of entity ids and ranks, return the global ids of these entities
          */
-        moris::Matrix< moris::IdMat >
+        Matrix< IdMat >
         get_glb_entity_id_from_entity_loc_index_range(
-                moris::Matrix< moris::IndexMat > const & tEntityIndices,
-                mtk::EntityRank                          aEntityRank ) const;
+                Matrix< IndexMat > const & tEntityIndices,
+                mtk::EntityRank            aEntityRank ) const;
         /*!
          * Convert local entity indices to global entity ids
          */
         void
         convert_loc_entity_ind_to_glb_entity_ids(
-                mtk::EntityRank                   aEntityRank,
-                moris::Matrix< moris::IndexMat >& aEntityIndices ) const;
+                mtk::EntityRank     aEntityRank,
+                Matrix< IndexMat >& aEntityIndices ) const;
 
         /*!
          * Returns whether a node was in the original background mesh
@@ -216,51 +216,51 @@ namespace xtk
         /*!
          * Return all node coordinates ordered by local indices
          */
-        moris::Matrix< moris::DDRMat >
+        Matrix< DDRMat >
         get_all_node_coordinates_loc_inds() const;
 
         /*!
          * Return a coordinate matrix for the specified node indices
          */
-        moris::Matrix< moris::DDRMat >
-        get_selected_node_coordinates_loc_inds( moris::Matrix< moris::IndexMat > const & aNodeIndices ) const;
+        Matrix< DDRMat >
+        get_selected_node_coordinates_loc_inds( Matrix< IndexMat > const & aNodeIndices ) const;
 
         /*!
          * Returns the local to global map (only implemented in for nodes)
          */
-        moris::Matrix< moris::IdMat >
+        Matrix< IdMat >
         get_local_to_global_map( mtk::EntityRank aEntityRank ) const;
 
         /*!
          * Return a vector of all non-intersected elements'
          * element to node connectivity
          */
-        moris::Matrix< moris::IdMat >
+        Matrix< IdMat >
         get_full_non_intersected_node_to_element_glob_ids() const;
 
         /*!
          * Package and return all intersected element to node connectivity
          * sorted by phase
          */
-        Cell< moris::Matrix< moris::IdMat > >
+        Vector< Matrix< IdMat > >
         get_non_intersected_element_to_node_by_phase( moris::uint aNumPhases );
 
         /*!
          * Return all ids of non-intersected elements
          */
-        moris::Matrix< moris::IdMat >
+        Matrix< IdMat >
         get_all_non_intersected_elements() const;
 
         /*!
          * Return all ids of non-intersected elements
          */
-        Cell< moris::Matrix< moris::IdMat > >
+        Vector< Matrix< IdMat > >
         get_all_non_intersected_elements_by_phase( uint aNumPhases ) const;
 
         /*!
          * Return all non-intersected element proc local indices
          */
-        moris::Matrix< moris::IndexMat >
+        Matrix< IndexMat >
         get_all_non_intersected_elements_loc_inds() const;
 
         // -------------------------------------------------------------------
@@ -270,7 +270,7 @@ namespace xtk
         // and its children elements
         // -------------------------------------------------------------------
         void
-        register_new_downward_inheritance( Cell< std::pair< moris::moris_index, moris::moris_index > > const & aNewElementToChildMeshPairs );
+        register_new_downward_inheritance( Vector< std::pair< moris::moris_index, moris::moris_index > > const & aNewElementToChildMeshPairs );
 
         /*
          * used after clean up of child mesh and deletion of child meshes to recompute the downward inheritance
@@ -322,8 +322,8 @@ namespace xtk
          */
         void
         mark_nodes_as_interface_node_loc_inds(
-                moris::Matrix< moris::IndexMat > aNodeIndices,
-                moris::size_t                    aGeomIndex );
+                Matrix< IndexMat > aNodeIndices,
+                moris::size_t      aGeomIndex );
 
         /*!
          * Returns whether a node is an interface node for a given geometry index
@@ -336,29 +336,29 @@ namespace xtk
         /*!
          * get the interface nodes with respect to a given geometry index
          */
-        moris::Matrix< moris::IndexMat >
+        Matrix< IndexMat >
         get_interface_nodes_loc_inds( moris::moris_index aGeometryIndex ) const;
 
         /*!
          * get the interface nodes with respect to a given geometry index
          */
-        Cell< moris::Matrix< moris::IdMat > >
+        Vector< Matrix< IdMat > >
         get_interface_nodes_loc_inds() const;
 
         /*!
          * get the interface nodes with respect to a given geometry index
          */
-        moris::Matrix< moris::IdMat >
+        Matrix< IdMat >
         get_interface_nodes_glob_ids( moris::moris_index aGeometryIndex ) const;
 
         //
-        moris::Matrix< moris::IndexMat >
-        restrict_vertex_list_to_owned_by_this_proc_loc_inds( moris::Matrix< moris::IndexMat > const & aNodeIndexList ) const;
+        Matrix< IndexMat >
+        restrict_vertex_list_to_owned_by_this_proc_loc_inds( Matrix< IndexMat > const & aNodeIndexList ) const;
 
         /*!
          * get the interface nodes with respect to a given geometry index
          */
-        Cell< moris::Matrix< moris::IdMat > >
+        Vector< Matrix< IdMat > >
         get_interface_nodes_glob_ids();
 
         void
@@ -404,8 +404,8 @@ namespace xtk
         /*!
          * Multiple version of above
          */
-        moris::Matrix< moris::IndexMat >
-        get_element_phase_inds( moris::Matrix< moris::DDSTMat > const & aElementInds );
+        Matrix< IndexMat >
+        get_element_phase_inds( Matrix< moris::DDSTMat > const & aElementInds );
 
         moris_index
         get_loc_entity_ind_from_entity_glb_id(
@@ -487,8 +487,8 @@ namespace xtk
         add_proc_to_comm_table( moris_index aProcRank );
 
         void
-        remove_cells_from_mesh( Cell< moris_index > const & aCellsToRemove,
-                Cell< moris_index >&                        aOldIndexToNewCellIndex );
+        remove_cells_from_mesh( Vector< moris_index > const & aCellsToRemove,
+                Vector< moris_index >&                        aOldIndexToNewCellIndex );
         /*!
          * Sets up the entity local to global maps
          */
@@ -508,26 +508,26 @@ namespace xtk
         Downward_Inheritance< moris::moris_index, moris::moris_index > mElementDownwardInheritance;
 
         // Local to Global Id Entity Matrix
-        moris::Cell< moris::Cell< moris::moris_index > > mEntityLocaltoGlobalMap;
+        Vector< Vector< moris::moris_index > > mEntityLocaltoGlobalMap;
 
         // communication map
-        moris::Matrix< IdMat > mCommunicationMap;
+        Matrix< IdMat > mCommunicationMap;
 
         // Elements constructed by the decomposition process mtk Cells
         Mini_Map< moris_id, moris_index > mChildMtkCellMap; /* To go from cell index to location in child cell ptrs*/
-        moris::Cell< moris::mtk::Cell* >  mChildMtkCells;
+        Vector< moris::mtk::Cell* >       mChildMtkCells;
 
         // Vertex constructed by the decomposition process
         std::unordered_map< moris_id, moris_index > mVertexGlbToLocalMap;
-        moris::Cell< moris::mtk::Vertex_XTK >       mXtkMtkVertices;
+        Vector< moris::mtk::Vertex_XTK >            mXtkMtkVertices;
 
         // Associate external node indices to the child meshes they belong to
         // Row - External node index
         // Col - Child Mesh Index
-        moris::Matrix< moris::IndexMat > mNodeIndexToChildMeshIndex;
+        Matrix< IndexMat > mNodeIndexToChildMeshIndex;
 
         // Element Phase Index ordered by processor local indices
-        moris::Matrix< moris::IndexMat > mElementPhaseIndex;
+        Matrix< IndexMat > mElementPhaseIndex;
 
         // Nodal Phase Index
         // Note the exact phase value is located in the geometry index.
@@ -535,9 +535,9 @@ namespace xtk
         // Rows - Node Index
         // If Val = 0; This means the node is not an interface node for a given geometry
         // If Val = 1; This means the node is an interface node for a given geometry
-        moris::Matrix< moris::IndexMat > mInterfaceNodeFlag;
+        Matrix< IndexMat > mInterfaceNodeFlag;
 
-        moris::Matrix< moris::DDRMat >
+        Matrix< DDRMat >
         get_all_node_coordinates_loc_inds_background_mesh() const;
 
         /*!
@@ -551,6 +551,6 @@ namespace xtk
         void
         initialize_background_mesh_vertices();
     };
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_XTK_CL_XTK_BACKGROUND_MESH_HPP_ */

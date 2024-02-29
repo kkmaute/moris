@@ -27,8 +27,7 @@ namespace moris
 
 /**
  * Take the cross product of vectors aA with vector aB
- *  aA x aB. This works for strictly vectors only with Eigen. Arma
- *  seems a little more flexible
+ *  aA x aB. This works for strictly vectors and expressions yielding vectors
  *
  *  @param[in] aA - Vector 1
  *  @param[in] aB - Vector 2

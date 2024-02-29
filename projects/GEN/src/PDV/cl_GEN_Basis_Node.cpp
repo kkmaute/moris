@@ -11,7 +11,7 @@
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Basis_Node::get_locator_nodes() const
+    const Vector< Basis_Node >& Basis_Node::get_locator_nodes() const
     {
         return mNode.get_locator_nodes();
     }

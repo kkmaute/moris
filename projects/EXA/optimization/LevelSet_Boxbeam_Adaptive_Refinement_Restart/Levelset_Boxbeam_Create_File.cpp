@@ -10,7 +10,7 @@
 
 #include <string>
 #include <iostream>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -178,22 +178,22 @@ namespace moris
     void
     tLevelSetFuncReal(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // return absolute value of level set function
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val();
     }
 
     // Level set function defining property in FEM
     void
     tLevelSetFunc(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
@@ -212,11 +212,11 @@ namespace moris
     void
     tDerLevelSetFunc(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
@@ -225,7 +225,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->N();
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->N();
     }
 
     /* ------------------------------------------------------------------------ */
@@ -234,11 +234,11 @@ namespace moris
     void
     tLevelSetGradxFunc(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return spatial derivative of absolute value of level set function
         real factor = 1.0;
@@ -247,7 +247,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->gradx( 1 );
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->gradx( 1 );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -256,11 +256,11 @@ namespace moris
     void
     tDerLevelSetGradxFunc(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->val()( 0 );
 
         // return PDV derivative of spatial derivative of absolute value of level set function
         real factor = 1.0;
@@ -269,7 +269,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->dnNdxn( 1 );
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( gen::PDV_Type::LS1 )->dnNdxn( 1 );
     }
 
     //------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ namespace moris
     real
     Box_2D3D(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&    aGeometryParameters )
+            const Vector< real >&    aGeometryParameters )
     {
         real tBoxExponent = 24.0;
 
@@ -315,7 +315,7 @@ namespace moris
     real
     Hole_Pattern_2D3D(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&    aGeometryParameters )
+            const Vector< real >&    aGeometryParameters )
     {
         Matrix< DDRMat > tDelta  = { { tHoleXdim / tNumHolesX }, { tHoleYdim / tNumHolesY }, { tHoleZdim / tNumHolesZ } };
         Matrix< DDRMat > tOrigin = { { tHoleXOrg + tDelta( 0 ) / 2.0 }, { tHoleYOrg + tDelta( 1, 0 ) / 2.0 }, { tHoleZOrg + tDelta( 2, 0 ) / 2.0 } };
@@ -366,7 +366,7 @@ namespace moris
     void
     Func_Neumann_U(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         if ( aFIManager->get_IG_geometry_interpolator()->valx()( 1 ) < 0.2 )
@@ -399,7 +399,7 @@ namespace moris
     void
     Func_Const(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -527,7 +527,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    OPTParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -551,7 +551,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    HMRParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -592,7 +592,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    XTKParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -614,7 +614,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    GENParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
 
         tParameterlist.resize( 3 );
@@ -676,7 +676,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    FEMParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
     {
         // create a cell of cell of parameter list for fem
         tParameterList.resize( 8 );
@@ -1285,7 +1285,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
         for ( uint Ik = 0; Ik < 8; Ik++ )
@@ -1364,7 +1364,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    MSIParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -1384,7 +1384,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    VISParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -1421,7 +1421,7 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );

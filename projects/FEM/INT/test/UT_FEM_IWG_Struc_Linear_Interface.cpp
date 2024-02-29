@@ -51,13 +51,13 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -65,7 +65,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
+    Vector< Vector< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -260,7 +260,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
             fill_uhat_Elast( tLeaderDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
@@ -271,7 +271,7 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
             fill_uhat_Elast( tFollowerDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
             tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
@@ -303,8 +303,8 @@ TEST_CASE( "IWG_Struc_Linear_Interface", "[moris],[fem],[IWG_Struc_Linear_Interf
             tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -397,13 +397,13 @@ TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Interface",
     mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -411,11 +411,11 @@ TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Interface",
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-        moris::Cell< MSI::Dof_Type > tDisplDofTypes = { MSI::Dof_Type::UX };
+        Vector< MSI::Dof_Type > tDisplDofTypes = { MSI::Dof_Type::UX };
 
-        moris::Cell< moris::Cell< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-        moris::Cell< moris::Cell< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-        moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes           = { tDisplDofTypes, tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+        Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+        Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+        Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDisplDofTypes, tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -423,7 +423,7 @@ TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Interface",
     // Local equivalent strain - 0 - energy release rate
     // Damage law - 2 - smooth exponential
     // Smoothing law - 0 - no smoothing
-    moris::Cell< Matrix< DDRMat > > tDamageParameters = { //
+    Vector< Matrix< DDRMat > > tDamageParameters = { //
             { { 0.0 } },                                      //
             { { 2.0, 1.0e-3, 10.0 } },                        //
             { { 0.0 } }
@@ -636,7 +636,7 @@ TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Interface",
             tLeaderDOFHatHistory = 1e-3*tLeaderDOFHatHistory;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator displacement
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDisplDofTypes );
@@ -662,7 +662,7 @@ TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Interface",
             tFollowerDOFHatHistory = 0.66 *1e-3* tFollowerDOFHatHistory;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator displacement
             tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDisplDofTypes );
@@ -719,8 +719,8 @@ TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Interface",
             tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

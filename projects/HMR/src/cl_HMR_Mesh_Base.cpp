@@ -74,7 +74,7 @@ namespace moris::hmr
         MORIS_LOG_INFO( "Creating elements on HMR Mesh" );
         
         // cell for background elements
-        Cell< Background_Element_Base* > tAllBackgroundElements;
+        Vector< Background_Element_Base* > tAllBackgroundElements;
 
         // collect all background elements on proc
         mBackgroundMesh->collect_all_elements( tAllBackgroundElements );
@@ -281,9 +281,9 @@ namespace moris::hmr
             Matrix< DDLUMat > tEmptyLuint;
             Matrix<  DDUMat > tEmptyUint;
 
-            Cell< Matrix< DDLUMat > > tSendAncestor  ( tNumberOfProcNeighbors, tEmptyLuint );
-            Cell< Matrix<  DDUMat > > tSendPedigree  ( tNumberOfProcNeighbors, tEmptyUint  );
-            Cell< Matrix<  DDUMat > > tSendBasisIndex( tNumberOfProcNeighbors, tEmptyUint  );
+            Vector< Matrix< DDLUMat > > tSendAncestor  ( tNumberOfProcNeighbors, tEmptyLuint );
+            Vector< Matrix<  DDUMat > > tSendPedigree  ( tNumberOfProcNeighbors, tEmptyUint  );
+            Vector< Matrix<  DDUMat > > tSendBasisIndex( tNumberOfProcNeighbors, tEmptyUint  );
 
             // get my rank
             moris_id tMyRank = par_rank();
@@ -297,7 +297,7 @@ namespace moris::hmr
                 if ( tNeihgborRank != tMyRank && tNeihgborRank != gNoProcNeighbor )
                 {
                     // cell containing basis pointers
-                    Cell< Basis* > tBasisInAura;
+                    Vector< Basis* > tBasisInAura;
 
                     // collect basis within inverse aura
                     this->collect_basis_from_aura( p, 2, tBasisInAura );
@@ -312,7 +312,7 @@ namespace moris::hmr
             }
 
             // send basis indices
-            Cell< Matrix< DDUMat > > tReceiveBasisIndex;
+            Vector< Matrix< DDUMat > > tReceiveBasisIndex;
 
             // communicate basis indices
             communicate_mats(
@@ -324,7 +324,7 @@ namespace moris::hmr
             tSendBasisIndex.clear();
 
             // ancestors to receive
-            Cell< Matrix< DDLUMat > > tReceiveAncestor;
+            Vector< Matrix< DDLUMat > > tReceiveAncestor;
 
             // communicate ancestor list
             communicate_mats(
@@ -336,7 +336,7 @@ namespace moris::hmr
             tSendAncestor.clear();
 
             // communicate pedigree list
-            Cell< Matrix<  DDUMat > > tReceivePedigree;
+            Vector< Matrix<  DDUMat > > tReceivePedigree;
 
             communicate_mats(
                     tProcNeighbors,
@@ -347,7 +347,7 @@ namespace moris::hmr
             tSendPedigree.clear();
 
             // matrix with owners to send
-            Cell< Matrix<  DDUMat > > tSendOwner( tNumberOfProcNeighbors, tEmptyUint );
+            Vector< Matrix<  DDUMat > > tSendOwner( tNumberOfProcNeighbors, tEmptyUint );
 
             // loop over all proc neighbors
             for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
@@ -386,7 +386,7 @@ namespace moris::hmr
             tReceivePedigree  .clear();
 
             // communicate owners
-            Cell< Matrix<  DDUMat > > tReceiveOwner;
+            Vector< Matrix<  DDUMat > > tReceiveOwner;
 
             communicate_mats(
                     tProcNeighbors,
@@ -405,7 +405,7 @@ namespace moris::hmr
                 if ( tNeihgborRank != tMyRank && tNeihgborRank != gNoProcNeighbor )
                 {
                     // cell containing basis pointers
-                    Cell< Basis* > tBasisInAura;
+                    Vector< Basis* > tBasisInAura;
 
                     // collect basis within inverse aura
                     this->collect_basis_from_aura( p, 2, tBasisInAura );
@@ -432,7 +432,7 @@ namespace moris::hmr
     void Mesh_Base::collect_basis_from_aura(
             uint            aProcNeighborIndex,
             uint            aMode,
-            Cell< Basis* >& aBasisList )
+            Vector< Basis* >& aBasisList )
     {
         // clear basis list
         aBasisList.clear();
@@ -441,7 +441,7 @@ namespace moris::hmr
         if ( par_size() > 1 )
         {
             // cell of elements on background mesh
-            Cell< Background_Element_Base* > tBackElements;
+            Vector< Background_Element_Base* > tBackElements;
 
             // get element list from background mesh
             mBackgroundMesh->collect_active_elements_from_aura( aProcNeighborIndex,
@@ -519,7 +519,7 @@ namespace moris::hmr
 
     void
     Mesh_Base::encode_foreign_basis_path(
-            Cell< Basis* >    & aBasis,
+            Vector< Basis* >    & aBasis,
             const moris_id    & aOwner,
             Matrix< DDLUMat > & aElementAncestors,
             Matrix< DDUMat >  & aElementPedigree,
@@ -832,11 +832,11 @@ namespace moris::hmr
             }
 
             sint tNumProcs = par_size();
-            moris::Cell< luint > tReciveBuffer(tNumProcs);
-            moris::Cell< moris_id > tReciveBufferOwner(tNumProcs);
+            Vector< luint > tReciveBuffer(tNumProcs);
+            Vector< moris_id > tReciveBufferOwner(tNumProcs);
 
-            moris::Cell< sint > tReciveBufferNumber( tNumProcs, 1 );
-            moris::Cell< sint > tReciveBufferOFFSET( tNumProcs, 0 );
+            Vector< sint > tReciveBufferNumber( tNumProcs, 1 );
+            Vector< sint > tReciveBufferOFFSET( tNumProcs, 0 );
 
             for( int Ii = 0; Ii < tNumProcs; Ii++ )
             {

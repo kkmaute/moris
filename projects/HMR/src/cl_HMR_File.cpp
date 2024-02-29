@@ -289,7 +289,7 @@ namespace moris::hmr
         aParameters->set_bspline_patterns( tMatUint );
 
         // set lagrange to bpline mesh dependecies. since we read one lag mesh from file all bsplines belong to this mesh
-        moris::Cell< Matrix< DDSMat > >tMatBspToLag( 1 );
+        Vector< Matrix< DDSMat > >tMatBspToLag( 1 );
         tMatBspToLag( 0 ).set_size(tMatUint.numel(), 1);
 
         for( uint Ik = 0; Ik < tMatUint.numel(); Ik++ )
@@ -327,8 +327,8 @@ namespace moris::hmr
         uint tNumBSplineMeshes = aLagrangeMesh->get_number_of_bspline_meshes();
 
         // Initialize Cells and Mat for Pattern and order list. Both to do the unique on Cell and to write the Mat to hdf5
-        moris::Cell< moris::uint > tPatternList( 1 + tNumBSplineMeshes, MORIS_UINT_MAX );
-        moris::Cell< moris::uint > tOrderList( 1 + tNumBSplineMeshes, MORIS_UINT_MAX );
+        Vector< moris::uint > tPatternList( 1 + tNumBSplineMeshes, MORIS_UINT_MAX );
+        Vector< moris::uint > tOrderList( 1 + tNumBSplineMeshes, MORIS_UINT_MAX );
 
         moris::Matrix< DDUMat > tPatternLagMat( 1 , 1, MORIS_UINT_MAX );
         moris::Matrix< DDUMat > tPatternBspMat( tNumBSplineMeshes, 1, MORIS_UINT_MAX );
@@ -401,7 +401,7 @@ namespace moris::hmr
         for( uint l = 0; l < tMaxLevel; ++l )
         {
             // cell which contains elements
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // collect elements from this level
             aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -421,8 +421,8 @@ namespace moris::hmr
             }
         }
 
-        moris::Cell< Matrix< DDLUMat > > tPatternElement( tNumUniquePattern );
-        moris::Cell< hsize_t > tElementPerPatternCount( tNumUniquePattern, 0 );
+        Vector< Matrix< DDLUMat > > tPatternElement( tNumUniquePattern );
+        Vector< hsize_t > tElementPerPatternCount( tNumUniquePattern, 0 );
 
         for( uint Ik = 0; Ik < tNumUniquePattern; ++Ik )
         {
@@ -432,7 +432,7 @@ namespace moris::hmr
         for( uint l = 0; l < tMaxLevel; ++l )
         {
             // cell which contains elements
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // collect elements from this level
             aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -489,7 +489,7 @@ namespace moris::hmr
         for( uint l = 0; l < tMaxLevel; ++l )
         {
             // cell which contains elements
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // collect elements from this level
             aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -509,8 +509,8 @@ namespace moris::hmr
             }
         }
 
-        moris::Cell< Matrix< DDLUMat > > tPatternElement( tNumPattern );
-        moris::Cell< hsize_t > tElementPerPatternCount( tNumPattern, 0 );
+        Vector< Matrix< DDLUMat > > tPatternElement( tNumPattern );
+        Vector< hsize_t > tElementPerPatternCount( tNumPattern, 0 );
 
         for( uint Ik = 0; Ik < tNumPattern; ++Ik )
         {
@@ -520,7 +520,7 @@ namespace moris::hmr
         for( uint l = 0; l < tMaxLevel; ++l )
         {
             // cell which contains elements
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // collect elements from this level
             aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -561,7 +561,7 @@ namespace moris::hmr
             Background_Mesh_Base             * aBackgroundMesh,
             const moris::Matrix< DDUMat >    & tPatternToSave,
             Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-            moris::Cell< Matrix< DDLUMat > > & aElementPerPattern)
+            Vector< Matrix< DDLUMat > > & aElementPerPattern)
     {
         uint tMaxLevel = aBackgroundMesh->get_max_level();
 
@@ -576,7 +576,7 @@ namespace moris::hmr
         for( uint l = 0; l < tMaxLevel; ++l )
         {
             // cell which contains elements
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // collect elements from this level
             aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -597,7 +597,7 @@ namespace moris::hmr
         }
 
         aElementPerPattern.resize( tNumPattern );
-        moris::Cell< luint > tElementPerPatternCount( tNumPattern, 0 );
+        Vector< luint > tElementPerPatternCount( tNumPattern, 0 );
 
         for( uint Ik = 0; Ik < tNumPattern; ++Ik )
         {
@@ -607,7 +607,7 @@ namespace moris::hmr
         for( uint l = 0; l < tMaxLevel; ++l )
         {
             // cell which contains elements
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // collect elements from this level
             aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -633,7 +633,7 @@ namespace moris::hmr
             Lagrange_Mesh_Base               * aLagrangeMesh,
             const uint                         aDiscretizationMeshIndex,
             Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-            moris::Cell< Matrix< DDLUMat > > & aElementPerPattern )
+            Vector< Matrix< DDLUMat > > & aElementPerPattern )
     {
         Background_Mesh_Base * aBackgroundMesh = aLagrangeMesh->get_background_mesh();
         // step 1: count how many elements need are refined on each level
@@ -664,7 +664,7 @@ namespace moris::hmr
         for( uint l = 0; l < tMaxLevel; ++l )
         {
             // cell which contains elements
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // collect elements from this level
             aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -685,7 +685,7 @@ namespace moris::hmr
         }
 
         aElementPerPattern.resize( tNumPattern );
-        moris::Cell< luint > tElementPerPatternCount( tNumPattern, 0 );
+        Vector< luint > tElementPerPatternCount( tNumPattern, 0 );
 
         for( uint Ik = 0; Ik < tNumPattern; ++Ik )
         {
@@ -695,7 +695,7 @@ namespace moris::hmr
         for( uint l = 0; l < tMaxLevel; ++l )
         {
             // cell which contains elements
-            Cell< Background_Element_Base* > tElements;
+            Vector< Background_Element_Base* > tElements;
 
             // collect elements from this level
             aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -720,7 +720,7 @@ namespace moris::hmr
     void File::load_refinement_pattern(
             Background_Mesh_Base             * aMesh,
             Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-            moris::Cell< Matrix< DDLUMat > > & aElementPerPattern)
+            Vector< Matrix< DDLUMat > > & aElementPerPattern)
     {
         uint tNumPattern = aElementPerPattern.size();
 
@@ -746,7 +746,7 @@ namespace moris::hmr
             for( uint l=0; l<tNumberOfLevels; ++l )
             {
                 // cell which contains elements
-                Cell< Background_Element_Base* > tElements;
+                Vector< Background_Element_Base* > tElements;
 
                 // collect elements from this level
                 aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
@@ -804,7 +804,7 @@ namespace moris::hmr
                 tElementCounter,
                 mStatus );
 
-        moris::Cell< Matrix< DDLUMat > > tPatternElement( tNumUniquePattern );
+        Vector< Matrix< DDLUMat > > tPatternElement( tNumUniquePattern );
 
         for(uint Ik = 0; Ik<tNumUniquePattern; Ik++)
         {
@@ -832,7 +832,7 @@ namespace moris::hmr
             for( uint l=0; l<tNumberOfLevels; ++l )
             {
                 // cell which contains elements
-                Cell< Background_Element_Base* > tElements;
+                Vector< Background_Element_Base* > tElements;
 
                 // collect elements from this level
                 aMesh->collect_elements_on_level_within_proc_domain( l, tElements );

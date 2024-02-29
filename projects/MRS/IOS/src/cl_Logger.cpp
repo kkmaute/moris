@@ -22,7 +22,7 @@
 #include <iomanip>
 #include <limits>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "IO_Tools.hpp"
 #include "paths.hpp"
 

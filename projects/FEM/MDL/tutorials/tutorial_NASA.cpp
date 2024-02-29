@@ -23,7 +23,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_Geom_Field.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -213,7 +213,7 @@ main( int    argc,
 
     xtk::Geom_Field tCircleFieldAsGeom(tHMRFields(0));
     xtk::Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
-    moris::Cell<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
+    Vector<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
 
     size_t tModelDimension = tDim;
     xtk::Phase_Table     tPhaseTable (tGeometryVector.size());
@@ -252,7 +252,7 @@ main( int    argc,
             { MSI::Dof_Type::TEMP },
             {{ MSI::Dof_Type::TEMP }},
             { fem::Property_Type::TEMP_NEUMANN },
-            moris::Cell< fem::Constitutive_Type >( 0 ) );
+            Vector< fem::Constitutive_Type >( 0 ) );
      tIntIWG( 0 )  = fem::IWG_User_Defined_Info( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE,
             { MSI::Dof_Type::TEMP },
             {{ MSI::Dof_Type::TEMP }},
@@ -356,7 +356,7 @@ main( int    argc,
     std::string tDblInterfaceSideSetName13 = tEnrIntegMesh.get_dbl_interface_side_set_name(1,3);
     std::string tDblInterfaceSideSetName23 = tEnrIntegMesh.get_dbl_interface_side_set_name(2,3);
 
-    moris::Cell< moris_index >  tSetList = {  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+    Vector< moris_index >  tSetList = {  tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
             tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
             tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
             tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
@@ -371,7 +371,7 @@ main( int    argc,
             tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName13),
             tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName23)};
 
-    moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+    Vector< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
             fem::Element_Type::BULK,
             fem::Element_Type::BULK,
             fem::Element_Type::BULK,
@@ -390,7 +390,7 @@ main( int    argc,
     // create model
     mdl::Model * tModel = new mdl::Model( tMeshManager, tBSplineMeshIndex, tSetList, tSetTypeList, tIWGUserDefinedInfo, tPropertyUserDefinedInfo, tConstitutiveUserDefinedInfo, 0, false);
 
-    moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+    Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // STEP 1: create linear solver and algorithm

@@ -13,7 +13,7 @@ set(TEST_SOURCES
     test_main.cpp
     cl_Array.cpp
     cl_Bi_Map.cpp
-    cl_Cell.cpp
+    ut_Vector.cpp
     cl_Dist_Map.cpp
     cl_Map.cpp
     cl_Param_List.cpp

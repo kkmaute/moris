@@ -34,7 +34,7 @@
 #include "fn_verify_tet_topology.hpp"
 #include "fn_GEN_Triangle_Geometry.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
 
     // note not written to be very efficient
@@ -42,7 +42,7 @@ namespace xtk
     node_is_on_face( moris_index aFaceIndex,
             Row_View_Real const &aNodeCoord )
     {
-        Cell< Matrix< DDRMat > > tFaceNodeCoords( 6 );
+        Vector< Matrix< DDRMat > > tFaceNodeCoords( 6 );
 
         // face node coordinates
         tFaceNodeCoords( 0 ) = Matrix< DDRMat >( { { 0, 0, 0 }, { 1, 0, 0 }, { 1, 0, 1 }, { 0, 0, 1 } } );
@@ -91,7 +91,7 @@ namespace xtk
     {
 
         // Set up global coordinates
-        moris::Matrix< moris::DDRMat > tNodeCoords( 15, 3 );
+        moris::Matrix< DDRMat > tNodeCoords( 15, 3 );
         tNodeCoords( 0, 0 )  = 0.0;
         tNodeCoords( 0, 1 )  = 0.0;
         tNodeCoords( 0, 2 )  = 0.0;
@@ -139,20 +139,20 @@ namespace xtk
         tNodeCoords( 14, 2 ) = 0.5;
 
         // Initialize the Node Indices
-        moris::Matrix< moris::IndexMat > tNodeIndex( { { 0, 1, 3, 2, 4, 5, 7, 6, 8, 9, 10, 11, 12, 13, 14 } } );
+        moris::Matrix< IndexMat > tNodeIndex( { { 0, 1, 3, 2, 4, 5, 7, 6, 8, 9, 10, 11, 12, 13, 14 } } );
 
         // Intialize Node Ids
-        moris::Matrix< moris::IdMat > tNodeId( { { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } } );
+        moris::Matrix< IdMat > tNodeId( { { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } } );
 
         // Initialize the ancestry
         // Setup the parent tet ancestry (this should be 1 to 1)
-        moris::Matrix< moris::IndexMat > tParentNodeInds( { { 0, 1, 2, 3, 4, 5, 6, 7 } } );
-        moris::Matrix< moris::DDSTMat >  tParentNodeRanks( 1, 8, 0 );
-        moris::Matrix< moris::IndexMat > tParentEdgeInds( { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 } } );
-        moris::Matrix< moris::DDSTMat >  tParentEdgeRanks( 1, 12, 1 );
-        moris::Matrix< moris::IndexMat > tParentFaceInds( { { 0, 1, 2, 3, 4, 5 } } );
-        moris::Matrix< moris::DDSTMat >  tParentFaceRanks( 1, 6, 2 );
-        moris::Matrix< moris::IndexMat > tElementsAncestry( { { 0 } } );
+        moris::Matrix< IndexMat >       tParentNodeInds( { { 0, 1, 2, 3, 4, 5, 6, 7 } } );
+        moris::Matrix< moris::DDSTMat > tParentNodeRanks( 1, 8, 0 );
+        moris::Matrix< IndexMat >       tParentEdgeInds( { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 } } );
+        moris::Matrix< moris::DDSTMat > tParentEdgeRanks( 1, 12, 1 );
+        moris::Matrix< IndexMat >       tParentFaceInds( { { 0, 1, 2, 3, 4, 5 } } );
+        moris::Matrix< moris::DDSTMat > tParentFaceRanks( 1, 6, 2 );
+        moris::Matrix< IndexMat >       tElementsAncestry( { { 0 } } );
 
         // Initialize Template
         Mesh_Modification_Template tRegSubTemplate( tElementsAncestry( 0, 0 ),
@@ -170,21 +170,21 @@ namespace xtk
         Child_Mesh tRegSubChildMesh( tRegSubTemplate );
 
         // Check the volume
-        moris::Matrix< moris::IndexMat > const &tElemToNode = tRegSubChildMesh.get_element_to_node();
-        real                                    tVolume     = moris::ge::compute_volume_for_multiple_tets( tNodeCoords, tElemToNode );
+        moris::Matrix< IndexMat > const &tElemToNode = tRegSubChildMesh.get_element_to_node();
+        real                             tVolume     = moris::gen::compute_volume_for_multiple_tets( tNodeCoords, tElemToNode );
         CHECK( approximate( tVolume, 1.0 ) );
 
         //
-        moris::Matrix< moris::IndexMat > tElementPhase( 1, 24, 0 );
+        moris::Matrix< IndexMat > tElementPhase( 1, 24, 0 );
 
         moris::moris_index tMax       = std::numeric_limits< moris::moris_index >::max();
         size_t             tNumPhases = 2;
 
-        moris::Matrix< moris::IndexMat > tActiveElements( { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 } } );
-        moris::Matrix< moris::IndexMat > tIncludedElementMarker( 1, 24, 1 );
-        moris::moris_index               tMaxFloodFill = 0;
+        moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 } } );
+        moris::Matrix< IndexMat > tIncludedElementMarker( 1, 24, 1 );
+        moris::moris_index        tMaxFloodFill = 0;
         // Run flood fill Algorithm to ensure that the floodfill can traverse the mesh
-        moris::Matrix< moris::IndexMat > tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
+        moris::Matrix< IndexMat > tElementSubphase = flood_fill( tRegSubChildMesh.get_element_to_element(),
                 tElementPhase,
                 tActiveElements,
                 tIncludedElementMarker,
@@ -193,7 +193,7 @@ namespace xtk
                 tMaxFloodFill,
                 true );
 
-        moris::Matrix< moris::IndexMat > tExpElementSubphase( 24, 1, 0 );
+        moris::Matrix< IndexMat > tExpElementSubphase( 24, 1, 0 );
         CHECK( equal_to( tExpElementSubphase, tElementSubphase ) );
 
         // Make sure the tet4 topology is valid
@@ -208,7 +208,7 @@ namespace xtk
         // Check that the volume is 1
         // Parametric Coordinates (zeta, eta, xsi)
         // NOTE: these are ordered based on {0,1,3,2,4,6,5,7}
-        moris::Matrix< moris::DDRMat > tParamCoords( 15, 3 );
+        moris::Matrix< DDRMat > tParamCoords( 15, 3 );
 
         // Base hex
         tParamCoords( 0, 0 ) = -1.0;
@@ -268,7 +268,7 @@ namespace xtk
         tRegSubChildMesh.add_node_parametric_coordinate( tRegSubChildMesh.get_node_indices(), tParamCoords );
 
         // Check the parametric coordinates are added as expected
-        moris::Matrix< moris::DDRMat > const &tCMParamCoords = tRegSubChildMesh.get_parametric_coordinates();
+        moris::Matrix< DDRMat > const &tCMParamCoords = tRegSubChildMesh.get_parametric_coordinates();
         CHECK( all_true( tParamCoords == tCMParamCoords ) );
 
         // Verify we can retrieve the correct global coordinate
@@ -276,7 +276,7 @@ namespace xtk
         // coordinate of a node
 
         // Get child node indices from the child mesh (note these aren't guaranteed to be monotonically increasing)
-        moris::Matrix< moris::IndexMat > const &tNodeIndicesOfCM = tRegSubChildMesh.get_node_indices();
+        moris::Matrix< IndexMat > const &tNodeIndicesOfCM = tRegSubChildMesh.get_node_indices();
 
         // Topology of the base hex
         Hexahedron_8_Topology tHex8Topo( { { 0, 1, 2, 3, 4, 5, 6, 7 } } );
@@ -285,7 +285,7 @@ namespace xtk
         Basis_Function const &tHex8Basis = tHex8Topo.get_basis_function();
 
         // Coordinates of the base hex8 (note these are in a different order from the tNodeCoords)
-        moris::Matrix< moris::DDRMat > tHex8Coords( 8, 3 );
+        moris::Matrix< DDRMat > tHex8Coords( 8, 3 );
         tHex8Coords.set_row( 0, tNodeCoords.get_row( tNodeIndicesOfCM( 0 ) ) );
         tHex8Coords.set_row( 1, tNodeCoords.get_row( tNodeIndicesOfCM( 1 ) ) );
         tHex8Coords.set_row( 2, tNodeCoords.get_row( tNodeIndicesOfCM( 2 ) ) );
@@ -299,7 +299,7 @@ namespace xtk
         size_t tNumNodes = tRegSubChildMesh.get_num_entities( mtk::EntityRank::NODE );
 
         // Allocate a basis function weight matrix
-        moris::Matrix< moris::DDRMat > tBasisWeights( 1, 8 );
+        moris::Matrix< DDRMat > tBasisWeights( 1, 8 );
 
         // tolerance for difference between coordinates
         real tTol = 1e-12;
@@ -310,22 +310,22 @@ namespace xtk
             moris::moris_index tNodeIndex = tNodeIndicesOfCM( i );
 
             // Get the nodes parametric coordinate
-            moris::Matrix< moris::DDRMat > tNodeParamCoord = tRegSubChildMesh.get_parametric_coordinates( tNodeIndex );
+            moris::Matrix< DDRMat > tNodeParamCoord = tRegSubChildMesh.get_parametric_coordinates( tNodeIndex );
 
             // Get the basis function values at this point
             tHex8Basis.evaluate_basis_function( tNodeParamCoord, tBasisWeights );
 
             // Evaluate the nodes global coordinate from the basis weights
-            moris::Matrix< moris::DDRMat > tInterpNodeCoord = tBasisWeights * tHex8Coords;
+            moris::Matrix< DDRMat > tInterpNodeCoord = tBasisWeights * tHex8Coords;
 
             // Verify the interpolated coordinate is equal to the node coordinate row
             CHECK( moris::norm( tInterpNodeCoord - tNodeCoords.get_row( tNodeIndex ) ) < tTol );
         }
 
         // verify edge ancestry
-        Matrix< IndexMat > const               &tEdgeToNode        = tRegSubChildMesh.get_edge_to_node();
-        moris::Matrix< moris::IndexMat > const &tEdgeParentIndices = tRegSubChildMesh.get_edge_parent_inds();
-        moris::Matrix< moris::DDSTMat > const  &tEdgeParentRanks   = tRegSubChildMesh.get_edge_parent_ranks();
+        Matrix< IndexMat > const              &tEdgeToNode        = tRegSubChildMesh.get_edge_to_node();
+        moris::Matrix< IndexMat > const       &tEdgeParentIndices = tRegSubChildMesh.get_edge_parent_inds();
+        moris::Matrix< moris::DDSTMat > const &tEdgeParentRanks   = tRegSubChildMesh.get_edge_parent_ranks();
 
         for ( moris::uint i = 0; i < tRegSubChildMesh.get_num_entities( mtk::EntityRank::EDGE ); i++ )
         {
@@ -339,4 +339,4 @@ namespace xtk
         }
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk

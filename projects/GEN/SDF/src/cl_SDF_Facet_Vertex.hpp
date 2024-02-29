@@ -11,8 +11,8 @@
 #pragma once
 
 #include "assert.hpp"
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Vertex.hpp"
 
 namespace moris
@@ -58,7 +58,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            scale_node_coords( const moris::Cell< real >& aScaling );
+            scale_node_coords( const moris::Vector< real >& aScaling );
 
 
             //-------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ namespace moris
              * @param aCoordinates new coordinates to be set to
              */
             void
-            set_node_coords( const moris::Cell< real >& aCoordinates );
+            set_node_coords( const moris::Vector< real >& aCoordinates );
             
             //-------------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ namespace moris
              * @param aShift Perturbation applied to the coordinates. size of mNodeCoords
              */
             void
-            shift_node_coords_from_current( const moris::Cell< real >& aShift );
+            shift_node_coords_from_current( const moris::Vector< real >& aShift );
 
             //-------------------------------------------------------------------------------
 

@@ -13,7 +13,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -93,7 +93,7 @@
 inline void
 tPropValConstFunc_MDLFEMBench(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -102,7 +102,7 @@ tPropValConstFunc_MDLFEMBench(
 inline void
 tPropValFuncL2_MDLFEMBench(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = { { 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) } };
@@ -137,7 +137,7 @@ namespace moris
             uint tLagrangeMeshIndex = 0;
 
             // empty container for B-Spline meshes
-            moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             moris::hmr::Parameters tParameters;
@@ -165,7 +165,7 @@ namespace moris
 
             tParameters.set_number_aura( true );
 
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
             tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
             tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -181,7 +181,7 @@ namespace moris
 
             tField->evaluate_scalar_function( tPlane_MDLFEMBench );
 
-            moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
+            Vector< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
             // FIXME what is the following test about
             if ( false )
@@ -201,19 +201,19 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::ge::Plane >( 2.6, 0.0, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            auto tPlane = std::make_shared< moris::gen::Plane >( 2.6, 0.0, 1.0, 0.0 );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t                                tModelDimension = 3;
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -370,7 +370,7 @@ namespace moris
             tSetInterface1.set_IWGs( { tIWGInterface } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+            Vector< fem::Set_User_Info > tSetInfo( 7 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetBulk3;
@@ -385,7 +385,7 @@ namespace moris
                     tSetInfo );
 
             // get the global IQI values in order to determine the corerct size
-            moris::Cell< moris::Matrix< DDRMat > >& tGlobalIQICell = tModel->get_fem_model()->get_IQI_values();
+            Vector< moris::Matrix< DDRMat > >& tGlobalIQICell = tModel->get_fem_model()->get_IQI_values();
 
             // Resize the global IQI properly
             tGlobalIQICell.resize( 1 );
@@ -462,7 +462,7 @@ namespace moris
             Matrix< DDRMat > tFullSol;
             tTimeSolver.get_full_solution( tFullSol );
 
-            moris::Cell< moris::Matrix< IdMat > > aCriteriaIds;
+            Vector< moris::Matrix< IdMat > > aCriteriaIds;
 
             tSolverInterface->get_adof_ids_based_on_criteria( aCriteriaIds, 0.1 );
 

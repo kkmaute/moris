@@ -14,7 +14,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
 
@@ -68,12 +68,12 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Vertex_Enrichment::add_basis_information( moris::Matrix< moris::IndexMat > const & aBasisIndices,
-            moris::Matrix< moris::IndexMat > const &                                   aBasisId )
+    Vertex_Enrichment::add_basis_information( Matrix< IndexMat > const & aBasisIndices,
+            Matrix< IndexMat > const &                                   aBasisId )
     {
 #ifdef MORIS_HAVE_DEBUG
         // since I can't write these functions in one line, need to have ifdef
-        moris::Matrix< moris::IndexMat > tUniqueBasis;
+        Matrix< IndexMat > tUniqueBasis;
         moris::unique( aBasisIndices, tUniqueBasis );
 
         MORIS_ASSERT( tUniqueBasis.numel() == aBasisIndices.numel(), "duplicate basis indices detected" );
@@ -100,8 +100,8 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Vertex_Enrichment::add_basis_weights( moris::Matrix< moris::IndexMat > const & aBasisIndices,
-            moris::Matrix< moris::DDRMat > const &                                 aBasisWeight )
+    Vertex_Enrichment::add_basis_weights( Matrix< IndexMat > const & aBasisIndices,
+            Matrix< DDRMat > const &                                 aBasisWeight )
     {
         for ( uint i = 0; i < aBasisIndices.numel(); i++ )
         {
@@ -113,8 +113,8 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Vertex_Enrichment::add_basis_owners( moris::Matrix< moris::IndexMat > const & aBasisIndices,
-            moris::Matrix< moris::IndexMat > const &                              aBasisOwners )
+    Vertex_Enrichment::add_basis_owners( Matrix< IndexMat > const & aBasisIndices,
+            Matrix< IndexMat > const &                              aBasisOwners )
     {
         for ( uint i = 0; i < aBasisIndices.numel(); i++ )
         {
@@ -202,7 +202,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IndexMat > const &
+    Matrix< IndexMat > const &
     Vertex_Enrichment::get_basis_indices() const
     {
         return mBasisIndices;
@@ -210,13 +210,13 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat > const &
+    Matrix< DDRMat > const &
     Vertex_Enrichment::get_basis_weights() const
     {
         return mBasisWeights;
     }
 
-    moris::Matrix< moris::IndexMat > const &
+    Matrix< IndexMat > const &
     Vertex_Enrichment::get_basis_ids() const
     {
         return mBasisIds;
@@ -224,7 +224,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat >&
+    Matrix< DDRMat >&
     Vertex_Enrichment::get_basis_weights()
     {
         return mBasisWeights;
@@ -291,4 +291,4 @@ namespace xtk
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk

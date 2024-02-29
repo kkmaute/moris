@@ -29,7 +29,7 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     uint
-    user_defined_phase_function( const ge::Geometry_Bitset& aGeometrySigns )
+    user_defined_phase_function( const gen::Geometry_Bitset& aGeometrySigns )
     {
         uint tPhaseIndex = 3;
         for ( uint tGeometryIndex = 0; tGeometryIndex < 8; tGeometryIndex++ )
@@ -48,7 +48,7 @@ namespace moris
     real
     user_defined_geometry_field(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&     aParameters )
+            const Vector< real >&     aParameters )
     {
         return aCoordinates( 0 ) * pow( aParameters( 0 ), 2 ) + aCoordinates( 1 ) * pow( aParameters( 1 ), 3 );
     }
@@ -58,7 +58,7 @@ namespace moris
     void
     user_defined_geometry_sensitivity(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&     aParameters,
+            const Vector< real >&     aParameters,
             Matrix< DDRMat >&       aSensitivities )
     {
         aSensitivities = { { 2 * aCoordinates( 0 ) * aParameters( 0 ), 3 * aCoordinates( 1 ) * pow( aParameters( 1 ), 2 ) } };
@@ -68,7 +68,7 @@ namespace moris
 
 }    // namespace moris
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Checks for an ellipse location in a swiss cheese (field array with circles or superellipses)
@@ -112,7 +112,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Phase Table", "[gen], [geometry], [phase table]" )
+    TEST_CASE( "Phase Table", "[gen], [field], [phase table]" )
     {
         // Create phase table using number of geometries
         Phase_Table tPhaseTable( 3 );
@@ -165,7 +165,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Circle", "[gen], [geometry], [distributed advs], [circle]" )
+    TEST_CASE( "Circle", "[gen], [field], [distributed advs], [circle]" )
     {
         // Set up geometry
         ParameterList tCircle1ParameterList = prm::create_level_set_geometry_parameter_list();
@@ -265,7 +265,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Superellipse", "[gen], [geometry], [superellipse]" )
+    TEST_CASE( "Superellipse", "[gen], [field], [superellipse]" )
     {
         // Set up geometry
         ParameterList tSuperellipseParameterList = prm::create_level_set_geometry_parameter_list();
@@ -370,7 +370,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Sphere", "[gen], [geometry], [sphere]" )
+    TEST_CASE( "Sphere", "[gen], [field], [sphere]" )
     {
         // Set up geometry
         ParameterList tSphereParameterList = prm::create_level_set_geometry_parameter_list();
@@ -416,7 +416,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Superellipsoid", "[gen], [geometry], [superellipsoid]" )
+    TEST_CASE( "Superellipsoid", "[gen], [field], [superellipsoid]" )
     {
         // Set up geometry
         ParameterList tSuperellipsoidParameterList = prm::create_level_set_geometry_parameter_list();
@@ -515,11 +515,11 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "User-defined Geometry", "[gen], [geometry], [user-defined geometry]" )
+    TEST_CASE( "User-defined Geometry", "[gen], [field], [user-defined field]" )
     {
         // Create user-defined geometry
         Matrix< DDRMat > tADVs                = { { -1.0, 0.5 } };
-        auto             tUserDefinedGeometry = std::make_shared< User_Defined_Field >(
+        auto tUserDefinedField    = std::make_shared< User_Defined_Field >(
                 &user_defined_geometry_field,
                 &user_defined_geometry_sensitivity,
                 tADVs,
@@ -532,36 +532,36 @@ namespace moris::ge
         Matrix< DDRMat > tCoordinates2 = { { 2.0, 2.0 } };
 
         // Check field values
-        CHECK( tUserDefinedGeometry->get_field_value( tCoordinates1 ) == Approx( -0.75 ) );
-        CHECK( tUserDefinedGeometry->get_field_value( tCoordinates2 ) == Approx( -1.5 ) );
+        CHECK( tUserDefinedField->get_field_value( tCoordinates1 ) == Approx( -0.75 ) );
+        CHECK( tUserDefinedField->get_field_value( tCoordinates2 ) == Approx( -1.5 ) );
 
         // Check sensitivity values
-        CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( tCoordinates1 ), Matrix< DDRMat >( { { 1.0, 3.0 } } ), );
-        CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( tCoordinates2 ), Matrix< DDRMat >( { { 2.0, 6.0 } } ), );
+        CHECK_EQUAL( tUserDefinedField->get_dfield_dadvs( tCoordinates1 ), Matrix< DDRMat >( { { 1.0, 3.0 } } ), );
+        CHECK_EQUAL( tUserDefinedField->get_dfield_dadvs( tCoordinates2 ), Matrix< DDRMat >( { { 2.0, 6.0 } } ), );
 
         // Change ADVs and coordinates
         tADVs         = { { 2.0, 0.5 } };
         tCoordinates1 = { { 0.0, 1.0 } };
         tCoordinates2 = { { 2.0, -1.0 } };
-        tUserDefinedGeometry->import_advs( nullptr );
+        tUserDefinedField->import_advs( nullptr );
 
         // Check field values
-        CHECK( tUserDefinedGeometry->get_field_value( tCoordinates1 ) == Approx( 8.0 ) );
-        CHECK( tUserDefinedGeometry->get_field_value( tCoordinates2 ) == Approx( -7.5 ) );
+        CHECK( tUserDefinedField->get_field_value( tCoordinates1 ) == Approx( 8.0 ) );
+        CHECK( tUserDefinedField->get_field_value( tCoordinates2 ) == Approx( -7.5 ) );
 
         // Check sensitivity values
-        CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( tCoordinates1 ), Matrix< DDRMat >( { { 0.0, 12.0 } } ), );
-        CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( tCoordinates2 ), Matrix< DDRMat >( { { 2.0, -12.0 } } ), );
+        CHECK_EQUAL( tUserDefinedField->get_dfield_dadvs( tCoordinates1 ), Matrix< DDRMat >( { { 0.0, 12.0 } } ), );
+        CHECK_EQUAL( tUserDefinedField->get_dfield_dadvs( tCoordinates2 ), Matrix< DDRMat >( { { 2.0, -12.0 } } ), );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry]" )
+    TEST_CASE( "B-spline Geometry", "[gen], [field], [distributed advs], [B-spline geometry]" )
     {
         // Set up 2 B-spline geometries
         Matrix< DDRMat >                    tADVs( 0, 0 );
         Matrix< DDRMat >                    tRadii = { { 0.5, 0.25 } };
-        Cell< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
+        Vector< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
 
         // Loop over possible cases
         for ( uint tBSplineOrder = 1; tBSplineOrder < 3; tBSplineOrder++ )
@@ -707,7 +707,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Stored Geometry", "[gen], [geometry], [stored geometry]" )
+    TEST_CASE( "Stored Field", "[gen], [field], [stored field]" )
     {
         // Create mesh
         mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 6, 6 );
@@ -782,7 +782,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Combined Field", "[gen], [geometry], [combined field]" )
+    TEST_CASE( "Combined Field", "[gen], [field], [combined field]" )
     {
         // ADV indices
         std::string      tADVIndices1    = "0, 1, 3";
@@ -791,7 +791,7 @@ namespace moris::ge
         Matrix< DDSMat > tADVIndicesMat2 = string_to_mat< DDSMat >( tADVIndices2 );
 
         // Set up 2 circles
-        Cell< ParameterList > tParameterLists( 3 );
+        Vector< ParameterList > tParameterLists( 3 );
         tParameterLists( 0 ) = prm::create_field_parameter_list();
         tParameterLists( 0 ).set( "field_type", "circle" );
         tParameterLists( 0 ).set( "field_variable_indices", "all" );
@@ -808,10 +808,10 @@ namespace moris::ge
         tParameterLists( 2 ).set( "field_type", "combined_fields" );
         tParameterLists( 2 ).set( "dependencies", "Circle 1, Circle 2" );
 
-        // Create multigeometry
+        // Create combined fields
         Matrix< DDRMat >                    tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
         Design_Factory                      tDesignFactory( tParameterLists, tADVs );
-        Cell< std::shared_ptr< Geometry > > tGeometries = tDesignFactory.get_geometries();
+        Vector< std::shared_ptr< Geometry > > tGeometries = tDesignFactory.get_geometries();
 
         // Should be only one total geometry
         REQUIRE( tGeometries.size() == 1 );
@@ -856,7 +856,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "Field Array", "[gen], [geometry], [field array]" )
+    TEST_CASE( "Field Array", "[gen], [field], [field array]" )
     {
         SECTION( "Circle Field Array (Number)" )
         {
@@ -889,7 +889,7 @@ namespace moris::ge
                 std::shared_ptr< Level_Set_Geometry > tSwissCheese = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
 
                 // Radii to check
-                Cell< real > tRadii;
+                Vector< real > tRadii;
                 if ( tUseADVs )
                 {
                     tRadii = { 0.1, 0.15, 0.2 };
@@ -1103,4 +1103,4 @@ namespace moris::ge
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}    // namespace moris::ge
+}    // namespace moris::gen

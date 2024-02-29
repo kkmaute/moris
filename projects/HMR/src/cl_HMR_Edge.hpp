@@ -13,7 +13,7 @@
 
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Mesh_Base.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Edge.hpp"
@@ -48,7 +48,7 @@ namespace moris::hmr
         uint mIndexOfLeader;
 
         // pointer with elements
-        moris::Cell< Element* > mElements;
+        Vector< Element* > mElements;
 
         // ----------------------------------------------------------------------------
 
@@ -112,9 +112,9 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * fills a moris::cell with pointers to connected vertices
+         * fills a Vector with pointers to connected vertices
          */
-        moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
+        Vector< mtk::Vertex* > get_vertex_pointers() const;
 
         // ----------------------------------------------------------------------------
 

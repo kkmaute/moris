@@ -12,7 +12,7 @@
 #define SRC_HMR_CL_HMR_INTERFACE_HPP_
 
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
-#include "cl_Cell.hpp"    //CNT/src
+#include "cl_Vector.hpp"    //CNT/src
 #include "cl_MTK_Enums.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mesh_Core.hpp"    //MTK/src
@@ -36,7 +36,7 @@ namespace moris::hmr
         std::string mLabel;
 
         // Dummy B-spline meshes
-        Cell< BSpline_Mesh_Base* > mDummyBSplineMeshes;
+        Vector< BSpline_Mesh_Base* > mDummyBSplineMeshes;
 
         // Stored Lagrange mesh
         Lagrange_Mesh_Base* mMesh = nullptr;
@@ -46,12 +46,12 @@ namespace moris::hmr
         friend class Integration_Mesh_HMR;
 
         // Global to Local Entity Map
-        // moris::Cell(0) - Node Global to Local
-        // moris::Cell(1) - Edge Global to Local
-        // moris::Cell(2) - Face Global to Local
-        // moris::Cell(3) - Cell Global to Local
+        // Vector(0) - Node Global to Local
+        // Vector(1) - Edge Global to Local
+        // Vector(2) - Face Global to Local
+        // Vector(3) - Cell Global to Local
         // Keep in mind not all of these are created
-        Cell< std::unordered_map< moris_id, moris_index > > mEntityGlobalToLocalMap;
+        Vector< std::unordered_map< moris_id, moris_index > > mEntityGlobalToLocalMap;
 
         //-------------------------------------------------------------------------------
 
@@ -354,18 +354,18 @@ namespace moris::hmr
         void get_elements_in_bspline_element(
                 moris_index const          aBspElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
-                moris::Cell< mtk::Cell* >& aCells );
+                Vector< mtk::Cell* >& aCells );
 
         // ----------------------------------------------------------------------------
 
         void
         get_lagrange_elements_in_bspline_elements(
                 moris_index const                          aDiscretizationMeshIndex,
-                moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
-                moris::Cell< moris::Cell< moris_index > >& aCellIndices,
-                moris::Cell< moris_index >&                aLagToBspCellIndices,
-                moris::Cell< uint >&                       aBspCellRefineLevels,
-                moris::Cell< mtk::Cell* >&                 aBspCells );
+                Vector< Vector< mtk::Cell* > >&  aCells,
+                Vector< Vector< moris_index > >& aCellIndices,
+                Vector< moris_index >&                aLagToBspCellIndices,
+                Vector< uint >&                       aBspCellRefineLevels,
+                Vector< mtk::Cell* >&                 aBspCells );
 
         // ----------------------------------------------------------------------------
 
@@ -374,8 +374,8 @@ namespace moris::hmr
                 moris_index                          aDiscretizationMeshIndex,
                 moris_index                          aBSplineCellIndex,
                 moris::mtk::Cell&                    aLagrangeCell,
-                moris::Cell< Cell< mtk::Vertex* > >& tBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&     tWeights ) override;
+                Vector< Vector< mtk::Vertex* > >& tBsplineBasis,
+                Vector< Matrix< DDRMat > >&     tWeights ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -384,9 +384,9 @@ namespace moris::hmr
                 moris_index                                       aDiscretizationMeshIndex,
                 const mtk::Cell*                                  aRootBSplineCell,
                 const mtk::Cell*                                  aExtendedBSplineCell,
-                moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
-                moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&                  tWeights ) override;
+                Vector< Vector< const mtk::Vertex* > >& tRootBsplineBasis,
+                Vector< const mtk::Vertex* >&                tExtendedBsplineBasis,
+                Vector< Matrix< DDRMat > >&                  tWeights ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -401,7 +401,7 @@ namespace moris::hmr
         void get_elements_in_interpolation_cluster(
                 moris_index                aElementIndex,
                 moris_index                aDiscretizationMeshIndex,
-                moris::Cell< mtk::Cell* >& tCells );
+                Vector< mtk::Cell* >& tCells );
 
         //-------------------------------------------------------------------------------
 
@@ -410,7 +410,7 @@ namespace moris::hmr
                 moris_index const          aBsplineElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
                 moris_index const          aSideOrdinal,
-                moris::Cell< mtk::Cell* >& aCells );
+                Vector< mtk::Cell* >& aCells );
 
         //-------------------------------------------------------------------------------
 
@@ -418,7 +418,7 @@ namespace moris::hmr
                 moris_index const          aElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
                 moris_index const          aSideOrdinal,
-                moris::Cell< mtk::Cell* >& aCells );
+                Vector< mtk::Cell* >& aCells );
 
         //-------------------------------------------------------------------------------
 
@@ -441,10 +441,10 @@ namespace moris::hmr
                 moris_index                 aBaseElementIndex,
                 moris_index                 aMySideOrdinal,
                 moris_index&                aMyRefineLevel,
-                moris::Cell< moris_index >& aNeighborElements,
-                moris::Cell< moris_index >& aNeighborElementSideOrdinals,
-                moris::Cell< moris_index >& aTransitionLocations,
-                moris::Cell< moris_index >& aNeighborRefinementLevels ) const;
+                Vector< moris_index >& aNeighborElements,
+                Vector< moris_index >& aNeighborElementSideOrdinals,
+                Vector< moris_index >& aTransitionLocations,
+                Vector< moris_index >& aNeighborRefinementLevels ) const;
 
         //-------------------------------------------------------------------------------
         //          Global ID Functions
@@ -520,7 +520,7 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        moris::Cell< std::string > get_set_names( mtk::EntityRank aSetEntityRank ) const;
+        Vector< std::string > get_set_names( mtk::EntityRank aSetEntityRank ) const;
 
         //-------------------------------------------------------------------------------
 
@@ -581,12 +581,12 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         get_all_vertices() const;
 
         //-------------------------------------------------------------------------------
 
-        //            moris::Cell<moris::mtk::Vertex const *>
+        //            Vector<moris::mtk::Vertex const *>
         //            get_all_vertices_including_aura() const;
 
         //-------------------------------------------------------------------------------

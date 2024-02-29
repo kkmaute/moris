@@ -16,7 +16,7 @@
 #include "cl_Library_IO.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Creates an instance of the specified Field class and returns a shared pointer to it.
@@ -29,7 +29,7 @@ namespace moris::ge
     std::shared_ptr< Field > create_field(
             ParameterList                         aFieldParameterList,
             Matrix< DDRMat >&                     aADVs,
-            Cell< std::shared_ptr< Field > >      aFieldDependencies = {},
+            Vector< std::shared_ptr< Field > >      aFieldDependencies = {},
             std::shared_ptr<Library_IO>           aLibrary = nullptr,
             mtk::Mesh*                            aMTKMesh = nullptr,
             uint                                  aIndex = 0 );

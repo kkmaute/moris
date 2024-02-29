@@ -38,8 +38,8 @@ namespace moris
 
         void
         CM_Struc_Linear::set_dof_type_list(
-                Cell< Cell< MSI::Dof_Type > > aDofTypes,
-                Cell< std::string >           aDofStrings )
+                Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                Vector< std::string >           aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -305,7 +305,7 @@ namespace moris
         void
         CM_Struc_Linear::eval_testTraction(
                 const Matrix< DDRMat >      &aNormal,
-                const Cell< MSI::Dof_Type > &aTestDofTypes )
+                const Vector< MSI::Dof_Type > &aTestDofTypes )
         {
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -619,7 +619,7 @@ namespace moris
 
         Matrix< DDRMat >
         CM_Struc_Linear::eval_dInvBulkModulusdDOF(
-                const Cell< MSI::Dof_Type > &aDofTypes )
+                const Vector< MSI::Dof_Type > &aDofTypes )
         {
             MORIS_ERROR( 0, "eval_dInvBulkModulusdDOF is not implemented in the base class CM_Struc_Linear" );
             return { {} };
@@ -628,7 +628,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::eval_dFluxdDOF( const Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Struc_Linear::eval_dFluxdDOF( const Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -674,7 +674,7 @@ namespace moris
 
         void
         CM_Struc_Linear::eval_dTractiondDOF(
-                const Cell< MSI::Dof_Type > &aDofTypes,
+                const Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >      &aNormal )
         {
             // get the dof type as a uint
@@ -695,10 +695,10 @@ namespace moris
 
         void
         CM_Struc_Linear::eval_dTestTractiondDOF(
-                const Cell< MSI::Dof_Type > &aDofTypes,
+                const Vector< MSI::Dof_Type > &aDofTypes,
                 const Matrix< DDRMat >      &aNormal,
                 const Matrix< DDRMat >      &aJump,
-                const Cell< MSI::Dof_Type > &aTestDofTypes )
+                const Vector< MSI::Dof_Type > &aTestDofTypes )
         {
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -715,7 +715,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::eval_dStraindDOF( const Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Struc_Linear::eval_dStraindDOF( const Vector< MSI::Dof_Type > &aDofTypes )
         {
             // get the dof type index
             const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -811,7 +811,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::eval_dConstdDOF( const Cell< MSI::Dof_Type > &aDofTypes )
+        CM_Struc_Linear::eval_dConstdDOF( const Vector< MSI::Dof_Type > &aDofTypes )
         {
             MORIS_ERROR( false, "CM_Struc_Linear::eval_dConstdDOF - Not implemented." );
         }

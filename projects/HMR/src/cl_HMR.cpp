@@ -16,7 +16,7 @@
 
 #include "dlfcn.h"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -180,7 +180,7 @@ namespace moris::hmr
             this->output_mesh_refinement_data();
         }
 
-        const Cell< Matrix< DDUMat > >& OutputMeshIndex = mParameters->get_output_mesh();
+        const Vector< Matrix< DDUMat > >& OutputMeshIndex = mParameters->get_output_mesh();
 
         MORIS_ERROR( OutputMeshIndex( 0 ).numel() == 1,
                 "HMR::perform(), Only one output mesh allowed right! To allow more implement multiple side sets!" );
@@ -194,7 +194,7 @@ namespace moris::hmr
         moris::hmr::Integration_Mesh_HMR* tIntegrationMesh =
                 this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
-        const Cell< std::string >& tMeshNames = mParameters->get_output_mesh_names();
+        const Vector< std::string >& tMeshNames = mParameters->get_output_mesh_names();
 
         // register HMR interpolation and integration meshes; this will be the first mesh pair stored in MTK mesh manager
         mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true, tMeshNames( 0 ) );
@@ -262,7 +262,7 @@ namespace moris::hmr
         uint tNumBSPattern  = tBSplinePatter.numel();
 
         // make pattern unique
-        moris::Cell< uint > tPatternList( tNumLagPattern + tNumBSPattern );
+        Vector< uint > tPatternList( tNumLagPattern + tNumBSPattern );
 
         for ( uint Ik = 0; Ik < tNumLagPattern; Ik++ )
         {
@@ -751,7 +751,7 @@ namespace moris::hmr
 
     void
     HMR::flag_elements_on_working_pattern(
-            Cell< hmr::Element* >& aElements,
+            Vector< hmr::Element* >& aElements,
             const uint             aMinRefinementLevel )
     {
         // get  working pattern
@@ -784,7 +784,7 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
     void
-    HMR::put_elements_on_refinement_queue( Cell< hmr::Element* >& aElements )
+    HMR::put_elements_on_refinement_queue( Vector< hmr::Element* >& aElements )
     {
         // loop over all active elements
         for ( hmr::Element* tCell : aElements )
@@ -1394,8 +1394,8 @@ namespace moris::hmr
 
     void
     HMR::user_defined_flagging(
-            Cell< hmr::Element* >&  aCells,
-            Cell< hmr::Element* >&  aCandidates,
+            Vector< hmr::Element* >&  aCells,
+            Vector< hmr::Element* >&  aCandidates,
             const Matrix< DDRMat >& aVertexValues,
             uint                    aFunctionIndex )
     {
@@ -1469,8 +1469,8 @@ namespace moris::hmr
 
     void
     HMR::user_defined_flagging(
-            Cell< hmr::Element* >&  aCells,
-            Cell< hmr::Element* >&  aCandidates,
+            Vector< hmr::Element* >&  aCells,
+            Vector< hmr::Element* >&  aCandidates,
             const Matrix< DDRMat >& aVertexValues,
             Refinement_Function     aRefinementFunction )
     {
@@ -1551,7 +1551,7 @@ namespace moris::hmr
 
     void
     HMR::get_candidates_for_refinement(
-            Cell< hmr::Element* >& aCandidates,
+            Vector< hmr::Element* >& aCandidates,
             const uint             aLagrangeMeshIndex )
     {
         // reset candidate list
@@ -1578,7 +1578,7 @@ namespace moris::hmr
         // loop over all levels and determine size of Cell
         for ( uint l = 0; l <= tMaxLevel; ++l )
         {
-            Cell< Background_Element_Base* > tBackgroundElements;
+            Vector< Background_Element_Base* > tBackgroundElements;
 
             tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
 
@@ -1602,7 +1602,7 @@ namespace moris::hmr
         // loop over all levels
         for ( uint l = 0; l <= tMaxLevel; ++l )
         {
-            Cell< Background_Element_Base* > tBackgroundElements;
+            Vector< Background_Element_Base* > tBackgroundElements;
             tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
 
             // element must be active or refined
@@ -1620,7 +1620,7 @@ namespace moris::hmr
 
     void
     HMR::get_candidates_for_refinement(
-            Cell< hmr::Element* >& aCandidates,
+            Vector< hmr::Element* >& aCandidates,
             Lagrange_Mesh_Base*    aMesh )
     {
         // reset candidate list
@@ -1642,7 +1642,7 @@ namespace moris::hmr
         // loop over all levels and determine size of Cell
         for ( uint l = 0; l <= tMaxLevel; ++l )
         {
-            Cell< Background_Element_Base* > tBackgroundElements;
+            Vector< Background_Element_Base* > tBackgroundElements;
 
             tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
 
@@ -1666,7 +1666,7 @@ namespace moris::hmr
         // loop over all levels
         for ( uint l = 0; l <= tMaxLevel; ++l )
         {
-            Cell< Background_Element_Base* > tBackgroundElements;
+            Vector< Background_Element_Base* > tBackgroundElements;
             tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
 
             // element must be active or refined
@@ -1682,7 +1682,7 @@ namespace moris::hmr
 
     void
     HMR::get_active_candidates_for_refinement(
-            Cell< hmr::Element* >& aCandidates,
+            Vector< hmr::Element* >& aCandidates,
             const uint             aLagrangeMeshIndex )
     {
         // reset candidate list
@@ -1709,7 +1709,7 @@ namespace moris::hmr
         // loop over all levels and determine size of Cell
         for ( uint l = 0; l <= tMaxLevel; ++l )
         {
-            Cell< Background_Element_Base* > tBackgroundElements;
+            Vector< Background_Element_Base* > tBackgroundElements;
 
             tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
 
@@ -1733,7 +1733,7 @@ namespace moris::hmr
         // loop over all levels
         for ( uint l = 0; l <= tMaxLevel; ++l )
         {
-            Cell< Background_Element_Base* > tBackgroundElements;
+            Vector< Background_Element_Base* > tBackgroundElements;
             tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
 
             // element must be active or refined
@@ -1751,7 +1751,7 @@ namespace moris::hmr
 
     void
     HMR::get_active_candidates_for_refinement(
-            Cell< hmr::Element* >& aCandidates,
+            Vector< hmr::Element* >& aCandidates,
             Lagrange_Mesh_Base*    aMesh )
     {
         // reset candidate list
@@ -1773,7 +1773,7 @@ namespace moris::hmr
         // loop over all levels and determine size of Cell
         for ( uint l = 0; l <= tMaxLevel; ++l )
         {
-            Cell< Background_Element_Base* > tBackgroundElements;
+            Vector< Background_Element_Base* > tBackgroundElements;
 
             tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
 
@@ -1797,7 +1797,7 @@ namespace moris::hmr
         // loop over all levels
         for ( uint l = 0; l <= tMaxLevel; ++l )
         {
-            Cell< Background_Element_Base* > tBackgroundElements;
+            Vector< Background_Element_Base* > tBackgroundElements;
             tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
 
             // element must be active or refined
@@ -1819,10 +1819,10 @@ namespace moris::hmr
         uint aElementCounter = 0;
 
         // candidates for refinement
-        Cell< hmr::Element* > tCandidates;
+        Vector< hmr::Element* > tCandidates;
 
         // elements to be flagged for refinement
-        Cell< hmr::Element* > tRefinementList;
+        Vector< hmr::Element* > tRefinementList;
 
         uint tLagrangeMeshIndex = aScalarField->get_lagrange_mesh_index();
 
@@ -1869,10 +1869,10 @@ namespace moris::hmr
         uint aElementCounter = 0;
 
         // candidates for refinement
-        Cell< hmr::Element* > tCandidates;
+        Vector< hmr::Element* > tCandidates;
 
         // elements to be flagged for refinement
-        Cell< hmr::Element* > tRefinementList;
+        Vector< hmr::Element* > tRefinementList;
 
         uint tLagrangeMeshIndex = aScalarField->get_lagrange_mesh_index();
 
@@ -1906,10 +1906,10 @@ namespace moris::hmr
         uint aElementCounter = 0;
 
         // candidates for refinement
-        Cell< hmr::Element* > tCandidates;
+        Vector< hmr::Element* > tCandidates;
 
         // elements to be flagged for refinement
-        Cell< hmr::Element* > tRefinementList;
+        Vector< hmr::Element* > tRefinementList;
 
         // get candidates for surface
         this->get_candidates_for_refinement(
@@ -1955,12 +1955,12 @@ namespace moris::hmr
         uint aElementCounter = 0;
 
         // candidates for refinement
-        Cell< hmr::Element* > tCandidates;
+        Vector< hmr::Element* > tCandidates;
 
         // elements to be flagged for refinement
-        Cell< hmr::Element* > tRefinementList;
+        Vector< hmr::Element* > tRefinementList;
 
-        Cell< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
+        Vector< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
 
         Factory tFactory( mParameters );
 
@@ -2013,12 +2013,12 @@ namespace moris::hmr
         uint aElementCounter = 0;
 
         // candidates for refinement
-        Cell< hmr::Element* > tCandidates;
+        Vector< hmr::Element* > tCandidates;
 
         // elements to be flagged for refinement
-        Cell< hmr::Element* > tRefinementList;
+        Vector< hmr::Element* > tRefinementList;
 
-        Cell< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
+        Vector< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
 
         Factory tFactory( mParameters );
 
@@ -2074,10 +2074,10 @@ namespace moris::hmr
         if ( mParameters->use_refinement_for_low_level_elements() )
         {
             // candidates for refinement
-            Cell< hmr::Element* > tCandidates;
+            Vector< hmr::Element* > tCandidates;
 
             // elements to be flagged for refinement
-            Cell< hmr::Element* > tRefinementList;
+            Vector< hmr::Element* > tRefinementList;
 
             // get candidates for surface
             this->get_active_candidates_for_refinement(
@@ -2122,12 +2122,12 @@ namespace moris::hmr
         if ( mParameters->use_refinement_for_low_level_elements() && aPattern == 0 )
         {
             // candidates for refinement
-            Cell< hmr::Element* > tCandidates;
+            Vector< hmr::Element* > tCandidates;
 
             // elements to be flagged for refinement
-            Cell< hmr::Element* > tRefinementList;
+            Vector< hmr::Element* > tRefinementList;
 
-            Cell< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
+            Vector< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
 
             Factory tFactory( mParameters );
 
@@ -2188,12 +2188,12 @@ namespace moris::hmr
         if ( mParameters->use_refinement_for_low_level_elements() && aPattern == 0 )
         {
             // candidates for refinement
-            Cell< hmr::Element* > tCandidates;
+            Vector< hmr::Element* > tCandidates;
 
             // elements to be flagged for refinement
-            Cell< hmr::Element* > tRefinementList;
+            Vector< hmr::Element* > tRefinementList;
 
-            Cell< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
+            Vector< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
 
             Factory tFactory( mParameters );
 
@@ -2611,8 +2611,8 @@ namespace moris::hmr
 
     void
     HMR::find_cells_intersected_by_levelset(
-            Cell< hmr::Element* >&  aCells,
-            Cell< hmr::Element* >&  aCandidates,
+            Vector< hmr::Element* >&  aCells,
+            Vector< hmr::Element* >&  aCandidates,
             const Matrix< DDRMat >& aVertexValues,
             const real              aLowerBound,
             const real              aUpperBound )
@@ -2635,7 +2635,7 @@ namespace moris::hmr
         for ( hmr::Element* tCell : aCandidates )
         {
             // get cell of vertex pointers
-            Cell< mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
+            Vector< mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
 
             // get number of vertices on this element
             uint tNumberOfVertices = tVertices.size();
@@ -2666,8 +2666,8 @@ namespace moris::hmr
 
     void
     HMR::find_low_level_cells_intersected_by_levelset(
-            Cell< hmr::Element* >&  aCells,
-            Cell< hmr::Element* >&  aCandidates,
+            Vector< hmr::Element* >&  aCells,
+            Vector< hmr::Element* >&  aCandidates,
             const Matrix< DDRMat >& aVertexValues,
             const real              aLowerBound,
             const real              aUpperBound )
@@ -2692,7 +2692,7 @@ namespace moris::hmr
         for ( hmr::Element* tCell : aCandidates )
         {
             // get cell of vertex pointers
-            Cell< mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
+            Vector< mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
 
             // get number of vertices on this element
             uint tNumberOfVertices = tVertices.size();
@@ -2726,8 +2726,8 @@ namespace moris::hmr
 
     void
     HMR::find_cells_within_levelset(
-            Cell< hmr::Element* >&  aCells,
-            Cell< hmr::Element* >&  aCandidates,
+            Vector< hmr::Element* >&  aCells,
+            Vector< hmr::Element* >&  aCandidates,
             const Matrix< DDRMat >& aVertexValues,
             const uint              aUpperBound )
     {
@@ -2744,7 +2744,7 @@ namespace moris::hmr
         for ( hmr::Element* tCell : aCandidates )
         {
             // get cell of vertex pointers
-            Cell< mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
+            Vector< mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
 
             // get number of vertices on this element
             uint tNumberOfVertices = tVertices.size();

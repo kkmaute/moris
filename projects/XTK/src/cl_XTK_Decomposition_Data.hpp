@@ -8,21 +8,103 @@
  *
  */
 
-#ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_
-#define PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_
+#pragma once
 
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_XTK_Topology.hpp"
-#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Vertex.hpp"
+#include "enums.hpp"
+
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     struct Decomposition_Data
     {
+        // ----------------------------------------------------------------------------------
+
+        moris_index mDecompId = 0;
+
+        // Store the decomposition method here (used for assertion purposes)
+        enum Subdivision_Method mSubdivisionMethod = Subdivision_Method::NO_METHOD;
+
+        // Specify whether the decomposition is conformal or note
+        // needed to tell geometry engine to store the edge a node was created once
+        bool mConformalDecomp        = false;
+        bool mHasSecondaryIdentifier = false;
+        bool mFirstSubdivision       = false;
+
+        // Active child mesh to its nodes location in tNewNodeIndex
+        Vector< Vector< moris_index > >      tCMNewNodeLoc;           // input: Cell group index || output: list of edge indices
+        Vector< Vector< Matrix< DDRMat > > > tCMNewNodeParamCoord;    // input: Cell group index || output: list of coordinates
+        /* Note: this stores some duplicate parametric coordinates but is necessary for flexible use*/
+
+        // New node indices
+        Vector< moris_index > tNewNodeIndex;
+
+        // new node ids
+        Vector< moris_index > tNewNodeId;
+
+        // new node owner
+        Vector< moris_index > tNewNodeOwner;
+
+        // hanging nodes between procs
+        Vector< moris_index > tNewNodeHangingFlag;
+        Vector< moris_index > tNewNodeHangingWRTProcRank;
+
+        // New node parent topology
+        Vector< Topology* > tNewNodeParentTopology;
+
+        Vector< mtk::Cell* >                          mNewNodeParentCells;
+        Vector< std::shared_ptr< Matrix< DDRMat > > > mNewVertexLocalCoordWRTParentCell;
+
+        // new node vertex dependencies
+        Vector< std::shared_ptr< Vector< mtk::Vertex* > > > mNewVertexParentVertices;
+
+        Vector< std::shared_ptr< Matrix< DDRMat > > > mNewVertexBasisWeights;
+
+        // Parent index of a new node
+        Vector< moris_index > tNewNodeParentIndex;
+
+        // Parent entity secondary identifier
+        Vector< moris_index > tSecondaryIdentifiers;
+
+        // Parent entity rank
+        Vector< mtk::EntityRank > tNewNodeParentRank;
+
+        // new node coordinate
+        Vector< Matrix< DDRMat > > tNewNodeCoordinate;
+
+        // new node parametric coordinate relative to parent entity
+        Vector< Matrix< DDRMat > > tParamCoordRelativeToParent;
+
+        // map from elements to location in tNewNodeParentIndex
+        std::unordered_map< moris_index, moris_index > tElementIndexToNodeLoc;
+
+        Vector< IndexMap > mElementIndexToSecondaryIdAndNewNodeLoc;
+
+        // map from face to location in tNewNodeParentIndex
+        std::unordered_map< moris_index, moris_index > tFaceIndexToNodeLoc;
+
+        // Face index to secondary identifiers
+        // outer cell - Face index
+        // inner map - iter->first  = secondary id
+        //             iter->second = new node location
+        Vector< IndexMap > mFaceIndexToSecondaryIdAndNewNodeLoc;
+
+        std::unordered_map< moris_index, moris_index > mEdgeIndexToNodeLoc;
+        Vector< IndexMap >                             mEdgeIndexToSecondaryIdAndNewNodeLoc;
+
+        // map from edge to location in tNewNodeParentIndex
+        std::unordered_map< moris_index, moris_index > tEdgeIndexToNodeLoc;
+
+        // number of new nodes which have been assigned identifiers
+        uint mNumNewNodesWithIds;
+
+        // ----------------------------------------------------------------------------------
+
         Decomposition_Data()
                 : tCMNewNodeLoc( 0, 0 )
                 , tNewNodeIndex( 0, 0 )
@@ -33,7 +115,10 @@ namespace xtk
                 , tNewNodeCoordinate( 0, Matrix< DDRMat >( 0, 0 ) )
                 , mNumNewNodesWithIds( 0 )
         {
+            // do nothing
         }
+
+        // ----------------------------------------------------------------------------------
 
         ~Decomposition_Data()
         {
@@ -43,14 +128,17 @@ namespace xtk
             }
         }
 
+        // ----------------------------------------------------------------------------------
+
         /*!
          * Returns whether the request has been made and the request location
          * relative to tCMNewNodeLoc cell if it is not a new one aRequestLoc = MORIS_INDEX_MAX
          */
         bool
-        request_exists( moris_index aParentEntityIndex,
-                mtk::EntityRank     aParentEntityRank,
-                moris_index&        aRequestLoc )
+        request_exists(
+                moris_index     aParentEntityIndex,
+                mtk::EntityRank aParentEntityRank,
+                moris_index&    aRequestLoc )
         {
             MORIS_ASSERT( !mHasSecondaryIdentifier, "request_exists without a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
             bool tRequestExists = false;
@@ -91,16 +179,20 @@ namespace xtk
             }
 
             return tRequestExists;
-        }
+
+        }    // end function: Decomposition_Data::request_exists()
+
+        // ----------------------------------------------------------------------------------
 
         /*!
          *
          */
         bool
-        request_exists( moris_index aParentEntityIndex,
-                moris_index         aParentSecondaryIdentifier,
-                mtk::EntityRank     aParentEntityRank,
-                moris_index&        aRequestLoc )
+        request_exists(
+                moris_index     aParentEntityIndex,
+                moris_index     aParentSecondaryIdentifier,
+                mtk::EntityRank aParentEntityRank,
+                moris_index&    aRequestLoc )
         {
             MORIS_ASSERT( mHasSecondaryIdentifier,
                     "request_exists with a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
@@ -199,7 +291,10 @@ namespace xtk
             }    // end: switch ( aParentEntityRank )
 
             return tRequestExists;
-        }
+
+        }    // end function: Decomposition_Data::request_exists()
+
+        // ----------------------------------------------------------------------------------
 
         moris_index
         register_new_request(
@@ -207,8 +302,8 @@ namespace xtk
                 moris_index                         aParentEntityOwner,
                 mtk::EntityRank                     aParentEntityRank,
                 Matrix< DDRMat > const &            aNewNodeCoord,
-                moris::mtk::Cell*                   aNewVertexParentCell,
-                std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCooridnates )
+                mtk::Cell*                          aNewVertexParentCell,
+                std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCoordinates )
         {
             MORIS_ASSERT( !mHasSecondaryIdentifier, "register_new_request w/o a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
 
@@ -225,7 +320,7 @@ namespace xtk
             tNewNodeParentRank.push_back( aParentEntityRank );
             tNewNodeCoordinate.push_back( aNewNodeCoord );
             mNewNodeParentCells.push_back( aNewVertexParentCell );
-            mNewVertexLocalCoordWRTParentCell.push_back( aNewVertexLocalCooridnates );
+            mNewVertexLocalCoordWRTParentCell.push_back( aNewVertexLocalCoordinates );
 
             switch ( aParentEntityRank )
             {
@@ -250,10 +345,10 @@ namespace xtk
                 case mtk::EntityRank::EDGE:
                 {
                     // Check if this entity already exists in debug only
-                    MORIS_ASSERT( tEdgeIndexToNodeLoc.find( aParentEntityIndex ) == tEdgeIndexToNodeLoc.end(), "New request being made which already exists" );
+                    MORIS_ASSERT( mEdgeIndexToNodeLoc.find( aParentEntityIndex ) == mEdgeIndexToNodeLoc.end(), "New request being made which already exists" );
 
                     // add to map
-                    tEdgeIndexToNodeLoc[ aParentEntityIndex ] = tRequestIndex;
+                    mEdgeIndexToNodeLoc[ aParentEntityIndex ] = tRequestIndex;
                     break;
                 }
                 default:
@@ -265,7 +360,10 @@ namespace xtk
             }
 
             return tRequestIndex;
-        }
+
+        }    // end function: Decomposition_Data::register_new_requests()
+
+        // ----------------------------------------------------------------------------------
 
         moris_index
         register_new_request(
@@ -274,8 +372,8 @@ namespace xtk
                 moris_index                         aParentEntityOwner,
                 mtk::EntityRank                     aParentEntityRank,
                 Matrix< DDRMat > const &            aNewNodeCoord,
-                moris::mtk::Cell*                   aNewVertexParentCell       = nullptr,
-                std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCooridnates = nullptr )
+                mtk::Cell*                          aNewVertexParentCell       = nullptr,
+                std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCoordinates = nullptr )
         {
             MORIS_ASSERT( mHasSecondaryIdentifier, "register_new_request with a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
 
@@ -296,7 +394,7 @@ namespace xtk
 
             // for octree refinement
             mNewNodeParentCells.push_back( aNewVertexParentCell );
-            mNewVertexLocalCoordWRTParentCell.push_back( aNewVertexLocalCooridnates );
+            mNewVertexLocalCoordWRTParentCell.push_back( aNewVertexLocalCoordinates );
 
             // add information to the maps
             switch ( aParentEntityRank )
@@ -380,12 +478,15 @@ namespace xtk
                 }
             }
             return tRequestIndex;
-        }
+
+        }    // end function: Decomposition_Data::register_new_requests()
+
+        // ----------------------------------------------------------------------------------
 
         void
         print_requests(
-                moris::mtk::Mesh const & aBackgroundMesh,
-                std::string              aFile = "" )
+                mtk::Mesh const & aBackgroundMesh,
+                std::string       aFile = "" )
         {
             std::stringstream oSS;
             oSS << "Request_Index,";
@@ -427,12 +528,15 @@ namespace xtk
                 tOutputFile << oSS.str() << std::endl;
                 tOutputFile.close();
             }
-        }
+
+        }    // end function: Decomposition_Data::print_requests()
+
+        // ----------------------------------------------------------------------------------
 
         void
         print(
-                moris::mtk::Mesh const & aBackgroundMesh,
-                std::string              aFile = "" )
+                mtk::Mesh const & aBackgroundMesh,
+                std::string       aFile = "" )
         {
             // std::stringstream oSS;
             // oSS << "Request_Index,";
@@ -479,86 +583,13 @@ namespace xtk
             //     tOutputFile << oSS.str() << std::endl;
             //     tOutputFile.close();
             // }
-        }
 
-        moris_index tDecompId = 0;
+        }    // end function: Decomposition_Data::print()
 
-        // Store the decomposition method here (used for assertion purposes)
-        enum Subdivision_Method mSubdivisionMethod = Subdivision_Method::NO_METHOD;
+        // ----------------------------------------------------------------------------------
 
-        // Specify whether the decomposition is conformal or note
-        // needed to tell geometry engine to store the edge a node was created once
-        bool mConformalDecomp        = false;
-        bool mHasSecondaryIdentifier = false;
-        bool mFirstSubdivision       = false;
+    };    // end struct: Decomposition_Data
 
-        // Active child mesh to its nodes location in tNewNodeIndex
-        Cell< Cell< moris_index > >      tCMNewNodeLoc;           // input: Cell group index || output: list of edge indices
-        Cell< Cell< Matrix< DDRMat > > > tCMNewNodeParamCoord;    // input: Cell group index || output: list of coordinates
-        /* Note: this stores some duplicate parametric coordinates but is necessary for flexible use*/
+    // ----------------------------------------------------------------------------------
 
-        // New node indices
-        Cell< moris_index > tNewNodeIndex;
-
-        // new node ids
-        Cell< moris_index > tNewNodeId;
-
-        // new node owner
-        Cell< moris_index > tNewNodeOwner;
-
-        // hanging nodes between procs
-        Cell< moris_index > tNewNodeHangingFlag;
-        Cell< moris_index > tNewNodeHangingWRTProcRank;
-
-        // New node parent topology
-        Cell< Topology* > tNewNodeParentTopology;
-
-        Cell< moris::mtk::Cell* >                   mNewNodeParentCells;
-        Cell< std::shared_ptr< Matrix< DDRMat > > > mNewVertexLocalCoordWRTParentCell;
-
-        // new node vertex dependencies
-        Cell< std::shared_ptr< Cell< moris::mtk::Vertex* > > > mNewVertexParentVertices;
-
-        Cell< std::shared_ptr< Matrix< DDRMat > > > mNewVertexBasisWeights;
-
-        // Parent index of a new node
-        Cell< moris_index > tNewNodeParentIndex;
-
-        // Parent entity secondary identifier
-        Cell< moris_index > tSecondaryIdentifiers;
-
-        // Parent entity rank
-        Cell< mtk::EntityRank > tNewNodeParentRank;
-
-        // new node coordinate
-        Cell< Matrix< DDRMat > > tNewNodeCoordinate;
-
-        // new node parametric coordinate relative to parent entity
-        Cell< Matrix< DDRMat > > tParamCoordRelativeToParent;
-
-        // map from elements to location in tNewNodeParentIndex
-        std::unordered_map< moris_index, moris_index > tElementIndexToNodeLoc;
-
-        Cell< IndexMap > mElementIndexToSecondaryIdAndNewNodeLoc;
-
-        // map from face to location in tNewNodeParentIndex
-        std::unordered_map< moris_index, moris_index > tFaceIndexToNodeLoc;
-
-        // Face index to secondary identifiers
-        // outer cell - Face index
-        // inner map - iter->first  = secondary id
-        //             iter->second = new node location
-        Cell< IndexMap > mFaceIndexToSecondaryIdAndNewNodeLoc;
-
-        std::unordered_map< moris_index, moris_index >         mEdgeIndexToNodeLoc;
-        Cell< IndexMap > mEdgeIndexToSecondaryIdAndNewNodeLoc;
-
-        // map from edge to location in tNewNodeParentIndex
-        std::unordered_map< moris_index, moris_index > tEdgeIndexToNodeLoc;
-
-        // number of new nodes which have been assigned identifiers
-        uint mNumNewNodesWithIds;
-    };
-}    // namespace xtk
-
-#endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_ */
+}    // namespace moris::xtk

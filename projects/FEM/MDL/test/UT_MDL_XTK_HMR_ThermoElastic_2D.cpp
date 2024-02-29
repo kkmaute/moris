@@ -15,7 +15,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "HDF5_Tools.hpp"
 
@@ -149,7 +149,7 @@ namespace moris
     inline void
     tConstValFunction(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -218,21 +218,21 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            auto tPlane = std::make_shared< moris::gen::Plane >( -500.0, 0.0, 1.0, 0.0 );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
             //------------------------------------------------------------------------------
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
 
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -413,7 +413,7 @@ namespace moris
             tSetDirichlet.set_IWGs( { tIWGDirichletU, tIWGDirichletTEMP } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
+            Vector< fem::Set_User_Info > tSetInfo( 2 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetDirichlet;
 
@@ -441,7 +441,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -590,13 +590,13 @@ namespace moris
     //
     //         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
     //
-    //         moris::ge::Level_Set_Geometry_Field_HMR tPlaneFieldAsGeom(tField);
+    //         moris::gen::Level_Set_Geometry_Field_HMR tPlaneFieldAsGeom(tField);
     //
-    //         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+    //         Vector<moris::gen::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
     //
     //         size_t tModelDimension = 2;
-    //         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    //         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+    //         moris::gen::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    //         moris::gen::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
     //
     //         xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
     //
@@ -692,21 +692,21 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
+            auto tPlane = std::make_shared< moris::gen::Plane >( -500.0, 0.0, 1.0, 0.0 );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             size_t tModelDimension = 2;
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
 
             tXTKModel.mVerbose = false;
 
             // Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
@@ -889,7 +889,7 @@ namespace moris
             tSetDirichlet.set_IWGs( { tIWGDirichletU, tIWGDirichletTEMP } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
+            Vector< fem::Set_User_Info > tSetInfo( 2 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetDirichlet;
 
@@ -918,7 +918,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
 
             tParameterlist( 0 ).resize( 3 );
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
@@ -1000,8 +1000,8 @@ namespace moris
             //        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             //        // STEP 1: create linear solver and algorithm
             //        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            //        moris::Cell< enum MSI::Dof_Type > tDofTypesT( 1 );            tDofTypesT( 0 ) = MSI::Dof_Type::TEMP;
-            //        moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );            tDofTypesU( 0 ) = MSI::Dof_Type::UX;              tDofTypesU( 1 ) = MSI::Dof_Type::UY;
+            //        Vector< enum MSI::Dof_Type > tDofTypesT( 1 );            tDofTypesT( 0 ) = MSI::Dof_Type::TEMP;
+            //        Vector< enum MSI::Dof_Type > tDofTypesU( 2 );            tDofTypesU( 0 ) = MSI::Dof_Type::UX;              tDofTypesU( 1 ) = MSI::Dof_Type::UY;
             //
             //        dla::Solver_Factory  tSolFactory;
             //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
@@ -1187,7 +1187,7 @@ namespace moris
     //
     //      xtk::Geom_Field tCircleFieldAsGeom(tHMRFields(0));
     //      xtk::Geom_Field tPlaneFieldAsGeom2(tHMRFields(1));
-    //      moris::Cell<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
+    //      Vector<xtk::Geometry*> tGeometryVector = {&tCircleFieldAsGeom,&tPlaneFieldAsGeom2};
     //
     //      xtk::Phase_Table     tPhaseTable (tGeometryVector.size(),  Phase_Table_Structure::EXP_BASE_2);
     //      xtk::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tSpatialDimension);
@@ -1215,7 +1215,7 @@ namespace moris
     //      tBulkIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_BULK,
     //                                                  { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
     //                                                  {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
-    //                                                  moris::Cell< fem::Property_Type >( 0 ),
+    //                                                  Vector< fem::Property_Type >( 0 ),
     //                                                  { fem::Constitutive_Type::STRUC_LIN_ISO } );
     //
     //      tDBCIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,
@@ -1228,7 +1228,7 @@ namespace moris
     //                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
     //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },},
     //                                                 { fem::Property_Type::STRUC_NEUMANN },
-    //                                                 moris::Cell< fem::Constitutive_Type >( 0 ) );
+    //                                                 Vector< fem::Constitutive_Type >( 0 ) );
     //      tIntIWG( 0 ) = fem::IWG_User_Defined_Info( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,
     //                                                 { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ },
     //                                                 {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }},
@@ -1415,7 +1415,7 @@ namespace moris
     //        std::string tDblInterfaceSideSetName13 = tEnrIntegMesh.get_dbl_interface_side_set_name(1,3);
     //        std::string tDblInterfaceSideSetName23 = tEnrIntegMesh.get_dbl_interface_side_set_name(2,3);
     //
-    //        moris::Cell< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
+    //        Vector< moris_index >  tSetList = { tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p0"),
     //                                                 tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p0"),
     //                                                 tEnrIntegMesh.get_set_index_by_name("HMR_dummy_c_p1"),
     //                                                 tEnrIntegMesh.get_set_index_by_name("HMR_dummy_n_p1"),
@@ -1430,7 +1430,7 @@ namespace moris
     //                                                 tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName13),
     //                                                 tEnrIntegMesh.get_set_index_by_name(tDblInterfaceSideSetName23)};
     //
-    //        moris::Cell< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
+    //        Vector< fem::Element_Type > tSetTypeList = { fem::Element_Type::BULK,
     //                                                          fem::Element_Type::BULK,
     //                                                          fem::Element_Type::BULK,
     //                                                          fem::Element_Type::BULK,

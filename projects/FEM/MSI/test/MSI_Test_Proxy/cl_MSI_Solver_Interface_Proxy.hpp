@@ -29,13 +29,13 @@ namespace moris::MSI
         moris::Matrix< DDSMat >                mMyGlobalElementsOverlapping;          // local-to-global map
         moris::Matrix< IdMat >                 mMyGlobalElementsOverlappingOwners;    // local-to-global map
         moris::uint                            mNumElements;                          // number local elements
-        moris::Cell< moris::Matrix< DDSMat > > mEleDofConectivity;                    // element - dof connectivities
+        Vector< moris::Matrix< DDSMat > > mEleDofConectivity;                    // element - dof connectivities
         moris::Matrix< DDRMat >                mElementMatrixValues;                  // dense element matrix entries
         moris::uint                            mNumDofsPerElement;                    // dofs per element
         moris::Matrix< DDUMat >                mMyConstraintDofs;                     // constraint dofs
-        Cell< moris::Matrix< DDRMat > >        mMyRHSValues;                          // Vector with RHS values
+        Vector< moris::Matrix< DDRMat > >        mMyRHSValues;                          // Vector with RHS values
         uint                                   mNumRHS = 1;
-        moris::Cell< enum MSI::Dof_Type >      mDummyDofs;
+        Vector< enum MSI::Dof_Type >      mDummyDofs;
         moris::Matrix< DDRMat >                mElementMassMatrixValues;    // RHS Matrix for Eigen Problem
 
         Matrix< IdMat > mCommTable;
@@ -219,7 +219,7 @@ namespace moris::MSI
         void
         get_equation_object_rhs(
                 const uint&               aMyElementInd,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             aElementRHS.resize( mNumRHS );
 
@@ -235,7 +235,7 @@ namespace moris::MSI
         get_equation_object_rhs(
                 const uint&               aMyBlockInd,
                 const uint&               aMyElementInd,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             aElementRHS.resize( mNumRHS );
 
@@ -251,7 +251,7 @@ namespace moris::MSI
         get_equation_object_operator_and_rhs(
                 const moris::uint&        aMyElementInd,
                 Matrix< DDRMat >&         aElementMatrix,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             aElementMatrix = mElementMatrixValues;
 
@@ -270,7 +270,7 @@ namespace moris::MSI
                 const moris::uint&        aMyEquSetInd,
                 const moris::uint&        aMyElementInd,
                 Matrix< DDRMat >&         aElementMatrix,
-                Cell< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS )
         {
             aElementMatrix = mElementMatrixValues;
 
@@ -308,7 +308,7 @@ namespace moris::MSI
 
         // ----------------------------------------------------------------------------------------------
 
-        virtual const moris::Cell< enum MSI::Dof_Type >&
+        virtual const Vector< enum MSI::Dof_Type >&
         get_requested_dof_types()
         {
             return mDummyDofs;

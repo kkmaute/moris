@@ -611,9 +611,9 @@ namespace moris
             // Flag for RHS Matrix Type if Eigen Solver is set to true
             tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
 
-            // operaotr and precondioned opeartor condition number with arma/eigen 
-            tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", false );
-            tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", false );
+            // operaotr and precondioned opeartor condition number with arma/eigen
+            tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", "" );         // "" : do not compute, "dense", "sparse"
+            tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", "" );    // "" : do not compute, "dense", "sparse"
 
             return tLinSolverParameterList;
         }
@@ -638,6 +638,9 @@ namespace moris
 
             // Allowable Newton solver iterations
             tNonLinAlgorithmParameterList.insert( "NLA_restart", 0 );
+
+            // Newton solver iteration at which reference norm is computed
+            tNonLinAlgorithmParameterList.insert( "NLA_ref_iter", 1 );
 
             // Desired total residual norm drop
             tNonLinAlgorithmParameterList.insert( "NLA_rel_res_norm_drop", 1e-08 );
@@ -680,6 +683,12 @@ namespace moris
 
             // Constant time step size
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_constant", 0.0 );
+
+            // Constant time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_initial", 1.0e18 );
+
+            // Number of pseudo time step initialization steps
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_initial_steps", 1 );
 
             // Pre-factor for time step index-based increase of time step
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step_index_factor", 0.0 );
@@ -855,13 +864,13 @@ namespace moris
                     break;
                 case sol::SolverType::ML:
                 {
-                    create_ml_preconditioner_parameterlist(tParameterList);
+                    create_ml_preconditioner_parameterlist( tParameterList );
                     tParameterList.insert( "Max_Iter", 100 );
-                    tParameterList.insert("Convergence_Tolerance", 1e-9);
+                    tParameterList.insert( "Convergence_Tolerance", 1e-9 );
                     tParameterList.insert( "Solver_Implementation", (uint)( moris::sol::SolverType::ML ) );
                     break;
                 }
-          
+
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
                     break;

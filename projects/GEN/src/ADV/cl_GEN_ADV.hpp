@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 
 namespace moris::sol
@@ -18,7 +18,7 @@ namespace moris::sol
     class Dist_Vector;
 }
 
-namespace moris::ge
+namespace moris::gen
 {
     class ADV
     {

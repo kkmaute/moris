@@ -19,7 +19,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
-                const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& aDofTypes,
+                const Vector< Vector< enum MSI::Dof_Type > >& aDofTypes,
                 MSI::Equation_Set*                                      aEquationSet,
                 mtk::Leader_Follower                                       aIsLeader )
                 : mDofTypes( aDofTypes )
@@ -37,9 +37,9 @@ namespace moris
         }
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
-                const moris::Cell< moris::Cell< enum MSI::Dof_Type > >&   aDofTypes,
-                const moris::Cell< moris::Cell< enum ge::PDV_Type > >&        aDvTypes,
-                const moris::Cell< moris::Cell< enum mtk::Field_Type > >& aFieldTypes,
+                const Vector< Vector< enum MSI::Dof_Type > >&   aDofTypes,
+                const Vector< Vector< enum gen::PDV_Type > >&        aDvTypes,
+                const Vector< Vector< enum mtk::Field_Type > >& aFieldTypes,
                 MSI::Equation_Set*                                        aEquationSet,
                 mtk::Leader_Follower                                         aIsLeader )
                 : mDofTypes( aDofTypes )
@@ -65,7 +65,7 @@ namespace moris
         }
 
         Field_Interpolator_Manager::Field_Interpolator_Manager(
-                const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& aDofTypes,
+                const Vector< Vector< enum MSI::Dof_Type > >& aDofTypes,
                 MSI::Equation_Set*                                      aEquationSet,
                 MSI::Model_Solver_Interface*                            aModelSolverInterface,
                 mtk::Leader_Follower                                       aIsLeader )
@@ -372,7 +372,7 @@ namespace moris
 
         Field_Interpolator*
         Field_Interpolator_Manager::get_field_interpolators_for_type(
-                enum ge::PDV_Type aDvType )
+                enum gen::PDV_Type aDvType )
         {
             // get the set index for the requested dv type
             sint tDvIndex = mEquationSet->get_dv_index_for_type_1( aDvType, mIsLeader );
@@ -502,7 +502,7 @@ namespace moris
 
         void
         Field_Interpolator_Manager::set_coeff_for_type(
-                enum ge::PDV_Type           aDvType,
+                enum gen::PDV_Type           aDvType,
                 const Matrix< DDRMat >& aCoeff )
         {
             // get field interpolator for dof type and set coefficients

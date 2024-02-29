@@ -24,8 +24,8 @@ namespace moris
         {
           private:
             // FIXME: old data member that needs to be deleted
-            moris::Cell< moris::mtk::Cell const * > mPrimaryIntegrationCells;
-            moris::Cell< moris::mtk::Cell const * > mVoidIntegrationCells;
+            Vector< moris::mtk::Cell const * > mPrimaryIntegrationCells;
+            Vector< moris::mtk::Cell const * > mVoidIntegrationCells;
 
             moris_index mCellClusterIndex;    // cell cluster index
             mtk::Mesh*  mMesh;                // mesh pointer
@@ -83,10 +83,10 @@ namespace moris
              * @brief Get the primary cells in cluster object
              *
              * @param aIsLeader leader or follower side , typically not used in cell cluster
-             * @return moris::Cell< moris::mtk::Cell const* > const&  cell containing primary cells
+             * @return Vector< moris::mtk::Cell const* > const&  cell containing primary cells
              */
 
-            virtual moris::Cell< moris::mtk::Cell const * > const &
+            virtual Vector< moris::mtk::Cell const * > const &
             get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //------------------------------------------------------------------------------
@@ -94,10 +94,10 @@ namespace moris
             /**
              * @brief Get the void cells in cluster object
              *
-             * @return moris::Cell< moris::mtk::Cell const* > const& cell containing void cells
+             * @return Vector< moris::mtk::Cell const* > const& cell containing void cells
              */
 
-            virtual moris::Cell< moris::mtk::Cell const * > const &
+            virtual Vector< moris::mtk::Cell const * > const &
             get_void_cells_in_cluster() const override;
 
             //------------------------------------------------------------------------------
@@ -118,10 +118,10 @@ namespace moris
              * @brief Get the vertices in cluster object
              *
              * @param aIsLeader leader or follower side , typically not used in cell cluster
-             * @return moris::Cell< moris::mtk::Vertex const* > get vertices in the cluster
+             * @return Vector< moris::mtk::Vertex const* > get vertices in the cluster
              */
 
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //------------------------------------------------------------------------------

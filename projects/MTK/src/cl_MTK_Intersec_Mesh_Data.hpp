@@ -19,7 +19,7 @@
 // XTKL: Mesh Includes
 #include "cl_MTK_Mesh.hpp"
 // XTKL: Containers
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // XTKL: Linear Algebra Includes
 #include "cl_MPI_Tools.hpp"
@@ -154,20 +154,20 @@ namespace moris
 
             private:
 
-                moris::Cell<moris::moris_index> mFirstExtEntityInds;
+                Vector<moris::moris_index> mFirstExtEntityInds;
 
                 // Owned by proc rank 0, other procs UINT_MAX
                 // Mutable to preserve const in the allocate entity ids function
-                mutable moris::Cell<moris::moris_id> mFirstAvailableIds;
+                mutable Vector<moris::moris_id> mFirstAvailableIds;
 
                 // Local to Global Node Map
                 moris::Matrix<moris::IdMat> mLocalToGlobalExtNodes;
 
                 // Each processor tracks this value
-                moris::Cell<moris::moris_index> mFirstAvailableInds;
+                Vector<moris::moris_index> mFirstAvailableInds;
 
                 // Entity Rank outside, then entity objects inside
-                moris::Cell<moris::Cell<mesh::Entity>> mExternalEntities;
+                Vector<Vector<mesh::Entity>> mExternalEntities;
 
             public:
 
@@ -217,10 +217,10 @@ namespace moris
                  */
                 void
                 batch_create_new_nodes_external_data(
-                        moris::Cell<moris_index>                    const & aNewNodeIds,
-                        moris::Cell<moris_index>                    const & aNewNodeIndices,
-                        moris::Cell<moris_index>                    const & aNewNodeOwners,
-                        moris::Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates);
+                        Vector<moris_index>                    const & aNewNodeIds,
+                        Vector<moris_index>                    const & aNewNodeIndices,
+                        Vector<moris_index>                    const & aNewNodeOwners,
+                        Vector<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates);
 
                 // ----------------------------------------------------------------------------------
                 /*

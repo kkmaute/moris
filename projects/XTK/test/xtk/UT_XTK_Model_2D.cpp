@@ -18,7 +18,7 @@
 
 // using namespace moris;
 
-// namespace xtk
+// namespace moris::xtk
 // {
 
 // TEST_CASE("2D Regular Subdivision Method","[RSM_2D_Lin]")
@@ -33,8 +33,8 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
@@ -66,9 +66,9 @@
 
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         // Setup XTK Model -----------------------------
 //         size_t tModelDimension = 2;
@@ -89,9 +89,9 @@
 //         CHECK(tNumNodesAfterDecompositionXTK == 10); /* two duplicates from the shared nodes*/
 //         CHECK(tNumElementsAfterDecompositionXTK == 8);
 
-//         moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//         moris::Matrix< DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
-//         moris::Matrix< moris::DDRMat > tExpectedNodeCoordinates = {{0.0, 0.0},
+//         moris::Matrix< DDRMat > tExpectedNodeCoordinates = {{0.0, 0.0},
 //                                                                    {1.0, 0.0},
 //                                                                    {1.0, 1.0},
 //                                                                    {0.0, 1.0},
@@ -119,8 +119,8 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Circle>(tXCenter, tYCenter, tRadius);
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
 //         uint aNumDim = 2;
@@ -151,9 +151,9 @@
 
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 // // Setup XTK Model ----------------------------------------------------------------
 //         size_t tModelDimension = 2;
@@ -187,8 +187,8 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
@@ -232,9 +232,9 @@
 
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         std::string tMeshInterpOutputFile    = "./xtk_exo/xtk_test_output_regular_subdivision_interp_2d.e";
 //         tMeshData->create_output_mesh(tMeshInterpOutputFile);
@@ -258,7 +258,7 @@
 //         CHECK(tNumNodesAfterDecompositionXTK == 10); /* two duplicates from the shared nodes*/
 //         CHECK(tNumElementsAfterDecompositionXTK == 8);
 
-//         moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//         moris::Matrix< DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
 //         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 //         std::string tMeshOutputFile    = "./xtk_exo/xtk_test_output_regular_subdivision_2d.e";
@@ -281,8 +281,8 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
@@ -326,9 +326,9 @@
 
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         std::string tMeshInterpOutputFile    = "./xtk_exo/xtk_test_conformal_subdivision_quad_interp_2d.e";
 //         tMeshData->create_output_mesh(tMeshInterpOutputFile);
@@ -352,7 +352,7 @@
 //         CHECK(tNumNodesAfterDecompositionXTK == 16);
 //         CHECK(tNumElementsAfterDecompositionXTK == 16);
 
-//         moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//         moris::Matrix< DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
 //         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 //         std::string tMeshOutputFile    = "./xtk_exo/xtk_test_output_conformal_quad_2d.e";
@@ -363,4 +363,3 @@
 //     }
 //                 }
 // }
-

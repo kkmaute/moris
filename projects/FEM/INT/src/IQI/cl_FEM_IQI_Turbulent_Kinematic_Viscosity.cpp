@@ -36,8 +36,8 @@ namespace moris
 
         void
         IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > &aDofTypes,
-                moris::Cell< std::string >                  &aDofStrings,
+                Vector< Vector< MSI::Dof_Type > > &aDofTypes,
+                Vector< std::string >                  &aDofStrings,
                 mtk::Leader_Follower                         aIsLeader )
         {
             // switch on leader follower

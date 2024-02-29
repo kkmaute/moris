@@ -200,12 +200,6 @@ option(MORIS_USE_PARDISO
 option(MORIS_USE_MUMPS
     "Build MORIS with MUMPS used in Trilinos and Petsc." ON )
 
-option(MORIS_HAVE_TRILINOS_OLD
-    "Build MORIS with support for old Trilinos version." OFF )
-
-option(MORIS_HAVE_TRILINOS_NEW_CMAKE
-    "Build MORIS with support for old Trilinos version." OFF )
-    
 option(MORIS_HAVE_PETSC
     "Build MORIS with support for PETSC." ON )
 
@@ -523,7 +517,7 @@ else()
     
     check_cxx_compiler_flag(-flto HAVE_LTO_OPTIMISATION)
     if (HAVE_LTO_OPTIMISATION AND MORIS_USE_LTO)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=auto")
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=4")
         # -ffat-lto-objects
     endif()
 endif()
@@ -558,10 +552,6 @@ if(MORIS_PERFORM_CHECK)
         list(APPEND MORIS_DEFINITIONS "-DMORIS_PERFORM_CHECK")
 endif()
 
-if (MORIS_HAVE_TRILINOS_OLD)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DMORIS_HAVE_TRILINOS_OLD ")
-endif()
-
 # Set compiler flags for strict error checking
 if (MORIS_HAVE_PEDANTIC)
     
@@ -591,6 +581,10 @@ if (MORIS_HAVE_PEDANTIC)
     check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_EXCEPTION )
     if (HAVE_EXCEPTION)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
+    endif()
+    check_cxx_compiler_flag("-Wno-overloaded-virtual" HAVE_OVERLOAD_VIRTUAL )
+    if (HAVE_NOFREE)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-overloaded-virtual" )       
     endif()
 endif()
 
@@ -1055,8 +1049,8 @@ endif()
 # -------------------------------------------------------------------------
 if (MORIS_USE_VALGRIND)
     set(VALGRIND valgrind)
-    set(VALGRIND_OPTIONS "")
-    set(VALGRIND_OPTIONS_EXA --leak-check=full --track-origins=yes)
+    set(VALGRIND_OPTIONS --suppressions=${MORIS_SOURCE_DIR}/share/valgrind/moris.supp)
+    set(VALGRIND_OPTIONS_EXA --leak-check=full --track-origins=yes --suppressions=${MORIS_SOURCE_DIR}/share/valgrind/moris.supp)
 else()
     set(VALGRIND "")
     set(VALGRIND_OPTIONS "")

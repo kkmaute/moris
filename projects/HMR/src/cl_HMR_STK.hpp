@@ -17,7 +17,7 @@
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_MTK_Enums.hpp" //MTK/src
@@ -54,8 +54,8 @@ class Lagrange_Mesh_Base;
         mtk::MtkFieldsInfo    mFieldsInfo;
 
         // Fields the field info contain references
-        moris::Cell< mtk::Scalar_Field_Info<DDRMat> > mRealScalarFields;
-        moris::Cell< mtk::Scalar_Field_Info<DDSMat> > mSintScalarFields;
+        Vector< mtk::Scalar_Field_Info<DDRMat> > mRealScalarFields;
+        Vector< mtk::Scalar_Field_Info<DDSMat> > mSintScalarFields;
 
         //! struc for sidesets
         mtk::MtkSetsInfo      mSetsInfo;
@@ -64,7 +64,7 @@ class Lagrange_Mesh_Base;
         uint                  mNumberOfDimensions;
 
         //! node and element data passed to MTK
-        Cell< Matrix< DDRMat > >   mRealScalarFieldData;
+        Vector< Matrix< DDRMat > >   mRealScalarFieldData;
 
         //! connectivity passed to MTK
         Matrix< IdMat >           mElementTopology;

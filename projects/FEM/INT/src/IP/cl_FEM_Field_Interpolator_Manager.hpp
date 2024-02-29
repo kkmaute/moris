@@ -14,10 +14,10 @@
 #include "assert.h"
 #include <cmath>
 
-#include "typedefs.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"                      //MTK/src
 #include "cl_MTK_Enums.hpp"                     //MTK/src
 #include "cl_MTK_Enums.hpp"                    //MTK/src
@@ -46,7 +46,7 @@ namespace moris
 
           private:
             // dof type list for the FI manager
-            const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& mDofTypes;
+            const Vector< Vector< enum MSI::Dof_Type > >& mDofTypes;
 
             // pointer to the equation set
             MSI::Equation_Set* mEquationSet = nullptr;
@@ -58,7 +58,7 @@ namespace moris
             moris::Matrix< DDSMat > mDofTypeMap;
 
             // list of field interpolators
-            moris::Cell< Field_Interpolator* > mFI;
+            Vector< Field_Interpolator* > mFI;
 
             // maximum number of field interpolators for all dof types
             moris::uint mMaxNumDofFI;
@@ -67,25 +67,25 @@ namespace moris
             moris::uint mNumSolutionSets = 1;
 
             // dof type list for the FI manager
-            const moris::Cell< moris::Cell< enum ge::PDV_Type > > mDvTypes;
+            const Vector< Vector< enum gen::PDV_Type > > mDvTypes;
 
             // dof type map
             moris::Matrix< DDSMat > mDvTypeMap;
 
             // list of field interpolators
-            moris::Cell< Field_Interpolator* > mDvFI;
+            Vector< Field_Interpolator* > mDvFI;
 
             // maximum number of field interpolators
             moris::uint mMaxNumDvFI;
 
             // field type list for the FI manager
-            const moris::Cell< moris::Cell< mtk::Field_Type > > mFieldTypes;
+            const Vector< Vector< mtk::Field_Type > > mFieldTypes;
 
             // field type map
             moris::Matrix< DDSMat > mFieldTypeMap;
 
             // list of field interpolators
-            moris::Cell< Field_Interpolator* > mFieldFI;
+            Vector< Field_Interpolator* > mFieldFI;
 
             // maximum number of mtk::field field interpolators
             moris::uint mMaxNumFieldFI;
@@ -117,7 +117,7 @@ namespace moris
              * @param[ in ] aIsLeader    enum for leader or follower
              */
             Field_Interpolator_Manager(
-                    const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& aDofTypes,
+                    const Vector< Vector< enum MSI::Dof_Type > >& aDofTypes,
                     MSI::Equation_Set*                                      aEquationSet,
                     mtk::Leader_Follower                                       aIsLeader = mtk::Leader_Follower::LEADER );
 
@@ -129,9 +129,9 @@ namespace moris
              * @param[ in ] aIsLeader    enum for leader or follower
              */
             Field_Interpolator_Manager(
-                    const moris::Cell< moris::Cell< enum MSI::Dof_Type > >&   aDofTypes,
-                    const moris::Cell< moris::Cell< enum ge::PDV_Type > >&        aDvTypes,
-                    const moris::Cell< moris::Cell< enum mtk::Field_Type > >& aFieldTypes,
+                    const Vector< Vector< enum MSI::Dof_Type > >&   aDofTypes,
+                    const Vector< Vector< enum gen::PDV_Type > >&        aDvTypes,
+                    const Vector< Vector< enum mtk::Field_Type > >& aFieldTypes,
                     MSI::Equation_Set*                                        aEquationSet,
                     mtk::Leader_Follower                                         aIsLeader = mtk::Leader_Follower::LEADER );
 
@@ -143,7 +143,7 @@ namespace moris
              * @param[ in ] aIsLeader    enum for leader or follower
              */
             Field_Interpolator_Manager(
-                    const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& aDofTypes,
+                    const Vector< Vector< enum MSI::Dof_Type > >& aDofTypes,
                     MSI::Equation_Set*                                      aEquationSet,
                     MSI::Model_Solver_Interface*                            aModelSolverInterface,
                     mtk::Leader_Follower                                       aIsLeader = mtk::Leader_Follower::LEADER );
@@ -200,7 +200,7 @@ namespace moris
             /**
              * get the dof field interpolators
              */
-            moris::Cell< Field_Interpolator* >&
+            Vector< Field_Interpolator* >&
             get_dof_field_interpolators()
             {
                 return mFI;
@@ -210,7 +210,7 @@ namespace moris
             /**
              * get the dv field interpolators
              */
-            moris::Cell< Field_Interpolator* >&
+            Vector< Field_Interpolator* >&
             get_dv_field_interpolators()
             {
                 return mDvFI;
@@ -263,7 +263,7 @@ namespace moris
              * get the field interpolator for a given dv type
              * @param[ in ] aDvType a dv type enum
              */
-            Field_Interpolator* get_field_interpolators_for_type( enum ge::PDV_Type aDvType );
+            Field_Interpolator* get_field_interpolators_for_type( enum gen::PDV_Type aDvType );
 
             //------------------------------------------------------------------------------
             /**
@@ -304,7 +304,7 @@ namespace moris
              * @param[ in ] aCoeff   coefficients to be set
              */
             void set_coeff_for_type(
-                    enum ge::PDV_Type           aDvType,
+                    enum gen::PDV_Type           aDvType,
                     const Matrix< DDRMat >& aCoeff );
 
             //------------------------------------------------------------------------------

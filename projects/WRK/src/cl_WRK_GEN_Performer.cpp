@@ -17,7 +17,7 @@ namespace moris::wrk
 
     // ----------------------------------------------------------------------------
 
-    Gen_Performer::Gen_Performer( std::shared_ptr< moris::ge::Geometry_Engine > aGeometryEngine )
+    Gen_Performer::Gen_Performer( std::shared_ptr< moris::gen::Geometry_Engine > aGeometryEngine )
             : mGeometryEngine( aGeometryEngine )
     {
     }
@@ -32,7 +32,7 @@ namespace moris::wrk
 
     // ----------------------------------------------------------------------------
 
-    ge::Geometric_Region Gen_Performer::get_geometric_region(
+    gen::Geometric_Region Gen_Performer::get_geometric_region(
             uint                    aFieldIndex,
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
@@ -42,7 +42,7 @@ namespace moris::wrk
 
     // ----------------------------------------------------------------------------
 
-    const Cell< uint >&
+    const Vector< uint >&
     Gen_Performer::get_num_refinements( uint aFieldIndex )
     {
         return mGeometryEngine->get_num_refinements( aFieldIndex );
@@ -50,7 +50,7 @@ namespace moris::wrk
 
     // ----------------------------------------------------------------------------
 
-    const Cell< uint >&
+    const Vector< uint >&
     Gen_Performer::get_refinement_mesh_indices( uint aFieldIndex )
     {
         return mGeometryEngine->get_refinement_mesh_indices( aFieldIndex );

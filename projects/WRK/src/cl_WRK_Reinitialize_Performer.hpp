@@ -36,7 +36,7 @@ namespace moris
         enum class Dof_Type;
     }
 
-    namespace ge
+    namespace gen
     {
         class Geometry_Engine;
     }
@@ -54,7 +54,7 @@ namespace moris
             std::shared_ptr< Library_IO > mLibrary = nullptr;
 
             // Solution Dof types
-            moris::Cell< moris::MSI::Dof_Type > mDofTypes;
+            Vector< moris::MSI::Dof_Type > mDofTypes;
 
             // adv filed name
             std::string mADVFiledName;
@@ -69,7 +69,7 @@ namespace moris
             sint mReinitializationFrequency;
 
             // mtk fields that will be used to overwrite gen fields
-            moris::Cell< std::shared_ptr< mtk::Field > > mMTKFields;
+            Vector< std::shared_ptr< mtk::Field > > mMTKFields;
 
             // mesh outputting params
             std::string mOutputMeshFile;
@@ -108,10 +108,10 @@ namespace moris
              */
 
             void perform(
-                    moris::Cell< std::shared_ptr< hmr::HMR > >&            aHMRPerformers,
-                    moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer,
-                    moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >&   aMTKPerformer,
-                    moris::Cell< std::shared_ptr< mdl::Model > >           mMDLPerformer );
+                    Vector< std::shared_ptr< hmr::HMR > >&            aHMRPerformers,
+                    Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer,
+                    Vector< std::shared_ptr< mtk::Mesh_Manager > >&   aMTKPerformer,
+                    Vector< std::shared_ptr< mdl::Model > >           mMDLPerformer );
 
 
             //------------------------------------------------------------------------------
@@ -145,16 +145,16 @@ namespace moris
              */
 
             void
-            impose_upper_lower_bound( moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer, mtk::Field* aField );
+            impose_upper_lower_bound( Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer, mtk::Field* aField );
 
             //------------------------------------------------------------------------------
 
             /**
              * @brief Get the mtk fields object get the replaced fields to use in GEN
              *
-             * @return moris::Cell< std::shared_ptr< mtk::Field > >
+             * @return Vector< std::shared_ptr< mtk::Field > >
              */
-            moris::Cell< std::shared_ptr< mtk::Field > >
+            Vector< std::shared_ptr< mtk::Field > >
             get_mtk_fields() const;
 
             //------------------------------------------------------------------------------

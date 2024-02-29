@@ -10,13 +10,13 @@
 
 #pragma once
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
 #include "op_times.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "SDF_Tools.hpp"
@@ -38,7 +38,7 @@ namespace moris
             moris_index mIndex;
 
             // cells with vertex pointers
-            moris::Cell< std::shared_ptr< Facet_Vertex > > mVertices;
+            Vector< std::shared_ptr< Facet_Vertex > > mVertices;
 
             // container for center
             Matrix< DDRMat > mCenter;
@@ -46,8 +46,8 @@ namespace moris
             // container for normal
             Matrix< DDRMat > mNormal;
 
-            moris::Cell< real > mMinCoord;
-            moris::Cell< real > mMaxCoord;
+            Vector< real > mMinCoord;
+            Vector< real > mMaxCoord;
 
             real mHesse;
 
@@ -62,7 +62,7 @@ namespace moris
 
             Facet(
                     moris_index                                     aIndex,
-                    moris::Cell< std::shared_ptr< Facet_Vertex > >& aVertices,
+                    Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
                     uint                                            aDimension,
                     real                                            aIntersectionTolerance = 1e-8 );
 
@@ -230,7 +230,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            moris::Cell< mtk::Vertex* >
+            Vector< mtk::Vertex* >
             get_vertex_pointers() const;
 
             //-------------------------------------------------------------------------------

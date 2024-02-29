@@ -22,11 +22,11 @@ namespace moris
         {
 
           public:
-            moris::Cell< Side_Set_Cluster_Data >                         mLeftSideClusters;  /*all side cluster data for a given side set*/
-            moris::Cell< Side_Set_Cluster_Data >                         mRightSideClusters; /*all side cluster data for a given side set*/
-            moris::Cell< moris::Cell< moris::Matrix< moris::IdMat >* > > mVertexPairing;     /*vertex pairing for a given cluster*/
+            Vector< Side_Set_Cluster_Data >                         mLeftSideClusters;  /*all side cluster data for a given side set*/
+            Vector< Side_Set_Cluster_Data >                         mRightSideClusters; /*all side cluster data for a given side set*/
+            Vector< Vector< moris::Matrix< moris::IdMat >* > > mVertexPairing;     /*vertex pairing for a given cluster*/
 
-            moris::Cell< std::string >                     mDoubleSideSetLabel;
+            Vector< std::string >                     mDoubleSideSetLabel;
             std::unordered_map< std::string, moris_index > mSideSetLabelToOrd;
 
             moris_index
@@ -64,7 +64,7 @@ namespace moris
                 }
             }
 
-            moris::Cell< std::string > const &
+            Vector< std::string > const &
             get_double_side_set_labels()
             {
                 return mDoubleSideSetLabel;

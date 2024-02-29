@@ -10,7 +10,7 @@
 
 #include "cl_GEN_User_Defined_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
@@ -19,9 +19,11 @@ namespace moris::ge
             const Matrix< DDRMat >& aConstants )
             : Field_Analytic( aConstants )
             , mFieldVariables( aConstants.length() )
+            , get_field_value_user_defined( aFieldFunction )
+            , get_dfield_dadvs_user_defined( nullptr )
     {
-        this->set_user_defined_functions( aFieldFunction, nullptr );
         this->import_advs( nullptr );
+        this->validate_user_defined_functions();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -81,29 +83,21 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    User_Defined_Field::set_user_defined_functions(
-            Field_Function       aFieldFunction,
-            Sensitivity_Function aSensitivityFunction )
+    User_Defined_Field::validate_user_defined_functions()
     {
-        // Set field evaluation function
-        get_field_value_user_defined = aFieldFunction;
-
         // Check field evaluation function
         MORIS_ERROR( get_field_value_user_defined, "No field evaluation function was provided to a user-defined field." );
         MORIS_ASSERT( std::isfinite( this->get_field_value_user_defined( { { 0.0, 0.0, 0.0 } }, mFieldVariables ) ),
                 "There is an error in a user-defined field (field evaluates to nan/infinity)." );
 
-        // Set sensitivity evaluation function
-        if ( aSensitivityFunction == nullptr )
+        // Check if sensitivity function was provided
+        if ( get_dfield_dadvs_user_defined == nullptr )
         {
             // Sensitivity function was not provided
             get_dfield_dadvs_user_defined = &( User_Defined_Field::no_sensitivities );
         }
         else
         {
-            // Sensitivity function was provided
-            get_dfield_dadvs_user_defined = aSensitivityFunction;
-
             // Check sensitivity function
             this->get_dfield_dadvs_user_defined( { { 0.0, 0.0, 0.0 } }, mFieldVariables, mSensitivities );
 
@@ -132,7 +126,7 @@ namespace moris::ge
     void
     User_Defined_Field::no_sensitivities(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&    aParameters,
+            const Vector< real >&    aParameters,
             Matrix< DDRMat >&       aSensitivities )
     {
         MORIS_ERROR( false,

@@ -27,7 +27,7 @@
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src
-#include "typedefs.hpp"                    // COR/src
+#include "moris_typedefs.hpp"                    // COR/src
 // other header files
 // #include <catch.hpp>
 // #include "fn_equal_to.hpp" //ALG
@@ -197,7 +197,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
         std::string tWRKFlowStr = tOPTParameterList( 0 )( 0 ).get< std::string >( "workflow" );
 
         // create and initialize (this includes running HMR) an instance of this workflow
-        moris::Cell< std::shared_ptr< moris::opt::Criteria_Interface > > tWorkflows = { wrk::create_workflow( tWRKFlowStr, &tPerformerManager ) };
+        Vector< std::shared_ptr< moris::opt::Criteria_Interface > > tWorkflows = { wrk::create_workflow( tWRKFlowStr, &tPerformerManager ) };
 
         if ( tOPTParameterList( 0 )( 0 ).get< bool >( "is_optimization_problem" ) )
         {

@@ -13,16 +13,16 @@
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Signed_Distance_Field : public Field_Discrete_Integration
     {
 
       private:
         std::string  mObjectPath;
-        Cell< real > mObjectOffset = { 0, 0, 0 };
+        Vector< real > mObjectOffset = { 0, 0, 0 };
         real         mShift        = 0;
 
         Matrix< DDRMat > mValues;
@@ -35,7 +35,7 @@ namespace moris::ge
          * @param aFieldNames Names of the fields
          */
         Signed_Distance_Field( std::string aObjectPath,
-                Cell< real >               aObjectOffset,
+                Vector< real >               aObjectOffset,
                 real                       aSDFShift = 0 );
 
         /**
@@ -75,4 +75,4 @@ namespace moris::ge
             return mValues;
         }
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

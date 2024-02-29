@@ -14,13 +14,13 @@
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class ADV_Manager
     {
 
       private:
-        Cell< ADV >       mADVs;
+        Vector< ADV >       mADVs;
         Matrix< DDSMat >  mDeterminingADVIds;
         bool              mHasADVs;
         sol::Dist_Vector* mSharedADVs = nullptr;
@@ -65,8 +65,8 @@ namespace moris::ge
          */
         ADV_Manager(
                 const ADV_Manager& aCopyADVManager,
-                const Cell< uint >& aReplaceVariables = {},
-                const Cell< real >& aNewConstants = {{}} );
+                const Vector< uint >& aReplaceVariables = {},
+                const Vector< real >& aNewConstants = {{}} );
 
         /**
          * Destructor

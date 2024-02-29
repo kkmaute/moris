@@ -12,7 +12,7 @@
 #include <catch.hpp>
 
 // core
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "paths.hpp"
 
 // comm
@@ -38,7 +38,7 @@ namespace moris::sdf
 {
 
     TEST_CASE(
-            "ge::sdf::Raycast",
+            "gen::sdf::Raycast",
             "[geomeng],[sdf],[Raycaster]" )
     {
         // get root from environment
@@ -60,8 +60,8 @@ namespace moris::sdf
                 };
 
                 // preselect in x direction and ensure they are correct
-                Cell< uint > tCandidatesExpected = { 0, 1, 2 };
-                Cell< uint > tCandidateTriangles = preselect_triangles( tObject, tTestPoint, 0 );
+                Vector< uint > tCandidatesExpected = { 0, 1, 2 };
+                Vector< uint > tCandidateTriangles = preselect_triangles( tObject, tTestPoint, 0 );
 
                 REQUIRE( tCandidateTriangles.size() == 3 );
                 CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
@@ -86,17 +86,17 @@ namespace moris::sdf
                 CHECK( tCandidatesExpected( 2 ) == tCandidateTriangles( 2 ) );
 
                 // check for intersection with facets and ensure they are correct
-                Cell< Facet* > tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 2 );
-                Facet&         tFirstIntersectedFacetExpected  = tObject.get_facet( 0 );
-                Facet&         tSecondIntersectedFacetExpected = tObject.get_facet( 3 );
+                Vector< Facet* > tIntersectedTriangles           = intersect_triangles( tCandidateTriangles, tObject, tTestPoint, 2 );
+                Facet&           tFirstIntersectedFacetExpected  = tObject.get_facet( 0 );
+                Facet&           tSecondIntersectedFacetExpected = tObject.get_facet( 3 );
 
                 REQUIRE( tIntersectedTriangles.size() == 2 );
                 CHECK( &tFirstIntersectedFacetExpected == tIntersectedTriangles( 0 ) );
                 CHECK( &tSecondIntersectedFacetExpected == tIntersectedTriangles( 1 ) );
 
                 // compute the intersection locations and ensure they are correct
-                Cell< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055620439 };
-                Cell< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, Preselection_Result::SUCCESS, 2 );
+                Vector< real > tIntersectionCoordinatesExpected = { 0.408248, 0.88055620439 };
+                Vector< real > tIntersectionCoordinates         = intersect_ray_with_facets( tIntersectedTriangles, tTestPoint, Preselection_Result::SUCCESS, 2 );
                 REQUIRE( tIntersectionCoordinates.size() == 2 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tObject.get_intersection_tolerance() );
                 CHECK( std::abs( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tObject.get_intersection_tolerance() );
@@ -165,8 +165,8 @@ namespace moris::sdf
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
 
                 // preselect in y direction and ensure the candidates and intersected facets are marked
-                Cell< uint >   tIntersectedLines;
-                Cell< Facet* > tCandidateLines;
+                Vector< uint >   tIntersectedLines;
+                Vector< Facet* > tCandidateLines;
                 preselect_lines( tObject, tTestPoint, 1, tIntersectedLines, tCandidateLines );
                 uint tIntersectedLinesExpected = 1;
 
@@ -185,8 +185,8 @@ namespace moris::sdf
                 CHECK( tCandidateLines( 0 ) == &tObject.get_facet( 2 ) );
 
                 // intersect the candidate facets and determine the intersection location
-                Cell< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, Preselection_Result::SUCCESS, 0 );
-                real         tIntersectionCoordinateExpected = -0.2;
+                Vector< real > tIntersectionCoordinates        = intersect_ray_with_facets( tCandidateLines, tTestPoint, Preselection_Result::SUCCESS, 0 );
+                real           tIntersectionCoordinateExpected = -0.2;
 
                 REQUIRE( tIntersectionCoordinates.size() == 1 );
                 CHECK( std::abs( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected ) < tObject.get_intersection_tolerance() );
@@ -249,9 +249,9 @@ namespace moris::sdf
                 real tLineDistanceZExpected = 0.88055620439;        // facet index = 0
 
                 // compute with raycast function
-                moris::Cell< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
-                moris::Cell< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
-                moris::Cell< real > tLineDistanceZ = compute_distance_to_facets( tObject, tTestPoint, 2 );
+                Vector< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
+                Vector< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
+                Vector< real > tLineDistanceZ = compute_distance_to_facets( tObject, tTestPoint, 2 );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 1 );
@@ -271,12 +271,12 @@ namespace moris::sdf
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
 
                 // expected results
-                moris::Cell< real > tLineDistanceXExpected = { -0.2, 0.2 };
-                moris::Cell< real > tLineDistanceYExpected = { -0.25, 0.25 };
+                Vector< real > tLineDistanceXExpected = { -0.2, 0.2 };
+                Vector< real > tLineDistanceYExpected = { -0.25, 0.25 };
 
                 // compute with raycast
-                moris::Cell< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
-                moris::Cell< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
+                Vector< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
+                Vector< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 2 );

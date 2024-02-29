@@ -65,7 +65,7 @@ namespace moris
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
 
             // Create GE performer
-            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >(
+            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< gen::Geometry_Engine >(
                     tGENParameterList,
                     mPerformerManager->mLibrary );
 
@@ -120,8 +120,8 @@ namespace moris
 
             mIter = 0;
 
-            moris::Cell< std::shared_ptr< mtk::Field > > tFieldsIn;
-            moris::Cell< std::shared_ptr< mtk::Field > > tFieldsOut;
+            Vector< std::shared_ptr< mtk::Field > > tFieldsIn;
+            Vector< std::shared_ptr< mtk::Field > > tFieldsOut;
 
             // perform in first optimization iteration only
             if ( tIsFirstOptSolve )
@@ -140,7 +140,7 @@ namespace moris
                     Refinement_Mini_Performer tRefinementPerformer;
 
                     // get the GEN interface performer
-                    std::shared_ptr< ge::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
+                    std::shared_ptr< gen::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
 
                     std::shared_ptr< Performer > tGenInterfacePerformer = std::make_shared< wrk::Gen_Performer >( tGeometryEngine );
 
@@ -158,11 +158,11 @@ namespace moris
             else
             {
                 // get access to the performers
-                std::shared_ptr< ge::Geometry_Engine >        tGeometryEngine     = mPerformerManager->mGENPerformer( 0 );
+                std::shared_ptr< gen::Geometry_Engine >        tGeometryEngine     = mPerformerManager->mGENPerformer( 0 );
                 std::shared_ptr< mdl::Model >                 tModelPerformer     = mPerformerManager->mMDLPerformer( 0 );
                 std::shared_ptr< Remeshing_Mini_Performer >   tRemeshingPerformer = mPerformerManager->mRemeshingMiniPerformer( 0 );
-                Cell< std::shared_ptr< hmr::HMR > >&          tHmrPerformers      = mPerformerManager->mHMRPerformer;
-                Cell< std::shared_ptr< mtk::Mesh_Manager > >& tMtkPerformers      = mPerformerManager->mMTKPerformer;
+                Vector< std::shared_ptr< hmr::HMR > >&          tHmrPerformers      = mPerformerManager->mHMRPerformer;
+                Vector< std::shared_ptr< mtk::Mesh_Manager > >& tMtkPerformers      = mPerformerManager->mMTKPerformer;
 
                 // get refinement fields from GEN and MDL performers
                 tFieldsIn.append( tGeometryEngine->get_mtk_fields() );
@@ -185,7 +185,7 @@ namespace moris
 
                 // re-initialize GEN
                 ModuleParameterList tGENParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
-                tGeometryEngine                       = std::make_shared< ge::Geometry_Engine >( tGENParameterList, tLibrary );
+                tGeometryEngine                       = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
             }
 
             // Step 2: Initialize Level set field in GEN -----------------------------------------------
@@ -194,7 +194,7 @@ namespace moris
                 const mtk::Mesh_Pair& tMeshPair = mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 );
 
                 // initialize GEN
-                std::shared_ptr< ge::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
+                std::shared_ptr< gen::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
                 tGeometryEngine->distribute_advs( tMeshPair, tFieldsOut );
 
                 // Get ADVs
@@ -358,13 +358,14 @@ namespace moris
                 mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
             }
 
-            // stop workflow if T-Matrices have been outputted
+            // stop workflow if only pre-processing output is requested
             if ( tXTKPerformer->only_generate_xtk_temp() )
             {
                 MORIS_LOG( "------------------------------------------------------------------------------" );
                 MORIS_LOG( "Only output of the foreground mesh requested. Stopping workflow after XTK/MTK." );
                 MORIS_LOG( "------------------------------------------------------------------------------" );
                 moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
+                delete tXTKPerformer;
                 return tMat;
             }
 
@@ -378,6 +379,7 @@ namespace moris
                 MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );
                 MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
                 moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
+                delete tXTKPerformer;
                 return tMat;
             }
 
@@ -461,7 +463,7 @@ namespace moris
             }
 
             // evaluate IQIs
-            moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
+            Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             // get number of design criteria
             mNumCriteria = tVal.size();

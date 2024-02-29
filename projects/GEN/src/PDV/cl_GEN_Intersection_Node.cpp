@@ -14,14 +14,14 @@
 #include "cl_GEN_Parent_Node.hpp"
 #include "cl_MTK_Enums.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node::Intersection_Node(
             uint                        aNodeIndex,
-            const Cell< Node* >&        aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&          aFirstParentNode,
             const Parent_Node&          aSecondParentNode,
             real                        aLocalCoordinate,
@@ -60,7 +60,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Intersection_Node::get_locator_nodes() const
+    const Vector< Basis_Node >& Intersection_Node::get_locator_nodes() const
     {
         return mParentNodes;
     }

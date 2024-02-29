@@ -32,7 +32,6 @@ namespace moris::dla
         Preconditioner_Trilinos* mPreconditioner = nullptr;
 
       public:
-
         //-----------------------------------------------------------------------------------
 
         /**
@@ -45,8 +44,8 @@ namespace moris::dla
 
         /**
          * @brief Construct a new Linear_Solver_Algorithm_Trilinos object
-         * 
-         * @param aParameterlist 
+         *
+         * @param aParameterlist
          */
 
         Linear_Solver_Algorithm_Trilinos( const moris::ParameterList aParameterlist )
@@ -56,7 +55,7 @@ namespace moris::dla
 
         /**
          * @brief Destroy the Linear_Solver_Algorithm_Trilinos object
-         * 
+         *
          */
 
         virtual ~Linear_Solver_Algorithm_Trilinos(){};
@@ -65,8 +64,8 @@ namespace moris::dla
 
         /**
          * @brief solve linear system
-         * 
-         * @return moris::sint 
+         *
+         * @return moris::sint
          */
 
         virtual moris::sint solve_linear_system() = 0;
@@ -75,10 +74,10 @@ namespace moris::dla
 
         /**
          * @brief solves linear system x=k^-1*b
-         * 
-         * @param aLinearSystem 
-         * @param aIter 
-         * @return moris::sint 
+         *
+         * @param aLinearSystem
+         * @param aIter
+         * @return moris::sint
          */
 
         virtual moris::sint solve_linear_system( Linear_Problem* aLinearSystem,
@@ -88,8 +87,8 @@ namespace moris::dla
 
         /**
          * @brief Set the preconditioner for Trilinos
-         * 
-         * @param aPreconditioner 
+         *
+         * @param aPreconditioner
          */
 
         // cast the preconditioner to the correct type(trillons and assign it to the object)
@@ -100,18 +99,18 @@ namespace moris::dla
 
         /**
          * @brief compute the condition number of the operator with arma/eigen
-         * 
+         *
          */
 
-        virtual void compute_operator_condition_number_with_moris() override;
+        virtual void compute_operator_condition_number_with_moris( std::string tComputationMode ) override;
 
         //-----------------------------------------------------------------------------------
 
         /**
          * @brief compute the condition number of the preconditioned operator with arma/eigen
-         * 
+         *
          */
 
-        virtual void compute_preconditioned_operator_condition_number_with_moris() override;
+        virtual void compute_preconditioned_operator_condition_number_with_moris( std::string tComputationMode ) override;
     };
 }    // namespace moris::dla

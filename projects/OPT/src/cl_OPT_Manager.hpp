@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_OPT_MANAGER_HPP_
 #define MORIS_CL_OPT_MANAGER_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Param_List.hpp"
 #include "cl_OPT_Algorithm.hpp"
 #include "cl_OPT_Problem.hpp"
@@ -24,7 +24,7 @@ namespace moris
         class Manager
         {
         private:
-            Cell< std::shared_ptr<Algorithm> > mAlgorithms; // Cell of pointers of optimization algorithms
+          Vector< std::shared_ptr<Algorithm> > mAlgorithms; // Cell of pointers of optimization algorithms
             std::shared_ptr<Problem> mProblem;
 
         public:
@@ -35,15 +35,15 @@ namespace moris
              * @param aParameterLists parameter lists for defining an optimization problem
              * @param aCriteriaInterface criteria interfaces, in addition to any specified in the parameter lists
              */
-            Manager(const Cell<Cell<ParameterList>>& aParameterLists,
-                    Cell<std::shared_ptr<Criteria_Interface>> aInterfaces = Cell<std::shared_ptr<Criteria_Interface>>(0));
+            Manager(const Vector< Vector<ParameterList>>& aParameterLists,
+                  Vector<std::shared_ptr<Criteria_Interface>> aInterfaces = Vector<std::shared_ptr<Criteria_Interface>>(0));
 
             /**
              * Constructor with problem class already created
              *
              * @param aAlgorithmParameterLists parameter lists for defining just the optimization algorithms
              */
-            Manager(const Cell<ParameterList>& aAlgorithmParameterLists,
+            Manager(const Vector<ParameterList>& aAlgorithmParameterLists,
                     std::shared_ptr<Problem> aProblem);
 
             /**

@@ -83,16 +83,16 @@ namespace moris
 
         void
         Reinitialize_Performer::perform(
-                moris::Cell< std::shared_ptr< hmr::HMR > >&            aHMRPerformers,
-                moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer,
-                moris::Cell< std::shared_ptr< mtk::Mesh_Manager > >&   aMTKPerformer,
-                moris::Cell< std::shared_ptr< mdl::Model > >           aMDLPerformer )
+                Vector< std::shared_ptr< hmr::HMR > >&            aHMRPerformers,
+                Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer,
+                Vector< std::shared_ptr< mtk::Mesh_Manager > >&   aMTKPerformer,
+                Vector< std::shared_ptr< mdl::Model > >           aMDLPerformer )
         {
             // Tracer to trace the time
             Tracer tTracer( "WRK", "Reinitialize ADVs", "Perform Reinitialize" );
 
             // initialize and populate the fields
-            moris::Cell< std::shared_ptr< mtk::Field > > tGENFields;
+            Vector< std::shared_ptr< mtk::Field > > tGENFields;
             tGENFields.append( aGENPerformer( 0 )->get_mtk_fields() );
 
             // find the index of the desired adv field that will be reinitialized
@@ -111,7 +111,7 @@ namespace moris
             // get the solution field and get a matrix of the solutions
             // generate a cell containing the indices of the bspline coefficients
             // since indices are consecutive and they start from 0
-            moris::Cell< moris_index > tLocalCoeffIndices( tTargetMesh->get_num_entities( mtk::EntityRank::BSPLINE ) );
+            Vector< moris_index > tLocalCoeffIndices( tTargetMesh->get_num_entities( mtk::EntityRank::BSPLINE ) );
             std::iota( tLocalCoeffIndices.begin(), tLocalCoeffIndices.end(), 0 );
 
             moris::sol::Dist_Vector* tPartialSolutionVector = aMDLPerformer( 0 )->get_solver_interface()->get_solution_vector( mDofTypes, tLocalCoeffIndices );
@@ -182,7 +182,7 @@ namespace moris
         }
         //------------------------------------------------------------------------------
         void
-        Reinitialize_Performer::impose_upper_lower_bound( moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer, mtk::Field* aField )
+        Reinitialize_Performer::impose_upper_lower_bound( Vector< std::shared_ptr< gen::Geometry_Engine > >& aGENPerformer, mtk::Field* aField )
         {
             // lower bound and upper bound are defined on proc 0 and they need to be communicated to other
             // Note:  we make an assumption that all the lower bounds and upper bounds are equal
@@ -214,7 +214,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::shared_ptr< mtk::Field > >
+        Vector< std::shared_ptr< mtk::Field > >
         Reinitialize_Performer::get_mtk_fields() const
         {
             return mMTKFields;
@@ -252,7 +252,7 @@ namespace moris
             tWriter.set_time( tTimeShift );
 
             // Set nodal fields based on field names
-            moris::Cell< std::string > tNodalFieldNames = { "Mapped_Field", "Original_Field" };
+            Vector< std::string > tNodalFieldNames = { "Mapped_Field", "Original_Field" };
             tWriter.set_nodal_fields( tNodalFieldNames );
 
             // Create field on mesh

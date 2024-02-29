@@ -19,8 +19,8 @@ namespace moris
     namespace mtk
     {
         Field_Analytic::Field_Analytic(
-                moris::Cell<Analytic_Field_Function>       aFunction,
-                moris::Cell<Analytic_Derivative_Function>  aDerivativeFunction,
+                Vector<Analytic_Field_Function>       aFunction,
+                Vector<Analytic_Derivative_Function>  aDerivativeFunction,
                 moris::Matrix<DDRMat>              const & aCoefficients,
                 Mesh_Pair                                  aMeshPairs,
                 uint                               const & aNumberOfFields)

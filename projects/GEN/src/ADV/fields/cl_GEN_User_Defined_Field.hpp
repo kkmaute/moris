@@ -14,27 +14,26 @@
 #include "cl_GEN_Field_Analytic.hpp"
 #include "cl_Library_IO.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     // User-defined field functions
-    typedef real ( *Field_Function ) (
+    typedef real ( *Field_Function )(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&     aParameters );
-    typedef void ( *Sensitivity_Function ) (
+            const Vector< real >&     aParameters );
+    typedef void ( *Sensitivity_Function )(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real >&     aParameters,
+            const Vector< real >&     aParameters,
             Matrix< DDRMat >&       aSensitivities );
 
-    class User_Defined_Field : public Field_Analytic< 0 > // TODO consider templating user-defined field against reference dimensions as well
+    class User_Defined_Field : public Field_Analytic< 0 >    // TODO consider templating user-defined field against reference dimensions as well
     {
 
-    private:
-        Cell< real > mFieldVariables;
-        Field_Function get_field_value_user_defined;
+      private:
+        Vector< real >         mFieldVariables;
+        Field_Function       get_field_value_user_defined;
         Sensitivity_Function get_dfield_dadvs_user_defined;
 
-    public:
-
+      public:
         /**
          * Constructor, sets the pointers to advs and constant parameters for evaluations.
          *
@@ -47,14 +46,16 @@ namespace moris::ge
          * @param aName Name of this field
          */
         User_Defined_Field(
-              Field_Function       aFieldFunction,
-              Sensitivity_Function aSensitivityFunction,
-              ADV_ARG_TYPES )
-              : Field_Analytic< 0 >( ADV_ARGS )
-              , mFieldVariables( aFieldVariableIndices.length() + aConstants.length() )
+                Field_Function       aFieldFunction,
+                Sensitivity_Function aSensitivityFunction,
+                ADV_ARG_TYPES )
+                : Field_Analytic< 0 >( ADV_ARGS )
+                , mFieldVariables( aFieldVariableIndices.length() + aConstants.length() )
+                , get_field_value_user_defined( aFieldFunction )
+                , get_dfield_dadvs_user_defined( aSensitivityFunction )
         {
-            this->set_user_defined_functions( aFieldFunction, aSensitivityFunction );
             this->import_advs( nullptr );
+            this->validate_user_defined_functions();
         }
 
         /**
@@ -64,8 +65,8 @@ namespace moris::ge
          * @param aFieldFunction User-defined function for evaluating the field field
          */
         explicit User_Defined_Field(
-                Field_Function   aFieldFunction,
-                const Matrix< DDRMat >& aConstants = {{}} );
+                Field_Function          aFieldFunction,
+                const Matrix< DDRMat >& aConstants = { {} } );
 
         /**
          * For the specific case of a user-defined field, this function indicates that new field variables must be set for the user-defined function calls.
@@ -80,7 +81,7 @@ namespace moris::ge
          * @param aCoordinates Coordinate values
          * @return Field value
          */
-        real get_field_value(const Matrix<DDRMat>& aCoordinates);
+        real get_field_value( const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given a node coordinate, evaluates the sensitivity of the field field with respect to all of the
@@ -89,7 +90,7 @@ namespace moris::ge
          * @param aCoordinates Coordinate values
          * @return Vector of sensitivities
          */
-        const Matrix<DDRMat>& get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates);
+        const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates ) override;
 
         /**
          * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -99,28 +100,21 @@ namespace moris::ge
          * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
          */
         void get_dfield_dcoordinates(
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities);
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities ) override;
 
-    private:
-
+      private:
         /**
-         * Sets the user-defined functions. Eliminates redundant code since it's the same logic for all constructors.
-         *
-         * @param aFieldFunction User-defined function for evaluating the field field
-         * @param aSensitivityFunction User-defined function for evaluating the field sensitivities
+         * Validates the user-defined functions. Eliminates redundant code since it's the same logic for all constructors.
          */
-        void set_user_defined_functions(
-                Field_Function       aFieldFunction,
-                Sensitivity_Function aSensitivityFunction);
+        void validate_user_defined_functions();
 
         /**
          * Used internally to automatically error out if no sensitivities were provided
          */
         static void no_sensitivities(
                 const Matrix< DDRMat >& aCoordinates,
-                const Cell< real >&     aParameters,
-                Matrix< DDRMat >&       aSensitivities);
-
+                const Vector< real >&     aParameters,
+                Matrix< DDRMat >&       aSensitivities );
     };
 }

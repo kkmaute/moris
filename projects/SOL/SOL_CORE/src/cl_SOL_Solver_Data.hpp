@@ -11,7 +11,7 @@
 #ifndef SRC_FEM_CL_SOL_SOLVER_DATA_HPP_
 #define SRC_FEM_CL_SOL_SOLVER_DATA_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {

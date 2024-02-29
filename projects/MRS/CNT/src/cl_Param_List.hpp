@@ -21,7 +21,7 @@
 #include <boost/variant.hpp>
 
 // MORIS library header files.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "assert.hpp"
 #include "core.hpp"
 #include "ios.hpp"
@@ -367,7 +367,7 @@ namespace moris
          * @return Cell of values
          */
         template< typename T >
-        Cell< T > get_cell( const std::string& aKey ) const
+        Vector< T > get_cell( const std::string& aKey ) const
         {
             return string_to_cell< T >( this->get< std::string >( aKey ) );
         }

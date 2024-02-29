@@ -57,14 +57,14 @@ namespace moris
         // User-defined FEM function
         typedef void ( *FEM_Function )(
                 moris::Matrix< moris::DDRMat >                &aPropMatrix,
-                moris::Cell< moris::Matrix< moris::DDRMat > > &aParameters,
+                Vector< moris::Matrix< moris::DDRMat > > &aParameters,
                 moris::fem::Field_Interpolator_Manager        *aFIManager );
         //------------------------------------------------------------------------------
 
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                moris::Cell< fem::Set_User_Info >   &aSetInfo )
+                Vector< fem::Set_User_Info >   &aSetInfo )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
         {
@@ -98,7 +98,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                 const moris_index                   &aMeshPairIndex,
-                moris::Cell< fem::Set_User_Info >   &aSetInfo,
+                Vector< fem::Set_User_Info >   &aSetInfo,
                 MSI::Design_Variable_Interface      *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -147,7 +147,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
                 const moris_index                          &aMeshPairIndex,
-                moris::Cell< moris::Cell< ParameterList > > aParameterList,
+                Vector< Vector< ParameterList > > aParameterList,
                 std::shared_ptr< Library_IO >               aLibrary )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -186,7 +186,7 @@ namespace moris
         FEM_Model::FEM_Model(
                 std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
                 const moris_index                          &aMeshPairIndex,
-                moris::Cell< moris::Cell< ParameterList > > aParameterList,
+                Vector< Vector< ParameterList > > aParameterList,
                 MSI::Design_Variable_Interface             *aDesignVariableInterface )
                 : mMeshManager( aMeshManager )
                 , mMeshPairIndex( aMeshPairIndex )
@@ -235,17 +235,17 @@ namespace moris
             // set size for list IG nodes
             mIGNodes.resize( tNumIGNodes, nullptr );
 
-            moris::Cell< enum ge::PDV_Type > tGeoPdvType;
+            Vector< enum gen::PDV_Type > tGeoPdvType;
             switch ( mSpaceDim )
             {
                 case 1:
-                    tGeoPdvType = { ge::PDV_Type::X_COORDINATE };
+                    tGeoPdvType = { gen::PDV_Type::X_COORDINATE };
                     break;
                 case 2:
-                    tGeoPdvType = { ge::PDV_Type::X_COORDINATE, ge::PDV_Type::Y_COORDINATE };
+                    tGeoPdvType = { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE };
                     break;
                 case 3:
-                    tGeoPdvType = { ge::PDV_Type::X_COORDINATE, ge::PDV_Type::Y_COORDINATE, ge::PDV_Type::Z_COORDINATE };
+                    tGeoPdvType = { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::Z_COORDINATE };
                     break;
                 default:
                     MORIS_ERROR( false,
@@ -262,7 +262,7 @@ namespace moris
 
             // TODO: MESHCLEANUP
             // load Mesh-GEN map
-            // moris::Cell<moris_index> tMesh_GEN_map;
+            // Vector<moris_index> tMesh_GEN_map;
             // tMesh_GEN_map.reserve(660);
             // aIGMesh->get_Mesh_GEN_map( tMesh_GEN_map );
 
@@ -279,8 +279,8 @@ namespace moris
 
                     // get the pdv values from the MSI/GEN interface
                     Matrix< IndexMat >              tVertexIndices( 1, 1, tVertexIndex );
-                    moris::Cell< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
-                    Cell< Cell< bool > > tIsActiveDv;
+                    Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
+                    Vector< Vector< bool > > tIsActiveDv;
 
                     this->get_design_variable_interface()->get_ig_pdv_value(
                             tVertexIndices,
@@ -309,7 +309,7 @@ namespace moris
                     }
 
                     // get the id associated to the pdv
-                    moris::Cell< moris::Matrix< DDSMat > > tPdvIds;
+                    Vector< moris::Matrix< DDSMat > > tPdvIds;
                     this->get_design_variable_interface()->get_ig_dv_ids_for_type_and_ind(
                             tVertexIndices,
                             tGeoPdvType,
@@ -330,7 +330,7 @@ namespace moris
         FEM_Model::create_fem_sets(
                 mtk::Interpolation_Mesh           *aIPMesh,
                 mtk::Integration_Mesh             *aIGMesh,
-                moris::Cell< fem::Set_User_Info > &aSetInfo )
+                Vector< fem::Set_User_Info > &aSetInfo )
         {
             // get the number of sets
             uint tNumFemSets = aSetInfo.size();
@@ -455,7 +455,7 @@ namespace moris
                 mFemSets( iSet )->set_equation_model( this );
 
                 // collect equation objects associated with the set
-                Cell< MSI::Equation_Object * > &tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
+                Vector< MSI::Equation_Object * > &tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
 
                 // add equation objects collected to the current set
                 mFemClusters.append( tEquationObjectList );
@@ -476,7 +476,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_active_flags(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
+                const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aIsActiveDv )
         {
             // Get the number of node indices requested
@@ -507,7 +507,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_ids(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
+                const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aXYZPdvIds )
         {
             // Get the number of node indices requested
@@ -538,7 +538,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_active_flags_and_ids(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
+                const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aIsActiveDv,
                 Matrix< DDSMat >              &aXYZPdvIds )
         {
@@ -599,7 +599,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_assembly_indices(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
+                const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aXYZPdvAssemblyIndices )
         {
             // Get the number of node indices requested
@@ -639,7 +639,7 @@ namespace moris
         void
         FEM_Model::set_integration_xyz_pdv_assembly_index(
                 moris_index   aNodeIndex,
-                enum ge::PDV_Type aPdvType,
+                enum gen::PDV_Type aPdvType,
                 moris_index   aXYZPdvAssemblyIndex )
         {
             // get the index of the underlying node
@@ -704,8 +704,8 @@ namespace moris
                     moris::MSI::get_msi_dof_type_map();
 
             // get string to dv type map
-            moris::map< std::string, ge::PDV_Type > tMSIDvTypeMap =
-                    ge::get_pdv_type_map();
+            moris::map< std::string, gen::PDV_Type > tMSIDvTypeMap =
+                    gen::get_pdv_type_map();
 
             // get string to field type map
             moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
@@ -886,12 +886,12 @@ namespace moris
         FEM_Model::create_properties(
                 std::map< std::string, uint >              &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, gen::PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap,
                 std::shared_ptr< Library_IO >               aLibrary )
         {
             // get the property parameter list
-            moris::Cell< ParameterList > tPropParameterList = mParameterList( 0 );
+            Vector< ParameterList > tPropParameterList = mParameterList( 0 );
 
             // get the number of properties
             uint tNumProps = tPropParameterList.size();
@@ -918,7 +918,7 @@ namespace moris
                 aPropertyMap[ tPropertyName ] = iProp;
 
                 // set dof dependencies
-                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                 string_to_cell_of_cell(
                         tPropParameter.get< std::string >( "dof_dependencies" ),
                         tDofTypes,
@@ -926,7 +926,7 @@ namespace moris
                 mProperties( iProp )->set_dof_type_list( tDofTypes );
 
                 // set dv dependencies
-                moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
+                Vector< Vector< gen::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         tPropParameter.get< std::string >( "dv_dependencies" ),
                         tDvTypes,
@@ -934,7 +934,7 @@ namespace moris
                 mProperties( iProp )->set_dv_type_list( tDvTypes );
 
                 // set field dependencies
-                moris::Cell< moris::Cell< mtk::Field_Type > > tFieldTypes;
+                Vector< Vector< mtk::Field_Type > > tFieldTypes;
                 string_to_cell_of_cell(
                         tPropParameter.get< std::string >( "field_dependencies" ),
                         tFieldTypes,
@@ -942,7 +942,7 @@ namespace moris
                 mProperties( iProp )->set_field_type_list( tFieldTypes );
 
                 // set function parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                Vector< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
                         tPropParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
@@ -958,12 +958,12 @@ namespace moris
                 }
 
                 // set dof derivative function for property
-                moris::Cell< std::string > tDofDerFuncNames;
+                Vector< std::string > tDofDerFuncNames;
                 string_to_cell(
                         tPropParameter.get< std::string >( "dof_derivative_functions" ),
                         tDofDerFuncNames );
                 uint                             tNumDofDerFuncs = tDofDerFuncNames.size();
-                moris::Cell< fem::PropertyFunc > tDofDerFunctions( tNumDofDerFuncs, nullptr );
+                Vector< fem::PropertyFunc > tDofDerFunctions( tNumDofDerFuncs, nullptr );
                 for ( uint iFunc = 0; iFunc < tNumDofDerFuncs; iFunc++ )
                 {
                     if ( tDofDerFuncNames( iFunc ).size() > 1 )
@@ -976,12 +976,12 @@ namespace moris
                 mProperties( iProp )->set_dof_derivative_functions( tDofDerFunctions );
 
                 // set dv derivative function for property
-                moris::Cell< std::string > tDvDerFuncNames;
+                Vector< std::string > tDvDerFuncNames;
                 string_to_cell(
                         tPropParameter.get< std::string >( "dv_derivative_functions" ),
                         tDvDerFuncNames );
                 uint                             tNumDvDerFuncs = tDvDerFuncNames.size();
-                moris::Cell< fem::PropertyFunc > tDvDerFunctions( tNumDvDerFuncs, nullptr );
+                Vector< fem::PropertyFunc > tDvDerFunctions( tNumDvDerFuncs, nullptr );
                 for ( uint iFunc = 0; iFunc < tNumDvDerFuncs; iFunc++ )
                 {
                     if ( tDvDerFuncNames( iFunc ).size() > 1 )
@@ -994,13 +994,13 @@ namespace moris
                 mProperties( iProp )->set_dv_derivative_functions( tDvDerFunctions );
 
                 // set space derivative function for property
-                moris::Cell< std::string > tSpaceDerFuncNames;
+                Vector< std::string > tSpaceDerFuncNames;
                 string_to_cell(
                         tPropParameter.get< std::string >( "space_derivative_functions" ),
                         tSpaceDerFuncNames );
                 uint tNumSpaceDerFuncs = tSpaceDerFuncNames.size();
 
-                moris::Cell< fem::PropertyFunc > tSpaceDerFunctions( tNumSpaceDerFuncs, nullptr );
+                Vector< fem::PropertyFunc > tSpaceDerFunctions( tNumSpaceDerFuncs, nullptr );
                 for ( uint iFunc = 0; iFunc < tNumSpaceDerFuncs; iFunc++ )
                 {
                     if ( tSpaceDerFuncNames( iFunc ).size() > 1 )
@@ -1021,7 +1021,7 @@ namespace moris
                 std::map< std::string, uint > &aFieldMap )
         {
             // get the property parameter list
-            moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
+            Vector< ParameterList > tFieldParameterList = mParameterList( 6 );
 
             // get the number of properties
             sint tNumFields = tFieldParameterList.size();
@@ -1059,7 +1059,7 @@ namespace moris
                 moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
                         mtk::get_field_type_map();
 
-                moris::Cell< mtk::Field_Type > tFieldTypes;
+                Vector< mtk::Field_Type > tFieldTypes;
                 string_to_cell(
                         tFieldParameter.get< std::string >( "field_type" ),
                         tFieldTypes,
@@ -1105,13 +1105,13 @@ namespace moris
         FEM_Model::create_material_models(
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
         {
             // create a constitutive model factory
             MM_Factory tMMFactory;
 
             // get the MM parameter list
-            moris::Cell< ParameterList > tMMParameterList = mParameterList( 8 );
+            Vector< ParameterList > tMMParameterList = mParameterList( 8 );
 
             // get number of constitutive models
             uint tNumMMs = tMMParameterList.size();
@@ -1145,19 +1145,19 @@ namespace moris
                 tMM->set_space_dim( mSpaceDim );
 
                 // set MM dof dependencies
-                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tMMParameter.get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
                         tDofTypes,
                         aMSIDofTypeMap );
-                moris::Cell< std::string > tDofTypeNames;
+                Vector< std::string > tDofTypeNames;
                 string_to_cell(
                         std::get< 1 >( tMMParameter.get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
                         tDofTypeNames );
                 tMM->set_dof_type_list( tDofTypes, tDofTypeNames );
 
                 // set MM properties
-                moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                Vector< Vector< std::string > > tPropertyNamesPair;
                 string_to_cell_of_cell(
                         tMMParameter.get< std::string >( "properties" ),
                         tPropertyNamesPair );
@@ -1199,13 +1199,13 @@ namespace moris
         FEM_Model::create_constitutive_models(
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
         {
             // create a constitutive model factory
             CM_Factory tCMFactory;
 
             // get the CM parameter list
-            moris::Cell< ParameterList > tCMParameterList = mParameterList( 1 );
+            Vector< ParameterList > tCMParameterList = mParameterList( 1 );
 
             // get number of constitutive models
             uint tNumCMs = tCMParameterList.size();
@@ -1255,38 +1255,38 @@ namespace moris
                 tCM->set_space_dim( mSpaceDim );
 
                 // set function parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                Vector< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
                         tCMParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
                 tCM->set_parameters( tFuncParameters );
 
                 // set CM dof dependencies
-                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tCMParameter.get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
                         tDofTypes,
                         aMSIDofTypeMap );
-                moris::Cell< std::string > tDofTypeNames;
+                Vector< std::string > tDofTypeNames;
                 string_to_cell(
                         std::get< 1 >( tCMParameter.get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
                         tDofTypeNames );
                 tCM->set_dof_type_list( tDofTypes, tDofTypeNames );
 
                 // set CM dv dependencies
-                moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
+                Vector< Vector< gen::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tCMParameter.get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                         tDvTypes,
                         aDvTypeMap );
-                moris::Cell< std::string > tDvTypeNames;
+                Vector< std::string > tDvTypeNames;
                 string_to_cell(
                         std::get< 1 >( tCMParameter.get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                         tDvTypeNames );
                 tCM->set_dv_type_list( tDvTypes, tDvTypeNames );
 
                 // set CM material model
-                moris::Cell< moris::Cell< std::string > > tMMNamesPair;
+                Vector< Vector< std::string > > tMMNamesPair;
                 string_to_cell_of_cell(
                         tCMParameter.get< std::string >( "material_model" ),
                         tMMNamesPair );
@@ -1312,7 +1312,7 @@ namespace moris
                 }
 
                 // set CM properties
-                moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                Vector< Vector< std::string > > tPropertyNamesPair;
                 string_to_cell_of_cell(
                         tCMParameter.get< std::string >( "properties" ),
                         tPropertyNamesPair );
@@ -1355,13 +1355,13 @@ namespace moris
                 std::map< std::string, uint >            &aSPMap,
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
         {
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
 
             // get the SP parameter list
-            moris::Cell< ParameterList > tSPParameterList = mParameterList( 2 );
+            Vector< ParameterList > tSPParameterList = mParameterList( 2 );
 
             // get the number of stabilization parameters
             uint tNumSPs = tSPParameterList.size();
@@ -1395,7 +1395,7 @@ namespace moris
                 aSPMap[ tSPName ] = iSP;
 
                 // set parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                Vector< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
                         tSPParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
@@ -1426,31 +1426,31 @@ namespace moris
                             tPhaseName.c_str() );
 
                     // set dof dependencies
-                    moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                    Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
                             std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                             tDofTypes,
                             aMSIDofTypeMap );
-                    moris::Cell< std::string > tDofTypeNames;
+                    Vector< std::string > tDofTypeNames;
                     string_to_cell( std::get< 1 >(
                                             tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                             tDofTypeNames );
                     mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                     // set dv dependencies
-                    moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
+                    Vector< Vector< gen::PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
                             std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypes,
                             aDvTypeMap );
-                    moris::Cell< std::string > tDvTypeNames;
+                    Vector< std::string > tDvTypeNames;
                     string_to_cell(
                             std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypeNames );
                     mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsLeader );
 
                     // set leader properties
-                    moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                    Vector< Vector< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
                             tSPParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
@@ -1477,7 +1477,7 @@ namespace moris
                     }
 
                     // set constitutive models
-                    moris::Cell< moris::Cell< std::string > > tCMNamesPair;
+                    Vector< Vector< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
                             tSPParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
@@ -1499,18 +1499,18 @@ namespace moris
                     }
 
                     // get the cluster measures specifications
-                    moris::Cell< moris::Cell< std::string > > tClusterMeasureTypes;
+                    Vector< Vector< std::string > > tClusterMeasureTypes;
                     string_to_cell_of_cell(
                             std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( "cluster_measures" ) ),
                             tClusterMeasureTypes );
 
                     // get the cluster measures names
-                    moris::Cell< std::string > tClusterMeasureNames;
+                    Vector< std::string > tClusterMeasureNames;
                     string_to_cell( std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( "cluster_measures" ) ),
                             tClusterMeasureNames );
 
                     // build a cell of tuples describing the cluster measures specifications
-                    moris::Cell< std::tuple<
+                    Vector< std::tuple<
                             fem::Measure_Type,
                             mtk::Primary_Void,
                             mtk::Leader_Follower > >
@@ -1573,7 +1573,7 @@ namespace moris
             IWG_Factory tIWGFactory;
 
             // get the IWG parameter list
-            moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
+            Vector< ParameterList > tIWGParameterList = mParameterList( 3 );
 
             // get number of IWGs
             uint tNumIWGs = tIWGParameterList.size();
@@ -1598,14 +1598,14 @@ namespace moris
                 uint tGhostOrder = tIWGParameter.get< uint >( "ghost_order" );
 
                 // get the treated IWG residual dof type
-                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tResDofTypes;
+                Vector< Vector< moris::MSI::Dof_Type > > tResDofTypes;
                 string_to_cell_of_cell(
                         tIWGParameter.get< std::string >( "dof_residual" ),
                         tResDofTypes,
                         aMSIDofTypeMap );
 
                 // get function parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                Vector< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
                         tIWGParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
@@ -1672,7 +1672,7 @@ namespace moris
                     }
 
                     // set properties
-                    moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                    Vector< Vector< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
@@ -1699,7 +1699,7 @@ namespace moris
                     }
 
                     // set material model
-                    moris::Cell< moris::Cell< std::string > > tMMNamesPair;
+                    Vector< Vector< std::string > > tMMNamesPair;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_material_model" ),
                             tMMNamesPair );
@@ -1723,7 +1723,7 @@ namespace moris
                     }
 
                     // set constitutive models
-                    moris::Cell< moris::Cell< std::string > > tCMNamesPair;
+                    Vector< Vector< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
@@ -1747,7 +1747,7 @@ namespace moris
                 }
 
                 // set stabilization parameters
-                moris::Cell< moris::Cell< std::string > > tSPNamesPair;
+                Vector< Vector< std::string > > tSPNamesPair;
                 string_to_cell_of_cell(
                         tIWGParameter.get< std::string >( "stabilization_parameters" ),
                         tSPNamesPair );
@@ -1795,11 +1795,11 @@ namespace moris
                 uint tPhaseIndex = mPhaseMap[ tPhaseName ];
 
                 // get dof type list from leader phase
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > &tLeaderDofTypes =
+                const Vector< Vector< MSI::Dof_Type > > &tLeaderDofTypes =
                         mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
                 // get dof type list from leader phase
-                const moris::Cell< moris::Cell< ge::PDV_Type > > &tLeaderPdvTypes =
+                const Vector< Vector< gen::PDV_Type > > &tLeaderPdvTypes =
                         mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                 // set leader dof dependencies
@@ -1823,11 +1823,11 @@ namespace moris
                     uint tFollowerPhaseIndex = mPhaseMap[ tFollowerPhaseName ];
 
                     // get dof type list from phase
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > &tFollowerDofTypes =
+                    const Vector< Vector< MSI::Dof_Type > > &tFollowerDofTypes =
                             mPhaseInfo( tFollowerPhaseIndex ).get_dof_type_list();
 
                     // get pdv type list from phase
-                    const moris::Cell< moris::Cell< ge::PDV_Type > > &tFollowerPdvTypes =
+                    const Vector< Vector< gen::PDV_Type > > &tFollowerPdvTypes =
                             mPhaseInfo( tFollowerPhaseIndex ).get_dv_type_list();
 
                     // set follower dof dependencies
@@ -1851,7 +1851,7 @@ namespace moris
             IQI_Factory tIQIFactory;
 
             // get the IQI parameter list
-            moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
+            Vector< ParameterList > tIQIParameterList = mParameterList( 4 );
 
             // get number of IQIs
             uint tNumIQIs = tIQIParameterList.size();
@@ -1874,7 +1874,7 @@ namespace moris
                         static_cast< fem::IQI_Type >( tIQIParameter.get< uint >( "IQI_type" ) );
 
                 // get the quantity dof type from parameter list
-                moris::Cell< moris::MSI::Dof_Type > tQuantityDofTypes;
+                Vector< moris::MSI::Dof_Type > tQuantityDofTypes;
                 string_to_cell(
                         tIQIParameter.get< std::string >( "dof_quantity" ),
                         tQuantityDofTypes,
@@ -1885,7 +1885,7 @@ namespace moris
                         tIQIParameter.get< moris::sint >( "vectorial_field_index" );
 
                 // set function parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                Vector< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
                         tIQIParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
@@ -1947,11 +1947,11 @@ namespace moris
                     uint tPhaseIndex = mPhaseMap[ tPhaseName ];
 
                     // get dof type list from phase
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > &tDofTypes =
+                    const Vector< Vector< MSI::Dof_Type > > &tDofTypes =
                             mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
                     // get dof type list from phase
-                    const moris::Cell< moris::Cell< ge::PDV_Type > > &tDvTypes =
+                    const Vector< Vector< gen::PDV_Type > > &tDvTypes =
                             mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                     // set leader dof dependencies
@@ -1961,7 +1961,7 @@ namespace moris
                     mIQIs( iIQI )->set_dv_type_list( tDvTypes );
 
                     // set leader properties
-                    moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                    Vector< Vector< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
                             tIQIParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
@@ -1988,7 +1988,7 @@ namespace moris
                     }
 
                     // set leader constitutive models
-                    moris::Cell< moris::Cell< std::string > > tCMNamesPair;
+                    Vector< Vector< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
                             tIQIParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
@@ -2011,7 +2011,7 @@ namespace moris
                 }
 
                 // set stabilization parameters
-                moris::Cell< moris::Cell< std::string > > tSPNamesPair;
+                Vector< Vector< std::string > > tSPNamesPair;
                 string_to_cell_of_cell(
                         tIQIParameter.get< std::string >( "stabilization_parameters" ),
                         tSPNamesPair );
@@ -2043,7 +2043,7 @@ namespace moris
         FEM_Model::create_phases()
         {
             // get the phase parameter list
-            moris::Cell< ParameterList > tPhaseParameterList = mParameterList( 7 );
+            Vector< ParameterList > tPhaseParameterList = mParameterList( 7 );
 
             // get number of phases
             uint tNumPhases = tPhaseParameterList.size();
@@ -2085,8 +2085,8 @@ namespace moris
             uint tNumFEMSets = 0;
 
             // get the IWG and IQI parameter lists
-            moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
-            moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
+            Vector< ParameterList > tIWGParameterList = mParameterList( 3 );
+            Vector< ParameterList > tIQIParameterList = mParameterList( 4 );
 
             // get fem computation type parameter list
             ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
@@ -2159,7 +2159,7 @@ namespace moris
                         tIWGParameter.get< std::string >( "side_ordinals" );
 
                 // get mesh set names for IWG
-                moris::Cell< std::string > tMeshSetNames;
+                Vector< std::string > tMeshSetNames;
                 this->get_mesh_set_names(
                         tIWGBulkType,
                         tLeaderPhaseName,
@@ -2277,7 +2277,7 @@ namespace moris
                         tIQIParameter.get< std::string >( "side_ordinals" );
 
                 // get mesh set names for IWG
-                moris::Cell< std::string > tMeshSetNames;
+                Vector< std::string > tMeshSetNames;
                 this->get_mesh_set_names(
                         tIQIBulkType,
                         tLeaderPhaseName,
@@ -2368,7 +2368,7 @@ namespace moris
                 std::string                 aFollowerPhaseString,
                 std::string                 aOrdinalString,
                 bool                        aIsGhost,
-                moris::Cell< std::string > &aMeshSetNames )
+                Vector< std::string > &aMeshSetNames )
         {
             // get the leader phase mesh index
             moris::Matrix< moris::IndexMat > tLeaderPhaseIndices =
@@ -2402,7 +2402,7 @@ namespace moris
                 case fem::Element_Type::SIDESET:
                 {
                     // get neighbor phase names from string
-                    moris::Cell< std::string > tFollowerPhaseNames;
+                    Vector< std::string > tFollowerPhaseNames;
                     string_to_cell( aFollowerPhaseString, tFollowerPhaseNames );
 
                     // get number of neighbor phase
@@ -2571,13 +2571,13 @@ namespace moris
                 std::map< std::string, uint >            &aMMMap,
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
         {
             // create a material model factory
             MM_Factory tMMFactory;
 
             // get the MM parameter list
-            moris::Cell< ParameterList > tMMParameterList = mParameterList( 7 );
+            Vector< ParameterList > tMMParameterList = mParameterList( 7 );
 
             // get number of material models
             uint tNumMMs = tMMParameterList.size();
@@ -2605,19 +2605,19 @@ namespace moris
                 mMMs( iMM )->set_space_dim( mSpaceDim );
 
                 // set MM dof dependencies
-                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tMMParameterList( iMM ).get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
                         tDofTypes,
                         aMSIDofTypeMap );
-                moris::Cell< std::string > tDofTypeNames;
+                Vector< std::string > tDofTypeNames;
                 string_to_cell(
                         std::get< 1 >( tMMParameterList( iMM ).get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
                         tDofTypeNames );
                 mMMs( iMM )->set_dof_type_list( tDofTypes, tDofTypeNames );
 
                 // set MM properties
-                moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                Vector< Vector< std::string > > tPropertyNamesPair;
                 string_to_cell_of_cell(
                         tMMParameterList( iMM ).get< std::string >( "properties" ),
                         tPropertyNamesPair );
@@ -2655,13 +2655,13 @@ namespace moris
                 std::map< std::string, uint >            &aPropertyMap,
                 std::map< std::string, uint >            &aMMMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
         {
             // create a constitutive model factory
             CM_Factory tCMFactory;
 
             // get the CM parameter list
-            moris::Cell< ParameterList > tCMParameterList = mParameterList( 1 );
+            Vector< ParameterList > tCMParameterList = mParameterList( 1 );
 
             // get number of constitutive models
             uint tNumCMs = tCMParameterList.size();
@@ -2697,31 +2697,31 @@ namespace moris
                 mCMs( iCM )->set_space_dim( mSpaceDim );
 
                 // set CM dof dependencies
-                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tCMParameterList( iCM ).get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
                         tDofTypes,
                         aMSIDofTypeMap );
-                moris::Cell< std::string > tDofTypeNames;
+                Vector< std::string > tDofTypeNames;
                 string_to_cell(
                         std::get< 1 >( tCMParameterList( iCM ).get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
                         tDofTypeNames );
                 mCMs( iCM )->set_dof_type_list( tDofTypes, tDofTypeNames );
 
                 // set CM dv dependencies
-                moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
+                Vector< Vector< gen::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tCMParameterList( iCM ).get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                         tDvTypes,
                         aDvTypeMap );
-                moris::Cell< std::string > tDvTypeNames;
+                Vector< std::string > tDvTypeNames;
                 string_to_cell(
                         std::get< 1 >( tCMParameterList( iCM ).get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                         tDvTypeNames );
                 mCMs( iCM )->set_dv_type_list( tDvTypes, tDvTypeNames );
 
                 // set CM properties
-                moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                Vector< Vector< std::string > > tPropertyNamesPair;
                 string_to_cell_of_cell(
                         tCMParameterList( iCM ).get< std::string >( "properties" ),
                         tPropertyNamesPair );
@@ -2750,7 +2750,7 @@ namespace moris
                 mCMs( iCM )->set_local_properties();
 
                 // set material model
-                moris::Cell< moris::Cell< std::string > > tMMNamesPair;
+                Vector< Vector< std::string > > tMMNamesPair;
                 string_to_cell_of_cell(
                         tCMParameterList( iCM ).get< std::string >( "material_model" ),
                         tMMNamesPair );
@@ -2787,13 +2787,13 @@ namespace moris
                 std::map< std::string, uint >            &aPropertyMap,
                 std::map< std::string, uint >            &aCMMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, gen::PDV_Type >      &aDvTypeMap )
         {
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
 
             // get the SP parameter list
-            moris::Cell< ParameterList > tSPParameterList = mParameterList( 2 );
+            Vector< ParameterList > tSPParameterList = mParameterList( 2 );
 
             // get the number of stabilization parameters
             uint tNumSPs = tSPParameterList.size();
@@ -2824,7 +2824,7 @@ namespace moris
                 aSPMap[ tSPParameter.get< std::string >( "stabilization_name" ) ] = iSP;
 
                 // set parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                Vector< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
                         tSPParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
@@ -2846,31 +2846,31 @@ namespace moris
                     }
 
                     // set dof dependencies
-                    moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                    Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
                             std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                             tDofTypes,
                             aMSIDofTypeMap );
-                    moris::Cell< std::string > tDofTypeNames;
+                    Vector< std::string > tDofTypeNames;
                     string_to_cell( std::get< 1 >(
                                             tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                             tDofTypeNames );
                     mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                     // set dv dependencies
-                    moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
+                    Vector< Vector< gen::PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
                             std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypes,
                             aDvTypeMap );
-                    moris::Cell< std::string > tDvTypeNames;
+                    Vector< std::string > tDvTypeNames;
                     string_to_cell(
                             std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypeNames );
                     mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsLeader );
 
                     // set leader properties
-                    moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                    Vector< Vector< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
                             tSPParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
@@ -2896,7 +2896,7 @@ namespace moris
                     }
 
                     // set constitutive models
-                    moris::Cell< moris::Cell< std::string > > tCMNamesPair;
+                    Vector< Vector< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
                             tSPParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
@@ -2935,14 +2935,14 @@ namespace moris
                 std::map< std::string, uint >              &aSPMap,
                 std::map< std::string, uint >              &aFieldMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, gen::PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
             // create an IWG factory
             IWG_Factory tIWGFactory;
 
             // get the IWG parameter list
-            moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
+            Vector< ParameterList > tIWGParameterList = mParameterList( 3 );
 
             // get number of IWGs
             uint tNumIWGs = tIWGParameterList.size();
@@ -2973,7 +2973,7 @@ namespace moris
                 aIWGMap[ tIWGName ] = iIWG;
 
                 // get function parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                Vector< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
                         tIWGParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
@@ -2984,7 +2984,7 @@ namespace moris
                 mIWGs( iIWG )->set_interpolation_order( tGhostOrder );
 
                 // set residual dof type
-                moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tResDofTypes;
+                Vector< Vector< moris::MSI::Dof_Type > > tResDofTypes;
                 string_to_cell_of_cell(
                         tIWGParameter.get< std::string >( "dof_residual" ),
                         tResDofTypes,
@@ -3007,7 +3007,7 @@ namespace moris
                     }
 
                     // set dof dependencies
-                    moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                    Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_dof_dependencies" ),
                             tDofTypes,
@@ -3015,7 +3015,7 @@ namespace moris
                     mIWGs( iIWG )->set_dof_type_list( tDofTypes, tIsLeader );
 
                     // set dv dependencies
-                    moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
+                    Vector< Vector< gen::PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
                             tDvTypes,
@@ -3023,7 +3023,7 @@ namespace moris
                     mIWGs( iIWG )->set_dv_type_list( tDvTypes, tIsLeader );
 
                     // set field types
-                    moris::Cell< moris::Cell< moris::mtk::Field_Type > > tFieldTypes;
+                    Vector< Vector< moris::mtk::Field_Type > > tFieldTypes;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_field_types" ),
                             tFieldTypes,
@@ -3031,7 +3031,7 @@ namespace moris
                     mIWGs( iIWG )->set_field_type_list( tFieldTypes, tIsLeader );
 
                     // set properties
-                    moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                    Vector< Vector< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
@@ -3061,7 +3061,7 @@ namespace moris
                     }
 
                     // set material model
-                    moris::Cell< moris::Cell< std::string > > tMMNamesPair;
+                    Vector< Vector< std::string > > tMMNamesPair;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_material_model" ),
                             tMMNamesPair );
@@ -3091,7 +3091,7 @@ namespace moris
                     }
 
                     // set constitutive models
-                    moris::Cell< moris::Cell< std::string > > tCMNamesPair;
+                    Vector< Vector< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
@@ -3122,7 +3122,7 @@ namespace moris
                 }
 
                 // set stabilization parameters
-                moris::Cell< moris::Cell< std::string > > tSPNamesPair;
+                Vector< Vector< std::string > > tSPNamesPair;
                 string_to_cell_of_cell(
                         tIWGParameter.get< std::string >( "stabilization_parameters" ),
                         tSPNamesPair );
@@ -3164,14 +3164,14 @@ namespace moris
                 std::map< std::string, uint >              &aSPMap,
                 std::map< std::string, uint >              &aFieldMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, gen::PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
             // create an IQI factory
             IQI_Factory tIQIFactory;
 
             // get the IQI parameter list
-            moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
+            Vector< ParameterList > tIQIParameterList = mParameterList( 4 );
 
             // get number of IQIs
             uint tNumIQIs = tIQIParameterList.size();
@@ -3208,7 +3208,7 @@ namespace moris
                 aIQIMap[ tIQIName ] = iIQI;
 
                 // get the treated IQI quantity dof type
-                moris::Cell< moris::MSI::Dof_Type > tQuantityDofTypes;
+                Vector< moris::MSI::Dof_Type > tQuantityDofTypes;
                 string_to_cell(
                         tIQIParameter.get< std::string >( "dof_quantity" ),
                         tQuantityDofTypes,
@@ -3220,7 +3220,7 @@ namespace moris
                         tIQIParameter.get< moris::sint >( "vectorial_field_index" ) );
 
                 // set function parameters
-                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                Vector< moris::Matrix< DDRMat > > tFuncParameters;
                 string_to_cell_mat_2(
                         tIQIParameter.get< std::string >( "function_parameters" ),
                         tFuncParameters );
@@ -3242,7 +3242,7 @@ namespace moris
                     }
 
                     // set dof dependencies
-                    moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
+                    Vector< Vector< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
                             tIQIParameter.get< std::string >( tIsLeaderString + "_dof_dependencies" ),
                             tDofTypes,
@@ -3250,7 +3250,7 @@ namespace moris
                     mIQIs( iIQI )->set_dof_type_list( tDofTypes, tIsLeader );
 
                     // set dv dependencies
-                    moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
+                    Vector< Vector< gen::PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
                             tIQIParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
                             tDvTypes,
@@ -3258,7 +3258,7 @@ namespace moris
                     mIQIs( iIQI )->set_dv_type_list( tDvTypes, tIsLeader );
 
                     // set field types
-                    moris::Cell< moris::Cell< moris::mtk::Field_Type > > tFieldTypes;
+                    Vector< Vector< moris::mtk::Field_Type > > tFieldTypes;
                     string_to_cell_of_cell(
                             tIQIParameter.get< std::string >( tIsLeaderString + "_field_types" ),
                             tFieldTypes,
@@ -3266,7 +3266,7 @@ namespace moris
                     mIQIs( iIQI )->set_field_type_list( tFieldTypes, tIsLeader );
 
                     // set properties
-                    moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
+                    Vector< Vector< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
                             tIQIParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
@@ -3296,7 +3296,7 @@ namespace moris
                     }
 
                     // set constitutive models
-                    moris::Cell< moris::Cell< std::string > > tCMNamesPair;
+                    Vector< Vector< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
                             tIQIParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
@@ -3327,7 +3327,7 @@ namespace moris
                 }
 
                 // set stabilization parameters
-                moris::Cell< moris::Cell< std::string > > tSPNamesPair;
+                Vector< Vector< std::string > > tSPNamesPair;
                 string_to_cell_of_cell(
                         tIQIParameter.get< std::string >( "stabilization_parameters" ),
                         tSPNamesPair );
@@ -3368,8 +3368,8 @@ namespace moris
             uint tNumFEMSets = 0;
 
             // get the IWG and IQI parameter lists
-            moris::Cell< ParameterList > tIWGParameterList = mParameterList( 3 );
-            moris::Cell< ParameterList > tIQIParameterList = mParameterList( 4 );
+            Vector< ParameterList > tIWGParameterList = mParameterList( 3 );
+            Vector< ParameterList > tIQIParameterList = mParameterList( 4 );
 
             // get fem computation type parameter list
             ParameterList tComputationParameterList = mParameterList( 5 )( 0 );
@@ -3397,7 +3397,7 @@ namespace moris
             for ( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
             {
                 // get the mesh set names from the IWG parameter list
-                moris::Cell< std::string > tMeshSetNames;
+                Vector< std::string > tMeshSetNames;
                 string_to_cell( tIWGParameterList( iIWG ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
 
                 // get the time continuity flag from the IWG parameter list
@@ -3474,7 +3474,7 @@ namespace moris
             for ( uint iIQI = 0; iIQI < tIQIParameterList.size(); iIQI++ )
             {
                 // get the mesh set names from the IQI parameter list
-                moris::Cell< std::string > tMeshSetNames;
+                Vector< std::string > tMeshSetNames;
                 string_to_cell( tIQIParameterList( iIQI ).get< std::string >( "mesh_set_names" ), tMeshSetNames );
 
                 // get the time continuity flag from the IQI parameter list
@@ -3564,10 +3564,10 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        moris::Cell< std::shared_ptr< mtk::Field > >
+        Vector< std::shared_ptr< mtk::Field > >
         FEM_Model::get_fields()
         {
-            moris::Cell< std::shared_ptr< mtk::Field > > tFields( mFields.size(), nullptr );
+            Vector< std::shared_ptr< mtk::Field > > tFields( mFields.size(), nullptr );
 
             for ( uint Ik = 0; Ik < mFields.size(); Ik++ )
             {
@@ -3589,8 +3589,8 @@ namespace moris
                 return;
             }
 
-            Cell< std::shared_ptr< fem::Field > > tFieldToPopulate;
-            Cell< std::string >                   tFieldIQINames;
+            Vector< std::shared_ptr< fem::Field > > tFieldToPopulate;
+            Vector< std::string >                   tFieldIQINames;
 
             tFieldToPopulate.reserve( mFields.size() );
             tFieldIQINames.reserve( mFields.size() );
@@ -3679,7 +3679,7 @@ namespace moris
         FEM_Model::get_vertex_xyz_active_flags(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aIsActiveDv,
-                const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
+                const Vector< enum gen::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -3703,7 +3703,7 @@ namespace moris
         void
         FEM_Model::set_vertex_xyz_active_flags(
                 moris_index                 aVertexIndex,
-                const Cell< Cell< bool > >& aIsActiveDv )
+                const Vector< Vector< bool > >& aIsActiveDv )
         {
             // get num of pdv
             uint tNumXYZPdv = aIsActiveDv.size();
@@ -3720,7 +3720,7 @@ namespace moris
         void
         FEM_Model::set_vertex_xyz_pdv_ids(
                 moris_index                      aVertexIndex,
-                moris::Cell< Matrix< DDSMat > > &aXYZPvIds )
+                Vector< Matrix< DDSMat > > &aXYZPvIds )
         {
             // get num of pdv
             uint tNumXYZPdv = aXYZPvIds.size();
@@ -3738,7 +3738,7 @@ namespace moris
         FEM_Model::get_vertex_xyz_pdv_ids(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aXYZPdvIds,
-                const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
+                const Vector< enum gen::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -3763,7 +3763,7 @@ namespace moris
         FEM_Model::get_local_xyz_pdv_assembly_indices(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aXYZLocalAssemblyIndices,
-                const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
+                const Vector< enum gen::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();

@@ -12,7 +12,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Bitset.hpp"
 #include "linalg_typedefs.hpp"
@@ -246,7 +246,7 @@ namespace moris
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< real >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -263,7 +263,7 @@ namespace moris
     void
     Func_Sphere_Deriv(
             const moris::Matrix< moris::DDRMat >&                aCoordinates,
-            const moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            const Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::Matrix< DDRMat >&                             aFieldSensitivity )
     {
         // derivative of level set function wrt sphere radius
@@ -276,7 +276,7 @@ namespace moris
     moris::real
     Func_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< real >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -457,7 +457,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
@@ -478,7 +478,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    HMRParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
 
@@ -515,7 +515,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    XTKParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -537,7 +537,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    GENParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
@@ -646,7 +646,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    FEMParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
     {
         if ( par_rank() == 0 )
         {
@@ -1352,7 +1352,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
         for ( uint Ik = 0; Ik < 8; Ik++ )
@@ -1470,7 +1470,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -1483,7 +1483,7 @@ namespace moris
     }
 
     void
-    VISParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -1500,7 +1500,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
     }
 

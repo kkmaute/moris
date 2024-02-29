@@ -14,10 +14,10 @@
 #include "assert.h"
 #include <cmath>
 
-#include "typedefs.hpp"    //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"                     //MTK/src
 #include "cl_MSI_Equation_Object.hpp"          //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                    //FEM/INT/src
@@ -51,15 +51,15 @@ namespace moris
             Matrix< IndexMat > mListOfTimeOrdinals;
 
             // list of pointers to the leader and follower mesh integration cells
-            moris::Cell< const mtk::Cell * > mLeaderIntegrationCells;
-            moris::Cell< const mtk::Cell * > mFollowerIntegrationCells;
+            Vector< const mtk::Cell * > mLeaderIntegrationCells;
+            Vector< const mtk::Cell * > mFollowerIntegrationCells;
 
             // leader and follower side ordinal information
             Matrix< IndexMat > mLeaderListOfSideOrdinals;
             Matrix< IndexMat > mFollowerListOfSideOrdinals;
 
             // list of pointers to element
-            moris::Cell< fem::Element * > mElements;
+            Vector< fem::Element * > mElements;
 
             // flag for all IG element whether or not to compute residual and QI (and derivatives)
             Matrix< DDUMat > mComputeResidualAndIQI;
@@ -75,7 +75,7 @@ namespace moris
             const real mVolumeError = 1e-6;
 
             // cluster measures
-            moris::Cell< std::shared_ptr< Cluster_Measure > > mClusterMEA;
+            Vector< std::shared_ptr< Cluster_Measure > > mClusterMEA;
 
             // cluster measure map
             std::map< std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >, uint > mClusterMEAMap;
@@ -317,7 +317,7 @@ namespace moris
             /**
              * get cluster measures
              */
-            moris::Cell< std::shared_ptr< Cluster_Measure > > &
+            Vector< std::shared_ptr< Cluster_Measure > > &
             get_cluster_measures()
             {
                 return mClusterMEA;

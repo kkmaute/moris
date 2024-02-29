@@ -499,7 +499,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_MoriTanaka::eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes )
+        CM_Struc_Linear_MoriTanaka::eval_dFluxdDOF( const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // call the parent contribution
             CM_Struc_Linear::eval_dFluxdDOF( aDofTypes );
@@ -547,10 +547,10 @@ namespace moris
 
         void
         CM_Struc_Linear_MoriTanaka::eval_dTestTractiondDOF(
-                const Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&      aNormal,
                 const Matrix< DDRMat >&      aJump,
-                const Cell< MSI::Dof_Type >& aTestDofTypes )
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             CM_Struc_Linear::eval_dTestTractiondDOF( aDofTypes, aNormal, aJump, aTestDofTypes );
 
@@ -783,7 +783,7 @@ namespace moris
 
         void
         CM_Struc_Linear_MoriTanaka::eval_dConstdDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );

@@ -13,7 +13,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -99,7 +99,7 @@ namespace moris
     // define free function for properties
     inline void
     tPropConstFunc_MDLTransient( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&       aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
             moris::fem::Field_Interpolator_Manager*              aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -108,7 +108,7 @@ namespace moris
     inline void
     tPropTimeFunc_MDLTransient(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         real tTime  = aFIManager->get_IP_geometry_interpolator()->valt()( 0 );
@@ -128,7 +128,7 @@ namespace moris
             uint tLagrangeMeshIndex = 0;
 
             // empty container for B-Spline meshes
-            moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
+            Vector< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create settings object
             moris::hmr::Parameters tParameters;
@@ -246,7 +246,7 @@ namespace moris
             tIQITEMP->set_output_type_index( 0 );
 
             // define set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 3 );
+            Vector< fem::Set_User_Info > tSetInfo( 3 );
 
             tSetInfo( 0 ).set_mesh_index( 0 );
             tSetInfo( 0 ).set_IWGs( { tIWGDiffusionBulk } );
@@ -387,12 +387,12 @@ namespace moris
 
         //    for( uint k=0; k<tNumRef; ++k )
         //    {
-        //        Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
-        //        tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-        //        tGeometry( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+        //        Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry( 2 );
+        //        tGeometry( 0 ) = std::make_shared< moris::gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
+        //        tGeometry( 1 ) = std::make_shared< moris::gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
         //
-        //        moris::ge::Phase_Table tPhaseTable (1);
-        //        moris::ge::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable, 2 );
+        //        moris::gen::Phase_Table tPhaseTable (1);
+        //        moris::gen::Geometry_Engine tGENGeometryEngine( tGeometry, tPhaseTable, 2 );
         //
         //        moris_index tMeshIndex = tGENGeometryEngine.register_mesh( tMesh );
         //
@@ -426,12 +426,12 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------
 
-        Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
-        tGeometry0( 0 ) = std::make_shared< moris::ge::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
-        tGeometry0( 1 ) = std::make_shared< moris::ge::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
+        Cell< std::shared_ptr< moris::gen::Geometry > > tGeometry0( 2 );
+        tGeometry0( 0 ) = std::make_shared< moris::gen::Plane >( tPlaneLeft, 0.0, 1.0, 0.0 );
+        tGeometry0( 1 ) = std::make_shared< moris::gen::Plane >( tPlaneRight, 0.0, 1.0, 0.0 );
 
         size_t                     tModelDimension = 2;
-        moris::ge::Geometry_Engine tGENGeometryEngine0( tGeometry0, tModelDimension );
+        moris::gen::Geometry_Engine tGENGeometryEngine0( tGeometry0, tModelDimension );
 
         // --------------------------------------------------------------------------------------
         xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGENGeometryEngine0 );
@@ -531,7 +531,7 @@ namespace moris
         tIQITEMP->set_output_type_index( 0 );
 
         // define set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 5 );
+        Vector< fem::Set_User_Info > tSetInfo( 5 );
 
         tSetInfo( 0 ).set_mesh_set_name( "HMR_dummy_c_p2" );
         tSetInfo( 0 ).set_IWGs( { tIWGDiffusionBulk } );

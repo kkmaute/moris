@@ -90,7 +90,7 @@ namespace mdl
 
 void tConstValFunction_MDLDIFF
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -199,7 +199,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 3 );
+        Vector< fem::Set_User_Info > tSetInfo( 3 );
         tSetInfo( 0 ) = tSetBulk;
         tSetInfo( 1 ) = tSetDirichlet;
         tSetInfo( 2 ) = tSetNeumann;
@@ -212,7 +212,7 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         //------------------------------------------------------------------------------
 
         //------------------------------------------------------------------------------
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
@@ -406,7 +406,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 3 );
+        Vector< fem::Set_User_Info > tSetInfo( 3 );
         tSetInfo( 0 ) = tSetBulk;
         tSetInfo( 1 ) = tSetDirichlet;
         tSetInfo( 2 ) = tSetNeumann;
@@ -416,7 +416,7 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
                                                1,
                                                tSetInfo );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algortihm
@@ -544,7 +544,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
 
 //        tParameters.set_number_aura( true );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -641,7 +641,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 3 );
+        Vector< fem::Set_User_Info > tSetInfo( 3 );
         tSetInfo( 0 ) = tSetBulk;
         tSetInfo( 1 ) = tSetDirichlet;
         tSetInfo( 2 ) = tSetNeumann;
@@ -651,7 +651,7 @@ TEST_CASE( "Diffusion_hmr_10x4x4", "[moris],[mdl],[Diffusion_hmr_10x4x4]" )
                                                tBSplineMeshIndex,
                                                tSetInfo );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algortihm
@@ -804,7 +804,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -901,7 +901,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 3 );
+        Vector< fem::Set_User_Info > tSetInfo( 3 );
         tSetInfo( 0 ) = tSetBulk;
         tSetInfo( 1 ) = tSetDirichlet;
         tSetInfo( 2 ) = tSetNeumann;
@@ -911,7 +911,7 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
                                                tBSplineMeshIndex,
                                                tSetInfo );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algortihm
@@ -1077,7 +1077,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
 
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+        Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
         tLagrangeToBSplineMesh( 0 ) = { {0} };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -1174,7 +1174,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
         tSetNeumann.set_IWGs( { tIWGNeumann } );
 
         // create a cell of set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 3 );
+        Vector< fem::Set_User_Info > tSetInfo( 3 );
         tSetInfo( 0 ) = tSetBulk;
         tSetInfo( 1 ) = tSetDirichlet;
         tSetInfo( 2 ) = tSetNeumann;
@@ -1184,7 +1184,7 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
                                                tBSplineMeshIndex,
                                                tSetInfo );
 
-        moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+        Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algortihm

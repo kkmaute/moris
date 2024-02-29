@@ -40,18 +40,19 @@ export F77=`spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{print $2}
 
 export GCCLIB=`spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
 
-export GCMMA_INSTALLED=`spack find gcmma            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export SNOPT_INSTALLED=`spack find snopt            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export LBFGS_INSTALLED=`spack find lbfgs            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export PETSC_INSTALLED=`spack find petsc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export ABLIS_INSTALLED=`spack find amdblis          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export AFLAM_INSTALLED=`spack find amdlibflame      | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export OAMKL_INSTALLED=`spack find intel-oneapi-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export  IMKL_INSTALLED=`spack find intel-mkl        | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export OBLAS_INSTALLED=`spack find openblas         | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export SLEPC_INSTALLED=`spack find slepc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export  DOXY_INSTALLED=`spack find doxygen          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export CLANG_INSTALLED=`spack find llvm             | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+export GCMMA_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "gcmma" )           {n=1}}END{print n}'`
+export SNOPT_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "snopt" )           {n=1}}END{print n}'`
+export LBFGS_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "lbfgs" )           {n=1}}END{print n}'`
+export PETSC_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "petsc" )           {n=1}}END{print n}'`
+export ABLIS_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "amdblis" )         {n=1}}END{print n}'`
+export AFLAM_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "amdlibflame" )     {n=1}}END{print n}'`
+export OAMKL_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "intel-oneapi-mkl" ){n=1}}END{print n}'`
+export  IMKL_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "intel-mkl" )       {n=1}}END{print n}'`
+export OBLAS_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "openblas" )        {n=1}}END{print n}'`
+export SLEPC_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "slepc" )           {n=1}}END{print n}'`
+export  DOXY_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "doxygen" )         {n=1}}END{print n}'`
+export CLANG_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "llvm" )            {n=1}}END{print n}'`
+export NINJA_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "ninja" )           {n=1}}END{print n}'`
 
 export Trilinos_DIR=`spack location --install-dir trilinos`
 
@@ -81,7 +82,7 @@ echo "setenv SUPERLU_DIR"      `spack location --install-dir superlu`          >
 echo "setenv SuperLU_DIST_DIR" `spack location --install-dir superlu-dist`     >> $HOME/.cshrc_moris
 echo "setenv HDF5_DIR"         `spack location --install-dir hdf5`             >> $HOME/.cshrc_moris
 echo "setenv NETCDF_DIR "      `spack location --install-dir netcdf-c`         >> $HOME/.cshrc_moris
-echo "setenv ZLIB_DIR "        `spack location --install-dir zlib`             >> $HOME/.cshrc_moris
+echo "setenv ZLIB_DIR "        `spack location --install-dir zlib-ng`          >> $HOME/.cshrc_moris
 echo "setenv SSL_DIR  "        `spack location --install-dir openssl`          >> $HOME/.cshrc_moris
 echo "setenv CMAKE_DIR  "      `spack location --install-dir cmake`            >> $HOME/.cshrc_moris
 echo "setenv Trilinos_DIR       $Trilinos_DIR"                                 >> $HOME/.cshrc_moris
@@ -128,6 +129,11 @@ export CLANG_DIR=`spack location --install-dir llvm`
 echo "setenv CLANG_DIR"       $CLANG_DIR                                       >> $HOME/.cshrc_moris
 fi
 
+if [ $NINJA_INSTALLED == "1" ];then
+export NINJA_DIR=`spack location --install-dir ninja`
+echo "setenv NINJA_DIR"       $NINJA_DIR                                       >> $HOME/.cshrc_moris
+fi
+
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv PATH $MPI_HOME/bin/:$PATH'                                        >> $HOME/.cshrc_moris 
 echo 'setenv PATH $NETCDF_DIR/bin/:$PATH'                                      >> $HOME/.cshrc_moris 
@@ -140,6 +146,10 @@ fi
 
 if [ $CLANG_INSTALLED == "1" ];then
 echo 'setenv PATH $CLANG_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
+fi
+
+if [ $NINJA_INSTALLED == "1" ];then
+echo 'setenv PATH $NINJA_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
 fi
 
 echo ""                                                                        >> $HOME/.cshrc_moris

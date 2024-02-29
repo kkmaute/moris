@@ -9,11 +9,10 @@
  */
 
 #include "catch.hpp"
-//#include "assert.hpp"
+// #include "assert.hpp"
 
-TEST_CASE("Assertion Testing", "[!throws][ASSERT]")
+TEST_CASE( "Assertion Testing", "[!throws][ASSERT]" )
 {
-//    int tCheck  = 0;
-//    REQUIRE_THROWS(MORIS_ASSERT(tCheck==1,"Testing assert function"));
+    //    int tCheck  = 0;
+    //    REQUIRE_THROWS(MORIS_ASSERT(tCheck==1,"Testing assert function"));
 }
-

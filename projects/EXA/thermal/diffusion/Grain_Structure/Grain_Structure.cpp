@@ -10,7 +10,7 @@
 
 #include <string>
 #include <iostream>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -49,7 +49,7 @@ namespace moris
     // Constant function for properties
     void Func_Const(
             moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -62,7 +62,7 @@ namespace moris
 
     moris::real Colors_1(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< real > & aGeometryParameters)
+                const Vector< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( aCoordinates(0) > 0.1117 && aCoordinates(1) <= -0.11)
@@ -75,7 +75,7 @@ namespace moris
 
     moris::real Colors_2(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< real > & aGeometryParameters)
+                const Vector< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( std::sqrt( std::pow( aCoordinates(0) -2.0, 2) + std::pow( aCoordinates(1) -2.0, 2) ) - 1.2 <= 0.0 &&
@@ -89,7 +89,7 @@ namespace moris
 
        moris::real Colors_3(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< real > & aGeometryParameters)
+                const Vector< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if(  aCoordinates(0)-aCoordinates(1) +  1.5 <= 0.0 &&
@@ -104,7 +104,7 @@ namespace moris
 
        moris::real Colors_4(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< real > & aGeometryParameters)
+                const Vector< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( std::sqrt( std::pow( aCoordinates(0) +2.0, 2) + std::pow( aCoordinates(1) +2.0, 2) ) - 2.6 <= 0.0 &&
@@ -118,7 +118,7 @@ namespace moris
         return tVal;
     }
 
-    void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void OPTParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -128,7 +128,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false);
     }
 
-    void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void HMRParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -160,7 +160,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
     }
 
-    void XTKParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void XTKParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -179,7 +179,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "write_cluster_measures_to_exo", false );
     }
 
-    void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void GENParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -219,7 +219,7 @@ namespace moris
 
     }
 
-    void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
+    void FEMParameterList( Vector< Vector< ParameterList > > & tParameterList )
     {
         // create a cell of cell of parameter list for fem
         tParameterList.resize( 8 );
@@ -412,7 +412,7 @@ namespace moris
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
     }
 
-    void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void SOLParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 8 );
         for( uint Ik = 0; Ik < 8; Ik ++ )
@@ -447,7 +447,7 @@ namespace moris
         tParameterlist( 7 )( 0 ).set( "ifpack_prec_type", "ILU" );
     }
 
-    void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void MSIParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -456,7 +456,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set("order_adofs_by_host",false);
     }
 
-    void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void VISParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -471,7 +471,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
-    void MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    void MORISGENERALParameterList( Vector< Vector< ParameterList > > & tParameterlist )
     {
 
     }

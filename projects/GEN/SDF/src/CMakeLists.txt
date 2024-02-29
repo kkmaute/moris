@@ -13,12 +13,23 @@ set(${SDF}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+    cl_SDF_Arguments.hpp
+    cl_SDF_Cell.hpp
+    cl_SDF_Core.hpp
     cl_SDF_Facet_Vertex.hpp
-    cl_SDF_Triangle.hpp
-    cl_SDF_Line.hpp
     cl_SDF_Facet.hpp
+    cl_SDF_Field.hpp
+    cl_SDF_Generator.hpp
+    cl_SDF_Line.hpp
+    cl_SDF_Mesh.hpp
     cl_SDF_Object.hpp
+    cl_SDF_Parameters.hpp
+    cl_SDF_State.hpp
+    cl_SDF_STK.hpp
+    cl_SDF_Triangle.hpp
+    cl_SDF_Vertex.hpp
     fn_SDF_Raycast.hpp
+    SDF_Tools.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -27,19 +38,19 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
     cl_SDF_Arguments.cpp
-    cl_SDF_Facet_Vertex.cpp
-    cl_SDF_Triangle.cpp
-    cl_SDF_Line.cpp
-    cl_SDF_Facet.cpp
-    cl_SDF_Object.cpp
     cl_SDF_Cell.cpp
-    cl_SDF_Vertex.cpp
     cl_SDF_Core.cpp
-    cl_SDF_Mesh.cpp
+    cl_SDF_Facet_Vertex.cpp
+    cl_SDF_Facet.cpp
+    cl_SDF_Field.cpp
     cl_SDF_Generator.cpp
+    cl_SDF_Line.cpp
+    cl_SDF_Mesh.cpp
+    cl_SDF_Object.cpp
     cl_SDF_Parameters.cpp
     cl_SDF_STK.cpp
-    cl_SDF_Field.cpp
+    cl_SDF_Triangle.cpp
+    cl_SDF_Vertex.cpp
     fn_SDF_Raycast.cpp
     )
 
@@ -67,13 +78,13 @@ foreach(TPL ${SDF_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${SDF}-lib
-    	PUBLIC ${MORIS}::${tpl})
+        PUBLIC ${MORIS}::${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${SDF}-lib
-    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+        PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
     target_compile_definitions(${SDF}-lib
-    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+        PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

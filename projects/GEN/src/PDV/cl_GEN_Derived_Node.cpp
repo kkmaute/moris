@@ -9,19 +9,20 @@
  */
 
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Background_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "cl_MTK_Interpolation_Function.hpp"
 #include "cl_Communication_Tools.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
     Derived_Node::Derived_Node(
             uint                     aIndex,
-            const Cell< Node* >&     aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Matrix< DDRMat >&  aParametricCoordinates,
             mtk::Geometry_Type       aGeometryType,
             mtk::Interpolation_Order aInterpolationOrder )
@@ -85,14 +86,14 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_background_nodes() const
+    const Vector< Basis_Node >& Derived_Node::get_background_nodes() const
     {
         return mBackgroundNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< Basis_Node >& Derived_Node::get_locator_nodes() const
+    const Vector< Basis_Node >& Derived_Node::get_locator_nodes() const
     {
         return mBackgroundNodes;
     }

@@ -14,7 +14,7 @@
 #include "cl_MTK_Field_Discrete.hpp"
 #include <utility>
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -59,8 +59,8 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Field::Field( const Field& aCopy,
-            const Cell< uint >& aReplaceVariables,
-            const Cell< real >& aNewConstants )
+            const Vector< uint >& aReplaceVariables,
+            const Vector< real >& aNewConstants )
             : mADVManager( aCopy.mADVManager, aReplaceVariables, aNewConstants )
             , mSensitivities( aCopy.mSensitivities )
             , mName( aCopy.mName )
@@ -71,8 +71,8 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     std::shared_ptr< Field > Field::copy(
-            const Cell< uint >& aReplaceVariables,
-            const Cell< real >& aNewConstants )
+            const Vector< uint >& aReplaceVariables,
+            const Vector< real >& aNewConstants )
     {
         return nullptr;
     }
@@ -94,7 +94,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real Field::get_interpolated_field_value(
-            const Cell< Basis_Node >& aBasisNodes,
+            const Vector< Basis_Node >& aBasisNodes,
             const Node_Manager&       aNodeManager )
     {
         // Initialize field value
@@ -124,7 +124,7 @@ namespace moris::ge
     
     void Field::append_interpolated_dfield_dadvs(
             Matrix< DDRMat >&         aInterpolatedSensitivities,
-            const Cell< Basis_Node >& aBasisNodes,
+            const Vector< Basis_Node >& aBasisNodes,
             const Node_Manager&       aNodeManager,
             real                      aBasisFactor )
     {
@@ -184,7 +184,7 @@ namespace moris::ge
     
     void Field::append_interpolated_determining_adv_ids(
             Matrix< DDSMat >&         aInterpolatedADVIDs,
-            const Cell< Basis_Node >& aBasisNodes,
+            const Vector< Basis_Node >& aBasisNodes,
             const Node_Manager&       aNodeManager )
     {
         // Add contributions from each basis node
@@ -228,7 +228,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Field::set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields )
+    void Field::set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields )
     {
     }
 

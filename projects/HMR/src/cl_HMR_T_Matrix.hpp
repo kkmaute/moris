@@ -94,9 +94,9 @@ namespace moris::hmr
         evaluate_L2_projection(
                 const Element*                                    aRootBsplineElement,
                 const Element*                                    aExtendedBsplineElement,
-                moris::Cell< moris::Cell< const mtk::Vertex* > >& aRootBsplineBasis,
-                moris::Cell< const mtk::Vertex* >&                aExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&                  aWeights )
+                Vector< Vector< const mtk::Vertex* > >& aRootBsplineBasis,
+                Vector< const mtk::Vertex* >&                aExtendedBsplineBasis,
+                Vector< Matrix< DDRMat > >&                  aWeights )
         {
             // Background_Element_Base* aRootBSpBackgroundElement = aRootBsplineElement->get_background_element();
             // Background_Element_Base* aExtendedBSpBackgroundElement = aExtendedBsplineElement->get_background_element();
@@ -108,7 +108,7 @@ namespace moris::hmr
             uint tNodesPerDirection = mBSplineMesh->Mesh_Base::get_order() + 1;
 
             // initialize 1D matrices to find the projection matrix in 1D
-            moris::Cell< Matrix< DDRMat > > tMatrices1D( N, Matrix< DDRMat >( tNodesPerDirection, tNodesPerDirection, MORIS_REAL_MAX ) );
+            Vector< Matrix< DDRMat > > tMatrices1D( N, Matrix< DDRMat >( tNodesPerDirection, tNodesPerDirection, MORIS_REAL_MAX ) );
 
             // loop over the dimensions and create the i,j,k 1D matrices
             for ( uint iDim = 0; iDim < N; iDim++ )
@@ -174,8 +174,8 @@ namespace moris::hmr
             }
 
             // initialize the basis for the root cell and extended cell
-            moris::Cell< const Basis* > tRootBasis;
-            moris::Cell< const Basis* > tExtendedBasis;
+            Vector< const Basis* > tRootBasis;
+            Vector< const Basis* > tExtendedBasis;
 
             // reserve enough memory for each of them
             tRootBasis.reserve( tNumberOfBases );

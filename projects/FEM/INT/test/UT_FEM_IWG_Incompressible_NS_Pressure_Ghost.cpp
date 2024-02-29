@@ -58,13 +58,13 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
             mtk::Interpolation_Order::LINEAR,
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Order::CUBIC };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
             mtk::Integration_Order::QUAD_2x2,
             mtk::Integration_Order::HEX_2x2x2 };
 
@@ -72,9 +72,9 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
     Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
+    Vector< Vector< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -334,8 +334,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Ghost", "[IWG_Incompressible_NS_Press
             tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

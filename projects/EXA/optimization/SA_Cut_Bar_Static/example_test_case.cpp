@@ -57,7 +57,7 @@ TEST_CASE("SA_Cut_Bar_Static",
     REQUIRE(tObjectiveAnalytical.length() == tConstraintsAnalytical.length()); // one objective and one constraint for this problem only
 
     // Read FD sensitivities and compare
-    Cell<std::string> tFDTypes = {"fd_forward", "fd_backward", "fd_central"};
+    Vector<std::string> tFDTypes = {"fd_forward", "fd_backward", "fd_central"};
     for (uint tFDIndex = 0; tFDIndex < tFDTypes.size(); tFDIndex++)
     {
         load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 epsilon_1-1 " + tFDTypes(tFDIndex), tObjectiveFD, tStatus);

@@ -116,7 +116,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > aDofTypes )
+                Vector< Vector< MSI::Dof_Type > > aDofTypes )
         {
             // check list of DoF types and set flags for dependent variables accordingly
             // get number of dof types
@@ -280,7 +280,7 @@ namespace moris
                 }
             }
             mGlobalDofTypes.resize( tCounterMax );
-            moris::Cell< sint > tCheckList( tCounterMax, -1 );
+            Vector< sint > tCheckList( tCounterMax, -1 );
 
             // initialize total dof counter
             uint tCounter = 0;
@@ -298,7 +298,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get active dof types
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                    const Vector< Vector< MSI::Dof_Type > > & tActiveDofType =
                             tProperty->get_dof_type_list();
 
                     for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
@@ -396,7 +396,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris::Cell< MSI::Dof_Type > > & Material_Model::get_global_dof_type_list()
+        const Vector< Vector< MSI::Dof_Type > > & Material_Model::get_global_dof_type_list()
         {
             if( mGlobalDofBuild )
             {
@@ -473,7 +473,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool Material_Model::check_dof_dependency(
-                const moris::Cell< MSI::Dof_Type > & aDofType )
+                const Vector< MSI::Dof_Type > & aDofType )
         {
             // set bool for dependency
             bool tDofDependency = false;
@@ -514,7 +514,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Material_Model::get_non_unique_dof_types(
-                moris::Cell< MSI::Dof_Type > & aDofTypes )
+                Vector< MSI::Dof_Type > & aDofTypes )
         {
             // initialize dof counter
             uint tCounter = 0;
@@ -532,7 +532,7 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property dof type list
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                    const Vector< Vector< MSI::Dof_Type > > & tActiveDofType =
                             tProperty->get_dof_type_list();
 
                     // loop over property dof types
@@ -560,7 +560,7 @@ namespace moris
                 if ( tProperty != nullptr )
                 {
                     // get property dof type list
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & tActiveDofType =
+                    const Vector< Vector< MSI::Dof_Type > > & tActiveDofType =
                             tProperty->get_dof_type_list();
 
                     // loop over property dof types
@@ -654,7 +654,7 @@ namespace moris
         //-----------------------------------------------------------------------------
         //-----------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Material_Model::EintDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::EintDOF( const Vector< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ASSERT(
@@ -680,7 +680,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Material_Model::EintDotDOF( const moris::Cell< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat > & Material_Model::EintDotDOF( const Vector< MSI::Dof_Type > & aDofType )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ASSERT(
@@ -706,7 +706,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Material_Model::dnEintdxnDOF( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
+        const Matrix< DDRMat > & Material_Model::dnEintdxnDOF( const Vector< MSI::Dof_Type > & aDofType, uint aOrder )
         {
             // if aDofType is not an active dof type for the MM
             MORIS_ASSERT(

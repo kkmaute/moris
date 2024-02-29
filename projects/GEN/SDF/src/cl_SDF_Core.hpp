@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "typedefs.hpp"    // COR/src
+#include "moris_typedefs.hpp"    // COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -115,13 +115,13 @@ namespace moris::sdf
 
         //-------------------------------------------------------------------------------
 
-        moris::Cell< Vertex* >
+        Vector< Vertex* >
         set_candidate_list();
 
         //-------------------------------------------------------------------------------
 
         void
-        calculate_udf( moris::Cell< Vertex* >& aCandidateList );
+        calculate_udf( Vector< Vertex* >& aCandidateList );
 
         //-------------------------------------------------------------------------------
 
@@ -148,8 +148,8 @@ namespace moris::sdf
         void
         get_nodes_withing_bounding_box_of_triangle(
                 Facet&                  aFacet,
-                moris::Cell< Vertex* >& aNodes,
-                moris::Cell< Vertex* >& aCandList );
+                Vector< Vertex* >& aNodes,
+                Vector< Vertex* >& aCandList );
 
         //--------------------------------------------------------------------------------
     };

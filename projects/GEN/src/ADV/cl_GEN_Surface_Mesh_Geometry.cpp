@@ -24,7 +24,7 @@
 #include "cl_MTK_Interpolation_Function_Base.hpp"
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "cl_MTK_Enums.hpp"
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ namespace moris::ge
             , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
             , mMesh( aMesh )
-            , mOriginalVertexCoordinates( 0,0 )
+            , mOriginalVertexCoordinates( 0, 0 )
             , mPerturbationFields( 0 )
     {
         // Check the correct number of ADVs are provided (either as many as dimensions or zero)
@@ -96,7 +96,7 @@ namespace moris::ge
                 {
                     tADVIndices.resize( 1, 1 );
                     tADVs.resize( 1, 1 );
-                    tADVIndices = { { iFieldIndex } };
+                    tADVIndices   = { { iFieldIndex } };
                     tADVs( 0, 0 ) = mParameters.mADVIndices( iFieldIndex );
                 }
                 // Build field
@@ -151,12 +151,12 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Surface_Mesh_Geometry::create_intersection_node(
-            uint                     aNodeIndex,
-            const Cell< Node* >&     aBackgroundNodes,
-            const Parent_Node&       aFirstParentNode,
-            const Parent_Node&       aSecondParentNode,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder )
+            uint                              aNodeIndex,
+            const Vector< Background_Node* >& aBackgroundNodes,
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
         // Create linear intersection node
         return new Intersection_Node_Surface_Mesh(
@@ -172,9 +172,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real Surface_Mesh_Geometry::compute_intersection_local_coordinate(
-            const Cell< Node* >& aBackgroundNodes,
-            const Parent_Node&   aFirstParentNode,
-            const Parent_Node&   aSecondParentNode )
+            const Vector< Background_Node* >& aBackgroundNodes,
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode )
     {
         // transform the interface geometry to local coordinates
         this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
@@ -182,7 +182,7 @@ namespace moris::ge
         // Compute the distance to the facets
         Matrix< DDRMat > tCastPoint( Object::mDimension, 1 );
         tCastPoint.fill( 0.0 );
-        Cell< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0 );
+        Vector< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0 );
 
         // shift local coordinate to be between -1 and 1
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
@@ -220,7 +220,7 @@ namespace moris::ge
     {
         // step 1: shift the object so the first parent is at the origin
         Matrix< DDRMat > tFirstParentNodeGlobalCoordinates = aFirstParentNode.get_global_coordinates();
-        Cell< real >     tShift( Object::mDimension );
+        Vector< real >   tShift( Object::mDimension );
         MORIS_ASSERT( tFirstParentNodeGlobalCoordinates.numel() == tShift.size(),
                 "Intersection Node Surface Mesh::transform_mesh_to_local_coordinates() inconsistent parent node and interface geometry dimensions." );
         for ( uint iCoord = 0; iCoord < tShift.size(); iCoord++ )
@@ -280,13 +280,13 @@ namespace moris::ge
         this->rotate( tRotationMatrix );
 
         // step 3: scale the object
-        Cell< real > tScaling( Object::mDimension, 2.0 / tParentVectorNorm );
+        Vector< real > tScaling( Object::mDimension, 2.0 / tParentVectorNorm );
         this->scale( tScaling );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
+    Vector< std::shared_ptr< mtk::Field > > Surface_Mesh_Geometry::get_mtk_fields()
     {
         // TODO BRENDAN: maybe?
         return {};
@@ -460,7 +460,7 @@ namespace moris::ge
     void Surface_Mesh_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Cell< real >&           aOutputDesignInfo )
+            Vector< real >&         aOutputDesignInfo )
     {
         // fit the output to the number of fields the surface mesh has
         aOutputDesignInfo.resize( mPerturbationFields.size() );
@@ -614,4 +614,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+}    // namespace moris::gen

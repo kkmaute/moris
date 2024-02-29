@@ -39,7 +39,7 @@ namespace moris::mtk
     class Mesh;
 }
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare derived node
     class Derived_Node;
@@ -100,8 +100,8 @@ namespace moris::ge
          * @param aNewConstants New constants
          */
         Field( const Field& aCopy,
-                const Cell< uint >& aReplaceVariables,
-                const Cell< real >& aNewConstants );
+                const Vector< uint >& aReplaceVariables,
+                const Vector< real >& aNewConstants );
 
         /**
          * Destructor
@@ -118,8 +118,8 @@ namespace moris::ge
          * @return Shared pointer to copied field
          */
         virtual std::shared_ptr< Field > copy(
-                const Cell< uint >& aReplaceVariables,
-                const Cell< real >& aNewConstants );
+                const Vector< uint >& aReplaceVariables,
+                const Vector< real >& aNewConstants );
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector
@@ -176,7 +176,7 @@ namespace moris::ge
          * @return Field value
          */
         real get_interpolated_field_value(
-                const Cell< Basis_Node >& aBasisNodes,
+                const Vector< Basis_Node >& aBasisNodes,
                 const Node_Manager&       aNodeManager );
 
         /**
@@ -210,7 +210,7 @@ namespace moris::ge
          */
         void append_interpolated_dfield_dadvs(
                 Matrix< DDRMat >&         aInterpolatedSensitivities,
-                const Cell< Basis_Node >& aBasisNodes,
+                const Vector< Basis_Node >& aBasisNodes,
                 const Node_Manager&       aNodeManager,
                 real                      aBasisFactor = 1.0 );
 
@@ -245,7 +245,7 @@ namespace moris::ge
          */
         void append_interpolated_determining_adv_ids(
                 Matrix< DDSMat >&         aInterpolatedADVIDs,
-                const Cell< Basis_Node >& aBasisNodes,
+                const Vector< Basis_Node >& aBasisNodes,
                 const Node_Manager&       aNodeManager );
 
         /**
@@ -274,7 +274,7 @@ namespace moris::ge
          *
          * @param aDependencyFields Other fields that this field depends on.
          */
-        virtual void set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields );
+        virtual void set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields );
 
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being

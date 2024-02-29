@@ -10,7 +10,7 @@
 
 #include <catch.hpp>
 #include <algorithm>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "paths.hpp"
 
@@ -56,7 +56,7 @@ namespace moris::sdf
         CHECK( all_true( abs( tFacetCoords - tResetCoordsExpected ) < tEpsilon ) );
 
         // shift the object and get the second facet
-        moris::Cell< real > tShift = { -0.25, 0.25 };
+        Vector< real > tShift = { -0.25, 0.25 };
         tObject.shift( tShift );
         tFacetCoords = tObject.get_facet( 1 ).get_vertex_coords();
 
@@ -67,7 +67,7 @@ namespace moris::sdf
         tObject.reset_coordinates();
 
         // scale the object and get the third facet
-        moris::Cell< real > tScale = { 2.0, 0.5 };
+        Vector< real > tScale = { 2.0, 0.5 };
         tObject.scale( tScale );
         tFacetCoords = tObject.get_facet( 2 ).get_vertex_coords();
 

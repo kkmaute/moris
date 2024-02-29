@@ -49,8 +49,8 @@ namespace moris
                 moris::sint mNX;
                 moris::sint mNY;
 
-                moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
-                moris::Cell< enum MSI::Dof_Type > mListSecondaryOfDofTypes;
+                Vector< enum MSI::Dof_Type > mListOfDofTypes;
+                Vector< enum MSI::Dof_Type > mListSecondaryOfDofTypes;
 
                 moris::real mk = 2;
                 Matrix< DDRMat> mT;
@@ -87,17 +87,17 @@ namespace moris
                 void free_block_memory( const uint aBlockInd ){};
                 // ----------------------------------------------------------------------------------------------
 
-                void set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+                void set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
                 {
                     mListOfDofTypes = aListOfDofTypes;
                 };
 
-                const moris::Cell< enum MSI::Dof_Type > & get_requested_dof_types()
+                const Vector< enum MSI::Dof_Type > & get_requested_dof_types()
                 {
                     return mListOfDofTypes;
                 };
 
-                void set_secondary_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+                void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
                 {
                     mListSecondaryOfDofTypes = aListOfDofTypes;
                 };
@@ -129,7 +129,7 @@ namespace moris
 
                 // ----------------------------------------------------------------------------------------------
                 // local-to-global map
-                moris::Matrix< DDSMat > get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type > & aListOfDofTypes )
+                moris::Matrix< DDSMat > get_my_local_global_map( const Vector< enum MSI::Dof_Type > & aListOfDofTypes )
                 {
                     if( mListOfDofTypes( 0 ) == MSI::Dof_Type::TEMP)
                     {
@@ -229,25 +229,25 @@ namespace moris
 
                 void get_equation_object_rhs(
                         const uint               & aMyElementInd,
-                        Cell< Matrix< DDRMat > > & aElementRHS );
+                        Vector< Matrix< DDRMat > > & aElementRHS );
 
                 void get_equation_object_rhs(
                         const uint               & aMyBlockInd,
                         const uint               & aMyElementInd,
-                        Cell< Matrix< DDRMat > > & aElementRHS );
+                        Vector< Matrix< DDRMat > > & aElementRHS );
 
                 //------------------------------------------------------------------------------
 
                 void get_equation_object_operator_and_rhs(
                         const moris::uint        & aMyElementInd,
                         Matrix< DDRMat >         & aElementMatrix,
-                        Cell< Matrix< DDRMat > > & aElementRHS );
+                        Vector< Matrix< DDRMat > > & aElementRHS );
 
                 void get_equation_object_operator_and_rhs(
                         const moris::uint        & aMyEquSetInd,
                         const moris::uint        & aMyElementInd,
                         Matrix< DDRMat >         & aElementMatrix,
-                        Cell< Matrix< DDRMat > > & aElementRHS );
+                        Vector< Matrix< DDRMat > > & aElementRHS );
 
                 // ----------------------------------------------------------------------------------------------
 

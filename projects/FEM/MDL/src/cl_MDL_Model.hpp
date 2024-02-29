@@ -11,8 +11,8 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_
 
-#include "typedefs.hpp"                       //MRS/COR/src
-#include "cl_Cell.hpp"                        //MRS/CNT/src
+#include "moris_typedefs.hpp"                       //MRS/COR/src
+#include "cl_Vector.hpp"                            //MRS/CNT/src
 
 #include "cl_Map.hpp"                        //MRS/CNT/src
 
@@ -115,10 +115,10 @@ namespace moris
 
                 MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
 
-                moris::Cell< moris::Cell< ParameterList > > mFEMParameterList;
-                moris::Cell< moris::Cell< ParameterList > > mMSIParameterList;
-                moris::Cell< moris::Cell< ParameterList > > mSOLParameterList;
-                moris::Cell< moris::Cell< ParameterList > > mVISParameterList;
+                Vector< Vector< ParameterList > > mFEMParameterList;
+                Vector< Vector< ParameterList > > mMSIParameterList;
+                Vector< Vector< ParameterList > > mSOLParameterList;
+                Vector< Vector< ParameterList > > mVISParameterList;
 
                 //------------------------------------------------------------------------------
             public:
@@ -134,7 +134,7 @@ namespace moris
                 Model(
                         std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
                         const uint                           aBSplineIndex,
-                        moris::Cell< fem::Set_User_Info >  & aSetInfo,
+                        Vector< fem::Set_User_Info >  & aSetInfo,
                         const moris_index                    aMeshPairIndex = 0,
                         const bool                           aUseMultigrid  = false );
 
@@ -151,7 +151,7 @@ namespace moris
                 Model(
                         std::shared_ptr< mtk::Mesh_Manager >aMeshManager,
                         const uint                          aBSplineIndex,
-                        moris::Cell< fem::Set_User_Info > & aSetInfo,
+                        Vector< fem::Set_User_Info > & aSetInfo,
                         MSI::Design_Variable_Interface    * aDesignVariableInterface,
                         const moris_index                   aMeshPairIndex = 0,
                         const bool                          aUseMultigrid  = false );
@@ -189,7 +189,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                moris::Cell< moris::Matrix< DDRMat > > get_IQI_values();
+                Vector< moris::Matrix< DDRMat > > get_IQI_values();
 
                 //------------------------------------------------------------------------------
 
@@ -308,7 +308,7 @@ namespace moris
                 /**
                  * return fields
                  */
-                Cell< std::shared_ptr< mtk::Field > > get_mtk_fields();
+                Vector< std::shared_ptr< mtk::Field > > get_mtk_fields();
 
                 //------------------------------------------------------------------------------
 

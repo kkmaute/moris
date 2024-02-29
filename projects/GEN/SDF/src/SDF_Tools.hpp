@@ -15,7 +15,7 @@
 #include <cmath>
 #include <limits>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src
@@ -303,11 +303,11 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        inline moris::Cell< std::string >
+        inline Vector< std::string >
         string_to_words( const std::string& aString )
         {
             // output cell
-            moris::Cell< std::string > aWords;
+            Vector< std::string > aWords;
 
             // cleanup string
             std::string tClean = clean( aString );

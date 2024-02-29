@@ -32,7 +32,7 @@ namespace moris
 
         SDF_Generator::SDF_Generator(
                 const std::string& aObjectPath,
-                moris::Cell< real >&      aObjectOffset,
+                Vector< real >&      aObjectOffset,
                 const bool         aVerboseFlag )
                 : mObject( aObjectPath, 1e-8, aObjectOffset )
                 , mVerboseFlag( aVerboseFlag )

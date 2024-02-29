@@ -12,7 +12,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 

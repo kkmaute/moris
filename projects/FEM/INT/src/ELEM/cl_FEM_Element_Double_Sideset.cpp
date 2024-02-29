@@ -171,7 +171,7 @@ namespace moris
                         mFollowerCell->get_vertices_ind_on_side_ordinal( aFollowerSideOrdinal );
 
                 // get the requested geo pdv types
-                moris::Cell< enum ge::PDV_Type > tGeoPdvType;
+                Vector< enum gen::PDV_Type > tGeoPdvType;
                 mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
                 // get local assembly indices
@@ -497,7 +497,7 @@ namespace moris
                     mCluster->get_right_vertex_ordinal_on_facet( mCellIndexInCluster, tFollowerNode );
 
             // get the vertices indices
-            moris::Cell< Matrix< IndexMat > > tVertexIndices( 2 );
+            Vector< Matrix< IndexMat > > tVertexIndices( 2 );
             tVertexIndices( 0 ) =
                     mLeaderCell->get_vertices_ind_on_side_ordinal( tLeaderSideOrd );
             tVertexIndices( 1 ) =
@@ -593,7 +593,7 @@ namespace moris
                     mCluster->get_right_vertex_ordinal_on_facet( mCellIndexInCluster, tFollowerNode );
 
             // get the vertices indices
-            moris::Cell< Matrix< IndexMat > > tVertexIndices( 2 );
+            Vector< Matrix< IndexMat > > tVertexIndices( 2 );
             tVertexIndices( 0 ) =
                     mLeaderCell->get_vertices_ind_on_side_ordinal( tLeaderSideOrd );
             tVertexIndices( 1 ) =

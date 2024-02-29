@@ -13,7 +13,7 @@
 #include "cl_GEN_Field.hpp"
 #include "cl_MTK_Mapper.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Class for fields that are specified by an analytic function.
@@ -58,8 +58,8 @@ namespace moris::ge
          */
         Field_Analytic(
                 const Field_Analytic< N >& aCopy,
-                const Cell< uint >& aReplaceVariables,
-                const Cell< real >& aNewConstants )
+                const Vector< uint >& aReplaceVariables,
+                const Vector< real >& aNewConstants )
                 : Field( aCopy, aReplaceVariables, aNewConstants )
         {
         }
@@ -206,11 +206,11 @@ namespace moris::ge
         VARIABLE_CHECK( num_variables );                                                                            \
         __VA_ARGS__                                                                                                 \
     }                                                                                                               \
-    class_name( const class_name& aCopy, const Cell< uint >& aReplaceVariables, const Cell< real >& aNewConstants ) \
+    class_name( const class_name& aCopy, const Vector< uint >& aReplaceVariables, const Vector< real >& aNewConstants ) \
             : Field_Analytic< num_dimensions >( aCopy, aReplaceVariables, aNewConstants )                           \
     {                                                                                                               \
     }                                                                                                               \
-    std::shared_ptr< Field > copy( const Cell< uint >& aReplaceVariables, const Cell< real >& aNewConstants )       \
+    std::shared_ptr< Field > copy( const Vector< uint >& aReplaceVariables, const Vector< real >& aNewConstants )       \
     {                                                                                                               \
         return std::make_shared< class_name >( *this, aReplaceVariables, aNewConstants );                           \
     }

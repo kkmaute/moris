@@ -23,14 +23,14 @@ namespace moris::wrk
         //------------------------------------------------------------------------------------------------------------------
 
       private:
-        std::shared_ptr< moris::ge::Geometry_Engine > mGeometryEngine;
+        std::shared_ptr< moris::gen::Geometry_Engine > mGeometryEngine;
 
         //------------------------------------------------------------------------------------------------------------------
 
       public:
         //------------------------------------------------------------------------------------------------------------------
 
-        Gen_Performer( std::shared_ptr< moris::ge::Geometry_Engine > aGeometryEngine );
+        Gen_Performer( std::shared_ptr< moris::gen::Geometry_Engine > aGeometryEngine );
 
         //------------------------------------------------------------------------------------------------------------------
 
@@ -45,19 +45,19 @@ namespace moris::wrk
          * @param aCoordinates Node coordinates
          * @return Geometric region
          */
-        ge::Geometric_Region get_geometric_region(
+        gen::Geometric_Region get_geometric_region(
                 uint                    aFieldIndex,
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates ) override;
 
         //------------------------------------------------------------------------------------------------------------------
 
-        const Cell< uint >&
+        const Vector< uint >&
         get_num_refinements( uint aFieldIndex ) override;
 
         //------------------------------------------------------------------------------------------------------------------
 
-        const Cell< uint >&
+        const Vector< uint >&
         get_refinement_mesh_indices( uint aFieldIndex ) override;
 
         //------------------------------------------------------------------------------------------------------------------

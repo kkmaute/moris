@@ -30,8 +30,8 @@
 
 #include "fn_equal_to.hpp"     //COM/src
 
-#include "typedefs.hpp"        //COR/src
-#include "cl_Cell.hpp"         //CNT/src
+#include "moris_typedefs.hpp"        //COR/src
+#include "cl_Vector.hpp"             //CNT/src
 
 #include "cl_Stopwatch.hpp"    //CHR/src
 
@@ -431,7 +431,7 @@ namespace moris::hmr
          */
         void collect_coarsest_elements_on_side(
                 uint                              aSideOrdinal,
-                Cell< Background_Element_Base* >& aCoarsestElementsOnSide );
+                Vector< Background_Element_Base* >& aCoarsestElementsOnSide );
 
         //--------------------------------------------------------------------------------
 
@@ -1132,7 +1132,7 @@ namespace moris::hmr
                 if ( tIsPaddingCandidate )
                 {
                     // get neighbors from same level
-                    Cell< Background_Element_Base* > tNeighbors;
+                    Vector< Background_Element_Base* > tNeighbors;
                     aElement->get_neighbors_from_same_level( mPaddingRefinement, tNeighbors );
 
                     // loop over all neighbors
@@ -1216,7 +1216,7 @@ namespace moris::hmr
 
             if ( tCheck )
             {
-                moris::Cell< Background_Element_Base* > tBackgroundElements;
+                Vector< Background_Element_Base* > tBackgroundElements;
 
                 this->collect_coarsest_elements_in_bounding_box( tBackgroundElements, tBoundingBoxStartEndIJK, tLevel );
 
@@ -1228,7 +1228,7 @@ namespace moris::hmr
                     tBackgroundElements( Ik )->get_number_of_active_descendants( aPattern, tCounter );
                 }
 
-                moris::Cell< Background_Element_Base* > tActiveElements( tCounter, nullptr );
+                Vector< Background_Element_Base* > tActiveElements( tCounter, nullptr );
 
                 tCounter = 0;
 
@@ -1252,7 +1252,7 @@ namespace moris::hmr
 
         //--------------------------------------------------------------------------------
 
-        void collect_coarsest_elements_in_bounding_box( Cell< Background_Element_Base* >& aBackgroundElements,
+        void collect_coarsest_elements_in_bounding_box( Vector< Background_Element_Base* >& aBackgroundElements,
                 luint                                                                     aBoundingBoxStartEndIJK[][ 2 ],
                 uint                                                                      alevel );
 
@@ -1444,7 +1444,7 @@ namespace moris::hmr
     inline void
     Background_Mesh< N >::collect_coarsest_elements_on_side(
             uint                              aSideOrdinal,
-            Cell< Background_Element_Base* >& aCoarsestElementsOnSide )
+            Vector< Background_Element_Base* >& aCoarsestElementsOnSide )
     {
         MORIS_ERROR( false, "Do not know how to collect coarsest elements on side \n" );
     }
@@ -1454,7 +1454,7 @@ namespace moris::hmr
     template< uint N >
     inline void
     Background_Mesh< N >::collect_coarsest_elements_in_bounding_box(
-            moris::Cell< Background_Element_Base* >& aBackgroundElements,
+            Vector< Background_Element_Base* >& aBackgroundElements,
             luint                                    aBoundingBoxStartEndIJK[][ 2 ],
             uint                                     alevel )
     {

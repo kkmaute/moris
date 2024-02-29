@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Bitset.hpp"
 #include "linalg_typedefs.hpp"
@@ -146,7 +146,7 @@ namespace moris
     void
     Func_Const(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -157,7 +157,7 @@ namespace moris
     void
     Func_InletVel(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         real tHeightChannel = 3e-3 / tLengthScale;
@@ -192,7 +192,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -206,7 +206,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    STKParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    STKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -223,7 +223,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    FEMParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
     {
         if ( par_rank() == 0 )
         {
@@ -489,7 +489,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
         for ( uint Ik = 0; Ik < 8; Ik++ )
@@ -563,7 +563,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -572,7 +572,7 @@ namespace moris
     }
 
     void
-    VISParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -589,7 +589,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
     }
 

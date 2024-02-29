@@ -17,13 +17,13 @@
 #include "fn_bubble_sort.hpp"
 #include "fn_approximate.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
-    template<typename Matrix_Type>
+    template< typename Matrix_Type >
     bool equal_to(
-            moris::Matrix< Matrix_Type > const & aMatrix1,
-            moris::Matrix< Matrix_Type > const & aMatrix2,
-            bool                                  aCheckRowsandCols = true)
+            Matrix< Matrix_Type > const &aMatrix1,
+            Matrix< Matrix_Type > const &aMatrix2,
+            bool                         aCheckRowsandCols = true )
     {
         bool tFlag = true;
 
@@ -33,26 +33,26 @@ namespace xtk
         size_t tNumRows2 = aMatrix2.n_rows();
         size_t tNumCols2 = aMatrix2.n_cols();
 
-        if(aCheckRowsandCols)
+        if ( aCheckRowsandCols )
         {
-            if(tNumRows1 != tNumRows2)
+            if ( tNumRows1 != tNumRows2 )
             {
                 std::cout << "There are a different number of rows in the provided matrices";
                 tFlag = false;
             }
 
-            if(tNumCols1 != tNumCols2)
+            if ( tNumCols1 != tNumCols2 )
             {
                 std::cout << "There are a different number of columns in the provided matrices";
                 tFlag = false;
             }
         }
 
-        for(size_t r = 0; r < tNumRows1; r++)
+        for ( size_t r = 0; r < tNumRows1; r++ )
         {
-            for(size_t c = 0; c < tNumCols1; c++)
+            for ( size_t c = 0; c < tNumCols1; c++ )
             {
-                if(!approximate(aMatrix2(r,c),aMatrix1(r,c)))
+                if ( !approximate( aMatrix2( r, c ), aMatrix1( r, c ) ) )
                 {
                     tFlag = false;
                     break;
@@ -62,23 +62,23 @@ namespace xtk
         return tFlag;
     }
 
-    template<typename Matrix_Type>
+    template< typename Matrix_Type >
     bool row_equal(
-            size_t                       const & aRowIndex1,
-            moris::Matrix< Matrix_Type > const & aMatrix1,
-            size_t                       const & aRowIndex2,
-            moris::Matrix< Matrix_Type > const & aMatrix2)
+            size_t const                &aRowIndex1,
+            Matrix< Matrix_Type > const &aMatrix1,
+            size_t const                &aRowIndex2,
+            Matrix< Matrix_Type > const &aMatrix2 )
     {
-        bool tEqual = true;
+        bool   tEqual    = true;
         size_t tNumCols1 = aMatrix1.n_cols();
 
-        if(tNumCols1 > 0)
+        if ( tNumCols1 > 0 )
         {
-            for(size_t c = 0; c < tNumCols1; c++)
+            for ( size_t c = 0; c < tNumCols1; c++ )
             {
-                if(!approximate(aMatrix1(aRowIndex1,c),aMatrix2(aRowIndex2,c)))
+                if ( !approximate( aMatrix1( aRowIndex1, c ), aMatrix2( aRowIndex2, c ) ) )
                 {
-                    tEqual =  false;
+                    tEqual = false;
                     break;
                 }
             }
@@ -92,33 +92,33 @@ namespace xtk
      * True if there are no duplicate faces
      * Order in the row does not matter (sorts in ascending order)
      */
-    template<typename Matrix_Type>
+    template< typename Matrix_Type >
     bool
     check_for_duplicate_rows(
-            moris::Matrix< Matrix_Type > & aMat,
-            bool                           aOrderMatters = true)
+            Matrix< Matrix_Type > &aMat,
+            bool                   aOrderMatters = true )
     {
-        bool tSame = true;
-        size_t tNumCols = aMat.n_cols();
-        moris::Matrix< Matrix_Type > tRow1(1,tNumCols);
-        moris::Matrix< Matrix_Type > tRow2(1,tNumCols);
+        bool                  tSame    = true;
+        size_t                tNumCols = aMat.n_cols();
+        Matrix< Matrix_Type > tRow1( 1, tNumCols );
+        Matrix< Matrix_Type > tRow2( 1, tNumCols );
 
         // Sort the rows in ascending order if the order matters
-        if(!aOrderMatters){  xtk::row_bubble_sort(aMat); }
+        if ( !aOrderMatters ) { xtk::row_bubble_sort( aMat ); }
 
-        for(size_t i = 0; i<aMat.n_rows(); i++)
+        for ( size_t i = 0; i < aMat.n_rows(); i++ )
         {
-            tRow1 = aMat.get_row(i);
+            tRow1 = aMat.get_row( i );
 
-            for(size_t j = i+1; j<aMat.n_rows(); j++)
+            for ( size_t j = i + 1; j < aMat.n_rows(); j++ )
             {
-                tRow2 = aMat.get_row(j);
+                tRow2 = aMat.get_row( j );
 
-                tSame = xtk::equal_to(tRow1,tRow2);
+                tSame = xtk::equal_to( tRow1, tRow2 );
 
-                if(tSame)
+                if ( tSame )
                 {
-                    std::cout<< "i = " << i<< " j = "<< j<<std::endl;
+                    std::cout << "i = " << i << " j = " << j << std::endl;
                     return false;
                 }
             }
@@ -127,32 +127,32 @@ namespace xtk
         return true;
     }
 
-    template<typename Matrix_Type>
+    template< typename Matrix_Type >
     bool
     check_for_duplicate_columns(
-            moris::Matrix< Matrix_Type > & aMat,
-            bool                           aOrderMatters = true)
+            Matrix< Matrix_Type > &aMat,
+            bool                   aOrderMatters = true )
     {
 
-        bool tSame = true;
-        size_t tNumRows = aMat.n_rows();
-        std::shared_ptr<moris::Matrix< Matrix_Type > > tCol1 = aMat.create(tNumRows,1);
-        moris::Matrix< Matrix_Type > tCol2 = aMat.create(tNumRows,1);
+        bool                                     tSame    = true;
+        size_t                                   tNumRows = aMat.n_rows();
+        std::shared_ptr< Matrix< Matrix_Type > > tCol1    = aMat.create( tNumRows, 1 );
+        Matrix< Matrix_Type >                    tCol2    = aMat.create( tNumRows, 1 );
 
         // Sort the rows in ascending order if the order matters
-        if(!aOrderMatters){  xtk::row_bubble_sort(aMat); }
+        if ( !aOrderMatters ) { xtk::row_bubble_sort( aMat ); }
 
-        for(size_t i = 0; i<aMat.n_cols(); i++)
+        for ( size_t i = 0; i < aMat.n_cols(); i++ )
         {
-            aMat.get_column(i,*tCol1);
+            aMat.get_column( i, *tCol1 );
 
-            for(size_t j = i+1; j<aMat.n_cols(); j++)
+            for ( size_t j = i + 1; j < aMat.n_cols(); j++ )
             {
-                aMat.get_column(j,*tCol2);
+                aMat.get_column( j, *tCol2 );
 
-                tSame = xtk::equal_to(*tCol1,*tCol2);
+                tSame = xtk::equal_to( *tCol1, *tCol2 );
 
-                if(tSame)
+                if ( tSame )
                 {
                     return false;
                 }
@@ -165,48 +165,48 @@ namespace xtk
     /*
      * Sets aMatrix.row(aRowIndex1) as aMatrix2.row(aRowIndex2)
      */
-    template<typename Matrix_Type>
+    template< typename Matrix_Type >
     void
     replace_row(
-            size_t                       const & aRowIndex1,
-            moris::Matrix< Matrix_Type > const & aMatrix1,
-            size_t                       const & aRowIndex2,
-            moris::Matrix< Matrix_Type >       & aMatrix2,
-            bool                                 aCheckRowsandCols = false)
+            size_t const                &aRowIndex1,
+            Matrix< Matrix_Type > const &aMatrix1,
+            size_t const                &aRowIndex2,
+            Matrix< Matrix_Type >       &aMatrix2,
+            bool                         aCheckRowsandCols = false )
     {
         size_t tNumCols1 = aMatrix1.n_cols();
 
-        if(aCheckRowsandCols)
+        if ( aCheckRowsandCols )
         {
 
             size_t tNumRows1 = aMatrix1.n_rows();
             size_t tNumRows2 = aMatrix2.n_rows();
             size_t tNumCols2 = aMatrix2.n_cols();
 
-            MORIS_ERROR(tNumRows1 = tNumRows2, "Different number of rows");
-            MORIS_ERROR(tNumCols1 = tNumCols2, "Different number of cols");
-            MORIS_ERROR(aRowIndex1<tNumRows1,"Row index out of bounds matrix 1");
-            MORIS_ERROR(aRowIndex2<tNumRows2,"Row index out of bounds matrix 2");
+            MORIS_ERROR( tNumRows1 = tNumRows2, "Different number of rows" );
+            MORIS_ERROR( tNumCols1 = tNumCols2, "Different number of cols" );
+            MORIS_ERROR( aRowIndex1 < tNumRows1, "Row index out of bounds matrix 1" );
+            MORIS_ERROR( aRowIndex2 < tNumRows2, "Row index out of bounds matrix 2" );
         }
 
-        for(size_t i = 0; i<tNumCols1; i++)
+        for ( size_t i = 0; i < tNumCols1; i++ )
         {
-            aMatrix2(aRowIndex2,i) = aMatrix1(aRowIndex1,i);
+            aMatrix2( aRowIndex2, i ) = aMatrix1( aRowIndex1, i );
         }
     }
 
-    template<typename Matrix_Type>
+    template< typename Matrix_Type >
     void
     fill_row(
-            typename moris::Matrix< Matrix_Type >::Data_Type const & aFillValue,
-            size_t                                           const & aRowIndex,
-            moris::Matrix< Matrix_Type >                           & aMatrix1)
+            typename Matrix< Matrix_Type >::Data_Type const &aFillValue,
+            size_t const                                    &aRowIndex,
+            Matrix< Matrix_Type >                           &aMatrix1 )
     {
         size_t tNumCols1 = aMatrix1.n_cols();
 
-        for(size_t i = 0; i<tNumCols1; i++)
+        for ( size_t i = 0; i < tNumCols1; i++ )
         {
-            aMatrix1(aRowIndex,i) = aFillValue;
+            aMatrix1( aRowIndex, i ) = aFillValue;
         }
     }
 
@@ -215,19 +215,19 @@ namespace xtk
      *
      * Matrix 1 goes into Matrix 2
      */
-    template<typename Matrix_Type>
+    template< typename Matrix_Type >
     void conservative_copy(
-            moris::Matrix< Matrix_Type > const & aMatrix1,
-            moris::Matrix< Matrix_Type >       & aMatrix2)
+            Matrix< Matrix_Type > const &aMatrix1,
+            Matrix< Matrix_Type >       &aMatrix2 )
     {
         size_t tNumRow1 = aMatrix1.n_rows();
         size_t tNumCol1 = aMatrix1.n_cols();
 
-        for(size_t iR = 0; iR<tNumRow1; iR++)
+        for ( size_t iR = 0; iR < tNumRow1; iR++ )
         {
-            for( size_t iC = 0; iC<tNumCol1; iC++ )
+            for ( size_t iC = 0; iC < tNumCol1; iC++ )
             {
-                aMatrix2(iR,iC) = aMatrix1(iR,iC);
+                aMatrix2( iR, iC ) = aMatrix1( iR, iC );
             }
         }
     }
@@ -251,29 +251,28 @@ namespace xtk
      *
      */
 
-    template<typename Matrix_Type, typename Integer_Matrix>
-    moris::Matrix< Matrix_Type >
+    template< typename Matrix_Type, typename Integer_Matrix >
+    Matrix< Matrix_Type >
     reindex_matrix(
-            moris::Matrix<Integer_Matrix> const & aIndexMap,
-            size_t                        const & aMatRow,
-            moris::Matrix< Matrix_Type >  const & aMatToReindex)
+            Matrix< Integer_Matrix > const &aIndexMap,
+            size_t const                   &aMatRow,
+            Matrix< Matrix_Type > const    &aMatToReindex )
     {
         size_t tNumRow = aIndexMap.n_rows();
         size_t tNumCol = aIndexMap.n_cols();
 
-        moris::Matrix< Matrix_Type > tReindexedMat(tNumRow,tNumCol);
+        Matrix< Matrix_Type > tReindexedMat( tNumRow, tNumCol );
 
-        for( size_t i = 0; i<tNumRow; i++)
+        for ( size_t i = 0; i < tNumRow; i++ )
         {
-            for(size_t j =0; j<tNumCol; j++)
+            for ( size_t j = 0; j < tNumCol; j++ )
             {
-                tReindexedMat(i,j) = aMatToReindex(aMatRow,aIndexMap(i,j));
+                tReindexedMat( i, j ) = aMatToReindex( aMatRow, aIndexMap( i, j ) );
             }
         }
 
         return tReindexedMat;
     }
-}
+}    // namespace moris::xtk
 
 #endif /* SRC_LINALG_CL_XTK_MATRIXBASE_UTILITIES_HPP_ */
-

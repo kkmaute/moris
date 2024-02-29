@@ -30,7 +30,7 @@ namespace moris::dla
 
         PC mpc;
 
-        moris::Cell< KSP > tKSPBlock;
+        Vector< KSP > tKSPBlock;
 
         friend class Preconditioner_PETSc;
 

@@ -21,8 +21,8 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "fn_assert.hpp"
 
 namespace moris
@@ -156,8 +156,8 @@ namespace moris
             const std::string&   aSubTree,
             const std::string&   aLabel,
             const moris::size_t& aIndex,
-            Cell< std::string >& aFirst,
-            Cell< std::string >& aSecond )
+            Vector< std::string >& aFirst,
+            Vector< std::string >& aSecond )
     {
         // tidy up output data
         aFirst.clear();

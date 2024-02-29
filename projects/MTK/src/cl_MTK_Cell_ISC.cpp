@@ -22,7 +22,7 @@ namespace moris
                 moris::moris_index              aCellIndex,
                 moris::moris_id                 aCellOwner,
                 std::shared_ptr<mtk::Cell_Info> aCellInfo,
-                moris::Cell< mtk::Vertex* >     aVertices)
+                Vector< mtk::Vertex* >     aVertices)
                                            : Cell(aCellId,aCellIndex,aCellOwner, aCellInfo),
                                              mCellVertices(aVertices)
                                              {}

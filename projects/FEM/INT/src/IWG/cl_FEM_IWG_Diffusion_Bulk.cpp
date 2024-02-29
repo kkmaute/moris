@@ -154,7 +154,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -278,7 +278,7 @@ namespace moris
             //            for( uint iDv = 0; iDv < tNumDvDependencies; iDv++ )
             //            {
             //                // get the treated dv type
-            //                Cell< ge::PDV_Type > tDvType = mLeaderGlobalDvTypes( iDv );
+            //                Cell< gen::PDV_Type > tDvType = mLeaderGlobalDvTypes( iDv );
             //
             //                // get the index for dof type, indices for assembly
             //                sint tDvDepIndex          = ;

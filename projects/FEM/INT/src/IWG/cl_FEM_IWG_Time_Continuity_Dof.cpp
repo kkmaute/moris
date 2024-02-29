@@ -85,6 +85,8 @@ namespace moris
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
+            // externally controlled weighting for residual (but not Jacobian) to enable
+            // inexact Newton with time continuity contribution to Jacobian but not residual
             real tResWeight = 1.0;
             if ( tPropWeightResidual != nullptr )
             {
@@ -168,7 +170,6 @@ namespace moris
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
-
             // get the number of leader dof type dependencies
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
@@ -179,7 +180,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -286,7 +287,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // FIXME needs to be assemble on previous time step solution?
                 // get the index for dof type, indices for assembly

@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Intersection_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare voxel geometry
     class Voxel_Geometry;
@@ -36,7 +36,7 @@ namespace moris::ge
          */
         Intersection_Node_Voxel(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,

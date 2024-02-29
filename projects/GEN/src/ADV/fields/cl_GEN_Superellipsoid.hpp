@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Field_Analytic.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Superellipsoid : public Field_Analytic< 3 >
     {

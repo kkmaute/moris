@@ -73,7 +73,7 @@ namespace moris::hmr
                 tParameters.set_bspline_orders( { { 1 } } );
                 tParameters.set_bspline_patterns( { { 0 } } );
 
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -209,7 +209,7 @@ namespace moris::hmr
                 tParameters.set_bspline_orders( { { 1 } } );
                 tParameters.set_bspline_patterns( { { 0 } } );
 
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -352,7 +352,7 @@ namespace moris::hmr
 
                 tParameters.set_number_aura( true );
 
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
@@ -486,7 +486,7 @@ namespace moris::hmr
                 tParameters.set_bspline_orders( { { 1 } } );
                 tParameters.set_bspline_patterns( { { 0 } } );
 
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                Vector< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
                 tParameters.set_number_aura( true );

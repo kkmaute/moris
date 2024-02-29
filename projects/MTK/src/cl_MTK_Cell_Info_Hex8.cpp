@@ -14,7 +14,7 @@
 #include "fn_cross.hpp"
 #include "fn_dot.hpp"
 #include "fn_norm.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris
 {
@@ -58,7 +58,7 @@ namespace mtk
     Cell_Info_Hex8::compute_cell_shape( moris::mtk::Cell const *aCell ) const
     {
         // getting vertices and storing them in a local matrix, since each node will be used a few times
-        moris::Cell< Vertex * > tVertices = aCell->get_vertex_pointers();
+        Vector< Vertex * > tVertices = aCell->get_vertex_pointers();
 
         // init cell shape
         CellShape tCellShape = CellShape::RECTANGULAR;
@@ -67,7 +67,7 @@ namespace mtk
         real tEpsilon = 1.0E-8;
 
         // init cell of face normals
-        moris::Cell< moris::Matrix< DDRMat > > tFaceNormals( 6 );
+        Vector< moris::Matrix< DDRMat > > tFaceNormals( 6 );
 
         // looping through each face
         for ( uint iFace = 0; iFace < 6; iFace++ )
@@ -453,7 +453,7 @@ namespace mtk
     moris::real
     Cell_Info_Hex8::compute_cell_size_special( moris::mtk::Cell const *aCell ) const
     {
-        moris::Cell< Vertex * > tVertices = aCell->get_vertex_pointers();
+        Vector< Vertex * > tVertices = aCell->get_vertex_pointers();
 
         Matrix< DDRMat > tNode0Coords = tVertices( 0 )->get_coords();
         Matrix< DDRMat > tNode6Coords = tVertices( 6 )->get_coords();
@@ -474,7 +474,7 @@ namespace mtk
         // FIXME: Not consistent with each vertex. Depending what corners are used to be bisected, this won't be consistent
 
         // getting vertices and storing them in a local matrix, since each node will be used a few times
-        moris::Cell< Vertex * > tVertices = aCell->get_vertex_pointers();
+        Vector< Vertex * > tVertices = aCell->get_vertex_pointers();
         Matrix< DDRMat >        tNodeCoords( 8, 3 );
 
         for ( uint i = 0; i < 8; ++i )
@@ -518,7 +518,7 @@ namespace mtk
     Cell_Info_Hex8::compute_cell_side_size( moris::mtk::Cell const *aCell,
         moris_index const &                                         aSideOrd ) const
     {
-        moris::Cell< mtk::Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
+        Vector< mtk::Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
 
         // FIXME: only works for rectangular cells
         Matrix< DDRMat > tNodeCoords0 = tVertices( 0 )->get_coords();
@@ -576,7 +576,7 @@ namespace mtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index >
+    Vector< moris_index >
     Cell_Info_Hex8::get_vertex_path_to_entity_rank_and_ordinal(
         moris_index aVertexOrdinal,
         moris_index aOtherEntityOrdinal,
@@ -615,7 +615,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other node ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -651,7 +651,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -676,14 +676,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -718,7 +718,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other node ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -754,7 +754,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -779,14 +779,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -821,7 +821,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other node ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -857,7 +857,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -882,14 +882,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -924,7 +924,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other node ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -960,7 +960,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -985,14 +985,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1027,7 +1027,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other node ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1063,7 +1063,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1088,14 +1088,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1130,7 +1130,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other node ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1166,7 +1166,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1191,14 +1191,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1233,7 +1233,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other node ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1269,7 +1269,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1294,14 +1294,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1336,7 +1336,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other node ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1372,7 +1372,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1397,28 +1397,28 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
         default:
         {
             MORIS_ERROR( 0, "Invalid vertex ordinal for hex8" );
-            return moris::Cell< moris_index >( 0 );
+            return Vector< moris_index >( 0 );
         }
         }
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index >
+    Vector< moris_index >
     Cell_Info_Hex8::get_edge_path_to_entity_rank_and_ordinal(
         moris_index aEdgeOrdinal,
         moris_index aOtherEntityOrdinal,
@@ -1461,7 +1461,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1486,14 +1486,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1532,7 +1532,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1557,14 +1557,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1603,7 +1603,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1628,14 +1628,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1674,7 +1674,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1699,14 +1699,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1745,7 +1745,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1770,14 +1770,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1816,7 +1816,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1841,14 +1841,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1887,7 +1887,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1912,14 +1912,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -1958,7 +1958,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -1983,14 +1983,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -2029,7 +2029,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -2054,14 +2054,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -2100,7 +2100,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -2125,14 +2125,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -2171,7 +2171,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -2196,14 +2196,14 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
@@ -2242,7 +2242,7 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
@@ -2267,21 +2267,21 @@ namespace mtk
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
-                    return moris::Cell< moris_index >( 0 );
+                    return Vector< moris_index >( 0 );
                 }
                 }
             }
             default:
             {
                 MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
-                return moris::Cell< moris_index >( 0 );
+                return Vector< moris_index >( 0 );
             }
             }
         }
         default:
         {
             MORIS_ERROR( 0, "Invalid vertex ordinal for hex8" );
-            return moris::Cell< moris_index >( 0 );
+            return Vector< moris_index >( 0 );
         }
         }
     }

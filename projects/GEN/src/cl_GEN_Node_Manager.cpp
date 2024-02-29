@@ -12,7 +12,7 @@
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void Node_Manager::create_derived_node(
-            const Cell< Node* >&     aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Matrix< DDRMat >&  aParametricCoordinates,
             mtk::Geometry_Type       aGeometryType,
             mtk::Interpolation_Order aInterpolationOrder )

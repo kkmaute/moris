@@ -10,7 +10,7 @@
 
 #include <catch.hpp>
 // MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 // LINALG/src
 #include "linalg_typedefs.hpp"

@@ -13,7 +13,7 @@
 #include "cl_GEN_Field_Discrete_Interpolation.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Scaled_Field : public Field
     {
@@ -129,7 +129,7 @@ namespace moris::ge
          *
          * @param aDependencyFields Fields that this field depends on.
          */
-        void set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields ) override;
+        void set_dependencies( Vector< std::shared_ptr< Field > > aDependencyFields ) override;
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh

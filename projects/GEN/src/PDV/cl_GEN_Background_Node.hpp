@@ -12,13 +12,13 @@
 
 #include "cl_GEN_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Background_Node : public Node
     {
       private:
         Matrix< DDRMat > mCoordinates;
-        static Cell< Basis_Node > mDummyLocatorNodes;
+        static Vector< Basis_Node > mDummyLocatorNodes;
 
       public:
         /**
@@ -53,6 +53,6 @@ namespace moris::ge
          *
          * @return Locator nodes (empty)
          */
-        const Cell< Basis_Node >& get_locator_nodes() const override;
+        const Vector< Basis_Node >& get_locator_nodes() const override;
     };
 }

@@ -37,7 +37,7 @@
 #include "cl_XTK_Basis_Processor.hpp"
 #include "fn_equal_to.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     TEST_CASE( "XTK Basis Extension", "[XTK],[XTK_Basis_Extension]" )
     {
@@ -82,13 +82,13 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            auto tCircle = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
+            auto                                              tCircle   = std::make_shared< moris::gen::Circle >( 3.0, 0.5, 2.5 );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             // define ge engine
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             // xtk parameter list
             moris::ParameterList tXTKParameters = moris::prm::create_xtk_parameter_list();
@@ -116,7 +116,7 @@ namespace xtk
             tXTKModel.mBsplineMeshIndices = { { 0 } };
 
             // Specify decomposition Method and Cut Mesh --- ------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment
@@ -203,13 +203,13 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            auto tCircle = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
+            auto                                              tCircle   = std::make_shared< moris::gen::Circle >( 3.0, 0.5, 2.5 );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             // define ge engine
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
+            moris::gen::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
             // xtk parameter list
             moris::ParameterList tXTKParameters = moris::prm::create_xtk_parameter_list();
@@ -237,7 +237,7 @@ namespace xtk
             tXTKModel.mBsplineMeshIndices = { { 0 } };
 
             // Specify decomposition Method and Cut Mesh --- ------------------------------------
-            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment based on the SPGs
@@ -286,4 +286,4 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk

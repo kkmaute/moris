@@ -14,8 +14,8 @@
 #include "cl_HMR_Background_Edge.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Background_Facet.hpp"
-#include "typedefs.hpp"           //COR/src
-#include "cl_Cell.hpp"            //CNT/src
+#include "moris_typedefs.hpp"           //COR/src
+#include "cl_Vector.hpp"                //CNT/src
 #include "cl_Bitset.hpp"          //CNT/src
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
@@ -245,7 +245,7 @@ namespace moris::hmr
          */
         void
         collect_descendants(
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
 
         //--------------------------------------------------------------------------------
@@ -263,12 +263,12 @@ namespace moris::hmr
          */
         void collect_active_descendants(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
 
         void collect_active_descendants(
                 uint                                    aPattern,
-                Cell< const Background_Element_Base* >& aElementList,
+                Vector< const Background_Element_Base* >& aElementList,
                 luint&                                  aElementCount ) const;
         //--------------------------------------------------------------------------------
 
@@ -423,7 +423,7 @@ namespace moris::hmr
          */
         void collect_elements_on_level(
                 uint                              aLevel,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
         //--------------------------------------------------------------------------------
 
@@ -612,7 +612,7 @@ namespace moris::hmr
          * @param[ out ] aNeighbors   cell containing found neighbors
          */
         void get_neighbors_from_same_level( uint  aOrder,
-                Cell< Background_Element_Base* >& aNeighbors );
+                Vector< Background_Element_Base* >& aNeighbors );
 
         //--------------------------------------------------------------------------------
         void
@@ -820,42 +820,42 @@ namespace moris::hmr
 
         void collect_active_descendants_on_side_1(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_2(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_3(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_4(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_5(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
 
         //--------------------------------------------------------------------------------
 
         void collect_active_descendants_on_side_6(
                 uint                              aPattern,
-                Cell< Background_Element_Base* >& aElementList,
+                Vector< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount );
 
         //-------------------------------------------------------------------------------
@@ -922,7 +922,7 @@ namespace moris::hmr
     inline void
     Background_Element< N >::get_neighbors_from_same_level(
             uint                              aOrder,
-            Cell< Background_Element_Base* >& aNeighbors )
+            Vector< Background_Element_Base* >& aNeighbors )
     {
         MORIS_ERROR( false, "Don't know how search neighbors on same level." );
     }
@@ -1315,7 +1315,7 @@ namespace moris::hmr
     template< uint N >
     void
     Background_Element< N >::collect_descendants(
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "Don't know how to collect descendants." );
@@ -1326,7 +1326,7 @@ namespace moris::hmr
     template<>
     inline void
     Background_Element< 1 >::collect_descendants(
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // add self to list
@@ -1346,7 +1346,7 @@ namespace moris::hmr
     template<>
     inline void
     Background_Element< 2 >::collect_descendants(
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // add self to list
@@ -1368,7 +1368,7 @@ namespace moris::hmr
     template<>
     inline void
     Background_Element< 3 >::collect_descendants(
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // add self to list
@@ -1395,7 +1395,7 @@ namespace moris::hmr
     void
     Background_Element< N >::collect_active_descendants(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "Don't know how to collect active descendants." );
@@ -1407,7 +1407,7 @@ namespace moris::hmr
     void
     Background_Element< N >::collect_active_descendants(
             uint                                    aPattern,
-            Cell< const Background_Element_Base* >& aElementList,
+            Vector< const Background_Element_Base* >& aElementList,
             luint&                                  aElementCount ) const
     {
         MORIS_ERROR( false, "Don't know how to collect active descendants ( const )." );
@@ -1419,7 +1419,7 @@ namespace moris::hmr
     inline void
     Background_Element< 1 >::collect_active_descendants(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // test if self is active
@@ -1442,7 +1442,7 @@ namespace moris::hmr
     inline void
     Background_Element< 1 >::collect_active_descendants(
             uint                                    aPattern,
-            Cell< const Background_Element_Base* >& aElementList,
+            Vector< const Background_Element_Base* >& aElementList,
             luint&                                  aElementCount ) const
     {
         // test if self is active
@@ -1465,7 +1465,7 @@ namespace moris::hmr
     inline void
     Background_Element< 2 >::collect_active_descendants(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // test if self is active
@@ -1490,7 +1490,7 @@ namespace moris::hmr
     inline void
     Background_Element< 2 >::collect_active_descendants(
             uint                                    aPattern,
-            Cell< const Background_Element_Base* >& aElementList,
+            Vector< const Background_Element_Base* >& aElementList,
             luint&                                  aElementCount ) const
     {
         // test if self is active
@@ -1515,7 +1515,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_active_descendants(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // test if self is active
@@ -1543,7 +1543,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_active_descendants(
             uint                                    aPattern,
-            Cell< const Background_Element_Base* >& aElementList,
+            Vector< const Background_Element_Base* >& aElementList,
             luint&                                  aElementCount ) const
     {
         // test if self is active
@@ -1991,7 +1991,7 @@ namespace moris::hmr
     void
     Background_Element< N >::collect_elements_on_level(
             uint                              aLevel,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "Don't know how to collect elements on level" );
@@ -2003,7 +2003,7 @@ namespace moris::hmr
     inline void
     Background_Element< 1 >::collect_elements_on_level(
             uint                              aLevel,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // test if element is on specified level
@@ -2033,7 +2033,7 @@ namespace moris::hmr
     inline void
     Background_Element< 2 >::collect_elements_on_level(
             uint                              aLevel,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // add this element to list and increment counter
@@ -2073,7 +2073,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_elements_on_level(
             uint                              aLevel,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         // add this element to list and increment counter
@@ -4200,7 +4200,7 @@ namespace moris::hmr
     void
     Background_Element< N >::collect_active_descendants_on_side_1(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "collect_active_descendants_on_side_1() not available for this element" );
@@ -4212,7 +4212,7 @@ namespace moris::hmr
     void
     Background_Element< N >::collect_active_descendants_on_side_2(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "collect_active_descendants_on_side_2() not available for this element" );
@@ -4224,7 +4224,7 @@ namespace moris::hmr
     void
     Background_Element< N >::collect_active_descendants_on_side_3(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "collect_active_descendants_on_side_3() not available for this element" );
@@ -4236,7 +4236,7 @@ namespace moris::hmr
     void
     Background_Element< N >::collect_active_descendants_on_side_4(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "collect_active_descendants_on_side_4() not available for this element" );
@@ -4248,7 +4248,7 @@ namespace moris::hmr
     void
     Background_Element< N >::collect_active_descendants_on_side_5(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "collect_active_descendants_on_side_5() not available for this element" );
@@ -4260,7 +4260,7 @@ namespace moris::hmr
     inline void
     Background_Element< N >::collect_active_descendants_on_side_6(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         MORIS_ERROR( false, "collect_active_descendants_on_side_6() not available for this element" );
@@ -4272,7 +4272,7 @@ namespace moris::hmr
     inline void
     Background_Element< 2 >::collect_active_descendants_on_side_1(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4294,7 +4294,7 @@ namespace moris::hmr
     inline void
     Background_Element< 2 >::collect_active_descendants_on_side_2(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4316,7 +4316,7 @@ namespace moris::hmr
     inline void
     Background_Element< 2 >::collect_active_descendants_on_side_3(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4338,7 +4338,7 @@ namespace moris::hmr
     inline void
     Background_Element< 2 >::collect_active_descendants_on_side_4(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4360,7 +4360,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_active_descendants_on_side_1(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4384,7 +4384,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_active_descendants_on_side_2(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4408,7 +4408,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_active_descendants_on_side_3(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4432,7 +4432,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_active_descendants_on_side_4(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4456,7 +4456,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_active_descendants_on_side_5(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )
@@ -4480,7 +4480,7 @@ namespace moris::hmr
     inline void
     Background_Element< 3 >::collect_active_descendants_on_side_6(
             uint                              aPattern,
-            Cell< Background_Element_Base* >& aElementList,
+            Vector< Background_Element_Base* >& aElementList,
             luint&                            aElementCount )
     {
         if ( this->is_active( aPattern ) )

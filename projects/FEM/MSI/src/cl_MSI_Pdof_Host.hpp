@@ -16,7 +16,7 @@
 
 #include "fn_unique.hpp"
 #include "cl_Map.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MSI_Adof.hpp"
@@ -42,7 +42,7 @@ namespace moris
 
             uint mElementalSolVecEntry;
 
-            moris::Cell< Adof* > mAdofPtrList;    // FIXME: delete this list after call to get adof ids or replace it
+            Vector< Adof* > mAdofPtrList;    // FIXME: delete this list after call to get adof ids or replace it
         };
 
         //-------------------------------------------------------------------------------------------------
@@ -51,16 +51,16 @@ namespace moris
         {
           private:
             Matrix< DDUMat >                    mPdofTypeExist;            // Vector indicates if dof type exists. // FIXME make this a global matrix in dof manager and delete after costruction
-            moris::Cell< moris::Cell< Pdof* > > mListOfPdofTimePerType;    // List of all pdofs per time per dof type. outer cell is type, inner cell is time
+            Vector< Vector< Pdof* > > mListOfPdofTimePerType;    // List of all pdofs per time per dof type. outer cell is type, inner cell is time
 
             void create_adofs_based_on_Tmatrix(
                     const Matrix< DDUMat >&              aTimeLevelOffsets,
-                    moris::Cell< moris::Cell< Adof* > >& aAdofListz,
+                    Vector< Vector< Adof* > >& aAdofListz,
                     Model_Solver_Interface*              aModelSolverInterface );
 
             void create_adofs_based_on_pdofs(
                     const Matrix< DDUMat >&              aTimeLevelOffsets,
-                    moris::Cell< moris::Cell< Adof* > >& aAdofList );
+                    Vector< Vector< Adof* > >& aAdofList );
 
           protected:
             fem::Node_Base* mNodeObj = nullptr;
@@ -100,7 +100,7 @@ namespace moris
              */
             void get_adofs(
                     const Matrix< DDUMat >&              aTimeLevelOffsets,
-                    moris::Cell< moris::Cell< Adof* > >& aAdofList,
+                    Vector< Vector< Adof* > >& aAdofList,
                     Model_Solver_Interface*              aModelSolverInterface,
                     const bool&                          aUseHMR );
 
@@ -155,7 +155,7 @@ namespace moris
 
             uint get_num_pdofs();
 
-            moris::Cell< Pdof* >&
+            Vector< Pdof* >&
             get_pdof_time_list( const sint& aDofTypeIndex )
             {
                 return mListOfPdofTimePerType( aDofTypeIndex );
@@ -167,7 +167,7 @@ namespace moris
                 return mListOfPdofTimePerType( aDofTypeInd ).size();
             }
 
-            moris::Cell< moris::Cell< Pdof* > >&
+            Vector< Vector< Pdof* > >&
             get_pdof_hosts_pdof_list()
             {
                 return mListOfPdofTimePerType;

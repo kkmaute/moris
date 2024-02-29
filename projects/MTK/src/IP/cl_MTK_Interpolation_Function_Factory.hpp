@@ -11,7 +11,7 @@
 #ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_FACTORY_HPP_
 #define SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_FACTORY_HPP_
 
-#include "typedefs.hpp" //MRS/COR/src
+#include "moris_typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 #include "cl_MTK_Enums.hpp" //MTK/src
 

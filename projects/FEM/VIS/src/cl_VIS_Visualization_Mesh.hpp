@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_VIS_VISUALIZATION_MESH_HPP_
 #define PROJECTS_MTK_SRC_CL_VIS_VISUALIZATION_MESH_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
@@ -33,34 +33,34 @@ namespace moris::vis
         const bool mOnlyPrimary;
 
         /// @brief global list of all vertices on the mesh
-        moris::Cell< mtk::Vertex* > mVertices;
+        Vector< mtk::Vertex* > mVertices;
 
         /// @brief global list of all cells on the mesh
-        moris::Cell< mtk::Cell* > mCells;
+        Vector< mtk::Cell* > mCells;
 
         /// @brief lists of sets for various types
-        moris::Cell< moris::mtk::Set* > mListOfBlocks;
-        moris::Cell< moris::mtk::Set* > mListOfSideSets;
-        moris::Cell< moris::mtk::Set* > mListOfDoubleSideSets;
+        Vector< moris::mtk::Set* > mListOfBlocks;
+        Vector< moris::mtk::Set* > mListOfSideSets;
+        Vector< moris::mtk::Set* > mListOfDoubleSideSets;
 
         /// @brief sequential list of all sets
-        moris::Cell< moris::mtk::Set* > mListOfAllSets;
-        Cell< moris_index >             mSetLocalToTypeIndex;
+        Vector< moris::mtk::Set* > mListOfAllSets;
+        Vector< moris_index >             mSetLocalToTypeIndex;
 
         /// @brief Names of sets in mesh
-        moris::Cell< std::string > mAllSetNames;
-        moris::Cell< std::string > mBlockSetNames;
-        moris::Cell< std::string > mSideSetNames;
-        moris::Cell< std::string > mDoubleSideSetNames;
+        Vector< std::string > mAllSetNames;
+        Vector< std::string > mBlockSetNames;
+        Vector< std::string > mSideSetNames;
+        Vector< std::string > mDoubleSideSetNames;
 
         /// @brief lists of clusters in sets for each type
-        moris::Cell< moris::Cell< const mtk::Cluster* > > mClustersOnBlockSets;
-        moris::Cell< moris::Cell< const mtk::Cluster* > > mClustersOnSideSets;
-        moris::Cell< moris::Cell< const mtk::Cluster* > > mClustersOnDoubleSideSets;
+        Vector< Vector< const mtk::Cluster* > > mClustersOnBlockSets;
+        Vector< Vector< const mtk::Cluster* > > mClustersOnSideSets;
+        Vector< Vector< const mtk::Cluster* > > mClustersOnDoubleSideSets;
 
         /// @brief single side clusters that correspond to the double sided side clusters
-        moris::Cell< moris::Cell< const mtk::Cluster* > > mLeaderSideClusters;
-        moris::Cell< moris::Cell< const mtk::Cluster* > > mFollowerSideClusters;
+        Vector< Vector< const mtk::Cluster* > > mLeaderSideClusters;
+        Vector< Vector< const mtk::Cluster* > > mFollowerSideClusters;
 
         map< std::string, moris_index > mSetNameToIndexMap;
 
@@ -91,7 +91,7 @@ namespace moris::vis
          * @param aSetEntityRank Entity rank on the set
          * @return Retrieved set names
          */
-        moris::Cell< std::string >
+        Vector< std::string >
         get_set_names( mtk::EntityRank aSetEntityRank ) const override;
 
         /**
@@ -116,7 +116,7 @@ namespace moris::vis
          * @param aSetName Set name for getting mtk cells
          * @return Found MTK cells
          */
-        moris::Cell< mtk::Cell const * >
+        Vector< mtk::Cell const * >
         get_set_cells( std::string aSetName ) const override;
 
         /**
@@ -124,7 +124,7 @@ namespace moris::vis
          *
          * @return Vertex pointers
          */
-        moris::Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         get_all_vertices() const override;
 
         /**
@@ -149,8 +149,8 @@ namespace moris::vis
          * @param aSetIndex
          * @return MTK set at the given index
          */
-        moris::mtk::Set*
-        get_set_by_index( moris::uint aSetIndex ) const override;
+        mtk::Set*
+        get_set_by_index( moris_index aSetIndex ) const override;
 
         /**
          * Get the set pointer for set with a given name

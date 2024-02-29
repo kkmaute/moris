@@ -14,7 +14,7 @@
 #include "fn_Parsing_Tools.hpp"
 #include "fn_trans.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------

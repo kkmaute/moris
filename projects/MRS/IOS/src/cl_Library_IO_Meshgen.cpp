@@ -176,9 +176,9 @@ namespace moris
 
         // initialize a map that stores in what order the grids are defined
         std::map< moris_index, uint > tGridIndexMap;    // map: grid index | position in list
-        Cell< moris_index >           tGridIndices( tNumGridsSpecified, 0 );
-        Cell< moris_index >           tInitialRefinements( tNumGridsSpecified, 0 );
-        Cell< moris_index >           tBoundaryRefinements( tNumGridsSpecified, 0 );
+        Vector< moris_index >           tGridIndices( tNumGridsSpecified, 0 );
+        Vector< moris_index >           tInitialRefinements( tNumGridsSpecified, 0 );
+        Vector< moris_index >           tBoundaryRefinements( tNumGridsSpecified, 0 );
         moris_index                   tMaxGridIndex = -1;
 
         // go through grids specified and get their data
@@ -238,9 +238,9 @@ namespace moris
 
         // initialize a map that stores in what order the grids are defined
         std::map< moris_index, uint > tBspMeshIndexMap;    // map: B-spline mesh index | position in list
-        Cell< moris_index >           tBspMeshIndices( tNumBspMeshesSpecified, -1 );
-        Cell< moris_index >           tGridsForMeshes( tNumBspMeshesSpecified, -1 );
-        Cell< moris_index >           tPolyOrders( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >           tBspMeshIndices( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >           tGridsForMeshes( tNumBspMeshesSpecified, -1 );
+        Vector< moris_index >           tPolyOrders( tNumBspMeshesSpecified, -1 );
         moris_index                   tMaxBspMeshIndex = -1;
         moris_index                   tMaxPolyOrder    = -1;
 
@@ -494,7 +494,7 @@ namespace moris
         mXmlReader->get( aXtkPath + ".OutputDecompositionGrid", tOutputDecompGrid, bool( false ) );
         if ( tOutputDecompGrid )
         {
-                tHmrParamList.set( "write_lagrange_output_mesh_to_exodus", "Decomposition_Grid.exo" );
+            tHmrParamList.set( "write_lagrange_output_mesh_to_exodus", "Decomposition_Grid.exo" );
         }
 
         // get the number of refinements of the Lagrange mesh at the boundary
@@ -1033,7 +1033,7 @@ namespace moris
         aParameterList( 0 )( 0 ).set( "output_file", "foreground_mesh.exo" );
         aParameterList( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         aParameterList( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
-        aParameterList( 0 )( 0 ).set( "print_enriched_ig_mesh", true );
+        aParameterList( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
         aParameterList( 0 )( 0 ).set( "global_T_matrix_output_file", "" );
         aParameterList( 0 )( 0 ).set( "elemental_T_matrix_output_file", "Elemental_Extraction_Operators" );
     }

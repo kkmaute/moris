@@ -39,7 +39,7 @@ namespace moris
 
         void
         SP_SUPG_Spalart_Allmaras_Turbulence::set_parameters(
-                moris::Cell< Matrix< DDRMat > > aParameters )
+                Vector< Matrix< DDRMat > > aParameters )
         {
             // FIXME not necessary
             // set mParameters
@@ -82,8 +82,8 @@ namespace moris
 
         void
         SP_SUPG_Spalart_Allmaras_Turbulence::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                moris::Cell< std::string >&                  aDofStrings,
+                Vector< Vector< MSI::Dof_Type > >& aDofTypes,
+                Vector< std::string >&                  aDofStrings,
                 mtk::Leader_Follower                            aIsLeader )
         {
             // switch on leader follower
@@ -231,7 +231,7 @@ namespace moris
 
         void
         SP_SUPG_Spalart_Allmaras_Turbulence::eval_dSPdLeaderDOF(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -383,7 +383,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         SP_SUPG_Spalart_Allmaras_Turbulence::dlengthscaledleaderu(
-                const moris::Cell< MSI::Dof_Type >& aDofType )
+                const Vector< MSI::Dof_Type >& aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
@@ -409,7 +409,7 @@ namespace moris
 
         void
         SP_SUPG_Spalart_Allmaras_Turbulence::eval_dlengthscaledleaderu(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );

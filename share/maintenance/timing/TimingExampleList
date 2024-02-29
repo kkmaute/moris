@@ -64,3 +64,8 @@ One_Element_Mat_Geo_Pdv_sweep-1-procs
 Level_Set_Beam_SIMP_Hole_Seeding-1-procs
 Level_Set_Beam_SIMP_Hole_Seeding-4-procs
 Zienkiewicz_Zhu_Adaptive_Refinement-1-procs
+uBend_2D_Optimization-1-procs
+uBend_2D_Optimization-4-procs
+Image_Bear-1-procs
+OBJ_Sphere-1-procs
+Pre_Defined_Diamond-1-procs

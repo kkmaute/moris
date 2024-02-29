@@ -46,7 +46,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, true );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 641, 107 };
+    Vector< uint > tReferenceNodeId = { 641, 107 };
 
     if ( gPrintReferenceValues )
     {
@@ -76,9 +76,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2 };
-    Cell< uint > tReferenceNumNodes = { 1425 };
-    Cell< uint > tReferenceNumElems = { 556 };
+    Vector< uint > tReferenceNumDims  = { 2 };
+    Vector< uint > tReferenceNumNodes = { 1425 };
+    Vector< uint > tReferenceNumElems = { 556 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -104,7 +104,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { 0.68750 }, { 0.84375 } } );
     tReferenceCoordinate.push_back( { { 0.50000 }, { 0.00000 } } );
@@ -126,7 +126,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-5 );
 
     // check time value for time step index 0
-    Cell< real > tReferenceTime;
+    Vector< real > tReferenceTime;
     tReferenceTime.push_back( 1 );
     tReferenceTime.push_back( 1 );
     // tReferenceTime.push_back( 1.000000000000000e+00 );
@@ -143,7 +143,7 @@ check_results(
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
     // check temperature at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
-    Cell< Matrix< DDRMat > > tReferenceTemperature;
+    Vector< Matrix< DDRMat > > tReferenceTemperature;
 
     tReferenceTemperature.push_back( { { 407.93805018193 } } );
     tReferenceTemperature.push_back( { { 384.267960788395 } } );

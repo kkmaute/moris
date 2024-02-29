@@ -6,7 +6,7 @@
 # tested on: ubuntu; OpenSUSE 15.5 
 
 # For special cases, such as building openmpi with scheduler, 
-# see moris/share/isntall/Install_Step_By_Step.txt
+# see moris/share/install/Install_Step_By_Step.txt
 
 #------------------------------------------------------------
 # edit the following lines
@@ -15,7 +15,7 @@
 # set spack and moris installation directory
 export WORKSPACE=$HOME/codes
 
-# define developper mode: 0 for users; 1 for developpers
+# define developer mode: 0 for users; 1 for developers
 export DEVELOPPER_MODE=0
 
 # define blas and lapack provider:
@@ -38,6 +38,10 @@ export OPTALG=0
 
 # set compiler and version (see out of gcc --version)
 export COMPILER='gcc@11.3.0'
+
+# set number of processors used for installation (0: automatically detected)
+# use lower number than available processors if build process runs out of memory
+export NUMPROC=0
 
 # set directory for temporary files during built
 export TMPDIR=/tmp
@@ -62,11 +66,12 @@ echo "PARDISO            $PARDISO"          >> moris_config.log
 echo "MUMPS              $MUMPS"            >> moris_config.log
 echo "OPTALG             $OPTALG"           >> moris_config.log
 echo "COMPILER           $COMPILER"         >> moris_config.log
+echo "NUMPROC            $NUMPROC"          >> moris_config.log
 echo "TMPDIR             $TMPDIR"           >> moris_config.log
 echo "VERBOSE            $VERBOSE"          >> moris_config.log
 echo ""
 
-if [ $VERBOSE = "0" ];then
+if [ "$VERBOSE" = "1" ];then
     cat moris_config.log
     echo "Press return to continue; to abort press ctrl+c"
     echo ""
@@ -120,7 +125,7 @@ if [ $BLASLAPACK = "intel-mkl" ];then
     export mklpro=intel-mkl
 fi
 
-if [ $BLASLAPACK = "intel-mkl" ];then
+if [ $BLASLAPACK = "intel-oneapi-mkl" ];then
     export blaspro=intel-oneapi-mkl
     export lapackpro=intel-oneapi-mkl
     export sclpackpro=intel-oneapi-mkl
@@ -184,7 +189,6 @@ spack create --name snopt --skip-editor
 #------------------------------------------------------------
 
 cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
-cp $WORKSPACE/moris/share/spack/mumps_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/mumps/package.py
 
 cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
 cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
@@ -201,6 +205,19 @@ spack env activate .
 
 spack compiler find
 
+spack compiler list | grep gcc | grep '@' | awk -v compiler=$COMPILER '{ if ( match($0,compiler) == 0) {cmd="spack compiler rm "$0; system(cmd)}}'
+
+spack compiler list 
+
+ret=`spack compiler list | grep gcc | grep '@' | awk -v compiler=$COMPILER 'BEGIN{n=0}{ if ( match($0,compiler) > 0) {n=n+1}}END{print n}'`
+
+if [ ! $ret = "1" ];then
+    echo "Error - $COMPILER not available"
+    exit
+fi
+    
+#------------------------------------------------------------
+
 echo "  packages:"                      >> spack.yaml
 echo "    all:"                         >> spack.yaml
 echo "      providers:"                 >> spack.yaml
@@ -211,18 +228,18 @@ echo "        mkl: [$mklpro]"           >> spack.yaml
 
 #------------------------------------------------------------
 
-spack add moris$petopt$paropt$mumopt$optopt
+spack add moris$petopt$paropt$mumopt$optopt %"$COMPILER"
 
 spack develop --path $WORKSPACE/moris moris@main
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    spack add doxygen
-    spack add llvm~gold
+    spack add doxygen %"$COMPILER"
+    spack add llvm~gold %"$COMPILER"
 fi
 
-spack add openmpi fabrics=auto 
+spack add openmpi %"$COMPILER" fabrics=auto 
 
-spack add python 
+spack add python %"$COMPILER"
 
 #------------------------------------------------------------
 
@@ -230,18 +247,24 @@ sed -i -e 's/unify: true/unify: when_possible/g' ./spack.yaml
 
 #------------------------------------------------------------
 
-spack concretize -f -U
+spack concretize -f -U >> moris_config.log
 
 #------------------------------------------------------------
 
-VOPTION=""
+SOPTION=""
 if [ $VERBOSE = "1" ];then
-   VOPTION="-v"
+   SOPTION="-v"
+fi
+
+if [ ! $NUMPROC = "0" ];then
+  SOPTION="$SOPTION -j $NUMPROC"
 fi
 
 #------------------------------------------------------------
 
-spack install $VOPTION python %"$COMPILER"
+spack install $SOPTION python %"$COMPILER"
+
+#------------------------------------------------------------
 
 isOpenSUSE=`grep NAME /etc/os-release | head -1 | awk -F '=' '{ if ( match($2,"openSUSE") > 1 ) {print 1}else{print 0}}'`
 
@@ -258,18 +281,18 @@ fi
 
 #------------------------------------------------------------
 
-spack install $VOPTION openmpi %"$COMPILER"
+spack install $SOPTION openmpi %"$COMPILER"
 
 #------------------------------------------------------------
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    spack install $VOPTION --only dependencies moris %"$COMPILER"
+    spack install $SOPTION --only dependencies moris %"$COMPILER"
     
-    spack install $VOPTION doxygen %"$COMPILER"
+    spack install $SOPTION doxygen %"$COMPILER"
 
-    spack install $VOPTION llvm %"$COMPILER"
+    spack install $SOPTION llvm %"$COMPILER"
 else
-    spack install $VOPTION moris %"$COMPILER"
+    spack install $SOPTION moris %"$COMPILER"
 fi
 
 #------------------------------------------------------------

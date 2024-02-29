@@ -20,10 +20,10 @@ namespace moris
         Vertex_XTK::Vertex_XTK() {}
 
         Vertex_XTK::Vertex_XTK(
-                moris::moris_id                                   aVertexId,
-                moris::moris_index                                aVertexIndex,
-                moris::moris_index                                aOwner,
-                std::shared_ptr< moris::Matrix< moris::DDRMat > > aCoordinates )
+                moris::moris_id                     aVertexId,
+                moris::moris_index                  aVertexIndex,
+                moris::moris_index                  aOwner,
+                std::shared_ptr< Matrix< DDRMat > > aCoordinates )
                 : mVertexId( aVertexId )
                 , mVertexIndex( aVertexIndex )
                 , mVertexOwner( aOwner )

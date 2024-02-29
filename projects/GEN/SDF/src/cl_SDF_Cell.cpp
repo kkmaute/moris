@@ -8,7 +8,7 @@
  *
  */
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_SDF_Cell.hpp"
@@ -23,7 +23,7 @@ namespace moris
             const moris_index aIndex,
             const moris_id    aID,
             const Matrix< IndexMat > & aIndices,
-            moris::Cell< Vertex * >  & aAllVertices ) :
+            Vector< Vertex * >  & aAllVertices ) :
                     mIndex( aIndex ),
                     mID( aID )
     {

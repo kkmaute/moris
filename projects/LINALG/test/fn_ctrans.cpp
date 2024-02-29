@@ -12,7 +12,7 @@
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "fn_ctrans.hpp"
 
 TEST_CASE("moris::ctrans",

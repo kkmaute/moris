@@ -14,10 +14,10 @@
 #include "cl_GEN_Geometry.hpp"
 #include "GEN_Data_Types.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
-     * This is a struct used to simplify \ref moris::ge::Level_Set_Geometry constructors. It contains all field and level-set parameters.
+     * This is a struct used to simplify \ref moris::gen::Level_Set_Geometry constructors. It contains all field and level-set parameters.
      */
     struct Level_Set_Parameters : public Field_Parameters, public Design_Parameters
     {
@@ -98,7 +98,7 @@ namespace moris::ge
          */
         Intersection_Node* create_intersection_node(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
@@ -113,7 +113,7 @@ namespace moris::ge
          * @return Parent edge local coordinate, between -1 and 1
          */
         real compute_intersection_local_coordinate(
-                const Cell< Node* >& aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&   aFirstParentNode,
                 const Parent_Node&   aSecondParentNode ) override;
 
@@ -133,7 +133,7 @@ namespace moris::ge
          *
          * @return MTK field
          */
-        Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+        Vector< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -196,7 +196,7 @@ namespace moris::ge
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Cell< real >&           aOutputDesignInfo ) override;
+                Vector< real >&           aOutputDesignInfo ) override;
 
         /**
          * Gets the number of fields the level set geometry has
@@ -263,4 +263,4 @@ namespace moris::ge
          */
         Geometric_Region determine_geometric_region( real aLevelSetValue ) const;
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

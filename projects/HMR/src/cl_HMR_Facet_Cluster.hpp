@@ -11,7 +11,7 @@
 #ifndef PROJECTS_HMR_SRC_CL_HMR_FACET_CLUSTER_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_FACET_CLUSTER_HPP_
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris::hmr
 {
@@ -21,7 +21,7 @@ namespace moris::hmr
     {
         bool mTrivial; /*! This indicates that the leader facet contains all the information (i.e. follower = leader)*/
         Facet const *              mLeaderFacet; /*Facet from coarser refinement level*/
-        moris::Cell<Facet const *> mFollowerFacets; /*Facet from finer refinement level*/
+        Vector<Facet const *> mFollowerFacets; /*Facet from finer refinement level*/
         // ----------------------------------------------------------------------------
     public:
         // ----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ namespace moris::hmr
         /*!
          * Retrieve the hmr follower facets
          */
-        moris::Cell<Facet const *> const &
+        Vector<Facet const *> const &
         get_hmr_follower_facets(){ return mFollowerFacets; };
         // ----------------------------------------------------------------------------
     };

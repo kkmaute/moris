@@ -11,8 +11,8 @@
 #ifndef SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
 #define SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
 
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Map.hpp"
@@ -89,7 +89,7 @@ namespace moris
              * set requested IQI type for sensitivity analysis
              * @param[ in ] aRequestedIQIType
              */
-            void set_requested_IQIs( const moris::Cell< std::string >& aRequestedIQIs );
+            void set_requested_IQIs( const Vector< std::string >& aRequestedIQIs );
 
             //------------------------------------------------------------------------------
 
@@ -100,11 +100,11 @@ namespace moris
              */
             virtual void get_ip_unique_dv_types_for_set(
                     const moris::moris_index aIntegrationMeshSetIndex,
-                    Cell< enum ge::PDV_Type >&   aDvTypes ) = 0;
+                    Vector< enum gen::PDV_Type >&   aDvTypes ) = 0;
 
             virtual void get_ig_unique_dv_types_for_set(
                     const moris::moris_index aIntegrationMeshSetIndex,
-                    Cell< enum ge::PDV_Type >&   aDvTypes ) = 0;
+                    Vector< enum gen::PDV_Type >&   aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -115,24 +115,24 @@ namespace moris
              */
             virtual void get_ip_dv_types_for_set(
                     const moris::moris_index       aIntegrationMeshSetIndex,
-                    Cell< Cell< enum ge::PDV_Type > >& aDvTypes ) = 0;
+                    Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) = 0;
 
             virtual void get_ig_dv_types_for_set(
                     const moris::moris_index       aIntegrationMeshSetIndex,
-                    Cell< Cell< enum ge::PDV_Type > >& aDvTypes ) = 0;
+                    Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
 
-            virtual void set_GenMeshMap( moris::Cell<moris_index> aGenMeshMap )
+            virtual void set_GenMeshMap( Vector<moris_index> aGenMeshMap )
             {
                 MORIS_ERROR( false, "MSI_Design_Variable_Interface::set_GenMeshMap() - This function is not defined in this class" );
             }
 
             virtual void get_ig_pdv_value(
                     const Matrix< IndexMat >&               aNodeIndices,
-                    const moris::Cell< enum ge::PDV_Type >& aDvTypes,
-                    moris::Cell< moris::Matrix< DDRMat > >& aDvValues,
-                    Cell< Cell< bool > >&                   aIsActiveDv ) = 0;
+                    const Vector< enum gen::PDV_Type >& aDvTypes,
+                    Vector< moris::Matrix< DDRMat > >& aDvValues,
+                    Vector< Vector< bool > >&                   aIsActiveDv ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -144,8 +144,8 @@ namespace moris
              */
             virtual void get_ip_pdv_value(
                     const Matrix< IndexMat >&               aNodeIndices,
-                    const moris::Cell< enum ge::PDV_Type >&     aDvTypes,
-                    moris::Cell< moris::Matrix< DDRMat > >& aDvValues ) = 0;
+                    const Vector< enum gen::PDV_Type >&     aDvTypes,
+                    Vector< moris::Matrix< DDRMat > >& aDvValues ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ namespace moris
              */
             virtual void
             reshape_pdv_values(
-                    const moris::Cell< moris::Matrix< DDRMat > >& aPdvValues,
+                    const Vector< moris::Matrix< DDRMat > >& aPdvValues,
                     moris::Matrix< DDRMat >&                      aReshapedPdvValues )
             {
                 MORIS_ASSERT( aPdvValues.size() != 0,
@@ -195,13 +195,13 @@ namespace moris
              */
             virtual void get_ip_dv_ids_for_type_and_ind(
                     const Matrix< IndexMat >&       aNodeIndices,
-                    const Cell< enum ge::PDV_Type >&    aDvTypes,
-                    Cell< moris::Matrix< IdMat > >& aDvIds ) = 0;
+                    const Vector< enum gen::PDV_Type >&    aDvTypes,
+                    Vector< moris::Matrix< IdMat > >& aDvIds ) = 0;
 
             virtual void get_ig_dv_ids_for_type_and_ind(
                     const Matrix< IndexMat >&       aNodeIndices,
-                    const Cell< enum ge::PDV_Type >&    aDvTypes,
-                    Cell< moris::Matrix< IdMat > >& aDvIds ) = 0;
+                    const Vector< enum gen::PDV_Type >&    aDvTypes,
+                    Vector< moris::Matrix< IdMat > >& aDvIds ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -209,7 +209,7 @@ namespace moris
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
              */
-            virtual void get_ip_requested_dv_types( Cell< enum ge::PDV_Type >& aDvTypes ) = 0;
+            virtual void get_ip_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -217,7 +217,7 @@ namespace moris
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
              */
-            virtual void get_ig_requested_dv_types( Cell< enum ge::PDV_Type >& aDvTypes ) = 0;
+            virtual void get_ig_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
 

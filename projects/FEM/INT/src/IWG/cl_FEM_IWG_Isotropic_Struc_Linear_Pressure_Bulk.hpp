@@ -11,8 +11,8 @@
 #ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_PRESSURE_BULK_HPP_
 #define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_PRESSURE_BULK_HPP_
 
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
+#include "cl_Vector.hpp"                          //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src

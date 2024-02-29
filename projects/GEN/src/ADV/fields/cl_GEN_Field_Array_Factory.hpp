@@ -13,7 +13,7 @@
 #include "cl_GEN_Combined_Fields.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
      * Class containing parameters for creating a field array. Functions verify and set inputs.
@@ -44,12 +44,12 @@ namespace moris::ge
         real mSpacingZ;
 
         // Additional arguments to pass to the field copy constructor
-        Cell< uint > mVariableIndices;
-        Cell< real > mCoordinates;
+        Vector< uint > mVariableIndices;
+        Vector< real > mCoordinates;
 
         // Copy field and created fields
         std::shared_ptr< Field > mCopyField;
-        Cell< std::shared_ptr< Field > > mCreatedFields;
+        Vector< std::shared_ptr< Field > > mCreatedFields;
 
       public:
 

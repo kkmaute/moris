@@ -57,14 +57,14 @@ TEST_CASE( "IWG_History_Bulk", "[IWG_History_Bulk]" )
     Matrix< DDRMat > tXHat;
 
     // create list of interpolation orders
-    moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
+    Vector< mtk::Interpolation_Order > tInterpolationOrders = {
         mtk::Interpolation_Order::LINEAR,
         mtk::Interpolation_Order::QUADRATIC,
         mtk::Interpolation_Order::CUBIC
     };
 
     // create list of integration orders
-    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+    Vector< mtk::Integration_Order > tIntegrationOrders = {
         mtk::Integration_Order::QUAD_2x2,
         mtk::Integration_Order::HEX_2x2x2
     };
@@ -73,11 +73,11 @@ TEST_CASE( "IWG_History_Bulk", "[IWG_History_Bulk]" )
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tDisplDofTypes = { MSI::Dof_Type::UX };
+    Vector< MSI::Dof_Type > tDisplDofTypes = { MSI::Dof_Type::UX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes           = { tDisplDofTypes, tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
+    Vector< Vector< MSI::Dof_Type > > tNlEqStrainDofTypes = { { MSI::Dof_Type::NLEQSTRAIN } };
+    Vector< Vector< MSI::Dof_Type > > tHistoryDofTypes    = { { MSI::Dof_Type::HISTORY } };
+    Vector< Vector< MSI::Dof_Type > > tDofTypes           = { tDisplDofTypes, tNlEqStrainDofTypes( 0 ), tHistoryDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ TEST_CASE( "IWG_History_Bulk", "[IWG_History_Bulk]" )
     // Local equivalent strain - 0 - energy release rate
     // Damage law - 2 - smooth exponential
     // Smoothing law - 0 - no smoothing
-    moris::Cell< Matrix< DDRMat > > tDamageParameters = { //
+    Vector< Matrix< DDRMat > > tDamageParameters = { //
         { { 0.0 } },                                      //
         { { 2.0, 1.0e-3, 10.0 } },                        //
         { { 0.0 } }
@@ -268,7 +268,7 @@ TEST_CASE( "IWG_History_Bulk", "[IWG_History_Bulk]" )
             fill_phat_Elast( tLeaderDOFHatHistory, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator displacement
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDisplDofTypes );
@@ -311,8 +311,8 @@ TEST_CASE( "IWG_History_Bulk", "[IWG_History_Bulk]" )
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
+            Vector< Vector< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

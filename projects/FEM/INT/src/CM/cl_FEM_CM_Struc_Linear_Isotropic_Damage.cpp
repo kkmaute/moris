@@ -24,8 +24,8 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::set_dof_type_list(
-                Cell< Cell< MSI::Dof_Type > > aDofTypes,
-                Cell< std::string >           aDofStrings )
+                Vector< Vector< MSI::Dof_Type > > aDofTypes,
+                Vector< std::string >           aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -78,7 +78,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::set_parameters(
-                moris::Cell< Matrix< DDRMat > > aParameters )
+                Vector< Matrix< DDRMat > > aParameters )
         {
             // set parameters
             mParameters = aParameters;
@@ -336,7 +336,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dDamagedu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -392,7 +392,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dSmoothDamagedu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -448,7 +448,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dEqStraindu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -504,7 +504,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dHistorydu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -560,7 +560,7 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::dHistoryRefdu(
-                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Vector< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -607,7 +607,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic_Damage::eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes )
+        CM_Struc_Linear_Isotropic_Damage::eval_dFluxdDOF( const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // call the parent contribution
             CM_Struc_Linear_Isotropic::eval_dFluxdDOF( aDofTypes );
@@ -636,7 +636,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dTractiondDOF(
-                const Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&      aNormal )
         {
             // get derivative dof type index
@@ -655,7 +655,7 @@ namespace moris
         void
         CM_Struc_Linear_Isotropic_Damage::eval_testTraction(
                 const Matrix< DDRMat >&      aNormal,
-                const Cell< MSI::Dof_Type >& aTestDofTypes )
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -672,10 +672,10 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dTestTractiondDOF(
-                const Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&      aNormal,
                 const Matrix< DDRMat >&      aJump,
-                const Cell< MSI::Dof_Type >& aTestDofTypes )
+                const Vector< MSI::Dof_Type >& aTestDofTypes )
         {
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -814,7 +814,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // call function pointer for evaluation
             ( this->*m_eval_dEqStraindu )( aDofTypes );
@@ -822,7 +822,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_LemaitreChaboche(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -876,7 +876,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_deVree_2d_plane_stress(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -983,14 +983,14 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_deVree_2d_plane_strain(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             MORIS_ERROR( false, "CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_deVree_2d_plane_strain - case not implemented." );
         }
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_deVree_3d(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1172,7 +1172,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dDamagedu(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // call function pointer for evaluation
             ( this->*m_eval_dDamagedu )( aDofTypes );
@@ -1180,7 +1180,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dDamagedu_linear(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1215,7 +1215,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dDamagedu_exponential(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1265,7 +1265,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dDamagedu_smooth_exponential(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1343,7 +1343,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dSmoothDamagedu(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // call function pointer for evaluation
             ( this->*m_eval_dSmoothDamagedu )( aDofTypes );
@@ -1351,7 +1351,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dSmoothDamagedu_noSmoothing(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1377,7 +1377,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dSmoothDamagedu_ks(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1395,7 +1395,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dSmoothDamagedu_corrected_ks(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1436,7 +1436,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dHistorydu(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1511,7 +1511,7 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic_Damage::eval_dHistoryRefdu(
-                const Cell< MSI::Dof_Type >& aDofTypes )
+                const Vector< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1559,7 +1559,7 @@ namespace moris
         const Matrix< DDRMat >&
         CM_Struc_Linear_Isotropic_Damage::select_derivative_FD(
                 enum CM_Request_Type                aCMRequestType,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 const Matrix< DDRMat >&             aNormal,
                 const Matrix< DDRMat >&             aJump,
                 enum CM_Function_Type               aCMFunctionType )
@@ -1618,8 +1618,8 @@ namespace moris
         CM_Struc_Linear_Isotropic_Damage::set_derivative_FD(
                 enum CM_Request_Type                aCMRequestType,
                 Matrix< DDRMat >&                   aDerivativeFD,
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
-                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // get the dof index

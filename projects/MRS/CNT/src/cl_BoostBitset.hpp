@@ -15,7 +15,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include <string>
 // MORIS library header files.
-#include "typedefs.hpp" // COR/src
+#include "moris_typedefs.hpp" // COR/src
 
 namespace moris
 {

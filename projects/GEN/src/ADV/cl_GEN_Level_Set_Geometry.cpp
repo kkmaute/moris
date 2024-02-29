@@ -19,7 +19,7 @@
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "fn_dot.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ namespace moris::ge
             else
             {
                 // Get locators
-                const Cell< Basis_Node >& tLocators = tDerivedNode.get_locator_nodes();
+                const Vector< Basis_Node >& tLocators = tDerivedNode.get_locator_nodes();
 
                 // If we only have 2 locators, can use special logic if at least one node is on the interface
                 if ( tLocators.size() == 2 )
@@ -125,7 +125,7 @@ namespace moris::ge
 
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -160,7 +160,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
     
     real Level_Set_Geometry::compute_intersection_local_coordinate(
-            const Cell< Node* >& aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&   aFirstParentNode,
             const Parent_Node&   aSecondParentNode )
     {
@@ -461,7 +461,7 @@ namespace moris::ge
         else
         {
             // Get parents
-            const Cell< Basis_Node >& tParentNodes = aParentNode.get_locator_nodes();
+            const Vector< Basis_Node >& tParentNodes = aParentNode.get_locator_nodes();
 
             // Geometry values
             real tDeltaPhi = this->get_field_value( tParentNodes( 1 ).get_index(), tParentNodes( 1 ).get_global_coordinates() )
@@ -486,7 +486,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< std::shared_ptr< mtk::Field > > Level_Set_Geometry::get_mtk_fields()
+    Vector< std::shared_ptr< mtk::Field > > Level_Set_Geometry::get_mtk_fields()
     {
         // Get MTK field
         std::shared_ptr< mtk::Field > tMTKField = this->get_mtk_field();
@@ -577,7 +577,7 @@ namespace moris::ge
     void Level_Set_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Cell< real >&           aOutputDesignInfo )
+            Vector< real >&           aOutputDesignInfo )
     {
         aOutputDesignInfo.resize( 1 );
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
@@ -615,4 +615,4 @@ namespace moris::ge
         return mParameters.mDiscretizationUpperBound;
     }
 
-}    // namespace moris::ge
+}    // namespace moris::gen

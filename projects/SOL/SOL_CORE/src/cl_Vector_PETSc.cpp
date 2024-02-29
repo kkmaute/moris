@@ -248,10 +248,10 @@ Vector_PETSc::vec_global_length() const
 
 //-----------------------------------------------------------------------------
 
-Cell< real >
+Vector< real >
 Vector_PETSc::vec_norm2()
 {
-    Cell< real > tVecNorm( mNumVectors, 0.0 );
+    Vector< real > tVecNorm( mNumVectors, 0.0 );
 
     VecNorm( mPetscVector, NORM_2, tVecNorm.data().data() );
     return tVecNorm;
@@ -359,6 +359,9 @@ Vector_PETSc::import_local_to_global( sol::Dist_Vector& aSourceVec )
         // perform scattering
         VecScatterBegin( tVecScatter, tSourceVec, mPetscVector, INSERT_VALUES, SCATTER_FORWARD );
         VecScatterEnd( tVecScatter, tSourceVec, mPetscVector, INSERT_VALUES, SCATTER_FORWARD );
+
+        // destroy the scatter vector object
+        VecScatterDestroy(&tVecScatter);
     }
 }
 
@@ -369,7 +372,7 @@ Vector_PETSc::extract_my_values(
         const uint&               aNumIndices,
         const Matrix< DDSMat >&   aGlobalBlockRows,
         const uint&               aBlockRowOffsets,
-        Cell< Matrix< DDRMat > >& ExtractedValues )
+        Vector< Matrix< DDRMat > >& ExtractedValues )
 {
     // check that vector index  is zero
     MORIS_ASSERT( aBlockRowOffsets == 0,

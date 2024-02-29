@@ -10,10 +10,10 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_HPP_
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "fn_assert.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Cell.hpp"
 
@@ -65,14 +65,14 @@ namespace moris
             /*!
              * Get all integration cells in this side cluster
              */
-            virtual moris::Cell< mtk::Cell const * > const &
+            virtual Vector< mtk::Cell const * > const &
             get_cells_in_side_cluster() const = 0;
 
             // ----------------------------------------------------------------------------------
             /*!
              * @param[in] aIsLeader  Leader or Follower Selector Enum (for Double side clusters only)
              */
-            moris::Cell< mtk::Cell const * > const &
+            Vector< mtk::Cell const * > const &
             get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ namespace moris
             /*!
              * @return all the vertices in this cluster
              */
-            virtual moris::Cell< moris::mtk::Vertex const * >
+            virtual Vector< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             // ----------------------------------------------------------------------------------

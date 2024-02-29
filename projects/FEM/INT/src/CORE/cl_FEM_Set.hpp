@@ -95,24 +95,24 @@ namespace moris
             uint mNumEigenVectors = 0;
 
             // cell of pointers to IWG objects
-            moris::Cell< std::shared_ptr< IWG > > mIWGs;
-            moris::Cell< std::shared_ptr< IWG > > mRequestedIWGs;
+            Vector< std::shared_ptr< IWG > > mIWGs;
+            Vector< std::shared_ptr< IWG > > mRequestedIWGs;
 
             // cell of pointer to IQI objects
-            moris::Cell< std::shared_ptr< IQI > > mIQIs;
-            moris::Cell< std::shared_ptr< IQI > > mRequestedIQIs;
+            Vector< std::shared_ptr< IQI > > mIQIs;
+            Vector< std::shared_ptr< IQI > > mRequestedIQIs;
 
             moris::map< std::string, moris_index > mIQINameToIndexMap;
 
             // cell of pointer to IQI objects for vis
-            moris::Cell< std::shared_ptr< IQI > > mRequestedGlobalIQIs;
-            moris::Cell< moris_index >            mRequestedGlobalIQIsGlobalIndices;
-            moris::Cell< std::shared_ptr< IQI > > mRequestedElementalIQIs;
-            moris::Cell< moris_index >            mRequestedElementalIQIsGlobalIndices;
-            moris::Cell< std::shared_ptr< IQI > > mRequestedNodalIQIs;
-            moris::Cell< moris_index >            mRequestedNodalIQIsGlobalIndices;
-            moris::Cell< std::shared_ptr< IQI > > mRequestedFieldIQIs;
-            moris::Cell< moris_index >            mRequestedFieldIQIsGlobalIndices;
+            Vector< std::shared_ptr< IQI > > mRequestedGlobalIQIs;
+            Vector< moris_index >            mRequestedGlobalIQIsGlobalIndices;
+            Vector< std::shared_ptr< IQI > > mRequestedElementalIQIs;
+            Vector< moris_index >            mRequestedElementalIQIsGlobalIndices;
+            Vector< std::shared_ptr< IQI > > mRequestedNodalIQIs;
+            Vector< moris_index >            mRequestedNodalIQIsGlobalIndices;
+            Vector< std::shared_ptr< IQI > > mRequestedFieldIQIs;
+            Vector< moris_index >            mRequestedFieldIQIsGlobalIndices;
 
             // enum for element type
             enum fem::Element_Type mElementType = fem::Element_Type::UNDEFINED;
@@ -129,14 +129,14 @@ namespace moris
             Matrix< DDSMat > mUniqueFieldTypeMap;
 
             // map visualization cell id to position in vector
-            moris::Cell< Matrix< DDSMat > > mCellAssemblyMap;     // input: VIS mesh index, VIS cell index || output: position of cell within list of cells on VIS set
-            moris::Cell< uint >             mNumIgCellsOnSet;     // input: VIS mesh index || output: number of IG cells in that VIS set
+            Vector< Matrix< DDSMat > > mCellAssemblyMap;     // input: VIS mesh index, VIS cell index || output: position of cell within list of cells on VIS set
+            Vector< uint >             mNumIgCellsOnSet;     // input: VIS mesh index || output: number of IG cells in that VIS set
 
-            moris::Cell< Matrix< DDSMat > > mFacetAssemblyMap;    // input: VIS mesh index, IG cell index, side ordinal  || output: position of facet within the output (dbl) side set
-            moris::Cell< uint >             mNumFacetsOnSet;      // input: VIS mesh index || output: number of facets in that VIS (dbl) side set
+            Vector< Matrix< DDSMat > > mFacetAssemblyMap;    // input: VIS mesh index, IG cell index, side ordinal  || output: position of facet within the output (dbl) side set
+            Vector< uint >             mNumFacetsOnSet;      // input: VIS mesh index || output: number of facets in that VIS (dbl) side set
 
             // cluster measure specifications on set
-            moris::Cell<
+            Vector<
                     std::tuple<
                             fem::Measure_Type,
                             mtk::Primary_Void,
@@ -192,9 +192,9 @@ namespace moris
             friend class Interpolation_Element;
 
             void gather_requested_IQIs(
-                    moris::Cell< std::string > const &     aNames,
-                    moris::Cell< std::shared_ptr< IQI > >& aListOfRequestedIQIs,
-                    moris::Cell< moris_index >&            aListOfIQIGlobalIndices );
+                    Vector< std::string > const &     aNames,
+                    Vector< std::shared_ptr< IQI > >& aListOfRequestedIQIs,
+                    Vector< moris_index >&            aListOfIQIGlobalIndices );
 
             //------------------------------------------------------------------------------
 
@@ -211,7 +211,7 @@ namespace moris
                     fem::FEM_Model*                  aFemModel,
                     moris::mtk::Set*                 aMeshSet,
                     const fem::Set_User_Info&        aSetInfo,
-                    const moris::Cell< Node_Base* >& aIPNodes );
+                    const Vector< Node_Base* >& aIPNodes );
 
             //------------------------------------------------------------------------------
             /**
@@ -472,7 +472,7 @@ namespace moris
              * get the clusters on the set
              * @param[ out ] aClusters cell of mesh cluster pointers
              */
-            // moris::Cell< mtk::Cluster const* > const&
+            // Vector< mtk::Cluster const* > const&
             // get_clusters_on_set() const
             // {
             //     return mMeshSet->get_clusters_on_set();
@@ -525,7 +525,7 @@ namespace moris
              * get IWGs
              * @param[ out ] aIWGs cell of IWG pointers
              */
-            moris::Cell< std::shared_ptr< IWG > >&
+            Vector< std::shared_ptr< IWG > >&
             get_IWGs()
             {
                 return mIWGs;
@@ -546,7 +546,7 @@ namespace moris
              * get requested IWGs
              * @param[ out ] mRequestedIWGs cell of requested IWG pointers
              */
-            const moris::Cell< std::shared_ptr< IWG > >&
+            const Vector< std::shared_ptr< IWG > >&
             get_requested_IWGs()
             {
                 return mRequestedIWGs;
@@ -585,7 +585,7 @@ namespace moris
              * get local requested IQIs for sensitivity analysis
              * @param[ out ] mRequestedIQIs cell of IQIs pointers
              */
-            const moris::Cell< std::shared_ptr< IQI > >&
+            const Vector< std::shared_ptr< IQI > >&
             get_requested_IQIs()
             {
                 return mRequestedIQIs;
@@ -641,7 +641,7 @@ namespace moris
              * get cluster measures required on set
              * return cell of tuple with cluster measure specifications
              */
-            moris::Cell< std::tuple<
+            Vector< std::tuple<
                     fem::Measure_Type,
                     mtk::Primary_Void,
                     mtk::Leader_Follower > >&
@@ -901,7 +901,7 @@ namespace moris
              *@param[ in ] aDofType a dof type enum
              */
             moris::sint
-            get_index_from_unique_dv_type_map( enum ge::PDV_Type aDvType )
+            get_index_from_unique_dv_type_map( enum gen::PDV_Type aDvType )
             {
                 return mUniqueDvTypeMap( static_cast< int >( aDvType ), 0 );
             }
@@ -940,13 +940,13 @@ namespace moris
             void compute_quantity_of_interest_nodal(
                     const uint                        aVisMeshIndex,
                     Matrix< DDRMat >*                 aNodalFieldValues,
-                    const moris::Cell< std::string >& aQINames );
+                    const Vector< std::string >& aQINames );
 
             //------------------------------------------------------------------------------
             /**
              * get list of requested IQIs for nodal evaluation for visualization
              */
-            const moris::Cell< std::shared_ptr< fem::IQI > >& get_requested_nodal_IQIs_for_visualization();
+            const Vector< std::shared_ptr< fem::IQI > >& get_requested_nodal_IQIs_for_visualization();
 
             //------------------------------------------------------------------------------
             /**
@@ -959,7 +959,7 @@ namespace moris
              * get global indices for the list of requested IQIs
              * for nodal evaluation for visualization
              */
-            const moris::Cell< moris_index >& get_requested_nodal_IQIs_global_indices_for_visualization();
+            const Vector< moris_index >& get_requested_nodal_IQIs_global_indices_for_visualization();
 
             //------------------------------------------------------------------------------
             /**
@@ -972,13 +972,13 @@ namespace moris
             void compute_quantity_of_interest_global(
                     const uint                        aVisMeshIndex,
                     Matrix< DDRMat >*                 aGlobalFieldValues,
-                    const moris::Cell< std::string >& aQINames );
+                    const Vector< std::string >& aQINames );
 
             //------------------------------------------------------------------------------
             /**
              * get list of requested IQIs for global evaluation for visualization
              */
-            const moris::Cell< std::shared_ptr< fem::IQI > >& get_requested_global_IQIs_for_visualization();
+            const Vector< std::shared_ptr< fem::IQI > >& get_requested_global_IQIs_for_visualization();
 
             //------------------------------------------------------------------------------
             /**
@@ -991,7 +991,7 @@ namespace moris
              * get global indices for the list of requested IQIs
              * for global evaluation for visualization
              */
-            const moris::Cell< moris_index >& get_requested_global_IQIs_global_indices_for_visualization();
+            const Vector< moris_index >& get_requested_global_IQIs_global_indices_for_visualization();
 
             //------------------------------------------------------------------------------
             /**
@@ -1005,14 +1005,14 @@ namespace moris
             void compute_quantity_of_interest_elemental(
                     const uint                        aVisMeshIndex,
                     Matrix< DDRMat >*                 aElementalFieldValues,
-                    const moris::Cell< std::string >& aQINames,
+                    const Vector< std::string >& aQINames,
                     const bool                        aOutputAverageValue = true );
 
             //------------------------------------------------------------------------------
             /**
              * get list of requested IQIs for elemental evaluation for visualization
              */
-            const moris::Cell< std::shared_ptr< fem::IQI > >& get_requested_elemental_IQIs_for_visualization();
+            const Vector< std::shared_ptr< fem::IQI > >& get_requested_elemental_IQIs_for_visualization();
 
             //------------------------------------------------------------------------------
             /**
@@ -1025,13 +1025,13 @@ namespace moris
              * get global indices for the list of requested IQIs
              * for elemental evaluation for visualization
              */
-            const moris::Cell< moris_index >& get_requested_elemental_IQIs_global_indices_for_visualization();
+            const Vector< moris_index >& get_requested_elemental_IQIs_global_indices_for_visualization();
 
             //------------------------------------------------------------------------------
             /**
              * get list of requested IQIs for field evaluation
              */
-            const moris::Cell< std::shared_ptr< fem::IQI > >& get_requested_field_IQIs();
+            const Vector< std::shared_ptr< fem::IQI > >& get_requested_field_IQIs();
 
             //------------------------------------------------------------------------------
             /**
@@ -1044,7 +1044,7 @@ namespace moris
              * get global indices for the list of requested IQIs
              * for field evaluation
              */
-            const moris::Cell< moris_index >& get_requested_field_IQIs_global_indices();
+            const Vector< moris_index >& get_requested_field_IQIs_global_indices();
 
             //------------------------------------------------------------------------------
             /**
@@ -1064,7 +1064,7 @@ namespace moris
              * get ig unique dv types for set from design variable interface
              * @param[ in ] aGeoPdvType list of ig unique pdv types on set
              */
-            void get_ig_unique_dv_types_for_set( moris::Cell< enum ge::PDV_Type >& aGeoPdvType );
+            void get_ig_unique_dv_types_for_set( Vector< enum gen::PDV_Type >& aGeoPdvType );
 
             //------------------------------------------------------------------------------
 
@@ -1074,13 +1074,13 @@ namespace moris
              * @param[ in ] aIsLeader determine the leader / follower side, only for dbl sided set, is leader by default
              */
 
-            void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum ge::PDV_Type > >& aMatPdvType, mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
+            void get_ip_dv_types_for_set( Vector< Vector< enum gen::PDV_Type > >& aMatPdvType, mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
 
             void populate_fields(
-                    moris::Cell< std::shared_ptr< fem::Field > >& aFieldToPopulate,
-                    moris::Cell< std::string > const &            aFieldIQINames );
+                    Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
+                    Vector< std::string > const &            aFieldIQINames );
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */

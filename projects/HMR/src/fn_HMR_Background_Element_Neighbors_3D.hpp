@@ -13,8 +13,8 @@
 
 #include "cl_HMR_Background_Element.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris::hmr
 {
@@ -22,7 +22,7 @@ namespace moris::hmr
     inline
     void Background_Element< 3 >::get_neighbors_from_same_level(
             uint aOrder,
-            Cell< Background_Element_Base * > & aNeighbors )
+            Vector< Background_Element_Base * > & aNeighbors )
     {
         // make sure order is not too big
         MORIS_ERROR( 0 < aOrder && aOrder <= 3,
@@ -32,7 +32,7 @@ namespace moris::hmr
         uint tArraySize[ 4 ] = { 0, 26, 124, 342 };
 
         // initialize temporary neighbor array
-        Cell< Background_Element_Base * >
+        Vector< Background_Element_Base * >
         tNeighbors( tArraySize[ aOrder ], nullptr );
 
         // fill first frame

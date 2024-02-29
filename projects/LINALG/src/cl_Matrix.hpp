@@ -12,7 +12,7 @@
 #define PROJECTS_LINALG_SRC_CL_MATRIX_HPP_
 
 #include "assert.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {

@@ -16,7 +16,7 @@
 #include "xtk_typedefs.hpp"
 #include "cl_Matrix.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
 
     /*
@@ -39,7 +39,7 @@ namespace xtk
      */
     template< typename Matrix_Type >
     inline void
-    row_bubble_sort( moris::Matrix< Matrix_Type > &aMatrix )
+    row_bubble_sort( Matrix< Matrix_Type > &aMatrix )
     {
         xtk::size_t tNumCols = aMatrix.n_cols();
         xtk::size_t tNumRows = aMatrix.n_rows();
@@ -77,8 +77,8 @@ namespace xtk
      */
     template< typename Matrix_Type >
     inline void
-    row_bubble_sort_indices( moris::Matrix< Matrix_Type > const &aMatrix,
-            moris::Matrix< Matrix_Type >                        &aOrder )
+    row_bubble_sort_indices( Matrix< Matrix_Type > const &aMatrix,
+            Matrix< Matrix_Type >                        &aOrder )
     {
         xtk::size_t tNumCols = aMatrix.n_cols();
         xtk::size_t tNumRows = aMatrix.n_rows();
@@ -119,6 +119,6 @@ namespace xtk
             }
         }
     }
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_TOOLS_FN_BUBBLE_SORT_HPP_ */

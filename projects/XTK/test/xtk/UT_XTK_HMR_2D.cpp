@@ -13,7 +13,7 @@
 // #include "cl_XTK_Model.hpp"
 // #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
-// #include "typedefs.hpp"
+// #include "moris_typedefs.hpp"
 
 // #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -47,10 +47,10 @@
 
 // #include "fn_norm.hpp"
 
-// namespace xtk
+// namespace moris::xtk
 // {
 // moris::real
-// CircleFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
+// CircleFuncXTKHMR2D(const moris::Matrix< DDRMat > & aPoint )
 // {
 
 //     moris::real mXCenter = 0;
@@ -63,7 +63,7 @@
 // }
 
 // moris::real
-// PlaneFuncXTKHMR2D(const moris::Matrix< moris::DDRMat > & aPoint )
+// PlaneFuncXTKHMR2D(const moris::Matrix< DDRMat > & aPoint )
 // {
 //     // Get variables
 //     real tXCenter = 0.0;
@@ -137,13 +137,13 @@
 
 //             hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-//             moris::Cell< std::shared_ptr<moris::ge::Level_Set_Geometry> > tGeometryVector(1);
-//             tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 1.1);
+//             Vector< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+//             tGeometryVector(0) = std::make_shared<moris::gen::Circle>(0.0, 0.0, 1.1);
 
 //             size_t tModelDimension = 2;
-//             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //             tGeometryEngineParameters.mGeometries = tGeometryVector;
-//             moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
+//             moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 //             Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
 //             tXTKModel.mVerbose  =  false;
 
@@ -220,15 +220,15 @@
 //         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
 //         // create a plane which intentionally intersects from fine to coarse
-//         moris::Matrix<moris::DDRMat> tCenters = {{ 0.1,0.1 }};
-//         moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
-//         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1));
+//         moris::Matrix<DDRMat> tCenters = {{ 0.1,0.1 }};
+//         moris::Matrix<DDRMat> tNormals = {{ 1.0,0.0 }};
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
+//         tGeometry(0) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1));
 
 //         size_t tModelDimension = 2;
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
-//         moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 //         Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
 //         tXTKModel.mVerbose  =  false;
 
@@ -294,17 +294,17 @@
 //         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
 //         // create a plane which intentionally intersects from fine to coarse
-//         moris::Matrix<moris::DDRMat> tCenters = {{ 0.0,0.0 }};
-//         moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,0.0 }};
-//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(2);
-//         tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1)); // center vertical
-//         tGeometry(1) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tNormals(1), tNormals(0)); // center horizontal
+//         moris::Matrix<DDRMat> tCenters = {{ 0.0,0.0 }};
+//         moris::Matrix<DDRMat> tNormals = {{ 1.0,0.0 }};
+//         Cell<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(2);
+//         tGeometry(0) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tNormals(0), tNormals(1)); // center vertical
+//         tGeometry(1) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tNormals(1), tNormals(0)); // center horizontal
 
 //         size_t tModelDimension = 2;
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
 //         tGeometryEngineParameters.mIsocontourTolerance = 1E-8;
-//         moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
 //         Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
 //         tXTKModel.mVerbose  =  true;
 
@@ -327,4 +327,3 @@
 // }
 
 // }
-

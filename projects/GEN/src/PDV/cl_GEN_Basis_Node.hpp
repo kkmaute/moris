@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare parent node
     class Parent_Node;
@@ -70,7 +70,7 @@ namespace moris::ge
          *
          * @return Locator nodes
          */
-        const Cell< Basis_Node >& get_locator_nodes() const;
+        const Vector< Basis_Node >& get_locator_nodes() const;
 
         /**
          * Gets if the underlying node's position depends on ADVs.

@@ -15,16 +15,16 @@
 #include <functional>
 #include <cmath>
 
-namespace xtk
+namespace moris::xtk
 {
-    inline moris::Cell< moris::real >
+    inline Vector< moris::real >
     linspace(
             moris::real tLowerVal,
             moris::real tEndIn,
             moris::lint tNumIn )
     {
 
-        moris::Cell< moris::real > linspaced;
+        Vector< moris::real > linspaced;
 
         const moris::real tStart = tLowerVal;
         const moris::real tEnd   = tEndIn;
@@ -394,12 +394,12 @@ namespace xtk
     class Octree_Template
     {
         // backend mesh for template (very simple ijk mesh)
-        const moris_index                mLevel = -1;
-        const IJK_Mesh                   mOctreeMeshGrid;
-        const Matrix< DDRMat >           mOctreeParamCoords;
-        const Matrix< IndexMat >         mOctreeCells;
-        const Vertex_Ancestry            mVertexAncestry;
-        const moris::Cell< moris_index > mVertexHash;
+        const moris_index           mLevel = -1;
+        const IJK_Mesh              mOctreeMeshGrid;
+        const Matrix< DDRMat >      mOctreeParamCoords;
+        const Matrix< IndexMat >    mOctreeCells;
+        const Vertex_Ancestry       mVertexAncestry;
+        const Vector< moris_index > mVertexHash;
 
       public:
         Octree_Template(){};
@@ -429,7 +429,7 @@ namespace xtk
             return &mOctreeMeshGrid;
         }
 
-        const moris::Cell< moris_index > *
+        const Vector< moris_index > *
         get_vertex_hashes() const
         {
             return &mVertexHash;
@@ -462,10 +462,10 @@ namespace xtk
         generate_octree_param_coords( const moris_index aTemplateLevel )
         {
             // generate a linspace from -1.0 to 1.0 - this corresponds to the local coords of a hex or quad
-            moris::Cell< moris::real > const tLinSpace = xtk::linspace( -1.0, 1.0, mOctreeMeshGrid.num_vert_x() );
+            Vector< moris::real > const tLinSpace = xtk::linspace( -1.0, 1.0, mOctreeMeshGrid.num_vert_x() );
 
             // allocate the output matrix
-            moris::Matrix< moris::DDRMat > tParamCoords( mOctreeMeshGrid.num_verts(), 3 );
+            Matrix< DDRMat > tParamCoords( mOctreeMeshGrid.num_verts(), 3 );
 
             // fill the matrix
             for ( moris::uint k = 0; k < mOctreeMeshGrid.num_vert_z(); k++ )
@@ -491,10 +491,10 @@ namespace xtk
             return 8;
         }
 
-        moris::Cell< moris_index >
+        Vector< moris_index >
         generate_vertex_hashes()
         {
-            moris::Cell< moris_index > tVertexHashes( mOctreeMeshGrid.num_verts() );
+            Vector< moris_index > tVertexHashes( mOctreeMeshGrid.num_verts() );
 
             std::cout << "WARNING TODO MAKE PROPER VERTEX HASHES" << std::endl;
             // I need to make these hashes in a way that makes consistent requests across facets
@@ -630,10 +630,10 @@ namespace xtk
          *
          * @return Cell<IJK>  container of IJK positions in fine grid
          */
-        Cell< IJK >
+        Vector< IJK >
         unique_to_fine_grid() const
         {
-            moris::Cell< IJK > tCell;
+            Vector< IJK > tCell;
             tCell.reserve( mOctreeTemplateFine->get_mesh_grid()->num_verts() - mOctreeTemplateCoarse->get_mesh_grid()->num_verts() );
 
             // iterate through fine grid points
@@ -658,10 +658,10 @@ namespace xtk
     class Octree_Interface : public Decomposition_Algorithm
     {
       private:
-        moris::lint                                                   mOctreeRefinementLevel;
-        moris::Cell< std::shared_ptr< Octree_Template const > >       mOctreeTemplates;
-        moris::Cell< moris_index >                                    mDifference;
-        moris::Cell< std::unordered_map< moris_index, moris_index > > mIgVertexGroupIndexToIjkIndex;
+        moris::lint                                              mOctreeRefinementLevel;
+        Vector< std::shared_ptr< Octree_Template const > >       mOctreeTemplates;
+        Vector< moris_index >                                    mDifference;
+        Vector< std::unordered_map< moris_index, moris_index > > mIgVertexGroupIndexToIjkIndex;
 
         // useful data that is passed in (avoid passing around to every function)
         Integration_Mesh_Generation_Data *mIgMeshGenData;
@@ -708,24 +708,24 @@ namespace xtk
                 Integration_Mesh_Generator       *aMeshGenerator );
 
       private:
-        moris::Cell< std::shared_ptr< Octree_Template const > >
+        Vector< std::shared_ptr< Octree_Template const > >
         generate_octree_templates();
 
         /**
          * @brief Determine the lowest and highest element level that we need to refine
          *
-         * @return moris::Cell<moris_index> const - {LowerBound,UpperBound}
+         * @return Vector<moris_index> const - {LowerBound,UpperBound}
          */
-        moris::Cell< moris_index > const
+        Vector< moris_index > const
         determine_octree_bounds();
 
         mtk::CellTopology
         get_ig_cell_topology() const;
 
-        moris::Cell< std::unordered_map< moris_index, moris_index > >
+        Vector< std::unordered_map< moris_index, moris_index > >
         generate_octree_template_vertex_group_to_ijk_map();
     };
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* cl_XTK_Octree_Interface.hpp */

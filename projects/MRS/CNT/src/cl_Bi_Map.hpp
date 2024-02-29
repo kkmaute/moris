@@ -18,7 +18,7 @@
 //#include <boost/bimap.hpp>
 //
 //// moris library header files.
-//#include "typedefs.hpp" // COR/src
+//#include "moris_typedefs.hpp" // COR/src
 //
 //namespace moris
 //{

@@ -10,7 +10,7 @@
 
 #include "cl_GEN_Design.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
@@ -40,14 +40,14 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< uint >& Design::get_num_refinements()
+    const Vector< uint >& Design::get_num_refinements()
     {
         return mParameters.mNumberOfRefinements;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Cell< uint >&
+    const Vector< uint >&
     Design::get_refinement_mesh_indices()
     {
         return mParameters.mRefinementMeshIndices;
@@ -63,4 +63,4 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+}    // namespace moris::gen

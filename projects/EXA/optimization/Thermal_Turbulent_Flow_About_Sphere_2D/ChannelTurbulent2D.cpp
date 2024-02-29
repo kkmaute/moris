@@ -12,7 +12,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Bitset.hpp"
 #include "linalg_typedefs.hpp"
@@ -252,7 +252,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     // number of constraints (here: number of design criteria)
-    moris::uint tNumConstraints = 10;
+    moris::uint tNumConstraints = 11;
 
     // max dof IQI
     std::string tRefTemp         = moris_to_string( 250.0 * tTempScale );
@@ -291,7 +291,7 @@ namespace moris
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< real >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -307,7 +307,7 @@ namespace moris
     void
     Func_Sphere_Deriv(
             const moris::Matrix< moris::DDRMat >&                aCoordinates,
-            const moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            const Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::Matrix< DDRMat >&                             aFieldSensitivity )
     {
         // derivative of level set function wrt sphere radius
@@ -320,7 +320,7 @@ namespace moris
     moris::real
     Func_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< real >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -346,7 +346,7 @@ namespace moris
     void
     Func_Inlet_V(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix.set_size( 1, 1, 0.0 );
@@ -360,7 +360,7 @@ namespace moris
     // wall distance function
     void
     Func_Wall_Distance( moris::Matrix< moris::DDRMat >&    aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->val();
@@ -369,7 +369,7 @@ namespace moris
     // Wall distance derivative function
     void
     Func_Wall_Distance_Der( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&  aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >&  aParameters,
             moris::fem::Field_Interpolator_Manager*         aFIManager )
     {
         aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->N();
@@ -483,16 +483,17 @@ namespace moris
         Matrix< DDRMat > tConstraints( tNumConstraints, 1 );
 
         // constraints
-        tConstraints( 0 ) = aCriteria( 0 );
-        tConstraints( 1 ) = aCriteria( 1 );
-        tConstraints( 2 ) = aCriteria( 2 );
-        tConstraints( 3 ) = aCriteria( 3 );
-        tConstraints( 4 ) = aCriteria( 4 );
-        tConstraints( 5 ) = aCriteria( 5 );
-        tConstraints( 6 ) = aCriteria( 6 );
-        tConstraints( 7 ) = aCriteria( 7 );
-        tConstraints( 8 ) = aCriteria( 8 );
-        tConstraints( 9 ) = aCriteria( 9 );
+        tConstraints( 0 )  = aCriteria( 0 );
+        tConstraints( 1 )  = aCriteria( 1 );
+        tConstraints( 2 )  = aCriteria( 2 );
+        tConstraints( 3 )  = aCriteria( 3 );
+        tConstraints( 4 )  = aCriteria( 4 );
+        tConstraints( 5 )  = aCriteria( 5 );
+        tConstraints( 6 )  = aCriteria( 6 );
+        tConstraints( 7 )  = aCriteria( 7 );
+        tConstraints( 8 )  = aCriteria( 8 );
+        tConstraints( 9 )  = aCriteria( 9 );
+        tConstraints( 10 ) = aCriteria( 10 );
 
         return tConstraints;
     }
@@ -518,16 +519,17 @@ namespace moris
     {
         Matrix< DDRMat > tDConstraintDCriteria( tNumConstraints, aCriteria.numel(), 0.0 );
 
-        tDConstraintDCriteria( 0, 0 ) = 1.0;
-        tDConstraintDCriteria( 1, 1 ) = 1.0;
-        tDConstraintDCriteria( 2, 2 ) = 1.0;
-        tDConstraintDCriteria( 3, 3 ) = 1.0;
-        tDConstraintDCriteria( 4, 4 ) = 1.0;
-        tDConstraintDCriteria( 5, 5 ) = 1.0;
-        tDConstraintDCriteria( 6, 6 ) = 1.0;
-        tDConstraintDCriteria( 7, 7 ) = 1.0;
-        tDConstraintDCriteria( 8, 8 ) = 1.0;
-        tDConstraintDCriteria( 9, 9 ) = 1.0;
+        tDConstraintDCriteria( 0, 0 )   = 1.0;
+        tDConstraintDCriteria( 1, 1 )   = 1.0;
+        tDConstraintDCriteria( 2, 2 )   = 1.0;
+        tDConstraintDCriteria( 3, 3 )   = 1.0;
+        tDConstraintDCriteria( 4, 4 )   = 1.0;
+        tDConstraintDCriteria( 5, 5 )   = 1.0;
+        tDConstraintDCriteria( 6, 6 )   = 1.0;
+        tDConstraintDCriteria( 7, 7 )   = 1.0;
+        tDConstraintDCriteria( 8, 8 )   = 1.0;
+        tDConstraintDCriteria( 9, 9 )   = 1.0;
+        tDConstraintDCriteria( 10, 10 ) = 1.0;
 
         return tDConstraintDCriteria;
     }
@@ -535,7 +537,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
@@ -556,7 +558,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    HMRParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
 
@@ -593,7 +595,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    XTKParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -615,7 +617,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    GENParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
 
@@ -627,7 +629,7 @@ namespace moris
                 "IQIInletMassFlow,IQIOutletMassFlow,"
                 "IQIMaxTemp,"
                 "IQISolidVolume,"
-                "IQIInletPowDisp,IQIOutletPowDisp" );
+                "IQIInletPowDisp,IQIOutletPowDisp,IQIVolumePowDisp" );
 
         tParameterlist( 0 )( 0 ).set( "initial_advs", moris_to_string( tSphereRadius ) );
         tParameterlist( 0 )( 0 ).set( "lower_bounds", moris_to_string( tSphereRadius * 0.9 ) );
@@ -703,7 +705,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    FEMParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
     {
         if ( par_rank() == 0 )
         {
@@ -1868,6 +1870,14 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
         tIQICounter++;
 
+        // fluid power dissipation in volume
+        tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIVolumePowDisp" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::POWER_DISSIPATION_BULK );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_constitutive_models", "CMFluid,Fluid" );
+        tIQICounter++;
+
         // inclusion perimeter
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIPerimeterItf" );
@@ -1936,7 +1946,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
 
@@ -2052,7 +2062,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -2068,7 +2078,7 @@ namespace moris
     }
 
     void
-    VISParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -2087,7 +2097,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
     }
 

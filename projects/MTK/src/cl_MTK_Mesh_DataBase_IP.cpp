@@ -44,8 +44,8 @@ namespace moris::mtk
 
     uint
     Interpolation_Mesh_DataBase_IP::get_num_entities(
-        enum EntityRank   aEntityRank,
-        const moris_index aIndex ) const
+            enum EntityRank   aEntityRank,
+            const moris_index aIndex ) const
     {
         switch ( aEntityRank )
         {
@@ -86,10 +86,10 @@ namespace moris::mtk
 
     Matrix< IndexMat >
     Interpolation_Mesh_DataBase_IP::get_entity_connected_to_entity_loc_inds(
-        moris_index       aEntityIndex,
-        enum EntityRank   aInputEntityRank,
-        enum EntityRank   aOutputEntityRank,
-        const moris_index aDiscretizationIndex ) const
+            moris_index       aEntityIndex,
+            enum EntityRank   aInputEntityRank,
+            enum EntityRank   aOutputEntityRank,
+            const moris_index aDiscretizationIndex ) const
     {
         MORIS_ERROR( 0, "get_entity_connected_to_entity_loc_inds not implemented for Interpolation_Mesh_DataBase_IP" );
         return { {} };
@@ -108,9 +108,9 @@ namespace moris::mtk
 
     moris_id
     Interpolation_Mesh_DataBase_IP::get_glb_entity_id_from_entity_loc_index(
-        moris_index aEntityIndex,
-        EntityRank  aEntityRank,
-        moris_index aDiscretizationIndex ) const
+            moris_index aEntityIndex,
+            EntityRank  aEntityRank,
+            moris_index aDiscretizationIndex ) const
     {
         switch ( aEntityRank )
         {
@@ -236,7 +236,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vertex const&
+    Vertex const &
     Interpolation_Mesh_DataBase_IP::get_mtk_vertex( moris_index aVertexIndex ) const
     {
         MORIS_ASSERT( aVertexIndex < (moris_index)mVertices.size(), "index of the vertex specified exceeds the bounds" );
@@ -246,8 +246,8 @@ namespace moris::mtk
 
     void
     Interpolation_Mesh_DataBase_IP::get_adof_map(
-        const uint                    aBSplineIndex,
-        map< moris_id, moris_index >& aAdofMap ) const
+            const uint                    aBSplineIndex,
+            map< moris_id, moris_index >& aAdofMap ) const
     {
         aAdofMap = mAdofMap( aBSplineIndex );
     }
@@ -278,7 +278,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    mtk::Cell const&
+    mtk::Cell const &
     Interpolation_Mesh_DataBase_IP::get_mtk_cell( moris_index aCellIndex ) const
     {
         MORIS_ASSERT( aCellIndex < (moris_index)mCells.size(), "index of the vertex specified exceeds the bounds" );
@@ -344,7 +344,7 @@ namespace moris::mtk
     moris::real*
     Interpolation_Mesh_DataBase_IP::get_vertex_coords_ptr( moris_index aVertexIndex )
     {
-        moris::real* tCoordPointer =  const_cast<real*>(mVertexCoordinates.colptr( aVertexIndex )) ;
+        moris::real* tCoordPointer = const_cast< real* >( mVertexCoordinates.colptr( aVertexIndex ) );
 
         return tCoordPointer;
     }
@@ -370,7 +370,14 @@ namespace moris::mtk
     uint
     Interpolation_Mesh_DataBase_IP::get_local_mesh_index( const uint aBsplineMeshIndex )
     {
-        return mGlobalMeshIndexToLocalMeshIndex[ aBsplineMeshIndex ];
+        std::unordered_map< moris_index, moris_index >::const_iterator tLoc =
+                mGlobalMeshIndexToLocalMeshIndex.find( aBsplineMeshIndex );
+
+        MORIS_ASSERT( tLoc != mGlobalMeshIndexToLocalMeshIndex.end(),
+                "Interpolation_Mesh_DataBase_IP::get_local_mesh_index - Bspline mesh index not found: %d",
+                aBsplineMeshIndex );
+
+        return tLoc->second;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -388,7 +395,7 @@ namespace moris::mtk
     moris_index*
     Interpolation_Mesh_DataBase_IP::get_basis_indicies( moris_index aVertexIndex, moris_index aOrder )
     {
-        moris_id* tBasisIndPointer =  mBasisIndices( aOrder ).memptr() + mOffSetTMatrix( aOrder )( aVertexIndex ) ;
+        moris_id* tBasisIndPointer = mBasisIndices( aOrder ).memptr() + mOffSetTMatrix( aOrder )( aVertexIndex );
         return tBasisIndPointer;
     }
 
@@ -499,5 +506,4 @@ namespace moris::mtk
         return { {} };
     }
 
-}// namespace moris::mtk
-
+}    // namespace moris::mtk

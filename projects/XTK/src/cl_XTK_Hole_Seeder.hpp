@@ -13,74 +13,68 @@
 
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Matrix.hpp"
-namespace moris
+namespace moris::gen
 {
-    namespace ge
+    class Superellipsoid;
+}
+
+namespace moris::xtk
+{
+
+    class Hole_Seeder
     {
-        class Superellipsoid;
-    }
-}
+      public:
+        // Sphere constructors
+        /*
+         * constructor for if you have the mesh
+         */
+        Hole_Seeder( moris::mtk::Mesh* aMTKMesh,
+                moris::real            aRadiusX,
+                moris::real            aRadiusY,
+                moris::real            aRadiusZ,
+                moris::real            aNexp,
+                moris::uint            aNumInX,
+                moris::uint            aNumInY,
+                moris::uint            aNumInZ );
 
-namespace xtk
-{
+        /*
+         * Constructor if the mesh hasnt been created
+         */
+        Hole_Seeder( moris::real aRadiusX,
+                moris::real      aRadiusY,
+                moris::real      aRadiusZ,
+                moris::real      aNexp,
+                moris::uint      aNumInX,
+                moris::uint      aNumInY,
+                moris::uint      aNumInZ );
 
-class Hole_Seeder
-{
-public:
+        // box constructors
 
-    // Sphere constructors
-    /*
-     * constructor for if you have the mesh
-     */
-    Hole_Seeder( moris::mtk::Mesh* aMTKMesh,
-                 moris::real       aRadiusX,
-                 moris::real       aRadiusY,
-                 moris::real       aRadiusZ,
-                 moris::real       aNexp,
-                 moris::uint       aNumInX,
-                 moris::uint       aNumInY,
-                 moris::uint       aNumInZ);
+        void
+        set_mesh( moris::mtk::Mesh* aMTKMesh );
 
-    /*
-     * Constructor if the mesh hasnt been created
-     */
-    Hole_Seeder(moris::real       aRadiusX,
-                moris::real       aRadiusY,
-                moris::real       aRadiusZ,
-                moris::real       aNexp,
-                moris::uint       aNumInX,
-                moris::uint       aNumInY,
-                moris::uint       aNumInZ);
+        void
+        seed_field();
 
-    // box constructors
+        Matrix< DDRMat > const &
+        get_seeded_field();
 
-    void
-    set_mesh( moris::mtk::Mesh* aMTKMesh);
+        Vector< std::shared_ptr< moris::gen::Superellipsoid > >&
+        get_seeded_geometies();
 
-    void
-    seed_field();
+      private:
+        moris::mtk::Mesh*                                       mMTKMesh;
+        moris::real                                             mRadiusX;
+        moris::real                                             mRadiusY;
+        moris::real                                             mRadiusZ;
+        moris::real                                             mNexp;
+        moris::uint                                             mNumSpheresInX;
+        moris::uint                                             mNumSpheresInY;
+        moris::uint                                             mNumSpheresInZ;
+        Matrix< DDRMat >                                        mSeededField;
+        Vector< std::shared_ptr< moris::gen::Superellipsoid > > mSpheres;
+    };
 
-    moris::Matrix<moris::DDRMat> const &
-    get_seeded_field();
-
-    moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> &
-    get_seeded_geometies();
-
-private:
-    moris::mtk::Mesh* mMTKMesh;
-    moris::real mRadiusX;
-    moris::real mRadiusY;
-    moris::real mRadiusZ;
-    moris::real mNexp;
-    moris::uint mNumSpheresInX;
-    moris::uint mNumSpheresInY;
-    moris::uint mNumSpheresInZ;
-    moris::Matrix<moris::DDRMat> mSeededField;
-    moris::Cell<std::shared_ptr<moris::ge::Superellipsoid>> mSpheres;
-
-};
-
-}
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_HOLE_SEEDER_HPP_ */
-

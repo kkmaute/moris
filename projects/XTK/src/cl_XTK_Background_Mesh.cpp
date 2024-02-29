@@ -12,7 +12,7 @@
 #include "fn_unique.hpp"
 #include "cl_MTK_Enums.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
@@ -37,7 +37,7 @@ namespace xtk
 
     Background_Mesh::Background_Mesh(
             moris::mtk::Interpolation_Mesh* aMeshData,
-            moris::ge::Geometry_Engine*     aGeometryEngine )
+            moris::gen::Geometry_Engine*    aGeometryEngine )
             : mMeshData( aMeshData )
             , mEntityLocaltoGlobalMap( 4 )
             , mChildMtkCells( 0 )
@@ -113,12 +113,12 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IndexMat >
-    Background_Mesh::get_vertices_owner( moris::Matrix< moris::IndexMat > const & aVertexIndices ) const
+    Matrix< IndexMat >
+    Background_Mesh::get_vertices_owner( Matrix< IndexMat > const & aVertexIndices ) const
     {
         moris::uint tNumVerts = aVertexIndices.numel();
 
-        moris::Matrix< moris::IndexMat > tVertexOwners( 1, tNumVerts );
+        Matrix< IndexMat > tVertexOwners( 1, tNumVerts );
 
         for ( moris::uint i = 0; i < tNumVerts; i++ )
         {
@@ -130,10 +130,10 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Cell< moris::mtk::Vertex const * >
+    Vector< moris::mtk::Vertex const * >
     Background_Mesh::get_mtk_vertices( Matrix< IndexMat > const & aVertexIndices )
     {
-        Cell< moris::mtk::Vertex const * > tVertices( aVertexIndices.numel() );
+        Vector< moris::mtk::Vertex const * > tVertices( aVertexIndices.numel() );
 
         for ( moris::uint i = 0; i < aVertexIndices.numel(); i++ )
         {
@@ -229,10 +229,10 @@ namespace xtk
 
     void
     Background_Mesh::batch_create_new_nodes(
-            Cell< moris_index > const &                    aNewNodeIds,
-            Cell< moris_index > const &                    aNewNodeIndices,
-            Cell< moris_index > const &                    aNewNodeOwningProc,
-            Cell< moris::Matrix< moris::DDRMat > > const & aNewNodeCoordinates )
+            Vector< moris_index > const &      aNewNodeIds,
+            Vector< moris_index > const &      aNewNodeIndices,
+            Vector< moris_index > const &      aNewNodeOwningProc,
+            Vector< Matrix< DDRMat > > const & aNewNodeCoordinates )
     {
     }
 
@@ -240,9 +240,9 @@ namespace xtk
 
     void
     Background_Mesh::batch_create_new_nodes_as_copy_of_other_nodes(
-            moris::Matrix< moris::IndexMat > const & aExistingNodeIndices,
-            moris::Matrix< moris::IndexMat > const & aNewNodeIds,
-            moris::Matrix< moris::IndexMat > const & aNewNodeIndices )
+            Matrix< IndexMat > const & aExistingNodeIndices,
+            Matrix< IndexMat > const & aNewNodeIds,
+            Matrix< IndexMat > const & aNewNodeIndices )
     {
     }
 
@@ -267,8 +267,8 @@ namespace xtk
 
     void
     Background_Mesh::associate_external_nodes_to_child_mesh(
-            moris::moris_index                       aChildMeshIndex,
-            moris::Matrix< moris::IndexMat > const & aNodeIndices )
+            moris::moris_index         aChildMeshIndex,
+            Matrix< IndexMat > const & aNodeIndices )
     {
         // Make sure the node to child mesh matrix has been allocated
         MORIS_ASSERT( mNodeIndexToChildMeshIndex.n_rows() == mExternalMeshData.get_num_entities_external_data( mtk::EntityRank::NODE ),
@@ -301,12 +301,12 @@ namespace xtk
 
     void
     associate_external_nodes_to_child_mesh(
-            moris::moris_index                       aChildMeshIndex,
-            moris::Matrix< moris::IndexMat > const & aNodeIndices );
+            moris::moris_index         aChildMeshIndex,
+            Matrix< IndexMat > const & aNodeIndices );
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IndexMat >
+    Matrix< IndexMat >
     Background_Mesh::get_node_child_mesh_assocation( moris::moris_index aNodeIndex ) const
     {
         MORIS_ASSERT( mExternalMeshData.is_external_entity( aNodeIndex, mtk::EntityRank::NODE ),
@@ -315,7 +315,7 @@ namespace xtk
         // External index
         moris::size_t tExtIndex = mExternalMeshData.get_external_entity_index( aNodeIndex, mtk::EntityRank::NODE );
 
-        moris::Matrix< moris::IndexMat > tChildMeshIndices = mNodeIndexToChildMeshIndex.get_row( tExtIndex );
+        Matrix< IndexMat > tChildMeshIndices = mNodeIndexToChildMeshIndex.get_row( tExtIndex );
 
         size_t tCount = 0;
         for ( size_t i = 0; i < tChildMeshIndices.n_cols(); i++ )
@@ -356,14 +356,14 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IdMat >
+    Matrix< IdMat >
     Background_Mesh::get_glb_entity_id_from_entity_loc_index_range(
-            moris::Matrix< moris::IndexMat > const & tEntityIndices,
-            mtk::EntityRank                          aEntityRank ) const
+            Matrix< IndexMat > const & tEntityIndices,
+            mtk::EntityRank            aEntityRank ) const
     {
         MORIS_ASSERT( moris::isvector( tEntityIndices ), "Entity indices are not provided in a vector" );
-        moris::size_t                 tNumEntities = tEntityIndices.numel();
-        moris::Matrix< moris::IdMat > tEntityIds( 1, tNumEntities );
+        moris::size_t   tNumEntities = tEntityIndices.numel();
+        Matrix< IdMat > tEntityIds( 1, tNumEntities );
 
         for ( moris::size_t i = 0; i < tNumEntities; i++ )
         {
@@ -376,8 +376,8 @@ namespace xtk
 
     void
     Background_Mesh::convert_loc_entity_ind_to_glb_entity_ids(
-            mtk::EntityRank                   aEntityRank,
-            moris::Matrix< moris::IndexMat >& aEntityIndices ) const
+            mtk::EntityRank     aEntityRank,
+            Matrix< IndexMat >& aEntityIndices ) const
     {
         moris::uint tNumRows = aEntityIndices.n_rows();
         moris::uint tNumCols = aEntityIndices.n_cols();
@@ -416,14 +416,14 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat >
+    Matrix< DDRMat >
     Background_Mesh::get_all_node_coordinates_loc_inds() const
     {
         // Get counts inside of STK and in External Data (both happen in this function call)
         moris::size_t tNumNodes   = this->get_num_entities( mtk::EntityRank::NODE );
-        moris::size_t tNumBGNodes = mMeshData->get_num_entities( (mtk::EntityRank) mtk::EntityRank::NODE );
+        moris::size_t tNumBGNodes = mMeshData->get_num_entities( (mtk::EntityRank)mtk::EntityRank::NODE );
 
-        moris::Matrix< moris::DDRMat > tAllNodeCoordinates = this->get_all_node_coordinates_loc_inds_background_mesh();
+        Matrix< DDRMat > tAllNodeCoordinates = this->get_all_node_coordinates_loc_inds_background_mesh();
 
         tAllNodeCoordinates.resize( tNumNodes, mMeshData->get_spatial_dim() );
 
@@ -435,9 +435,9 @@ namespace xtk
 
     // ---------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat >
+    Matrix< DDRMat >
     Background_Mesh::get_selected_node_coordinates_loc_inds(
-            moris::Matrix< moris::IndexMat > const & aNodeIndices ) const
+            Matrix< IndexMat > const & aNodeIndices ) const
     {
         MORIS_ERROR( moris::isvector( aNodeIndices ), "Provided Node indices need to be a vector" );
         // TODO: Add external entity check to see if xtk has the coordinate field or stk has it
@@ -448,7 +448,7 @@ namespace xtk
         moris::size_t tNumNodes = aNodeIndices.numel();
 
         // Initialize output matrix
-        moris::Matrix< moris::DDRMat > tSelectedNodesCoords( tNumNodes, tSpatialDimension );
+        Matrix< DDRMat > tSelectedNodesCoords( tNumNodes, tSpatialDimension );
 
         // Loop over all nodes
         mtk::EntityRank tEntityRank = mtk::EntityRank::NODE;
@@ -457,7 +457,7 @@ namespace xtk
         {
             if ( mExternalMeshData.is_external_entity( aNodeIndices( n ), tEntityRank ) )
             {
-                moris::Matrix< moris::DDRMat > const & tNodeCoords =
+                Matrix< DDRMat > const & tNodeCoords =
                         mExternalMeshData.get_selected_node_coordinates_loc_inds_external_data( aNodeIndices( n ) );
 
                 tSelectedNodesCoords.set_row( n, tNodeCoords );
@@ -478,21 +478,21 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IdMat >
+    Matrix< IdMat >
     Background_Mesh::get_local_to_global_map( mtk::EntityRank aEntityRank ) const
     {
         MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE, " This function is only implemented for node maps" );
 
         moris::uint tNumNodes = mMeshData->get_num_entities( mtk::EntityRank::NODE );
 
-        moris::Matrix< moris::IndexMat > tLocalToGlobalBM( 1, tNumNodes );
+        Matrix< IndexMat > tLocalToGlobalBM( 1, tNumNodes );
 
         for ( size_t i = 0; i < tNumNodes; i++ )
         {
             tLocalToGlobalBM( i ) = mMeshData->get_glb_entity_id_from_entity_loc_index( i, mtk::EntityRank::NODE );
         }
 
-        moris::Matrix< moris::IndexMat > const & tLocalToGlobalExt = mExternalMeshData.get_local_to_global_node_map();
+        Matrix< IndexMat > const & tLocalToGlobalExt = mExternalMeshData.get_local_to_global_node_map();
 
         tNumNodes               = tLocalToGlobalBM.numel() + tLocalToGlobalExt.numel();
         size_t tFirstExtNodeInd = tLocalToGlobalBM.numel();
@@ -501,7 +501,7 @@ namespace xtk
                 "Number of nodes returned does not match the number in the map" );
 
         // combine the two maps
-        moris::Matrix< moris::IdMat > tLocalToGlobal( 1, tNumNodes );
+        Matrix< IdMat > tLocalToGlobal( 1, tNumNodes );
 
         for ( moris::size_t i = 0; i < tLocalToGlobalBM.numel(); i++ )
         {
@@ -518,7 +518,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IdMat >
+    Matrix< IdMat >
     Background_Mesh::get_full_non_intersected_node_to_element_glob_ids() const
     {
         moris::size_t     tNumElementsBG = this->get_num_entities( mtk::EntityRank::ELEMENT );
@@ -538,17 +538,17 @@ namespace xtk
             tNumNodesPerElem = 8;
         }
 
-        moris::Matrix< moris::IdMat > tElementToNode( tNumElementsBG, tNumNodesPerElem );
-        moris::size_t                 tCount = 0;
+        Matrix< IdMat > tElementToNode( tNumElementsBG, tNumNodesPerElem );
+        moris::size_t   tCount = 0;
         for ( moris::size_t i = 0; i < tElementToNode.n_rows(); i++ )
         {
             if ( !this->entity_has_children( i, mtk::EntityRank::ELEMENT ) )
             {
-                moris::Matrix< moris::IndexMat > tElementToNodeInd = mMeshData->get_entity_connected_to_entity_loc_inds( (moris::moris_index)i,
+                Matrix< IndexMat > tElementToNodeInd = mMeshData->get_entity_connected_to_entity_loc_inds( (moris::moris_index)i,
                         mtk::EntityRank::ELEMENT,
                         mtk::EntityRank::NODE );
 
-                moris::Matrix< moris::IdMat > tElementToNodeId =
+                Matrix< IdMat > tElementToNodeId =
                         moris::mtk::convert_entity_indices_to_ids( tElementToNodeInd, mtk::EntityRank::NODE, mMeshData );
 
                 tElementToNode.set_row( tCount, tElementToNodeId );
@@ -562,7 +562,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Cell< moris::Matrix< moris::IdMat > >
+    Vector< Matrix< IdMat > >
     Background_Mesh::get_non_intersected_element_to_node_by_phase( moris::uint aNumPhases )
     {
         uint              tNumElementsBG = mMeshData->get_num_entities( mtk::EntityRank::ELEMENT );
@@ -586,11 +586,11 @@ namespace xtk
             tNumNodesPerElem = 8;
         }
 
-        Cell< moris::Matrix< moris::IdMat > > tElementToNodeByPhase(
+        Vector< Matrix< IdMat > > tElementToNodeByPhase(
                 aNumPhases,
-                moris::Matrix< moris::IdMat >( tNumElementsBG, tNumNodesPerElem ) );
+                Matrix< IdMat >( tNumElementsBG, tNumNodesPerElem ) );
 
-        moris::Matrix< moris::DDUMat > tPhaseCount( 1, aNumPhases, 0 );
+        Matrix< DDUMat > tPhaseCount( 1, aNumPhases, 0 );
 
         for ( moris::size_t i = 0; i < tNumElementsBG; i++ )
         {
@@ -598,7 +598,7 @@ namespace xtk
             {
                 moris::moris_id tId = mMeshData->get_glb_entity_id_from_entity_loc_index( i, mtk::EntityRank::ELEMENT );
 
-                moris::Matrix< moris::IdMat > tElementToNodeId =
+                Matrix< IdMat > tElementToNodeId =
                         mMeshData->get_entity_connected_to_entity_glob_ids( tId, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
 
                 moris::moris_index tPhaseIndex = this->get_element_phase_index( i );
@@ -622,13 +622,13 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IdMat >
+    Matrix< IdMat >
     Background_Mesh::get_all_non_intersected_elements() const
     {
         moris::size_t tNumElementsBG = this->get_num_entities( mtk::EntityRank::ELEMENT );
 
-        moris::Matrix< moris::IdMat > tElementIds( tNumElementsBG, 1 );
-        moris::size_t                 tCount = 0;
+        Matrix< IdMat > tElementIds( tNumElementsBG, 1 );
+        moris::size_t   tCount = 0;
         for ( moris::size_t i = 0; i < tElementIds.numel(); i++ )
         {
             if ( !this->entity_has_children( i, mtk::EntityRank::ELEMENT ) )
@@ -647,17 +647,17 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Cell< moris::Matrix< moris::IdMat > >
+    Vector< Matrix< IdMat > >
     Background_Mesh::get_all_non_intersected_elements_by_phase( uint aNumPhases ) const
     {
         uint tNumElementsBG = mMeshData->get_num_entities( mtk::EntityRank::ELEMENT );
 
         // Initialize output
-        Cell< moris::Matrix< moris::IdMat > > tElementsByPhase( aNumPhases );
-        moris::Matrix< moris::DDUMat >        tPhaseCount( 1, aNumPhases, 0 );
+        Vector< Matrix< IdMat > > tElementsByPhase( aNumPhases );
+        Matrix< DDUMat >          tPhaseCount( 1, aNumPhases, 0 );
         for ( uint i = 0; i < aNumPhases; i++ )
         {
-            tElementsByPhase( i ) = moris::Matrix< moris::IdMat >( 1, tNumElementsBG );
+            tElementsByPhase( i ) = Matrix< IdMat >( 1, tNumElementsBG );
         }
 
         for ( uint iE = 0; iE < tNumElementsBG; iE++ )
@@ -686,13 +686,13 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IndexMat >
+    Matrix< IndexMat >
     Background_Mesh::get_all_non_intersected_elements_loc_inds() const
     {
         moris::size_t tNumElementsBG = mMeshData->get_num_entities( mtk::EntityRank::ELEMENT );
 
-        moris::Matrix< moris::IdMat > tElementInds( tNumElementsBG, 1 );
-        moris::size_t                 tCount = 0;
+        Matrix< IdMat > tElementInds( tNumElementsBG, 1 );
+        moris::size_t   tCount = 0;
         for ( moris::size_t i = 0; i < tElementInds.numel(); i++ )
         {
             if ( !this->entity_has_children( i, mtk::EntityRank::ELEMENT ) )
@@ -709,7 +709,7 @@ namespace xtk
 
     void
     Background_Mesh::register_new_downward_inheritance(
-            Cell< std::pair< moris::moris_index, moris::moris_index > > const & aNewElementToChildMeshPairs )
+            Vector< std::pair< moris::moris_index, moris::moris_index > > const & aNewElementToChildMeshPairs )
     {
         moris::size_t tNumNewPairs = aNewElementToChildMeshPairs.size();
         for ( moris::size_t i = 0; i < tNumNewPairs; i++ )
@@ -767,7 +767,7 @@ namespace xtk
             moris::size_t const & aNumNodes,
             moris::size_t const & aNumGeometry )
     {
-        mInterfaceNodeFlag = moris::Matrix< moris::IndexMat >( aNumNodes, aNumGeometry, 0 );
+        mInterfaceNodeFlag = Matrix< IndexMat >( aNumNodes, aNumGeometry, 0 );
     }
 
     // ----------------------------------------------------------------------------------
@@ -801,8 +801,8 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Background_Mesh::mark_nodes_as_interface_node_loc_inds( moris::Matrix< moris::IndexMat > aNodeIndices,
-            moris::size_t                                                                    aGeomIndex )
+    Background_Mesh::mark_nodes_as_interface_node_loc_inds( Matrix< IndexMat > aNodeIndices,
+            moris::size_t                                                      aGeomIndex )
     {
         for ( uint i = 0; i < aNodeIndices.numel(); i++ )
         {
@@ -833,12 +833,12 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IndexMat >
+    Matrix< IndexMat >
     Background_Mesh::get_interface_nodes_loc_inds( moris::moris_index aGeometryIndex ) const
     {
         // initialize output
-        moris::size_t                    tNumNodes = this->get_num_entities( mtk::EntityRank::NODE );
-        moris::Matrix< moris::IndexMat > tInterfaceNodes( 1, tNumNodes );
+        moris::size_t      tNumNodes = this->get_num_entities( mtk::EntityRank::NODE );
+        Matrix< IndexMat > tInterfaceNodes( 1, tNumNodes );
 
         // keep track of how many interface nodes
         moris::size_t tCount = 0;
@@ -858,13 +858,13 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Cell< moris::Matrix< moris::IdMat > >
+    Vector< Matrix< IdMat > >
     Background_Mesh::get_interface_nodes_loc_inds() const
     {
         // initialize output
         moris::size_t tNumGeoms = mInterfaceNodeFlag.n_cols();
 
-        Cell< moris::Matrix< moris::IdMat > > tInterfaceNodes( tNumGeoms );
+        Vector< Matrix< IdMat > > tInterfaceNodes( tNumGeoms );
 
         for ( moris::size_t i = 0; i < tNumGeoms; i++ )
         {
@@ -876,12 +876,12 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IdMat >
+    Matrix< IdMat >
     Background_Mesh::get_interface_nodes_glob_ids( moris::moris_index aGeometryIndex ) const
     {
         // initialize output
-        moris::size_t                 tNumNodes = this->get_num_entities( mtk::EntityRank::NODE );
-        moris::Matrix< moris::IdMat > tInterfaceNodes( 1, tNumNodes );
+        moris::size_t   tNumNodes = this->get_num_entities( mtk::EntityRank::NODE );
+        Matrix< IdMat > tInterfaceNodes( 1, tNumNodes );
 
         // keep track of how many interface nodes
         moris::size_t tCount = 0;
@@ -901,14 +901,14 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IndexMat >
-    Background_Mesh::restrict_vertex_list_to_owned_by_this_proc_loc_inds( moris::Matrix< moris::IndexMat > const & aNodeIndexList ) const
+    Matrix< IndexMat >
+    Background_Mesh::restrict_vertex_list_to_owned_by_this_proc_loc_inds( Matrix< IndexMat > const & aNodeIndexList ) const
     {
         // proc rank
         moris_index tMyProcRank = par_rank();
 
         //  initialize list of owned nodes
-        moris::Matrix< moris::IndexMat > tOwnedNodeList( aNodeIndexList.numel(), 1 );
+        Matrix< IndexMat > tOwnedNodeList( aNodeIndexList.numel(), 1 );
 
         // keep track of owned nodes
         moris::uint tCount = 0;
@@ -929,13 +929,13 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Cell< moris::Matrix< moris::IdMat > >
+    Vector< Matrix< IdMat > >
     Background_Mesh::get_interface_nodes_glob_ids()
     {
         // initialize output
         moris::size_t tNumGeoms = mInterfaceNodeFlag.n_cols();
 
-        Cell< moris::Matrix< moris::IdMat > > tInterfaceNodes( tNumGeoms );
+        Vector< Matrix< IdMat > > tInterfaceNodes( tNumGeoms );
 
         for ( moris::size_t i = 0; i < tNumGeoms; i++ )
         {
@@ -1003,7 +1003,7 @@ namespace xtk
     void
     Background_Mesh::initialize_element_phase_indices( moris::size_t const & aNumElements )
     {
-        mElementPhaseIndex = moris::Matrix< moris::IndexMat >( aNumElements, 1, -1 );
+        mElementPhaseIndex = Matrix< IndexMat >( aNumElements, 1, -1 );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1026,10 +1026,10 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IndexMat >
-    Background_Mesh::get_element_phase_inds( moris::Matrix< moris::DDSTMat > const & aElementInds )
+    Matrix< IndexMat >
+    Background_Mesh::get_element_phase_inds( Matrix< moris::DDSTMat > const & aElementInds )
     {
-        moris::Matrix< moris::IndexMat > tElementPhasesInds( 1, aElementInds.n_cols() );
+        Matrix< IndexMat > tElementPhasesInds( 1, aElementInds.n_cols() );
 
         for ( moris::size_t i = 0; i < aElementInds.n_cols(); i++ )
         {
@@ -1142,7 +1142,7 @@ namespace xtk
 
 #ifdef MORIS_HAVE_DEBUG
         // since I can't write these functions in one line, need to have ifdef
-        moris::Cell< moris::moris_index > tUniqueCellIds = moris::unique_index( mEntityLocaltoGlobalMap( 3 ) );
+        Vector< moris::moris_index > tUniqueCellIds = moris::unique_index( mEntityLocaltoGlobalMap( 3 ) );
 
         MORIS_ASSERT( mEntityLocaltoGlobalMap( 3 ).size() == tUniqueCellIds.size(),
                 "Background_Mesh::add_cells_to_global_to_local_map() - Duplicate cell id detected." );
@@ -1246,10 +1246,10 @@ namespace xtk
     }
     // ----------------------------------------------------------------------------------
     void
-    Background_Mesh::remove_cells_from_mesh( Cell< moris_index > const & aCellsToRemove,
-            Cell< moris_index >&                                         aOldIndexToNewCellIndex )
+    Background_Mesh::remove_cells_from_mesh( Vector< moris_index > const & aCellsToRemove,
+            Vector< moris_index >&                                         aOldIndexToNewCellIndex )
     {
-        aOldIndexToNewCellIndex = Cell< moris_index >( this->get_num_entities( mtk::EntityRank::ELEMENT ), MORIS_INDEX_MAX );
+        aOldIndexToNewCellIndex = Vector< moris_index >( this->get_num_entities( mtk::EntityRank::ELEMENT ), MORIS_INDEX_MAX );
 
         // fill the background cell with their original indices
         for ( moris::uint iCell = 0; iCell < mMeshData->get_num_entities( mtk::EntityRank::ELEMENT ); iCell++ )
@@ -1304,11 +1304,11 @@ namespace xtk
     }
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat >
+    Matrix< DDRMat >
     Background_Mesh::get_all_node_coordinates_loc_inds_background_mesh() const
     {
-        size_t                         tNumNodes = mMeshData->get_num_entities( (mtk::EntityRank) mtk::EntityRank::NODE );
-        moris::Matrix< moris::DDRMat > tNodeCoords( tNumNodes, mMeshData->get_spatial_dim() );
+        size_t           tNumNodes = mMeshData->get_num_entities( (mtk::EntityRank)mtk::EntityRank::NODE );
+        Matrix< DDRMat > tNodeCoords( tNumNodes, mMeshData->get_spatial_dim() );
         for ( size_t i = 0; i < tNumNodes; i++ )
         {
             tNodeCoords.set_row( i, mMeshData->get_node_coordinate( i ) );
@@ -1321,7 +1321,7 @@ namespace xtk
     void
     Background_Mesh::intialize_downward_inheritance()
     {
-        moris::size_t tNumElements = mMeshData->get_num_entities( (mtk::EntityRank) mtk::EntityRank::ELEMENT );
+        moris::size_t tNumElements = mMeshData->get_num_entities( (mtk::EntityRank)mtk::EntityRank::ELEMENT );
         MORIS_ASSERT( tNumElements != 0, "Empty Mesh Given to XTK Mesh" );
 
         mElementDownwardInheritance = Downward_Inheritance< moris::moris_index, moris::moris_index >( tNumElements );
@@ -1354,7 +1354,7 @@ namespace xtk
 
         // setup nodes
         uint tNumNodes               = this->get_num_entities( mtk::EntityRank::NODE );
-        mEntityLocaltoGlobalMap( 0 ) = Cell< moris_index >( tNumNodes );
+        mEntityLocaltoGlobalMap( 0 ) = Vector< moris_index >( tNumNodes );
 
         for ( moris::uint iN = 0; iN < tNumNodes; iN++ )
         {
@@ -1365,7 +1365,7 @@ namespace xtk
 
         // setup cells
         uint tNumCells               = this->get_num_entities( mtk::EntityRank::ELEMENT );
-        mEntityLocaltoGlobalMap( 3 ) = Cell< moris_index >( tNumCells );
+        mEntityLocaltoGlobalMap( 3 ) = Vector< moris_index >( tNumCells );
         for ( moris::uint iC = 0; iC < tNumCells; iC++ )
         {
             mtk::Cell& tCell = this->get_mtk_cell( (moris_index)iC );
@@ -1376,4 +1376,4 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk

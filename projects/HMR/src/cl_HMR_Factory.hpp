@@ -16,7 +16,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"      //HMR/src
 #include "cl_HMR_T_Matrix_Advanced.hpp"
 #include "cl_HMR_Parameters.hpp"              //HMR/src
-#include "typedefs.hpp"                       //COR/src
+#include "moris_typedefs.hpp"                       //COR/src
 #include "cl_Matrix.hpp"                      //LINALG/src
 
 namespace moris::hmr
@@ -74,7 +74,7 @@ namespace moris::hmr
         Lagrange_Mesh_Base*
         create_lagrange_mesh(
                 Background_Mesh_Base*      aBackgroundMesh,
-                Cell< BSpline_Mesh_Base* > aBSplineMeshes,
+                Vector< BSpline_Mesh_Base* > aBSplineMeshes,
                 uint                       aActivationPattern,
                 luint                      aPolynomialDegree,
                 uint                       aMeshIndex = MORIS_UINT_MAX );

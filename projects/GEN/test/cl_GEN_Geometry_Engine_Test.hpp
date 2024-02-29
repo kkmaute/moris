@@ -8,56 +8,49 @@
  *
  */
 
-#ifndef MORIS_CL_GEN_GEOMETRY_ENGINE_TEST_HPP
-#define MORIS_CL_GEN_GEOMETRY_ENGINE_TEST_HPP
+#pragma once
 
 #include "cl_GEN_Geometry_Engine.hpp"
 
-namespace moris
+namespace moris::gen
 {
-    namespace ge
+    /**
+     * Alternate geometry engine class for testing (provides access to some needed protected members)
+     */
+    class Geometry_Engine_Test : public Geometry_Engine
     {
+    public:
         /**
-         * Alternate geometry engine class for testing (provides access to some needed protected members)
+         * Constructor
+         *
+         * @param aMesh Mesh for getting B-spline information
+         * @param aParameters Optional geometry engine parameters
          */
-        class Geometry_Engine_Test : public Geometry_Engine
-        {
-        public:
-            /**
-             * Constructor
-             *
-             * @param aMesh Mesh for getting B-spline information
-             * @param aParameters Optional geometry engine parameters
-             */
-            Geometry_Engine_Test(
-                    mtk::Interpolation_Mesh*   aMesh = nullptr,
-                    Geometry_Engine_Parameters aParameters = {});
+        Geometry_Engine_Test(
+                mtk::Interpolation_Mesh*   aMesh = nullptr,
+                Geometry_Engine_Parameters aParameters = {});
 
-            /**
-             * Gets the node manager
-             *
-             * @return Node manager
-             */
-            Node_Manager& get_node_manager();
+        /**
+         * Gets the node manager
+         *
+         * @return Node manager
+         */
+        Node_Manager& get_node_manager();
 
-            /**
-             * Gets a geometry
-             *
-             * @param aGeometryIndex Geometry index
-             * @return Geometry
-             */
-            std::shared_ptr< Geometry > get_geometry(uint aGeometryIndex);
+        /**
+         * Gets a geometry
+         *
+         * @param aGeometryIndex Geometry index
+         * @return Geometry
+         */
+        std::shared_ptr< Geometry > get_geometry(uint aGeometryIndex);
 
-            /**
-             * Gets a property
-             *
-             * @param aPropertyIndex Geometry index
-             * @return Property
-             */
-            std::shared_ptr<Property> get_property(uint aPropertyIndex);
-        };
-    }
+        /**
+         * Gets a property
+         *
+         * @param aPropertyIndex Geometry index
+         * @return Property
+         */
+        std::shared_ptr<Property> get_property(uint aPropertyIndex);
+    };
 }
-
-#endif //MORIS_CL_GEN_GEOMETRY_ENGINE_TEST_HPP
-

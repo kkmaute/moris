@@ -12,8 +12,8 @@
 #define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_TEMPERATURE_BULK_HPP_
 
 #include <map>
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CNT/src
+#include "moris_typedefs.hpp"                     //MRS/COR/src
+#include "cl_Vector.hpp"                          //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -117,7 +117,7 @@ namespace moris
                  * @param[ in ] aJC       a matrix to fill with dRCdDof
                  */
                 void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type >   aDofTypes,
+                        Vector< MSI::Dof_Type >   aDofTypes,
                         Matrix< DDRMat >             & aJM,
                         Matrix< DDRMat >             & aJC );
 

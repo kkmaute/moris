@@ -75,6 +75,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Pressure_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Interface.cpp
+    UT_FEM_IWG_Struc_Linear_Contact_Nitsche.cpp
     
     UT_FEM_IWG_Struc_Linear_Interface_SLM_Constraint_and_Mixed.cpp
     UT_FEM_IWG_Struc_Linear_Interface_SLM_L2.cpp

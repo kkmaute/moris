@@ -14,7 +14,7 @@
 #include <string>
 #include <memory>
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -44,7 +44,7 @@ public:
                            const bool aVerboseFlag = true );
 
             SDF_Generator( const std::string & aObjectPath,
-                           moris::Cell< real >&   aObjectOffset,
+                           Vector< real >&   aObjectOffset,
                            const bool aVerboseFlag = true );
 
 //-------------------------------------------------------------------------------

@@ -29,16 +29,16 @@
 
 #include "cl_MTK_Sets_Info.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
-#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Block_Set.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 #include "cl_MTK_Matrix_Field_Info.hpp"
 #include "cl_MTK_Exodus_IO_Helper.hpp"
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
-// For moris::Cell and vertex APi
+// For Vector and vertex APi
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
 
@@ -233,7 +233,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            moris::Cell< moris::mtk::Vertex const * >
+            Vector< moris::mtk::Vertex const * >
             get_all_vertices() const;
 
             //##############################################
@@ -372,7 +372,7 @@ namespace moris
             //##############################################
             // Mesh Sets Access
             //##############################################
-            moris::Cell< std::string >
+            Vector< std::string >
             get_set_names( enum EntityRank aSetEntityRank ) const;
 
             Matrix< IndexMat >
@@ -445,12 +445,12 @@ namespace moris
             void
             get_sideset_cells_and_ords(
                     const std::string&                aSetName,
-                    moris::Cell< mtk::Cell const * >& aCells,
+                    Vector< mtk::Cell const * >& aCells,
                     Matrix< IndexMat >&               aSidesetOrdinals ) const;
 
             //------------------------------------------------------------------------------
 
-            moris::Cell< moris::mtk::Vertex const * >
+            Vector< moris::mtk::Vertex const * >
             get_vertices_in_vertex_set_no_aura( std::string aSetName ) const;
 
             //##############################################
@@ -497,7 +497,7 @@ namespace moris
                     Matrix< DDRMat > const & aFieldData );
 
             //##############################################
-            // moris::Cell and Vertex Pointer Functions
+            // Vector and Vertex Pointer Functions
             //##############################################
 
             /*
@@ -556,7 +556,7 @@ namespace moris
                 return mSTKMeshData->mProcsWithSharedVertex;
             }
 
-            moris::Cell< Matrix< IdMat > >
+            Vector< Matrix< IdMat > >
             get_communication_vertex_pairing() const
             {
                 return mSTKMeshData->mVertexSharingData;
@@ -620,7 +620,7 @@ namespace moris
             /*
              * Resolves issues with sharing of aura entities
              */
-            moris::Cell< Matrix< IdMat > >
+            Vector< Matrix< IdMat > >
             resolve_aura_cell_sharing();
 
             //------------------------------------------------------------------------------
@@ -631,7 +631,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void
-            setup_parallel_cell_sharing_with_resolved_aura( moris::Cell< Matrix< IdMat > > const & aAuraCellSharing );
+            setup_parallel_cell_sharing_with_resolved_aura( Vector< Matrix< IdMat > > const & aAuraCellSharing );
 
             //------------------------------------------------------------------------------
 
@@ -708,7 +708,7 @@ namespace moris
                     enum EntityRank aEntityRank ) const;
 
             //------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< uint > >
+            Vector< Vector< uint > >
             get_shared_info_by_entity(
                     uint            aNumActiveSharedProcs,
                     enum EntityRank aEntityRank );
@@ -1061,7 +1061,7 @@ namespace moris
             {
                 typedef typename Matrix_Field_Info< Field_Matrix_Type >::Field_Data_Type FDT;
 
-                moris::Cell< moris::Matrix< Field_Matrix_Type >* > const & tFieldData = aMatrixField->get_field_data();
+                Vector< moris::Matrix< Field_Matrix_Type >* > const & tFieldData = aMatrixField->get_field_data();
 
                 enum EntityRank                tFieldEntityRank = aMatrixField->get_field_entity_rank();
                 std::string                    tFieldName       = aMatrixField->get_field_name();

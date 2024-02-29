@@ -12,7 +12,7 @@
 #define SRC_MTK_CL_MTK_SPACE_INTERPOLATOR_HPP_
 
 // MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 // MTK/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"

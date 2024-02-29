@@ -15,7 +15,7 @@
 #include "cl_HMR_Parameters.hpp"    //HMR/src
 #include "HMR_Globals.hpp"          //HMR/src
 #include "assert.hpp"
-#include "typedefs.hpp"           //COR/src
+#include "moris_typedefs.hpp"           //COR/src
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 
@@ -65,10 +65,10 @@ namespace moris::hmr
         uint mNumberOfNeighborsPerElement = MORIS_UINT_MAX;
 
         //! subdomain IDs of elements shared with neighbor, owned by neighbor
-        Cell< Matrix< DDLUMat > > mCoarsestAura;
+        Vector< Matrix< DDLUMat > > mCoarsestAura;
 
         //! subdomain IDs of elements shared with neighbor, owned by myself
-        Cell< Matrix< DDLUMat > > mCoarsestInverseAura;
+        Vector< Matrix< DDLUMat > > mCoarsestInverseAura;
 
         //! defines how many procs are used in i, j and k-direction
         Matrix< DDUMat > mProcDims;
@@ -81,22 +81,22 @@ namespace moris::hmr
         Matrix< IdMat > mMyProcNeighbors;
 
         // all elements on level zero on proc including aura
-        Cell< Background_Element_Base* > mCoarsestElementsIncludingAura;
+        Vector< Background_Element_Base* > mCoarsestElementsIncludingAura;
 
         //! active elements within proc domain ( excluding aura )
-        Cell< Background_Element_Base* > mActiveElements;
+        Vector< Background_Element_Base* > mActiveElements;
 
         //! active elements within proc domain ( including aura )
-        Cell< Background_Element_Base* > mActiveElementsIncludingAura;
+        Vector< Background_Element_Base* > mActiveElementsIncludingAura;
 
         //! local indices with active and refined elements in proc domain (without aura)
-        Cell< Background_Element_Base* > mCoarsestElements;
+        Vector< Background_Element_Base* > mCoarsestElements;
 
         //! cell containing coarsest padding elements
-        Cell< Background_Element_Base* > mCoarsestPaddingElements;
+        Vector< Background_Element_Base* > mCoarsestPaddingElements;
 
         //! list of elements to be refined
-        Cell< Background_Element_Base* > mRefinementQueue;
+        Vector< Background_Element_Base* > mRefinementQueue;
 
         //! lookup table containing number of elements per level
         //! updated through count_elements
@@ -356,7 +356,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void collect_all_elements( Cell< Background_Element_Base* >& aElementList );
+        void collect_all_elements( Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
         /**
@@ -689,7 +689,7 @@ namespace moris::hmr
          */
         void collect_elements_on_level_including_aura(
                 uint                              aLevel,
-                Cell< Background_Element_Base* >& aElementList );
+                Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
 
@@ -704,7 +704,7 @@ namespace moris::hmr
          */
         void collect_elements_on_level_within_proc_domain(
                 uint                              aLevel,
-                Cell< Background_Element_Base* >& aElementList );
+                Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
 
@@ -722,7 +722,7 @@ namespace moris::hmr
         void collect_active_elements_from_aura(
                 uint                              aProcNeighbor,
                 uint                              aMode,
-                Cell< Background_Element_Base* >& aElementList );
+                Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
 
@@ -881,7 +881,7 @@ namespace moris::hmr
          * creates a union of two patterns
          */
         void unite_patterns(
-                const moris::Cell< uint >& aSourcePattern,
+                const Vector< uint >& aSourcePattern,
                 uint                       aTarget );
 
         // -----------------------------------------------------------------------------
@@ -908,7 +908,7 @@ namespace moris::hmr
         void
         print_all_elements()
         {
-            Cell< Background_Element_Base* > tAllElements;
+            Vector< Background_Element_Base* > tAllElements;
             this->collect_all_elements( tAllElements );
             luint tCount0 = 0;
             std::cout << "Active Pattern: " << mActivePattern << std::endl;
@@ -934,7 +934,7 @@ namespace moris::hmr
          */
         void collect_elements_on_level(
                 uint                              aLevel,
-                Cell< Background_Element_Base* >& aElementList );
+                Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
 
@@ -1020,7 +1020,7 @@ namespace moris::hmr
         /**
          * exposes the refinement queue
          */
-        Cell< Background_Element_Base* >&
+        Vector< Background_Element_Base* >&
         get_refinement_queue()
         {
             return mRefinementQueue;
@@ -1035,7 +1035,7 @@ namespace moris::hmr
         void collect_side_set_elements(
                 uint                              aPattern,
                 uint                              aSideOrdinal,
-                Cell< Background_Element_Base* >& aElements );
+                Vector< Background_Element_Base* >& aElements );
         //------------------------------------------------------------------------------
 
         /**
@@ -1326,7 +1326,7 @@ namespace moris::hmr
          */
         virtual void collect_coarsest_elements_on_side(
                 uint                              aSideOrdinal,
-                Cell< Background_Element_Base* >& aCoarsestElementsOnSide ) = 0;
+                Vector< Background_Element_Base* >& aCoarsestElementsOnSide ) = 0;
 
         //--------------------------------------------------------------------------------
 

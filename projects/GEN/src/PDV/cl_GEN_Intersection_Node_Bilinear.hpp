@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Intersection_Node_Level_Set.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Intersection_Node_Bilinear : public Intersection_Node_Level_Set
     {
@@ -33,7 +33,7 @@ namespace moris::ge
          */
         Intersection_Node_Bilinear(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
@@ -48,7 +48,7 @@ namespace moris::ge
          *
          * @return Basis nodes for interpolating sensitivities
          */
-        const Cell< Basis_Node >& get_field_basis_nodes() const override;
+        const Vector< Basis_Node >& get_field_basis_nodes() const override;
 
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field

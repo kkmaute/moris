@@ -12,8 +12,8 @@
 #define PROJECTS_GEN_SDF_SRC_CL_SDF_MESH_HPP_
 
 #include <memory>
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -37,10 +37,10 @@ namespace moris
             mtk::Mesh * mMesh;
 
             //! vector with SDF Vertices
-            moris::Cell< Vertex * > mVertices;
+            Vector< Vertex * > mVertices;
 
             //! vector with SDF Cells
-            moris::Cell< Cell * > mCells;
+            Vector< Cell * > mCells;
 
             bool mVerbose;
 

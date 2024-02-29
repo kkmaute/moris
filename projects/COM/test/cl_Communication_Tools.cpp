@@ -10,7 +10,7 @@
 
 #include <catch.hpp>
 
-#include "typedefs.hpp"    // COR/src
+#include "moris_typedefs.hpp"    // COR/src
 #include "banner.hpp"      // COR/src
 
 #include "cl_Communication_Tools.hpp"      // COM/src

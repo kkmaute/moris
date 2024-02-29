@@ -16,7 +16,7 @@ The Eigen Solver class.
 // C++ system files
 #include <cstddef>
 #include <assert.h>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 // Project header files
 #include "fn_PRM_SOL_Parameters.hpp"
@@ -236,24 +236,11 @@ namespace moris
             //-------------------------------------------------------------------------------------------------
 
             /**
-             * set the left hand side preocndioer, is useful for eigenanlaysis of the P^{-1}A system instead of the A system
+             * @brief Compute the preconditioned operator
              *
              */
 
-            virtual void
-            set_left_hand_side_preconditioner( Preconditioner_Trilinos* aPreconditioner )
-            {
-                mLeftPreconditioner = aPreconditioner;
-            }
-
-            //-------------------------------------------------------------------------------------------------
-
-            /**
-             * @brief Compute the preconditioned operator
-             * 
-             */
-
-            void 
+            void
             compute_preconditioned_operator();
         };
 

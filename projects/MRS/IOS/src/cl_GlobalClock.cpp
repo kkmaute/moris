@@ -20,7 +20,7 @@
 #include <ctime>
 
 // Define uint, real, etc.
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 namespace moris
 {

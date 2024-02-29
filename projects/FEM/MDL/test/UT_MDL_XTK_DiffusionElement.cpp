@@ -13,7 +13,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -84,7 +84,7 @@ namespace moris
 
     void tConstValFunction_MDL_XTK
     ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -97,9 +97,9 @@ namespace moris
         {
             moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
             moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-            auto tField = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
-            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tField );
+            Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry( 1 );
+            auto tField = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
+            tGeometry( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tField );
 
             // Initialize field information container
             mtk::MtkFieldsInfo tFieldsInfo;
@@ -112,16 +112,16 @@ namespace moris
             std::string tMeshFileName = "generated:1x1x4|sideset:z";
             moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tMeshData );
 
-            moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+            moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
-            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh1, tGeometryEngineParameters);
+            moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh1, tGeometryEngineParameters);
 
             // Setup XTK Model ----------------------------------------------------------------
             size_t tModelDimension = 3;
             xtk::Model tXTKModel(tModelDimension,tInterpMesh1,&tGeometryEngine);
 
             //Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
+            Vector<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
             tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE );
@@ -211,7 +211,7 @@ namespace moris
             tSetNeumann.set_IWGs( { tIWGNeumann } );
 
             // create a cell of set info
-            moris::Cell< fem::Set_User_Info > tSetInfo( 4 );
+            Vector< fem::Set_User_Info > tSetInfo( 4 );
             tSetInfo( 0 ) = tSetBulk1;
             tSetInfo( 1 ) = tSetBulk2;
             tSetInfo( 2 ) = tSetDirichlet;
@@ -237,7 +237,7 @@ namespace moris
                     { "IQI_temp" } );
             tModel->set_output_manager( &tOutputData );
 
-            moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
+            Vector< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create linear solver and algorithm

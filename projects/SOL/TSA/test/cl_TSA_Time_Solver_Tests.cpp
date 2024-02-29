@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 
 #include "linalg_typedefs.hpp"
@@ -65,7 +65,7 @@ namespace moris
                 NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
                 tNonlinearSolverManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
-                moris::Cell< enum MSI::Dof_Type > tDofTypes( 1 );
+                Vector< enum MSI::Dof_Type > tDofTypes( 1 );
                 tDofTypes( 0 ) = MSI::Dof_Type::TEMP;
                 tNonlinearSolverManager.set_dof_type_list( tDofTypes );
 

@@ -12,7 +12,7 @@
 #define SRC_MTK_FIELD_ANALYTIC_HPP_
 
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 #include "linalg_typedefs.hpp"
 
 #include "cl_MTK_Field.hpp"
@@ -47,14 +47,14 @@ namespace moris
         class Field_Analytic : public Field
         {
             protected:
-                moris::Cell<Analytic_Field_Function>      mAnalyticFieldValueFunction;
-                moris::Cell<Analytic_Derivative_Function> mAnalyticDerivativeFunction;
+                Vector<Analytic_Field_Function>      mAnalyticFieldValueFunction;
+                Vector<Analytic_Derivative_Function> mAnalyticDerivativeFunction;
 
             public :
 
                 Field_Analytic(
-                        moris::Cell<Analytic_Field_Function>       aFunction,
-                        moris::Cell<Analytic_Derivative_Function>  aDerivativeFunction,
+                        Vector<Analytic_Field_Function>       aFunction,
+                        Vector<Analytic_Derivative_Function>  aDerivativeFunction,
                         moris::Matrix<DDRMat>              const & aCoefficients,
                         Mesh_Pair                                  aMeshPairs,
                         uint                               const & aNumberOfFields = 1);

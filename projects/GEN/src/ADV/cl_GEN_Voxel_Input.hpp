@@ -13,7 +13,7 @@
 #include "cl_GEN_Field_Analytic.hpp"
 #include "cl_Library_IO.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Voxel_Input
     {

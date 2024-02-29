@@ -25,8 +25,8 @@ namespace moris
          * @return Interface class (can be manager)
          */
         std::shared_ptr<Criteria_Interface> create_interface(
-                Cell<ParameterList> aParameterLists,
-                Cell<std::shared_ptr<Criteria_Interface>> aInterfaces = Cell<std::shared_ptr<Criteria_Interface>>(0));
+                Vector<ParameterList> aParameterLists,
+                Vector<std::shared_ptr<Criteria_Interface>> aInterfaces = Vector<std::shared_ptr<Criteria_Interface>>(0));
 
         /**
          * Creates an instance of the specified Interface class and returns a shared pointer to it

@@ -12,7 +12,7 @@
 
 #include "cl_Matrix.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     // Forward declare basis node
     class Basis_Node;
@@ -63,7 +63,7 @@ namespace moris::ge
          *
          * @return Locator nodes
          */
-        virtual const Cell< Basis_Node >& get_locator_nodes() const = 0;
+        virtual const Vector< Basis_Node >& get_locator_nodes() const = 0;
 
         /**
          * Gets if this node's position depends on ADVs.

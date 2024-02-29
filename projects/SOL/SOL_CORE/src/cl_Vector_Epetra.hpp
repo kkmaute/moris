@@ -107,7 +107,7 @@ namespace moris
 
         moris::sint vec_global_length() const;
 
-        Cell< moris::real > vec_norm2();
+        Vector< moris::real > vec_norm2();
 
         void extract_copy( moris::Matrix< DDRMat >& LHSValues );
 
@@ -115,7 +115,7 @@ namespace moris
                 const moris::uint&                      aNumIndices,
                 const moris::Matrix< DDSMat >&          aGlobalRows,
                 const moris::uint&                      aRowOffsets,
-                moris::Cell< moris::Matrix< DDRMat > >& LHSValues );
+                Vector< moris::Matrix< DDRMat > >& LHSValues );
 
         void print() const;
 

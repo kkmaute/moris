@@ -54,7 +54,7 @@ check_results(
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 41, 72, 66, 129 };
+    Vector< uint > tReferenceNodeId = { 41, 72, 66, 129 };
 
     if ( gPrintReferenceValues )
     {
@@ -84,9 +84,9 @@ check_results(
     }
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2, 3, 2, 3 };
-    Cell< uint > tReferenceNumNodes = { 45, 235, 70, 390 };
-    Cell< uint > tReferenceNumElems = { 26, 332, 26, 332 };
+    Vector< uint > tReferenceNumDims  = { 2, 3, 2, 3 };
+    Vector< uint > tReferenceNumNodes = { 45, 235, 70, 390 };
+    Vector< uint > tReferenceNumElems = { 26, 332, 26, 332 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -111,7 +111,7 @@ check_results(
     REQUIRE( tNumElems == tReferenceNumElems( aTestCaseIndex ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { +4.1 }, { +0.5 } } );
     tReferenceCoordinate.push_back( { { +4.1 }, { +0.5 }, { +0.5 } } );
@@ -143,7 +143,7 @@ check_results(
     REQUIRE( tRelDiffNorm < 1.0e-8 );
 
     // check time value for time step index 0
-    Cell< real > tReferenceTime;
+    Vector< real > tReferenceTime;
     tReferenceTime.push_back( 1.000000000000000e+00 );
     tReferenceTime.push_back( 1.000000000000000e+00 );
     tReferenceTime.push_back( 1.000000000000000e+00 );
@@ -161,7 +161,7 @@ check_results(
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    Cell< real > tReferenceTemperature;
+    Vector< real > tReferenceTemperature;
     tReferenceTemperature.push_back( 7.731885467530020e+01 );
     tReferenceTemperature.push_back( 7.729432195240925e+01 );
     tReferenceTemperature.push_back( 7.728500000000312e+01 );
@@ -180,13 +180,13 @@ check_results(
     REQUIRE( tRelTempDifference < 1.0e-4 );
 
     // check IQI of first time step (only 1 IQI is defined, first time step has index 0)
-    Cell< real > tReferenceIQI_0;
+    Vector< real > tReferenceIQI_0;
     tReferenceIQI_0.push_back( 3.481332925575233e+02 );
     tReferenceIQI_0.push_back( 3.479932121344261e+02 );
     tReferenceIQI_0.push_back( 8.922568376614086e-22 );
     tReferenceIQI_0.push_back( 5.762418056802439e-20 );
 
-    Cell< real > tReferenceIQI_1;
+    Vector< real > tReferenceIQI_1;
     tReferenceIQI_1.push_back( 6.838626208796658e+02 );
     tReferenceIQI_1.push_back( 6.838626251218382e+02 );
     tReferenceIQI_1.push_back( 2.911872014125403e-23 );
@@ -227,7 +227,7 @@ check_results_xtk_mesh(
     moris::mtk::Exodus_IO_Helper tExoIOIPMesh( aExoFileNameIP.c_str(), 0, false, false );
 
     // define reference node IDs ( first is the IG mesh, second is the IP mesh )
-    Cell< uint > tReferenceNodeId = { 8, 5 };
+    Vector< uint > tReferenceNodeId = { 8, 5 };
 
     if ( gPrintReferenceValues )
     {
@@ -256,9 +256,9 @@ check_results_xtk_mesh(
 
 
     // define reference values for dimension, number of nodes and number of elements
-    Cell< uint > tReferenceNumDims  = { 2, 2 };
-    Cell< uint > tReferenceNumNodes = { 54, 60 };
-    Cell< uint > tReferenceNumElems = { 26, 10 };
+    Vector< uint > tReferenceNumDims  = { 2, 2 };
+    Vector< uint > tReferenceNumNodes = { 54, 60 };
+    Vector< uint > tReferenceNumElems = { 26, 10 };
 
     uint tNumDimsIG  = tExoIOIGMesh.get_number_of_dimensions();
     uint tNumNodesIG = tExoIOIGMesh.get_number_of_nodes();
@@ -277,7 +277,7 @@ check_results_xtk_mesh(
     REQUIRE( tNumElemsIP == tReferenceNumElems( 1 ) );
 
     // define reference coordinates for node aNodeId
-    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+    Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
     tReferenceCoordinate.push_back( { { +1.25 }, { +0.25 } } );
     tReferenceCoordinate.push_back( { { +1.25 }, { +0.0 } } );

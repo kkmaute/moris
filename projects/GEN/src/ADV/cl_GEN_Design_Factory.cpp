@@ -16,12 +16,12 @@
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Voxel_Geometry.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Factory::Design_Factory(
-            Cell< ParameterList >         aParameterLists,
+            Vector< ParameterList >         aParameterLists,
             Matrix< DDRMat >&             aADVs,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh,
@@ -84,11 +84,11 @@ namespace moris::ge
                 if ( iParameterList.exists( "field_type" ) )
                 {
                     // Get field dependency names
-                    Cell< std::string > tDependencyNames =
+                    Vector< std::string > tDependencyNames =
                             string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );
 
                     // Cell of field dependencies
-                    Cell< std::shared_ptr< Field > > tDependencyFields( tDependencyNames.size() );
+                    Vector< std::shared_ptr< Field > > tDependencyFields( tDependencyNames.size() );
 
                     // Loop over dependencies
                     for ( uint iDependencyIndex = 0; iDependencyIndex < tDependencyNames.size(); iDependencyIndex++ )
@@ -224,17 +224,17 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< std::shared_ptr< Geometry > > Design_Factory::get_geometries()
+    Vector< std::shared_ptr< Geometry > > Design_Factory::get_geometries()
     {
         return mGeometries;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< std::shared_ptr< Property > > Design_Factory::get_properties()
+    Vector< std::shared_ptr< Property > > Design_Factory::get_properties()
     {
         return mProperties;
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}    // namespace moris::ge
+}    // namespace moris::gen

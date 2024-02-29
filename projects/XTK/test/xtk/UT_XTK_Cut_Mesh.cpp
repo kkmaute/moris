@@ -16,7 +16,7 @@
 // #include "cl_Logger.hpp"
 
 // // XTKL: Container includes
-// #include "cl_Cell.hpp"
+// #include "cl_Vector.hpp"
 
 // // XTKL: Linear Algebra Includes
 
@@ -39,7 +39,7 @@
 
 // #include "cl_GEN_Sphere.hpp"
 
-// namespace xtk
+// namespace moris::xtk
 // {
 
 //     TEST_CASE("Simple Mesh Testing","[XTK][CUT_MESH]"){
@@ -78,10 +78,10 @@
 //         // Add node Indices then node ids for each element
 //         Child_Mesh & tCM1 = tCutMesh.get_child_mesh(0);// Index of element 1
 //         Child_Mesh & tCM2 = tCutMesh.get_child_mesh(1);// Index of element 2
-//         moris::Matrix< moris::IndexMat > tInds1({{0, 1, 4, 3, 6, 7, 10, 9}}); // Indices of element 1
-//         moris::Matrix< moris::IdMat > tIds1({{14, 5, 18, 4, 7, 36, 10, 2}}); // Ids of element 1
-//         moris::Matrix< moris::IndexMat > tInds2({{1, 2, 5, 4, 7, 8, 11, 10}}); // Indices of element 2
-//         moris::Matrix< moris::IdMat > tIds2({{   5, 3, 8, 18, 36, 8, 11, 10}}); // Ids of element 2
+//         moris::Matrix< IndexMat > tInds1({{0, 1, 4, 3, 6, 7, 10, 9}}); // Indices of element 1
+//         moris::Matrix< IdMat > tIds1({{14, 5, 18, 4, 7, 36, 10, 2}}); // Ids of element 1
+//         moris::Matrix< IndexMat > tInds2({{1, 2, 5, 4, 7, 8, 11, 10}}); // Indices of element 2
+//         moris::Matrix< IdMat > tIds2({{   5, 3, 8, 18, 36, 8, 11, 10}}); // Ids of element 2
 
 //         // Set node indices
 //         tCM1.add_node_indices(tInds1);
@@ -92,10 +92,10 @@
 //         tCM2.add_node_ids(tInds2);
 
 //         //Test node indices for element 1
-//         moris::Matrix< moris::IndexMat > const & tNodeInds1 = tCM1.get_node_indices();
-//         moris::Matrix< moris::IndexMat > const & tNodeInds2 = tCM2.get_node_indices();
-//         moris::Matrix< moris::IdMat > const & tNodeIds1 = tCM1.get_node_ids();
-//         moris::Matrix< moris::IdMat > const & tNodeIds2 = tCM2.get_node_ids();
+//         moris::Matrix< IndexMat > const & tNodeInds1 = tCM1.get_node_indices();
+//         moris::Matrix< IndexMat > const & tNodeInds2 = tCM2.get_node_indices();
+//         moris::Matrix< IdMat > const & tNodeIds1 = tCM1.get_node_ids();
+//         moris::Matrix< IdMat > const & tNodeIds2 = tCM2.get_node_ids();
 
 //         REQUIRE(tNodeInds1(0, 0) == Approx(0));
 //         REQUIRE(tNodeInds1(0, 1) == Approx(1));
@@ -158,12 +158,12 @@
 //         std::string tBackgroundMeshOutput = "./xtk_exo/volume_check_rs_bm.e";
 //         tMeshData->create_output_mesh(tBackgroundMeshOutput);
 
-//         moris::Cell< std::shared_ptr<moris::ge::Level_Set_Geometry> > tGeometryVector(1);
-//         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+//         Vector< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+//         tGeometryVector(0) = std::make_shared<moris::gen::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometryVector;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         // Setup XTK Model -----------------------------
 //         size_t tModelDimension = 3;
@@ -182,7 +182,7 @@
 //                 tXTKModel.get_cut_mesh());
 
 //         //
-//         moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//         moris::Matrix<DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
 //         // Compute volume
 //         moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
@@ -216,12 +216,12 @@
 //         std::string tMeshFileName = "generated:1x1x4";
 //         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-//         moris::Cell< std::shared_ptr<moris::ge::Level_Set_Geometry> > tGeometryVector(1);
-//         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+//         Vector< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+//         tGeometryVector(0) = std::make_shared<moris::gen::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-//         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometryVector;
-//         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//         moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //         // Setup XTK Model -----------------------------
 //         size_t tModelDimension = 3;
@@ -236,7 +236,7 @@
 //                 tXTKModel.get_cut_mesh());
 
 //         //
-//         moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//         moris::Matrix<DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
 //         // Compute volume
 //         moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
@@ -277,12 +277,12 @@
 //             std::string tMeshFileName = "generated:1x1x1";
 //             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
-//             moris::Cell< std::shared_ptr<moris::ge::Level_Set_Geometry> > tGeometryVector(1);
-//             tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+//             Vector< std::shared_ptr<moris::gen::Level_Set_Geometry> > tGeometryVector(1);
+//             tGeometryVector(0) = std::make_shared<moris::gen::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
 
-//             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+//             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
 //             tGeometryEngineParameters.mGeometries = tGeometryVector;
-//             moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+//             moris::gen::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
 //             // Setup XTK Model -----------------------------
 //             size_t tModelDimension = 3;
@@ -292,7 +292,7 @@
 //             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
 //             tXTKModel.decompose(tDecompositionMethods);
 
-//             moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+//             moris::Matrix<DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
 //             moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
 //             moris::real tParentPhase1Vol = compute_non_intersected_parent_element_volume_by_phase(1,tNodeCoords,tXTKModel);
@@ -308,4 +308,3 @@
 //     }
 
 // }
-

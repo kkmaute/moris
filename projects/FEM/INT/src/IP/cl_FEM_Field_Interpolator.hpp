@@ -12,9 +12,9 @@
 #define SRC_FEM_CL_FEM_FIELD_INTERPOLATOR_HPP_
 
 // MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 // LNA/src
 #include "linalg_typedefs.hpp"
 // FEM/INT/src
@@ -73,13 +73,13 @@ namespace moris
             Matrix< DDRMat > mUHat;
 
             // dof type
-            moris::Cell< MSI::Dof_Type > mDofType;
+            Vector< MSI::Dof_Type > mDofType;
 
             // dv type
-            moris::Cell< ge::PDV_Type > mDvType;
+            Vector< gen::PDV_Type > mDvType;
 
             // field type
-            moris::Cell< mtk::Field_Type > mFieldType;
+            Vector< mtk::Field_Type > mFieldType;
 
             // flag for evaluation
             bool mNBuildEval      = true;
@@ -146,7 +146,7 @@ namespace moris
                     const uint&                        aNumberOfFields,
                     const mtk::Interpolation_Rule&     aFieldInterpolationRule,
                     Geometry_Interpolator*             aGeometryInterpolator,
-                    const moris::Cell< MSI::Dof_Type > aDofType );
+                    const Vector< MSI::Dof_Type > aDofType );
 
             /**
              * constructor
@@ -159,7 +159,7 @@ namespace moris
                     const uint&                    aNumberOfFields,
                     const mtk::Interpolation_Rule& aFieldInterpolationRule,
                     Geometry_Interpolator*         aGeometryInterpolator,
-                    const moris::Cell< ge::PDV_Type >  aDvType );
+                    const Vector< gen::PDV_Type >  aDvType );
 
             /**
              * constructor
@@ -172,14 +172,14 @@ namespace moris
                     const uint&                          aNumberOfFields,
                     const mtk::Interpolation_Rule&       aFieldInterpolationRule,
                     Geometry_Interpolator*               aGeometryInterpolator,
-                    const moris::Cell< mtk::Field_Type > aDvType );
+                    const Vector< mtk::Field_Type > aDvType );
 
             /**
              * trivial constructor for unit test
              */
             Field_Interpolator(
                     const uint&                        aNumberOfFields,
-                    const moris::Cell< MSI::Dof_Type > aDofType )
+                    const Vector< MSI::Dof_Type > aDofType )
                     : mNumberOfFields( aNumberOfFields )
                     , mDofType( aDofType )
             {
@@ -191,7 +191,7 @@ namespace moris
              */
             Field_Interpolator(
                     const uint&                   aNumberOfFields,
-                    const moris::Cell< ge::PDV_Type > aDvType )
+                    const Vector< gen::PDV_Type > aDvType )
                     : mNumberOfFields( aNumberOfFields )
                     , mDvType( aDvType )
             {
@@ -220,7 +220,7 @@ namespace moris
             /**
              * get dof type
              */
-            const moris::Cell< MSI::Dof_Type >&
+            const Vector< MSI::Dof_Type >&
             get_dof_type() const
             {
                 return mDofType;
@@ -244,7 +244,7 @@ namespace moris
             /**
              * get dof type
              */
-            const moris::Cell< ge::PDV_Type >&
+            const Vector< gen::PDV_Type >&
             get_dv_type() const
             {
                 return mDvType;

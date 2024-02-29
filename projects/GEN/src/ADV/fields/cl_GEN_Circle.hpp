@@ -12,7 +12,7 @@
 
 #include "cl_GEN_Field_Analytic.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Circle : public Field_Analytic< 2 >
     {

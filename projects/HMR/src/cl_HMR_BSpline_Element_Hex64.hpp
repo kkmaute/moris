@@ -521,7 +521,7 @@ namespace moris::hmr
     template<>
     void
     BSpline_Element< 3, 3, 3 >::link_basis_with_neighbors(
-          moris::Cell< Element* > & aAllElementsOnProc )
+          Vector< Element* > & aAllElementsOnProc )
     {
          // initialize frame of basis around basis from this element
          Basis* tBasis[ 152 ] = { nullptr };
@@ -7718,7 +7718,7 @@ namespace moris::hmr
      * @return Number of created bases
      */
     template<>
-    luint BSpline_Element< 3, 3, 3 >::refine( moris::Cell< Element* > & aAllElementsOnProc )
+    luint BSpline_Element< 3, 3, 3 >::refine( Vector< Element* > & aAllElementsOnProc )
     {
         // Start basis counter
         luint tBasisCounter = 0;

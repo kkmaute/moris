@@ -16,7 +16,7 @@
 
 #include "linalg_typedefs.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     enum class Topology_Type
     {
@@ -26,7 +26,7 @@ namespace xtk
         QUAD_4,
         TET_4,
         TET_10,
-        HEXA_8,    // hexahedron with 8 nodes topology
+        HEX_8,    // hexahedron with 8 nodes topology
 
     };
 
@@ -39,12 +39,11 @@ namespace xtk
 
         virtual enum Topology_Type get_topology_type() const = 0;
 
-        virtual moris::Matrix< moris::IndexMat > const & get_node_indices() const = 0;
+        virtual Matrix< IndexMat > const &get_node_indices() const = 0;
 
-        virtual Basis_Function const & get_basis_function() const = 0;
+        virtual Basis_Function const &get_basis_function() const = 0;
 
         virtual std::shared_ptr< Topology > copy() const = 0;
     };
-}    // namespace xtk
+}    // namespace moris::xtk
 #endif /* SRC_XTK_CL_XTK_TOPOLOGY_HPP_ */
-

@@ -33,7 +33,7 @@ namespace moris
                 fem::FEM_Model*                  aFemModel,
                 moris::mtk::Set*                 aMeshSet,
                 const fem::Set_User_Info&        aSetInfo,
-                const moris::Cell< Node_Base* >& aIPNodes )
+                const Vector< Node_Base* >& aIPNodes )
                 : mFemModel( aFemModel )
                 , mMeshSet( aMeshSet )
                 , mIWGs( aSetInfo.get_IWGs() )
@@ -65,7 +65,7 @@ namespace moris
             }
 
             // get mesh clusters on set
-            moris::Cell< mtk::Cluster const * > tMeshClusterList = mMeshSet->get_clusters_on_set();
+            Vector< mtk::Cluster const * > tMeshClusterList = mMeshSet->get_clusters_on_set();
 
             // get number of mesh clusters on set
             uint tNumMeshClusters = tMeshClusterList.size();
@@ -83,7 +83,7 @@ namespace moris
             for ( luint iCluster = 0; iCluster < tNumMeshClusters; iCluster++ )
             {
                 // init list of pointers to IP mesh cell
-                moris::Cell< const mtk::Cell* > tInterpolationCell;
+                Vector< const mtk::Cell* > tInterpolationCell;
 
                 // switch on set type
                 switch ( mElementType )
@@ -374,9 +374,9 @@ namespace moris
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
             {
                 // get an IWG non unique dof and dv types
-                moris::Cell< moris::Cell< MSI::Dof_Type > >   tActiveDofType;
-                moris::Cell< moris::Cell< ge::PDV_Type > >        tActiveDvType;
-                moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType;
+                Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
+                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
@@ -393,9 +393,9 @@ namespace moris
             for ( const std::shared_ptr< IQI >& tIQI : mIQIs )
             {
                 // get an IWG non unique dof and dv types
-                moris::Cell< moris::Cell< MSI::Dof_Type > >   tActiveDofType;
-                moris::Cell< moris::Cell< ge::PDV_Type > >        tActiveDvType;
-                moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType;
+                Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
+                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
@@ -428,9 +428,9 @@ namespace moris
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
             {
                 // get non unique dof and dv types
-                moris::Cell< moris::Cell< MSI::Dof_Type > >   tActiveDofType;
-                moris::Cell< moris::Cell< ge::PDV_Type > >        tActiveDvType;
-                moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType;
+                Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
+                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
@@ -454,9 +454,9 @@ namespace moris
             for ( const std::shared_ptr< IQI >& tIQI : mIQIs )
             {
                 // get non unique dof and dv types
-                moris::Cell< moris::Cell< MSI::Dof_Type > >   tActiveDofType;
-                moris::Cell< moris::Cell< ge::PDV_Type > >        tActiveDvType;
-                moris::Cell< moris::Cell< mtk::Field_Type > > tActiveFieldType;
+                Vector< Vector< MSI::Dof_Type > >   tActiveDofType;
+                Vector< Vector< gen::PDV_Type > >        tActiveDvType;
+                Vector< Vector< mtk::Field_Type > > tActiveFieldType;
 
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
@@ -597,13 +597,13 @@ namespace moris
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
             {
                 // get leader dof and dv types for the IWG
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeLeader =
+                const Vector< Vector< MSI::Dof_Type > >& tDofTypeLeader =
                         tIWG->get_global_dof_type_list();
 
-                const moris::Cell< moris::Cell< ge::PDV_Type > >& tDvTypeLeader =
+                const Vector< Vector< gen::PDV_Type > >& tDvTypeLeader =
                         tIWG->get_global_dv_type_list();
 
-                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeLeader =
+                const Vector< Vector< mtk::Field_Type > >& tFieldTypeLeader =
                         tIWG->get_global_field_type_list();
 
                 // loop over the IWG active leader dof type
@@ -658,13 +658,13 @@ namespace moris
                 }
 
                 // get follower dof and dv types for the IWG
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeFollower =
+                const Vector< Vector< MSI::Dof_Type > >& tDofTypeFollower =
                         tIWG->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
 
-                const moris::Cell< moris::Cell< ge::PDV_Type > >& tDvTypeFollower =
+                const Vector< Vector< gen::PDV_Type > >& tDvTypeFollower =
                         tIWG->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
-                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeFollower =
+                const Vector< Vector< mtk::Field_Type > >& tFieldTypeFollower =
                         tIWG->get_global_field_type_list( mtk::Leader_Follower::FOLLOWER );
 
                 // loop over the IWG active follower dof type
@@ -723,13 +723,13 @@ namespace moris
             for ( const std::shared_ptr< IQI >& tIQI : mIQIs )
             {
                 // get leader dof and dv types for the IWG
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeLeader =
+                const Vector< Vector< MSI::Dof_Type > >& tDofTypeLeader =
                         tIQI->get_global_dof_type_list();
 
-                const moris::Cell< moris::Cell< ge::PDV_Type > >& tDvTypeLeader =
+                const Vector< Vector< gen::PDV_Type > >& tDvTypeLeader =
                         tIQI->get_global_dv_type_list();
 
-                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeLeader =
+                const Vector< Vector< mtk::Field_Type > >& tFieldTypeLeader =
                         tIQI->get_global_field_type_list();
 
                 // loop over the IQI active leader dof type
@@ -784,11 +784,11 @@ namespace moris
                 }
 
                 // get follower dof and dv types for the IWG
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeFollower =
+                const Vector< Vector< MSI::Dof_Type > >& tDofTypeFollower =
                         tIQI->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
-                const moris::Cell< moris::Cell< ge::PDV_Type > >& tDvTypeFollower =
+                const Vector< Vector< gen::PDV_Type > >& tDvTypeFollower =
                         tIQI->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
-                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeFollower =
+                const Vector< Vector< mtk::Field_Type > >& tFieldTypeFollower =
                         tIQI->get_global_field_type_list( mtk::Leader_Follower::FOLLOWER );
 
                 // loop over the IWG active follower dof type
@@ -860,7 +860,7 @@ namespace moris
             // dof types
             //------------------------------------------------------------------------------
             // Create temporary dof type list
-            const moris::Cell< enum MSI::Dof_Type >& tDofType = get_unique_dof_type_list();
+            const Vector< enum MSI::Dof_Type >& tDofType = get_unique_dof_type_list();
 
             // Get number of unique adofs of this equation object
             moris::uint tNumUniqueDofTypes = tDofType.size();
@@ -889,7 +889,7 @@ namespace moris
             // dv types
             //------------------------------------------------------------------------------
             // Create temporary dv type list
-            const moris::Cell< enum ge::PDV_Type >& tDvType = get_unique_dv_type_list();
+            const Vector< enum gen::PDV_Type >& tDvType = get_unique_dv_type_list();
 
             // Get number of unique dvs of this equation object
             moris::uint tNumUniqueDvTypes = tDvType.size();
@@ -919,7 +919,7 @@ namespace moris
             // field types
             //------------------------------------------------------------------------------
             // Create temporary field type list
-            const moris::Cell< mtk::Field_Type >& tFieldType = get_unique_field_type_list();
+            const Vector< mtk::Field_Type >& tFieldType = get_unique_field_type_list();
 
             // Get number of unique dvs of this equation object
             moris::uint tNumUniqueFieldTypes = tFieldType.size();
@@ -1293,7 +1293,7 @@ namespace moris
                 tIWG->set_cluster_pointer( aCluster );
 
                 // get the SP from the IWG
-                moris::Cell< std::shared_ptr< Stabilization_Parameter > >& tSPs =
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
                         tIWG->get_stabilization_parameters();
 
                 // loop over the SP
@@ -1321,7 +1321,7 @@ namespace moris
                 tIQI->set_cluster_pointer( aCluster );
 
                 // get the SP from the IQI
-                moris::Cell< std::shared_ptr< Stabilization_Parameter > >& tSPs =
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
                         tIQI->get_stabilization_parameters();
 
                 // loop over the SPs
@@ -1349,7 +1349,7 @@ namespace moris
             for ( auto tIWG : mIWGs )
             {
                 // get the SP from the IWG
-                moris::Cell< std::shared_ptr< Stabilization_Parameter > >& tSPs =
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
                         tIWG->get_stabilization_parameters();
 
                 // loop over the SP
@@ -1359,7 +1359,7 @@ namespace moris
                     if ( tSP != nullptr )
                     {
                         // get list of cluster measure tuple from SP
-                        moris::Cell< std::tuple<
+                        Vector< std::tuple<
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
                                 mtk::Leader_Follower > >
@@ -1376,7 +1376,7 @@ namespace moris
             for ( auto tIQI : mIQIs )
             {
                 // get the SP from the IQI
-                moris::Cell< std::shared_ptr< Stabilization_Parameter > >& tSPs =
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
                         tIQI->get_stabilization_parameters();
 
                 // loop over the SPs
@@ -1386,7 +1386,7 @@ namespace moris
                     if ( tSP != nullptr )
                     {
                         // get list of cluster measure tuple from SP
-                        moris::Cell< std::tuple<
+                        Vector< std::tuple<
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
                                 mtk::Leader_Follower > >
@@ -1408,7 +1408,7 @@ namespace moris
             for ( auto tIWG : mIWGs )
             {
                 // get the SP from the IWG
-                moris::Cell< std::shared_ptr< Stabilization_Parameter > >& tSPs =
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
                         tIWG->get_stabilization_parameters();
 
                 // loop over the SP
@@ -1418,7 +1418,7 @@ namespace moris
                     if ( tSP != nullptr )
                     {
                         // get list of cluster measure tuple from SP
-                        moris::Cell< std::tuple<
+                        Vector< std::tuple<
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
                                 mtk::Leader_Follower > >
@@ -1449,7 +1449,7 @@ namespace moris
             for ( auto tIQI : mIQIs )
             {
                 // get the SP from the IQI
-                moris::Cell< std::shared_ptr< Stabilization_Parameter > >& tSPs =
+                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
                         tIQI->get_stabilization_parameters();
 
                 // loop over the SPs
@@ -1459,7 +1459,7 @@ namespace moris
                     if ( tSP != nullptr )
                     {
                         // get list of cluster measure tuple from SP
-                        moris::Cell< std::tuple<
+                        Vector< std::tuple<
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
                                 mtk::Leader_Follower > >
@@ -1494,7 +1494,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::tuple<
+        Vector< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
                 mtk::Leader_Follower > >&
@@ -1563,7 +1563,7 @@ namespace moris
         Set::create_residual_dof_assembly_map()
         {
             // get the list of requested dof types by the solver
-            const moris::Cell< enum MSI::Dof_Type >& tRequestedDofTypes =
+            const Vector< enum MSI::Dof_Type >& tRequestedDofTypes =
                     this->get_requested_dof_types();
 
             // init the max index for dof types
@@ -1678,7 +1678,7 @@ namespace moris
         Set::create_jacobian_dof_assembly_map()
         {
             // get list of requested dof types (by the solver)
-            const moris::Cell< enum MSI::Dof_Type >& tRequestedDofTypes =
+            const Vector< enum MSI::Dof_Type >& tRequestedDofTypes =
                     this->get_requested_dof_types();
 
             sint tMaxDofIndex = -1;
@@ -1814,10 +1814,10 @@ namespace moris
         Set::create_staggered_jacobian_dof_assembly_map()
         {
             // get list of requested dof types
-            const moris::Cell< enum MSI::Dof_Type >& tRequestedDofTypes =
+            const Vector< enum MSI::Dof_Type >& tRequestedDofTypes =
                     this->get_requested_dof_types();
 
-            const moris::Cell< enum MSI::Dof_Type >& tSecondaryDofTypes =
+            const Vector< enum MSI::Dof_Type >& tSecondaryDofTypes =
                     this->get_secondary_dof_types();
 
             sint tMaxDofIndex = -1;
@@ -1975,7 +1975,7 @@ namespace moris
         Set::create_mat_pdv_assembly_map()
         {
             // get the list of requested dv types by the opt solver
-            moris::Cell< enum ge::PDV_Type > tRequestedDvTypes = mUniqueDvTypeList;
+            Vector< enum gen::PDV_Type > tRequestedDvTypes = mUniqueDvTypeList;
 
             // init the max index for dv types
             moris_index tMaxDvIndex = -1;
@@ -1984,7 +1984,7 @@ namespace moris
             for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
                 // get the current PDV type
-                ge::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+                gen::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
 
                 // get the set index for the requested leader dof type
                 moris_index tDvIndex = this->get_dv_index_for_type(
@@ -2029,7 +2029,7 @@ namespace moris
             for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
                 // get the current PDV type
-                ge::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+                gen::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
 
                 // get the set index for the requested leader dv type
                 moris_index tDvIndex = this->get_dv_index_for_type(
@@ -2059,7 +2059,7 @@ namespace moris
             for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
                 // get the current PDV type
-                ge::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+                gen::PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
 
                 // get the set index for the follower dv type
                 moris_index tDvIndex = this->get_dv_index_for_type(
@@ -2104,7 +2104,7 @@ namespace moris
                     mEquationModel->get_design_variable_interface();
 
             // get the geo dv types requested by the opt
-            moris::Cell< enum ge::PDV_Type > tRequestedDvTypes;
+            Vector< enum gen::PDV_Type > tRequestedDvTypes;
             moris_index                  tMeshSetIndex = mMeshSet->get_set_index();
             tDVInterface->get_ig_unique_dv_types_for_set(
                     tMeshSetIndex,
@@ -2160,7 +2160,7 @@ namespace moris
             for ( uint iGeoPdv = 0; iGeoPdv < tNumPdvTypes; iGeoPdv++ )
             {
                 // get treated geo pdv type
-                ge::PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+                gen::PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
 
                 // get treated geo pdv type index
                 // moris_index tGeoPdvIndex = static_cast< uint >( tGeoPdvType );
@@ -2172,7 +2172,7 @@ namespace moris
                     moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
 
                     // create key pair
-                    std::pair< moris_index, ge::PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
+                    std::pair< moris_index, gen::PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
 
                     // if active and not set in the map
                     bool tPdvIsActive   = tIsActivePdv( iIGNode, iGeoPdv );
@@ -2215,7 +2215,7 @@ namespace moris
         Set::create_requested_IWG_list( const Time_Continuity_Flag aTimeContinuityOnlyFlag )
         {
             // get list of requested dof types from solver
-            moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes =
+            Vector< enum MSI::Dof_Type > tRequestedDofTypes =
                     this->get_requested_dof_types();
 
             // clear requested IWG list
@@ -2236,7 +2236,7 @@ namespace moris
                     for ( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
                     {
                         // residual dof types for current IWG
-                        const moris::Cell< moris::Cell< MSI::Dof_Type > >& tResDofType =
+                        const Vector< Vector< MSI::Dof_Type > >& tResDofType =
                                 mIWGs( iIWG )->get_residual_dof_type();
 
                         // number of residual dof types
@@ -2288,7 +2288,7 @@ namespace moris
                     for ( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
                     {
                         // residual dof types for current IWG
-                        const moris::Cell< moris::Cell< MSI::Dof_Type > >& tResDofType =
+                        const Vector< Vector< MSI::Dof_Type > >& tResDofType =
                                 mIWGs( iIWG )->get_residual_dof_type();
 
                         // number of residual dof types
@@ -2335,7 +2335,7 @@ namespace moris
             mRequestedIQIs.clear();
 
             // Get names of potential requested IQIs
-            const moris::Cell< std::string >& tRequestedIQINames =
+            const Vector< std::string >& tRequestedIQINames =
                     mEquationModel->get_requested_IQI_names();
 
             // get number of potential requested IQIs
@@ -2413,7 +2413,7 @@ namespace moris
             if ( !mJacobianExist )
             {
                 // get the dof types requested by the solver
-                const moris::Cell< enum MSI::Dof_Type >& tRequestedDofTypes =
+                const Vector< enum MSI::Dof_Type >& tRequestedDofTypes =
                         this->get_requested_dof_types();
 
                 // init dof coefficient counter
@@ -2457,7 +2457,7 @@ namespace moris
                 else
                 {
                     // get the secondary dof types from the solver
-                    moris::Cell< enum MSI::Dof_Type > tSecDofTypes =
+                    Vector< enum MSI::Dof_Type > tSecDofTypes =
                             this->get_secondary_dof_types();
 
                     // init dof coefficient counter for rows
@@ -2512,7 +2512,7 @@ namespace moris
             // if residual not initialized before
             if ( !mResidualExist )
             {
-                moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes;
+                Vector< enum MSI::Dof_Type > tRequestedDofTypes;
 
                 if ( !mIsStaggered )
                 {
@@ -2648,7 +2648,7 @@ namespace moris
                 mdQIdp( 0 ).resize( tNumRequestedIQIs );
 
                 // get the requested pdv types
-                moris::Cell< moris::Cell< enum ge::PDV_Type > > tRequestedDvTypes;
+                Vector< Vector< enum gen::PDV_Type > > tRequestedDvTypes;
                 this->get_ip_dv_types_for_set( tRequestedDvTypes );
 
                 // init pdv coefficient counter
@@ -2739,7 +2739,7 @@ namespace moris
                 mdRdp.resize( 2 );
 
                 // get the dof types requested by the solver
-                const moris::Cell< enum MSI::Dof_Type >& tRequestedDofTypes =
+                const Vector< enum MSI::Dof_Type >& tRequestedDofTypes =
                         this->get_requested_dof_types();
 
                 // init dof coefficient counter
@@ -2774,7 +2774,7 @@ namespace moris
                 }
 
                 // get the dv types requested by the opt
-                moris::Cell< moris::Cell< enum ge::PDV_Type > > tRequestedDvTypes;
+                Vector< Vector< enum gen::PDV_Type > > tRequestedDvTypes;
                 this->get_ip_dv_types_for_set( tRequestedDvTypes );
 
                 // init dv coefficient counter
@@ -2833,7 +2833,7 @@ namespace moris
         Set::initialize_mdRdpGeo( std::shared_ptr< fem::Cluster > aFemCluster )
         {
             // get the dof types requested by the solver
-            const moris::Cell< enum MSI::Dof_Type >& tRequestedDofTypes =
+            const Vector< enum MSI::Dof_Type >& tRequestedDofTypes =
                     this->get_requested_dof_types();
 
             // init dof coefficient counter
@@ -3321,7 +3321,7 @@ namespace moris
             // get initialization data for facet assembly map
 
             // get the clusters on the current set
-            Cell< mtk::Cluster const * > const & tClustersOnSet = aVisMeshSet->get_clusters_on_set();
+            Vector< mtk::Cluster const * > const & tClustersOnSet = aVisMeshSet->get_clusters_on_set();
 
             // get the number of facets on the set's element type in the loop below
             uint tNumFacetsOnElementType = 0;
@@ -3452,7 +3452,7 @@ namespace moris
         Set::compute_quantity_of_interest_nodal(
                 const uint                        aVisMeshIndex,
                 Matrix< DDRMat >*                 aNodalFieldValues,
-                const moris::Cell< std::string >& aQINames )
+                const Vector< std::string >& aQINames )
         {
             // FEM mesh index is VIS mesh index +1
             moris_index tFemMeshIndex = aVisMeshIndex + 1;
@@ -3473,7 +3473,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< std::shared_ptr< fem::IQI > >&
+        const Vector< std::shared_ptr< fem::IQI > >&
         Set::get_requested_nodal_IQIs_for_visualization()
         {
             return mRequestedNodalIQIs;
@@ -3489,7 +3489,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris_index >&
+        const Vector< moris_index >&
         Set::get_requested_nodal_IQIs_global_indices_for_visualization()
         {
             return mRequestedNodalIQIsGlobalIndices;
@@ -3501,7 +3501,7 @@ namespace moris
         Set::compute_quantity_of_interest_global(
                 const uint                        aVisMeshIndex,
                 Matrix< DDRMat >*                 aGlobalFieldValues,
-                const moris::Cell< std::string >& aQINames )
+                const Vector< std::string >& aQINames )
         {
             // FEM mesh index is VIS mesh index +1
             moris_index tFemMeshIndex = aVisMeshIndex + 1;
@@ -3522,7 +3522,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< std::shared_ptr< fem::IQI > >&
+        const Vector< std::shared_ptr< fem::IQI > >&
         Set::get_requested_global_IQIs_for_visualization()
         {
             return mRequestedGlobalIQIs;
@@ -3538,7 +3538,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris_index >&
+        const Vector< moris_index >&
         Set::get_requested_global_IQIs_global_indices_for_visualization()
         {
             return mRequestedGlobalIQIsGlobalIndices;
@@ -3550,7 +3550,7 @@ namespace moris
         Set::compute_quantity_of_interest_elemental(
                 const uint                        aVisMeshIndex,
                 Matrix< DDRMat >*                 aElementalFieldValues,
-                const moris::Cell< std::string >& aQINames,
+                const Vector< std::string >& aQINames,
                 const bool                        aOutputAverageValue )
         {
             // FEM mesh index is VIS mesh index +1
@@ -3594,7 +3594,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< std::shared_ptr< fem::IQI > >&
+        const Vector< std::shared_ptr< fem::IQI > >&
         Set::get_requested_elemental_IQIs_for_visualization()
         {
             return mRequestedElementalIQIs;
@@ -3610,7 +3610,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris_index >&
+        const Vector< moris_index >&
         Set::get_requested_elemental_IQIs_global_indices_for_visualization()
         {
             return mRequestedElementalIQIsGlobalIndices;
@@ -3618,7 +3618,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< std::shared_ptr< fem::IQI > >&
+        const Vector< std::shared_ptr< fem::IQI > >&
         Set::get_requested_field_IQIs()
         {
             return mRequestedFieldIQIs;
@@ -3634,7 +3634,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris_index >&
+        const Vector< moris_index >&
         Set::get_requested_field_IQIs_global_indices()
         {
             return mRequestedFieldIQIsGlobalIndices;
@@ -3644,9 +3644,9 @@ namespace moris
 
         void
         Set::gather_requested_IQIs(
-                moris::Cell< std::string > const &     aNames,
-                moris::Cell< std::shared_ptr< IQI > >& aListOfRequestedIQIs,
-                moris::Cell< moris_index >&            aListOfIQIGlobalIndices )
+                Vector< std::string > const &     aNames,
+                Vector< std::shared_ptr< IQI > >& aListOfRequestedIQIs,
+                Vector< moris_index >&            aListOfIQIGlobalIndices )
         {
             // get number of potential requested IQIs
             uint tNumRequestedElementalIQINames = aNames.size();
@@ -3734,7 +3734,7 @@ namespace moris
 
         void
         Set::get_ig_unique_dv_types_for_set(
-                moris::Cell< enum ge::PDV_Type >& aGeoPdvType )
+                Vector< enum gen::PDV_Type >& aGeoPdvType )
         {
             // get design variable interface
             MSI::Design_Variable_Interface* tPdvInterface =
@@ -3754,7 +3754,7 @@ namespace moris
 
         void
         Set::get_ip_dv_types_for_set(
-                moris::Cell< moris::Cell< enum ge::PDV_Type > >& aMatPdvType,
+                Vector< Vector< enum gen::PDV_Type > >& aMatPdvType,
                 mtk::Leader_Follower                         aIsLeader )
         {
             // choose based on the leader, follower type
@@ -3792,8 +3792,8 @@ namespace moris
 
         void
         Set::populate_fields(
-                moris::Cell< std::shared_ptr< fem::Field > >& aFieldToPopulate,
-                moris::Cell< std::string > const &            aFieldIQINames )
+                Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
+                Vector< std::string > const &            aFieldIQINames )
         {
             this->gather_requested_IQIs(
                     aFieldIQINames,

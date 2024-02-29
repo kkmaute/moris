@@ -11,16 +11,16 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_NO_CM_HPP_
 
 #include "cl_MTK_Cell.hpp"
-#include "typedefs.hpp"         //MRS/COR/src
-#include "cl_Cell.hpp"          //MRS/CNT/src
-#include "cl_MTK_Vertex.hpp"    //MTK/src
-#include "cl_MTK_Enums.hpp"     //MTK/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
+#include "cl_MTK_Vertex.hpp"     //MTK/src
+#include "cl_MTK_Enums.hpp"      //MTK/src
 #include "cl_MTK_Cell_Info.hpp"
 
 using namespace moris;
 
 //------------------------------------------------------------------------------
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
     /**
@@ -32,8 +32,8 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       private:
-        mtk::Cell_Info const *      mCellInfo = nullptr;
-        moris::Cell< mtk::Vertex* > mCellVertices;
+        mtk::Cell_Info const * mCellInfo = nullptr;
+        Vector< mtk::Vertex* > mCellVertices;
 
         //------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ namespace xtk
                 moris::moris_index                aElementIndex,
                 moris::moris_index                aElementOwner,
                 std::shared_ptr< mtk::Cell_Info > aCellInfo,
-                moris::Cell< mtk::Vertex* >       aVertices );
+                Vector< mtk::Vertex* >            aVertices );
 
         //------------------------------------------------------------------------------
 
@@ -75,10 +75,10 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         /**
-         * fills a moris::cell with pointers to connected vertices
+         * fills a Vector with pointers to connected vertices
          */
         // FIXME: SDF's Facet_Vertex causes this to not be able to return a reference.
-        moris::Cell< mtk::Vertex* >
+        Vector< mtk::Vertex* >
         get_vertex_pointers() const
         {
             return mCellVertices;
@@ -87,7 +87,7 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        set_vertex_pointers( moris::Cell< mtk::Vertex* >& aVertexPointers )
+        set_vertex_pointers( Vector< mtk::Vertex* >& aVertexPointers )
         {
             mCellVertices = aVertexPointers;
         }
@@ -123,7 +123,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 //------------------------------------------------------------------------------
 

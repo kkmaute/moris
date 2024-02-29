@@ -10,7 +10,7 @@
 
 #include <string>
 #include <iostream>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -142,7 +142,7 @@ namespace moris
     // Interface
     //    moris::real Interface(
     //            const moris::Matrix< DDRMat >     & aCoordinates,
-    //            const moris::Cell< real > & aGeometryParameters )
+    //            const Vector< real > & aGeometryParameters )
     //    {
     //        // compute level set value
     //        moris::real aReturnValue = ( aCoordinates( 0 ) - *aGeometryParameters( 0 ) - 0.4 );
@@ -159,7 +159,7 @@ namespace moris
     void
     Func_Const(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -169,7 +169,7 @@ namespace moris
     void
     Func_Initial_Condition(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = { { tInitialTemp } };
@@ -189,7 +189,7 @@ namespace moris
     // Dummy function for unused sensitivities if needed
     moris::Matrix< DDRMat > Func_Dummy_Sensitivity(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::Matrix< DDRMat > aReturnValue = { { 0.0 } };
         return aReturnValue;
@@ -298,7 +298,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    OPTParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -318,7 +318,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    HMRParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -345,7 +345,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    XTKParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -369,7 +369,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    GENParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -402,7 +402,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     void
-    FEMParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
     {
         std::string sStructDofTypes = "UX,UY";
         std::string sAllDofTypes    = "UX,UY;TEMP";
@@ -1120,7 +1120,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         // time levels for structure dofs
         if ( gUseMixedTimeElements )
@@ -1282,7 +1282,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -1291,7 +1291,7 @@ namespace moris
     }
 
     void
-    VISParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         int tVisCounter = 0;
@@ -1336,7 +1336,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
     }
 

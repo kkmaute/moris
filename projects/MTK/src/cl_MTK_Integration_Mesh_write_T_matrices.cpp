@@ -17,7 +17,7 @@
 #include "cl_MTK_Double_Side_Cluster.hpp"
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_MTK_Block.hpp"
+#include "cl_MTK_Block_Set.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Cell_Info.cpp"
@@ -45,8 +45,8 @@ namespace moris
             uint                                           tNumIgCells = 0;
             Matrix< IdMat >                                tIgCellIds;
             Matrix< IndexMat >                             tIgCellIndices;
-            moris::Cell< moris::Cell< Matrix< IdMat > > >  tIGtoBSIds;        // outer cell: B-spline mesh index | inner cell: IG cell index | matrix/vector: assembly map
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tIGtoBSWeights;    // outer cell: B-spline mesh index | inner cell: IG cell index | matrix: extraction operator
+            Vector< Vector< Matrix< IdMat > > >  tIGtoBSIds;        // outer cell: B-spline mesh index | inner cell: IG cell index | matrix/vector: assembly map
+            Vector< Vector< Matrix< DDRMat > > > tIGtoBSWeights;    // outer cell: B-spline mesh index | inner cell: IG cell index | matrix: extraction operator
 
             // -------------------------------------
             // get T-Matrices
@@ -55,14 +55,14 @@ namespace moris
                 Tracer tTracer( "MTK", "Compute elemental T-matrices" );
 
                 // compute T-matrices from integration mesh to Lagrange mesh
-                moris::Cell< moris_id >           tIgCellIdList;
-                moris::Cell< Matrix< IndexMat > > tIgToIpIndices;
-                moris::Cell< Matrix< DDRMat > >   tIgToIpTmatrices;
+                Vector< moris_id >           tIgCellIdList;
+                Vector< Matrix< IndexMat > > tIgToIpIndices;
+                Vector< Matrix< DDRMat > >   tIgToIpTmatrices;
                 this->get_IG_to_IP_elemental_T_matrices( tIgCellIdList, tIgToIpIndices, tIgToIpTmatrices );
 
                 // compute T-matrices from Lagrange mesh to the different B-spline meshes
-                moris::Cell< moris::Cell< Matrix< IdMat > > >  tIPtoBSIds;
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > tIPtoBSWeights;
+                Vector< Vector< Matrix< IdMat > > >  tIPtoBSIds;
+                Vector< Vector< Matrix< DDRMat > > > tIPtoBSWeights;
                 this->get_IP_to_BS_nodal_T_matrices( tIPtoBSIds, tIPtoBSWeights, aNumBsplineMeshes );
 
                 // combine the above information to obtain the T-matrices from the IG mesh to the B-spline meshes
@@ -181,22 +181,22 @@ namespace moris
                 // get T-Matrices
 
                 // initialize cells containing info for T-matrices mapping (Background-BSp)-(Background-Lag) for each IP vertex
-                moris::Cell< Matrix< IdMat > >  tIPtoBSIds;
-                moris::Cell< Matrix< DDRMat > > tIPtoBSWeights;
+                Vector< Matrix< IdMat > >  tIPtoBSIds;
+                Vector< Matrix< DDRMat > > tIPtoBSWeights;
 
                 // get T-matrices mapping from IP nodes to B-splines
                 this->get_IP_to_BS_nodal_T_matrices( tIPtoBSIds, tIPtoBSWeights, iSet );
 
                 // initialize cells containing info for T-matrices mapping (Background-Lag)-(IG-Vertices) for each IG vertex
-                moris::Cell< Matrix< IdMat > >  tIGtoIPIds;
-                moris::Cell< Matrix< DDRMat > > tIGtoIPWeights;
+                Vector< Matrix< IdMat > >  tIGtoIPIds;
+                Vector< Matrix< DDRMat > > tIGtoIPWeights;
 
                 // get T-matrices mapping from IG nodes to IP nodes
                 this->get_IG_to_IP_nodal_T_matrices( tIGtoIPIds, tIGtoIPWeights, iSet );
 
                 // initialize cells containing info for T-matrices mapping (Background-BSp)-(IG-Vertices) for each IG vertex
-                moris::Cell< Matrix< IdMat > >  tIGtoBSIds;
-                moris::Cell< Matrix< DDRMat > > tIGtoBSWeights;
+                Vector< Matrix< IdMat > >  tIGtoBSIds;
+                Vector< Matrix< DDRMat > > tIGtoBSWeights;
 
                 // combine T-Matrices to get
                 this->get_IG_to_BS_nodal_T_matrices( tIGtoBSIds, tIGtoBSWeights, tIPtoBSIds, tIPtoBSWeights, tIGtoIPIds, tIGtoIPWeights );
@@ -238,9 +238,9 @@ namespace moris
 
         void
         Integration_Mesh::get_IG_to_IP_elemental_T_matrices(
-                moris::Cell< moris_id >           &aIgCellIds,
-                moris::Cell< Matrix< IndexMat > > &aIgToIpIndices,
-                moris::Cell< Matrix< DDRMat > >   &aIgToIpTmatrices )
+                Vector< moris_id >           &aIgCellIds,
+                Vector< Matrix< IndexMat > > &aIgToIpIndices,
+                Vector< Matrix< DDRMat > >   &aIgToIpTmatrices )
         {
             // trace this function
             Tracer tTracer( "MTK", "Compute elemental IG to IP T-Matrices" );
@@ -306,7 +306,7 @@ namespace moris
 
                     // initialize list of nodal T-matrices
                     // input: IG vertex index local to current cluster || output: nodal T-matrix (weights)
-                    moris::Cell< Matrix< DDRMat > > tNodalTmatWeights( tNumPrimaryVertsInCluster );
+                    Vector< Matrix< DDRMat > > tNodalTmatWeights( tNumPrimaryVertsInCluster );
 
                     // loop over the vertices on the treated mesh cluster
                     for ( uint iPrimaryIgVert = 0; iPrimaryIgVert < tNumPrimaryVertsInCluster; iPrimaryIgVert++ )
@@ -327,7 +327,7 @@ namespace moris
                     uint               tNumBfsInterpolatingIntoCell = tUnzippedIpVertIndices.numel();
 
                     // get a list of primary IG cells
-                    const moris::Cell< const moris::mtk::Cell * > &tCellsInCluster  = tCluster->get_primary_cells_in_cluster();
+                    const Vector< const moris::mtk::Cell * > &tCellsInCluster  = tCluster->get_primary_cells_in_cluster();
                     uint                                           tNumPrimaryCells = tCellsInCluster.size();
 
                     // go over the primary elements
@@ -389,8 +389,8 @@ namespace moris
 
         void
         Integration_Mesh::get_IG_to_IP_nodal_T_matrices(
-                moris::Cell< Matrix< IdMat > >  &aIGtoIPIds,
-                moris::Cell< Matrix< DDRMat > > &aIGtoIPWeights,
+                Vector< Matrix< IdMat > >  &aIGtoIPIds,
+                Vector< Matrix< DDRMat > > &aIGtoIPWeights,
                 uint                             aSetIndex )
         {
             // trace this function
@@ -419,7 +419,7 @@ namespace moris
                     const moris::mtk::Cell &tInterpolationCell = tCluster->get_interpolation_cell();
 
                     // get list of all vertices on IP cell associated with current cluster
-                    moris::Cell< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
+                    Vector< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
 
                     // get info for IP cell associated with cluster currently handled
                     Cell_Info const *tCellInfo = tCluster->get_interpolation_cell().get_cell_info();
@@ -439,7 +439,7 @@ namespace moris
                     moris::Matrix< moris::DDRMat > tLocalCoords = tCluster->get_vertices_local_coordinates_wrt_interp_cell();
 
                     // get list of (pointers to) all vertices on current cluster
-                    moris::Cell< moris::mtk::Vertex const * > tIGVertices = tCluster->get_vertices_in_cluster();
+                    Vector< moris::mtk::Vertex const * > tIGVertices = tCluster->get_vertices_in_cluster();
 
                     // build map stating where in the list of all IG vertices on the current cluster the primary IG vertices sit
                     std::unordered_map< moris_id, uint > tIgVertexMap;
@@ -449,7 +449,7 @@ namespace moris
                     }
 
                     // get list of (pointers to) primary vertices on current cluster
-                    moris::Cell< moris::mtk::Vertex * > tPrimaryIGVertices = tCluster->get_primary_vertices_in_cluster();
+                    Vector< moris::mtk::Vertex * > tPrimaryIGVertices = tCluster->get_primary_vertices_in_cluster();
 
                     // get number of primary vertices on the treated mesh cluster
                     uint tNumPrimaryVerticesOnCluster = tPrimaryIGVertices.size();
@@ -511,8 +511,8 @@ namespace moris
 
         void
         Integration_Mesh::get_IP_to_BS_nodal_T_matrices(
-                moris::Cell< moris::Cell< Matrix< IdMat > > >  &aIPtoBSIds,        // input: B-spline mesh index, UIPV index || output: B-spline BF IDs interpolating into UIPV
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > &aIPtoBSWeights,    // input: B-spline mesh index, UIPV index || output: T-matrix weights
+                Vector< Vector< Matrix< IdMat > > >  &aIPtoBSIds,        // input: B-spline mesh index, UIPV index || output: B-spline BF IDs interpolating into UIPV
+                Vector< Vector< Matrix< DDRMat > > > &aIPtoBSWeights,    // input: B-spline mesh index, UIPV index || output: T-matrix weights
                 const uint                                      aNumBsplineMeshes )
         {
             // trace this function
@@ -531,7 +531,7 @@ namespace moris
             }
 
             // punch card marking which UIPVs have already been treated
-            moris::Cell< bool > tUipvIndFound( tNumLagBfs, false );
+            Vector< bool > tUipvIndFound( tNumLagBfs, false );
 
             // get the number of sets in the mesh
             uint tNumSetsInMesh = this->get_num_blocks();
@@ -561,7 +561,7 @@ namespace moris
                     const moris::mtk::Cell &tInterpolationCell = tCluster->get_interpolation_cell();
 
                     // get list of all vertices on IP cell associated with current cluster
-                    moris::Cell< Vertex * > tIPVertices          = tInterpolationCell.get_vertex_pointers();
+                    Vector< Vertex * > tIPVertices          = tInterpolationCell.get_vertex_pointers();
                     uint                    tNumIpVertsOnCluster = tIPVertices.size();
 
                     // go through all IP vertices, build BSp - Lag map
@@ -604,8 +604,8 @@ namespace moris
 
         void
         Integration_Mesh::get_IP_to_BS_nodal_T_matrices(
-                moris::Cell< Matrix< IdMat > >  &aIPtoBSIds,
-                moris::Cell< Matrix< DDRMat > > &aIPtoBSWeights,
+                Vector< Matrix< IdMat > >  &aIPtoBSIds,
+                Vector< Matrix< DDRMat > > &aIPtoBSWeights,
                 uint                             aSetIndex )
         {
             // trace this function
@@ -637,7 +637,7 @@ namespace moris
                     const moris::mtk::Cell &tInterpolationCell = tCluster->get_interpolation_cell();
 
                     // get list of all vertices on IP cell associated with current cluster
-                    moris::Cell< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
+                    Vector< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
 
                     // go through all IP vertices, build BSp - Lag map
                     for ( uint iIpVert = 0; iIpVert < tIPVertices.size(); iIpVert++ )
@@ -684,12 +684,12 @@ namespace moris
 
         void
         Integration_Mesh::get_elemental_IG_to_BS_T_matrices(
-                moris::Cell< Matrix< IndexMat > > const              &aIgToIpIndices,      // outer cell: IG cell index
-                moris::Cell< Matrix< DDRMat > > const                &aIgToIpTmatrices,    // outer cell: IG cell index
-                moris::Cell< moris::Cell< Matrix< IdMat > > > const  &aIPtoBSIds,          // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
-                moris::Cell< moris::Cell< Matrix< DDRMat > > > const &aIPtoBSWeights,      // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
-                moris::Cell< moris::Cell< Matrix< IdMat > > >        &aIGtoBSIds,          // outer cell: B-spline mesh index | inner cell: IG cell index
-                moris::Cell< moris::Cell< Matrix< DDRMat > > >       &aIGtoBSWeights )           // outer cell: B-spline mesh index | inner cell: IG cell index
+                Vector< Matrix< IndexMat > > const              &aIgToIpIndices,      // outer cell: IG cell index
+                Vector< Matrix< DDRMat > > const                &aIgToIpTmatrices,    // outer cell: IG cell index
+                Vector< Vector< Matrix< IdMat > > > const  &aIPtoBSIds,          // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
+                Vector< Vector< Matrix< DDRMat > > > const &aIPtoBSWeights,      // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
+                Vector< Vector< Matrix< IdMat > > >        &aIGtoBSIds,          // outer cell: B-spline mesh index | inner cell: IG cell index
+                Vector< Vector< Matrix< DDRMat > > >       &aIGtoBSWeights )           // outer cell: B-spline mesh index | inner cell: IG cell index
         {
             // trace this function
             Tracer tTracer( "MTK", "Compute elemental IG to IP T-Matrices" );
@@ -795,14 +795,14 @@ namespace moris
                             MORIS_ERROR( tIter != tBsplineIdToLocalIndexMap.end(),
                                     "Integration_Mesh::get_IG_to_BS_nodal_T_matrices() - "
                                     "B-spline ID not found in IG cell local map." );
-                            uint tLocalIndex = tIter->second;
+                            // uint tLocalIndex = tIter->second;
 
                             // grab the part of the elemental T-matrix which the weights should be written into
-                            auto tCopyWeightsIntoThis = tCurrentIgCellToBSWeights( { 0, tNumNodesOnIgElem - 1 }, { tLocalIndex, tLocalIndex } );
-                            auto tCopyWeightsFromThis = tBspWeights( { 0, tNumNodesOnIgElem - 1 }, { iBspBf, iBspBf } );
+                            //auto tCopyWeightsIntoThis = tCurrentIgCellToBSWeights( { 0, tNumNodesOnIgElem - 1 }, { tLocalIndex, tLocalIndex } );
+                            //auto tCopyWeightsFromThis = tBspWeights( { 0, tNumNodesOnIgElem - 1 }, { iBspBf, iBspBf } );
 
                             // copy the weights into this
-                            tCopyWeightsIntoThis += tCopyWeightsFromThis;
+                            // tCopyWeightsIntoThis += tCopyWeightsFromThis;
 
                         }    // end for: B-spline basis functions interpolating into Lagrange basis function
                     }        // end for: Lagrange basis functions interpolating into IG element
@@ -814,12 +814,12 @@ namespace moris
 
         void
         Integration_Mesh::get_IG_to_BS_nodal_T_matrices(
-                moris::Cell< Matrix< IdMat > >  &aIGtoBSIds,
-                moris::Cell< Matrix< DDRMat > > &aIGtoBSWeights,
-                moris::Cell< Matrix< IdMat > >  &aIPtoBSIds,
-                moris::Cell< Matrix< DDRMat > > &aIPtoBSWeights,
-                moris::Cell< Matrix< IdMat > >  &aIGtoIPIds,
-                moris::Cell< Matrix< DDRMat > > &aIGtoIPWeights )
+                Vector< Matrix< IdMat > >  &aIGtoBSIds,
+                Vector< Matrix< DDRMat > > &aIGtoBSWeights,
+                Vector< Matrix< IdMat > >  &aIPtoBSIds,
+                Vector< Matrix< DDRMat > > &aIPtoBSWeights,
+                Vector< Matrix< IdMat > >  &aIGtoIPIds,
+                Vector< Matrix< DDRMat > > &aIGtoIPWeights )
         {
             // trace this function
             Tracer tTracer( "MTK", "Compute IG to IP T-Matrices" );
@@ -909,7 +909,7 @@ namespace moris
                     const moris::mtk::Cell &tInterpolationCell = tCluster->get_interpolation_cell();
 
                     // get list of all vertices on IP cell associated with current cluster
-                    moris::Cell< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
+                    Vector< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
 
                     // go through all IP vertices, build BSp - Lag map
                     for ( uint iIpVert = 0; iIpVert < tIPVertices.size(); iIpVert++ )
@@ -978,8 +978,8 @@ namespace moris
 
         void
         Integration_Mesh::build_sparse_extraction_operator(
-                moris::Cell< Matrix< IdMat > >  &aIGtoBSIds,
-                moris::Cell< Matrix< DDRMat > > &aIGtoBSWeights,
+                Vector< Matrix< IdMat > >  &aIGtoBSIds,
+                Vector< Matrix< DDRMat > > &aIGtoBSWeights,
                 Matrix< DDUMat >                &aSparseIndices,
                 Matrix< DDRMat >                &aWeights )
         {

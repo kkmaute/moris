@@ -14,7 +14,7 @@
 #include "cl_GEN_Parent_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ namespace moris::ge
             else
             {
                 // Get locators
-                const Cell< Basis_Node >& tLocators = tDerivedNode.get_locator_nodes();
+                const Vector< Basis_Node >& tLocators = tDerivedNode.get_locator_nodes();
 
                 // Start voting
                 uint tNegativeVotes = 0;
@@ -117,7 +117,7 @@ namespace moris::ge
 
     Intersection_Node* Voxel_Geometry::create_intersection_node(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -136,7 +136,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
     
     real Voxel_Geometry::compute_intersection_local_coordinate(
-            const Cell< Node* >& aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&   aFirstParentNode,
             const Parent_Node&   aSecondParentNode )
     {
@@ -169,7 +169,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< std::shared_ptr< mtk::Field > > Voxel_Geometry::get_mtk_fields()
+    Vector< std::shared_ptr< mtk::Field > > Voxel_Geometry::get_mtk_fields()
     {
         return {};
     }
@@ -267,7 +267,7 @@ namespace moris::ge
     void Voxel_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Cell< real >&           aOutputDesignInfo )
+            Vector< real >&           aOutputDesignInfo )
     {
     }
 

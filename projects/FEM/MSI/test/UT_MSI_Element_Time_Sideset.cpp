@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -80,7 +80,7 @@ namespace MSI
 
 void tConstValFunction_UTTimeElem
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -228,7 +228,7 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
         tIWG->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Leader_Follower::LEADER );
 
         // define set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
+        Vector< fem::Set_User_Info > tSetInfo( 1 );
         tSetInfo( 0 ).set_mesh_set_name( "Omega_0_tets" );
         tSetInfo( 0 ).set_time_continuity( true );
         tSetInfo( 0 ).set_IWGs( { tIWG } );
@@ -255,7 +255,7 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
         // FEM set
         //------------------------------------------------------------------------------
         // get the equation set from the model
-        moris::Cell< MSI::Equation_Set * > tSets
+        Vector< MSI::Equation_Set * > tSets
         = tModel->get_fem_model()->get_equation_sets();
 
         // get the equation set from the model
@@ -500,7 +500,7 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
         tIWGDiffusion->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Leader_Follower::LEADER );
 
         // define set info
-        moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
+        Vector< fem::Set_User_Info > tSetInfo( 2 );
 
         tSetInfo( 0 ).set_mesh_set_name( "Omega_0_tets" );
         tSetInfo( 0 ).set_time_continuity( true );
@@ -531,7 +531,7 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
         // FEM set
         //------------------------------------------------------------------------------
         // get the equation set from the model
-        moris::Cell< MSI::Equation_Set * > tSets
+        Vector< MSI::Equation_Set * > tSets
         = tModel->get_fem_model()->get_equation_sets();
 
         // get the equation set from the model

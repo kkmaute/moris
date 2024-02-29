@@ -25,13 +25,13 @@ ADD_DEFINITIONS(${XTK_DEFINITIONS})
 add_subdirectory(src)
 
 # Add test directory
-if(MORIS_USE_TESTS AND BUILD_XTK)
+if (MORIS_USE_TESTS AND BUILD_XTK)
     add_subdirectory(test)
-endif()
+endif ()
 
-if( BUILD_TUTORIALS AND BUILD_XTK )
-# Add source directory
-add_subdirectory(tutorials)
-endif()
+if (BUILD_TUTORIALS AND BUILD_XTK)
+    # Add source directory
+    add_subdirectory(tutorials)
+endif ()
 
 

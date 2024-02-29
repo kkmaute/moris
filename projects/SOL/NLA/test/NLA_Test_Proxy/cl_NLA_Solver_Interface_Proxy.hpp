@@ -58,7 +58,7 @@ namespace moris
 
             sol::Dist_Vector* mSolutionVectorPrev = nullptr;
 
-            moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
+            Vector< enum MSI::Dof_Type > mListOfDofTypes;
 
           public:
             // ----------------------------------------------------------------------------
@@ -108,14 +108,14 @@ namespace moris
             // ----------------------------------------------------------------------------------------------
 
             void
-            set_requested_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes )
+            set_requested_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes )
             {
                 mListOfDofTypes = aListOfDofTypes;
             };
 
             // ----------------------------------------------------------------------------
 
-            virtual const moris::Cell< enum MSI::Dof_Type >&
+            virtual const Vector< enum MSI::Dof_Type >&
             get_requested_dof_types()
             {
                 return mListOfDofTypes;
@@ -123,7 +123,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void set_secondary_dof_types( const moris::Cell< enum MSI::Dof_Type > aListOfDofTypes ){};
+            void set_secondary_dof_types( const Vector< enum MSI::Dof_Type > aListOfDofTypes ){};
 
             // ----------------------------------------------------------------------------------------------
             // local dimension of the problem
@@ -158,7 +158,7 @@ namespace moris
 
             // local-to-global map
             Matrix< DDSMat >
-            get_my_local_global_map( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes )
+            get_my_local_global_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
             {
                 return mMyGlobalElements;
             };
@@ -242,21 +242,21 @@ namespace moris
 
             void get_equation_object_rhs(
                     const uint&               aMyElementInd,
-                    Cell< Matrix< DDRMat > >& aElementRHS );
+                    Vector< Matrix< DDRMat > >& aElementRHS );
 
             // ----------------------------------------------------------------------------
 
             void get_equation_object_rhs(
                     const uint&               aMyBlockInd,
                     const uint&               aMyElementInd,
-                    Cell< Matrix< DDRMat > >& aElementRHS );
+                    Vector< Matrix< DDRMat > >& aElementRHS );
 
             //------------------------------------------------------------------------------
 
             void get_equation_object_operator_and_rhs(
                     const moris::uint&        aMyElementInd,
                     Matrix< DDRMat >&         aElementMatrix,
-                    Cell< Matrix< DDRMat > >& aElementRHS );
+                    Vector< Matrix< DDRMat > >& aElementRHS );
 
             // ----------------------------------------------------------------------------
 
@@ -264,7 +264,7 @@ namespace moris
                     const moris::uint&        aMyEquSetInd,
                     const moris::uint&        aMyElementInd,
                     Matrix< DDRMat >&         aElementMatrix,
-                    Cell< Matrix< DDRMat > >& aElementRHS );
+                    Vector< Matrix< DDRMat > >& aElementRHS );
 
             // ----------------------------------------------------------------------------------------------
 

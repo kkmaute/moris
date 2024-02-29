@@ -13,8 +13,8 @@
 #include <cl_SDF_Facet_Vertex.hpp>
 #include <string>
 
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 #include "cl_SDF_Triangle.hpp"
 #include "cl_SDF_Line.hpp"
 
@@ -25,8 +25,8 @@ namespace moris
         //-------------------------------------------------------------------------------
         class Object
         {
-            const real                              mMeshHighPass = 1e-9;
-            moris::Cell< std::shared_ptr< Facet > > mFacets;
+            const real                                mMeshHighPass = 1e-9;
+            moris::Vector< std::shared_ptr< Facet > > mFacets;
 
             uint mNumberOfFacets;
 
@@ -42,10 +42,10 @@ namespace moris
           public:
             //-------------------------------------------------------------------------------
 
-            Object( const std::string&         aFilePath,
-                    real                       aIntersectionTolerance = 1e-8,
-                    const moris::Cell< real >& aOffsets               = { 0, 0, 0 },
-                    const moris::Cell< real >& aScale                 = { 1.0, 1.0, 1.0 } );
+            Object( const std::string&           aFilePath,
+                    real                         aIntersectionTolerance = 1e-8,
+                    const moris::Vector< real >& aOffsets               = { 0, 0, 0 },
+                    const moris::Vector< real >& aScale                 = { 1.0, 1.0, 1.0 } );
 
 
             //-------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace moris
              * @param aScaling factor to scale in each coordinate direction
              */
             void
-            scale( const moris::Cell< real >& aScaling );
+            scale( const Vector< real >& aScaling );
 
             //-------------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ namespace moris
              * @param aShift shift in each coordinate direction that is added to the objects coordinates.
              */
             void
-            shift( const moris::Cell< real >& aShift );
+            shift( const Vector< real >& aShift );
 
             //-------------------------------------------------------------------------------
 
@@ -167,7 +167,7 @@ namespace moris
              * Facets are either lines in 2D or triangles in 3D
              */
             void
-            load_from_object_file( const std::string& aFilePath, const moris::Cell< real >& aOffsets, const moris::Cell< real >& aScale );
+            load_from_object_file( const std::string& aFilePath, const Vector< real >& aOffsets, const Vector< real >& aScale );
 
             //-------------------------------------------------------------------------------
 
@@ -186,7 +186,7 @@ namespace moris
              */
             void
             load_ascii_to_buffer( const std::string& aFilePath,
-                    moris::Cell< std::string >&      aBuffer );
+                    Vector< std::string >&           aBuffer );
 
             //-------------------------------------------------------------------------------
         };

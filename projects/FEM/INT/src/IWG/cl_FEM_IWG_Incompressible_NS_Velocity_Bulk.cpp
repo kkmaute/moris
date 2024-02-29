@@ -368,7 +368,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -862,7 +862,7 @@ namespace moris
 
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form_momentum(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   aJM )
         {
             // get the res dof and the derivative dof FIs
@@ -1033,7 +1033,7 @@ namespace moris
 
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form_continuity(
-                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   aJC )
         {
             // get the res dof and the derivative dof FIs

@@ -335,7 +335,7 @@ check_results(
     load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus );
 
     // Read FD sensitivities and compare
-    Cell< std::string > tFDTypes = { "fd_central" };
+    Vector< std::string > tFDTypes = { "fd_central" };
     for ( uint tFDIndex = 0; tFDIndex < tFDTypes.size(); tFDIndex++ )
     {
         load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 epsilon_1-1 " + tFDTypes( tFDIndex ), tConstraintsFD, tStatus );

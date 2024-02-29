@@ -46,7 +46,7 @@ TSA_Solver_Interface_Proxy::set_solution_vector_prev_time_step( sol::Dist_Vector
 void
 TSA_Solver_Interface_Proxy::get_equation_object_rhs(
         const uint&               aMyElementInd,
-        Cell< Matrix< DDRMat > >& aElementRHS )
+        Vector< Matrix< DDRMat > >& aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 
@@ -63,7 +63,7 @@ void
 TSA_Solver_Interface_Proxy::get_equation_object_rhs(
         const uint&               aMyBlockInd,
         const uint&               aMyElementInd,
-        Cell< Matrix< DDRMat > >& aElementRHS )
+        Vector< Matrix< DDRMat > >& aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 
@@ -109,7 +109,7 @@ void
 TSA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
         const moris::uint&        aMyElementInd,
         Matrix< DDRMat >&         aElementMatrix,
-        Cell< Matrix< DDRMat > >& aElementRHS )
+        Vector< Matrix< DDRMat > >& aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 
@@ -130,7 +130,7 @@ TSA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
         const moris::uint&        aMyEquSetInd,
         const moris::uint&        aMyElementInd,
         Matrix< DDRMat >&         aElementMatrix,
-        Cell< Matrix< DDRMat > >& aElementRHS )
+        Vector< Matrix< DDRMat > >& aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 

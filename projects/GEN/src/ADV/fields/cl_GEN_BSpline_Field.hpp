@@ -13,7 +13,7 @@
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class BSpline_Field : public Field_Discrete_Integration
     {

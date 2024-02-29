@@ -8,13 +8,11 @@
  *
  */
 
-#ifndef MORIS_CL_GEN_INTERSECTION_NODE_SURFACE_MESH
-#define MORIS_CL_GEN_INTERSECTION_NODE_SURFACE_MESH
+#pragma once
 
 #include "cl_GEN_Intersection_Node.hpp"
 
-
-namespace moris::ge
+namespace moris::gen
 {
     class Surface_Mesh_Geometry;
 
@@ -37,7 +35,7 @@ namespace moris::ge
          */
         Intersection_Node_Surface_Mesh(
                 uint                     aNodeIndex,
-                const Cell< Node* >&     aBackgroundNodes,
+                const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&       aFirstParentNode,
                 const Parent_Node&       aSecondParentNode,
                 mtk::Geometry_Type       aBackgroundGeometryType,
@@ -83,6 +81,4 @@ namespace moris::ge
 
         //--------------------------------------------------------------------------------------------------------------
     };
-}    // namespace moris::ge
-
-#endif    // MORIS_CL_GEN_INTERSECTION_NODE_SURFACE_MESH
+}

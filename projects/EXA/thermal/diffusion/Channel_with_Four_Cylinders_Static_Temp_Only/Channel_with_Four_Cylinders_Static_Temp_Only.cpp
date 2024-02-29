@@ -10,7 +10,7 @@
 
 #include <string>
 #include <iostream>
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Bitset.hpp"
 #include "linalg_typedefs.hpp"
@@ -62,7 +62,7 @@ namespace moris
     void
     Func_Const(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
@@ -72,7 +72,7 @@ namespace moris
     void
     Func_Inlet_U(
             moris::Matrix< moris::DDRMat >&                aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            Vector< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix.set_size( 2, 1, 0.0 );
@@ -88,7 +88,7 @@ namespace moris
 
     moris::real Func_Bottom_Plane(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 1 ) - tPlaneBottom;
 
@@ -97,7 +97,7 @@ namespace moris
 
     moris::real Func_Top_Plane(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 1 ) - tPlaneTop;
 
@@ -106,7 +106,7 @@ namespace moris
 
     moris::real Func_Left_Plane(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneLeft;
 
@@ -115,7 +115,7 @@ namespace moris
 
     moris::real Func_Right_Plane(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneRight;
 
@@ -124,7 +124,7 @@ namespace moris
 
     moris::real Func_Cylinder(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 0.4, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 - tCylinderOffset ), 2.0 ), 0.5 );
 
@@ -133,7 +133,7 @@ namespace moris
 
     moris::real Func_Cylinder2(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 0.8, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
@@ -142,7 +142,7 @@ namespace moris
 
     moris::real Func_Cylinder3(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 1.2, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 - tCylinderOffset ), 2.0 ), 0.5 );
 
@@ -151,7 +151,7 @@ namespace moris
 
     moris::real Func_Cylinder4(
             const moris::Matrix< DDRMat >& aCoordinates,
-            const moris::Cell< real >&     aGeometryParameters )
+            const Vector< real >&     aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius - std::pow( std::pow( aCoordinates( 0 ) - 1.6, 2.0 ) + std::pow( aCoordinates( 1 ) - ( 0.2 + tCylinderOffset ), 2.0 ), 0.5 );
 
@@ -159,7 +159,7 @@ namespace moris
     }
 
     void
-    OPTParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    OPTParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -170,7 +170,7 @@ namespace moris
     }
 
     void
-    HMRParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    HMRParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -205,7 +205,7 @@ namespace moris
     }
 
     void
-    XTKParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    XTKParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -262,7 +262,7 @@ namespace moris
     }
 
     void
-    GENParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    GENParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
@@ -316,7 +316,7 @@ namespace moris
     }
 
     void
-    FEMParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterList )
+    FEMParameterList( Vector< Vector< ParameterList > >& tParameterList )
     {
         // create a cell of cell of parameter list for fem
         tParameterList.resize( 9 );
@@ -513,7 +513,7 @@ namespace moris
     }
 
     void
-    SOLParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    SOLParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 8 );
         for ( uint Ik = 0; Ik < 8; Ik++ )
@@ -559,7 +559,7 @@ namespace moris
     }
 
     void
-    MSIParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MSIParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -569,7 +569,7 @@ namespace moris
     }
 
     void
-    VISParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    VISParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
@@ -585,7 +585,7 @@ namespace moris
     }
 
     void
-    MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+    MORISGENERALParameterList( Vector< Vector< ParameterList > >& tParameterlist )
     {
     }
 

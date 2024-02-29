@@ -32,7 +32,7 @@ void NLA_Solver_Interface_Proxy_II::set_solution_vector( sol::Dist_Vector * aSol
 
 void NLA_Solver_Interface_Proxy_II::get_equation_object_rhs(
         const uint               & aMyElementInd,
-        Cell< Matrix< DDRMat > > & aElementRHS )
+        Vector< Matrix< DDRMat > > & aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 
@@ -60,7 +60,7 @@ void NLA_Solver_Interface_Proxy_II::get_equation_object_rhs(
 void NLA_Solver_Interface_Proxy_II::get_equation_object_rhs(
         const uint               & aMyBlockInd,
         const uint               & aMyElementInd,
-        Cell< Matrix< DDRMat > > & aElementRHS )
+        Vector< Matrix< DDRMat > > & aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 
@@ -147,7 +147,7 @@ void NLA_Solver_Interface_Proxy_II::get_equation_object_operator(
 void NLA_Solver_Interface_Proxy_II::get_equation_object_operator_and_rhs(
         const moris::uint        & aMyElementInd,
         Matrix< DDRMat >         & aElementMatrix,
-        Cell< Matrix< DDRMat > > & aElementRHS )
+        Vector< Matrix< DDRMat > > & aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 
@@ -195,7 +195,7 @@ void NLA_Solver_Interface_Proxy_II::get_equation_object_operator_and_rhs(
         const moris::uint        & aMyEquSetInd,
         const moris::uint        & aMyElementInd,
         Matrix< DDRMat >         & aElementMatrix,
-        Cell< Matrix< DDRMat > > & aElementRHS )
+        Vector< Matrix< DDRMat > > & aElementRHS )
 {
     mSolutionVector->extract_copy( mMySolVec );
 

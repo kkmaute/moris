@@ -26,7 +26,7 @@
 
 #include "fn_GEN_Triangle_Geometry.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     class Permutations
     {
@@ -92,15 +92,15 @@ namespace xtk
             return mNumPermutations;
         }
 
-        Cell< size_t >
+        Vector< size_t >
         get_permutation( size_t aIndex )
         {
             return mPermutations( aIndex );
         }
 
       private:
-        size_t                 mNumPermutations;
-        Cell< Cell< size_t > > mPermutations;
+        size_t                     mNumPermutations;
+        Vector< Vector< size_t > > mPermutations;
 
       private:
         void
@@ -365,7 +365,7 @@ namespace xtk
 
     void
     get_midside_coordinate( moris::moris_index const &aEdgeIndex,
-            moris::Matrix< moris::DDRMat >           &aMidEdgeCoordinate )
+            moris::Matrix< DDRMat >                  &aMidEdgeCoordinate )
     {
         if ( aEdgeIndex == 0 )
         {
@@ -418,11 +418,11 @@ namespace xtk
     setup_node_coordinates_3_node( moris::moris_index const &tEdgeL,
             moris::moris_index const                        &tEdgeM,
             moris::moris_index const                        &tEdgeH,
-            moris::Matrix< moris::DDRMat >                  &aNodeCoordinates )
+            moris::Matrix< DDRMat >                         &aNodeCoordinates )
     {
-        moris::Matrix< moris::DDRMat > tEdgeNodeCoordinates( 1, 3, 75 );
+        moris::Matrix< DDRMat > tEdgeNodeCoordinates( 1, 3, 75 );
 
-        aNodeCoordinates         = moris::Matrix< moris::DDRMat >( 7, 3 );
+        aNodeCoordinates         = moris::Matrix< DDRMat >( 7, 3 );
         aNodeCoordinates( 0, 0 ) = 0.0;
         aNodeCoordinates( 0, 1 ) = 0.0;
         aNodeCoordinates( 0, 2 ) = 0.0;
@@ -457,11 +457,11 @@ namespace xtk
             size_t const                        &tEdgeML,
             size_t const                        &tEdgeMH,
             size_t const                        &tEdgeH,
-            moris::Matrix< moris::DDRMat >      &aNodeCoordinates )
+            moris::Matrix< DDRMat >             &aNodeCoordinates )
     {
-        moris::Matrix< moris::DDRMat > tEdgeNodeCoordinates( 1, 3, 75 );
+        moris::Matrix< DDRMat > tEdgeNodeCoordinates( 1, 3, 75 );
 
-        aNodeCoordinates         = moris::Matrix< moris::DDRMat >( 8, 3 );
+        aNodeCoordinates         = moris::Matrix< DDRMat >( 8, 3 );
         aNodeCoordinates( 0, 0 ) = 0.0;
         aNodeCoordinates( 0, 1 ) = 0.0;
         aNodeCoordinates( 0, 2 ) = 0.0;
@@ -499,11 +499,11 @@ namespace xtk
     void
     setup_node_coordinates_2_node( size_t const &tEdgeL,
             size_t const                        &tEdgeH,
-            moris::Matrix< moris::DDRMat >      &aNodeCoordinates )
+            moris::Matrix< DDRMat >             &aNodeCoordinates )
     {
-        moris::Matrix< moris::DDRMat > tEdgeNodeCoordinates( 1, 3, 75 );
+        moris::Matrix< DDRMat > tEdgeNodeCoordinates( 1, 3, 75 );
 
-        aNodeCoordinates         = moris::Matrix< moris::DDRMat >( 6, 3 );
+        aNodeCoordinates         = moris::Matrix< DDRMat >( 6, 3 );
         aNodeCoordinates( 0, 0 ) = 0.0;
         aNodeCoordinates( 0, 1 ) = 0.0;
         aNodeCoordinates( 0, 2 ) = 0.0;
@@ -530,11 +530,11 @@ namespace xtk
 
     void
     setup_node_coordinates_bisected( size_t const &tEdgeOrd,
-            moris::Matrix< moris::DDRMat >        &aNodeCoordinates )
+            moris::Matrix< DDRMat >               &aNodeCoordinates )
     {
-        moris::Matrix< moris::DDRMat > tEdgeNodeCoordinates( 1, 3, 75 );
+        moris::Matrix< DDRMat > tEdgeNodeCoordinates( 1, 3, 75 );
 
-        aNodeCoordinates         = moris::Matrix< moris::DDRMat >( 8, 3 );
+        aNodeCoordinates         = moris::Matrix< DDRMat >( 8, 3 );
         aNodeCoordinates( 0, 0 ) = 0.0;
         aNodeCoordinates( 0, 1 ) = 0.0;
         aNodeCoordinates( 0, 2 ) = 0.0;
@@ -555,9 +555,9 @@ namespace xtk
     }
 
     bool
-    verify_edge_is_on_parent_edge( moris::Matrix< moris::IndexMat > const &aParentEdgeNodes,
-            moris::Matrix< moris::DDRMat >                                &aNodeCoordinates,
-            moris::Matrix< moris::IndexMat >                              &aEdgeNodes )
+    verify_edge_is_on_parent_edge( moris::Matrix< IndexMat > const &aParentEdgeNodes,
+            moris::Matrix< DDRMat >                                &aNodeCoordinates,
+            moris::Matrix< IndexMat >                              &aEdgeNodes )
     {
         bool tEdgeIsOnParent = false;
 
@@ -621,18 +621,18 @@ namespace xtk
         // Face ancestry check using surface normals of tri
         // Number of child faces created on parent face
 
-        moris::Matrix< moris::IndexMat > tNodeIndex( { { 0, 1, 2, 3 } } );
+        moris::Matrix< IndexMat > tNodeIndex( { { 0, 1, 2, 3 } } );
 
-        moris::Matrix< moris::IdMat > tNodeIds( { { 1, 2, 3, 4, 5, 6, 7 } } );
+        moris::Matrix< IdMat > tNodeIds( { { 1, 2, 3, 4, 5, 6, 7 } } );
 
-        moris::Matrix< moris::IndexMat > tElementsAncestry( { { 0 } } );    // Not used
-        moris::Matrix< moris::DDSTMat >  tElementNodeParentRanks( 1, 4, 0 );
-        moris::Matrix< moris::IndexMat > tParentEdgeInds( { { 0, 1, 2, 3, 4, 5 } } );
-        moris::Matrix< moris::DDSTMat >  tParentEdgeRanks( 1, 6, 1 );
-        moris::Matrix< moris::IndexMat > tParentFaceInds( { { 0, 1, 2, 3 } } );
-        moris::Matrix< moris::DDSTMat >  tParentFaceRanks( 1, 4, 2 );
+        moris::Matrix< IndexMat >       tElementsAncestry( { { 0 } } );    // Not used
+        moris::Matrix< moris::DDSTMat > tElementNodeParentRanks( 1, 4, 0 );
+        moris::Matrix< IndexMat >       tParentEdgeInds( { { 0, 1, 2, 3, 4, 5 } } );
+        moris::Matrix< moris::DDSTMat > tParentEdgeRanks( 1, 6, 1 );
+        moris::Matrix< IndexMat >       tParentFaceInds( { { 0, 1, 2, 3 } } );
+        moris::Matrix< moris::DDSTMat > tParentFaceRanks( 1, 4, 2 );
 
-        Cell< std::string > tCaseStrings = { "3p", "3n" };
+        Vector< std::string > tCaseStrings = { "3p", "3n" };
         for ( size_t iCase = 0; iCase < tCaseStrings.size(); iCase++ )
         {
             /*
@@ -665,31 +665,31 @@ namespace xtk
                 tChildMesh.add_node_ids( tNodeIds );
 
                 // select template
-                Cell< size_t >     tCurrentPermutation = tPermutations.get_permutation( iPerm );
+                Vector< size_t >   tCurrentPermutation = tPermutations.get_permutation( iPerm );
                 moris::moris_index tEdgeL              = tCurrentPermutation( 0 );
                 moris::moris_index tEdgeM              = tCurrentPermutation( 1 );
                 moris::moris_index tEdgeH              = tCurrentPermutation( 2 );
 
                 // Set up node coordinates
-                moris::Matrix< moris::DDRMat > tNodeCoords;
+                moris::Matrix< DDRMat > tNodeCoords;
                 setup_node_coordinates_3_node( tEdgeL, tEdgeM, tEdgeH, tNodeCoords );
 
                 // Compute base tet volume
-                real tTetVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+                real tTetVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
 
                 // Compute base element surface normals (parent faces)
-                moris::Matrix< moris::IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
-                size_t                                  tNumParentFaces   = tParentFaceToNode.n_rows();
-                moris::Matrix< moris::DDRMat >          tParentFaceNormals( 3, tNumParentFaces );
+                moris::Matrix< IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
+                size_t                           tNumParentFaces   = tParentFaceToNode.n_rows();
+                moris::Matrix< DDRMat >          tParentFaceNormals( 3, tNumParentFaces );
 
                 // Iterate through and compute all face normals
                 for ( size_t iF = 0; iF < tNumParentFaces; iF++ )
                 {
                     // Get face iF nodes
-                    moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
+                    moris::Matrix< IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
 
-                    moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                    ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                    moris::Matrix< DDRMat > tFaceNormal( 3, 1, 9.0 );
+                    gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                     tParentFaceNormals.set_column( iF, tFaceNormal );
                 }
@@ -701,13 +701,13 @@ namespace xtk
                 tChildMesh.modify_child_mesh( TemplateType::HIERARCHY_TET4 );
 
                 // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
-                moris::moris_index               tMax       = std::numeric_limits< moris::moris_index >::max();
-                moris::size_t                    tNumPhases = 2;
-                moris::Matrix< moris::IndexMat > tActiveElements( { { 0, 1, 2, 3 } } );
-                moris::Matrix< moris::IndexMat > tIncludedElementMarker( 1, 4, 1 );
-                moris::Matrix< moris::IndexMat > tElementPhase( 1, 4, 0 );
-                moris::moris_index               tMaxFloodFill = 0;
-                moris::Matrix< moris::IndexMat > tElementSubphase =
+                moris::moris_index        tMax       = std::numeric_limits< moris::moris_index >::max();
+                moris::size_t             tNumPhases = 2;
+                moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2, 3 } } );
+                moris::Matrix< IndexMat > tIncludedElementMarker( 1, 4, 1 );
+                moris::Matrix< IndexMat > tElementPhase( 1, 4, 0 );
+                moris::moris_index        tMaxFloodFill = 0;
+                moris::Matrix< IndexMat > tElementSubphase =
                         flood_fill( tChildMesh.get_element_to_element(),
                                 tElementPhase,
                                 tActiveElements,
@@ -717,7 +717,7 @@ namespace xtk
                                 tMaxFloodFill,
                                 true );
 
-                moris::Matrix< moris::IndexMat > tExpElementSubphase( 4, 1, 0 );
+                moris::Matrix< IndexMat > tExpElementSubphase( 4, 1, 0 );
                 CHECK( equal_to( tExpElementSubphase, tElementSubphase ) );
 
                 // Verify that the tets created have correct topology
@@ -730,26 +730,26 @@ namespace xtk
                 CHECK( tValidTopo );
 
                 // verify volume is conserved
-                real tTotalChildVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+                real tTotalChildVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
                 ;
 
                 CHECK( approximate( tTetVol, tTotalChildVol ) );
 
                 // Check ancestry of faces
-                moris::Matrix< moris::IndexMat > const &tFaceToNode      = tChildMesh.get_face_to_node();
-                moris::Matrix< moris::IndexMat > const &tFaceParentInds  = tChildMesh.get_face_parent_inds();
-                moris::Matrix< moris::DDSTMat > const  &tFaceParentRanks = tChildMesh.get_face_parent_ranks();
-                size_t                                  tNumFaces        = tFaceToNode.n_rows();
-                moris::Matrix< moris::DDRMat >          tFaceNormals( 3, tNumFaces );
+                moris::Matrix< IndexMat > const       &tFaceToNode      = tChildMesh.get_face_to_node();
+                moris::Matrix< IndexMat > const       &tFaceParentInds  = tChildMesh.get_face_parent_inds();
+                moris::Matrix< moris::DDSTMat > const &tFaceParentRanks = tChildMesh.get_face_parent_ranks();
+                size_t                                 tNumFaces        = tFaceToNode.n_rows();
+                moris::Matrix< DDRMat >                tFaceNormals( 3, tNumFaces );
 
                 // Iterate through and compute all face normals
                 for ( size_t iF = 0; iF < tNumFaces; iF++ )
                 {
                     // Get face iF nodes
-                    moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
+                    moris::Matrix< IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
 
-                    moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                    ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                    moris::Matrix< DDRMat > tFaceNormal( 3, 1, 9.0 );
+                    gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                     tFaceNormals.set_column( iF, tFaceNormal );
                 }
@@ -761,8 +761,8 @@ namespace xtk
                 {
                     if ( tFaceParentRanks( 0, iF ) == 2 )
                     {
-                        moris::Matrix< moris::DDRMat > tChildFaceNormal  = tFaceNormals.get_column( iF );
-                        moris::Matrix< moris::DDRMat > tParentFaceNormal = tParentFaceNormals.get_column( tFaceParentInds( 0, iF ) );
+                        moris::Matrix< DDRMat > tChildFaceNormal  = tFaceNormals.get_column( iF );
+                        moris::Matrix< DDRMat > tParentFaceNormal = tParentFaceNormals.get_column( tFaceParentInds( 0, iF ) );
                         tChildFacewithParentFaceRank++;
                         CHECK( equal_to( tChildFaceNormal, tParentFaceNormal ) );
                     }
@@ -770,18 +770,18 @@ namespace xtk
                 CHECK( tChildFacewithParentFaceRank == 10 );
 
                 // Check Edge Ancestry
-                moris::mtk::Cell_Info_Tet4              tConn;
-                moris::Matrix< moris::IndexMat >        tParentEdgeToNodeMap = tConn.get_node_to_edge_map();
-                moris::Matrix< moris::IndexMat > const &tEdgeToNode          = tChildMesh.get_edge_to_node();
-                moris::Matrix< moris::IndexMat > const &tEdgeParentInds      = tChildMesh.get_edge_parent_inds();
-                moris::Matrix< moris::DDSTMat > const  &tEdgeParentRanks     = tChildMesh.get_edge_parent_ranks();
+                moris::mtk::Cell_Info_Tet4             tConn;
+                moris::Matrix< IndexMat >              tParentEdgeToNodeMap = tConn.get_node_to_edge_map();
+                moris::Matrix< IndexMat > const       &tEdgeToNode          = tChildMesh.get_edge_to_node();
+                moris::Matrix< IndexMat > const       &tEdgeParentInds      = tChildMesh.get_edge_parent_inds();
+                moris::Matrix< moris::DDSTMat > const &tEdgeParentRanks     = tChildMesh.get_edge_parent_ranks();
                 for ( size_t iEdge = 0; iEdge < tEdgeToNode.n_rows(); iEdge++ )
                 {
                     // Verify all edges with a parent rank of 1 have nodes which belong on that edge
                     if ( tEdgeParentRanks( iEdge ) == 1 )
                     {
-                        moris::Matrix< moris::IndexMat > tParentEdgeNodes = tParentEdgeToNodeMap.get_row( tEdgeParentInds( iEdge ) );
-                        moris::Matrix< moris::IndexMat > tChildEdgeNodes  = tEdgeToNode.get_row( iEdge );
+                        moris::Matrix< IndexMat > tParentEdgeNodes = tParentEdgeToNodeMap.get_row( tEdgeParentInds( iEdge ) );
+                        moris::Matrix< IndexMat > tChildEdgeNodes  = tEdgeToNode.get_row( iEdge );
 
                         CHECK( verify_edge_is_on_parent_edge( tParentEdgeNodes, tNodeCoords, tChildEdgeNodes ) );
                     }
@@ -796,18 +796,18 @@ namespace xtk
         // Floodfill which checks whether the element to element connectivity is traversable
         // Topology which checks whether the new tets have the correct topology
 
-        moris::Matrix< moris::IndexMat > tNodeIndex( { { 0, 1, 2, 3 } } );
+        moris::Matrix< IndexMat > tNodeIndex( { { 0, 1, 2, 3 } } );
 
-        moris::Matrix< moris::IdMat > tNodeIds( { { 1, 2, 3, 4, 5, 6, 7, 8 } } );
+        moris::Matrix< IdMat > tNodeIds( { { 1, 2, 3, 4, 5, 6, 7, 8 } } );
 
-        moris::Matrix< moris::IndexMat > tElementsAncestry( { { 0 } } );    // Not used
-        moris::Matrix< moris::DDSTMat >  tElementNodeParentRanks( 1, 4, 0 );
-        moris::Matrix< moris::IndexMat > tParentEdgeInds( { { 0, 1, 2, 3, 4, 5 } } );
-        moris::Matrix< moris::DDSTMat >  tParentEdgeRanks( 1, 6, 1 );
-        moris::Matrix< moris::IndexMat > tParentFaceInds( { { 0, 1, 2, 3 } } );
-        moris::Matrix< moris::DDSTMat >  tParentFaceRanks( 1, 4, 2 );
+        moris::Matrix< IndexMat >       tElementsAncestry( { { 0 } } );    // Not used
+        moris::Matrix< moris::DDSTMat > tElementNodeParentRanks( 1, 4, 0 );
+        moris::Matrix< IndexMat >       tParentEdgeInds( { { 0, 1, 2, 3, 4, 5 } } );
+        moris::Matrix< moris::DDSTMat > tParentEdgeRanks( 1, 6, 1 );
+        moris::Matrix< IndexMat >       tParentFaceInds( { { 0, 1, 2, 3 } } );
+        moris::Matrix< moris::DDSTMat > tParentFaceRanks( 1, 4, 2 );
 
-        Cell< std::string > tCaseNames = { "pa", "na", "pb", "nb", "pc", "nc" };
+        Vector< std::string > tCaseNames = { "pa", "na", "pb", "nb", "pc", "nc" };
         for ( size_t iCase = 0; iCase < tCaseNames.size(); iCase++ )
         {
             /*
@@ -842,31 +842,31 @@ namespace xtk
                 tChildMesh.add_node_ids( tNodeIds );
 
                 // select template
-                Cell< size_t >     tCurrentPermutation = tPermutations.get_permutation( iPerm );
+                Vector< size_t >   tCurrentPermutation = tPermutations.get_permutation( iPerm );
                 moris::moris_index tEdgeL              = tCurrentPermutation( 0 );
                 moris::moris_index tEdgeML             = tCurrentPermutation( 1 );
                 moris::moris_index tEdgeMH             = tCurrentPermutation( 2 );
                 moris::moris_index tEdgeH              = tCurrentPermutation( 3 );
 
                 // Set up node coordinates
-                moris::Matrix< moris::DDRMat > tNodeCoords;
+                moris::Matrix< DDRMat > tNodeCoords;
                 setup_node_coordinates_4_node( tEdgeL, tEdgeML, tEdgeMH, tEdgeH, tNodeCoords );
                 // Compute base tet volume
-                real tTetVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+                real tTetVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
 
                 // Compute base element surface normals (parent faces)
-                moris::Matrix< moris::IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
-                size_t                                  tNumParentFaces   = tParentFaceToNode.n_rows();
-                moris::Matrix< moris::DDRMat >          tParentFaceNormals( 3, tNumParentFaces );
+                moris::Matrix< IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
+                size_t                           tNumParentFaces   = tParentFaceToNode.n_rows();
+                moris::Matrix< DDRMat >          tParentFaceNormals( 3, tNumParentFaces );
 
                 // Iterate through and compute all face normals
                 for ( size_t iF = 0; iF < tNumParentFaces; iF++ )
                 {
                     // Get face iF nodes
-                    moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
+                    moris::Matrix< IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
 
-                    moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                    ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                    moris::Matrix< DDRMat > tFaceNormal( 3, 1, 9.0 );
+                    gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                     tParentFaceNormals.set_column( iF, tFaceNormal );
                 }
@@ -879,13 +879,13 @@ namespace xtk
                 tChildMesh.modify_child_mesh( TemplateType::HIERARCHY_TET4 );
 
                 // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
-                moris::moris_index               tMax       = std::numeric_limits< moris::moris_index >::max();
-                size_t                           tNumPhases = 2;
-                moris::Matrix< moris::IndexMat > tActiveElements( { { 0, 1, 2, 3, 4, 5 } } );
-                moris::Matrix< moris::IndexMat > tIncludedElementMarker( 1, 6, 1 );
-                moris::Matrix< moris::IndexMat > tElementPhase( 1, 6, 0 );
-                moris::moris_index               tMaxFloodFill = 0;
-                moris::Matrix< moris::IndexMat > tElementSubphase =
+                moris::moris_index        tMax       = std::numeric_limits< moris::moris_index >::max();
+                size_t                    tNumPhases = 2;
+                moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2, 3, 4, 5 } } );
+                moris::Matrix< IndexMat > tIncludedElementMarker( 1, 6, 1 );
+                moris::Matrix< IndexMat > tElementPhase( 1, 6, 0 );
+                moris::moris_index        tMaxFloodFill = 0;
+                moris::Matrix< IndexMat > tElementSubphase =
                         flood_fill( tChildMesh.get_element_to_element(),
                                 tElementPhase,
                                 tActiveElements,
@@ -895,7 +895,7 @@ namespace xtk
                                 tMaxFloodFill,
                                 true );
 
-                moris::Matrix< moris::IndexMat > tExpElementSubphase( 6, 1, 0 );
+                moris::Matrix< IndexMat > tExpElementSubphase( 6, 1, 0 );
                 CHECK( equal_to( tExpElementSubphase, tElementSubphase ) );
 
                 // Verify that the tets created have correct topology
@@ -908,26 +908,26 @@ namespace xtk
                 CHECK( tValidTopo );
 
                 // verify volume is conserved
-                real tTotalChildVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+                real tTotalChildVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
                 ;
 
                 CHECK( approximate( tTetVol, tTotalChildVol ) );
 
                 // Check ancestry of faces
-                moris::Matrix< moris::IndexMat > const &tFaceToNode      = tChildMesh.get_face_to_node();
-                moris::Matrix< moris::IndexMat > const &tFaceParentInds  = tChildMesh.get_face_parent_inds();
-                moris::Matrix< moris::DDSTMat > const  &tFaceParentRanks = tChildMesh.get_face_parent_ranks();
-                size_t                                  tNumFaces        = tFaceToNode.n_rows();
-                moris::Matrix< moris::DDRMat >          tFaceNormals( 3, tNumFaces );
+                moris::Matrix< IndexMat > const       &tFaceToNode      = tChildMesh.get_face_to_node();
+                moris::Matrix< IndexMat > const       &tFaceParentInds  = tChildMesh.get_face_parent_inds();
+                moris::Matrix< moris::DDSTMat > const &tFaceParentRanks = tChildMesh.get_face_parent_ranks();
+                size_t                                 tNumFaces        = tFaceToNode.n_rows();
+                moris::Matrix< DDRMat >                tFaceNormals( 3, tNumFaces );
 
                 // Iterate through and compute all face normals
                 for ( size_t iF = 0; iF < tNumFaces; iF++ )
                 {
                     // Get face iF nodes
-                    moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
+                    moris::Matrix< IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
 
-                    moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                    ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                    moris::Matrix< DDRMat > tFaceNormal( 3, 1, 9.0 );
+                    gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                     tFaceNormals.set_column( iF, tFaceNormal );
                 }
@@ -939,8 +939,8 @@ namespace xtk
                 {
                     if ( tFaceParentRanks( 0, iF ) == 2 )
                     {
-                        moris::Matrix< moris::DDRMat > tChildFaceNormal  = tFaceNormals.get_column( iF );
-                        moris::Matrix< moris::DDRMat > tParentFaceNormal = tParentFaceNormals.get_column( tFaceParentInds( 0, iF ) );
+                        moris::Matrix< DDRMat > tChildFaceNormal  = tFaceNormals.get_column( iF );
+                        moris::Matrix< DDRMat > tParentFaceNormal = tParentFaceNormals.get_column( tFaceParentInds( 0, iF ) );
                         tChildFacewithParentFaceRank++;
                         CHECK( equal_to( tChildFaceNormal, tParentFaceNormal ) );
                     }
@@ -948,18 +948,18 @@ namespace xtk
                 CHECK( tChildFacewithParentFaceRank == 12 );
 
                 // Check Edge Ancestry
-                moris::mtk::Cell_Info_Tet4              tConn;
-                moris::Matrix< moris::IndexMat >        tParentEdgeToNodeMap = tConn.get_node_to_edge_map();
-                moris::Matrix< moris::IndexMat > const &tEdgeToNode          = tChildMesh.get_edge_to_node();
-                moris::Matrix< moris::IndexMat > const &tEdgeParentInds      = tChildMesh.get_edge_parent_inds();
-                moris::Matrix< moris::DDSTMat > const  &tEdgeParentRanks     = tChildMesh.get_edge_parent_ranks();
+                moris::mtk::Cell_Info_Tet4             tConn;
+                moris::Matrix< IndexMat >              tParentEdgeToNodeMap = tConn.get_node_to_edge_map();
+                moris::Matrix< IndexMat > const       &tEdgeToNode          = tChildMesh.get_edge_to_node();
+                moris::Matrix< IndexMat > const       &tEdgeParentInds      = tChildMesh.get_edge_parent_inds();
+                moris::Matrix< moris::DDSTMat > const &tEdgeParentRanks     = tChildMesh.get_edge_parent_ranks();
                 for ( size_t iEdge = 0; iEdge < tEdgeToNode.n_rows(); iEdge++ )
                 {
                     // Verify all edges with a parent rank of 1 have nodes which belong on that edge
                     if ( tEdgeParentRanks( iEdge ) == 1 )
                     {
-                        moris::Matrix< moris::IndexMat > tParentEdgeNodes = tParentEdgeToNodeMap.get_row( tEdgeParentInds( iEdge ) );
-                        moris::Matrix< moris::IndexMat > tChildEdgeNodes  = tEdgeToNode.get_row( iEdge );
+                        moris::Matrix< IndexMat > tParentEdgeNodes = tParentEdgeToNodeMap.get_row( tEdgeParentInds( iEdge ) );
+                        moris::Matrix< IndexMat > tChildEdgeNodes  = tEdgeToNode.get_row( iEdge );
 
                         CHECK( verify_edge_is_on_parent_edge( tParentEdgeNodes, tNodeCoords, tChildEdgeNodes ) );
                     }
@@ -970,16 +970,16 @@ namespace xtk
 
     TEST_CASE( "Bisected Tetrahedral Template", "[BISECT_TEMPLATE]" )
     {
-        moris::Matrix< moris::IndexMat > tNodeIndex( { { 0, 1, 2, 3 } } );
+        moris::Matrix< IndexMat > tNodeIndex( { { 0, 1, 2, 3 } } );
 
-        moris::Matrix< moris::IdMat > tNodeIds( { { 1, 2, 3, 4, 5 } } );
+        moris::Matrix< IdMat > tNodeIds( { { 1, 2, 3, 4, 5 } } );
 
-        moris::Matrix< moris::IndexMat > tElementsAncestry( { { 0 } } );    // Not used
-        moris::Matrix< moris::DDSTMat >  tElementNodeParentRanks( 1, 4, 0 );
-        moris::Matrix< moris::IndexMat > tParentEdgeInds( { { 0, 1, 2, 3, 4, 5 } } );
-        moris::Matrix< moris::DDSTMat >  tParentEdgeRanks( 1, 6, 1 );
-        moris::Matrix< moris::IndexMat > tParentFaceInds( { { 0, 1, 2, 3 } } );
-        moris::Matrix< moris::DDSTMat >  tParentFaceRanks( 1, 4, 2 );
+        moris::Matrix< IndexMat >       tElementsAncestry( { { 0 } } );    // Not used
+        moris::Matrix< moris::DDSTMat > tElementNodeParentRanks( 1, 4, 0 );
+        moris::Matrix< IndexMat >       tParentEdgeInds( { { 0, 1, 2, 3, 4, 5 } } );
+        moris::Matrix< moris::DDSTMat > tParentEdgeRanks( 1, 6, 1 );
+        moris::Matrix< IndexMat >       tParentFaceInds( { { 0, 1, 2, 3 } } );
+        moris::Matrix< moris::DDSTMat > tParentFaceRanks( 1, 4, 2 );
 
         moris::moris_index tNumPermutations = 6;
 
@@ -1007,25 +1007,25 @@ namespace xtk
             tChildMesh.add_node_ids( tNodeIds );
 
             // Set up node coordinates
-            moris::Matrix< moris::DDRMat > tNodeCoords;
+            moris::Matrix< DDRMat > tNodeCoords;
             setup_node_coordinates_bisected( iEdge, tNodeCoords );
 
             // Compute base tet volume
-            real tTetVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+            real tTetVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
 
             // Compute base element surface normals (parent faces)
-            moris::Matrix< moris::IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
-            size_t                                  tNumParentFaces   = tParentFaceToNode.n_rows();
-            moris::Matrix< moris::DDRMat >          tParentFaceNormals( 3, tNumParentFaces );
+            moris::Matrix< IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
+            size_t                           tNumParentFaces   = tParentFaceToNode.n_rows();
+            moris::Matrix< DDRMat >          tParentFaceNormals( 3, tNumParentFaces );
 
             // Iterate through and compute all face normals
             for ( size_t iF = 0; iF < tNumParentFaces; iF++ )
             {
                 // Get face iF nodes
-                moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
+                moris::Matrix< IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
 
-                moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                moris::Matrix< DDRMat > tFaceNormal( 3, 1, 9.0 );
+                gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                 tParentFaceNormals.set_column( iF, tFaceNormal );
             }
@@ -1036,14 +1036,14 @@ namespace xtk
             tChildMesh.modify_child_mesh( TemplateType::HIERARCHY_TET4 );
 
             // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
-            moris::moris_index               tMax       = std::numeric_limits< moris::moris_index >::max();
-            size_t                           tNumPhases = 2;
-            moris::Matrix< moris::IndexMat > tActiveElements( { { 0, 1 } } );
-            moris::Matrix< moris::IndexMat > tIncludedElementMarker( 1, 2, 1 );
-            moris::Matrix< moris::IndexMat > tElementPhase( 1, 2, 0 );
+            moris::moris_index        tMax       = std::numeric_limits< moris::moris_index >::max();
+            size_t                    tNumPhases = 2;
+            moris::Matrix< IndexMat > tActiveElements( { { 0, 1 } } );
+            moris::Matrix< IndexMat > tIncludedElementMarker( 1, 2, 1 );
+            moris::Matrix< IndexMat > tElementPhase( 1, 2, 0 );
 
-            moris::moris_index               tMaxFloodFill = 0;
-            moris::Matrix< moris::IndexMat > tElementSubphase =
+            moris::moris_index        tMaxFloodFill = 0;
+            moris::Matrix< IndexMat > tElementSubphase =
                     flood_fill( tChildMesh.get_element_to_element(),
                             tElementPhase,
                             tActiveElements,
@@ -1053,7 +1053,7 @@ namespace xtk
                             tMaxFloodFill,
                             true );
 
-            moris::Matrix< moris::IndexMat > tExpElementSubphase( 2, 1, 0 );
+            moris::Matrix< IndexMat > tExpElementSubphase( 2, 1, 0 );
             CHECK( equal_to( tExpElementSubphase, tElementSubphase ) );
 
             // Verify that the tets created have correct topology
@@ -1066,26 +1066,26 @@ namespace xtk
             CHECK( tValidTopo );
 
             // verify volume is conserved
-            real tTotalChildVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+            real tTotalChildVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
             ;
 
             CHECK( approximate( tTetVol, tTotalChildVol ) );
 
             // Check ancestry of faces
-            moris::Matrix< moris::IndexMat > const &tFaceToNode      = tChildMesh.get_face_to_node();
-            moris::Matrix< moris::IndexMat > const &tFaceParentInds  = tChildMesh.get_face_parent_inds();
-            moris::Matrix< moris::DDSTMat > const  &tFaceParentRanks = tChildMesh.get_face_parent_ranks();
-            size_t                                  tNumFaces        = tFaceToNode.n_rows();
-            moris::Matrix< moris::DDRMat >          tFaceNormals( 3, tNumFaces );
+            moris::Matrix< IndexMat > const       &tFaceToNode      = tChildMesh.get_face_to_node();
+            moris::Matrix< IndexMat > const       &tFaceParentInds  = tChildMesh.get_face_parent_inds();
+            moris::Matrix< moris::DDSTMat > const &tFaceParentRanks = tChildMesh.get_face_parent_ranks();
+            size_t                                 tNumFaces        = tFaceToNode.n_rows();
+            moris::Matrix< DDRMat >                tFaceNormals( 3, tNumFaces );
 
             // Iterate through and compute all face normals
             for ( size_t iF = 0; iF < tNumFaces; iF++ )
             {
                 // Get face iF nodes
-                moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
+                moris::Matrix< IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
 
-                moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                moris::Matrix< DDRMat > tFaceNormal( 3, 1, 9.0 );
+                gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                 tFaceNormals.set_column( iF, tFaceNormal );
             }
@@ -1097,8 +1097,8 @@ namespace xtk
             {
                 if ( tFaceParentRanks( 0, iF ) == 2 )
                 {
-                    moris::Matrix< moris::DDRMat > tChildFaceNormal  = tFaceNormals.get_column( iF );
-                    moris::Matrix< moris::DDRMat > tParentFaceNormal = tParentFaceNormals.get_column( tFaceParentInds( 0, iF ) );
+                    moris::Matrix< DDRMat > tChildFaceNormal  = tFaceNormals.get_column( iF );
+                    moris::Matrix< DDRMat > tParentFaceNormal = tParentFaceNormals.get_column( tFaceParentInds( 0, iF ) );
                     tChildFacewithParentFaceRank++;
                     CHECK( equal_to( tChildFaceNormal, tParentFaceNormal ) );
                 }
@@ -1106,18 +1106,18 @@ namespace xtk
             CHECK( tChildFacewithParentFaceRank == 6 );
 
             // Check Edge Ancestry
-            moris::mtk::Cell_Info_Tet4              tConn;
-            moris::Matrix< moris::IndexMat >        tParentEdgeToNodeMap = tConn.get_node_to_edge_map();
-            moris::Matrix< moris::IndexMat > const &tEdgeToNode          = tChildMesh.get_edge_to_node();
-            moris::Matrix< moris::IndexMat > const &tEdgeParentInds      = tChildMesh.get_edge_parent_inds();
-            moris::Matrix< moris::DDSTMat > const  &tEdgeParentRanks     = tChildMesh.get_edge_parent_ranks();
+            moris::mtk::Cell_Info_Tet4             tConn;
+            moris::Matrix< IndexMat >              tParentEdgeToNodeMap = tConn.get_node_to_edge_map();
+            moris::Matrix< IndexMat > const       &tEdgeToNode          = tChildMesh.get_edge_to_node();
+            moris::Matrix< IndexMat > const       &tEdgeParentInds      = tChildMesh.get_edge_parent_inds();
+            moris::Matrix< moris::DDSTMat > const &tEdgeParentRanks     = tChildMesh.get_edge_parent_ranks();
             for ( size_t iEdge = 0; iEdge < tEdgeToNode.n_rows(); iEdge++ )
             {
                 // Verify all edges with a parent rank of 1 have nodes which belong on that edge
                 if ( tEdgeParentRanks( iEdge ) == 1 )
                 {
-                    moris::Matrix< moris::IndexMat > tParentEdgeNodes = tParentEdgeToNodeMap.get_row( tEdgeParentInds( iEdge ) );
-                    moris::Matrix< moris::IndexMat > tChildEdgeNodes  = tEdgeToNode.get_row( iEdge );
+                    moris::Matrix< IndexMat > tParentEdgeNodes = tParentEdgeToNodeMap.get_row( tEdgeParentInds( iEdge ) );
+                    moris::Matrix< IndexMat > tChildEdgeNodes  = tEdgeToNode.get_row( iEdge );
 
                     CHECK( verify_edge_is_on_parent_edge( tParentEdgeNodes, tNodeCoords, tChildEdgeNodes ) );
                 }
@@ -1127,16 +1127,16 @@ namespace xtk
 
     TEST_CASE( "2 Edge intersected Tetrahedral Template", "[2_NODE]" )
     {
-        moris::Matrix< moris::IndexMat > tNodeIndex( { { 0, 1, 2, 3 } } );
+        moris::Matrix< IndexMat > tNodeIndex( { { 0, 1, 2, 3 } } );
 
-        moris::Matrix< moris::IdMat > tNodeIds( { { 1, 2, 3, 4, 5, 6 } } );
+        moris::Matrix< IdMat > tNodeIds( { { 1, 2, 3, 4, 5, 6 } } );
 
-        moris::Matrix< moris::IndexMat > tElementsAncestry( { { 0 } } );    // Not used
-        moris::Matrix< moris::DDSTMat >  tElementNodeParentRanks( 1, 4, 0 );
-        moris::Matrix< moris::IndexMat > tParentEdgeInds( { { 0, 1, 2, 3, 4, 5 } } );
-        moris::Matrix< moris::DDSTMat >  tParentEdgeRanks( 1, 6, 1 );
-        moris::Matrix< moris::IndexMat > tParentFaceInds( { { 0, 1, 2, 3 } } );
-        moris::Matrix< moris::DDSTMat >  tParentFaceRanks( 1, 4, 2 );
+        moris::Matrix< IndexMat >       tElementsAncestry( { { 0 } } );    // Not used
+        moris::Matrix< moris::DDSTMat > tElementNodeParentRanks( 1, 4, 0 );
+        moris::Matrix< IndexMat >       tParentEdgeInds( { { 0, 1, 2, 3, 4, 5 } } );
+        moris::Matrix< moris::DDSTMat > tParentEdgeRanks( 1, 6, 1 );
+        moris::Matrix< IndexMat >       tParentFaceInds( { { 0, 1, 2, 3 } } );
+        moris::Matrix< moris::DDSTMat > tParentFaceRanks( 1, 4, 2 );
 
         Permutations tPermutations( "2_node" );
         size_t       tNumPermutations = tPermutations.get_num_permutations();
@@ -1144,7 +1144,7 @@ namespace xtk
         for ( size_t iPerm = 0; iPerm < tNumPermutations; iPerm++ )
         {
             // select template
-            Cell< size_t > tCurrentPermutation = tPermutations.get_permutation( iPerm );
+            Vector< size_t > tCurrentPermutation = tPermutations.get_permutation( iPerm );
 
             moris::moris_index tEdgeL = tCurrentPermutation( 0 );
             moris::moris_index tEdgeH = tCurrentPermutation( 1 );
@@ -1171,24 +1171,24 @@ namespace xtk
             tChildMesh.add_node_ids( tNodeIds );
 
             // Set up node coordinates
-            moris::Matrix< moris::DDRMat > tNodeCoords;
+            moris::Matrix< DDRMat > tNodeCoords;
             setup_node_coordinates_2_node( tEdgeL, tEdgeH, tNodeCoords );
 
             // Compute base tet volume
-            real tTetVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+            real tTetVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
             // Compute base element surface normals (parent faces)
-            moris::Matrix< moris::IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
-            size_t                                  tNumParentFaces   = tParentFaceToNode.n_rows();
-            moris::Matrix< moris::DDRMat >          tParentFaceNormals( 3, tNumParentFaces );
+            moris::Matrix< IndexMat > const &tParentFaceToNode = tChildMesh.get_face_to_node();
+            size_t                           tNumParentFaces   = tParentFaceToNode.n_rows();
+            moris::Matrix< DDRMat >          tParentFaceNormals( 3, tNumParentFaces );
 
             // Iterate through and compute all face normals
             for ( size_t iF = 0; iF < tNumParentFaces; iF++ )
             {
                 // Get face iF nodes
-                moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
+                moris::Matrix< IndexMat > tFaceNodes = tParentFaceToNode.get_row( iF );
 
-                moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                moris::Matrix< DDRMat > tFaceNormal( 3, 1, 9.0 );
+                gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                 tParentFaceNormals.set_column( iF, tFaceNormal );
             }
@@ -1200,13 +1200,13 @@ namespace xtk
             tChildMesh.modify_child_mesh( TemplateType::HIERARCHY_TET4 );
 
             // Verify that if we set each element to the same bulk phase we can traverse the element to element connectivity
-            moris::moris_index               tMax       = std::numeric_limits< moris::moris_index >::max();
-            size_t                           tNumPhases = 2;
-            moris::Matrix< moris::IndexMat > tActiveElements( { { 0, 1, 2 } } );
-            moris::Matrix< moris::IndexMat > tIncludedElementMarker( 1, 3, 1 );
-            moris::Matrix< moris::IndexMat > tElementPhase( 1, 3, 0 );
-            moris::moris_index               tMaxFloodFill = 0;
-            moris::Matrix< moris::IndexMat > tElementSubphase =
+            moris::moris_index        tMax       = std::numeric_limits< moris::moris_index >::max();
+            size_t                    tNumPhases = 2;
+            moris::Matrix< IndexMat > tActiveElements( { { 0, 1, 2 } } );
+            moris::Matrix< IndexMat > tIncludedElementMarker( 1, 3, 1 );
+            moris::Matrix< IndexMat > tElementPhase( 1, 3, 0 );
+            moris::moris_index        tMaxFloodFill = 0;
+            moris::Matrix< IndexMat > tElementSubphase =
                     flood_fill( tChildMesh.get_element_to_element(),
                             tElementPhase,
                             tActiveElements,
@@ -1216,7 +1216,7 @@ namespace xtk
                             tMaxFloodFill,
                             true );
 
-            moris::Matrix< moris::IndexMat > tExpElementSubphase( 3, 1, 0 );
+            moris::Matrix< IndexMat > tExpElementSubphase( 3, 1, 0 );
             CHECK( equal_to( tExpElementSubphase, tElementSubphase ) );
 
             // Verify that the tets created have correct topology
@@ -1229,25 +1229,25 @@ namespace xtk
             CHECK( tValidTopo );
 
             // verify volume is conserved
-            real tTotalChildVol = ge::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
+            real tTotalChildVol = gen::compute_volume_for_multiple_tets( tNodeCoords, tChildMesh.get_element_to_node() );
 
             CHECK( approximate( tTetVol, tTotalChildVol ) );
 
             // Check ancestry of faces
-            moris::Matrix< moris::IndexMat > const &tFaceToNode      = tChildMesh.get_face_to_node();
-            moris::Matrix< moris::IndexMat > const &tFaceParentInds  = tChildMesh.get_face_parent_inds();
-            moris::Matrix< moris::DDSTMat > const  &tFaceParentRanks = tChildMesh.get_face_parent_ranks();
-            size_t                                  tNumFaces        = tFaceToNode.n_rows();
-            moris::Matrix< moris::DDRMat >          tFaceNormals( 3, tNumFaces );
+            moris::Matrix< IndexMat > const       &tFaceToNode      = tChildMesh.get_face_to_node();
+            moris::Matrix< IndexMat > const       &tFaceParentInds  = tChildMesh.get_face_parent_inds();
+            moris::Matrix< moris::DDSTMat > const &tFaceParentRanks = tChildMesh.get_face_parent_ranks();
+            size_t                                 tNumFaces        = tFaceToNode.n_rows();
+            moris::Matrix< DDRMat >                tFaceNormals( 3, tNumFaces );
 
             // Iterate through and compute all face normals
             for ( size_t iF = 0; iF < tNumFaces; iF++ )
             {
                 // Get face iF nodes
-                moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
+                moris::Matrix< IndexMat > tFaceNodes = tFaceToNode.get_row( iF );
 
-                moris::Matrix< moris::DDRMat > tFaceNormal( 3, 1, 9.0 );
-                ge::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
+                moris::Matrix< DDRMat > tFaceNormal( 3, 1, 9.0 );
+                gen::compute_tri_surface_normal( tFaceNodes, tNodeCoords, tFaceNormal, true );
 
                 tFaceNormals.set_column( iF, tFaceNormal );
             }
@@ -1259,8 +1259,8 @@ namespace xtk
             {
                 if ( tFaceParentRanks( 0, iF ) == 2 )
                 {
-                    moris::Matrix< moris::DDRMat > tChildFaceNormal  = tFaceNormals.get_column( iF );
-                    moris::Matrix< moris::DDRMat > tParentFaceNormal = tParentFaceNormals.get_column( tFaceParentInds( 0, iF ) );
+                    moris::Matrix< DDRMat > tChildFaceNormal  = tFaceNormals.get_column( iF );
+                    moris::Matrix< DDRMat > tParentFaceNormal = tParentFaceNormals.get_column( tFaceParentInds( 0, iF ) );
                     tChildFacewithParentFaceRank++;
                     CHECK( equal_to( tChildFaceNormal, tParentFaceNormal ) );
                 }
@@ -1268,18 +1268,18 @@ namespace xtk
             CHECK( tChildFacewithParentFaceRank == 8 );
 
             // Check Edge Ancestry
-            moris::mtk::Cell_Info_Tet4              tConn;
-            moris::Matrix< moris::IndexMat >        tParentEdgeToNodeMap = tConn.get_node_to_edge_map();
-            moris::Matrix< moris::IndexMat > const &tEdgeToNode          = tChildMesh.get_edge_to_node();
-            moris::Matrix< moris::IndexMat > const &tEdgeParentInds      = tChildMesh.get_edge_parent_inds();
-            moris::Matrix< moris::DDSTMat > const  &tEdgeParentRanks     = tChildMesh.get_edge_parent_ranks();
+            moris::mtk::Cell_Info_Tet4             tConn;
+            moris::Matrix< IndexMat >              tParentEdgeToNodeMap = tConn.get_node_to_edge_map();
+            moris::Matrix< IndexMat > const       &tEdgeToNode          = tChildMesh.get_edge_to_node();
+            moris::Matrix< IndexMat > const       &tEdgeParentInds      = tChildMesh.get_edge_parent_inds();
+            moris::Matrix< moris::DDSTMat > const &tEdgeParentRanks     = tChildMesh.get_edge_parent_ranks();
             for ( size_t iEdge = 0; iEdge < tEdgeToNode.n_rows(); iEdge++ )
             {
                 // Verify all edges with a parent rank of 1 have nodes which belong on that edge
                 if ( tEdgeParentRanks( iEdge ) == 1 )
                 {
-                    moris::Matrix< moris::IndexMat > tParentEdgeNodes = tParentEdgeToNodeMap.get_row( tEdgeParentInds( iEdge ) );
-                    moris::Matrix< moris::IndexMat > tChildEdgeNodes  = tEdgeToNode.get_row( iEdge );
+                    moris::Matrix< IndexMat > tParentEdgeNodes = tParentEdgeToNodeMap.get_row( tEdgeParentInds( iEdge ) );
+                    moris::Matrix< IndexMat > tChildEdgeNodes  = tEdgeToNode.get_row( iEdge );
 
                     CHECK( verify_edge_is_on_parent_edge( tParentEdgeNodes, tNodeCoords, tChildEdgeNodes ) );
                 }
@@ -1293,15 +1293,15 @@ namespace xtk
     //     // Floodfill which checks whether the element to element connectivity is traversable
     //     // Topology which checks whether the new tets have the correct topology
     //
-    //     moris::Matrix< moris::IndexMat > tNodeIndex({{0,1,2,3}});
+    //     moris::Matrix< IndexMat > tNodeIndex({{0,1,2,3}});
     //
-    //     moris::Matrix< moris::IdMat > tNodeIds({{1,2,3,4,5,6,7,8}});
+    //     moris::Matrix< IdMat > tNodeIds({{1,2,3,4,5,6,7,8}});
     //
     //
-    //     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
-    //     moris::Matrix< moris::IndexMat > tParentEdgeInds({{0,1,2,3,4,5}});
+    //     moris::Matrix< IndexMat > tElementsAncestry({{0}}); // Not used
+    //     moris::Matrix< IndexMat > tParentEdgeInds({{0,1,2,3,4,5}});
     //     moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,6,1);
-    //     moris::Matrix< moris::IndexMat > tParentFaceInds({{0,1,2,3}});
+    //     moris::Matrix< IndexMat > tParentFaceInds({{0,1,2,3}});
     //     moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,4,2);
     //
     //     Cell<std::string> tCaseNames = {"pa","na","pb","nb","pc","nc"};
@@ -1361,7 +1361,7 @@ namespace xtk
     //                moris::moris_index tPermutationId1 = 1000*tEdgeH1 + 100*tEdgeMH1 + 10 * tEdgeML1 + tEdgeL1;
     //
     //                // Set up node coordinates
-    //                moris::Matrix< moris::DDRMat > tNodeCoords;
+    //                moris::Matrix< DDRMat > tNodeCoords;
     //                setup_node_coordinates_4_node(tEdgeL1,tEdgeML1,tEdgeMH1,tEdgeH1,tNodeCoords);
     //
     //                // ------------------------------------------------
@@ -1369,20 +1369,20 @@ namespace xtk
     //                // ------------------------------------------------
     //
     //                // Compute base tet volume
-    //                real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+    //                real tTetVol = gen::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
     //
     //                // Compute base element surface normals (parent faces)
-    //                moris::Matrix< moris::IndexMat > const & tParentFaceToNode = tChildMesh.get_face_to_node();
+    //                moris::Matrix< IndexMat > const & tParentFaceToNode = tChildMesh.get_face_to_node();
     //                size_t tNumParentFaces = tParentFaceToNode.n_rows();
-    //                moris::Matrix< moris::DDRMat > tParentFaceNormals(3,tNumParentFaces);
+    //                moris::Matrix< DDRMat > tParentFaceNormals(3,tNumParentFaces);
     //
     //                // Iterate through and compute all face normals
     //                for( size_t iF = 0; iF<tNumParentFaces; iF++)
     //                {
     //                    // Get face iF nodes
-    //                    moris::Matrix< moris::IndexMat > tFaceNodes = tParentFaceToNode.get_row(iF);
+    //                    moris::Matrix< IndexMat > tFaceNodes = tParentFaceToNode.get_row(iF);
     //
-    //                    moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
+    //                    moris::Matrix< DDRMat > tFaceNormal(3,1,9.0);
     //                    compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
     //
     //                    tParentFaceNormals.set_column(iF,tFaceNormal);
@@ -1393,7 +1393,7 @@ namespace xtk
     //                // ------------------------------------------------
     //
     //                // Initialize/set  intersection connectivity in child mesh for first level modification
-    //                moris::Matrix< moris::IndexMat > tIntersectConn({{4,4,5,6,7,INT_MAX,INT_MAX,tEdgeL1,tEdgeML1,tEdgeMH1,tEdgeH1,INT_MAX,INT_MAX}});
+    //                moris::Matrix< IndexMat > tIntersectConn({{4,4,5,6,7,INT_MAX,INT_MAX,tEdgeL1,tEdgeML1,tEdgeMH1,tEdgeH1,INT_MAX,INT_MAX}});
     //                tChildMesh.set_intersect_connectivity(tIntersectConn);
     //                tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
     //
@@ -1402,8 +1402,8 @@ namespace xtk
     //                // ------------------------------------------------
     //                // Replacing element 0
     //                // Node Ids for this template
-    //                moris::Matrix< moris::IndexMat > tNodeInds2({{11,10,9,8}});
-    //                moris::Matrix< moris::IdMat > tNodeIds2({{12,11,10,9}});
+    //                moris::Matrix< IndexMat > tNodeInds2({{11,10,9,8}});
+    //                moris::Matrix< IdMat > tNodeIds2({{12,11,10,9}});
     //                tChildMesh.add_node_indices(tNodeInds2);
     //                tChildMesh.add_node_ids(tNodeIds);
     //
@@ -1411,8 +1411,8 @@ namespace xtk
     //                tChildMesh.init_intersect_connectivity();
     //
     //
-    //                moris::Matrix< moris::IndexMat > const & tElemToEdge = tChildMesh.get_element_to_edge();
-    //                moris::Matrix< moris::IndexMat > const & tEdgeToNode = tChildMesh.get_edge_to_node();
+    //                moris::Matrix< IndexMat > const & tElemToEdge = tChildMesh.get_element_to_edge();
+    //                moris::Matrix< IndexMat > const & tEdgeToNode = tChildMesh.get_edge_to_node();
     //                moris::moris_index  tEdgeL2 = tElemToEdge(0,tEdgeOrdL2);
     //                moris::moris_index  tEdgeML2 = tElemToEdge(0,tEdgeOrdML2);
     //                moris::moris_index  tEdgeMH2 = tElemToEdge(0,tEdgeOrdMH2);
@@ -1426,10 +1426,10 @@ namespace xtk
     //                // Set up node coordinates for second template insertion
     //                tNodeCoords.resize(tNodeCoords.n_rows() + 4,tNodeCoords.n_cols());
     //
-    //                moris::Matrix< moris::DDRMat > tMidSideCoord(1,3);
+    //                moris::Matrix< DDRMat > tMidSideCoord(1,3);
     //
-    //                moris::Matrix< moris::DDRMat > tN1Coord = tNodeCoords.get_row(tEdgeToNode(tEdgeL2,0));
-    //                moris::Matrix< moris::DDRMat > tN2Coord = tNodeCoords.get_row(tEdgeToNode(tEdgeL2,1));
+    //                moris::Matrix< DDRMat > tN1Coord = tNodeCoords.get_row(tEdgeToNode(tEdgeL2,0));
+    //                moris::Matrix< DDRMat > tN2Coord = tNodeCoords.get_row(tEdgeToNode(tEdgeL2,1));
     //
     //                tMidSideCoord =  0.5 * ( tN1Coord + tN2Coord ) ;
     //                tNodeCoords.set_row(11,tMidSideCoord);
@@ -1469,24 +1469,24 @@ namespace xtk
     //                CHECK(tValidTopo);
     //
     //                // verify volume is conserved
-    //                real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
+    //                real tTotalChildVol = gen::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
     //                CHECK(approximate(tTetVol,tTotalChildVol));
     //
     //
     //                // Check ancestry of faces
-    //                moris::Matrix< moris::IndexMat > const & tFaceToNode      = tChildMesh.get_face_to_node();
-    //                moris::Matrix< moris::IndexMat > const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
+    //                moris::Matrix< IndexMat > const & tFaceToNode      = tChildMesh.get_face_to_node();
+    //                moris::Matrix< IndexMat > const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
     //                moris::Matrix< moris::DDSTMat > const & tFaceParentRanks = tChildMesh.get_face_parent_ranks();
     //                size_t tNumFaces = tFaceToNode.n_rows();
-    //                moris::Matrix< moris::DDRMat > tFaceNormals(3,tNumFaces);
+    //                moris::Matrix< DDRMat > tFaceNormals(3,tNumFaces);
     //
     //                // Iterate through and compute all face normals
     //                for( size_t iF = 0; iF<tNumFaces; iF++)
     //                {
     //                    // Get face iF nodes
-    //                    moris::Matrix< moris::IndexMat > tFaceNodes = tFaceToNode.get_row(iF);
+    //                    moris::Matrix< IndexMat > tFaceNodes = tFaceToNode.get_row(iF);
     //
-    //                    moris::Matrix< moris::DDRMat > tFaceNormal(3,1,9.0);
+    //                    moris::Matrix< DDRMat > tFaceNormal(3,1,9.0);
     //                    compute_tri_surface_normal( tFaceNodes,tNodeCoords, tFaceNormal, true);
     //
     //                    tFaceNormals.set_column(iF,tFaceNormal);
@@ -1499,8 +1499,8 @@ namespace xtk
     //                {
     //                    if( tFaceParentRanks(0,iF) == 2)
     //                    {
-    //                        moris::Matrix< moris::DDRMat > tChildFaceNormal  = tFaceNormals.get_column(iF);
-    //                        moris::Matrix< moris::DDRMat > tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
+    //                        moris::Matrix< DDRMat > tChildFaceNormal  = tFaceNormals.get_column(iF);
+    //                        moris::Matrix< DDRMat > tParentFaceNormal = tParentFaceNormals.get_column(tFaceParentInds(0,iF));
     //                        tChildFacewithParentFaceRank++;
     //
     //                        CHECK(equal_to(tChildFaceNormal, tParentFaceNormal));
@@ -1512,4 +1512,4 @@ namespace xtk
     //    }
     //}
 
-}    // namespace xtk
+}    // namespace moris::xtk

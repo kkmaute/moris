@@ -12,8 +12,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "cl_Cell.hpp"
-#include "typedefs.hpp"
+#include "cl_Vector.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -29,8 +29,8 @@ namespace moris
 
         Object::Object( const std::string& aFilePath,
                 real                       aIntersectionTolerance,
-                const Cell< real >&        aOffsets,
-                const Cell< real >&        aScale )
+                const Vector< real >&        aOffsets,
+                const Vector< real >&        aScale )
                 : mNumberOfFacets( 0 )
         {
             MORIS_ERROR( aOffsets.size() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
@@ -56,10 +56,10 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::load_from_object_file( const std::string& aFilePath, const moris::Cell< real >& aOffsets, const moris::Cell< real >& aScale )
+        Object::load_from_object_file( const std::string& aFilePath, const Vector< real >& aOffsets, const Vector< real >& aScale )
         {
             // copy file into buffer
-            moris::Cell< std::string > tBuffer;
+            Vector< std::string > tBuffer;
             this->load_ascii_to_buffer( aFilePath, tBuffer );
 
             // step 1: count number of dimensions, vertices and facets in file
@@ -178,7 +178,7 @@ namespace moris
                 if ( tBuffer( k ).substr( 0, 2 ) == "f " )
                 {
                     // temporary container for vertices
-                    moris::Cell< std::shared_ptr< Facet_Vertex > > tNodes( mDimension, nullptr );
+                    Vector< std::shared_ptr< Facet_Vertex > > tNodes( mDimension, nullptr );
                     Matrix< DDUMat >                               tNodeIndices( 3, 1 );
                     // read facet topology
                     if ( mDimension == 3 )
@@ -242,7 +242,7 @@ namespace moris
         //-------------------------------------------------------------------------------
         void
         Object::load_ascii_to_buffer( const std::string& aFilePath,
-                moris::Cell< std::string >&              aBuffer )
+                Vector< std::string >&              aBuffer )
         {
             // try to open ascii file
             std::ifstream tAsciiFile( aFilePath );
@@ -286,7 +286,7 @@ namespace moris
         Object::load_from_stl_file( const std::string& aFilePath )
         {
             // copy file into buffer
-            moris::Cell< std::string > tBuffer;
+            Vector< std::string > tBuffer;
             this->load_ascii_to_buffer( aFilePath, tBuffer );
 
             // get length of buffer
@@ -332,7 +332,7 @@ namespace moris
             for ( uint k = 0; k < tBufferLength; ++k )
             {
                 // extract first word from string
-                moris::Cell< std::string > tWords = string_to_words( tBuffer( k ) );
+                Vector< std::string > tWords = string_to_words( tBuffer( k ) );
 
                 if ( tWords.size() > 0 )
                 {
@@ -366,7 +366,7 @@ namespace moris
             tTriangleCount = 0;
 
             // temporary container for vertices
-            moris::Cell< std::shared_ptr< Facet_Vertex > > tNodes( 3, nullptr );
+            Vector< std::shared_ptr< Facet_Vertex > > tNodes( 3, nullptr );
 
             // create triangles
             for ( uint iTriangle = 0; iTriangle < tNumberOfTriangles; ++iTriangle )
@@ -406,7 +406,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::scale( const moris::Cell< real >& aScaling )
+        Object::scale( const Vector< real >& aScaling )
         {
             MORIS_ASSERT( aScaling.size() == mDimension, "SDF_Object: scale_object() - Scaling factors must be equal to object dimension." );
 
@@ -421,7 +421,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Object::shift( const moris::Cell< real >& aShift )
+        Object::shift( const Vector< real >& aShift )
         {
             MORIS_ASSERT( aShift.size() == mDimension, "SDF_Object::shift_object() - Shift must be equal to object dimension." );
 

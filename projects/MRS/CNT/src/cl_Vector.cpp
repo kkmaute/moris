@@ -8,32 +8,31 @@
  *
  */
 
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 
 // C++ header files.
 #include <vector>
-#include <algorithm> // for unique
+#include <algorithm>    // for unique
 #include <iostream>
 
 // MORIS library header files.
-#include "typedefs.hpp" // COR/src
+#include "moris_typedefs.hpp"    // COR/src
 #include "assert.hpp"
 
 namespace moris
 {
     //------------------------------------------------------------------
 
-    inline
-    moris::Cell<char>
-    string_to_char(moris::Cell<std::string>& strings)
+    inline Vector< char >
+    string_to_char( Vector< std::string >& strings )
     {
-        moris::Cell<char> cstrings;
-        cstrings.reserve(strings.size());
-        for(std::string s: strings)
+        Vector< char > cstrings;
+        cstrings.reserve( strings.size() );
+        for ( std::string s : strings )
         {
-            for(size_t i = 0; i < strlen(s.c_str()); ++i)
+            for ( size_t i = 0; i < strlen( s.c_str() ); ++i )
             {
-                cstrings.push_back(s.c_str()[i]);
+                cstrings.push_back( s.c_str()[ i ] );
             }
         }
 
@@ -42,5 +41,4 @@ namespace moris
 
     //------------------------------------------------------------------
 
-} // namespace moris
-
+}    // namespace moris

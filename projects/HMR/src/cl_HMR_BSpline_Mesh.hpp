@@ -18,7 +18,7 @@
 #include "cl_HMR_Parameters.hpp"                 //HMR/src
 #include "fn_HMR_calculate_basis_identifier.hpp"
 #include "HMR_Globals.hpp"                       //HMR/src
-#include "typedefs.hpp"                          //COR/src
+#include "moris_typedefs.hpp"                          //COR/src
 #include "cl_Stopwatch.hpp"                      //CHR/src
 
 namespace moris::hmr
@@ -182,7 +182,7 @@ namespace moris::hmr
         void
         evaluate_child_matrices(
                 const Matrix< DDUMat >&   aBasisIndices,
-                Cell< Matrix< DDRMat > >& aChildMatrices )
+                Vector< Matrix< DDRMat > >& aChildMatrices )
         {
             // Number of children per element
             uint tNumberOfChildren = std::pow( 2, N );
@@ -237,7 +237,7 @@ namespace moris::hmr
                 aChildMatrices.resize( tNumberOfChildren, tScaleMat );
 
                 // Left and right matrices
-                Cell< Matrix< DDRMat > > tT( 2, Matrix< DDRMat >( tNumCoefficients, tNumCoefficients ) );
+                Vector< Matrix< DDRMat > > tT( 2, Matrix< DDRMat >( tNumCoefficients, tNumCoefficients ) );
 
                 // Fill matrices
                 for ( uint iCoefficient = 0; iCoefficient < tNumCoefficients; iCoefficient++ )
@@ -566,8 +566,8 @@ namespace moris::hmr
 
         void
         preprocess_bases_from_level(
-                Cell< Element* >& aElements,
-                Cell< Basis* >&   aBasisFunctions ) override
+                Vector< Element* >& aElements,
+                Vector< Basis* >&   aBasisFunctions ) override
         {
             // reset flags for basis
             for ( Element* tElement : aElements )
@@ -736,7 +736,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        determine_basis_state( Cell< Basis* >& aBases ) override
+        determine_basis_state( Vector< Basis* >& aBases ) override
         {
             // loop over all basis functions parsed into this function and flag them as (de-)activated and as (non-)refined
             for ( Basis* iBasisFunction : aBases )
@@ -816,13 +816,13 @@ namespace moris::hmr
             uint tMaxLevel = mBackgroundMesh->get_max_level();
 
             // Cell containing children
-            Cell< Basis* > tChildren;
+            Vector< Basis* > tChildren;
 
             // loop over all levels but the last
             for ( uint iLevel = 0; iLevel < tMaxLevel; iLevel++ )
             {
                 // make children from last step to parents
-                Cell< Basis* > tBasis;
+                Vector< Basis* > tBasis;
                 this->collect_bases_from_level( iLevel, tBasis );
 
                 // loop over all basis on this level
@@ -874,8 +874,8 @@ namespace moris::hmr
         void
         delete_unused_bases(
                 uint                              aLevel,
-                Cell< Background_Element_Base* >& aBackgroundElements,
-                Cell< Basis* >&                   aBasis ) override
+                Vector< Background_Element_Base* >& aBackgroundElements,
+                Vector< Basis* >&                   aBasis ) override
         {
             // start timer
             tic tTimer;
@@ -888,7 +888,7 @@ namespace moris::hmr
                 // step 1: remove basis from parents
 
                 // collect basis from upper level
-                Cell< Basis* > tParents;
+                Vector< Basis* > tParents;
 
                 this->collect_bases_from_level( aLevel - 1, tParents );
 
@@ -980,7 +980,7 @@ namespace moris::hmr
                 }
 
                 // initialize output array
-                Cell< Basis* > tBasisOut( tBasisCount, nullptr );
+                Vector< Basis* > tBasisOut( tBasisCount, nullptr );
 
                 // reset counter
                 tBasisCount = 0;
@@ -1027,9 +1027,9 @@ namespace moris::hmr
         void
         collect_bases_from_level(
                 uint            aLevel,
-                Cell< Basis* >& aBasis ) override
+                Vector< Basis* >& aBasis ) override
         {
-            Cell< Element* > tElements;
+            Vector< Element* > tElements;
 
             this->collect_active_and_refined_elements_from_level( aLevel, tElements );
 

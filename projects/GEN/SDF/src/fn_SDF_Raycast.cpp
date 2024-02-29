@@ -64,7 +64,7 @@ namespace moris::sdf
         return tPointIsInside;
     }
 
-    moris::Cell< real >
+    Vector< real >
     compute_distance_to_facets(
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
@@ -82,11 +82,11 @@ namespace moris::sdf
             case 2:
             {
                 // preselect lines in the aAxis direction
-                moris::Cell< uint > tIntersectedFacets;
+                moris::Vector< uint > tIntersectedFacets;
                 preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tFacetsToIntersect );
 
                 // get pointers to all facets in tIntersectedFacets to compute intersection location
-                moris::Cell< Facet* > tFacetsFromCandidates( tIntersectedFacets.size() );
+                moris::Vector< Facet* > tFacetsFromCandidates( tIntersectedFacets.size() );
                 for ( uint iCandidate = 0; iCandidate < tIntersectedFacets.size(); iCandidate++ )
                 {
                     tFacetsFromCandidates( iCandidate ) = &aObject.get_facet( tIntersectedFacets( iCandidate ) );
@@ -100,7 +100,7 @@ namespace moris::sdf
             case 3:
             {
                 // preselect triangles in positive and negative aAxis directions for intersection test
-                moris::Cell< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
+                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
                 // filter out facets that are definitely in the negative aAxis direction from the point
                 // FIXME: a different preselection function could be written to avoid extra checks
@@ -124,7 +124,7 @@ namespace moris::sdf
         }
 
         // compute intersection locations
-        moris::Cell< real > tIntersectionCoordinates = intersect_ray_with_facets( tFacetsToIntersect, aPoint, Preselection_Result::SUCCESS, aAxis );
+        moris::Vector< real > tIntersectionCoordinates = intersect_ray_with_facets( tFacetsToIntersect, aPoint, Preselection_Result::SUCCESS, aAxis );
 
         // remove intersection locations that are behind the point
         for ( uint iIntersection = 0; iIntersection < tIntersectionCoordinates.size(); iIntersection++ )
@@ -150,9 +150,9 @@ namespace moris::sdf
             case 2:
             {
                 // preselect lines in the aAxis direction
-                moris::Cell< uint >   tIntersectedFacets;
-                moris::Cell< Facet* > tCandidateFacets;
-                Preselection_Result   tPreselectionResult = preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tCandidateFacets );
+                Vector< uint >      tIntersectedFacets;
+                Vector< Facet* >    tCandidateFacets;
+                Preselection_Result tPreselectionResult = preselect_lines( aObject, aPoint, aAxis, tIntersectedFacets, tCandidateFacets );
 
                 // the ray will intersect a vertex, cast again in another direction
                 if ( tPreselectionResult == Preselection_Result::FAIL_CAST_TO_VERTEX )
@@ -171,7 +171,7 @@ namespace moris::sdf
                 }
 
                 // compute intersection coordinates if the point is inside a line's bounding box
-                moris::Cell< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, tPreselectionResult, aAxis );
+                moris::Vector< real > tIntersectionCoords = intersect_ray_with_facets( tCandidateFacets, aPoint, tPreselectionResult, aAxis );
 
                 // check if the node is inside the polygon
                 return check_if_node_is_inside_lines( aObject, tIntersectionCoords, tIntersectedFacets, aPoint, aAxis );
@@ -179,18 +179,18 @@ namespace moris::sdf
             case 3:
             {
                 // preselect triangles for intersection test
-                moris::Cell< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
+                Vector< uint > tCandidateFacets = preselect_triangles( aObject, aPoint, aAxis );
 
                 // from the candidate triangles, perform intersection
                 if ( tCandidateFacets.size() > 0 )
                 {
-                    moris::Cell< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
+                    Vector< Facet* > tIntersectedFacets = intersect_triangles( tCandidateFacets, aObject, aPoint, aAxis );
 
                     // intersect ray with triangles and check if node is inside
                     if ( tIntersectedFacets.size() > 0 )
                     {
                         // FIXME: handle casting onto vertices by changing intersect_triangles to return a preselection result
-                        moris::Cell< real > tIntersectionCoords =
+                        moris::Vector< real > tIntersectionCoords =
                                 intersect_ray_with_facets( tIntersectedFacets, aPoint, Preselection_Result::SUCCESS, aAxis );
 
                         return check_if_node_is_inside_triangles( tIntersectionCoords, aPoint, aAxis );
@@ -206,7 +206,7 @@ namespace moris::sdf
         }
     }
 
-    moris::Cell< uint >
+    Vector< uint >
     preselect_triangles(
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
@@ -243,8 +243,8 @@ namespace moris::sdf
             }
         }
 
-        uint         tCountJ = 0;
-        Cell< uint > tCandJ( aObject.get_num_facets() );
+        uint           tCountJ = 0;
+        Vector< uint > tCandJ( aObject.get_num_facets() );
         for ( uint iFacetIndex = 0; iFacetIndex < aObject.get_num_facets(); ++iFacetIndex )
         {
             // check bounding box in J-direction
@@ -264,7 +264,7 @@ namespace moris::sdf
         uint tCount = 0;
 
         // reset candidate size
-        Cell< uint > tCandidateFacets( aObject.get_num_facets() );
+        Vector< uint > tCandidateFacets( aObject.get_num_facets() );
 
         // loop over remaining triangles in I-direction
         for ( uint k = 0; k < tCountJ; ++k )
@@ -291,8 +291,8 @@ namespace moris::sdf
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis,
-            moris::Cell< uint >&    aIntersectedFacets,
-            moris::Cell< Facet* >&  aCandidateFacets )
+            Vector< uint >&         aIntersectedFacets,
+            Vector< Facet* >&       aCandidateFacets )
     {
         Preselection_Result tPreselectionSuccessful = SUCCESS;
 
@@ -383,9 +383,9 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-    Cell< Facet* >
+    Vector< Facet* >
     intersect_triangles(
-            Cell< uint >&     aCandidateFacets,
+            Vector< uint >&   aCandidateFacets,
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
             uint              aAxis )
@@ -417,7 +417,7 @@ namespace moris::sdf
         }
 
         // resize container with intersected triangles
-        moris::Cell< Facet* > tIntersectedFacets( tCount );
+        Vector< Facet* > tIntersectedFacets( tCount );
 
         // reset counter
         tCount = 0;
@@ -443,9 +443,9 @@ namespace moris::sdf
 
     //-------------------------------------------------------------------------------
 
-    moris::Cell< real >
+    Vector< real >
     intersect_ray_with_facets(
-            moris::Cell< Facet* >&  aIntersectedFacets,
+            Vector< Facet* >&       aIntersectedFacets,
             const Matrix< DDRMat >& aPoint,
             Preselection_Result     tRayOnVertex,
             uint                    aAxis )
@@ -513,7 +513,7 @@ namespace moris::sdf
             uint tCountUnique = 0;
 
             // initialize return Cell
-            moris::Cell< real > tIntersectionCoords( tCount );
+            Vector< real > tIntersectionCoords( tCount );
 
             // set first entry
             tIntersectionCoords( tCountUnique++ ) = tCoordsKSorted( 0 );
@@ -539,9 +539,9 @@ namespace moris::sdf
 
     Object_Region
     check_if_node_is_inside_triangles(
-            moris::Cell< real >& aIntersectionCoords,
-            Matrix< DDRMat >&    aPoint,
-            uint                 aAxis )
+            Vector< real >&   aIntersectionCoords,
+            Matrix< DDRMat >& aPoint,
+            uint              aAxis )
     {
         uint tNumCoordsK = aIntersectionCoords.size();
 
@@ -566,8 +566,8 @@ namespace moris::sdf
     Object_Region
     check_if_node_is_inside_lines(
             Object&                 aObject,
-            const Cell< real >&     aIntersectionCoords,
-            const Cell< uint >&     aCandidateFacets,
+            const Vector< real >&     aIntersectionCoords,
+            const Vector< uint >&     aCandidateFacets,
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis )
     {

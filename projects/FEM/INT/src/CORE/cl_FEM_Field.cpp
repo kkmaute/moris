@@ -41,7 +41,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         void
-        Field::set_field_type( const moris::Cell< mtk::Field_Type >& aType )
+        Field::set_field_type( const Vector< mtk::Field_Type >& aType )
         {
             mFieldType = aType;
 
@@ -72,7 +72,7 @@ namespace moris
         Field::get_values(
                 Matrix< IndexMat > const &      aIndex,
                 Matrix< DDRMat >&               aValues,
-                Cell< mtk::Field_Type > const & aFieldTypes )
+                Vector< mtk::Field_Type > const & aFieldTypes )
         {
             // FIXME translate field types into index. implement map
             uint tNumFields = mFieldType.size();

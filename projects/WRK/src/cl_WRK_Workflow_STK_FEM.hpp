@@ -12,8 +12,8 @@
 #define PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_STK_FEM_HPP_
 
 #include "cl_WRK_Workflow.hpp"
-#include "typedefs.hpp"                       //MRS/COR/src
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"                       //MRS/COR/src
+#include "cl_Vector.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -76,7 +76,7 @@ namespace moris
                 Matrix<DDRMat> compute_dcriteria_dadv();
 
                 void
-                create_stk(Cell< Cell<ParameterList> > & aParameterLists);
+                create_stk( Vector< Vector<ParameterList> > & aParameterLists);
 
         };
         //------------------------------------------------------------------------------

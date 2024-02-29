@@ -9,7 +9,7 @@
  */
 #include "cl_NLA_Solver_Pseudo_Time_Control.hpp"
 
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_Communication_Tools.hpp"
 
@@ -66,6 +66,9 @@ namespace moris
 
             // get time offsets for outputting pseudo time steps; if offset is zero no output is written
             mTimeOffSet = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_offset" );
+
+            // number of initial iterations without time step size control at constant time step
+            mInitialIterations = aParameterListNonlinearSolver.get< sint >( "NLA_pseudo_time_initial_steps" );
 
             // strategy depending parameters
             switch ( mTimeStepStrategy )
@@ -202,6 +205,12 @@ namespace moris
                 }
             }
 
+            // overwrite initial time step size if initialization phase is used, i.e. mInitialIterations > 1
+            if ( mInitialIterations > 1 )
+            {
+                mInitialStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_initial" );
+            }
+
             // store solver interface
             mSolverInterface = aNonLinSolverManager->get_solver_interface();
 
@@ -229,8 +238,8 @@ namespace moris
             sol::Dist_Map* tMapCurrent  = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
             sol::Dist_Map* tMapPrevious = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
 
-            mFullCurrentSolution  = tMatFactory.create_vector( mSolverInterface, tMapCurrent, tNumRHMS );
-            mFullPreviousSolution = tMatFactory.create_vector( mSolverInterface, tMapPrevious, tNumRHMS );
+            mFullCurrentSolution  = tMatFactory.create_vector( mSolverInterface, tMapCurrent, tNumRHMS, false, true );
+            mFullPreviousSolution = tMatFactory.create_vector( mSolverInterface, tMapPrevious, tNumRHMS, false, true );
 
             // set flag to compute static residual
             aNonLinSolverManager->set_compute_static_residual_flag( true );
@@ -301,12 +310,29 @@ namespace moris
                 sol::Dist_Vector* aCurrentSolution,
                 real&             aTimeStep,
                 real&             aTotalTime,
-                real&             aRelResNorm )
+                real&             aRelResNorm,
+                const uint        aIterationId )
         {
             // skip setting remaining parameters if no pseudo time step control is used
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
             {
                 return true;
+            }
+
+            // skip time control if in initial phase
+            // note (a) the internal time step counter is not increased and total time remains at zero
+            // note (b) since the new time step is computed for the next iteration the condition is
+            //          aIterationId < mInitialIterations instead of aIterationId <= mInitialIterations
+            if ( aIterationId < mInitialIterations )
+            {
+                aTimeStep   = mInitialStepSize;
+                aTotalTime  = 0;
+                aRelResNorm = 1.0;
+
+                MORIS_LOG_INFO( "In initialization phase - using pseudo time step: %e", aTimeStep );
+
+                // return that time continuation has not finished yet
+                return false;
             }
 
             // initialize flag whether to perform update of "previous" solution
@@ -499,7 +525,7 @@ namespace moris
                         MORIS_LOG_INFO( "tRelNumIter %f", tRelNumIter );
 
                         // increase time step
-                        if ( tRelNumIter < 0.4 )
+                        if ( tRelNumIter < 0.7 )
                         {
                             aTimeStep = mPrevStepSize * mResidualFactor;
                         }

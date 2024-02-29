@@ -89,7 +89,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -159,7 +159,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Density_Bulk::compute_jacobian_strong_form(
-                moris::Cell< MSI::Dof_Type >   aDofTypes,
+                Vector< MSI::Dof_Type >   aDofTypes,
                 Matrix< DDRMat >             & aJM,
                 Matrix< DDRMat >             & aJC )
         {

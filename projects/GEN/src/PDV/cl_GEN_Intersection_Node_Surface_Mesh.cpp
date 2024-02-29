@@ -14,11 +14,11 @@
 
 #include "fn_norm.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     Intersection_Node_Surface_Mesh::Intersection_Node_Surface_Mesh(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,
@@ -71,4 +71,4 @@ namespace moris::ge
     
     //--------------------------------------------------------------------------------------------------------------
     
-}    // namespace moris::ge
+}    // namespace moris::gen

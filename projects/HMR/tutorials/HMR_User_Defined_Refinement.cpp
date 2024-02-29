@@ -12,7 +12,7 @@
 #include <iostream>
 
 #include "cl_HMR_Element.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 

@@ -13,19 +13,19 @@
 
 #include "cl_Matrix.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     /*
      * Compute the volume of a hexahedron
      */
 
     template< typename Real_Matrix >
-    inline typename moris::Matrix< Real_Matrix >::Data_Type
+    inline typename Matrix< Real_Matrix >::Data_Type
     compute_hex_8_volume(
-            moris::Matrix< Real_Matrix > const &     aNodeCoordinates,
-            moris::Matrix< moris::IndexMat > const & aNodeToElement )
+            Matrix< Real_Matrix > const &aNodeCoordinates,
+            Matrix< IndexMat > const    &aNodeToElement )
     {
-        typedef typename moris::Matrix< Real_Matrix >::Data_Type Real;
+        typedef typename Matrix< Real_Matrix >::Data_Type Real;
 
         // Choose nodes 0 and 7 to get lengths
         Real tLx = std::abs( aNodeCoordinates( aNodeToElement( 0 ), 0 ) - aNodeCoordinates( aNodeToElement( 6 ), 0 ) );
@@ -34,6 +34,6 @@ namespace xtk
 
         return tLx * tLy * tLz;
     }
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_TOOLS_FN_HEX_8_VOLUME_HPP_ */

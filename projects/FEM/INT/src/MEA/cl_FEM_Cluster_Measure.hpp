@@ -12,9 +12,9 @@
 #define SRC_FEM_CL_FEM_CLUSTER_MEASURE_HPP_
 
 //MRS/COR/src
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 //#include "linalg_typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "cl_Vector.hpp"
 //LNA/src
 #include "cl_Matrix.hpp"
 #include "cl_FEM_Enums.hpp"

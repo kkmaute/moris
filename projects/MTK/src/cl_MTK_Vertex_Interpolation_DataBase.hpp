@@ -88,7 +88,7 @@ namespace moris
              * set the coefficient objects
              */
             virtual void
-            set_coefficients( moris::Cell< Vertex* >& aCoefficients ) override;
+            set_coefficients( Vector< Vertex* >& aCoefficients ) override;
 
             //------------------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ namespace moris
              * returns the pointers to the coefficient objects
              */
             virtual
-            moris::Cell< Vertex* >&
+            Vector< Vertex* >&
             get_coefficients() override;
 
             //------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ namespace moris
              * returns the pointers to the coefficient objects (const version)
              */
             virtual
-            const moris::Cell< Vertex* >&
+            const Vector< Vertex* >&
             get_coefficients() const override;
 
             //------------------------------------------------------------------------------

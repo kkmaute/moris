@@ -54,12 +54,12 @@ NonLinBlockGaussSeidel::~NonLinBlockGaussSeidel()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
+void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 {
     Tracer tTracer( "NonLinearAlgorithm", "NLBGS", "Solve" );
 
     sint tMaxIts           = mParameterListNonlinearSolver.get< sint >( "NLA_max_iter" );
+    sint tRefIts           = mParameterListNonlinearSolver.get< sint >( "NLA_ref_iter" );
     uint tNonLinSysStartIt = 0;
     uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
 
@@ -80,7 +80,10 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
     real tPseudoTotalTime = 0.0;
     real tRelStaticRes    = 1.0;
 
+    // initialize convergence monitoring
     bool tTimeStepIsConverged = tPseudoTimeControl.get_initial_step_size( tPseudoTimeStep );
+
+    Convergence tConvergence( tRefIts );
 
     // NLBGS loop
     for ( sint It = 1; It <= tMaxIts; ++It )
@@ -169,11 +172,9 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
         bool tHartBreak = false;
 
         // compute residual norms using residual from sub-solvers
-        this->compute_norms( It );
+        this->compute_norms( It, tRefIts );
 
         // check for convergence
-        Convergence tConvergence;
-
         bool tIsConverged = tConvergence.check_for_convergence(
                 this,
                 It,
@@ -201,7 +202,8 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 aNonlinearProblem->get_full_vector(),
                 tPseudoTimeStep,
                 tPseudoTotalTime,
-                tRelStaticRes );
+                tRelStaticRes,
+                It );
 
         // Determine load factor
         tLoadControlStrategy.eval(
@@ -213,8 +215,7 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-NonLinBlockGaussSeidel::solve_linear_system(
+void NonLinBlockGaussSeidel::solve_linear_system(
         sint& aIter,
         bool& aHardBreak )
 {
@@ -223,8 +224,9 @@ NonLinBlockGaussSeidel::solve_linear_system(
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-NonLinBlockGaussSeidel::compute_norms( const sint aIter )
+void NonLinBlockGaussSeidel::compute_norms(
+        const sint aIter,
+        const sint aRefIts )
 {
     uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
     uint tNonLinSysStartIt = 0;
@@ -233,7 +235,7 @@ NonLinBlockGaussSeidel::compute_norms( const sint aIter )
     bool tComputeStaticResidual = mMyNonLinSolverManager->get_compute_static_residual_flag();
 
     // compute reference residual norms
-    if ( aIter == 1 )
+    if ( aIter <= aRefIts )
     {
         real tSqrtRefNorm       = 0.0;
         real tSqrtStaticRefNorm = 0.0;

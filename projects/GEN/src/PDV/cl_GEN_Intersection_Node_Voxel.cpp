@@ -12,14 +12,14 @@
 #include "cl_GEN_Voxel_Geometry.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Voxel::Intersection_Node_Voxel(
             uint                     aNodeIndex,
-            const Cell< Node* >&     aBackgroundNodes,
+            const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&       aFirstParentNode,
             const Parent_Node&       aSecondParentNode,
             mtk::Geometry_Type       aBackgroundGeometryType,

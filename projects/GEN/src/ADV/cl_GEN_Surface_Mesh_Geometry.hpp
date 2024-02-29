@@ -17,19 +17,19 @@
 #include "cl_GEN_Geometry.hpp"
 #include "GEN_Data_Types.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     /**
-     * This is a struct used to simplify \ref moris::ge::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
+     * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and level-set parameters.
      */
     struct Surface_Mesh_Parameters : public Field_Parameters
             , public Design_Parameters
     {
-        Cell< real > mOffsets;                  // Initial shift of surface mesh coordinates
-        Cell< real > mScale;                    // Option to scale each axis of the surface mesh
-        std::string  mFilePath;                 // Surface mesh file path
-        real         mIntersectionTolerance;    // Interface tolerance based on intersection distance
-        Cell< uint > mADVIndices;
+        Vector< real > mOffsets;                  // Initial shift of surface mesh coordinates
+        Vector< real > mScale;                    // Option to scale each axis of the surface mesh
+        std::string    mFilePath;                 // Surface mesh file path
+        real           mIntersectionTolerance;    // Interface tolerance based on intersection distance
+        Vector< uint > mADVIndices;
 
         /**
          * Constructor with a given parameter list
@@ -90,12 +90,12 @@ namespace moris::ge
          * @return New intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                     aNodeIndex,
-                const Cell< Node* >&     aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
+                uint                              aNodeIndex,
+                const Vector< Background_Node* >& aBackgroundNodes,
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
@@ -106,9 +106,9 @@ namespace moris::ge
          * @return Parent edge local coordinate, between -1 and 1
          */
         virtual real compute_intersection_local_coordinate(
-                const Cell< Node* >& aBackgroundNodes,
-                const Parent_Node&   aFirstParentNode,
-                const Parent_Node&   aSecondParentNode ) override;
+                const Vector< Background_Node* >& aBackgroundNodes,
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode ) override;
 
         /**
          *
@@ -127,7 +127,7 @@ namespace moris::ge
          *
          * @return MTK field
          */
-        Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+        Vector< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -189,7 +189,7 @@ namespace moris::ge
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Cell< real >&           aOutputDesignInfo ) override;
+                Vector< real >&         aOutputDesignInfo ) override;
 
         /**
          * Gets the number of fields the surface mesh has
@@ -276,4 +276,4 @@ namespace moris::ge
                 uint                    aFieldIndex,
                 const Matrix< DDRMat >& aParametricCoordinates );
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

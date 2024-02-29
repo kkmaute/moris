@@ -17,10 +17,9 @@
 #include "cl_XTK_Model.hpp"
 #include "fn_tet_volume.hpp"
 #include "fn_hex_8_volume.hpp"
-namespace xtk
+namespace moris::xtk
 {
 
 }
 
 #endif /* PROJECTS_XTK_SRC_XTK_FN_COMPUTE_XTK_MODEL_VOLUMES_HPP_ */
-

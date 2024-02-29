@@ -14,7 +14,7 @@
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Field_Discrete_Interpolation : public Field
     {

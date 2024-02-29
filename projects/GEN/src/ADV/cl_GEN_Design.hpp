@@ -13,16 +13,16 @@
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Field.hpp"
-namespace moris::ge
+namespace moris::gen
 {
     /**
-     * This is a struct used to simplify \ref moris::ge::Design_Field constructors. It contains additional parameters that
+     * This is a struct used to simplify \ref moris::gen::Design_Field constructors. It contains additional parameters that
      * are used by all fields, with given defaults.
      */
     struct Design_Parameters
     {
-        Cell< uint > mNumberOfRefinements;        // The number of refinement steps to use for this field
-        Cell< uint > mRefinementMeshIndices;      // Indices of meshes to perform refinement on
+        Vector< uint > mNumberOfRefinements;        // The number of refinement steps to use for this field
+        Vector< uint > mRefinementMeshIndices;      // Indices of meshes to perform refinement on
         sint         mRefinementFunctionIndex;    // Index of a user-defined refinement function (-1 = default)
 
         /**
@@ -62,9 +62,9 @@ namespace moris::ge
          *
          * @return if to perform an additional refinement with this field
          */
-        const Cell< uint >& get_num_refinements();
+        const Vector< uint >& get_num_refinements();
 
-        const Cell< uint >& get_refinement_mesh_indices();
+        const Vector< uint >& get_refinement_mesh_indices();
 
         /**
          * Gets the index of a user-defined refinement function used within HMR.
@@ -81,7 +81,7 @@ namespace moris::ge
         virtual void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Cell< real >&           aOutputDesignInfo ) = 0;
+                Vector< real >&           aOutputDesignInfo ) = 0;
 
         /**
          * Gets the number of fields that the design has
@@ -139,4 +139,4 @@ namespace moris::ge
          */
         virtual void set_advs( sol::Dist_Vector* aADVs ) = 0;
     };
-}    // namespace moris::ge
+}    // namespace moris::gen

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_XTK_Cell_Cluster.cpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Cell_Cluster.cpp
+ *
  */
 
 #include "cl_XTK_Cell_Cluster.hpp"
@@ -17,10 +17,10 @@
 
 // namespace moris
 // {
-namespace xtk
+namespace moris::xtk
 {
     //----------------------------------------------------------------
-    
+
     Cell_Cluster::Cell_Cluster()
             : mTrivial( true )
             , mVoid( false )
@@ -50,7 +50,7 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    Cell_Cluster::~Cell_Cluster(){}
+    Cell_Cluster::~Cell_Cluster() {}
 
     //----------------------------------------------------------------
 
@@ -87,7 +87,7 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    Vector< moris::mtk::Cell const * > const &
     Cell_Cluster::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mPrimaryIntegrationCells;
@@ -95,7 +95,7 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Cell const *> const &
+    Vector< moris::mtk::Cell const * > const &
     Cell_Cluster::get_void_cells_in_cluster() const
     {
         return mVoidIntegrationCells;
@@ -111,31 +111,31 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    moris::Cell<moris::mtk::Vertex const *>
+    Vector< moris::mtk::Vertex const * >
     Cell_Cluster::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
-            return mVerticesInCluster;
+        return mVerticesInCluster;
     }
 
     //----------------------------------------------------------------
 
-    moris::Matrix<moris::DDRMat>
-    Cell_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader )  const
+    Matrix< DDRMat >
+    Cell_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader ) const
     {
-        if(!mTrivial)
+        if ( !mTrivial )
         {
             return mLocalCoords;
         }
         else
         {
             // get the interpolation cell's connectivity information
-            moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_cell_info();
+            moris::mtk::Cell_Info const *tCellInfo = mInterpolationCell->get_cell_info();
 
             // local coordinate matrix
-            Matrix<DDRMat> tXi;
+            Matrix< DDRMat > tXi;
 
             // get the local coordinates on the side ordinal
-            tCellInfo->get_loc_coords_of_cell(tXi);
+            tCellInfo->get_loc_coords_of_cell( tXi );
 
             return tXi;
         }
@@ -143,47 +143,47 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    moris::Matrix<moris::DDRMat>
-    Cell_Cluster::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-            const mtk::Leader_Follower aIsLeader ) const
+    Matrix< DDRMat >
+    Cell_Cluster::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const *aVertex,
+            const mtk::Leader_Follower                                                   aIsLeader ) const
     {
-        MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
-        return *mVertexGroup->get_vertex_local_coords(aVertex->get_index());
+        MORIS_ERROR( !mTrivial, "Accessing local coordinates on a trivial cell cluster is not allowed" );
+        return *mVertexGroup->get_vertex_local_coords( aVertex->get_index() );
     }
 
     //----------------------------------------------------------------
 
     moris_index
-    Cell_Cluster::get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader) const
+    Cell_Cluster::get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader ) const
     {
-        return this->get_vertices_local_coordinates_wrt_interp_cell(aIsLeader).n_cols();
+        return this->get_vertices_local_coordinates_wrt_interp_cell( aIsLeader ).n_cols();
     }
 
-    moris::Matrix<moris::DDRMat>                  
-    Cell_Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aPrimaryCellClusterIndex) const
+    Matrix< DDRMat >
+    Cell_Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const
     {
-        if(mTrivial)
+        if ( mTrivial )
         {
             return mLocalCoords;
         }
         else
         {
-             // MORIS_ERROR(!this->is_trivial(),"get_primary_cell_local_coords_on_side_wrt_interp_cell on trivial cluster is not allowed");
-             MORIS_ASSERT(aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(),"Integration Cell Cluster index out of bounds");
+            // MORIS_ERROR(!this->is_trivial(),"get_primary_cell_local_coords_on_side_wrt_interp_cell on trivial cluster is not allowed");
+            MORIS_ASSERT( aPrimaryCellClusterIndex < (moris_index)this->get_num_primary_cells(), "Integration Cell Cluster index out of bounds" );
 
             // get the integration cell of interest
-            moris::mtk::Cell const * tIntegrationCell = this->get_primary_cells_in_cluster()(aPrimaryCellClusterIndex);
+            moris::mtk::Cell const *tIntegrationCell = this->get_primary_cells_in_cluster()( aPrimaryCellClusterIndex );
 
-             // get the vertex pointers on the side - for the bulk this is all vertices on the integration cell
-            moris::Cell<moris::mtk::Vertex *> tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
+            // get the vertex pointers on the side - for the bulk this is all vertices on the integration cell
+            Vector< moris::mtk::Vertex * > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
 
             // allocate output (n_node x dim_xsi)
-            moris::Matrix<moris::DDRMat> tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord());
+            Matrix< DDRMat > tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord() );
 
             // iterate through vertices and collect local coordinates
-            for(moris::uint i = 0; i < tVerticesOnCell.size(); i++)
+            for ( moris::uint i = 0; i < tVerticesOnCell.size(); i++ )
             {
-                 tVertexParamCoords.get_row(i) = this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnCell(i)).get_row(0);
+                tVertexParamCoords.get_row( i ) = this->get_vertex_local_coordinate_wrt_interp_cell( tVerticesOnCell( i ) ).get_row( 0 );
             }
 
 
@@ -200,21 +200,21 @@ namespace xtk
 
     //----------------------------------------------------------------
 
-    Matrix< IndexMat > Cell_Cluster::get_hanging_nodes(  ) const
+    Matrix< IndexMat > Cell_Cluster::get_hanging_nodes() const
     {
-        MORIS_ERROR(0,"FIXME");
-        return mChildMesh->get_hanging_nodes(  );
+        MORIS_ERROR( 0, "FIXME" );
+        return mChildMesh->get_hanging_nodes();
     }
 
     //----------------------------------------------------------------
- 
+
     size_t
     Cell_Cluster::capacity()
-    {   
+    {
         size_t tTotalSize = 0;
-        tTotalSize += sizeof(mTrivial);
-        tTotalSize += sizeof(mInterpolationCell);
-        tTotalSize += sizeof(mChildMesh);
+        tTotalSize += sizeof( mTrivial );
+        tTotalSize += sizeof( mInterpolationCell );
+        tTotalSize += sizeof( mChildMesh );
         tTotalSize += mPrimaryIntegrationCells.capacity();
         tTotalSize += mVoidIntegrationCells.capacity();
         tTotalSize += mVerticesInCluster.capacity();
@@ -224,29 +224,29 @@ namespace xtk
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster::set_primary_integration_cell_group( std::shared_ptr<IG_Cell_Group> aPrimaryIgCells )
+    Cell_Cluster::set_primary_integration_cell_group( std::shared_ptr< IG_Cell_Group > aPrimaryIgCells )
     {
         mPrimaryIgCellGroup = { aPrimaryIgCells };
 
-        mPrimaryIntegrationCells.resize(aPrimaryIgCells->mIgCellGroup.size());
+        mPrimaryIntegrationCells.resize( aPrimaryIgCells->mIgCellGroup.size() );
 
-        for(moris::uint i = 0; i < aPrimaryIgCells->mIgCellGroup.size(); i++)
+        for ( moris::uint i = 0; i < aPrimaryIgCells->mIgCellGroup.size(); i++ )
         {
-            mPrimaryIntegrationCells(i) = aPrimaryIgCells->mIgCellGroup(i);
+            mPrimaryIntegrationCells( i ) = aPrimaryIgCells->mIgCellGroup( i );
         }
     }
 
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster::set_primary_integration_cell_groups( moris::Cell< std::shared_ptr< IG_Cell_Group > > aPrimaryIgCells )
+    Cell_Cluster::set_primary_integration_cell_groups( Vector< std::shared_ptr< IG_Cell_Group > > aPrimaryIgCells )
     {
         // store IG cell groups with cell cluster
         mPrimaryIgCellGroup = aPrimaryIgCells;
 
         // count total number of IG cells in all groups passed into function
         moris::uint tCount = 0;
-        for( moris::uint iCellGroup = 0; iCellGroup < aPrimaryIgCells.size(); iCellGroup++ )
+        for ( moris::uint iCellGroup = 0; iCellGroup < aPrimaryIgCells.size(); iCellGroup++ )
         {
             tCount = tCount + aPrimaryIgCells( iCellGroup )->mIgCellGroup.size();
         }
@@ -258,9 +258,9 @@ namespace xtk
         tCount = 0;
 
         // store IG cells in list
-        for( moris::uint iCellGroup = 0; iCellGroup < aPrimaryIgCells.size(); iCellGroup++ )
+        for ( moris::uint iCellGroup = 0; iCellGroup < aPrimaryIgCells.size(); iCellGroup++ )
         {
-            for( moris::uint jCellInGroup = 0; jCellInGroup < aPrimaryIgCells( iCellGroup )->mIgCellGroup.size(); jCellInGroup++ )
+            for ( moris::uint jCellInGroup = 0; jCellInGroup < aPrimaryIgCells( iCellGroup )->mIgCellGroup.size(); jCellInGroup++ )
             {
                 mVoidIntegrationCells( tCount ) = aPrimaryIgCells( iCellGroup )->mIgCellGroup( jCellInGroup );
                 tCount++;
@@ -271,26 +271,26 @@ namespace xtk
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster::set_void_integration_cell_groups(moris::Cell<std::shared_ptr<IG_Cell_Group>> & aVoidIgCells)
+    Cell_Cluster::set_void_integration_cell_groups( Vector< std::shared_ptr< IG_Cell_Group > > &aVoidIgCells )
     {
         mVoidIgCellGroup = aVoidIgCells;
 
         moris::uint tCount = 0;
-        for(moris::uint i = 0; i < aVoidIgCells.size(); i++)
+        for ( moris::uint i = 0; i < aVoidIgCells.size(); i++ )
         {
-            tCount = tCount + aVoidIgCells(i)->mIgCellGroup.size();
+            tCount = tCount + aVoidIgCells( i )->mIgCellGroup.size();
         }
 
 
-        mVoidIntegrationCells.resize(tCount);
+        mVoidIntegrationCells.resize( tCount );
 
         tCount = 0;
 
-        for(moris::uint i = 0; i < aVoidIgCells.size(); i++)
+        for ( moris::uint i = 0; i < aVoidIgCells.size(); i++ )
         {
-            for(moris::uint j = 0; j < aVoidIgCells(i)->mIgCellGroup.size(); j++)
+            for ( moris::uint j = 0; j < aVoidIgCells( i )->mIgCellGroup.size(); j++ )
             {
-                mVoidIntegrationCells(tCount++) = aVoidIgCells(i)->mIgCellGroup(j);
+                mVoidIntegrationCells( tCount++ ) = aVoidIgCells( i )->mIgCellGroup( j );
             }
         }
     }
@@ -298,17 +298,17 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Cell_Cluster::set_ig_vertex_group(std::shared_ptr<IG_Vertex_Group> aVertexGroup)
+    Cell_Cluster::set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup )
     {
         mVertexGroup = aVertexGroup;
 
-        mVerticesInCluster.resize(mVertexGroup->size());
-        mLocalCoords.resize(mVertexGroup->size(),mVertexGroup->get_vertex_local_coords(aVertexGroup->get_vertex(0)->get_index())->n_cols());
+        mVerticesInCluster.resize( mVertexGroup->size() );
+        mLocalCoords.resize( mVertexGroup->size(), mVertexGroup->get_vertex_local_coords( aVertexGroup->get_vertex( 0 )->get_index() )->n_cols() );
 
-        for(moris::uint i = 0; i < mVertexGroup->size(); i++)
+        for ( moris::uint i = 0; i < mVertexGroup->size(); i++ )
         {
-            mVerticesInCluster(i) = mVertexGroup->get_vertex(i);
-            mLocalCoords.set_row(i, *mVertexGroup->get_vertex_local_coords(mVerticesInCluster(i)->get_index()));
+            mVerticesInCluster( i ) = mVertexGroup->get_vertex( i );
+            mLocalCoords.set_row( i, *mVertexGroup->get_vertex_local_coords( mVerticesInCluster( i )->get_index() ) );
         }
     }
 
@@ -319,14 +319,14 @@ namespace xtk
     Cell_Cluster::has_cluster_group( const moris_index aDiscretizationMeshIndex ) const
     {
         // if the list of B-spline meshes for which the cluster groups have been set isn't large enough ...
-        if( mClusterGroups.size() < (uint) aDiscretizationMeshIndex + 1 )
+        if ( mClusterGroups.size() < (uint)aDiscretizationMeshIndex + 1 )
         {
             // ... the cluster group has not been set yet
             return false;
         }
 
         // if the entry exists but is empty
-        else if( mClusterGroups( aDiscretizationMeshIndex ).expired() )
+        else if ( mClusterGroups( aDiscretizationMeshIndex ).expired() )
         {
             return false;
         }
@@ -345,7 +345,7 @@ namespace xtk
     {
         // check that the cluster group exists and is set
         MORIS_ASSERT( this->has_cluster_group( aDiscretizationMeshIndex ),
-            "xtk::Cell_Cluster::get_cluster_group() - Cluster group is not set or does not exist." );
+                "xtk::Cell_Cluster::get_cluster_group() - Cluster group is not set or does not exist." );
 
         // return the pointer to the cluster group
         return mClusterGroups( aDiscretizationMeshIndex ).lock();
@@ -354,53 +354,53 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Cell_Cluster::set_cluster_group( 
-            const moris_index aDiscretizationMeshIndex,
+    Cell_Cluster::set_cluster_group(
+            const moris_index                     aDiscretizationMeshIndex,
             std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr )
     {
         // check that the cluster group is set to the correct B-spline list index
         MORIS_ASSERT( aClusterGroupPtr->get_discretization_mesh_index_for_cluster_group() == aDiscretizationMeshIndex,
-            "xtk::Cell_Cluster::set_cluster_group() - Index which the cluster group lives on is not the list index it gets set to on the cluster." );
+                "xtk::Cell_Cluster::set_cluster_group() - Index which the cluster group lives on is not the list index it gets set to on the cluster." );
 
-        // check if the list of cluster groups is big enough to accommodate the cluster groups for each B-spline mesh 
-        if( mClusterGroups.size() < (uint) aDiscretizationMeshIndex + 1 )
+        // check if the list of cluster groups is big enough to accommodate the cluster groups for each B-spline mesh
+        if ( mClusterGroups.size() < (uint)aDiscretizationMeshIndex + 1 )
         {
             // ... if not increase the size
             mClusterGroups.resize( aDiscretizationMeshIndex + 1 );
         }
-        
+
         // store pointer to the cluster group associated with this B-spline mesh
         mClusterGroups( aDiscretizationMeshIndex ) = aClusterGroupPtr;
     }
 
     //------------------------------------------------------------------------------
 
-    std::shared_ptr<IG_Vertex_Group>
+    std::shared_ptr< IG_Vertex_Group >
     Cell_Cluster::get_ig_vertex_group()
     {
         return mVertexGroup;
     }
-    
+
     //------------------------------------------------------------------------------
 
     moris::real
     Cell_Cluster::compute_cluster_group_cell_measure(
-            const moris_index aDiscretizationMeshIndex,
-            const mtk::Primary_Void aPrimaryOrVoid,
+            const moris_index          aDiscretizationMeshIndex,
+            const mtk::Primary_Void    aPrimaryOrVoid,
             const mtk::Leader_Follower aIsLeader ) const
     {
         // only compute // FIXME: ghost clusters for visualization should also have their cluster volumes assigned
-        if( !mOnlyForVis ) 
+        if ( !mOnlyForVis )
         {
             // check that the cluster group exists and is set
             MORIS_ASSERT( this->has_cluster_group( aDiscretizationMeshIndex ),
-                "xtk::Cell_Cluster::compute_cluster_group_cell_measure() - Cluster group is not set or does not exist." );
+                    "xtk::Cell_Cluster::compute_cluster_group_cell_measure() - Cluster group is not set or does not exist." );
 
             // compute the group measure and return it
             return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure( aPrimaryOrVoid, aIsLeader );
         }
-        else // cluster groups are not defined on clusters that are only for visualization purposes (e.g. for ghost visualization)
-        {        
+        else    // cluster groups are not defined on clusters that are only for visualization purposes (e.g. for ghost visualization)
+        {
             return -1.0;
         }
     }
@@ -409,22 +409,21 @@ namespace xtk
 
     moris::real
     Cell_Cluster::compute_cluster_group_cell_measure_derivative(
-            const moris_index       aDiscretizationMeshIndex,
-            const Matrix< DDRMat >& aPerturbedVertexCoords,
-            uint aDirection,
-            const mtk::Primary_Void aPrimaryOrVoid,
+            const moris_index          aDiscretizationMeshIndex,
+            const Matrix< DDRMat >    &aPerturbedVertexCoords,
+            uint                       aDirection,
+            const mtk::Primary_Void    aPrimaryOrVoid,
             const mtk::Leader_Follower aIsLeader ) const
     {
         // check that the cluster group exists and is set
         MORIS_ASSERT( this->has_cluster_group( aDiscretizationMeshIndex ),
-            "xtk::Cell_Cluster::compute_cluster_group_cell_measure_derivative() - Cluster group is not set or does not exist." );
+                "xtk::Cell_Cluster::compute_cluster_group_cell_measure_derivative() - Cluster group is not set or does not exist." );
 
         // compute the group measure derivative and return it
         return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsLeader );
     }
 
     //------------------------------------------------------------------------------
- 
-} // namespace xtk
-// } // namespace moris
 
+}    // namespace moris::xtk
+// } // namespace moris

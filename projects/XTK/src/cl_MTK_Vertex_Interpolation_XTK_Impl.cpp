@@ -14,29 +14,28 @@
 #include "cl_XTK_Vertex_Enrichment.hpp"
 namespace moris
 {
-namespace mtk
-{
-void
-Vertex_Interpolation_XTK::set_vertex_enrichment(xtk::Vertex_Enrichment * aVertexEnrichment)
-{
-    MORIS_ASSERT(aVertexEnrichment != nullptr,"Null pointer provided to XTK vertex interpolation");
-    mVertexEnrichment = aVertexEnrichment;
-}
+    namespace mtk
+    {
+        void
+        Vertex_Interpolation_XTK::set_vertex_enrichment( xtk::Vertex_Enrichment *aVertexEnrichment )
+        {
+            MORIS_ASSERT( aVertexEnrichment != nullptr, "Null pointer provided to XTK vertex interpolation" );
+            mVertexEnrichment = aVertexEnrichment;
+        }
 
-Matrix< IndexMat >
-Vertex_Interpolation_XTK::get_indices() const
-{
-    MORIS_ERROR(mVertexEnrichment != nullptr,"mVertexEnrichment not set in XTK vertex interpolation");
-    return mVertexEnrichment->get_basis_indices();
-}
+        Matrix< IndexMat >
+        Vertex_Interpolation_XTK::get_indices() const
+        {
+            MORIS_ERROR( mVertexEnrichment != nullptr, "mVertexEnrichment not set in XTK vertex interpolation" );
+            return mVertexEnrichment->get_basis_indices();
+        }
 
-const Matrix< DDRMat > *
-Vertex_Interpolation_XTK::get_weights() const
-{
-    MORIS_ERROR(mVertexEnrichment != nullptr,"mVertexEnrichment not set in XTK vertex interpolation");
-    return &mVertexEnrichment->get_basis_weights();
-}
+        const Matrix< DDRMat > *
+        Vertex_Interpolation_XTK::get_weights() const
+        {
+            MORIS_ERROR( mVertexEnrichment != nullptr, "mVertexEnrichment not set in XTK vertex interpolation" );
+            return &mVertexEnrichment->get_basis_weights();
+        }
 
-}
-}
-
+    }    // namespace mtk
+}    // namespace moris

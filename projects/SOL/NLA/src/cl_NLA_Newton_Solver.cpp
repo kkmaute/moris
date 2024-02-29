@@ -72,8 +72,7 @@ Newton_Solver::~Newton_Solver()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
+void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 {
     Tracer tTracer( "NonLinearAlgorithm", "Newton", "Solve" );
 
@@ -89,6 +88,9 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
         tMaxIts++;
     }
 
+    // get iteration id when references norm are computed
+    sint tRefIts = mParameterListNonlinearSolver.get< sint >( "NLA_ref_iter" );
+
     // get option for computing residual and jacobian: separate or together
     bool tCombinedResJacAssembly = mParameterListNonlinearSolver.get< bool >( "NLA_combined_res_jac_assembly" );
 
@@ -99,13 +101,15 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
     Solver_Load_Control tLoadControlStrategy( mParameterListNonlinearSolver );
 
     // initialize flags
-    bool tIsConverged     = false;
     bool tRebuildJacobian = true;
 
     real tRelaxationParameter = 0.0;
 
     // initialize load control parameter
     real tLoadFactor = tLoadControlStrategy.get_initial_load_factor();
+
+    // initialize convergence monitoring
+    Convergence tConvergence( tRefIts );
 
     // Newton loop
     for ( sint It = 1; It <= tMaxIts; ++It )
@@ -151,8 +155,7 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
         // check for convergence
         bool tHardBreak = false;
 
-        Convergence tConvergence;
-        tIsConverged = tConvergence.check_for_convergence(
+        bool tIsConverged = tConvergence.check_for_convergence(
                 this,
                 It,
                 tMaxIts,
@@ -221,8 +224,7 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-Newton_Solver::solve_linear_system(
+void Newton_Solver::solve_linear_system(
         sint& aIter,
         bool& aHardBreak )
 {
@@ -240,28 +242,25 @@ Newton_Solver::solve_linear_system(
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-Newton_Solver::get_full_solution( Matrix< DDRMat >& LHSValues )
+void Newton_Solver::get_full_solution( Matrix< DDRMat >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-Newton_Solver::get_solution( Matrix< DDRMat >& LHSValues )
+void Newton_Solver::get_solution( Matrix< DDRMat >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void
-Newton_Solver::extract_my_values(
+void Newton_Solver::extract_my_values(
         const uint&               aNumIndices,
         const Matrix< DDSMat >&   aGlobalBlockRows,
         const uint&               aBlockRowOffsets,
-        Cell< Matrix< DDRMat > >& LHSValues )
+        Vector< Matrix< DDRMat > >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }

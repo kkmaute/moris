@@ -86,14 +86,14 @@ namespace mdl
 {
 
 void tConstantValueFunction( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-                           moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                           Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                            moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
 void tSelectValueFunction( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-                           moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                           Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                            moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ),                      0.0,                     0.0 },
@@ -109,7 +109,7 @@ void function_TEST_Diffusion_Phase_Change()
 
     /* %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SET UP SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% */
 
-    moris::Cell< enum MSI::Dof_Type > tDofTypes( 1 );
+    Vector< enum MSI::Dof_Type > tDofTypes( 1 );
     tDofTypes( 0 ) = MSI::Dof_Type::TEMP;
 
      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

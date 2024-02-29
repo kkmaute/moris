@@ -15,7 +15,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_Geom_Field.hpp"
-#include "typedefs.hpp"
+#include "moris_typedefs.hpp"
 
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
@@ -88,14 +88,14 @@ namespace moris
 // Functions for Parameters in FEM
 void ConstFunctionVal
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
 void tMValFunctionContact2( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-                            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                            Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                             moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = {{ aParameters( 0 )( 0 ),                   0.0 },
@@ -109,7 +109,7 @@ void tMValFunctionContact2( moris::Matrix< moris::DDRMat >                 & aPr
  */
 moris::Matrix< moris::DDRMat >
 AnalyticSigr( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-              moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+              Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
               moris::fem::Field_Interpolator_Manager         * aFIManager)
 {
     // Points coordinate
@@ -137,7 +137,7 @@ return {{(tASq * tPi) / (tBSq - tASq) * ( 1- tBSq/tRSq)}};
 
 moris::Matrix< moris::DDRMat >
 AnalyticSigTh( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-               moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+               Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                moris::fem::Field_Interpolator_Manager         * aFIManager)
 {
     // Points coordinate
@@ -164,7 +164,7 @@ AnalyticSigTh( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
 }
 
 void AnalyticUr( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-                 moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+                 Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
                  moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     // Points coordinate
@@ -273,10 +273,10 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 Cell< MSI::Dof_Type > tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
 
                 // Construct inner circle Plane
-                ge::Circle tInnerCircle(tA,tCenterPoint(0),tCenterPoint(1));
+                gen::Circle tInnerCircle(tA,tCenterPoint(0),tCenterPoint(1));
                 auto tInnerCircleFP = [&tInnerCircle] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tInnerCircle.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda pointer for class */
 
-                ge::Circle tOuterCircle(tB,tCenterPoint(0),tCenterPoint(1));
+                gen::Circle tOuterCircle(tB,tCenterPoint(0),tCenterPoint(1));
                 auto tOuterCircleFP = [&tOuterCircle] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tOuterCircle.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda pointer for class */
 
                 if(tVerboseGeometry)
@@ -350,14 +350,14 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
                 //-----------------------------------------------------------------------------------------------
-                moris::ge::GEN_Geom_Field_HMR tInnerCircleForGE(tInnerCircleField);
-                moris::ge::GEN_Geom_Field_HMR tOuterCircleForGE(tOuterCircleField);
+                moris::gen::GEN_Geom_Field_HMR tInnerCircleForGE(tInnerCircleField);
+                moris::gen::GEN_Geom_Field_HMR tOuterCircleForGE(tOuterCircleField);
 
                 // NOTE the order of this geometry vector is important. If it changes the resulting bulk phase of the output mesh change.
-                moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = { & tInnerCircleForGE , & tOuterCircleForGE};
+                Vector<moris::gen::GEN_Geometry*> tGeometryVector = { & tInnerCircleForGE , & tOuterCircleForGE};
 
                 size_t tModelDimension = 2;
-                moris::ge::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
+                moris::gen::GEN_Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
                 xtk::Model tXTKModel(tModelDimension,tInterpolationMesh,&tGeometryEngine);
                 tXTKModel.mVerbose = false;
 
@@ -403,7 +403,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 
                 //------------------------------------------------------------------------------
                 // create the properties
-                moris::Cell< MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
+                Vector< MSI::Dof_Type > tResDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
 
                 std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
                 tPropEMod->set_parameters( { {{ tE }} } );
@@ -540,7 +540,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
                 // create a cell of set info
-                moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
+                Vector< fem::Set_User_Info > tSetInfo( 7 );
                 tSetInfo( 0 )  = tSetBulk1;
                 tSetInfo( 1 )  = tSetBulk2;
                 tSetInfo( 2 )  = tSetDirichletXc;
@@ -589,7 +589,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 // STEP 1: create linear solver and algorithm
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-                moris::Cell< enum MSI::Dof_Type > tDofTypesU( 2 );
+                Vector< enum MSI::Dof_Type > tDofTypesU( 2 );
                 tDofTypesU( 0 ) = MSI::Dof_Type::UX;
                 tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 

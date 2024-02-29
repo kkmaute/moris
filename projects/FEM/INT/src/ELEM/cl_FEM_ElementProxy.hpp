@@ -27,7 +27,7 @@ namespace moris
 
           private:
           
-            moris::Cell< mtk::Vertex* >   mNodeList;
+            Vector< mtk::Vertex* >   mNodeList;
             mtk::Geometry_Type       mGeometryType       = mtk::Geometry_Type::UNDEFINED;
             mtk::Interpolation_Order mInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
@@ -37,7 +37,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            ElementProxy( moris::Cell< mtk::Vertex* > aNodeList,
+            ElementProxy( Vector< mtk::Vertex* > aNodeList,
                     mtk::Geometry_Type           aGeometryType,
                     mtk::Interpolation_Order     aInterpolationOrder )
             {
@@ -90,7 +90,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            moris::Cell< mtk::Vertex* >
+            Vector< mtk::Vertex* >
             get_vertex_pointers() const
             {
                 return mNodeList;

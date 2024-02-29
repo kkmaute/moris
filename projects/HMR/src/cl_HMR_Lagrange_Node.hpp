@@ -12,7 +12,7 @@
 #define SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_
 #include "cl_HMR_Basis.hpp"
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
-#include "typedefs.hpp" //COR/src
+#include "moris_typedefs.hpp" //COR/src
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 
 namespace moris::hmr
@@ -34,7 +34,7 @@ namespace moris::hmr
         // Matrix< DDRMat >   mTMatrix;
 
         //! interpolator object
-        moris::Cell< Lagrange_Node_Interpolation * > mInterpolations;
+        Vector< Lagrange_Node_Interpolation * > mInterpolations;
 
         //! bitset telling if interpolation is set
         Bitset< gNumberOfMeshes > mHaveInterpolation;
@@ -205,7 +205,7 @@ namespace moris::hmr
           * set the DOFs
           */
          void set_coefficients( const uint                   aBSplineMeshIndex,
-                                      Cell< mtk::Vertex* > & aDOFs )
+                 Vector< mtk::Vertex* > & aDOFs )
          {
              mInterpolations( aBSplineMeshIndex )->set_coefficients( aDOFs );
          }

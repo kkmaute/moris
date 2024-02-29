@@ -22,6 +22,7 @@
 #include "stk_mesh/base/Field.hpp"                // for coordinates
 #include "stk_mesh/base/GetEntities.hpp"          // for coordinates
 #include "stk_mesh/base/FieldParallel.hpp"        // for handling parallel fields
+#include <stk_mesh/base/MeshBuilder.hpp>
 #include <exodusII.h>
 
 #include "fn_assert.hpp"
@@ -77,6 +78,7 @@ namespace moris
                 const bool   aCreateFacesAndEdges )
         {
             Tracer tTracer( "STK", "Build" );
+
             // make a shared pointer of the stk mesh data
             mSTKMeshData = std::make_shared< Mesh_Data_STK >();
 
@@ -90,22 +92,31 @@ namespace moris
             // Declare MPI communicator
             MPI_Comm aCommunicator = MPI_COMM_WORLD;
 
-            // Generate MetaData and Bulk Data instances (later to be pointed to member variables)
-            stk::mesh::MetaData* meshMeta = new stk::mesh::MetaData;
+            // Create mesh builder object
+            stk::mesh::MeshBuilder tMeshBuilder( aCommunicator );
 
+            // Set aura option
+            tMeshBuilder.set_aura_option( this->get_aura_option() );
+
+            // Create mesh meta data
+            MORIS_LOG( "Construct Meta Data" );
+            std::shared_ptr< stk::mesh::MetaData > tMeshMeta = std::make_shared< stk::mesh::MetaData >();
+
+            // Construct mesh bulk data
             MORIS_LOG( "Construct Bulk Data" );
-            stk::mesh::BulkData* meshBulk = new stk::mesh::BulkData( *meshMeta, aCommunicator, this->get_aura_option() );
+            std::shared_ptr< stk::mesh::BulkData > tMeshBulk = tMeshBuilder.create( tMeshMeta );
 
             // Set member variables as pointers to meta_data and bulk_data
-            mSTKMeshData->mMtkMeshMetaData = ( meshMeta );
-            mSTKMeshData->mMtkMeshBulkData = ( meshBulk );
+            mSTKMeshData->mMtkMeshMetaData = tMeshMeta;
+            mSTKMeshData->mMtkMeshBulkData = tMeshBulk;
 
             // Use STK IO to populate a STK Mesh
             MORIS_LOG( "Mesh Reader Initialize" );
-            mSTKMeshData->mMeshReader = new stk::io::StkMeshIoBroker( aCommunicator );
+            mSTKMeshData->mMeshReader = std::make_shared< stk::io::StkMeshIoBroker >( aCommunicator );
 
             // Create mesh database using the IO broker
-            mSTKMeshData->mMeshReader->set_bulk_data( *meshBulk );
+            mSTKMeshData->mMeshReader->set_bulk_data( *tMeshBulk );
+
             MORIS_LOG( "Read mesh from file" );
             mSTKMeshData->mMeshReader->add_mesh_database( aFileName, stk::io::READ_MESH );
             mSTKMeshData->mMeshReader->create_input_mesh();
@@ -131,8 +142,8 @@ namespace moris
             mSTKMeshData->mMeshReader->populate_bulk_data();
 
             // Determine number of time increments on input database in region
-            Teuchos::RCP< Ioss::Region > tIo_region      = mSTKMeshData->mMeshReader->get_input_io_region();
-            int                          tTimestep_count = tIo_region->get_property( "state_count" ).get_int();
+            std::shared_ptr< Ioss::Region > tIo_region      = mSTKMeshData->mMeshReader->get_input_ioss_region();
+            int                             tTimestep_count = tIo_region->get_property( "state_count" ).get_int();
 
             MORIS_LOG( "Read Input Fields" );
             // Loop over all time increments and get field data
@@ -177,13 +188,13 @@ namespace moris
             // that this call is only required here (mesh from string or file).
 
             mSTKMeshData->mEntityLocaltoGlobalMap =
-                    moris::Cell< moris::Matrix< IdMat > >( (uint)EntityRank::UNDEFINED, moris::Matrix< IndexMat >( 1, 1, 0 ) );
+                    Vector< moris::Matrix< IdMat > >( (uint)EntityRank::UNDEFINED, moris::Matrix< IndexMat >( 1, 1, 0 ) );
 
             mSTKMeshData->mEntitySendList =
-                    moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
+                    Vector< Vector< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, Vector< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
 
             mSTKMeshData->mEntityReceiveList =
-                    moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
+                    Vector< Vector< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, Vector< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
 
             create_communication_lists_and_local_to_global_map( EntityRank::NODE );
             create_communication_lists_and_local_to_global_map( EntityRank::EDGE );
@@ -192,7 +203,7 @@ namespace moris
 
             MORIS_LOG( "Create global to local maps" );
             // Initialize global to local map
-            mSTKMeshData->mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+            mSTKMeshData->mEntityGlobalToLocalMap = Vector< std::unordered_map< moris_id, moris_index > >( 4 );
             setup_entity_global_to_local_map( EntityRank::NODE );
             setup_entity_global_to_local_map( EntityRank::EDGE );
             setup_entity_global_to_local_map( EntityRank::FACE );
@@ -221,8 +232,8 @@ namespace moris
         {
             // allocate stk mesh data
             mSTKMeshData                          = std::make_shared< Mesh_Data_STK >();
-            mSTKMeshData->mEntityLocaltoGlobalMap = moris::Cell< moris::Matrix< IdMat > >( 4 );
-            mSTKMeshData->mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+            mSTKMeshData->mEntityLocaltoGlobalMap = Vector< moris::Matrix< IdMat > >( 4 );
+            mSTKMeshData->mEntityGlobalToLocalMap = Vector< std::unordered_map< moris_id, moris_index > >( 4 );
             mSTKMeshData->mSetRankFlags           = std::vector< bool >( { false, false, false } );
 
             // Set verbose flag
@@ -457,7 +468,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Mesh_Core_STK::get_all_vertices() const
         {
             enum EntityRank tEntityRank = EntityRank::NODE;
@@ -480,7 +491,7 @@ namespace moris
             // Get entity Ids
             uint tNumEntities = aEntities.size();
 
-            moris::Cell< moris::mtk::Vertex const * > tOutputVertices( tNumEntities );
+            Vector< moris::mtk::Vertex const * > tOutputVertices( tNumEntities );
             for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
             {
                 moris::moris_index tVertexIndex =
@@ -789,11 +800,8 @@ namespace moris
             std::vector< int > tSharedProcs;
 
             // get shared processor IDs
-#ifdef MORIS_HAVE_TRILINOS_OLD
-            mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( tEntity ), tSharedProcs );
-#else
             mSTKMeshData->mMtkMeshBulkData->comm_procs( tEntity, tSharedProcs );
-#endif
+
             if ( tSharedProcs.size() == 0 )
             {
                 tSharedProcs.push_back( mSTKMeshData->mMtkMeshBulkData->parallel_owner_rank( tEntity ) );
@@ -813,14 +821,14 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Cell< std::string >
+        Vector< std::string >
         Mesh_Core_STK::get_set_names( enum EntityRank aSetEntityRank ) const
         {
             const stk::mesh::PartVector& tMeshParts = mSTKMeshData->mMtkMeshMetaData->get_mesh_parts();
 
             stk::mesh::EntityRank tStkRank = get_stk_entity_rank( aSetEntityRank );
 
-            moris::Cell< std::string > tSetNames;
+            Vector< std::string > tSetNames;
 
             for ( moris::uint i = 0; i < tMeshParts.size(); i++ )
             {
@@ -941,7 +949,7 @@ namespace moris
         Mesh_Core_STK::get_IG_blockset_shape( const std::string& aSetName )
         {
             // get the clusters in the set
-            moris::Cell< Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+            Vector< Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
             // init cell shape
             CellShape tCellShape = CellShape::EMPTY;
@@ -950,7 +958,7 @@ namespace moris
             if ( tSetClusters.size() > 0 )
             {
                 // get the cells in the first cluster
-                moris::Cell< moris::mtk::Cell const * > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Cell const * > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
 
                 // compute the cell shape of the first cell
                 tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
@@ -961,7 +969,7 @@ namespace moris
             for ( uint iCluster = 0; iCluster < tSetClusters.size(); iCluster++ )
             {
                 // get cell of cells in the cluster
-                moris::Cell< moris::mtk::Cell const * > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
+                Vector< moris::mtk::Cell const * > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
 
                 // looping through the cells in the cluster
                 for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
@@ -986,7 +994,7 @@ namespace moris
         Mesh_Core_STK::get_IP_blockset_shape( const std::string& aSetName )
         {
             // get the clusters in the set
-            moris::Cell< Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
+            Vector< Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
             // init cell shape
             CellShape tCellShape = CellShape::EMPTY;
@@ -1078,9 +1086,9 @@ namespace moris
 
         void
         Mesh_Core_STK::get_sideset_cells_and_ords(
-                const std::string&                aSetName,
-                moris::Cell< mtk::Cell const * >& aCells,
-                Matrix< IndexMat >&               aSidesetOrdinals ) const
+                const std::string&           aSetName,
+                Vector< mtk::Cell const * >& aCells,
+                Matrix< IndexMat >&          aSidesetOrdinals ) const
         {
             Matrix< IndexMat > tCellInds;
 
@@ -1098,7 +1106,7 @@ namespace moris
         }
 
         // ----------------------------------------------------------------------------
-        moris::Cell< moris::mtk::Vertex const * >
+        Vector< moris::mtk::Vertex const * >
         Mesh_Core_STK::get_vertices_in_vertex_set_no_aura( std::string aSetName ) const
         {
             enum EntityRank tEntityRank = EntityRank::NODE;
@@ -1120,8 +1128,10 @@ namespace moris
             stk::mesh::get_selected_entities( tDifference, mSTKMeshData->mMtkMeshBulkData->buckets( stk::topology::NODE_RANK ), aEntities );
 
             // Get entity Ids
-            uint                                      tNumEntities = aEntities.size();
-            moris::Cell< moris::mtk::Vertex const * > tOutputEntityIds( tNumEntities );
+            uint tNumEntities = aEntities.size();
+
+            Vector< moris::mtk::Vertex const * > tOutputEntityIds( tNumEntities );
+
             for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
             {
                 moris::moris_index tVertexIndex =
@@ -1266,7 +1276,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         // ##############################################
-        //  moris::Cell and Vertex Pointer Functions
+        //  Vector and Vertex Pointer Functions
         // ##############################################
 
         mtk::Cell&
@@ -1509,9 +1519,9 @@ namespace moris
 
             uint tCurrentIndex = 0;
             // Initialize proc counter
-            // moris::Cell #  = Proc rank
-            moris::Cell< uint > tSendProcCounter( tParallelSize );
-            moris::Cell< uint > tRecvProcCounter( tParallelSize );
+            // Vector #  = Proc rank
+            Vector< uint > tSendProcCounter( tParallelSize );
+            Vector< uint > tRecvProcCounter( tParallelSize );
 
             // Loop over shared nodes
             for ( uint i = 0; i < shared_node_buckets.size(); i++ )
@@ -1531,11 +1541,8 @@ namespace moris
                     std::vector< int > sharedProcs;
 
                     // Get shared procs Ids
-#ifdef MORIS_HAVE_TRILINOS_OLD
-                    mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( bucket[ j ] ), sharedProcs );
-#else
                     mSTKMeshData->mMtkMeshBulkData->comm_procs( bucket[ j ], sharedProcs );
-#endif
+
                     if ( sharedProcs.size() != 0 )
                     {
 
@@ -1592,8 +1599,8 @@ namespace moris
 
             if ( tParSize > 1 )
             {
-                moris::Cell< moris::Matrix< IdMat > > tUniqueNodeSharedIds( tParSize );
-                moris::Cell< moris::Matrix< IdMat > > tReceivedNodeSharedIds( tParSize );
+                Vector< moris::Matrix< IdMat > > tUniqueNodeSharedIds( tParSize );
+                Vector< moris::Matrix< IdMat > > tReceivedNodeSharedIds( tParSize );
 
                 // iterate through procs and gather shared nodes between them
                 for ( int pr = 0; pr < tParSize; pr++ )
@@ -1671,21 +1678,21 @@ namespace moris
 
             // get the aura cell sharing that need special considerations (cells that show up in multiple process aura require extra care to work
             // with XTK and cell clustering concept
-            moris::Cell< Matrix< IdMat > > tAuraCellSharing = resolve_aura_cell_sharing();
+            Vector< Matrix< IdMat > > tAuraCellSharing = resolve_aura_cell_sharing();
 
             setup_parallel_cell_sharing_with_resolved_aura( tAuraCellSharing );
         }
 
         // ----------------------------------------------------------------------------
 
-        moris::Cell< Matrix< IdMat > >
+        Vector< Matrix< IdMat > >
         Mesh_Core_STK::resolve_aura_cell_sharing()
         {
             moris_index tParSize = par_size();
             moris_index tParRank = par_rank();
 
             // received cell sharing information
-            moris::Cell< Matrix< IdMat > > tReceivedCellSharing;
+            Vector< Matrix< IdMat > > tReceivedCellSharing;
 
             if ( tParSize > 1 )
             {
@@ -1704,13 +1711,13 @@ namespace moris
                 stk::mesh::get_selected_entities( tLocalOwnedSelector, mSTKMeshData->mMtkMeshBulkData->buckets( stk::topology::ELEMENT_RANK ), aEntities );
 
                 // cells to communicate additionally sharing
-                moris::Cell< moris::Cell< Matrix< IdMat > > > tCellsWithAdditionalSharing( tParSize );
+                Vector< Vector< Matrix< IdMat > > > tCellsWithAdditionalSharing( tParSize );
 
                 // keep track of the maximum so we can convert the above cell to a
-                moris::Cell< uint > tMaxSizeWithProc( tParSize, 0 );
+                Vector< uint > tMaxSizeWithProc( tParSize, 0 );
 
                 // procs to communicate with
-                moris::Cell< moris_index > tProcsWithCommunication;
+                Vector< moris_index > tProcsWithCommunication;
 
                 // iterate through cells in aura
                 for ( moris_index iCell = 0; iCell < (moris_index)aEntities.size(); iCell++ )
@@ -1763,7 +1770,7 @@ namespace moris
                 }
 
                 // create a cell of matrix rather than a cell of cells for communication purposes
-                moris::Cell< Matrix< IdMat > > tCellsMatsWithAdditionalSharing( tProcsWithCommunication.size() );
+                Vector< Matrix< IdMat > > tCellsMatsWithAdditionalSharing( tProcsWithCommunication.size() );
 
                 Matrix< IdMat > tProcsWithCommunicationMat( 1, tProcsWithCommunication.size() );
 
@@ -1782,8 +1789,7 @@ namespace moris
                     uint tNumCellsWithAddShare = tCellsWithAdditionalSharing( tShareProcRank ).size();
 
                     // initialize matrix with a dummy value
-                    tCellsMatsWithAdditionalSharing( iProc ) = Matrix< IdMat >( tNumCellsWithAddShare, tNumCol );
-                    tCellsMatsWithAdditionalSharing( iProc ).fill( MORIS_INDEX_MAX );
+                    tCellsMatsWithAdditionalSharing( iProc ) = Matrix< IdMat >( tNumCellsWithAddShare, tNumCol, MORIS_INDEX_MAX );
 
                     // iterate through and add data to matrix
                     for ( uint iCell = 0; iCell < tNumCellsWithAddShare; iCell++ )
@@ -1791,7 +1797,9 @@ namespace moris
                         // number of sharing (size of matrix)
                         uint tSizeOfMat = tCellsWithAdditionalSharing( tShareProcRank )( iCell ).numel();
 
-                        tCellsMatsWithAdditionalSharing( iProc )( { iCell, iCell }, { 0, tSizeOfMat - 1 } ) = tCellsWithAdditionalSharing( tShareProcRank )( iCell ).get_row( 0 );
+                        Matrix< moris::IdMat > tIdMat = tCellsWithAdditionalSharing( tShareProcRank )( iCell );
+
+                        tCellsMatsWithAdditionalSharing( iProc )( { iCell, iCell }, { 0, tSizeOfMat - 1 } ) = tIdMat.get_row( 0 );
                     }
                 }
 
@@ -1815,7 +1823,7 @@ namespace moris
             uint tNumCells = this->get_num_entities( tEntityRank );
 
             // allocate member data
-            mSTKMeshData->mCellSharingData = moris::Cell< moris::Matrix< moris::IdMat > >( tNumCells );
+            mSTKMeshData->mCellSharingData = Vector< moris::Matrix< moris::IdMat > >( tNumCells );
 
             // iterate through cells and add sharing information
             for ( moris::uint i = 0; i < tNumCells; i++ )
@@ -1831,11 +1839,8 @@ namespace moris
                 std::vector< int > tSharedProcs;
 
                 // get shared processor IDs
-#ifdef MORIS_HAVE_TRILINOS_OLD
-                mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( tEntity ), tSharedProcs );
-#else
                 mSTKMeshData->mMtkMeshBulkData->comm_procs( tEntity, tSharedProcs );
-#endif
+
                 if ( tSharedProcs.size() > 0 )
                 {
                     // Initialize output
@@ -1855,7 +1860,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Mesh_Core_STK::setup_parallel_cell_sharing_with_resolved_aura( moris::Cell< Matrix< IdMat > > const & aAuraCellSharing )
+        Mesh_Core_STK::setup_parallel_cell_sharing_with_resolved_aura( Vector< Matrix< IdMat > > const & aAuraCellSharing )
         {
             // my processor rank
             moris_id tMyProcRank = par_rank();
@@ -1928,7 +1933,7 @@ namespace moris
             uint tNumNodes = this->get_num_entities( EntityRank::NODE );
 
             // Setup vertices
-            mSTKMeshData->mMtkVertices = moris::Cell< Vertex_Core_STK >( tNumNodes );
+            mSTKMeshData->mMtkVertices = Vector< Vertex_Core_STK >( tNumNodes );
             for ( uint iVertInd = 0; iVertInd < tNumNodes; iVertInd++ )
             {
                 // pass global node ids, node index and a pointer to this mesh into the vertex
@@ -1939,7 +1944,7 @@ namespace moris
             }
 
             // Setup Vertices interpolation
-            mSTKMeshData->mMtkVerticeInterpolation = moris::Cell< Vertex_Interpolation_STK >( tNumNodes );
+            mSTKMeshData->mMtkVerticeInterpolation = Vector< Vertex_Interpolation_STK >( tNumNodes );
 
             for ( moris::moris_index iVertInd = 0; iVertInd < (moris::moris_index)tNumNodes; iVertInd++ )
             {
@@ -1954,7 +1959,7 @@ namespace moris
             uint tNumElems = this->get_num_entities( EntityRank::ELEMENT );
 
             // allocate member data
-            mSTKMeshData->mMtkCells = moris::Cell< mtk::Cell_STK >( tNumElems );
+            mSTKMeshData->mMtkCells = Vector< mtk::Cell_STK >( tNumElems );
 
             // connectivity factory
             mtk::Cell_Info_Factory tFactory;
@@ -1998,7 +2003,7 @@ namespace moris
                                     EntityRank::NODE );
 
                     // setup vertices of cells
-                    moris::Cell< Vertex* > tElementVertices( tElementToNode.numel() );
+                    Vector< Vertex* > tElementVertices( tElementToNode.numel() );
                     for ( uint iNodes = 0; iNodes < tElementToNode.numel(); iNodes++ )
                     {
                         tElementVertices( iNodes ) = &mSTKMeshData->mMtkVertices( tElementToNode( iNodes ) );
@@ -2207,7 +2212,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Cell< moris::Cell< uint > >
+        Vector< Vector< uint > >
         Mesh_Core_STK::get_shared_info_by_entity(
                 uint            aNumActiveSharedProcs,
                 enum EntityRank aEntityRank )
@@ -2218,7 +2223,7 @@ namespace moris
             uint            tNumEntitiesShared = tEntitiesShared.length();
             moris_id        tParallelRank      = par_rank();
 
-            moris::Cell< moris::Cell< uint > > tTemporaryEntityMapSharingProcs( aNumActiveSharedProcs );
+            Vector< Vector< uint > > tTemporaryEntityMapSharingProcs( aNumActiveSharedProcs );
 
             // Loop over the number of nodes shared to get the shared processors
             for ( uint iElemShared = 0; iElemShared < tNumEntitiesShared; ++iElemShared )
@@ -2577,10 +2582,10 @@ namespace moris
             //  can be declared between two parts, and a field definition can be limited to specific parts.
 
             // Declare and initialize Stk mesh
-            stk::mesh::MetaData* meshMeta = new stk::mesh::MetaData( mSTKMeshData->mNumDims );
+            std::shared_ptr< stk::mesh::MetaData > tMeshMeta = std::make_shared< stk::mesh::MetaData >( mSTKMeshData->mNumDims );
 
             // Set member variable as pointer to meta_data
-            mSTKMeshData->mMtkMeshMetaData = meshMeta;
+            mSTKMeshData->mMtkMeshMetaData = tMeshMeta;
 
             // set aura option
             mAutoAuraOption = aMeshData.AutoAuraOptionInSTK;
@@ -2605,15 +2610,21 @@ namespace moris
             // Declare MPI communicator
             stk::ParallelMachine tPM = MPI_COMM_WORLD;
 
+            // Create mesh builder object
+            stk::mesh::MeshBuilder tMeshBuilder( tPM );
+
+            // Set aura option
+            tMeshBuilder.set_aura_option( this->get_aura_option() );
+
             // Create BulkData Object
-            stk::mesh::BulkData* meshBulk = new stk::mesh::BulkData( *mSTKMeshData->mMtkMeshMetaData, tPM, this->get_aura_option() );
+            std::shared_ptr< stk::mesh::BulkData > tMeshBulk = tMeshBuilder.create( tMeshMeta );    // new stk::mesh::BulkData( *mSTKMeshData->mMtkMeshMetaData, tPM, this->get_aura_option() );
 
             // Set member variable as pointer and bulk_data
-            mSTKMeshData->mMtkMeshBulkData = ( meshBulk );
+            mSTKMeshData->mMtkMeshBulkData = tMeshBulk;
 
             // Use STK IO to populate a STK Mesh
             MPI_Comm aCommunicator    = MPI_COMM_WORLD;
-            mSTKMeshData->mMeshReader = new stk::io::StkMeshIoBroker( aCommunicator );
+            mSTKMeshData->mMeshReader = std::make_shared< stk::io::StkMeshIoBroker >( aCommunicator );
 
             // Create mesh database using the IO broker
             mSTKMeshData->mMeshReader->set_bulk_data( *mSTKMeshData->mMtkMeshBulkData );
@@ -2627,16 +2638,16 @@ namespace moris
             // Generate additional local to global maps (only for meshes generated from data).
             // Elemental and nodal information has been taken care of already in this case.
             // setup maps which include the aura
-            mSTKMeshData->mEntityLocaltoGlobalMap = moris::Cell< moris::Matrix< IdMat > >( (uint)EntityRank::UNDEFINED, moris::Matrix< IndexMat >( 1, 1, 0 ) );
-            mSTKMeshData->mEntitySendList         = moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
-            mSTKMeshData->mEntityReceiveList      = moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
+            mSTKMeshData->mEntityLocaltoGlobalMap = Vector< moris::Matrix< IdMat > >( (uint)EntityRank::UNDEFINED, moris::Matrix< IndexMat >( 1, 1, 0 ) );
+            mSTKMeshData->mEntitySendList         = Vector< Vector< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, Vector< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
+            mSTKMeshData->mEntityReceiveList      = Vector< Vector< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, Vector< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
             create_communication_lists_and_local_to_global_map( EntityRank::NODE );
             create_communication_lists_and_local_to_global_map( EntityRank::EDGE );
             create_communication_lists_and_local_to_global_map( EntityRank::FACE );
             create_communication_lists_and_local_to_global_map( EntityRank::ELEMENT );
 
             // Initialize global to local map
-            mSTKMeshData->mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+            mSTKMeshData->mEntityGlobalToLocalMap = Vector< std::unordered_map< moris_id, moris_index > >( 4 );
             setup_entity_global_to_local_map( EntityRank::NODE );
             setup_entity_global_to_local_map( EntityRank::ELEMENT );
 
@@ -2861,7 +2872,7 @@ namespace moris
 
             uint tNumRealScalarFields = aMeshData.FieldsInfo->get_num_real_scalar_fields();
 
-            mSTKMeshData->mRealNodeScalarFieldsToAddToOutput = moris::Cell< Field1CompReal* >( tNumRealScalarFields );
+            mSTKMeshData->mRealNodeScalarFieldsToAddToOutput = Vector< Field1CompReal* >( tNumRealScalarFields );
 
             for ( uint iF = 0; iF < tNumRealScalarFields; iF++ )
             {

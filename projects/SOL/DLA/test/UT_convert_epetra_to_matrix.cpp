@@ -10,7 +10,7 @@
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"    // ALG/src
-#include "typedefs.hpp"       // COR/src
+#include "moris_typedefs.hpp"       // COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"          // COM/src/
@@ -70,12 +70,12 @@ namespace moris
 
         if ( tMyPID == 0 )
         {
-            tSuccess = A.InsertGlobalValues( 0, 2, moris::Cell< double >{ 1.0, 2.0 }.memptr(), moris::Cell< int >{ 0, 1 }.memptr() );
-            tSuccess = A.InsertGlobalValues( 1, 2, moris::Cell< double >{ 2.0, 3.0 }.memptr(), moris::Cell< int >{ 0, 2 }.memptr() );
+            tSuccess = A.InsertGlobalValues( 0, 2, Vector< double >{ 1.0, 2.0 }.memptr(), Vector< int >{ 0, 1 }.memptr() );
+            tSuccess = A.InsertGlobalValues( 1, 2, Vector< double >{ 2.0, 3.0 }.memptr(), Vector< int >{ 0, 2 }.memptr() );
         }
         else
         {
-            tSuccess = A.InsertGlobalValues( 2, 2, moris::Cell< double >{ 4.0, 5.0 }.memptr(), moris::Cell< int >{ 1, 2 }.memptr() );
+            tSuccess = A.InsertGlobalValues( 2, 2, Vector< double >{ 4.0, 5.0 }.memptr(), Vector< int >{ 1, 2 }.memptr() );
         }
 
         REQUIRE( tSuccess == 0 );

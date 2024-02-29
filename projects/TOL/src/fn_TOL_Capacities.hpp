@@ -11,18 +11,18 @@
 #ifndef SRC_TOOLS_FN_TOL_CAPACITIES_HPP_
 #define SRC_TOOLS_FN_TOL_CAPACITIES_HPP_
 
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
+#include "moris_typedefs.hpp"
+#include "cl_Vector.hpp"
 namespace moris
 {
     /*!
-     * @brief Calculates the internal data structure capacity of the moris::cell
+     * @brief Calculates the internal data structure capacity of the Vector
      * the internal class must have a capacity function defined.
      */
     template<typename Class_With_Capacity_FN>
     inline
     size_t
-    internal_capacity(moris::Cell<Class_With_Capacity_FN> & aCell)
+    internal_capacity(Vector<Class_With_Capacity_FN> & aCell)
     {
         size_t tInternalCapacity = 0;
 
@@ -37,14 +37,14 @@ namespace moris
     }
 
      /*!
-     * @brief Calculates the internal data structure capacity of the moris::cell
+     * @brief Calculates the internal data structure capacity of the Vector
      * the internal class must have a capacity function defined.
      */
 
     template<>
     inline
     size_t
-    internal_capacity(moris::Cell<std::string> & aCell)
+    internal_capacity(Vector<std::string> & aCell)
     {
         size_t tInternalCapacity = 0;
 
@@ -61,7 +61,7 @@ namespace moris
     template<typename Class_With_Capacity_FN>
     inline
     size_t
-    internal_capacity_nested(moris::Cell<moris::Cell<Class_With_Capacity_FN>> & aCell)
+    internal_capacity_nested(Vector<Vector<Class_With_Capacity_FN>> & aCell)
     {
         size_t tInternalCapacity = 0;
 
@@ -81,7 +81,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     /**
-     * @brief compute the cpacity of moris::Cell<mori::Cell<DataTyp>>
+     * @brief compute the cpacity of Vector<mori::Cell<DataTyp>>
      * where DataType is a native data type that does not have a capacity
      *
      * @tparam DataType
@@ -90,7 +90,7 @@ namespace moris
      */
     template< typename DataType >
     inline size_t
-    internal_capacity_nested_datatype( moris::Cell< moris::Cell< DataType > > &aCell )
+    internal_capacity_nested_datatype( Vector< Vector< DataType > > &aCell )
     {
         size_t tInternalCapacity = 0;
 
@@ -108,7 +108,7 @@ namespace moris
     template <typename Class_PTR_With_Capacity_FN>
     inline
     size_t
-    internal_capacity_ptr(moris::Cell<Class_PTR_With_Capacity_FN> &aCell)
+    internal_capacity_ptr(Vector<Class_PTR_With_Capacity_FN> &aCell)
     {
         size_t tInternalCapacity = 0;
 
@@ -125,7 +125,7 @@ namespace moris
     template <typename Class_PTR_With_Capacity_FN>
     inline
     size_t
-    internal_capacity_nested_ptr(moris::Cell<moris::Cell<Class_PTR_With_Capacity_FN>> &aCell)
+    internal_capacity_nested_ptr(Vector<Vector<Class_PTR_With_Capacity_FN>> &aCell)
     {
         size_t tInternalCapacity = 0;
 

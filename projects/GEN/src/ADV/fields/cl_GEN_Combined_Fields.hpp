@@ -12,13 +12,13 @@
 
 #include "cl_GEN_Field.hpp"
 
-namespace moris::ge
+namespace moris::gen
 {
     class Combined_Fields : public Field
     {
 
       private:
-        Cell< std::shared_ptr< Field > > mFields;
+        Vector< std::shared_ptr< Field > > mFields;
         real                             mScale;
 
       public:
@@ -29,7 +29,7 @@ namespace moris::ge
          * @param aUseMinimum Whether or not to use minimum or maximum value when combining fields
          */
         Combined_Fields(
-                Cell< std::shared_ptr< Field > > aFields,
+                Vector< std::shared_ptr< Field > > aFields,
                 bool                             aUseMinimum = true,
                 std::string                      aName = "" );
 

@@ -54,6 +54,7 @@ MSI_Solver_Interface_Proxy::MSI_Solver_Interface_Proxy()
                 mCommTable                         = { { 1 }, { 2 }, { 3 } };
                 mMyGlobalElementsOverlappingOwners = { { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 }, { 0 } };
                 break;
+
             case 1:
                 mNumMyDofs = 4;
 
@@ -105,7 +106,6 @@ MSI_Solver_Interface_Proxy::MSI_Solver_Interface_Proxy()
 
                 mCommTable                         = { { 0 }, { 1 }, { 2 } };
                 mMyGlobalElementsOverlappingOwners = { { 0 }, { 0 }, { 0 }, { 0 }, { 3 }, { 3 }, { 3 }, { 3 } };
-
 
                 break;
         }
