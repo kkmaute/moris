@@ -555,7 +555,7 @@ namespace moris::fem
         {
             // get local integration point for the leader and follower integration cell
             const Matrix< DDRMat >& tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
-            const Matrix< DDRMat >  tFollowerLocalIntegPoint = get_leader_integration_point( iGP );
+            const Matrix< DDRMat >  tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
 
             // set evaluation point for leader and follower FIs and GIs
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
@@ -579,7 +579,6 @@ namespace moris::fem
             tSpaceTimeVolume += tWStar;
 
             // get the normal from mesh
-            moris_index const tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
             Matrix< DDRMat > const tNormal = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
 
             // loop over the requested IQIs on the element
