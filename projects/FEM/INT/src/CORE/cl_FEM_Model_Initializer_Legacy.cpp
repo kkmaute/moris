@@ -375,6 +375,8 @@ namespace moris::fem
             std::string const tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
             tIWG->set_name( tIWGName );
 
+            tIWG->set_is_analytical_jacobian( tIWGParameter.get< bool >( "analytical_jacobian" ) );
+
             // fill IWG map
             mIWGMap[ tIWGName ] = iIWG;
 

@@ -155,6 +155,10 @@ namespace moris
             // bool for ghost
             bool mIsGhost = false;
 
+            // compute the jacobian using finite differencing (independent on the setting for the whole FEM set)
+            bool mIsAnalyticalJacobian = false;
+
+          protected:
             // string for IWG name
             std::string mName;
 
@@ -324,6 +328,15 @@ namespace moris
              */
             void print_names();
 
+            bool is_analytical_jacobian() const
+            {
+                return mIsAnalyticalJacobian;
+            };
+
+            void set_is_analytical_jacobian( bool aIsAnalyticalJacobian )
+            {
+                mIsAnalyticalJacobian = aIsAnalyticalJacobian;
+            };
             //------------------------------------------------------------------------------
             /*
              * set member set pointer
@@ -518,7 +531,7 @@ namespace moris
              */
             void set_dv_type_list(
                     const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-                    mtk::Leader_Follower                aIsLeader = mtk::Leader_Follower::LEADER );
+                    mtk::Leader_Follower                     aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -656,7 +669,7 @@ namespace moris
              */
             void get_non_unique_dof_dv_and_field_types(
                     Vector< Vector< MSI::Dof_Type > >&   aDofTypes,
-                    Vector< Vector< gen::PDV_Type > >&        aDvTypes,
+                    Vector< Vector< gen::PDV_Type > >&   aDvTypes,
                     Vector< Vector< mtk::Field_Type > >& aFieldTypes );
 
             //------------------------------------------------------------------------------
@@ -988,7 +1001,7 @@ namespace moris
              * build a list of dof types requested by the solver and owned by the IWG
              * @param[ in ] aIsResidual bool true if residual evaluation
              */
-            void build_requested_dof_type_list( const bool aIsStaggered );
+            void             build_requested_dof_type_list( const bool aIsStaggered );
             Matrix< DDRMat > get_deformed_node_coordinates( Geometry_Interpolator* aGeometryInterpolator, Field_Interpolator* aFieldInterpolator ) const;
             Matrix< DDRMat > remap_nonconformal_rays( Field_Interpolator* aLeaderFieldInterpolator, Field_Interpolator* aFollowerFieldInterpolator, bool aDebugOutput ) const;
         };

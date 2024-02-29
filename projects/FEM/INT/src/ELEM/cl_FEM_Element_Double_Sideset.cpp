@@ -178,7 +178,9 @@ namespace moris::fem
                 tReqIWG->set_normal( tNormal );
                 tReqIWG->compute_residual( tWStar );
 
+                this->set_iwg_jacobian_strategy( tReqIWG );
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+                this->reset_iwg_jacobian_strategy();
             }
         }
     }
@@ -236,7 +238,9 @@ namespace moris::fem
                 tReqIWG->set_normal( tNormal );
 
                 // compute residual at integration point
+                this->set_iwg_jacobian_strategy( tReqIWG );
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+                this->reset_iwg_jacobian_strategy();
             }
         }
     }
@@ -301,7 +305,9 @@ namespace moris::fem
                 }
 
                 // compute jacobian at integration point
+                this->set_iwg_jacobian_strategy( tReqIWG );
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+                this->reset_iwg_jacobian_strategy();
             }
 
             mSet->mFemModel->mDoubleSidedSideSetsGaussPoints++;
@@ -485,8 +491,8 @@ namespace moris::fem
             real const tWStar = get_integration_weight( iGP ) * tDetJ;
 
             // get the normal from mesh
-            moris_index const tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
-            Matrix< DDRMat > const tNormal = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            moris_index const      tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
+            Matrix< DDRMat > const tNormal        = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
 
             // loop over the requested IQIs on the element
             for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
@@ -525,7 +531,7 @@ namespace moris::fem
 
         // get the leader IG cell's index in the VIS mesh
         moris_index const tLeaderCellIndex          = mLeaderCell->get_index();
-        moris_index const tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
+        moris_index const tLeaderSideOrd            = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
         moris_index const tLeaderFacetIndexInVisSet = mSet->mFacetAssemblyMap( tVisMeshIndex )( tLeaderCellIndex, tLeaderSideOrd );
         MORIS_ASSERT( tLeaderFacetIndexInVisSet > -1,
                 "FEM::Element_Double_Sideset::compute_quantity_of_interest_elemental() - "
@@ -679,8 +685,8 @@ namespace moris::fem
             const real tWStar = get_integration_weight( iGP ) * tDetJ;
 
             // get the normal from mesh
-            moris_index const tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
-            const Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            moris_index const      tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
+            const Matrix< DDRMat > tNormal        = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
 
             // loop over the IQIs
             for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )

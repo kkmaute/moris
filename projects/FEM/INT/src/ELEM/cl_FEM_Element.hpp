@@ -84,6 +84,38 @@ namespace moris
             // finite difference perturbation size for dRdp and dQIdp
             real mSAFDPerturbation = 1e-6;
 
+            // flag that stores if the IWG requires a different way of computing the jacobian (FD or analytical) compared to the set
+            bool mIWGRequiresDifferentJacobianCalculation = false;
+
+            /**
+             * @brief Usually, the set is the instance that hold information about the way the jacobians are computed (either analytically or by finite difference)
+             * If an IWG requests a different way of computing the jacobian, the pointers of the set have to be reset to the correct jacobian evaluation methods.
+             * @param aIWG
+             */
+            void set_iwg_jacobian_strategy( std::shared_ptr< IWG > const aIWG )
+            {
+                bool const tSetAnalyticalJacobian = mSet->get_is_analytical_forward_analysis();
+                bool const tIWGAnalyticalJacobian = aIWG->is_analytical_jacobian();
+                if ( tSetAnalyticalJacobian != tIWGAnalyticalJacobian )
+                {
+                    mIWGRequiresDifferentJacobianCalculation = true;
+                    set_function_pointers( tIWGAnalyticalJacobian );
+                }
+            }
+
+            /**
+             * @brief If the IWG required a different way of computing the jacobian, the pointers of the set have to be reset to the correct jacobian evaluation methods from the set.
+             */
+            void reset_iwg_jacobian_strategy()
+            {
+                if ( mIWGRequiresDifferentJacobianCalculation )
+                {
+                    mIWGRequiresDifferentJacobianCalculation = false;
+                    set_function_pointers( mSet->get_is_analytical_forward_analysis() );
+                }
+            }
+
+
             //------------------------------------------------------------------------------
 
           public:
@@ -116,7 +148,7 @@ namespace moris
                 mLeaderCell = aCell;
 
                 // set function pointers
-                this->set_function_pointers();
+                this->set_function_pointers( mSet->get_is_analytical_forward_analysis() );
             };
 
             //------------------------------------------------------------------------------
@@ -145,7 +177,7 @@ namespace moris
                 mFollowerCell = aFollowerCell;
 
                 // set function pointers
-                this->set_function_pointers();
+                this->set_function_pointers( mSet->get_is_analytical_forward_analysis() );
             };
 
             //------------------------------------------------------------------------------
@@ -159,12 +191,9 @@ namespace moris
              * set function pointers for analytical and FD
              */
             void
-            set_function_pointers()
+            set_function_pointers( bool aIsAnalyticalJacobian )
             {
-                // get bool for forward analysis evaluation type
-                bool tIsAnalyticalJacobian = mSet->get_is_analytical_forward_analysis();
-
-                if ( tIsAnalyticalJacobian )
+                if ( aIsAnalyticalJacobian )
                 {
                     m_compute_jacobian = &Element::select_jacobian;
                     m_compute_dQIdu    = &Element::select_dQIdu;
