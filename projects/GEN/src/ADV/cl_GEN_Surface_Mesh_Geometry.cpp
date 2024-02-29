@@ -37,6 +37,7 @@ namespace moris::ge
     {
         string_to_cell( aParameterList.get< std::string >( "offset" ), mOffsets );
         string_to_cell( aParameterList.get< std::string >( "scale" ), mScale );
+        string_to_cell( aParameterList.get< std::string >( "adv_indices" ), mADVIndices );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -46,36 +47,61 @@ namespace moris::ge
             , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
             , mMesh( aMesh )
-            , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
+            , mOriginalVertexCoordinates( 0,0 )
             , mPerturbationFields( 0 )
     {
-        // set name of this geometry as the file name
-        mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1, aParameters.mFilePath.find_last_of( "." ) );
+        // Check the correct number of ADVs are provided (either as many as dimensions or zero)
+        MORIS_ERROR( aParameters.mADVIndices.size() == Object::mDimension
+                             or aParameters.mADVIndices.size() == 0,
+                "GEN - %ld ADV Indices provided to surface mesh. Should be %d or 0 (for now).",
+                aParameters.mADVIndices.size(),
+                Object::mDimension );
 
-        // copy original vertex coords from Object base class for perturbation
-        for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
+        // parse the file path and extract the file name
+        mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1,
+                aParameters.mFilePath.find_last_of( "." ) - aParameters.mFilePath.find_last_of( "/" ) - 1 );
+
+
+        // If this surface mesh is being optimized, construct fields and store original vertex coordinates
+        if ( aParameters.mADVIndices.size() > 0 or aParameters.mDiscretizationIndex > -1 )
         {
-            for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+            mOriginalVertexCoordinates.resize( Object::mVertices.size(), Object::mDimension );
+            // copy original vertex coords from Object base class for perturbation
+            for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
             {
-                mOriginalVertexCoordinates( iVertexIndex )( iDimension ) = Object::mVertices( iVertexIndex )->get_coord( iDimension );
+                for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+                {
+                    mOriginalVertexCoordinates( iVertexIndex )( iDimension ) = Object::mVertices( iVertexIndex )->get_coord( iDimension );
+                }
             }
-        }
 
-        if ( aADVs.numel() > 0 )
-        {
             // Allocate memory for perturbation fields
             mPerturbationFields.resize( Object::mDimension );
 
-            // initialize displacement fields as zeros
+            // build perturbation fields
             Matrix< DDUMat > tFieldVariableIndices = { { 0 } };
-            Matrix< DDRMat > tConstants            = { {} };
-            Matrix< DDRMat > tInitialDisplacement( Object::get_dimension(), 1 );
             for ( uint iFieldIndex = 0; iFieldIndex < Object::get_dimension(); iFieldIndex++ )
             {
-                Matrix< DDUMat > tADVIndices       = { { iFieldIndex } };
-                Matrix< DDRMat > tADVs             = { { aADVs( iFieldIndex ) } };
+                Matrix< DDUMat > tADVIndices;
+                Matrix< DDRMat > tADVs;
+                Matrix< DDRMat > tConstants;
+                // construct field to be discretized into a bspline field eventually
+                if ( aParameters.mDiscretizationIndex > -1 )
+                {
+                    tConstants.resize( 1, 1 );
+                    tConstants( 0, 0 ) = 1.0;
+                }
+                // construct constant field with an ADV to rigidly displace the surface mesh
+                else
+                {
+                    tADVIndices.resize( 1, 1 );
+                    tADVs.resize( 1, 1 );
+                    tADVIndices = { { iFieldIndex } };
+                    tADVs( 0, 0 ) = mParameters.mADVIndices( iFieldIndex );
+                }
+                // Build field
                 mPerturbationFields( iFieldIndex ) = std::make_shared< Constant_Field >(
-                        aADVs,
+                        tADVs,
                         tFieldVariableIndices,
                         tADVIndices,
                         tConstants,
@@ -164,7 +190,7 @@ namespace moris::ge
             tLocalCoordinate( iIntersection ) += -1.0;
         }
 
-        // reset the object
+        // reset the object to the vertex coordinates at the current design iteration
         this->reset_coordinates();
 
         // check number of intersections along parent edge
@@ -305,7 +331,7 @@ namespace moris::ge
                 for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
                 {
                     // Interpolate the bspline field value at the facet vertex location
-                    real tInterpolatedPerturbation = interpolate_perturbation_from_background_element( &mMesh->get_mtk_cell( tElementIndex ), iFieldIndex, tVertexParametricCoordinates );
+                    real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element( &mMesh->get_mtk_cell( tElementIndex ), iFieldIndex, tVertexParametricCoordinates );
 
                     // Add the perturbation to the list
                     tNewVertexCoordinates( iFieldIndex ) += tInterpolatedPerturbation;
@@ -359,69 +385,79 @@ namespace moris::ge
             const Matrix< DDSMat >& aSharedADVIds,
             uint                    aADVOffsetID )
     {
-        // for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
-        // {
-        //     if ( mParameters.mDiscretizationIndex >= 0 )
-        //     {
-        //         // Create a B-spline field
-        //         mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
-        //                 aMeshPair,
-        //                 aOwnedADVs,
-        //                 aSharedADVIds,
-        //                 aADVOffsetID,
-        //                 mParameters.mDiscretizationIndex + iFieldIndex,    // BRENDAN, this might mess up something if fields have indices that weren't explicitly specified
-        //                 mPerturbationFields( iFieldIndex ) );
+        if ( mParameters.mDiscretizationIndex >= 0 )
+        {
+            // Allocate memory for perturbation fields
+            mPerturbationFields.resize( Object::mDimension );
+            for ( uint iFieldIndex = 0; iFieldIndex < Object::mDimension; iFieldIndex++ )
+            {
+                // Create a B-spline field
+                mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
+                        aMeshPair,
+                        aOwnedADVs,
+                        aSharedADVIds,
+                        aADVOffsetID,
+                        mParameters.mDiscretizationIndex,
+                        mPerturbationFields( iFieldIndex ) );
 
-        //         // Set analytic field index, for now
-        //         Field::gDiscretizationIndex = mParameters.mDiscretizationIndex + iFieldIndex;
-        //     }
-        //     else if ( mParameters.mDiscretizationIndex == -1 )
-        //     {
-        //         // Just store nodal values
-        //         mPerturbationFields( iFieldIndex ) = std::make_shared< Stored_Field >(
-        //                 aMeshPair.get_interpolation_mesh(),
-        //                 mPerturbationFields( iFieldIndex ) );
-        //     }
-        //     mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
-        // }
+                // Set analytic field index, for now
+                Field::gDiscretizationIndex = mParameters.mDiscretizationIndex;
+            }
+        }
+        else if ( mParameters.mDiscretizationIndex == -1 )
+        {
+            // Allocate memory for perturbation fields
+            mPerturbationFields.resize( Object::mDimension );
+            for ( uint iFieldIndex = 0; iFieldIndex < Object::mDimension; iFieldIndex++ )
+            {
+                // Just store nodal values
+                mPerturbationFields( iFieldIndex ) = std::make_shared< Stored_Field >(
+                        aMeshPair.get_interpolation_mesh(),
+                        mPerturbationFields( iFieldIndex ) );
+            }
+        }
+        for ( auto iPerturbationField : mPerturbationFields )
+        {
+            iPerturbationField->mMeshPairForAnalytic = aMeshPair;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Surface_Mesh_Geometry::discretize(
+    void Surface_Mesh_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
             const Matrix< DDSMat >&       aSharedADVIds,
             uint                          aADVOffsetID )
     {
-        // for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
-        // {
-        //     if ( mParameters.mDiscretizationIndex >= 0 )
-        //     {
-        //         // Create a B-spline field
-        //         mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
-        //                 aOwnedADVs,
-        //                 aSharedADVIds,
-        //                 aADVOffsetID,
-        //                 mParameters.mDiscretizationIndex,
-        //                 aMTKField,
-        //                 aMeshPair );
-        //     }
-        //     else if ( mParameters.mDiscretizationIndex == -1 )
-        //     {
-        //         // TODO
-        //         MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
-        //     }
-        //     mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
-        // }
+        for ( uint iFieldIndex = 0; iFieldIndex < Object::mDimension; iFieldIndex++ )
+        {
+            // Allocate memory for perturbation fields
+            mPerturbationFields.resize( Object::mDimension );
+            if ( mParameters.mDiscretizationIndex >= 0 )
+            {
+                // Create a B-spline field
+                mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
+                        aOwnedADVs,
+                        aSharedADVIds,
+                        aADVOffsetID,
+                        mParameters.mDiscretizationIndex,
+                        aMTKField,
+                        aMeshPair );
+            }
+            else if ( mParameters.mDiscretizationIndex == -1 )
+            {
+                // TODO
+                MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
+            }
+            mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Surface_Mesh_Geometry::get_design_info(
+    void Surface_Mesh_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Cell< real >&           aOutputDesignInfo )
@@ -456,16 +492,14 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Surface_Mesh_Geometry::get_discretization_lower_bound()
+    real Surface_Mesh_Geometry::get_discretization_lower_bound()
     {
         return mParameters.mDiscretizationLowerBound;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Surface_Mesh_Geometry::get_discretization_upper_bound()
+    real Surface_Mesh_Geometry::get_discretization_upper_bound()
     {
         return mParameters.mDiscretizationUpperBound;
     }
@@ -527,8 +561,7 @@ namespace moris::ge
         return -1;
     }
 
-    real
-    Surface_Mesh_Geometry::interpolate_perturbation_from_background_element(
+    real Surface_Mesh_Geometry::interpolate_perturbation_from_background_element(
             mtk::Cell*              aBackgroundElement,
             uint                    aFieldIndex,
             const Matrix< DDRMat >& aParametricCoordinates )
@@ -560,12 +593,14 @@ namespace moris::ge
         // get perturbation values at the vertices
         for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
-            // FIXME: get vertex coordinates for this vertex. This copy is slow to have to do for every surface mesh vertex
-            Matrix< DDRMat > tVertexCoordinates( 1, Object::mDimension );
-            for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
-            {
-                tVertexCoordinates( 0, iDimension ) = tAllVertexCoordinates( iBackgroundNodeIndex, iDimension );
-            }
+            Matrix< DDRMat > tVertexCoordinates( &tVertexCoordinates( iBackgroundNodeIndex, 0 ), 0, Object::mDimension );
+
+            // // FIXME: get vertex coordinates for this vertex. This copy is slow to have to do for every surface mesh vertex
+            // Matrix< DDRMat > tVertexCoordinates( 1, Object::mDimension );
+            // for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+            // {
+            //     tVertexCoordinates( 0, iDimension ) = tAllVertexCoordinates( iBackgroundNodeIndex, iDimension );
+            // }
 
             // add this vertex's field value to the value
             tPerturbation += tBasis( iBackgroundNodeIndex ) * mPerturbationFields( aFieldIndex )->get_field_value( tVertexIndices( iBackgroundNodeIndex ), tVertexCoordinates );

@@ -29,6 +29,7 @@ namespace moris::ge
         Cell< real > mScale;                    // Option to scale each axis of the surface mesh
         std::string  mFilePath;                 // Surface mesh file path
         real         mIntersectionTolerance;    // Interface tolerance based on intersection distance
+        Cell< uint > mADVIndices;
 
         /**
          * Constructor with a given parameter list
@@ -195,8 +196,7 @@ namespace moris::ge
          */
         uint get_num_fields() override
         {
-            // TODO BRENDAN
-            return 0;
+            return mPerturbationFields.size();
         }
 
         /**
@@ -262,8 +262,8 @@ namespace moris::ge
         /**
          * Finds the background elemenent in aField that contains aCoordinates
          *
-         * @param aField The discretized field that will be interpolated from once the element is found
-         * @param aCoordinates The global location to be searched. The returned element is guaranteed to have aCoordinates in the bounding box
+         * @param aCoordinate Search global coordinate location
+         * @param aBoundingBox Return variable that holds the bounding box of the found cell
          *
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */
