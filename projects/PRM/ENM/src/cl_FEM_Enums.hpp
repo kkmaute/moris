@@ -177,7 +177,7 @@ namespace moris
             VOLUME,    // volume
             STRAIN_ENERGY,
             VOLUME_FRACTION,
-            RAY_LENGTH,
+            GAP,
             DOF,
             EIGEN_VECTOR,
             ALM_DOF,
@@ -206,6 +206,7 @@ namespace moris
             JUMP_DOF,
             JUMP_TRACTION,
             TRACTION,
+            CONTACT_PRESSURE,
 
             ADVECTION_STRONG_RESIDUAL,
             STRONG_RESIDUAL_SA,

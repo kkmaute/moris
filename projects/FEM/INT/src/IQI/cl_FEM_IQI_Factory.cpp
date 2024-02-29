@@ -15,7 +15,7 @@
 #include "cl_FEM_IQI_Volume.hpp"
 #include "cl_FEM_IQI_Strain_Energy.hpp"
 #include "cl_FEM_IQI_Stress.hpp"
-#include "cl_FEM_IQI_Ray_Length.hpp"
+#include "cl_FEM_IQI_Gap.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
 #include "cl_FEM_IQI_Eigen_Vector.hpp"
 #include "cl_FEM_IQI_ALM_Dof.hpp"
@@ -55,6 +55,7 @@
 #include "cl_FEM_IQI_Jump_Traction.hpp"
 #include "cl_FEM_IQI_Traction.hpp"
 #include "cl_FEM_IQI_Linear_Elasticity_Damage.hpp"
+#include "cl_FEM_IQI_Contact_Pressure.hpp"
 
 namespace moris
 {
@@ -200,9 +201,10 @@ namespace moris
                     return std::make_shared< IQI_Jump_Traction >();
                 case IQI_Type::TRACTION:
                     return std::make_shared< IQI_Traction >();
-
-                case IQI_Type::RAY_LENGTH:
-                    return std::make_shared< IQI_Ray_Length >();
+                case IQI_Type::CONTACT_PRESSURE:
+                    return std::make_shared< IQI_Contact_Pressure >();
+                case IQI_Type::GAP:
+                    return std::make_shared< IQI_Gap >();
 
                 case IQI_Type::LINEAR_ELASTICITY_DAMAGE:
                     return std::make_shared< IQI_Linear_Elasticity_Damage >();

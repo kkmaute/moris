@@ -24,19 +24,19 @@ namespace moris
     namespace fem
     {
 
-        class IQI_Ray_Length : public IQI
+        class IQI_Gap : public IQI
         {
 
           public:
             /*
              * constructor
              */
-            IQI_Ray_Length();
+            IQI_Gap();
 
             /**
              * trivial destructor
              */
-            ~IQI_Ray_Length(){};
+            ~IQI_Gap(){};
 
           private:
             /**
@@ -67,7 +67,7 @@ namespace moris
                     Matrix< DDRMat >&        adQIdu ) override;
 
 
-        };    // class IQI_Ray_Length
+        };    // class IQI_Gap
 
 
     } /* end namespace fem */

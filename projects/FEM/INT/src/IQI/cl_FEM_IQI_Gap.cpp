@@ -4,15 +4,15 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_IQI_Ray_Length.cpp
+ * cl_FEM_IQI_Gap.cpp
  *
  */
 
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
-#include "cl_FEM_IQI_Ray_Length.hpp"
-#include "fn_norm.hpp"
+#include "cl_FEM_IQI_Gap.hpp"
+#include "fn_dot.hpp"
 
 namespace moris
 {
@@ -20,20 +20,27 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        IQI_Ray_Length::IQI_Ray_Length()
+        IQI_Gap::IQI_Gap()
         {
-            mFEMIQIType = fem::IQI_Type::RAY_LENGTH;
+            mFEMIQIType = fem::IQI_Type::GAP;
         }
 
         //------------------------------------------------------------------------------
 
         void
-        IQI_Ray_Length::compute_QI( Matrix< DDRMat >& aQI )
+        IQI_Gap::compute_QI( Matrix< DDRMat >& aQI )
         {
+            Field_Interpolator* tFILeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+
             Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
             Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
 
-            real tGap = norm( tGIFollower->valx() - tGILeader->valx() );
+            Matrix< DDRMat > tCurrentNormal = tGILeader->get_normal_current( tFILeader );
+
+            real tGap = dot(
+                    tGIFollower->valx_current( tFIFollower ) - tGILeader->valx_current( tFILeader ),
+                    tCurrentNormal );
 
             aQI = { { tGap } };
         }
@@ -41,12 +48,20 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        IQI_Ray_Length::compute_QI( real aWStar )
+        IQI_Gap::compute_QI( real aWStar )
         {
+            Field_Interpolator* tFILeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+
             Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
             Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
 
-            real tGap     = norm( tGIFollower->valx() - tGILeader->valx() );
+            Matrix< DDRMat > tCurrentNormal = tGILeader->get_normal_current( tFILeader );
+
+            real tGap = dot(
+                    tGIFollower->valx_current( tFIFollower ) - tGILeader->valx_current( tFILeader ),
+                    tCurrentNormal );
+
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
             mSet->get_QI()( tQIIndex ) += aWStar * tGap;
         }
@@ -54,7 +69,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        IQI_Ray_Length::compute_dQIdu( real aWStar )
+        IQI_Gap::compute_dQIdu( real aWStar )
         {
             MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
         }
@@ -62,7 +77,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        IQI_Ray_Length::compute_dQIdu(
+        IQI_Gap::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&        adQIdu )
         {
