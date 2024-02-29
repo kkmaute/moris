@@ -231,7 +231,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Volume.hpp
     IQI/cl_FEM_IQI_Strain_Energy.hpp
     IQI/cl_FEM_IQI_Stress.hpp
-	IQI/cl_FEM_IQI_Ray_Length.hpp
+	IQI/cl_FEM_IQI_Gap.hpp
 	IQI/cl_FEM_IQI_Dof.hpp
     IQI/cl_FEM_IQI_Eigen_Vector.hpp
     IQI/cl_FEM_IQI_ALM_Dof.hpp
@@ -268,7 +268,8 @@ set(HEADERS
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
     IQI/cl_FEM_IQI_Jump_Dof.hpp
     IQI/cl_FEM_IQI_Jump_Traction.hpp
-    IQI/cl_FEM_IQI_Traction.hpp
+		IQI/cl_FEM_IQI_Contact_Pressure.hpp
+	IQI/cl_FEM_IQI_Traction.hpp
     IQI/cl_FEM_IQI_Linear_Elasticity_Damage.hpp
 	IQI/cl_FEM_IQI_Normal_Vector.hpp
     MEA/cl_FEM_Cluster_Measure.hpp
@@ -477,7 +478,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Volume.cpp
     IQI/cl_FEM_IQI_Strain_Energy.cpp
     IQI/cl_FEM_IQI_Stress.cpp
-	IQI/cl_FEM_IQI_Ray_Length.cpp
+	IQI/cl_FEM_IQI_Gap.cpp
 	IQI/cl_FEM_IQI_Dof.cpp
     IQI/cl_FEM_IQI_Eigen_Vector.cpp
     IQI/cl_FEM_IQI_ALM_Dof.cpp
@@ -515,7 +516,8 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
     IQI/cl_FEM_IQI_Jump_Dof.cpp
     IQI/cl_FEM_IQI_Jump_Traction.cpp
-    IQI/cl_FEM_IQI_Traction.cpp
+		IQI/cl_FEM_IQI_Contact_Pressure.cpp
+	IQI/cl_FEM_IQI_Traction.cpp
     IQI/cl_FEM_IQI_Linear_Elasticity_Damage.cpp
 	IQI/cl_FEM_IQI_Normal_Vector.cpp
     MEA/cl_FEM_Cluster_Measure.cpp
