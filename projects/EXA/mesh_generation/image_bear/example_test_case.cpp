@@ -44,8 +44,9 @@ TEST_CASE( "image_bear",
     // copy relevant files from example directory into working directory
     std::string tMoveStringXml = "cp -f " + tXmlSource + " " + tTargetDir;
     std::string tMoveStringHdf5 = "cp -f " + tHdf5Source + " " + tTargetDir;
-    std::system( tMoveStringXml.c_str() );
-    std::system( tMoveStringHdf5.c_str() );
+    
+    MORIS_ERROR( std::system( tMoveStringXml.c_str() ) > 0, "failure" );
+    MORIS_ERROR( std::system( tMoveStringHdf5.c_str() )  > 0, "failure" );
 
     // FIXME: remove the previous and use the below to use std::filesystem paths/copies, requires C++17 with gcc version >=8
     // // get all the relevant file paths
