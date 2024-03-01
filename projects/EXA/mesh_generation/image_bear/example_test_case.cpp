@@ -45,6 +45,7 @@ TEST_CASE( "image_bear",
     std::string tMoveStringXml = "cp -f " + tXmlSource + " " + tTargetDir;
     std::string tMoveStringHdf5 = "cp -f " + tHdf5Source + " " + tTargetDir;
     
+    // fixme: should be changed to C++ commands rather than system calls
     MORIS_ERROR( std::system( tMoveStringXml.c_str() ) > 0, "failure" );
     MORIS_ERROR( std::system( tMoveStringHdf5.c_str() )  > 0, "failure" );
 
