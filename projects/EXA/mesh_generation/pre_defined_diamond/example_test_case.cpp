@@ -43,7 +43,9 @@ TEST_CASE( "pre_defined_diamond",
 
     // copy relevant files from example directory into working directory
     std::string tMoveStringXml = "cp -f " + tXmlSource + " " + tTargetDir;
-    std::system( tMoveStringXml.c_str() );
+    
+   // fixme: should be changed to C++ commands rather than system calls
+    MORIS_ERROR( std::system( tMoveStringXml.c_str() ) > 0, "failure" );
 
     // define command line call
     int argc = 3;
