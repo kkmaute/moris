@@ -45,8 +45,10 @@ TEST_CASE( "obj_sphere",
     // copy relevant files from example directory into working directory
     std::string tMoveStringXml = "cp -f " + tXmlSource + " " + tTargetDir;
     std::string tMoveStringObj = "cp -f " + tObjSource + " " + tTargetDir;
-    std::system( tMoveStringXml.c_str() );
-    std::system( tMoveStringObj.c_str() );
+            
+    // fixme: should be changed to C++ commands rather than system calls
+    MORIS_ERROR( std::system( tMoveStringXml.c_str() ) > 0, "failure" );
+    MORIS_ERROR( std::system( tMoveStringObj.c_str() )  > 0, "failure" );
 
     // define command line call
     int argc = 3;
