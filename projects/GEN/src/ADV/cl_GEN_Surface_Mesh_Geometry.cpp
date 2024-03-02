@@ -79,29 +79,34 @@ namespace moris::gen
             mPerturbationFields.resize( Object::mDimension );
 
             // build perturbation fields
-            Matrix< DDUMat > tFieldVariableIndices = { { 0 } };
             for ( uint iFieldIndex = 0; iFieldIndex < Object::get_dimension(); iFieldIndex++ )
             {
                 Matrix< DDUMat > tADVIndices;
-                Matrix< DDRMat > tADVs;
                 Matrix< DDRMat > tConstants;
+                Matrix< DDUMat > tFieldVariableIndices;
                 // construct field to be discretized into a bspline field eventually
                 if ( aParameters.mDiscretizationIndex > -1 )
                 {
+                    // allocate space for contants information
                     tConstants.resize( 1, 1 );
-                    tConstants( 0, 0 ) = 1.0;
+
+                    // set constants
+                    tConstants( 0, 0 ) = 0.0;
                 }
                 // construct constant field with an ADV to rigidly displace the surface mesh
                 else
                 {
+                    // allocate space for ADV information
                     tADVIndices.resize( 1, 1 );
-                    tADVs.resize( 1, 1 );
-                    tADVIndices   = { { iFieldIndex } };
-                    tADVs( 0, 0 ) = mParameters.mADVIndices( iFieldIndex );
+                    tFieldVariableIndices.resize( 1, 1 );
+
+                    // set ADV information
+                    tADVIndices( 0, 0 )           = mParameters.mADVIndices( iFieldIndex );
+                    tFieldVariableIndices( 0, 0 ) = 0;
                 }
                 // Build field
                 mPerturbationFields( iFieldIndex ) = std::make_shared< Constant_Field >(
-                        tADVs,
+                        aADVs,
                         tFieldVariableIndices,
                         tADVIndices,
                         tConstants,
@@ -305,12 +310,12 @@ namespace moris::gen
 
         // update the surface mesh with the new field data
         // FIXME: Put this in the above loop so it doesn't get called unless necessary
-        Cell< Cell< real > > tElementBoundingBox( 2, Object::mDimension );
-        Matrix< DDRMat >     tVertexParametricCoordinates( Object::mDimension, 1 );
+        Vector< Vector< real > > tElementBoundingBox( 2, Object::mDimension );
+        Matrix< DDRMat >         tVertexParametricCoordinates( Object::mDimension, 1 );
         for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
         {
             // Initialize perturbation vector
-            Cell< real > tNewVertexCoordinates = mOriginalVertexCoordinates( iVertexIndex );
+            Vector< real > tNewVertexCoordinates = mOriginalVertexCoordinates( iVertexIndex );
 
             // Determine which element this vertex lies in, will be the same for every field
             int tElementIndex = this->find_background_element_from_global_coordinates(
@@ -344,9 +349,6 @@ namespace moris::gen
 
         // Update all facet data
         this->Object::update_all_facets();
-
-        // BRENDAN
-        std::cout << "surface mesh imported ADVs\n";
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -359,6 +361,33 @@ namespace moris::gen
         {
             mPerturbationFields( iFieldIndex )->set_advs( aADVs );
         }
+    }
+
+    uint
+    Surface_Mesh_Geometry::append_adv_info(
+            mtk::Interpolation_Mesh* aMesh,
+            Matrix< DDSMat >&        aOwnedADVIds,
+            Matrix< IdMat >&         aOwnedijklIDs,
+            uint                     aOffsetID,
+            Matrix< DDRMat >&        aLowerBounds,
+            Matrix< DDRMat >&        aUpperBounds )
+    {
+        uint tOriginalOffsetID = aOffsetID;
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            aOffsetID = Design::append_adv_info(
+                    aMesh,
+                    aOwnedADVIds,
+                    aOwnedijklIDs,
+                    aOffsetID,
+                    aLowerBounds,
+                    aUpperBounds );
+        }
+
+        // set the offset to the offset for the first perturabtion field
+        mOffsetID = tOriginalOffsetID;
+
+        return aOffsetID;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -380,45 +409,37 @@ namespace moris::gen
 
     void
     Surface_Mesh_Geometry::discretize(
-            mtk::Mesh_Pair          aMeshPair,
-            sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDSMat >& aSharedADVIds,
-            uint                    aADVOffsetID )
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
     {
         if ( mParameters.mDiscretizationIndex >= 0 )
         {
-            // Allocate memory for perturbation fields
-            mPerturbationFields.resize( Object::mDimension );
-            for ( uint iFieldIndex = 0; iFieldIndex < Object::mDimension; iFieldIndex++ )
-            {
-                // Create a B-spline field
+            for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+            {    // Create a B-spline field
                 mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
                         aMeshPair,
                         aOwnedADVs,
-                        aSharedADVIds,
-                        aADVOffsetID,
+                        mSharedADVIDs( iFieldIndex ),
+                        mOffsetID + iFieldIndex * aMeshPair.get_interpolation_mesh()->get_max_entity_id( mtk::EntityRank::BSPLINE, mParameters.mDiscretizationIndex ),
                         mParameters.mDiscretizationIndex,
                         mPerturbationFields( iFieldIndex ) );
 
                 // Set analytic field index, for now
                 Field::gDiscretizationIndex = mParameters.mDiscretizationIndex;
+
+                mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
             }
         }
         else if ( mParameters.mDiscretizationIndex == -1 )
         {
-            // Allocate memory for perturbation fields
-            mPerturbationFields.resize( Object::mDimension );
-            for ( uint iFieldIndex = 0; iFieldIndex < Object::mDimension; iFieldIndex++ )
-            {
-                // Just store nodal values
+            for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+            {    // Just store nodal values
                 mPerturbationFields( iFieldIndex ) = std::make_shared< Stored_Field >(
                         aMeshPair.get_interpolation_mesh(),
                         mPerturbationFields( iFieldIndex ) );
+
+                mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
             }
-        }
-        for ( auto iPerturbationField : mPerturbationFields )
-        {
-            iPerturbationField->mMeshPairForAnalytic = aMeshPair;
         }
     }
 
@@ -427,32 +448,39 @@ namespace moris::gen
     void Surface_Mesh_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
-            uint                          aADVOffsetID )
+            sol::Dist_Vector*             aOwnedADVs )
     {
+        MORIS_ERROR( false, "Surface mesh bspline fields cannot be remeshed for now" );
         for ( uint iFieldIndex = 0; iFieldIndex < Object::mDimension; iFieldIndex++ )
         {
-            // Allocate memory for perturbation fields
-            mPerturbationFields.resize( Object::mDimension );
-            if ( mParameters.mDiscretizationIndex >= 0 )
+            if ( mPerturbationFields( iFieldIndex )->get_name() == aMTKField->get_label() )
             {
-                // Create a B-spline field
-                mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
-                        aOwnedADVs,
-                        aSharedADVIds,
-                        aADVOffsetID,
-                        mParameters.mDiscretizationIndex,
-                        aMTKField,
-                        aMeshPair );
-            }
-            else if ( mParameters.mDiscretizationIndex == -1 )
-            {
-                // TODO
-                MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
+                if ( mParameters.mDiscretizationIndex >= 0 )
+                {    // Create a B-spline field
+                    mPerturbationFields( iFieldIndex ) = std::make_shared< BSpline_Field >(
+                            aOwnedADVs,
+                            mSharedADVIDs( iFieldIndex ),
+                            mOffsetID + iFieldIndex * aMeshPair.get_interpolation_mesh()->get_max_entity_id( mtk::EntityRank::BSPLINE, mParameters.mDiscretizationIndex ),
+                            mParameters.mDiscretizationIndex,
+                            aMTKField,
+                            aMeshPair );
+                }
+                else if ( mPerturbationFields( iFieldIndex )->get_name() == aMTKField->get_label() && mParameters.mDiscretizationIndex == -1 )
+                {
+                    // TODO
+                    MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
+                }
             }
             mPerturbationFields( iFieldIndex )->mMeshPairForAnalytic = aMeshPair;
         }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::string
+    Surface_Mesh_Geometry::get_name()
+    {
+        return mName;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -506,8 +534,8 @@ namespace moris::gen
 
     moris_index
     Surface_Mesh_Geometry::find_background_element_from_global_coordinates(
-            const Matrix< DDRMat >& aCoordinate,
-            Cell< Cell< real > >&   aBoundingBox )
+            const Matrix< DDRMat >&   aCoordinate,
+            Vector< Vector< real > >& aBoundingBox )
     {
         // Loop through each mtk::Cell
         for ( uint iElementIndex = 0; iElementIndex < mMesh->get_num_elems(); iElementIndex++ )
@@ -593,7 +621,7 @@ namespace moris::gen
         // get perturbation values at the vertices
         for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
-            Matrix< DDRMat > tVertexCoordinates( &tVertexCoordinates( iBackgroundNodeIndex, 0 ), 0, Object::mDimension );
+            Matrix< DDRMat > tVertexCoordinates( &tAllVertexCoordinates( iBackgroundNodeIndex, 0 ), 0, Object::mDimension );
 
             // // FIXME: get vertex coordinates for this vertex. This copy is slow to have to do for every surface mesh vertex
             // Matrix< DDRMat > tVertexCoordinates( 1, Object::mDimension );

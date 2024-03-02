@@ -34,12 +34,15 @@ namespace moris::gen
         {
             real tEpsilon = 1e-9;
 
+            // Create mesh
+            mtk::Interpolation_Mesh* tMesh = create_simple_mesh( 2, 2 );
+
             // create surface mesh geometry
+            Matrix< DDRMat > tADVs;
             ParameterList tParameters = prm::create_surface_mesh_geometry_parameter_list();
             tParameters.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/SDF/test/data/rhombus.obj" );
             Surface_Mesh_Parameters                  tSurfaceMeshParameters( tParameters );
-            Surface_Mesh_Geometry                    tSurfaceMesh( tSurfaceMeshParameters );
-            std::shared_ptr< Surface_Mesh_Geometry > tSurfaceMeshPointer = std::make_shared< Surface_Mesh_Geometry >( tSurfaceMeshParameters );
+            std::shared_ptr< Surface_Mesh_Geometry > tSurfaceMeshPointer = std::make_shared< Surface_Mesh_Geometry >( tMesh, tADVs, tSurfaceMeshParameters );
 
             // initialize counter for nodes
             moris_index tNodeIndex = 0;
@@ -52,7 +55,7 @@ namespace moris::gen
             Background_Node            tSecondBase( tNodeIndex++, tSecondParentGlobalCoordinates );
             Background_Node            tThirdBase( tNodeIndex++, { { 0.25, 0.15 } } );
             Background_Node            tFourthBase( tNodeIndex++, { { 0.1, 0.2 } } );
-            Vector< Background_Node* >       tBackgroundNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
+            Vector< Background_Node* > tBackgroundNodes = { &tFirstBase, &tSecondBase, &tThirdBase, &tFourthBase };
 
             Matrix< DDRMat > tFirstParentParametricCoordinates  = { { -1.0, 1.0 } };
             Matrix< DDRMat > tSecondParentParametricCoordinates = { { 1.0, 1.0 } };

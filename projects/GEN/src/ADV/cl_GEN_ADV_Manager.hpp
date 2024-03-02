@@ -20,7 +20,7 @@ namespace moris::gen
     {
 
       private:
-        Vector< ADV >       mADVs;
+        Vector< ADV >     mADVs;
         Matrix< DDSMat >  mDeterminingADVIds;
         bool              mHasADVs;
         sol::Dist_Vector* mSharedADVs = nullptr;
@@ -64,9 +64,9 @@ namespace moris::gen
          * @param aNewConstants New constant values
          */
         ADV_Manager(
-                const ADV_Manager& aCopyADVManager,
+                const ADV_Manager&    aCopyADVManager,
                 const Vector< uint >& aReplaceVariables = {},
-                const Vector< real >& aNewConstants = {{}} );
+                const Vector< real >& aNewConstants     = { {} } );
 
         /**
          * Destructor
@@ -81,10 +81,10 @@ namespace moris::gen
          */
         template< typename Vector_Type >
         void set_advs( Vector_Type& aADVs );
-        
+
         /**
          * Gets the value of a specific design variable so it can be used as a part of a design discretization.
-         * 
+         *
          * @param aVariableIndex Index of the variable in this manager to reference
          * @return Design variable value
          */
@@ -112,7 +112,6 @@ namespace moris::gen
         bool has_advs();
 
       private:
-
         /**
          * Creates the ADVs managed by this object.
          *
@@ -120,7 +119,7 @@ namespace moris::gen
          * @param aConstants Constants to fill in other values
          */
         void create_advs(
-                Matrix< DDRMat >& aADVs,
+                Matrix< DDRMat >&       aADVs,
                 const Matrix< DDRMat >& aConstants );
     };
-}
+}    // namespace moris::gen

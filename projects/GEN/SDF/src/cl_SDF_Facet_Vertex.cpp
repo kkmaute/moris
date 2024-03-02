@@ -37,7 +37,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet_Vertex::scale_node_coords( const moris::Cell< real > &aScaling )
+        Facet_Vertex::scale_node_coords( const moris::Vector< real > &aScaling )
         {
             for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
             {
@@ -48,7 +48,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Facet_Vertex::set_node_coords( const moris::Cell< real > &aCoordinates )
+        Facet_Vertex::set_node_coords( const moris::Vector< real > &aCoordinates )
         {
             for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
             {
@@ -58,7 +58,7 @@ namespace moris
         }
 
         void
-        Facet_Vertex::shift_node_coords_from_current( const moris::Cell< real > &aShift )
+        Facet_Vertex::shift_node_coords_from_current( const moris::Vector< real > &aShift )
         {
             for ( uint iAxis = 0; iAxis < mNodeCoords.numel(); iAxis++ )
             {

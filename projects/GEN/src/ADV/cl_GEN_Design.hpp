@@ -23,7 +23,7 @@ namespace moris::gen
     {
         Vector< uint > mNumberOfRefinements;        // The number of refinement steps to use for this field
         Vector< uint > mRefinementMeshIndices;      // Indices of meshes to perform refinement on
-        sint         mRefinementFunctionIndex;    // Index of a user-defined refinement function (-1 = default)
+        sint           mRefinementFunctionIndex;    // Index of a user-defined refinement function (-1 = default)
 
         /**
          * Constructor with a given parameter list
@@ -42,6 +42,10 @@ namespace moris::gen
     {
       private:
         Design_Parameters mParameters;
+
+      protected:
+        uint                       mOffsetID;     // Offset of the global ADVs to this Design's ADVs 
+        Vector< Matrix< DDSMat > > mSharedADVIDs; // IDs of the ADVs that this design shares. Size = number of fields
 
       public:
         /**
@@ -81,7 +85,7 @@ namespace moris::gen
         virtual void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Vector< real >&           aOutputDesignInfo ) = 0;
+                Vector< real >&         aOutputDesignInfo ) = 0;
 
         /**
          * Gets the number of fields that the design has
@@ -131,6 +135,35 @@ namespace moris::gen
          * @return Underlying field
          */
         virtual std::shared_ptr< Field > get_field() = 0;
+
+        /**
+         * Appends this designs ADV IDs, ijklIDs, lower bounds, and upper bounds to the global matrices stored in the geometry engine.
+         * Sets mNumCoeff, mOffsetID, and appends to mSharedADVIDs
+         *
+         * @param aMeshPair     Background mesh pair
+         * @param aOwnedADVIds  IDs of the ADVs that are owned by this design
+         * @param aOwnedijklIDs
+         * @param aOffsetID     Offset of this Design's ADVs from the global ADV vector
+         * @param aLowerBounds  ADV lower bounds
+         * @param aUpperBounds  ADV upper bounds
+         * @return uint The new offset ID after this geometry has appended its information
+         */
+        virtual uint append_adv_info(
+                mtk::Interpolation_Mesh* aMesh,
+                Matrix< DDSMat >&        aOwnedADVIds,
+                Matrix< IdMat >&         aOwnedijklIDs,
+                uint                     aOffsetID,
+                Matrix< DDRMat >&        aLowerBounds,
+                Matrix< DDRMat >&        aUpperBounds );
+
+        static void communicate_missing_owned_coefficients(
+                mtk::Interpolation_Mesh* aMesh,
+                Matrix< IdMat >&         aAllCoefIds,
+                Matrix< IdMat >&         aAllCoefOwners,
+                Matrix< IdMat >&         aAllCoefijklIds,
+                uint                     aNumCoeff,
+                uint                     aDiscretizationMeshIndex,
+                mtk::MeshType            aMeshType );
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector

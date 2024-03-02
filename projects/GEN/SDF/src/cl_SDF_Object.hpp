@@ -33,8 +33,8 @@ namespace moris
             real mIntersectionTolerance = 1e-8;    // tolerance for interfaces when raycasting with this Object
 
           protected:
-            uint                                           mDimension;
-            moris::Cell< std::shared_ptr< Facet_Vertex > > mVertices;    // vertices of all facets, can be modified by ADVs
+            uint                                      mDimension;
+            Vector< std::shared_ptr< Facet_Vertex > > mVertices;    // vertices of all facets, can be modified by ADVs
 
 
             //-------------------------------------------------------------------------------

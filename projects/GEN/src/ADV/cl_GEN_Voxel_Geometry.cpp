@@ -116,12 +116,12 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Voxel_Geometry::create_intersection_node(
-            uint                     aNodeIndex,
+            uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&       aFirstParentNode,
-            const Parent_Node&       aSecondParentNode,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
     {
         return new Intersection_Node_Voxel(
                 aNodeIndex,
@@ -132,18 +132,18 @@ namespace moris::gen
                 aBackgroundInterpolationOrder,
                 *this );
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     real Voxel_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&   aFirstParentNode,
-            const Parent_Node&   aSecondParentNode )
+            const Parent_Node&                aFirstParentNode,
+            const Parent_Node&                aSecondParentNode )
     {
         // Get parent geometric regions
-        Geometric_Region tFirstParentGeometricRegion = this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+        Geometric_Region tFirstParentGeometricRegion  = this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
         Geometric_Region tSecondParentGeometricRegion = this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
-        
+
         // Return local coordinate based on geometric regions of the parent nodes
         if ( tFirstParentGeometricRegion == tSecondParentGeometricRegion and tFirstParentGeometricRegion not_eq Geometric_Region::INTERFACE )
         {
@@ -173,58 +173,58 @@ namespace moris::gen
     {
         return {};
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     uint Voxel_Geometry::get_num_fields()
     {
         return 0;
     }
-        
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     std::string Voxel_Geometry::get_name()
     {
         return mVoxelInput->get_file_name() + "_" + std::to_string( mIndex );
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     bool Voxel_Geometry::intended_discretization()
     {
         return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     moris_index Voxel_Geometry::get_discretization_mesh_index()
     {
         return -1;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     real Voxel_Geometry::get_discretization_lower_bound()
     {
         return -1.0;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     real Voxel_Geometry::get_discretization_upper_bound()
     {
         return 1.0;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     std::shared_ptr< Field > Voxel_Geometry::get_field()
     {
         return nullptr;
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
-    
+
     void Voxel_Geometry::set_advs( sol::Dist_Vector* aADVs )
     {
     }
@@ -244,10 +244,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Voxel_Geometry::discretize(
-            mtk::Mesh_Pair          aMeshPair,
-            sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDSMat >& aSharedADVIds,
-            uint                    aADVOffsetID )
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
     {
     }
 
@@ -256,9 +254,7 @@ namespace moris::gen
     void Voxel_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
-            sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDSMat >&       aSharedADVIds,
-            uint                          aADVOffsetID )
+            sol::Dist_Vector*             aOwnedADVs )
     {
     }
 
@@ -267,10 +263,10 @@ namespace moris::gen
     void Voxel_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Vector< real >&           aOutputDesignInfo )
+            Vector< real >&         aOutputDesignInfo )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

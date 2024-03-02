@@ -19,7 +19,8 @@ namespace moris::gen
     /**
      * This is a struct used to simplify \ref moris::gen::Level_Set_Geometry constructors. It contains all field and level-set parameters.
      */
-    struct Level_Set_Parameters : public Field_Parameters, public Design_Parameters
+    struct Level_Set_Parameters : public Field_Parameters
+            , public Design_Parameters
     {
         real mIsocontourThreshold;      // Level set isocontour level
         real mIsocontourTolerance;      // Interface tolerance based on geometry value
@@ -33,7 +34,8 @@ namespace moris::gen
         explicit Level_Set_Parameters( const ParameterList& aParameterList = prm::create_level_set_geometry_parameter_list() );
     };
 
-    class Level_Set_Geometry : public Geometry, public Design_Field
+    class Level_Set_Geometry : public Geometry
+            , public Design_Field
     {
       private:
         Level_Set_Parameters mParameters;
@@ -97,12 +99,12 @@ namespace moris::gen
          * @return New intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                     aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder ) override;
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
@@ -114,8 +116,8 @@ namespace moris::gen
          */
         real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&   aFirstParentNode,
-                const Parent_Node&   aSecondParentNode ) override;
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode ) override;
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -162,29 +164,22 @@ namespace moris::gen
          *
          * @param aMeshPair The mesh pair where the discretization information can be obtained
          * @param aOwnedADVs Pointer to the owned distributed ADVs
-         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
                 mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs,
-                const Matrix< DDSMat >& aSharedADVIds,
-                uint                    aADVOffsetID ) override;
+                sol::Dist_Vector*       aOwnedADVs ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
          *
          * @param aMTKField Input MTK field to map based on
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
          * @param aOwnedADVs Pointer to the owned distributed ADVs
-         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
-         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          */
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs,
-                const Matrix< DDSMat >&       aSharedADVIds,
-                uint                          aADVOffsetID ) override;
+                sol::Dist_Vector*             aOwnedADVs ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -196,11 +191,11 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Vector< real >&           aOutputDesignInfo ) override;
+                Vector< real >&         aOutputDesignInfo ) override;
 
         /**
          * Gets the number of fields the level set geometry has
-        */
+         */
         uint get_num_fields() override
         {
             return 1;
@@ -226,7 +221,7 @@ namespace moris::gen
             Design_Field::mField->set_advs( aADVs );
         }
 
-                /**
+        /**
          * Gets if this field is to be used for seeding a B-spline field.
          *
          * @return Logic for B-spline creation

@@ -19,11 +19,12 @@ namespace moris::gen
     /**
      * This struct contains additional parameters that are used by properties.
      */
-    struct Property_Parameters : public Field_Parameters, public Design_Parameters
+    struct Property_Parameters : public Field_Parameters
+            , public Design_Parameters
     {
         Vector< std::string > mDependencyNames;      //! Names of the dependencies of this property
-        PDV_Type            mPDVType;              //! The type of PDV that this property will be assigned to
-        bool                mInterpolationPDV;     //! If the PDV is defined on the interpolation mesh (always true for now)
+        PDV_Type              mPDVType;              //! The type of PDV that this property will be assigned to
+        bool                  mInterpolationPDV;     //! If the PDV is defined on the interpolation mesh (always true for now)
         Vector< uint >        mPDVMeshSetIndices;    //! Mesh set indices for assigning PDVs
         Vector< std::string > mPDVMeshSetNames;      //! Mesh set names for assigning PDVs
 
@@ -92,8 +93,30 @@ namespace moris::gen
         Vector< uint > get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh );
 
         /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         */
+        void discretize(
+                mtk::Mesh_Pair    aMeshPair,
+                sol::Dist_Vector* aOwnedADVs );
+
+        /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMTKField Input MTK field to map based on
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         */
+        void discretize(
+                std::shared_ptr< mtk::Field > aMTKField,
+                mtk::Mesh_Pair                aMeshPair,
+                sol::Dist_Vector*             aOwnedADVs );
+
+        /**
          * Used for writing to mtk meshes and printing for debug info
-         * 
+         *
          * @param aNodeIndex decides the point at which the field value is printed. If the node is a derived node, the value is interpolated from the parents.
          * @param aCoordinates The field location to get the value from.
          * @return the value of the property field at the requested location
@@ -101,11 +124,11 @@ namespace moris::gen
         void get_design_info(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Vector< real >& aOutputDesignInfo ) override;
+                Vector< real >&         aOutputDesignInfo ) override;
 
         /**
          * gets the number of fields the property has
-        */
+         */
         uint get_num_fields() override
         {
             return 1;

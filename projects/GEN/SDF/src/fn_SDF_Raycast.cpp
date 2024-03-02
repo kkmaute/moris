@@ -75,7 +75,7 @@ namespace moris::sdf
                 aObject.get_dimension(),
                 aPoint.numel() );
 
-        moris::Cell< Facet* > tFacetsToIntersect;
+        Vector< Facet* > tFacetsToIntersect;
 
         switch ( aObject.get_dimension() )
         {

@@ -51,7 +51,7 @@ namespace moris::gen
     void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedFields )
     {
         // Set up dependency fields
-        uint                             tNumDependencies = mParameters.mDependencyNames.size();
+        uint                               tNumDependencies = mParameters.mDependencyNames.size();
         Vector< std::shared_ptr< Field > > tDependencyFields( tNumDependencies );
 
         // Grab dependencies
@@ -109,10 +109,37 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void
+    Property::discretize(
+            mtk::Mesh_Pair    aMeshPair,
+            sol::Dist_Vector* aOwnedADVs )
+    {
+        MORIS_ASSERT( mSharedADVIDs.size() == 1,
+                "discretize() - Level Set geometries should have one set of shared ADV IDs. Size = %d",
+                mSharedADVIDs.size() );
+        Design_Field::discretize( aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Property::discretize(
+            std::shared_ptr< mtk::Field > aMTKField,
+            mtk::Mesh_Pair                aMeshPair,
+            sol::Dist_Vector*             aOwnedADVs )
+    {
+        MORIS_ASSERT( mSharedADVIDs.size() == 1,
+                "discretize() - Level Set geometries should have one set of shared ADV IDs. Size = %d",
+                mSharedADVIDs.size() );
+        Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Property::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
-            Vector< real >& aOutputDesignInfo )
+            Vector< real >&         aOutputDesignInfo )
     {
         aOutputDesignInfo.resize( 1 );
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
@@ -124,7 +151,7 @@ namespace moris::gen
         return Design_Field::get_name();
     }
 
-        bool Property::intended_discretization()
+    bool Property::intended_discretization()
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
     }

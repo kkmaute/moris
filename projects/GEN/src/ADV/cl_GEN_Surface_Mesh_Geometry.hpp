@@ -43,12 +43,12 @@ namespace moris::gen
             , public sdf::Object
     {
       private:
-        Surface_Mesh_Parameters mParameters;
-        std::string             mName;
-        mtk::Mesh*              mMesh;
-        Cell< Cell< real > >    mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
+        Surface_Mesh_Parameters  mParameters;
+        std::string              mName;
+        mtk::Mesh*               mMesh;
+        Vector< Vector< real > > mOriginalVertexCoordinates;    // All vertex coordinates as they were upon construction <dimension> x <number of vertices>
 
-        Cell< std::shared_ptr< Field > > mPerturbationFields;    // Vector of perturbation fields
+        Vector< std::shared_ptr< Field > > mPerturbationFields;    // Vector of perturbation fields
 
       public:
         /**
@@ -136,11 +136,13 @@ namespace moris::gen
          */
         void import_advs( sol::Dist_Vector* aOwnedADVs ) override;
 
+        /**
+         * Gets the name of this geometry
+         *
+         * @return File name of the .obj file that this surface mesh was created with
+         */
         std::string
-        get_name() override
-        {
-            return mName;
-        }
+        get_name() override;
 
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
@@ -157,12 +159,11 @@ namespace moris::gen
          * @param aOwnedADVs Pointer to the owned distributed ADVs
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
+         * @param aFieldIndex For geometries that have multiple fields, which field to discretize
          */
         void discretize(
-                mtk::Mesh_Pair          aMeshPair,
-                sol::Dist_Vector*       aOwnedADVs,
-                const Matrix< DDSMat >& aSharedADVIds,
-                uint                    aADVOffsetID ) override;
+                mtk::Mesh_Pair    aMeshPair,
+                sol::Dist_Vector* aOwnedADVs ) override;
 
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
@@ -171,13 +172,12 @@ namespace moris::gen
          * @param aOwnedADVs Pointer to the owned distributed ADVs
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
+         * @param aFieldIndex For geometries that have multiple fields, which field to discretize
          */
         void discretize(
                 std::shared_ptr< mtk::Field > aMTKField,
                 mtk::Mesh_Pair                aMeshPair,
-                sol::Dist_Vector*             aOwnedADVs,
-                const Matrix< DDSMat >&       aSharedADVIds,
-                uint                          aADVOffsetID ) override;
+                sol::Dist_Vector*             aOwnedADVs ) override;
 
         /**
          * Used to print geometry information to exodus files and print debug information.
@@ -190,6 +190,26 @@ namespace moris::gen
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) override;
+
+        /**
+         * Appends this designs ADV IDs, ijklIDs, lower bounds, and upper bounds to the global matrices stored in the geometry engine.
+         * Sets mNumCoeff, mOffsetID, and appends to mSharedADVIDs
+         *
+         * @param aMeshPair     Background mesh pair
+         * @param aOwnedADVIds  IDs of the ADVs that are owned by this design
+         * @param aOwnedijklIDs
+         * @param aOffsetID     Offset of this Design's ADVs from the global ADV vector
+         * @param aLowerBounds  ADV lower bounds
+         * @param aUpperBounds  ADV upper bounds
+         * @return uint The new offset ID after this geometry has appended its information
+         */
+        virtual uint append_adv_info(
+                mtk::Interpolation_Mesh* aMesh,
+                Matrix< DDSMat >&        aOwnedADVIds,
+                Matrix< IdMat >&         aOwnedijklIDs,
+                uint                     aOffsetID,
+                Matrix< DDRMat >&        aLowerBounds,
+                Matrix< DDRMat >&        aUpperBounds ) override;
 
         /**
          * Gets the number of fields the surface mesh has
@@ -268,8 +288,8 @@ namespace moris::gen
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */
         moris_index find_background_element_from_global_coordinates(
-                const Matrix< DDRMat >& aCoordinate,
-                Cell< Cell< real > >&   aBoundingBox );
+                const Matrix< DDRMat >&   aCoordinate,
+                Vector< Vector< real > >& aBoundingBox );
 
         real interpolate_perturbation_from_background_element(
                 mtk::Cell*              aBackgroundElement,

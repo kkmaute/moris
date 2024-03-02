@@ -412,9 +412,9 @@ namespace moris::gen
          * @param aMeshPair Mesh for discretizing fields
          */
         void distribute_advs(
-                mtk::Mesh_Pair                        aMeshPair,
+                mtk::Mesh_Pair                          aMeshPair,
                 Vector< std::shared_ptr< mtk::Field > > aFields = {},
-                mtk::EntityRank                       aADVEntityRank = mtk::EntityRank::BSPLINE );
+                mtk::EntityRank                         aADVEntityRank = mtk::EntityRank::BSPLINE );
 
         /**
          * Resets the information that the geometry engine stores about a mesh.
@@ -480,16 +480,6 @@ namespace moris::gen
         //-------------------------------------------------------------------------------
 
       private:
-
-        static void communicate_missing_owned_coefficients(
-                mtk::Mesh_Pair&  aMeshPair,
-                Matrix< IdMat >& aAllCoefIds,
-                Matrix< IdMat >& aAllCoefOwners,
-                Matrix< IdMat >& aAllCoefijklIds,
-                Vector< uint >&    aNumCoeff,
-                uint             aFieldIndex,
-                uint             aDiscretizationMeshIndex,
-                mtk::MeshType    aMeshType );
 
         /**
          * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
