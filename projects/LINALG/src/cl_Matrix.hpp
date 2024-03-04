@@ -13,6 +13,7 @@
 
 #include "assert.hpp"
 #include "moris_typedefs.hpp"
+#include <ostream>
 
 namespace moris
 {
@@ -543,6 +544,34 @@ namespace moris
 
         // -------------------------------------------------------------------------
     };
+
+    template< typename Matrix_Type >
+    std::ostream& operator<<( std::ostream& os, const Matrix< Matrix_Type >* aMatrix )
+    {
+        if ( aMatrix )
+        {
+            os << *aMatrix;
+        }
+        else
+        {
+            os << "NULL";
+        }
+        return os;
+    }
+
+    template< typename Matrix_Type >
+    std::ostream& operator<<( std::ostream& os, const Matrix< Matrix_Type >& aMatrix )
+    {
+        for ( uint i = 0; i < aMatrix.numel(); i++ )
+        {
+            os << aMatrix( i );
+            if ( i < aMatrix.numel() - 1 )
+            {
+                os << ",";
+            }
+        }
+        return os;
+    }
 }    // namespace moris
 
 #ifdef MORIS_USE_ARMA
