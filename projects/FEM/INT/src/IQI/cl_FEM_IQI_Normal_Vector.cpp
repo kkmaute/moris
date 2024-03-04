@@ -29,14 +29,17 @@ namespace moris
         void
         IQI_Normal_Vector::compute_QI( Matrix< DDRMat >& aQI )
         {
-            // get the constitutive model for computing the fluxes/tractions
-
             MORIS_ASSERT( mNormal.numel() > 0,
                     "IQI_Normal_Vector::compute_QI() - "
                     "Normal is not set. IQIs requiring a normal must be evaluated elementally "
                     "and averaged such that there is a well-defined normal." );
 
-            aQI = { { mNormal( mIQITypeIndex ) } };
+            Field_Interpolator* tFILeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
+
+            Matrix< DDRMat > tCurrentNormal = tGILeader->get_normal_current( tFILeader );
+
+            aQI = { { tCurrentNormal( mIQITypeIndex ) } };
         }
 
         //------------------------------------------------------------------------------
@@ -60,7 +63,7 @@ namespace moris
         void
         IQI_Normal_Vector::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Matrix< DDRMat >&        adQIdu )
         {
             MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
         }

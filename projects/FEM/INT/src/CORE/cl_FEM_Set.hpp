@@ -25,6 +25,9 @@
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
+#include <cl_FEM_Cluster_Measure.hpp>
+#include <set>
+#include <optional>
 #include "cl_FEM_Set_User_Info.hpp"
 #include "cl_FEM_IQI.hpp"
 // FEM/MSI/src
@@ -138,22 +141,7 @@ namespace moris
             Vector< Matrix< DDSMat > > mFacetAssemblyMap;    // input: VIS mesh index, IG cell index, side ordinal  || output: position of facet within the output (dbl) side set
             Vector< uint >             mNumFacetsOnSet;      // input: VIS mesh index || output: number of facets in that VIS (dbl) side set
 
-            // cluster measure specifications on set
-            Vector<
-                    std::tuple<
-                            fem::Measure_Type,
-                            mtk::Primary_Void,
-                            mtk::Leader_Follower > >
-                    mClusterMEATuples;
-
-            // cluster measure specification map on set
-            std::map<
-                    std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >,
-                    uint >
-                    mClusterMEAMap;
-
-            // flag for cluster measure tuples and map
-            bool mBuildClusterMEA = false;
+            std::optional< std::set< Cluster_Measure::ClusterMeasureSpecification > > mClusterMeasures;
 
             // bool for time continuity
             bool mTimeContinuity = false;
@@ -655,7 +643,7 @@ namespace moris
             /*
              * build cluster measure specification list and map required on set
              */
-            void build_cluster_measure_tuples_and_map();
+            void build_cluster_measure_specifications();
 
             //------------------------------------------------------------------------------
             /*
@@ -673,12 +661,8 @@ namespace moris
              * get cluster measures required on set
              * return cell of tuple with cluster measure specifications
              */
-            std::map< std::tuple<
-                              fem::Measure_Type,
-                              mtk::Primary_Void,
-                              mtk::Leader_Follower >,
-                    uint >&
-            get_cluster_measure_map();
+            std::set< Cluster_Measure::ClusterMeasureSpecification > const &
+            get_cluster_measure_specifications();
 
             //------------------------------------------------------------------------------
             /**

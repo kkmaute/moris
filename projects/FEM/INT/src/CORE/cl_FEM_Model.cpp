@@ -398,6 +398,12 @@ namespace moris
 
         void FEM_Model::update_equation_sets()
         {
+            // early return if no set has to be updated
+            if ( std::none_of( mFemSets.begin(), mFemSets.end(), []( auto const &tSet ) { return tSet->get_is_update_required(); } ) )
+            {
+                return;
+            }
+
             // get the side set names that get used by the contact mesh editor to build nonconformal sets
             std::set< moris_index > tRequestedIGNodes;
             std::set< moris_index > tRequestedIPNodes;

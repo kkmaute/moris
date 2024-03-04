@@ -10,6 +10,7 @@
 
 #include <iostream>
 
+#include "cl_FEM_Cluster_Measure.hpp"
 #include "cl_FEM_Element.hpp"                       //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                       //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
@@ -23,6 +24,7 @@
 #include <algorithm>
 #include <cl_FEM_Element_Nonconformal_Sideset.hpp>
 #include <cl_MTK_Nonconformal_Side_Cluster.hpp>
+#include <memory>
 
 namespace moris
 {
@@ -167,24 +169,12 @@ namespace moris
             this->determine_elements_for_residual_and_iqi_computation();
 
             // get cluster measure map from set
-            mClusterMEAMap = mSet->get_cluster_measure_map();
-
-            // get cluster measure tuples from set
-            Vector< std::tuple<
-                    fem::Measure_Type,
-                    mtk::Primary_Void,
-                    mtk::Leader_Follower > >
-                    tClusterMEATuples = mSet->get_cluster_measure_tuples();
+            std::set< Cluster_Measure::ClusterMeasureSpecification > const tClusterSpecifications = mSet->get_cluster_measure_specifications();
 
             // build the cluster measures from tuples
-            mClusterMEA.resize( tClusterMEATuples.size(), nullptr );
-            for ( uint iCMEA = 0; iCMEA < tClusterMEATuples.size(); iCMEA++ )
+            for ( auto const &tClusterSpec : tClusterSpecifications )
             {
-                mClusterMEA( iCMEA ) = std::make_shared< Cluster_Measure >(
-                        std::get< 0 >( tClusterMEATuples( iCMEA ) ),
-                        std::get< 1 >( tClusterMEATuples( iCMEA ) ),
-                        std::get< 2 >( tClusterMEATuples( iCMEA ) ),
-                        this );
+                mClusterMeasures[ tClusterSpec ] = std::make_shared< Cluster_Measure >( tClusterSpec, this );
             }
         }
 
@@ -192,35 +182,31 @@ namespace moris
 
         Cluster::Cluster()
         {
-            // FIXME could only collect from SP
-            // create default cluster measure
-            mClusterMEA.resize( 4, nullptr );
-            mClusterMEA( 0 ) = std::make_shared< Cluster_Measure >();
-            mClusterMEA( 1 ) = std::make_shared< Cluster_Measure >();
-            mClusterMEA( 2 ) = std::make_shared< Cluster_Measure >();
-            mClusterMEA( 3 ) = std::make_shared< Cluster_Measure >();
+            Vector< Cluster_Measure::ClusterMeasureSpecification > tClusterSpecifications;
 
-            // FIXME could only collect from SP
-            // fill the cluster measure access map
-            mClusterMEAMap[ std::make_tuple(
+            // create default cluster measure
+            tClusterSpecifications.push_back( std::make_tuple(
                     fem::Measure_Type::CELL_SIDE_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Leader_Follower::LEADER ) ] = 0;
-
-            mClusterMEAMap[ std::make_tuple(
+                    mtk::Leader_Follower::LEADER ) );
+            tClusterSpecifications.push_back( std::make_tuple(
                     fem::Measure_Type::CELL_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Leader_Follower::LEADER ) ] = 1;
-
-            mClusterMEAMap[ std::make_tuple(
+                    mtk::Leader_Follower::LEADER ) );
+            tClusterSpecifications.push_back( std::make_tuple(
                     fem::Measure_Type::CELL_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Leader_Follower::FOLLOWER ) ] = 2;
-
-            mClusterMEAMap[ std::make_tuple(
+                    mtk::Leader_Follower::FOLLOWER ) );
+            tClusterSpecifications.push_back( std::make_tuple(
                     fem::Measure_Type::CELL_LENGTH_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Leader_Follower::LEADER ) ] = 3;
+                    mtk::Leader_Follower::LEADER ) );
+
+            // build the cluster measures from tuples
+            for ( auto const &tClusterSpec : tClusterSpecifications )
+            {
+                mClusterMeasures[ tClusterSpec ] = std::make_shared< Cluster_Measure >( tClusterSpec, this );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -630,32 +616,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        std::shared_ptr< Cluster_Measure > &
+        std::shared_ptr< Cluster_Measure >
         Cluster::get_cluster_measure(
                 fem::Measure_Type    aMeasureType,
                 mtk::Primary_Void    aIsPrimary,
                 mtk::Leader_Follower aIsLeader )
         {
-            // init cluster index
-            uint tClusterMEAIndex = UINT_MAX;
-
-            // check if the cluster measure exists in map
-            if ( mClusterMEAMap.find( std::make_tuple(
-                         aMeasureType,
-                         aIsPrimary,
-                         aIsLeader ) )
-                    != mClusterMEAMap.end() )
-            {
-                // add the mesh set name map
-                tClusterMEAIndex = mClusterMEAMap[ std::make_tuple(
-                        aMeasureType,
-                        aIsPrimary,
-                        aIsLeader ) ];
-            }
-
-            MORIS_ERROR( tClusterMEAIndex != UINT_MAX, "Cluster measure not found!" );
-
-            return mClusterMEA( tClusterMEAIndex );
+            auto tClusterMeasure = mClusterMeasures.find( std::make_tuple( aMeasureType, aIsPrimary, aIsLeader ) );
+            MORIS_ASSERT( tClusterMeasure != mClusterMeasures.end(), "Cluster measure not found!" );
+            return tClusterMeasure->second;
         }
 
         //------------------------------------------------------------------------------
@@ -663,11 +632,9 @@ namespace moris
         void
         Cluster::reset_cluster_measure()
         {
-            // loop over cluster measures
-            for ( uint iCMEA = 0; iCMEA < mClusterMEA.size(); iCMEA++ )
+            for ( auto &[ tClusterSpecification, tClusterMeasure ] : mClusterMeasures )
             {
-                // evaluate each cluster measure
-                mClusterMEA( iCMEA )->eval_cluster_measure();
+                tClusterMeasure->eval_cluster_measure();
             }
         }
 
@@ -676,11 +643,9 @@ namespace moris
         void
         Cluster::reset_cluster_measure_derivatives()
         {
-            // loop over cluster measures
-            for ( uint iCMEA = 0; iCMEA < mClusterMEA.size(); iCMEA++ )
+            for ( auto &[ tClusterSpecification, tClusterMeasure ] : mClusterMeasures )
             {
-                // evaluate each cluster measure
-                mClusterMEA( iCMEA )->eval_cluster_measure_derivatives();
+                tClusterMeasure->eval_cluster_measure_derivatives();
             }
         }
 
