@@ -191,6 +191,8 @@ namespace moris
             tParameterList.insert( "side_ordinals", "" );
             tParameterList.insert( "neighbor_phases", "" );
 
+            tParameterList.insert("analytical_jacobian", true);
+
             tParameterList.insert( "time_continuity", false );
             tParameterList.insert( "time_boundary", false );
 
