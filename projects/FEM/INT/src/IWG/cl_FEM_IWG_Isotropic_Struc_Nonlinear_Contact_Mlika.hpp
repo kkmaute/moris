@@ -36,9 +36,8 @@ namespace moris
             // to avoid confusion with other IWGs, mBeta will be used to switch between symmetric and unsymmetric Nitsche in the factory, and
             // mTheta will be used to switch between the two different Nitsche formulations in the implementation.
             //      symmetric: mBeta = -1, mTheta =  1
-            //    unsymmetric: mBeta =  ?, mTheta =  0
-            // skew-symmetric: mBeta =  ?, mTheta = -1
-            // TODO: Not sure if unsymmetric means skew-symmetric or actually unsymmetric.
+            //    unsymmetric: mBeta =  0, mTheta =  0
+            // skew-symmetric: mBeta =  1, mTheta = -1
             sint mTheta = 1;
 
           public:

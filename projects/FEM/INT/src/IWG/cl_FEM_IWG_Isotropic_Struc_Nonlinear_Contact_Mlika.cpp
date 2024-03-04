@@ -38,7 +38,7 @@
 
 namespace moris::fem
 {
-    // TODO: REMOVE
+    // TODO @ff: REMOVE
     [[maybe_unused]] std::string pmat( const Matrix< DDRMat >& aMatrix )
     {
         std::stringstream tStream;
@@ -60,7 +60,7 @@ namespace moris::fem
 
     IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika( sint aBeta )
             : mBeta( aBeta )      // sign for symmetric/unsymmetric Nitsche
-            , mTheta( -mBeta )    // TODO check that the conversion is correct... check what mBeta stands for!
+            , mTheta( -mBeta )    // TODO @ff check that the conversion is correct... check what mBeta stands for!
     {
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -271,8 +271,8 @@ namespace moris::fem
         const Matrix< DDRMat > tGrad_UF = tFollowerDofs->gradx( 1 );    // ( 2 x 2 )
 
         // test functions of leader (L) and follower (F)
-        // TODO: Is this the correct representation of delta u? Can I be sure that the hat(delta u) always cancel out in the integrals?
-        // TODO: Why are the shape functions for x and y direction not evaluated in the same column? I.e. why the block structure with 0s?
+        // TODO @ff: Is this the correct representation of delta u? Can I be sure that the hat(delta u) always cancel out in the integrals?
+        // TODO @ff: Why are the shape functions for x and y direction not evaluated in the same column? I.e. why the block structure with 0s?
         const Matrix< DDRMat > tdUL = tLeaderDofs->N();      // ( 2 x 8 )
         const Matrix< DDRMat > tdUF = tFollowerDofs->N();    // ( 2 x 8 )
 
@@ -348,7 +348,7 @@ namespace moris::fem
                 Matrix< DDRMat > tContactTerm_dTraction( tDim, tDim, 0.0 );    // ( 2 x 2 )
                 Matrix< DDRMat > tContactTerm_dGap( tDim, 1, 0.0 );            // ( 2 x 1 )
                 Matrix< DDRMat > tContactTerm_dNormal( tDim, tDim, 0.0 );      // ( 2 x 2 )
-                if ( true || -tPressure - tNitscheParam * tGap > 0.0 )         // TODO: remove true (for debugging)
+                if ( true || -tPressure - tNitscheParam * tGap > 0.0 )         // TODO @ff: remove true (for debugging)
                 {
                     tContactTerm_dTraction = tNormalL * trans( tNormalL );
                     tContactTerm_dGap      = tNitscheParam * tNormalL;
@@ -359,9 +359,9 @@ namespace moris::fem
                 Matrix< DDRMat > const tTangentialProjector = tIdentity - tNormalL * trans( tNormalL );    // ( 2 x 2 )
 
                 // compute the derivative of the normal w.r.t the variation of the displacement (Mlika (2018) Eq. (4.12))
-                // TODO: Can you interchange the variation of the displacement and the actual displacement?
-                Matrix< DDRMat > const tNormal_dU    = -tTangentialProjector * trans( inv( tFL ) ) * trans( tGrad_UL ) * tNormalL;    // TODO: Why is this matrix (2x1) and not (2x2)?
-                Matrix< DDRMat > const tNormal_ddelU = -tTangentialProjector * trans( inv( tFL ) ) * tGrad_dUL * tNormalL;            // TODO: tGrad_dUL is (2x4) but required is (2x2)
+                // TODO @ff: Can you interchange the variation of the displacement and the actual displacement?
+                Matrix< DDRMat > const tNormal_dU    = -tTangentialProjector * trans( inv( tFL ) ) * trans( tGrad_UL ) * tNormalL;    // TODO @ff: Why is this matrix (2x1) and not (2x2)?
+                Matrix< DDRMat > const tNormal_ddelU = -tTangentialProjector * trans( inv( tFL ) ) * tGrad_dUL * tNormalL;            // TODO @ff: tGrad_dUL is (2x4) but required is (2x2)
 
                 // compute the derivative of the gap w.r.t the displacement
                 const Matrix< DDRMat > tGap_dU = -( tNormalF / dot( tNormalF, tNormalL ) ) * ( tdUL - tdUF + tGap * tNormal_dU );    //

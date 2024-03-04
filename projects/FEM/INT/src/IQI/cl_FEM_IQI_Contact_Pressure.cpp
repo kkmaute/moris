@@ -8,12 +8,16 @@
  *
  */
 
+#include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Contact_Pressure.hpp"
+#include "cl_Matrix.hpp"
+#include "moris_typedefs.hpp"
 #include "fn_assert.hpp"
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
+#include <iostream>
 #include <memory>
 
 namespace moris
@@ -52,6 +56,15 @@ namespace moris
             Matrix< DDRMat >       tNormalLeader = tLeaderGeometry->get_normal_current( tLeaderDofs );
             const Matrix< DDRMat > tTraction     = tCMLeader->traction( tNormalLeader );    // ( 2 x 1 )
             const real             tPressure     = dot( tTraction, tNormalLeader );
+
+            // TODO @ff: remove this
+            // [[maybe_unused]] uint const tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
+            // std::cout << "CP:"
+            //           << tIteration << ","
+            //           << tPressure << ","
+            //           << tLeaderGeometry->valx() << ","
+            //           << tLeaderGeometry->valx_current( tLeaderDofs ) << ","
+            //           << tNormalLeader << "\n";
 
             // pick the component otherwise (0,1,2)
             aQI = { tPressure };

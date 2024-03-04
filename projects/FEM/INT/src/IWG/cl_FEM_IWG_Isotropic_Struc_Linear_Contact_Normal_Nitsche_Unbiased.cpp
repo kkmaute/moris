@@ -30,24 +30,6 @@ namespace moris
     namespace fem
     {
 
-        // TODO: REMOVE
-        [[maybe_unused]] std::string pmat1( const Matrix< DDRMat >& aMatrix )
-        {
-            std::stringstream tStream;
-            // set the precision of the stream
-            tStream.precision( 10 );
-
-            for ( uint i = 0; i < aMatrix.numel(); i++ )
-            {
-                tStream << aMatrix( i );
-                if ( i < aMatrix.numel() - 1 )
-                {
-                    tStream << ",";
-                }
-            }
-            return tStream.str();
-        }
-
         //------------------------------------------------------------------------------
 
         IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased::IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased( sint aBeta )
@@ -187,17 +169,17 @@ namespace moris
                                                           && tXL( 1 ) < tDebugArea( 1, 1 ) );
             if ( tIsDebugPoint )
             {
-                std::cout << "IWG:" << std::setprecision( 10 )
-                          << tIteration << ","
-                          << tGap << ","
-                          << pmat1( tXL ) << ","
-                          << pmat1( tXF ) << ","
-                          << pmat1( tUL ) << ","
-                          << pmat1( tUF ) << ","
-                          << pmat1( txL ) << ","
-                          << pmat1( txF ) << ","
-                          << pmat1( tNormalLeader ) << ","
-                          << std::endl;
+//                std::cout << "IWG:" << std::setprecision( 10 )
+//                          << tIteration << ","
+//                          << tGap << ","
+//                          << pmat1( tXL ) << ","
+//                          << pmat1( tXF ) << ","
+//                          << pmat1( tUL ) << ","
+//                          << pmat1( tUF ) << ","
+//                          << pmat1( txL ) << ","
+//                          << pmat1( txF ) << ","
+//                          << pmat1( tNormalLeader ) << ","
+//                          << std::endl;
             }
 
 
