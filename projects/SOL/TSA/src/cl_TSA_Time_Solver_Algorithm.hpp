@@ -8,14 +8,13 @@
  *
  */
 
-#ifndef MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_
-#define MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_
+#pragma once
 
 #include <iostream>
 
 // MORIS header files.
 #include "cl_Vector.hpp"
-#include "cl_Param_List.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_SOL_Enums.hpp"
@@ -45,6 +44,10 @@ namespace moris
           private:
 
           protected:
+
+            uint mTimeSteps; // Number of time steps
+            real mTimeIncrements; // Increments in time
+
             //! Pointer to database
             sol::SOL_Warehouse* mSolverWarehouse = nullptr;
 
@@ -56,48 +59,31 @@ namespace moris
             //!  Pointer to time solver
             Time_Solver* mMyTimeSolver;
 
-            moris::uint mCallCounter = 0;
-
             //!  Nonlinear Solver
             NLA::Nonlinear_Solver* mNonlinearSolver = nullptr;
 
             //!  Nonlinear Solver for adjoint solve. Can be the same than mNonlinearSolver
             NLA::Nonlinear_Solver* mNonlinearSolverForAdjoint = nullptr;
 
-            //!  flag indicating if this is the leader time solver
-            bool mIsLeaderTimeSolver = false;
-
             sol::Dist_Map* mFullMap = nullptr;
 
             //! name for output file for solution vector if set by user
             std::string mOutputSolVecFileName = "";
 
-            //! Parameter list for this nonlinear solver
-            moris::ParameterList mParameterListTimeSolver;
-
             /**
              * @brief Member function which keeps track of used time for a particular purpose.
              */
-            moris::real calculate_time_needed( const clock_t aTime );
+            static real calculate_time_needed( clock_t aTime );
 
           public:
-            //-------------------------------------------------------------------------------
-            /**
-             * @brief default constructor
-             *
-             * @param[in] rSolverDatabase Pointer to the solver database
-             */
-            Time_Solver_Algorithm( const enum sol::MapType aMapType = sol::MapType::Epetra );
 
-            //-------------------------------------------------------------------------------
             /**
              * @brief Constructor using a given parameter list
              *
-             * @param[in] aParameterlist     User defined parameter list
+             * @param[in] aParameterList     User defined parameter list
              */
-            Time_Solver_Algorithm(
-                    const ParameterList     aParameterlist,
-                    const enum sol::MapType aMapType = sol::MapType::Epetra );
+            explicit Time_Solver_Algorithm(
+                    const ParameterList& aParameterList = prm::create_time_solver_algorithm_parameter_list() );
 
             //-------------------------------------------------------------------------------
             /**
@@ -185,16 +171,6 @@ namespace moris
             };
 
             //-------------------------------------------------------------------------------
-
-            void set_time_solver_parameters();
-
-            ParameterListTypes&
-            set_param( char const * aKey )
-            {
-                return mParameterListTimeSolver( aKey );
-            }
-
-            //-------------------------------------------------------------------------------
             // arc-length functions
             virtual void
             set_lambda_increment( moris::real aLambdaInc )
@@ -213,4 +189,3 @@ namespace moris
         };
     }    // namespace tsa
 }    // namespace moris
-#endif /* MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_ */
