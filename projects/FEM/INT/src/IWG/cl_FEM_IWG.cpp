@@ -9,6 +9,7 @@
  */
 
 #include "cl_FEM_IWG.hpp"
+#include "cl_FEM_EvaluableTerm.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Cluster_Measure.hpp"
@@ -28,125 +29,13 @@ namespace moris
 {
     namespace fem
     {
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::print_names()
-        {
-            std::cout << "----------" << std::endl;
-            std::cout << "IWG: " << mName << std::endl;
-
-            // properties
-            for ( uint iProp = 0; iProp < mLeaderProp.size(); iProp++ )
-            {
-                if ( mLeaderProp( iProp ) != nullptr )
-                {
-                    std::cout << "Leader property: " << mLeaderProp( iProp )->get_name() << std::endl;
-                }
-            }
-            for ( uint iProp = 0; iProp < mFollowerProp.size(); iProp++ )
-            {
-                if ( mFollowerProp( iProp ) != nullptr )
-                {
-                    std::cout << "Follower property:  " << mFollowerProp( iProp )->get_name() << std::endl;
-                }
-            }
-
-            // CM
-            for ( uint iCM = 0; iCM < mLeaderCM.size(); iCM++ )
-            {
-                if ( mLeaderCM( iCM ) != nullptr )
-                {
-                    std::cout << "Leader CM:       " << mLeaderCM( iCM )->get_name() << std::endl;
-                }
-            }
-            for ( uint iCM = 0; iCM < mFollowerCM.size(); iCM++ )
-            {
-                if ( mFollowerCM( iCM ) != nullptr )
-                {
-                    std::cout << "Follower CM:        " << mFollowerCM( iCM )->get_name() << std::endl;
-                }
-            }
-
-            // SP
-            for ( uint iSP = 0; iSP < mStabilizationParam.size(); iSP++ )
-            {
-                if ( mStabilizationParam( iSP ) != nullptr )
-                {
-                    std::cout << "SP:              " << mStabilizationParam( iSP )->get_name() << std::endl;
-                }
-            }
-            std::cout << "----------" << std::endl;
-        }
-
-        //------------------------------------------------------------------------------
 
         void
         IWG::reset_eval_flags()
         {
-            // reset properties
-            for ( const std::shared_ptr< Property >& tProp : mLeaderProp )
-            {
-                if ( tProp != nullptr )
-                {
-                    tProp->reset_eval_flags();
-                }
-            }
-
-            for ( const std::shared_ptr< Property >& tProp : mFollowerProp )
-            {
-                if ( tProp != nullptr )
-                {
-                    tProp->reset_eval_flags();
-                }
-            }
-
-            // reset material models
-            for ( const std::shared_ptr< Material_Model >& tMM : mLeaderMM )
-            {
-                if ( tMM != nullptr )
-                {
-                    tMM->reset_eval_flags();
-                }
-            }
-            for ( const std::shared_ptr< Material_Model >& tMM : mFollowerMM )
-            {
-                if ( tMM != nullptr )
-                {
-                    tMM->reset_eval_flags();
-                }
-            }
-
-            // reset constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    tCM->reset_eval_flags();
-                }
-            }
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    tCM->reset_eval_flags();
-                }
-            }
-
-            // reset stabilization parameters
-            for ( const std::shared_ptr< Stabilization_Parameter >& tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    tSP->reset_eval_flags();
-                }
-            }
-
-            // reset evaluation flags specific to child implementations
-            this->reset_spec_eval_flags();
+            EvaluableTerm::reset_eval_flags();    // reset flags for base class
+            this->reset_spec_eval_flags();        // reset evaluation flags specific to child implementations
         }
-
-        //------------------------------------------------------------------------------
 
         void
         IWG::set_function_pointers()
@@ -206,195 +95,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_phase_name(
-                std::string          aPhaseName,
-                mtk::Leader_Follower aIsLeader )
-        {
-            switch ( aIsLeader )
-            {
-                case mtk::Leader_Follower::LEADER:
-                {
-                    mLeaderPhaseName = aPhaseName;
-                    break;
-                }
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    mFollowerPhaseName = aPhaseName;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG::set_phase_name - aIsLeader can only be leader or follower." );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        std::string
-        IWG::get_phase_name( mtk::Leader_Follower aIsLeader )
-        {
-            switch ( aIsLeader )
-            {
-                case mtk::Leader_Follower::LEADER:
-                {
-                    return mLeaderPhaseName;
-                }
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    return mFollowerPhaseName;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG::get_phase_name - aIsLeader can only be leader or follower." );
-                    return mLeaderPhaseName;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_field_interpolator_manager(
-                Field_Interpolator_Manager* aFieldInterpolatorManager,
-                mtk::Leader_Follower        aIsLeader )
-        {
-            switch ( aIsLeader )
-            {
-                case mtk::Leader_Follower::LEADER:
-                {
-                    mLeaderFIManager = aFieldInterpolatorManager;
-                    break;
-                }
-
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    mFollowerFIManager = aFieldInterpolatorManager;
-                    break;
-                }
-
-                default:
-                {
-                    MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be leader or follower" );
-                }
-            }
-
-            // loop over the the SP
-            for ( const std::shared_ptr< Stabilization_Parameter >& tSP : this->get_stabilization_parameters() )
-            {
-                if ( tSP != nullptr )
-                {
-                    // set the field interpolator manager for the SP
-                    tSP->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsLeader ), aIsLeader );
-
-                    // set the fem set pointer for the SP
-                    tSP->set_set_pointer( mSet );
-                }
-            }
-
-            // loop over the constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : this->get_constitutive_models( aIsLeader ) )
-            {
-                if ( tCM != nullptr )
-                {
-                    // set the field interpolator manager for the CM
-                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsLeader ) );
-
-                    // set the fem set pointe for the CM
-                    tCM->set_set_pointer( mSet );
-                }
-            }
-
-            // loop over the material models
-            for ( const std::shared_ptr< Material_Model >& tMM : this->get_material_models( aIsLeader ) )
-            {
-                if ( tMM != nullptr )
-                {
-                    // set the field interpolator manager for the CM
-                    tMM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsLeader ) );
-
-                    // set the fem set pointe for the CM
-                    tMM->set_set_pointer( mSet );
-                }
-            }
-
-            // loop over the properties
-            for ( const std::shared_ptr< Property >& tProp : this->get_properties( aIsLeader ) )
-            {
-                if ( tProp != nullptr )
-                {
-                    // set the field interpolator manager for the property
-                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsLeader ) );
-
-                    // set the fem set pointer for the property
-                    tProp->set_set_pointer( mSet );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        Field_Interpolator_Manager*
-        IWG::get_field_interpolator_manager(
-                mtk::Leader_Follower aIsLeader )
-        {
-            switch ( aIsLeader )
-            {
-                case mtk::Leader_Follower::LEADER:
-                    return mLeaderFIManager;
-
-                case mtk::Leader_Follower::FOLLOWER:
-                    return mFollowerFIManager;
-
-                default:
-                    MORIS_ERROR( false, "IWG::get_field_interpolator_manager - can only be leader or follower." );
-                    return mLeaderFIManager;
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_field_interpolator_manager_previous_time(
-                Field_Interpolator_Manager* aFieldInterpolatorManager,
-                mtk::Leader_Follower        aIsLeader )
-        {
-            switch ( aIsLeader )
-            {
-                case mtk::Leader_Follower::LEADER:
-                {
-                    mLeaderPreviousFIManager = aFieldInterpolatorManager;
-                    break;
-                }
-
-                default:
-                {
-                    MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be leader" );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_normal( const Matrix< DDRMat >& aNormal )
-        {
-            mNormal = aNormal;
-
-            // set normal for SP
-            for ( const std::shared_ptr< Stabilization_Parameter >& tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    tSP->set_normal( mNormal );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
 
         void
         IWG::set_interpolation_order()
@@ -449,1369 +149,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_dof_type_list(
-                const Vector< Vector< MSI::Dof_Type > >& aDofTypes,
-                mtk::Leader_Follower                     aIsLeader )
-        {
-            switch ( aIsLeader )
-            {
-                case mtk::Leader_Follower::LEADER:
-                {
-                    mLeaderDofTypes = aDofTypes;
-                    break;
-                }
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    mFollowerDofTypes = aDofTypes;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG::set_dof_type_list - can only be LEADER or FOLLOWER." );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        const Vector< Vector< MSI::Dof_Type > >&
-        IWG::get_dof_type_list(
-                mtk::Leader_Follower aIsLeader ) const
-        {
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader global dof type list
-                    return mLeaderDofTypes;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower global dof type list
-                    return mFollowerDofTypes;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IWG::get_dof_type_list - can only be leader or follower." );
-                    return mLeaderDofTypes;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_dv_type_list(
-                const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-                mtk::Leader_Follower                     aIsLeader )
-        {
-            switch ( aIsLeader )
-            {
-                case mtk::Leader_Follower::LEADER:
-                {
-                    mLeaderDvTypes = aDvTypes;
-                    break;
-                }
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    mFollowerDvTypes = aDvTypes;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IWG::set_dv_type_list - can only be LEADER or FOLLOWER." );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        const Vector< Vector< gen::PDV_Type > >&
-        IWG::get_dv_type_list(
-                mtk::Leader_Follower aIsLeader ) const
-        {
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader global dof type list
-                    return mLeaderDvTypes;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower global dof type list
-                    return mFollowerDvTypes;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IWG::get_dv_type_list - can only be leader or follower." );
-                    return mLeaderDvTypes;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_field_type_list(
-                const Vector< Vector< mtk::Field_Type > >& aDofTypes,
-                mtk::Leader_Follower                       aIsLeader )
-        {
-            switch ( aIsLeader )
-            {
-                case mtk::Leader_Follower::LEADER:
-                {
-                    mLeaderFieldTypes = aDofTypes;
-                    break;
-                }
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    mFollowerFieldTypes = aDofTypes;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "IQI::set_dof_type_list - can only be LEADER or FOLLOWER." );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        const Vector< Vector< mtk::Field_Type > >&
-        IWG::get_field_type_list(
-                mtk::Leader_Follower aIsLeader ) const
-        {
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader global dof type list
-                    return mLeaderFieldTypes;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower global dof type list
-                    return mFollowerFieldTypes;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IQI::get_dof_type_list - can only be leader or follower." );
-                    return mLeaderFieldTypes;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_property(
-                std::shared_ptr< Property > aProperty,
-                std::string                 aPropertyString,
-                mtk::Leader_Follower        aIsLeader )
-        {
-            // check that aPropertyString makes sense
-            MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
-                    "IWG::set_property - IWG %s - Unknown aPropertyString: %s ",
-                    mName.c_str(),
-                    aPropertyString.c_str() );
-
-            // set the property in the property pointer cell
-            this->get_properties( aIsLeader )( mPropertyMap[ aPropertyString ] ) = aProperty;
-        }
-
-        //------------------------------------------------------------------------------
-
-        Vector< std::shared_ptr< Property > >&
-        IWG::get_properties(
-                mtk::Leader_Follower aIsLeader )
-        {
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader property pointers
-                    return mLeaderProp;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower property pointers
-                    return mFollowerProp;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IWG::get_properties - can only be leader or follower." );
-                    return mLeaderProp;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_material_model(
-                std::shared_ptr< Material_Model > aMaterialModel,
-                std::string                       aMaterialModelString,
-                mtk::Leader_Follower              aIsLeader )
-        {
-            // check that aConstitutiveString makes sense
-            MORIS_ERROR( mMaterialMap.find( aMaterialModelString ) != mMaterialMap.end(),
-                    "IWG::set_material_model - IWG %s - Unknown aMaterialModelString: %s ",
-                    mName.c_str(),
-                    aMaterialModelString.c_str() );
-
-            // set the CM in the CM pointer cell
-            this->get_material_models( aIsLeader )( mMaterialMap[ aMaterialModelString ] ) = aMaterialModel;
-        }
-
-        //------------------------------------------------------------------------------
-
-        Vector< std::shared_ptr< Material_Model > >&
-        IWG::get_material_models(
-                mtk::Leader_Follower aIsLeader )
-        {
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader property pointers
-                    return mLeaderMM;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower property pointers
-                    return mFollowerMM;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IWG::get_material_models - can only be leader or follower." );
-                    return mLeaderMM;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_constitutive_model(
-                std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                std::string                           aConstitutiveString,
-                mtk::Leader_Follower                  aIsLeader )
-        {
-            // check that aConstitutiveString makes sense
-            MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
-                    "IWG::set_constitutive_model - IWG %s - Unknown aConstitutiveString: %s ",
-                    mName.c_str(),
-                    aConstitutiveString.c_str() );
-
-            // set the CM in the CM pointer cell
-            this->get_constitutive_models( aIsLeader )( mConstitutiveMap[ aConstitutiveString ] ) = aConstitutiveModel;
-        }
-
-        //------------------------------------------------------------------------------
-
-        Vector< std::shared_ptr< Constitutive_Model > >&
-        IWG::get_constitutive_models(
-                mtk::Leader_Follower aIsLeader )
-        {
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader property pointers
-                    return mLeaderCM;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower property pointers
-                    return mFollowerCM;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IWG::get_constitutive_models - can only be leader or follower." );
-                    return mLeaderCM;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::set_stabilization_parameter(
-                std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                std::string                                aStabilizationString )
-        {
-            // check that aStabilizationString makes sense
-            MORIS_ERROR( mStabilizationMap.find( aStabilizationString ) != mStabilizationMap.end(),
-                    "IWG::set_stabilization_parameter - IWG %s - Unknown aStabilizationString: %s ",
-                    mName.c_str(),
-                    aStabilizationString.c_str() );
-
-            // set the stabilization parameter in the stabilization parameter cell
-            this->get_stabilization_parameters()( mStabilizationMap[ aStabilizationString ] ) = aStabilizationParameter;
-
-            // set active cluster measure on IWG flag on/off
-            mActiveCMEAFlag =
-                    mActiveCMEAFlag || ( aStabilizationParameter->get_cluster_measure_tuple_list().size() > 0 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::get_non_unique_dof_dv_and_field_types(
-                Vector< Vector< MSI::Dof_Type > >&   aDofTypes,
-                Vector< Vector< gen::PDV_Type > >&   aDvTypes,
-                Vector< Vector< mtk::Field_Type > >& aFieldTypes )
-        {
-            // init counters for dof and dv types
-            uint tLeaderDofCounter     = 0;
-            uint tFollowerDofCounter   = 0;
-            uint tLeaderDvCounter      = 0;
-            uint tFollowerDvCounter    = 0;
-            uint tLeaderFieldCounter   = 0;
-            uint tFollowerFieldCounter = 0;
-
-            // get number of direct leader dof dependencies
-            for ( uint iDof = 0; iDof < mLeaderDofTypes.size(); iDof++ )
-            {
-                tLeaderDofCounter += mLeaderDofTypes( iDof ).size();
-            }
-
-            // get number of direct leader dv dependencies
-            for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-            {
-                tLeaderDvCounter += mLeaderDvTypes( iDv ).size();
-            }
-
-            // get number of direct leader field dependencies
-            for ( uint iFi = 0; iFi < mLeaderFieldTypes.size(); iFi++ )
-            {
-                tLeaderFieldCounter += mLeaderFieldTypes( iFi ).size();
-            }
-
-            // get number of direct follower dof dependencies
-            for ( uint iDof = 0; iDof < mFollowerDofTypes.size(); iDof++ )
-            {
-                tFollowerDofCounter += mFollowerDofTypes( iDof ).size();
-            }
-
-            // get number of direct follower dv dependencies
-            for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-            {
-                tFollowerDvCounter += mFollowerDvTypes( iDv ).size();
-            }
-
-            // get number of direct follower field dependencies
-            for ( uint iFi = 0; iFi < mFollowerFieldTypes.size(); iFi++ )
-            {
-                tFollowerFieldCounter += mFollowerFieldTypes( iFi ).size();
-            }
-
-            // loop over the leader properties
-            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get property non unique dof and dv type list
-                    Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >   tActiveDvTypes;
-                    Vector< mtk::Field_Type > tActiveFieldTypes;
-
-                    tProperty->get_non_unique_dof_dv_and_field_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes,
-                            tActiveFieldTypes );
-
-                    // update dof and dv counters
-                    tLeaderDofCounter += tActiveDofTypes.size();
-                    tLeaderDvCounter += tActiveDvTypes.size();
-                    tLeaderFieldCounter += tActiveDvTypes.size();
-                }
-            }
-
-            // loop over follower properties
-            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get property non unique dof and dv type lists
-                    // get property non unique dof and dv type list
-                    Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >   tActiveDvTypes;
-                    Vector< mtk::Field_Type > tActiveFieldTypes;
-
-                    tProperty->get_non_unique_dof_dv_and_field_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes,
-                            tActiveFieldTypes );
-
-                    // update dof and dv counter
-                    tFollowerDofCounter += tActiveDofTypes.size();
-                    tFollowerDvCounter += tActiveDvTypes.size();
-                    tFollowerFieldCounter += tActiveFieldTypes.size();
-                }
-            }
-
-            // loop over leader material models
-            for ( const std::shared_ptr< Material_Model >& tMM : mLeaderMM )
-            {
-                if ( tMM != nullptr )
-                {
-                    // get CM non unique dof and dv type lists
-                    Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< gen::PDV_Type > tActiveDvTypes;
-
-                    tMM->get_non_unique_dof_types( tActiveDofTypes );
-
-                    // update dof counters (DVs not part of MM yet)
-                    tLeaderDofCounter += tActiveDofTypes.size();
-                }
-            }
-
-            // loop over follower material models
-            for ( const std::shared_ptr< Material_Model >& tMM : mFollowerMM )
-            {
-                if ( tMM != nullptr )
-                {
-                    // get CM non unique dof and dv type lists
-                    Vector< MSI::Dof_Type > tActiveDofTypes;
-
-                    tMM->get_non_unique_dof_types( tActiveDofTypes );
-
-                    // update dof and dv counters
-                    tFollowerDofCounter += tActiveDofTypes.size();
-                }
-            }
-
-            // loop over leader constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get CM non unique dof and dv type lists
-                    Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >   tActiveDvTypes;
-                    Vector< mtk::Field_Type > tActiveFieldTypes;
-
-                    tCM->get_non_unique_dof_dv_and_field_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes,
-                            tActiveFieldTypes );
-
-                    // update dof and dv counters
-                    tLeaderDofCounter += tActiveDofTypes.size();
-                    tLeaderDvCounter += tActiveDvTypes.size();
-                    tLeaderFieldCounter += tActiveFieldTypes.size();
-                }
-            }
-
-            // loop over follower constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get CM non unique dof and dv type lists
-                    Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >   tActiveDvTypes;
-                    Vector< mtk::Field_Type > tActiveFieldTypes;
-
-                    tCM->get_non_unique_dof_dv_and_field_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes,
-                            tActiveFieldTypes );
-
-                    // update dof and dv counters
-                    tFollowerDofCounter += tActiveDofTypes.size();
-                    tFollowerDvCounter += tActiveDvTypes.size();
-                }
-            }
-
-            // loop over leader stabilization parameters
-            for ( const std::shared_ptr< Stabilization_Parameter >& tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get SP non unique dof type list
-                    Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< gen::PDV_Type > tActiveDvTypes;
-
-                    tSP->get_non_unique_dof_and_dv_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes );
-
-                    // update dof and dv counters
-                    tLeaderDofCounter += tActiveDofTypes.size();
-                    tLeaderDvCounter += tActiveDvTypes.size();
-                    tFollowerDofCounter += tActiveDofTypes.size();
-                    tFollowerDvCounter += tActiveDvTypes.size();
-                }
-            }
-
-            // reserve memory for dof and dv type lists
-            aDofTypes.resize( 2 );
-            aDvTypes.resize( 2 );
-            aFieldTypes.resize( 2 );
-
-            aDofTypes( 0 ).reserve( tLeaderDofCounter );
-            aDvTypes( 0 ).reserve( tLeaderDvCounter );
-            aFieldTypes( 0 ).reserve( tLeaderFieldCounter );
-            aDofTypes( 1 ).reserve( tFollowerDofCounter );
-            aDvTypes( 1 ).reserve( tFollowerDvCounter );
-            aFieldTypes( 1 ).reserve( tFollowerFieldCounter );
-
-            // loop over leader dof direct dependencies
-            for ( uint iDof = 0; iDof < mLeaderDofTypes.size(); iDof++ )
-            {
-                // populate the dof list
-                aDofTypes( 0 ).append( mLeaderDofTypes( iDof ) );
-            }
-
-            // loop over leader dv direct dependencies
-            for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-            {
-                // populate the dv list
-                aDvTypes( 0 ).append( mLeaderDvTypes( iDv ) );
-            }
-
-            // loop over leader field direct dependencies
-            for ( uint iFi = 0; iFi < mLeaderFieldTypes.size(); iFi++ )
-            {
-                // populate the field list
-                aFieldTypes( 0 ).append( mLeaderFieldTypes( iFi ) );
-            }
-
-            // loop over follower dof direct dependencies
-            for ( uint iDof = 0; iDof < mFollowerDofTypes.size(); iDof++ )
-            {
-                // populate the dof list
-                aDofTypes( 1 ).append( mFollowerDofTypes( iDof ) );
-            }
-
-            // loop over follower dv direct dependencies
-            for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-            {
-                aDvTypes( 1 ).append( mFollowerDvTypes( iDv ) );
-            }
-
-            // loop over follower dv direct dependencies
-            for ( uint iFi = 0; iFi < mFollowerFieldTypes.size(); iFi++ )
-            {
-                aFieldTypes( 1 ).append( mFollowerFieldTypes( iFi ) );
-            }
-
-            // loop over leader properties
-            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get property non unique dof and dv type list
-                    Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >   tActiveDvTypes;
-                    Vector< mtk::Field_Type > tActiveFieldTypes;
-
-                    tProperty->get_non_unique_dof_dv_and_field_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes,
-                            tActiveFieldTypes );
-
-                    // populate the dof and dv lists
-                    aDofTypes( 0 ).append( tActiveDofTypes );
-                    aDvTypes( 0 ).append( tActiveDvTypes );
-                    aFieldTypes( 0 ).append( tActiveFieldTypes );
-                }
-            }
-
-            // loop over follower properties
-            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get property non unique dof and dv type list
-                    Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >   tActiveDvTypes;
-                    Vector< mtk::Field_Type > tActiveFieldTypes;
-
-                    tProperty->get_non_unique_dof_dv_and_field_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes,
-                            tActiveFieldTypes );
-
-                    // populate the dof and dv lists
-                    aDofTypes( 1 ).append( tActiveDofTypes );
-                    aDvTypes( 1 ).append( tActiveDvTypes );
-                    aFieldTypes( 1 ).append( tActiveFieldTypes );
-                }
-            }
-
-            // loop over the leader material models
-            for ( const std::shared_ptr< Material_Model >& tMM : mLeaderMM )
-            {
-                if ( tMM != nullptr )
-                {
-                    // get CM non unique dof and dv type lists
-                    Vector< MSI::Dof_Type > tActiveDofTypes;
-
-                    tMM->get_non_unique_dof_types( tActiveDofTypes );
-
-                    // update dof counters (DVs not part of MM yet)
-                    tLeaderDofCounter += tActiveDofTypes.size();
-                }
-            }
-
-            // loop over the follower material models
-            for ( const std::shared_ptr< Material_Model >& tMM : mFollowerMM )
-            {
-                if ( tMM != nullptr )
-                {
-                    // get CM non unique dof and dv type lists
-                    Vector< MSI::Dof_Type > tActiveDofTypes;
-
-                    tMM->get_non_unique_dof_types( tActiveDofTypes );
-
-                    // update dof counters (DVs not part of MM yet)
-                    tLeaderDofCounter += tActiveDofTypes.size();
-                }
-            }
-
-            // loop over the leader constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get CM non unique dof and dv type lists
-                    Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >   tActiveDvTypes;
-                    Vector< mtk::Field_Type > tActiveFieldTypes;
-
-                    tCM->get_non_unique_dof_dv_and_field_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes,
-                            tActiveFieldTypes );
-
-                    // populate the dof and dv lists
-                    aDofTypes( 0 ).append( tActiveDofTypes );
-                    aDvTypes( 0 ).append( tActiveDvTypes );
-                    aFieldTypes( 0 ).append( tActiveFieldTypes );
-                }
-            }
-
-            // loop over the follower constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get CM non unique dof and dv type lists
-                    Vector< MSI::Dof_Type >   tActiveDofTypes;
-                    Vector< gen::PDV_Type >   tActiveDvTypes;
-                    Vector< mtk::Field_Type > tActiveFieldTypes;
-
-                    tCM->get_non_unique_dof_dv_and_field_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes,
-                            tActiveFieldTypes );
-
-                    // populate the dof and dv lists
-                    aDofTypes( 1 ).append( tActiveDofTypes );
-                    aDvTypes( 1 ).append( tActiveDvTypes );
-                    aFieldTypes( 0 ).append( tActiveFieldTypes );
-                }
-            }
-
-            // FIXME this is potentially problematic since it will add follower dependencies even for bulk elements
-            // FIXME Ask lise about it. We could ask the set for the element type. should work for DOUBLE_SIDED.
-            // FIXME Whats with time boundary
-            // loop over the stabilization parameters
-            for ( const std::shared_ptr< Stabilization_Parameter >& tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get SP non unique leader dof type list
-                    Vector< MSI::Dof_Type > tActiveDofTypes;
-                    Vector< gen::PDV_Type > tActiveDvTypes;
-
-                    tSP->get_non_unique_dof_and_dv_types(
-                            tActiveDofTypes,
-                            tActiveDvTypes );
-
-                    // populate the dof and dv lists
-                    aDofTypes( 0 ).append( tActiveDofTypes );
-                    aDvTypes( 0 ).append( tActiveDvTypes );
-                    aDofTypes( 1 ).append( tActiveDofTypes );
-                    aDvTypes( 1 ).append( tActiveDvTypes );
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::build_global_dof_dv_and_field_type_list()
-        {
-            // LEADER-------------------------------------------------------
-            // get number of dof and dv types on set
-            uint tNumDofTypes   = mSet->get_num_unique_dof_types();
-            uint tNumDvTypes    = mSet->get_num_unique_dv_types();
-            uint tNumFieldTypes = mSet->get_num_unique_field_types();
-
-            // set size for the global dof and dv type lists
-            mLeaderGlobalDofTypes.reserve( tNumDofTypes );
-            mLeaderGlobalDvTypes.reserve( tNumDvTypes );
-            mLeaderGlobalFieldTypes.reserve( tNumFieldTypes );
-
-            // set a size for the dof and dv checkLists
-            //( used to avoid repeating a dof or a dv type)
-            Matrix< DDSMat > tDofCheckList( tNumDofTypes, 1, -1 );
-            Matrix< DDSMat > tDvCheckList( tNumDvTypes, 1, -1 );
-            Matrix< DDSMat > tFieldCheckList( tNumFieldTypes, 1, -1 );
-
-            // get dof type from direct dependencies
-            for ( uint iDof = 0; iDof < mLeaderDofTypes.size(); iDof++ )
-            {
-                // get set index for dof type
-                sint tDofTypeIndex =
-                        mSet->get_index_from_unique_dof_type_map( mLeaderDofTypes( iDof )( 0 ) );    // FIXME'
-
-                // put the dof type in the checklist
-                tDofCheckList( tDofTypeIndex ) = 1;
-
-                // put the dof type in the global type list
-                mLeaderGlobalDofTypes.push_back( mLeaderDofTypes( iDof ) );
-            }
-
-            // get dv type from direct dependencies
-            for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
-            {
-                // get set index for dv type
-                sint tDvTypeIndex =
-                        mSet->get_index_from_unique_dv_type_map( mLeaderDvTypes( iDv )( 0 ) );    // FIXME'
-
-                // put the dv type in the checklist
-                tDvCheckList( tDvTypeIndex ) = 1;
-
-                // put the dv type in the global type list
-                mLeaderGlobalDvTypes.push_back( mLeaderDvTypes( iDv ) );
-            }
-
-            // get field type from direct dependencies
-            for ( uint iFi = 0; iFi < mLeaderFieldTypes.size(); iFi++ )
-            {
-                // get set index for field type
-                sint tFieldTypeIndex =
-                        mSet->get_index_from_unique_field_type_map( mLeaderFieldTypes( iFi )( 0 ) );    // FIXME'
-
-                // put the field type in the checklist
-                tFieldCheckList( tFieldTypeIndex ) = 1;
-
-                // put the field type in the global type list
-                mLeaderGlobalFieldTypes.push_back( mLeaderFieldTypes( iFi ) );
-            }
-
-            // get dof type from leader properties
-            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get dof types for property
-                    const Vector< Vector< MSI::Dof_Type > >& tActiveDofTypes =
-                            tProperty->get_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex =
-                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDofCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mLeaderGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
-                        }
-                    }
-
-                    // get dv types for property
-                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
-                            tProperty->get_dv_type_list();
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
-                    {
-                        // get set index for dv type
-                        sint tDvTypeIndex =
-                                mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDvCheckList( tDvTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDvCheckList( tDvTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mLeaderGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
-                        }
-                    }
-
-                    // get field types for property
-                    const Vector< Vector< mtk::Field_Type > >& tActiveFieldTypes =
-                            tProperty->get_field_type_list();
-
-                    // loop on property field type
-                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
-                    {
-                        // get set index for field type
-                        sint tFieldTypeIndex =
-                                mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
-
-                        // if field enum not in the list
-                        if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
-                        {
-                            // put the field type in the check list
-                            tFieldCheckList( tFieldTypeIndex ) = 1;
-
-                            // put the field type in the global type list
-                            mLeaderGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
-                        }
-                    }
-                }
-            }
-
-            // get dof type from leader material models
-            for ( const std::shared_ptr< Material_Model >& tMM : mLeaderMM )
-            {
-                if ( tMM != nullptr )
-                {
-                    // get dof types for material modIWG::build_global_dof_dv_and_field_listel
-                    const Vector< Vector< MSI::Dof_Type > >& tActiveDofTypes =
-                            tMM->get_global_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex =
-                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDofCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mLeaderGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
-                        }
-                    }
-                    // skip loop on material model dv type - not implemented
-                }
-            }
-
-            // get dof type from leader constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get dof types for constitutive model
-                    const Vector< Vector< MSI::Dof_Type > >& tActiveDofTypes =
-                            tCM->get_global_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex =
-                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDofCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mLeaderGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
-                        }
-                    }
-
-                    // get dv types for constitutive model
-                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
-                            tCM->get_global_dv_type_list();
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
-                    {
-                        // get set index for dv type
-                        sint tDvTypeIndex =
-                                mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
-
-                        // if dv enum not in the list
-                        if ( tDvCheckList( tDvTypeIndex ) != 1 )
-                        {
-                            // put the dv type in the check list
-                            tDvCheckList( tDvTypeIndex ) = 1;
-
-                            // put the dv type in the global type list
-                            mLeaderGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
-                        }
-                    }
-
-                    // get field types for constitutive model
-                    const Vector< Vector< mtk::Field_Type > >& tActiveFieldTypes =
-                            tCM->get_global_field_type_list();
-
-                    // loop on property field type
-                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
-                    {
-                        // get set index for field type
-                        sint tFieldTypeIndex =
-                                mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
-
-                        // if field enum not in the list
-                        if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
-                        {
-                            // put the field type in the check list
-                            tFieldCheckList( tFieldTypeIndex ) = 1;
-
-                            // put the field type in the global type list
-                            mLeaderGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
-                        }
-                    }
-                }
-            }
-
-            // get dof type from leader stabilization parameters
-            for ( const std::shared_ptr< Stabilization_Parameter >& tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get dof types for constitutive model
-                    const Vector< Vector< MSI::Dof_Type > >& tActiveDofTypes =
-                            tSP->get_global_dof_type_list( mtk::Leader_Follower::LEADER );
-
-                    // loop on property dof type
-                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex =
-                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDofCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mLeaderGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
-                        }
-                    }
-
-                    // get dv types for constitutive model
-                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
-                            tSP->get_global_dv_type_list( mtk::Leader_Follower::LEADER );
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
-                    {
-                        // get set index for dv type
-                        sint tDvTypeIndex =
-                                mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
-
-                        // if dv enum not in the list
-                        if ( tDvCheckList( tDvTypeIndex ) != 1 )
-                        {
-                            // put the dv type in the check list
-                            tDvCheckList( tDvTypeIndex ) = 1;
-
-                            // put the dv type in the global type list
-                            mLeaderGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
-                        }
-                    }
-                }
-            }
-
-            // reduce size of dof and dv lists to fit unique list
-            mLeaderGlobalDofTypes.shrink_to_fit();
-            mLeaderGlobalDvTypes.shrink_to_fit();
-            mLeaderGlobalFieldTypes.shrink_to_fit();
-
-            // FOLLOWER--------------------------------------------------------
-
-            // set size for the global dof type list
-            mFollowerGlobalDofTypes.reserve( tNumDofTypes );
-            mFollowerGlobalDvTypes.reserve( tNumDvTypes );
-            mFollowerGlobalFieldTypes.reserve( tNumFieldTypes );
-
-            // set a size for the checkList ( used to avoid repeating a dof type)
-            tDofCheckList.fill( -1 );
-            tDvCheckList.fill( -1 );
-            tFieldCheckList.fill( -1 );
-
-            // get dof type from follower direct dependencies
-            for ( uint iDof = 0; iDof < mFollowerDofTypes.size(); iDof++ )
-            {
-                // get set index for dof type
-                sint tDofTypeIndex =
-                        mSet->get_index_from_unique_dof_type_map( mFollowerDofTypes( iDof )( 0 ) );
-
-                // put the dof type in the check list
-                tDofCheckList( tDofTypeIndex ) = 1;
-
-                // put the dof type in the global type list
-                mFollowerGlobalDofTypes.push_back( mFollowerDofTypes( iDof ) );
-            }
-
-            // get dv type from follower direct dependencies
-            for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
-            {
-                // get set index for dv type
-                sint tDvTypeIndex =
-                        mSet->get_index_from_unique_dv_type_map( mFollowerDvTypes( iDv )( 0 ) );
-
-                // put the dv type in the check list
-                tDvCheckList( tDvTypeIndex ) = 1;
-
-                // put the dv type in the global type list
-                mFollowerGlobalDvTypes.push_back( mFollowerDvTypes( iDv ) );
-            }
-
-            // get field type from follower direct dependencies
-            for ( uint iFi = 0; iFi < mFollowerFieldTypes.size(); iFi++ )
-            {
-                // get set index for field type
-                sint tFieldTypeIndex =
-                        mSet->get_index_from_unique_field_type_map( mFollowerFieldTypes( iFi )( 0 ) );
-
-                // put the field type in the check list
-                tFieldCheckList( tFieldTypeIndex ) = 1;
-
-                // put the field type in the global type list
-                mFollowerGlobalFieldTypes.push_back( mFollowerFieldTypes( iFi ) );
-            }
-
-            // get dof type from follower properties
-            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
-            {
-                if ( tProperty != nullptr )
-                {
-                    // get dof types for property
-                    const Vector< Vector< MSI::Dof_Type > >& tActiveDofTypes =
-                            tProperty->get_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex =
-                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDofCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mFollowerGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
-                        }
-                    }
-
-                    // get dv types for property
-                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
-                            tProperty->get_dv_type_list();
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
-                    {
-                        // get set index for dv type
-                        sint tDvTypeIndex =
-                                mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
-
-                        // if dv enum not in the list
-                        if ( tDvCheckList( tDvTypeIndex ) != 1 )
-                        {
-                            // put the dv type in the check list
-                            tDvCheckList( tDvTypeIndex ) = 1;
-
-                            // put the dv type in the global type list
-                            mFollowerGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
-                        }
-                    }
-
-                    // get field types for property
-                    const Vector< Vector< mtk::Field_Type > >& tActiveFieldTypes =
-                            tProperty->get_field_type_list();
-
-                    // loop on property field type
-                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
-                    {
-                        // get set index for field type
-                        sint tFieldTypeIndex =
-                                mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
-
-                        // if field enum not in the list
-                        if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
-                        {
-                            // put the field type in the check list
-                            tFieldCheckList( tFieldTypeIndex ) = 1;
-
-                            // put the field type in the global type list
-                            mFollowerGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
-                        }
-                    }
-                }
-            }
-
-            // get dof type from follower material models
-            for ( std::shared_ptr< Material_Model > tMM : mFollowerMM )
-            {
-                if ( tMM != nullptr )
-                {
-                    // get dof types for constitutive model
-                    const Vector< Vector< MSI::Dof_Type > >& tActiveDofTypes =
-                            tMM->get_global_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex =
-                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDofCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mFollowerGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
-                        }
-                    }
-                    // skip loop on material dv type - not implemented
-                }
-            }
-
-            // get dof type from follower constitutive models
-            for ( std::shared_ptr< Constitutive_Model > tCM : mFollowerCM )
-            {
-                if ( tCM != nullptr )
-                {
-                    // get dof types for constitutive model
-                    const Vector< Vector< MSI::Dof_Type > >& tActiveDofTypes =
-                            tCM->get_global_dof_type_list();
-
-                    // loop on property dof type
-                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDofCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mFollowerGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
-                        }
-                    }
-
-                    // get dv types for constitutive model
-                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
-                            tCM->get_global_dv_type_list();
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
-                    {
-                        // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
-
-                        // if dv enum not in the list
-                        if ( tDvCheckList( tDvTypeIndex ) != 1 )
-                        {
-                            // put the dv type in the check list
-                            tDvCheckList( tDvTypeIndex ) = 1;
-
-                            // put the dv type in the global type list
-                            mFollowerGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
-                        }
-                    }
-
-                    // get field types for constitutive model
-                    const Vector< Vector< mtk::Field_Type > >& tActiveFieldTypes =
-                            tCM->get_field_type_list();
-
-                    // loop on constitutive model field type
-                    for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
-                    {
-                        // get set index for field type
-                        sint tFieldTypeIndex =
-                                mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
-
-                        // if field enum not in the list
-                        if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
-                        {
-                            // put the field type in the check list
-                            tFieldCheckList( tFieldTypeIndex ) = 1;
-
-                            // put the field type in the global type list
-                            mFollowerGlobalFieldTypes.push_back( tActiveFieldTypes( iFi ) );
-                        }
-                    }
-                }
-            }
-
-            // get dof type from stabilization parameters
-            for ( std::shared_ptr< Stabilization_Parameter > tSP : mStabilizationParam )
-            {
-                if ( tSP != nullptr )
-                {
-                    // get dof types for constitutive model
-                    const Vector< Vector< MSI::Dof_Type > >& tActiveDofTypes =
-                            tSP->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
-
-                    // loop on property dof type
-                    for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
-                    {
-                        // get set index for dof type
-                        sint tDofTypeIndex =
-                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
-
-                        // if dof enum not in the list
-                        if ( tDofCheckList( tDofTypeIndex ) != 1 )
-                        {
-                            // put the dof type in the check list
-                            tDofCheckList( tDofTypeIndex ) = 1;
-
-                            // put the dof type in the global type list
-                            mFollowerGlobalDofTypes.push_back( tActiveDofTypes( iDof ) );
-                        }
-                    }
-
-                    // get dv types for stabilization parameter
-                    const Vector< Vector< gen::PDV_Type > >& tActiveDvTypes =
-                            tSP->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
-
-                    // loop on property dv type
-                    for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
-                    {
-                        // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
-
-                        // if dv enum not in the list
-                        if ( tDvCheckList( tDvTypeIndex ) != 1 )
-                        {
-                            // put the dv type in the check list
-                            tDvCheckList( tDvTypeIndex ) = 1;
-
-                            // put the dv type in the global type list
-                            mFollowerGlobalDvTypes.push_back( tActiveDvTypes( iDv ) );
-                        }
-                    }
-                }
-            }
-
-            // reduce size of dof list to fit unique list
-            mFollowerGlobalDofTypes.shrink_to_fit();
-            mFollowerGlobalDvTypes.shrink_to_fit();
-            mFollowerGlobalFieldTypes.shrink_to_fit();
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        IWG::build_requested_dof_type_list( const bool aIsStaggered )
-        {
-            // clear the dof lists
-            mRequestedLeaderGlobalDofTypes.clear();
-            mRequestedFollowerGlobalDofTypes.clear();
-
-            Vector< enum MSI::Dof_Type > tRequestedDofTypes;
-
-            // if residual evaluation
-            if ( aIsStaggered )
-            {
-                // get the requested dof types
-                tRequestedDofTypes = mSet->get_secondary_dof_types();
-            }
-            // if Jacobian evaluation
-            else
-            {
-                // get the requested dof types
-                tRequestedDofTypes = mSet->get_requested_dof_types();
-            }
-
-            // reserve possible max size for requested dof lists
-            mRequestedLeaderGlobalDofTypes.reserve( tRequestedDofTypes.size() );
-            mRequestedFollowerGlobalDofTypes.reserve( tRequestedDofTypes.size() );
-
-            // loop over the requested dof types
-            for ( auto tDofTypes : tRequestedDofTypes )
-            {
-                // loop over the IWG leader dof types groups
-                for ( uint Ik = 0; Ik < mLeaderGlobalDofTypes.size(); Ik++ )
-                {
-                    // if requested dof type matches IWG leader dof type
-                    if ( mLeaderGlobalDofTypes( Ik )( 0 ) == tDofTypes )
-                    {
-                        // add the IWG leader dof type to the requested dof list
-                        mRequestedLeaderGlobalDofTypes.push_back( mLeaderGlobalDofTypes( Ik ) );
-                        break;
-                    }
-                }
-
-                // loop over the IWG follower dof types groups
-                for ( uint Ik = 0; Ik < mFollowerGlobalDofTypes.size(); Ik++ )
-                {
-                    // if requested dof type matches IWG follower dof type
-                    if ( mFollowerGlobalDofTypes( Ik )( 0 ) == tDofTypes )
-                    {
-                        // add the IWG follower dof type to the requested dof list
-                        mRequestedFollowerGlobalDofTypes.push_back( mFollowerGlobalDofTypes( Ik ) );
-                        break;
-                    }
-                }
-            }
-
-            // reduce size for requested dof lists
-            mRequestedLeaderGlobalDofTypes.shrink_to_fit();
-            mRequestedFollowerGlobalDofTypes.shrink_to_fit();
-        }
-
-        //------------------------------------------------------------------------------
-
         void
         IWG::check_field_interpolators( mtk::Leader_Follower aIsLeader )
         {
@@ -1820,23 +157,23 @@ namespace moris
                 case mtk::Leader_Follower::LEADER:
                 {
                     // loop over the dof field interpolator pointers
-                    for ( uint iDofFI = 0; iDofFI < mRequestedLeaderGlobalDofTypes.size(); iDofFI++ )
+                    for ( uint iDofFI = 0; iDofFI < get_requested_dof_type_list( mtk::Leader_Follower::LEADER ).size(); iDofFI++ )
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
                                 this->get_field_interpolator_manager( aIsLeader )->    //
-                                        get_field_interpolators_for_type( mRequestedLeaderGlobalDofTypes( iDofFI )( 0 ) )
+                                        get_field_interpolators_for_type( get_requested_dof_type_list( mtk::Leader_Follower::LEADER )( iDofFI )( 0 ) )
                                         != nullptr,
                                 "IWG::check_field_interpolators - Leader dof FI missing. " );
                     }
 
                     // loop over the dv field interpolator pointers
-                    for ( uint iDvFI = 0; iDvFI < mLeaderGlobalDvTypes.size(); iDvFI++ )
+                    for ( uint iDvFI = 0; iDvFI < get_global_dv_type_list( mtk::Leader_Follower::LEADER ).size(); iDvFI++ )
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
                                 this->get_field_interpolator_manager( aIsLeader )->    //
-                                        get_field_interpolators_for_type( mLeaderGlobalDvTypes( iDvFI )( 0 ) )
+                                        get_field_interpolators_for_type( get_global_dv_type_list( mtk::Leader_Follower::LEADER )( iDvFI )( 0 ) )
                                         != nullptr,
                                 "IWG::check_field_interpolators - Leader dv FI missing. " );
                     }
@@ -1845,23 +182,23 @@ namespace moris
                 case mtk::Leader_Follower::FOLLOWER:
                 {
                     // loop over the dof field interpolator pointers
-                    for ( uint iDofFI = 0; iDofFI < mRequestedFollowerGlobalDofTypes.size(); iDofFI++ )
+                    for ( uint iDofFI = 0; iDofFI < get_requested_dof_type_list( mtk::Leader_Follower::FOLLOWER ).size(); iDofFI++ )
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
                                 this->get_field_interpolator_manager( aIsLeader )->    //
-                                        get_field_interpolators_for_type( mRequestedFollowerGlobalDofTypes( iDofFI )( 0 ) )
+                                        get_field_interpolators_for_type( get_requested_dof_type_list( mtk::Leader_Follower::FOLLOWER )( iDofFI )( 0 ) )
                                         != nullptr,
                                 "IWG::check_dof_field_interpolators - Follower dof FI missing. " );
                     }
 
                     // loop over the dv field interpolator pointers
-                    for ( uint iDvFI = 0; iDvFI < mFollowerGlobalDvTypes.size(); iDvFI++ )
+                    for ( uint iDvFI = 0; iDvFI < get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER ).size(); iDvFI++ )
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
                                 this->get_field_interpolator_manager( aIsLeader )->    //
-                                        get_field_interpolators_for_type( mFollowerGlobalDvTypes( iDvFI )( 0 ) )
+                                        get_field_interpolators_for_type( get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER )( iDvFI )( 0 ) )
                                         != nullptr,
                                 "IWG::check_field_interpolators - Follower dv FI missing. " );
                     }
@@ -1873,135 +210,6 @@ namespace moris
                 }
             }
         }
-
-        //------------------------------------------------------------------------------
-
-        const Vector< Vector< MSI::Dof_Type > >&
-        IWG::get_global_dof_type_list(
-                mtk::Leader_Follower aIsLeader )
-        {
-            // if the global list was not yet built
-            if ( mGlobalDofBuild )
-            {
-                // build the stabilization parameter global dof type list
-                this->build_global_dof_dv_and_field_type_list();
-
-                // update build flag
-                mGlobalDofBuild   = false;
-                mGlobalDvBuild    = false;
-                mGlobalFieldBuild = false;
-            }
-
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader global dof type list
-                    return mLeaderGlobalDofTypes;
-                    break;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower global dof type list
-                    return mFollowerGlobalDofTypes;
-                    break;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IWG::get_global_dof_type_list - can only be leader or follower." );
-                    return mLeaderGlobalDofTypes;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        const Vector< Vector< gen::PDV_Type > >&
-        IWG::get_global_dv_type_list(
-                mtk::Leader_Follower aIsLeader )
-        {
-            // if the global list was not yet built
-            if ( mGlobalDvBuild )
-            {
-                // build the stabilization parameter global dof type list
-                this->build_global_dof_dv_and_field_type_list();
-
-                // update build flag
-                mGlobalDofBuild   = false;
-                mGlobalDvBuild    = false;
-                mGlobalFieldBuild = false;
-            }
-
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader global dof type list
-                    return mLeaderGlobalDvTypes;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower global dof type list
-                    return mFollowerGlobalDvTypes;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IWG::get_global_dv_type_list - can only be leader or follower." );
-                    return mLeaderGlobalDvTypes;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        const Vector< Vector< mtk::Field_Type > >&
-        IWG::get_global_field_type_list(
-                mtk::Leader_Follower aIsLeader )
-        {
-            // if the global list was not yet built
-            if ( mGlobalFieldBuild )
-            {
-                // build the stabilization parameter global dof type list
-                this->build_global_dof_dv_and_field_type_list();
-
-                // update build flag
-                mGlobalDofBuild   = false;
-                mGlobalDvBuild    = false;
-                mGlobalFieldBuild = false;
-            }
-            // switch on leader/follower
-            switch ( aIsLeader )
-            {
-                // if leader
-                case mtk::Leader_Follower::LEADER:
-                {
-                    // return leader global field type list
-                    return mLeaderGlobalFieldTypes;
-                }
-                // if follower
-                case mtk::Leader_Follower::FOLLOWER:
-                {
-                    // return follower global field type list
-                    return mFollowerGlobalFieldTypes;
-                }
-                // if none
-                default:
-                {
-                    MORIS_ASSERT( false, "IWG::get_global_field_type_list - can only be leader or follower." );
-                    return mLeaderGlobalFieldTypes;
-                }
-            }
-        }
-
-        //------------------------------------------------------------------------------
 
         void
         IWG::select_jacobian_FD(
@@ -2024,7 +232,7 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get leader number of dof types
-            uint tLeaderNumDofTypes = mRequestedLeaderGlobalDofTypes.size();
+            uint tLeaderNumDofTypes = get_requested_dof_type_list( mtk::Leader_Follower::LEADER ).size();
 
             // reset and evaluate the residual plus
             mSet->get_residual()( 0 ).fill( 0.0 );
@@ -2041,7 +249,7 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iFI );
+                Vector< MSI::Dof_Type > const & tDofType = get_requested_dof_type_list( mtk::Leader_Follower::LEADER )( iFI );
 
                 // get the index for the dof type
                 sint tLeaderDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -2049,7 +257,7 @@ namespace moris
 
                 // get field interpolator for dependency dof type
                 Field_Interpolator* tFI =
-                        mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                        get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -2136,7 +344,6 @@ namespace moris
             mSet->get_residual()( 0 ) = tResidualStore;
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::select_jacobian_FD_double(
@@ -2179,7 +386,7 @@ namespace moris
                             { 0, 0 } );
 
             // get leader number of dof types
-            uint tLeaderNumDofTypes = mRequestedLeaderGlobalDofTypes.size();
+            uint tLeaderNumDofTypes = get_requested_dof_type_list( mtk::Leader_Follower::LEADER ).size();
 
             // loop over the IWG dof types
             for ( uint iFI = 0; iFI < tLeaderNumDofTypes; iFI++ )
@@ -2188,14 +395,14 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iFI );
+                Vector< MSI::Dof_Type > const & tDofType = get_requested_dof_type_list( mtk::Leader_Follower::LEADER )( iFI );
 
                 // get the index for the dof type
                 sint tLeaderDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
                 uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tLeaderDepDofIndex, 0 );
 
                 // get field interpolator for dependency dof type
-                Field_Interpolator* tLeaderFI = mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator* tLeaderFI = get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint const tDerNumBases  = tLeaderFI->get_number_of_space_time_bases();    // coefficients for the interpolation of the field (number of shape functions)
@@ -2263,7 +470,7 @@ namespace moris
                             // To obtain the new normal, we currently limit the implementation to line elements to directly calculate the normal vector from the deformed coordinates of the leader element.
                             if ( tIsNonconformal && ( tDofType( 0 ) == MSI::Dof_Type::UX ) )
                             {
-                                Field_Interpolator*    tFollowerFI             = mFollowerFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                                Field_Interpolator*    tFollowerFI             = get_follower_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
                                 Matrix< DDRMat > const tRemappedFollowerCoords = this->remap_nonconformal_rays( tLeaderFI, tFollowerFI, true );
                                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
                             }
@@ -2302,7 +509,7 @@ namespace moris
             }
 
             // get follower number of dof types
-            uint tFollowerNumDofTypes = mRequestedFollowerGlobalDofTypes.size();
+            uint tFollowerNumDofTypes = get_requested_dof_type_list( mtk::Leader_Follower::FOLLOWER ).size();
 
             // loop over the IWG dof types
             for ( uint iFI = 0; iFI < tFollowerNumDofTypes; iFI++ )
@@ -2311,14 +518,14 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Vector< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iFI );
+                Vector< MSI::Dof_Type > tDofType = get_requested_dof_type_list( mtk::Leader_Follower::FOLLOWER )( iFI );
 
                 // get the index for the dof type
                 sint tFollowerDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
                 uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tFollowerDepDofIndex, 0 );
 
                 // get field interpolator for dependency dof type
-                Field_Interpolator* tFollowerFI = mFollowerFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator* tFollowerFI = get_follower_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFollowerFI->get_number_of_space_time_bases();
@@ -2386,7 +593,7 @@ namespace moris
                             // To obtain the new normal, we currently limit the implementation to line elements to directly calculate the normal vector from the deformed coordinates of the leader element.
                             if ( tIsNonconformal && ( tDofType( 0 ) == MSI::Dof_Type::UX ) )
                             {
-                                Field_Interpolator*    tLeaderFI               = mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                                Field_Interpolator*    tLeaderFI               = get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
                                 Matrix< DDRMat > const tRemappedFollowerCoords = this->remap_nonconformal_rays( tLeaderFI, tFollowerFI, true );
                                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
                             }
@@ -2434,7 +641,7 @@ namespace moris
 
             // Get the integration point on the leader side and add the perturbed displacement
             // The leader IG point is the point from which the mapping to the follower cell is performed
-            Geometry_Interpolator* tLeaderIGGI = this->mLeaderFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tLeaderIGGI = this->get_leader_field_interpolator_manager()->get_IG_geometry_interpolator();
 
             // Get the nodes of the leader element and add the perturbed displacement on each of them
             // The first column contains the x coordinates, the second column contains the y coordinates
@@ -2458,7 +665,7 @@ namespace moris
 
 
             // Get the nodes of the follower element and add the perturbed displacement on each of them
-            Geometry_Interpolator* tFollowerIGGI        = this->mFollowerFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tFollowerIGGI        = this->get_follower_field_interpolator_manager()->get_IG_geometry_interpolator();
             Matrix< DDRMat > const tFollowerCoordinates = this->get_deformed_node_coordinates( tFollowerIGGI, aFollowerFieldInterpolator );
 
             // Perform the mapping
@@ -2543,7 +750,6 @@ namespace moris
             return tResultCoordinates;
         }
 
-        //------------------------------------------------------------------------------
 
         bool
         IWG::check_jacobian(
@@ -2564,7 +770,7 @@ namespace moris
             uint tFollowerResStartRow;
             uint tFollowerResEndRow;
             uint tFollowerNumRows = 0;
-            if ( mFollowerGlobalDofTypes.size() > 0 )
+            if ( get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER ).size() > 0 )
             {
                 tFollowerDofIndex    = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
                 tFollowerResStartRow = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
@@ -2660,7 +866,6 @@ namespace moris
             return tCheckJacobian;
         }
 
-        //------------------------------------------------------------------------------
 
         // FIXME: This function needs to go, functionality will be integrated into the usual check jacobian function
         bool
@@ -2719,7 +924,7 @@ namespace moris
                 uint tNumFDPoints = tFDScheme( 0 ).size();
 
                 // get leader number of dof types
-                uint tLeaderNumDofTypes = mRequestedLeaderGlobalDofTypes.size();
+                uint tLeaderNumDofTypes = get_requested_dof_type_list( mtk::Leader_Follower::LEADER ).size();
 
                 // reset and evaluate the residual plus
                 mSet->get_residual()( 0 ).fill( 0.0 );
@@ -2733,7 +938,7 @@ namespace moris
                     uint tDofCounter = 0;
 
                     // get the dof type
-                    Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iFI );
+                    Vector< MSI::Dof_Type > const & tDofType = get_requested_dof_type_list( mtk::Leader_Follower::LEADER )( iFI );
 
                     // get the index for the dof type
                     sint tLeaderDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -2741,7 +946,7 @@ namespace moris
 
                     // get field interpolator for dependency dof type
                     Field_Interpolator* tFI =
-                            mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                            get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                     // get number of leader FI bases and fields
                     uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -2882,7 +1087,6 @@ namespace moris
             return tCheckJacobian;
         }
 
-        //------------------------------------------------------------------------------
 
         real
         IWG::build_perturbation_size(
@@ -2898,7 +1102,6 @@ namespace moris
                     aTolerance );
         }
 
-        //------------------------------------------------------------------------------
 
         real
         IWG::build_perturbation_size_relative(
@@ -2926,7 +1129,6 @@ namespace moris
             return tDeltaH;
         }
 
-        //------------------------------------------------------------------------------
 
         real
         IWG::build_perturbation_size_absolute(
@@ -2949,7 +1151,6 @@ namespace moris
             return std::max( std::min( std::abs( aPerturbation ), aMaxPerturbation ), tActualTol );
         }
 
-        //------------------------------------------------------------------------------
 
         real
         IWG::check_ig_coordinates_inside_ip_element(
@@ -3042,7 +1243,6 @@ namespace moris
             return tDeltaH;
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::select_dRdp_FD_geometry_bulk(
@@ -3190,7 +1390,7 @@ namespace moris
             mSet->get_residual()( 0 ) = tResidualStore;
 
             // add contribution of cluster measure to dRdp
-            if ( mActiveCMEAFlag )
+            if ( is_active_cluster_measure() )
             {
                 // add their contribution to dQIdp
                 this->add_cluster_measure_dRdp_FD_geometry(
@@ -3204,7 +1404,6 @@ namespace moris
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!" );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::select_dRdp_FD_geometry_sideset(
@@ -3369,7 +1568,7 @@ namespace moris
             mSet->get_residual()( 0 ) = tResidualStore;
 
             // add contribution of cluster measure to dRdp
-            if ( mActiveCMEAFlag )
+            if ( is_active_cluster_measure() )
             {
                 // add their contribution to dQIdp
                 this->add_cluster_measure_dRdp_FD_geometry(
@@ -3383,7 +1582,6 @@ namespace moris
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!" );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::select_dRdp_FD_geometry_time_sideset(
@@ -3555,7 +1753,7 @@ namespace moris
             mSet->get_residual()( 0 ) = tResidualStore;
 
             // add contribution of cluster measure to dRdp
-            if ( mActiveCMEAFlag )
+            if ( is_active_cluster_measure() )
             {
                 // add their contribution to dQIdp
                 this->add_cluster_measure_dRdp_FD_geometry(
@@ -3569,7 +1767,6 @@ namespace moris
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!" );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::select_dRdp_FD_geometry_double(
@@ -3854,7 +2051,7 @@ namespace moris
             mSet->get_residual()( 0 ) = tResidualStore;
 
             // add contribution of cluster measure to dRdp
-            if ( mActiveCMEAFlag )
+            if ( is_active_cluster_measure() )
             {
                 // add their contribution to dQIdp
                 this->add_cluster_measure_dRdp_FD_geometry_double(
@@ -3868,7 +2065,6 @@ namespace moris
                     "IWG::compute_dRdp_FD_geometry_double - dRdp contains NAN or INF, exiting!" );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::add_cluster_measure_dRdp_FD_geometry(
@@ -3965,7 +2161,6 @@ namespace moris
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!" );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::add_cluster_measure_dRdp_FD_geometry_double(
@@ -4082,7 +2277,6 @@ namespace moris
                     "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!" );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::select_dRdp_FD_material(
@@ -4131,7 +2325,7 @@ namespace moris
 
                 // get the FI for the dv type
                 Field_Interpolator* tFI =
-                        mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                        get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -4223,7 +2417,6 @@ namespace moris
                     "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!" );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         IWG::select_dRdp_FD_material_double(
@@ -4294,7 +2487,7 @@ namespace moris
 
                 // get the FI for the dv type
                 Field_Interpolator* tFI =
-                        mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                        get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -4411,7 +2604,7 @@ namespace moris
 
                 // get the FI for the dv type
                 Field_Interpolator* tFI =
-                        mFollowerFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                        get_follower_field_interpolator_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -4544,8 +2737,11 @@ namespace moris
             MORIS_ASSERT( isfinite( mSet->get_drdpmat() ),
                     "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!" );
         }
+        Vector< Vector< MSI::Dof_Type > > const & IWG::get_requested_dof_type_list( mtk::Leader_Follower const & aIsLeader )
+        {
+            return EvaluableTerm::get_requested_dof_type_list( is_staggered(), aIsLeader );
+        }
 
-        //------------------------------------------------------------------------------
 
     }    // namespace fem
 }    // namespace moris

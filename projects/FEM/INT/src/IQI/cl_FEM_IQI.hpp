@@ -11,9 +11,9 @@
 #ifndef SRC_FEM_CL_FEM_IQI_HPP_
 #define SRC_FEM_CL_FEM_IQI_HPP_
 
-#include "moris_typedefs.hpp"     //MRS/COR/src
-#include "cl_Vector.hpp"      //MRS/CNT/src
-#include "cl_Matrix.hpp"    //LNA/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
+#include "cl_Matrix.hpp"         //LNA/src
 // MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
 // FEM/INT/src
@@ -31,6 +31,7 @@
 #include "GEN_Data_Types.hpp"
 // LINALG/src
 #include "fn_vectorize.hpp"
+#include "cl_FEM_EvaluableTerm.hpp"
 
 namespace moris
 {
@@ -40,119 +41,20 @@ namespace moris
         class Cluster;
         class Field_Interpolator_Manager;
 
-        //------------------------------------------------------------------------------
         /**
          * Integrand of a quantity of interest
          */
-        class IQI
+        class IQI : EvaluableTerm
         {
           protected:
-            // FEM set pointer
-            fem::Set* mSet = nullptr;
-
-            // cluster pointer
-            fem::Cluster* mCluster = nullptr;
-
-            // FEM IQI type
-            enum fem::IQI_Type mFEMIQIType;
-
-            // IQI type index
-            sint mIQITypeIndex = -1;
-
-            // normal
-            Matrix< DDRMat > mNormal;
-
-            // tolerance for FD perturbation
-            const real mToleranceFD = 1e-12;
-
-            // quantity dof type for IQI dof, max dof
-            Vector< MSI::Dof_Type > mQuantityDofType;
-
-            // leader and follower dof type lists
-            Vector< Vector< MSI::Dof_Type > > mLeaderDofTypes;
-            Vector< Vector< MSI::Dof_Type > > mFollowerDofTypes;
-
-            // leader and follower global dof type list
-            Vector< Vector< MSI::Dof_Type > > mLeaderGlobalDofTypes;
-            Vector< Vector< MSI::Dof_Type > > mFollowerGlobalDofTypes;
-
-            // leader and follower requested global dof type lists
-            Vector< Vector< MSI::Dof_Type > > mRequestedLeaderGlobalDofTypes;
-            Vector< Vector< MSI::Dof_Type > > mRequestedFollowerGlobalDofTypes;
-
-            // flag for building global dof type list
-            bool mGlobalDofBuild = true;
-
-            // field interpolator manager pointer
-            Field_Interpolator_Manager* mLeaderFIManager      = nullptr;
-            Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
-            Field_Interpolator_Manager* mLeaderEigenFIManager = nullptr;
-
-            // leader and follower dv type lists
-            Vector< Vector< gen::PDV_Type > > mLeaderDvTypes;
-            Vector< Vector< gen::PDV_Type > > mFollowerDvTypes;
-
-            // leader and follower global dv type list
-            Vector< Vector< gen::PDV_Type > > mLeaderGlobalDvTypes;
-            Vector< Vector< gen::PDV_Type > > mFollowerGlobalDvTypes;
-
-            // flag for building global dv type list
-            bool mGlobalDvBuild = true;
-
-            // leader and follower field type lists
-            Vector< Vector< mtk::Field_Type > > mLeaderFieldTypes;
-            Vector< Vector< mtk::Field_Type > > mFollowerFieldTypes;
-
-            Vector< Vector< mtk::Field_Type > > mLeaderGlobalFieldTypes;
-            Vector< Vector< mtk::Field_Type > > mFollowerGlobalFieldTypes;
-
-            bool mGlobalFieldBuild = true;
-
-            // leader and follower properties
-            Vector< std::shared_ptr< fem::Property > > mLeaderProp;
-            Vector< std::shared_ptr< fem::Property > > mFollowerProp;
-
-            // local string to int map for properties
-            std::map< std::string, uint > mPropertyMap;
-
-            // leader and follower constitutive models
-            Vector< std::shared_ptr< fem::Constitutive_Model > > mLeaderCM;
-            Vector< std::shared_ptr< fem::Constitutive_Model > > mFollowerCM;
-
-            // Local string to int map for constitutive models
-            std::map< std::string, uint > mConstitutiveMap;
-
-            // stabilization parameters
-            Vector< std::shared_ptr< Stabilization_Parameter > > mStabilizationParam;
-
-            // local string to int map for stabilization parameters
-            std::map< std::string, uint > mStabilizationMap;
-
-            // active cluster measure on IQI flag
-            bool mActiveCMEAFlag = false;
+            enum fem::IQI_Type      mFEMIQIType;
+            sint                    mIQITypeIndex = -1;
+            const real              mToleranceFD  = 1e-12;    // tolerance for FD perturbation
+            Vector< MSI::Dof_Type > mQuantityDofType;         // quantity dof type for IQI dof, max dof
 
             // local string to dof enum map
             std::map< std::string, MSI::Dof_Type > mLeaderDofMap;
             std::map< std::string, MSI::Dof_Type > mFollowerDofMap;
-
-            // parameters
-            Vector< Matrix< DDRMat > > mParameters;
-
-            // IQI name
-            std::string mName;
-
-            // bulk type
-            fem::Element_Type mBulkType = fem::Element_Type::BULK;
-
-            // strings for leader and follower phase name
-            std::string mLeaderPhaseName;
-            std::string mFollowerPhaseName;
-
-            // bool for time continuity
-            bool mTimeContinuity = false;
-
-            // bool for time boundary
-            bool mTimeBoundary = false;
 
           private:
             // Normalization
@@ -169,10 +71,10 @@ namespace moris
                     real               aPerturbation,
                     fem::FDScheme_Type aFDSchemeType ) = nullptr;
             void ( IQI::*m_compute_dQIdp_FD_geometry )(
-                    real                               aWStar,
-                    real                               aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    real                          aWStar,
+                    real                          aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices ) = nullptr;
 
             // function pointer for building the perturbation size for FD
@@ -182,173 +84,30 @@ namespace moris
                     const real& aMaxPerturbation,
                     const real& aTolerance ) = nullptr;
 
-            //------------------------------------------------------------------------------
 
           public:
-            //------------------------------------------------------------------------------
-            /**
-             * constructor
-             */
-            IQI(){};
+            IQI()          = default;
+            virtual ~IQI() = default;
 
-            //------------------------------------------------------------------------------
-            /**
-             * destructor
-             */
-            virtual ~IQI(){};
-
-            //------------------------------------------------------------------------------
-            /**
-             * set name
-             * param[ in ] aName a string for CM name
-             */
-            void
-            set_name( std::string aName )
-            {
-                mName = aName;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * get name
-             * param[ out ] mName a string for CM name
-             */
-            std::string
-            get_name()
-            {
-                return mName;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * print names
-             */
-            void print_names();
-
-            //------------------------------------------------------------------------------
-            /**
-             * set time continuity flag
-             * param[ in ] aTimeContinuity bool true if IWG for time continuity
-             */
-            void
-            set_time_continuity( bool aTimeContinuity )
-            {
-                mTimeContinuity = aTimeContinuity;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * get time continuity flag
-             * param[ out ] mTimeContinuity ool true if IWG for time continuity
-             */
-            bool
-            get_time_continuity()
-            {
-                return mTimeContinuity;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * set time boundary flag
-             * param[ in ] aTimeBoundary bool true if IWG for time boundary
-             */
-            void
-            set_time_boundary( bool aTimeBoundary )
-            {
-                mTimeBoundary = aTimeBoundary;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * get time boundary flag
-             * param[ out ] mTimeBoundary bool true if IWG for time boundary
-             */
-            bool
-            get_time_boundary()
-            {
-                return mTimeBoundary;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * set bulk type
-             * @param[ in ] aBulkType element type for the IWG
-             */
-            void
-            set_bulk_type( fem::Element_Type aBulkType )
-            {
-                mBulkType = aBulkType;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * get bulk type
-             * @param[ out ] mBulkType element type for the IWG
-             */
-            fem::Element_Type
-            get_bulk_type()
-            {
-                return mBulkType;
-            }
-
-            //------------------------------------------------------------------------------
             /**
              * get fem IQI type
              */
             enum fem::IQI_Type
-            get_fem_IQI_type()
-            {
-                return mFEMIQIType;
-            }
+            get_fem_IQI_type() { return mFEMIQIType; }
 
-            //------------------------------------------------------------------------------
-            /**
-             * set phase name
-             * param[ in ] aPhaseName a string for phase name
-             * param[ in ] aIsLeader  an enum for leader or follower
-             */
-            void set_phase_name(
-                    std::string       aPhaseName,
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get phase name
-             * param[ in ]  aIsLeader an enum for leader or follower
-             * param[ out ] mName     a string for phase name
-             */
-            std::string get_phase_name(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
             /**
              * set quantity dof type (IQI dof, max dof)
              * @param[ in ] aQuantityDofType a cell of residual dof types
              */
             void
-            set_quantity_dof_type( const Vector< MSI::Dof_Type >& aQuantityDofType )
-            {
-                mQuantityDofType = aQuantityDofType;
-            }
+            set_quantity_dof_type( const Vector< MSI::Dof_Type >& aQuantityDofType ) { mQuantityDofType = aQuantityDofType; }
 
-            //------------------------------------------------------------------------------
             /**
              * return a dof type for the quantity (IQI dof, max dof)
              * @param[ out ] mQuantityDofType a cell of residual dof types
              */
             const Vector< MSI::Dof_Type >&
-            get_quantity_dof_type() const
-            {
-                return mQuantityDofType;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * rest evaluation flags for the IQI
-             */
-            void reset_eval_flags();
-
-            //------------------------------------------------------------------------------
+            get_quantity_dof_type() const { return mQuantityDofType; }
 
             /**
              * Sets the reference values for this IQI.
@@ -357,39 +116,22 @@ namespace moris
              */
             void set_reference_value( real aReferenceValue );
 
-            //------------------------------------------------------------------------------
             /*
              * set fem set pointer
              * @param[ in ] aSetPointer a FEM set pointer
              */
-            void
-            set_set_pointer( Set* aSetPointer )
+            void set_fem_set( Set* aSet ) override
             {
-                mSet = aSetPointer;
-
-                // set function pointer for dQIdu, dQIdp
-                this->set_function_pointers();
+                EvaluableTerm::set_fem_set( aSet );
+                this->set_function_pointers();    // set function pointer for dQIdu, dQIdp
             }
 
-            //------------------------------------------------------------------------------
-            /*
-             * set fem cluster pointer
-             * @param[ in ] aClusterPointer a FEM cluster pointer
-             */
-            void
-            set_cluster_pointer( fem::Cluster* aClusterPointer )
-            {
-                mCluster = aClusterPointer;
-            }
-
-            //------------------------------------------------------------------------------
             /*
              * set fem set pointer
              * @param[ in ] aSetPointer a FEM set pointer
              */
             void set_function_pointers();
 
-            //------------------------------------------------------------------------------
             /*
              * set output type index
              * @param[ in ] aOutputTypeIndex output type index
@@ -400,264 +142,6 @@ namespace moris
                 mIQITypeIndex = aOutputTypeIndex;
             }
 
-            //------------------------------------------------------------------------------
-            /**
-             * set normal
-             * @param[ in ] aNormal normal vector
-             */
-            void
-            set_normal( const Matrix< DDRMat >& aNormal )
-            {
-                mNormal = aNormal;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * set parameters
-             * @param[ in ] aParameters a list of parameters
-             */
-            virtual void
-            set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
-            {
-                // set a cluster
-                mParameters = aParameters;
-            }
-
-            //------------------------------------------------------------------------------
-            /*
-             * set field interpolator manager pointer
-             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             */
-            void set_field_interpolator_manager(
-                    Field_Interpolator_Manager* aFieldInterpolatorManager,
-                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /*
-             * set field interpolator manager for previous time step
-             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ] aIsLeader                 an enum for leader or follower
-             */
-            void set_field_interpolator_manager_previous_time(
-                    Field_Interpolator_Manager* aFieldInterpolatorManager,
-                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /*
-             * set field interpolator manager for eigen vector
-             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ] aIsLeader                 an enum for leader or follower
-             */
-            void set_field_interpolator_manager_eigen_vector(
-                    Field_Interpolator_Manager* aFieldInterpolatorManager,
-                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /*
-             * get field interpolator manager
-             * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ]  aIsLeader                 an enum for leader or follower
-             */
-            Field_Interpolator_Manager* get_field_interpolator_manager(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * set dof type list for IQI
-             * @param[ in ] aDofTypes a cell of group of dof types
-             * @param[ in ] aIsLeader enum for leader or follower
-             */
-            void set_dof_type_list(
-                    const Vector< Vector< MSI::Dof_Type > >& aDofTypes,
-                    mtk::Leader_Follower                                  aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * set dof types
-             * @param[ in ] aDofTypes   list of group of dof types
-             * @param[ in ] aDofStrings list of strings describing the group dof types
-             * @param[ in ] aIsLeader   enum for leader or follower
-             */
-            virtual void
-            set_dof_type_list(
-                    Vector< Vector< MSI::Dof_Type > >& aDofTypes,
-                    Vector< std::string >&                  aDofStrings,
-                    mtk::Leader_Follower                            aIsLeader = mtk::Leader_Follower::LEADER )
-            {
-                MORIS_ERROR( false, "IQI::set_dof_type_list - not implemented for base class." );
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * return a cell of dof types
-             * @param[ in ] aIsLeader enum leader or follower
-             */
-            const Vector< Vector< MSI::Dof_Type > >& get_dof_type_list(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get a non unique list of dof type including
-             * IQI, property, constitutive and stabilization dependencies
-             * for both leader and follower
-             */
-            void get_non_unique_dof_dv_and_field_types(
-                    Vector< Vector< MSI::Dof_Type > >&   aDofTypes,
-                    Vector< Vector< gen::PDV_Type > >&        aDvTypes,
-                    Vector< Vector< mtk::Field_Type > >& aFieldTypes );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get a unique global dof type list including
-             * IQI, property, constitutive and stabilization dependencies
-             * @param[ in ] aIsLeader enum leader or follower
-             */
-            const Vector< Vector< MSI::Dof_Type > >& get_global_dof_type_list(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * build a global dof and dv type lists including
-             * IQI, property, constitutive and stabilization dependencies
-             * ( a list for leader and a list for follower dof and dv types )
-             */
-            void build_global_dof_dv_and_field_type_list();
-
-            //------------------------------------------------------------------------------
-            /**
-             * set dv types
-             * @param[ in ] aDvTypes  a cell of cell of dv types
-             * @param[ in ] aIsLeader enum for leader or follower
-             */
-            void set_dv_type_list(
-                    const Vector< Vector< gen::PDV_Type > >& aDvTypes,
-                    mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * return a cell of dv types
-             * @param[ in ] aIsLeader enum leader or follower
-             */
-            Vector< Vector< gen::PDV_Type > >& get_dv_type_list(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * return a cell of field types active for the IQI
-             * @param[ in ]  aIsLeader enum leader or follower
-             * @param[ out ] aFieldTypes a list of group of field types
-             */
-            const Vector< Vector< mtk::Field_Type > >& get_field_type_list(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
-
-            //------------------------------------------------------------------------------
-            /**
-             * set IQI active field types
-             * @param[ in ] aFieldTypes a list of group of field types
-             * @param[ in ] aIsLeader enum for leader or follower
-             */
-            void set_field_type_list(
-                    const Vector< Vector< mtk::Field_Type > >& aDvTypes,
-                    mtk::Leader_Follower                                    aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get a non unique list of dv type including
-             * IQI, property, constitutive and stabilization dependencies
-             * @param[ in ] aGlobalDvTypeList a non unique list of dv types to fill
-             */
-            void get_non_unique_global_dv_type_list( Vector< gen::PDV_Type >& aGlobalDvTypeList );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get a unique global dv type list including
-             * IQI, property, constitutive and stabilization dependencies
-             * @param[ in ] aIsLeader enum leader or follower
-             */
-            const Vector< Vector< gen::PDV_Type > >& get_global_dv_type_list(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get global field type list. TODO: Field types are only used by the IWG.
-             * If a user wants to use them in a property or CM this cuntion has to be modified in the same way than get_global_dof_type_list()
-             * @param[ in ]  aIsLeader    enum leader or follower
-             * @param[ out ] mFieldTypes global list of group of dv types
-             */
-            const Vector< Vector< mtk::Field_Type > >& get_global_field_type_list(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * set property
-             * @param[ in ] aProperty       a property pointer
-             * @param[ in ] aPropertyString a string describing the property
-             * @param[ in ] aIsLeader       enum leader or follower
-             */
-            void set_property(
-                    std::shared_ptr< Property > aProperty,
-                    std::string                 aPropertyString,
-                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get leader or follower properties
-             * @param[ in ]  aIsLeader   enum leader or follower
-             * @param[ out ] aProperties cell of property pointers
-             */
-            Vector< std::shared_ptr< fem::Property > >& get_properties(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * set constitutive model
-             * @param[ in ] aConstitutiveModel  a constitutive model pointer
-             * @param[ in ] aConstitutiveString a string describing the constitutive model
-             * @param[ in ] aIsLeader           an enum for leader or follower
-             */
-            void set_constitutive_model(
-                    std::shared_ptr< Constitutive_Model > aConstitutiveModel,
-                    std::string                           aConstitutiveString,
-                    mtk::Leader_Follower                     aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get leader or follower constitutive models
-             * @param[ in ]  aIsLeader           enum leader or follower
-             * @param[ out ] aConstitutiveModels cell of constitutive model pointers
-             */
-            Vector< std::shared_ptr< fem::Constitutive_Model > >& get_constitutive_models(
-                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            //------------------------------------------------------------------------------
-            /**
-             * set stabilization parameter
-             * @param[ in ] aStabilizationParameter a stabilization parameter pointer
-             * @param[ in ] aStabilizationString    a string defining the stabilization parameter
-             */
-            void set_stabilization_parameter(
-                    std::shared_ptr< Stabilization_Parameter > aStabilizationParameter,
-                    std::string                                aStabilizationString );
-
-            //------------------------------------------------------------------------------
-            /**
-             * get stabilization parameters
-             * @param[ out ] mStabilizationParam cell of stabilization parameter pointers
-             */
-            Vector< std::shared_ptr< fem::Stabilization_Parameter > >&
-            get_stabilization_parameters()
-            {
-                // return stabilization parameter pointers
-                return mStabilizationParam;
-            }
-
-            //------------------------------------------------------------------------------
-            /**
-             * build requested dof type list
-             */
-            void build_requested_dof_type_list();
-
-            //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the quantity of interest
              * wrt to requested dof types by finite difference
@@ -680,7 +164,6 @@ namespace moris
                     real               aPerturbation,
                     fem::FDScheme_Type aFDSchemeType );
 
-            //------------------------------------------------------------------------------
             /**
              * check the derivative of the quantity of interest wrt to dof types
              * with evaluation by finite difference
@@ -700,7 +183,6 @@ namespace moris
                     bool               aErrorPrint,
                     fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
-            //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the quantity of interest wrt to dv types
              * @param[ in ] aWStar weight associated to the evaluation point
@@ -711,7 +193,6 @@ namespace moris
                 MORIS_ERROR( false, "IQI::compute_dQIdp - Not implemented for base class. " );
             }
 
-            //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the quantity of interest
              * wrt to material dv by finite difference
@@ -743,7 +224,6 @@ namespace moris
                 MORIS_ERROR( false, "IQI::select_dQIdp_FD_material_double - not implemented yet" );
             }
 
-            //------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the quantity of interest
              * wrt to geometry dv by finite difference
@@ -754,10 +234,10 @@ namespace moris
              */
             void
             compute_dQIdp_FD_geometry(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices )
             {
                 // compute dQIdp geometry by FD
@@ -770,31 +250,30 @@ namespace moris
             }
 
             void select_dQIdp_FD_geometry_bulk(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices );
 
             void select_dQIdp_FD_geometry_sideset(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices );
 
             void
             select_dQIdp_FD_geometry_double(
-                    moris::real                        aWStar,
-                    moris::real                        aPerturbation,
-                    fem::FDScheme_Type                 aFDSchemeType,
-                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::real                   aWStar,
+                    moris::real                   aPerturbation,
+                    fem::FDScheme_Type            aFDSchemeType,
+                    Matrix< DDSMat >&             aGeoLocalAssembly,
                     Vector< Matrix< IndexMat > >& aVertexIndices )
             {
                 MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet" );
             }
 
-            //------------------------------------------------------------------------------
             /**
              * add the contribution of the cluster measure derivatives to the derivative of
              * the quantity of interest wrt to geometry dv by finite difference
@@ -807,21 +286,18 @@ namespace moris
                     moris::real        aPerturbation,
                     fem::FDScheme_Type aFDSchemeType );
 
-            //------------------------------------------------------------------------------
             /**
              * Evaluate the quantity of interest.
              * @param[ out ] aQIVal quantity of interest matrix to fill
              */
             virtual void compute_QI( Matrix< DDRMat >& aQIVal ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
              * Evaluate the quantity of interest.
              * @param[ in ] aWStar            weight associated to evaluation point
              */
             virtual void compute_QI( real aWStar ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
              * Compute the derivative of the quantities of interest wrt requested dof types.
              * @param[ in ]  aDofType Dof type being evaluated
@@ -829,16 +305,14 @@ namespace moris
              */
             virtual void compute_dQIdu(
                     Vector< MSI::Dof_Type >& aDofType,
-                    Matrix< DDRMat >&             adQIdu ) = 0;
+                    Matrix< DDRMat >&        adQIdu ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
              * Compute the derivative of the quantities of interest
              * @param[ in ] aWStar weight associated to evaluation point
              */
             virtual void compute_dQIdu( real aWstar ) = 0;
 
-            //------------------------------------------------------------------------------
             /**
              * build perturbation size for finite difference
              * @param[ in ] aPerturbation         provided perturbation size from input
@@ -875,7 +349,6 @@ namespace moris
                     const real& aMaxPerturbation,
                     const real& aTolerance );
 
-            //------------------------------------------------------------------------------
             /**
              * check if ig node still inside ip element after perturbation in a specific
              * space direction, if not adapt the finite difference scheme used
@@ -891,7 +364,6 @@ namespace moris
                     const uint&         aSpatialDirection,
                     fem::FDScheme_Type& aUsedFDScheme );
 
-            //------------------------------------------------------------------------------
             /**
              * get the matrix dimension of the IQI in order to initialize the size of the mGloblaIQIVal
              * returns 1*1 which is a scaler by default
@@ -902,7 +374,6 @@ namespace moris
                 return std::make_pair( 1, 1 );
             }
         };
-        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_IQI_HPP_ */
