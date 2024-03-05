@@ -63,12 +63,12 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint
+    sint
     Design::append_adv_info(
             mtk::Interpolation_Mesh* aMesh,
             Matrix< DDSMat >&        aOwnedADVIds,
             Matrix< IdMat >&         aOwnedijklIDs,
-            uint                     aOffsetID,
+            sint                     aOffsetID,
             Matrix< DDRMat >&        aLowerBounds,
             Matrix< DDRMat >&        aUpperBounds )
     {

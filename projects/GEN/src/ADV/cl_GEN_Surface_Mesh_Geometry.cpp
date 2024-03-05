@@ -47,7 +47,7 @@ namespace moris::gen
             , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
             , mMesh( aMesh )
-            , mOriginalVertexCoordinates( 0, 0 )
+            , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mVertices.size() )
             , mPerturbationFields( 0 )
     {
         // Check the correct number of ADVs are provided (either as many as dimensions or zero)
@@ -61,20 +61,19 @@ namespace moris::gen
         mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1,
                 aParameters.mFilePath.find_last_of( "." ) - aParameters.mFilePath.find_last_of( "/" ) - 1 );
 
+        // copy original vertex coords from Object base class for perturbation
+        for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
+        {
+            for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
+            {
+                mOriginalVertexCoordinates( iVertexIndex )( iDimension ) = Object::mVertices( iVertexIndex )->get_coord( iDimension );
+            }
+        }
+
 
         // If this surface mesh is being optimized, construct fields and store original vertex coordinates
         if ( aParameters.mADVIndices.size() > 0 or aParameters.mDiscretizationIndex > -1 )
         {
-            mOriginalVertexCoordinates.resize( Object::mVertices.size(), Object::mDimension );
-            // copy original vertex coords from Object base class for perturbation
-            for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
-            {
-                for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
-                {
-                    mOriginalVertexCoordinates( iVertexIndex )( iDimension ) = Object::mVertices( iVertexIndex )->get_coord( iDimension );
-                }
-            }
-
             // Allocate memory for perturbation fields
             mPerturbationFields.resize( Object::mDimension );
 
@@ -363,12 +362,12 @@ namespace moris::gen
         }
     }
 
-    uint
+    sint
     Surface_Mesh_Geometry::append_adv_info(
             mtk::Interpolation_Mesh* aMesh,
             Matrix< DDSMat >&        aOwnedADVIds,
             Matrix< IdMat >&         aOwnedijklIDs,
-            uint                     aOffsetID,
+            sint                     aOffsetID,
             Matrix< DDRMat >&        aLowerBounds,
             Matrix< DDRMat >&        aUpperBounds )
     {

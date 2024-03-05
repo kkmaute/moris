@@ -157,7 +157,7 @@ namespace moris::sdf
             }
             SECTION( "SDF: Raycast Free Function Test - 2D" )
             {
-                // create triangle object from object file
+                // create object from object file
                 std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
                 Object      tObject( tObjectPath );
 
@@ -224,8 +224,17 @@ namespace moris::sdf
 
                 CHECK( tRegion == INSIDE );
 
+                // Repeat with a point that is on a facet
+                tTestPoint( 0, 0 ) = 0.25;
+                tTestPoint( 1, 0 ) = 0.25;
+
+                tRegion = raycast_point( tObject, tTestPoint );
+
+                CHECK( tRegion == INTERFACE );
+
                 // Repeat with a point that is on a vertex
-                tTestPoint = { { 0.0, 0.0 } };
+                tTestPoint( 0, 0 ) = 0.0;
+                tTestPoint( 1, 0 ) = 0.5;
 
                 tRegion = raycast_point( tObject, tTestPoint );
 

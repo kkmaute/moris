@@ -29,8 +29,8 @@ namespace moris::sdf
      */
     Object_Region
     raycast_point(
-            Object&                 aObject,
-            const Matrix< DDRMat >& aPoint );
+            Object&          aObject,
+            Matrix< DDRMat > aPoint );
 
     //-------------------------------------------------------------------------------
 
@@ -106,8 +106,8 @@ namespace moris::sdf
             Object&                 aObject,
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis,
-            Vector< uint >&    aIntersectedFacets,
-            Vector< Facet* >&  aCandidateFacets );
+            Vector< uint >&         aIntersectedFacets,
+            Vector< Facet* >&       aCandidateFacets );
 
     //-------------------------------------------------------------------------------
 
@@ -123,10 +123,10 @@ namespace moris::sdf
      */
     Vector< Facet* >
     intersect_triangles(
-            Vector< uint >& aCandidateFacets,
-            Object&              aObject,
-            Matrix< DDRMat >&    aPoint,
-            uint                 aAxis );
+            Vector< uint >&   aCandidateFacets,
+            Object&           aObject,
+            Matrix< DDRMat >& aPoint,
+            uint              aAxis );
 
     //-------------------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ namespace moris::sdf
      */
     Vector< real >
     intersect_ray_with_facets(
-            Vector< Facet* >&  aIntersectedFacets,
+            Vector< Facet* >&       aIntersectedFacets,
             const Matrix< DDRMat >& aPoint,
             Preselection_Result     aRayOnVertex,
             uint                    aAxis );
@@ -159,9 +159,9 @@ namespace moris::sdf
      */
     Object_Region
     check_if_node_is_inside_triangles(
-            Vector< real >& aIntersectionCoords,
-            Matrix< DDRMat >&    aPoint,
-            uint                 aAxis );
+            Vector< real >&   aIntersectionCoords,
+            Matrix< DDRMat >& aPoint,
+            uint              aAxis );
 
     //-------------------------------------------------------------------------------
 
@@ -178,11 +178,11 @@ namespace moris::sdf
      */
     Object_Region
     check_if_node_is_inside_lines(
-            Object&                    aObject,
-            const Vector< real >& aIntersectionCoords,
-            const Vector< uint >& aCandidateFacets,
-            const Matrix< DDRMat >&    aPoint,
-            uint                       aAxis );
+            Object&                 aObject,
+            const Vector< real >&   aIntersectionCoords,
+            const Vector< uint >&   aCandidateFacets,
+            const Matrix< DDRMat >& aPoint,
+            uint                    aAxis );
 
     //-------------------------------------------------------------------------------
 

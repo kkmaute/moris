@@ -148,11 +148,11 @@ namespace moris::gen
          * @param aUpperBounds  ADV upper bounds
          * @return uint The new offset ID after this geometry has appended its information
          */
-        virtual uint append_adv_info(
+        virtual sint append_adv_info(
                 mtk::Interpolation_Mesh* aMesh,
                 Matrix< DDSMat >&        aOwnedADVIds,
                 Matrix< IdMat >&         aOwnedijklIDs,
-                uint                     aOffsetID,
+                sint                     aOffsetID,
                 Matrix< DDRMat >&        aLowerBounds,
                 Matrix< DDRMat >&        aUpperBounds );
 

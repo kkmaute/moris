@@ -64,9 +64,9 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >                &aPropMatrix,
+            moris::Matrix< moris::DDRMat >           &aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > > &aParameters,
-            moris::fem::Field_Interpolator_Manager        *aFIManager )
+            moris::fem::Field_Interpolator_Manager   *aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -75,9 +75,9 @@ namespace moris
 
     void
     Func_Select_X(
-            moris::Matrix< moris::DDRMat >                &aPropMatrix,
+            moris::Matrix< moris::DDRMat >           &aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > > &aParameters,
-            moris::fem::Field_Interpolator_Manager        *aFIManager )
+            moris::fem::Field_Interpolator_Manager   *aFIManager )
     {
         aPropMatrix.set_size( 2, 2, 0.0 );
         aPropMatrix( 0, 0 ) = 1.0;
@@ -87,9 +87,9 @@ namespace moris
 
     void
     Func_Select_Y(
-            moris::Matrix< moris::DDRMat >                &aPropMatrix,
+            moris::Matrix< moris::DDRMat >           &aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > > &aParameters,
-            moris::fem::Field_Interpolator_Manager        *aFIManager )
+            moris::fem::Field_Interpolator_Manager   *aFIManager )
     {
         aPropMatrix.set_size( 2, 2, 0.0 );
         aPropMatrix( 1, 1 ) = 1.0;

@@ -17,19 +17,16 @@ namespace moris::sdf
 {
     Object_Region
     raycast_point(
-            Object&                 aObject,
-            const Matrix< DDRMat >& aOriginalPoint )
+            Object&          aObject,
+            Matrix< DDRMat > aPoint )
     {
         // initialize return value to unsure
         Object_Region tPointIsInside = UNSURE;
 
-        MORIS_ASSERT( aOriginalPoint.numel() == aObject.get_dimension(),
+        MORIS_ASSERT( aPoint.numel() == aObject.get_dimension(),
                 "fn_SDF_Raycast: raycast_point() - Dimension mismatch. Point dimension = %lu\tObject Dimension = %d",
-                aOriginalPoint.numel(),
+                aPoint.numel(),
                 aObject.get_dimension() );
-
-        // copy point data so it can be freely rotated
-        Matrix< DDRMat > tPoint = aOriginalPoint;
 
         // flag that marks if rotation was called
         bool tRotation = false;
@@ -42,7 +39,7 @@ namespace moris::sdf
                 if ( tPointIsInside == UNSURE )
                 {
                     // resolve the region of the point by calling voxelizing algorithm in iAxis direction
-                    tPointIsInside = voxelize( aObject, tPoint, iAxis );
+                    tPointIsInside = voxelize( aObject, aPoint, iAxis );
                 }
             }
 
@@ -51,7 +48,7 @@ namespace moris::sdf
             {
                 tRotation = true;
 
-                random_rotation( aObject, tPoint );
+                random_rotation( aObject, aPoint );
             }
         }
 
@@ -566,8 +563,8 @@ namespace moris::sdf
     Object_Region
     check_if_node_is_inside_lines(
             Object&                 aObject,
-            const Vector< real >&     aIntersectionCoords,
-            const Vector< uint >&     aCandidateFacets,
+            const Vector< real >&   aIntersectionCoords,
+            const Vector< uint >&   aCandidateFacets,
             const Matrix< DDRMat >& aPoint,
             uint                    aAxis )
     {

@@ -113,6 +113,7 @@ namespace moris::gen
 
     TEST_CASE( "B-spline Property", "[gen], [property], [distributed advs], [B-spline property]" )
     {
+  
         // Constant B-spline parameter list
         ParameterList tPropertyParameterList = prm::create_gen_property_parameter_list();
         tPropertyParameterList.set( "field_type", "constant" );
