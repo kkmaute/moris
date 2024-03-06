@@ -3237,7 +3237,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
 //
 //     // set a fem set pointer
 //     MSI::Equation_Set* tSet = new fem::Set();
-//     tCMLeader->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+//     tCMLeader->set_fem_set( static_cast< fem::Set* >( tSet ) );
 //
 //     // set size for the set EqnObjDofTypeList
 //     tCMLeader->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -3421,7 +3421,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_112_Threshold", "[CM_Struc_Lin_Iso_
 //             tCMLeader->mSet->mLeaderFIManager = &tFIManager;
 //
 //             // set CM field interpolator manager
-//             tCMLeader->set_field_interpolator_manager( &tFIManager );
+//             tCMLeader->set_fi_manager( &tFIManager );
 //
 //             uint tNumGPs = tIntegPoints.n_cols();
 //             for ( uint iGP = 0; iGP < tNumGPs; iGP++ )

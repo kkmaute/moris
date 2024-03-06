@@ -794,7 +794,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    // create a fem set
     //    MSI::Equation_Set * tSet = new fem::Set();
     //
-    //    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+    //    tIWG->set_fem_set(static_cast<fem::Set*>(tSet));
     //
     //    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
     //    tIWG->mSet->mUniqueDvTypeList.resize( 5, gen::PDV_Type::END_ENUM );
@@ -838,7 +838,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    tIWG->mSet->mLeaderFIManager = &tFIManager;
     //
     //    // set IWG field interpolator manager
-    //    tIWG->set_field_interpolator_manager( &tFIManager );
+    //    tIWG->set_fi_manager( &tFIManager );
     //
     //    // check evaluation of drdpdv  by FD
     //    //------------------------------------------------------------------------------

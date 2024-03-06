@@ -17,6 +17,8 @@
 #include "cl_MSI_Solver_Interface.hpp"              //FEM/MSI/src
 #include "cl_FEM_Model.hpp"                         //FEM/INT/src
 #include "cl_FEM_Set.hpp"                           //FEM/INT/src
+#include "cl_FEM_IWG.hpp"                           //FEM/INT/src
+#include "cl_FEM_IQI.hpp"                           //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"                 //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"               //FEM/INT/src
 #include "cl_MTK_Integrator.hpp"                    //MTK/src
@@ -33,7 +35,6 @@ namespace moris
 {
     namespace fem
     {
-        //------------------------------------------------------------------------------
 
         Set::Set(
                 fem::FEM_Model*             aFemModel,
@@ -66,20 +67,19 @@ namespace moris
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
             {
                 // set the fem set pointer to the IWG
-                tIWG->set_set_pointer( this );
+                tIWG->set_fem_set( this );
             }
 
             // loop over the IQIs on the set
             for ( const std::shared_ptr< IQI >& tIQI : mIQIs )
             {
                 // set the fem set pointer to the IQI
-                tIQI->set_set_pointer( this );
+                tIQI->set_fem_set( this );
             }
 
             this->create_fem_clusters();
 
             // geometry and interpolation info----------------------------------------------
-            //------------------------------------------------------------------------------
             // get interpolation geometry type
             mIPGeometryType = mMeshSet->get_interpolation_cell_geometry_type();
 
@@ -95,7 +95,6 @@ namespace moris
             mIGSpaceInterpolationOrder = mMeshSet->get_integration_cell_interpolation_order();
 
             // dof and dv dependencies info-------------------------------------------------
-            //------------------------------------------------------------------------------
             // create a unique dof and dv type lists for solver
             this->create_unique_dof_and_dv_type_lists();
 
@@ -112,7 +111,6 @@ namespace moris
             this->create_IQI_map();
         }
 
-        //------------------------------------------------------------------------------
 
         Set::~Set()
         {
@@ -127,7 +125,6 @@ namespace moris
             this->delete_pointers();
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::initialize_set(
@@ -152,20 +149,17 @@ namespace moris
 
                 this->create_requested_IQI_type_map();
 
-                this->build_requested_IWG_dof_type_list( aIsStaggered );
-
-                this->build_requested_IQI_dof_type_list();
-
                 // set fem set pointer to IWGs FIXME still needed done in constructor?
                 for ( const std::shared_ptr< IWG >& tIWG : mRequestedIWGs )
                 {
-                    tIWG->set_set_pointer( this );
+                    tIWG->set_is_staggered( aIsStaggered );
+                    tIWG->set_fem_set( this );
                 }
 
                 // set fem set pointer to IQIs FIXME still needed done in constructor?
                 for ( const std::shared_ptr< IQI >& tIQI : mRequestedIQIs )
                 {
-                    tIQI->set_set_pointer( this );
+                    tIQI->set_fem_set( this );
                 }
             }
         }
@@ -180,7 +174,6 @@ namespace moris
             mClusterMeasures.reset();    // force rebuild of cluster measures
             this->create_fem_clusters();
         }
-        //------------------------------------------------------------------------------
 
         void
         Set::finalize( MSI::Model_Solver_Interface* aModelSolverInterface )
@@ -207,7 +200,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::free_memory()
@@ -218,14 +210,12 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         std::string
         Set::get_set_name()
         {
             return mMeshSet->get_set_name();
         }
-        //------------------------------------------------------------------------------
 
         void
         Set::delete_pointers()
@@ -252,7 +242,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
         void Set::create_fem_clusters()
         {
             Vector< mtk::Cluster const * > tMeshClusterList = mMeshSet->get_clusters_on_set();
@@ -373,7 +362,6 @@ namespace moris
             MORIS_ERROR( false, "Will be implemented soon... " );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_unique_dof_and_dv_type_lists()
@@ -583,7 +571,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_dof_and_dv_type_lists()
@@ -613,14 +600,9 @@ namespace moris
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
             {
                 // get leader dof and dv types for the IWG
-                const Vector< Vector< MSI::Dof_Type > >& tDofTypeLeader =
-                        tIWG->get_global_dof_type_list();
-
-                const Vector< Vector< gen::PDV_Type > >& tDvTypeLeader =
-                        tIWG->get_global_dv_type_list();
-
-                const Vector< Vector< mtk::Field_Type > >& tFieldTypeLeader =
-                        tIWG->get_global_field_type_list();
+                const Vector< Vector< MSI::Dof_Type > >&   tDofTypeLeader   = tIWG->get_global_dof_type_list( mtk::Leader_Follower::LEADER );
+                const Vector< Vector< gen::PDV_Type > >&   tDvTypeLeader    = tIWG->get_global_dv_type_list( mtk::Leader_Follower::LEADER );
+                const Vector< Vector< mtk::Field_Type > >& tFieldTypeLeader = tIWG->get_global_field_type_list( mtk::Leader_Follower::LEADER );
 
                 // loop over the IWG active leader dof type
                 for ( uint iDOF = 0; iDOF < tDofTypeLeader.size(); iDOF++ )
@@ -739,14 +721,9 @@ namespace moris
             for ( const std::shared_ptr< IQI >& tIQI : mIQIs )
             {
                 // get leader dof and dv types for the IWG
-                const Vector< Vector< MSI::Dof_Type > >& tDofTypeLeader =
-                        tIQI->get_global_dof_type_list();
-
-                const Vector< Vector< gen::PDV_Type > >& tDvTypeLeader =
-                        tIQI->get_global_dv_type_list();
-
-                const Vector< Vector< mtk::Field_Type > >& tFieldTypeLeader =
-                        tIQI->get_global_field_type_list();
+                const Vector< Vector< MSI::Dof_Type > >&   tDofTypeLeader   = tIQI->get_global_dof_type_list( mtk::Leader_Follower::LEADER );
+                const Vector< Vector< gen::PDV_Type > >&   tDvTypeLeader    = tIQI->get_global_dv_type_list( mtk::Leader_Follower::LEADER );
+                const Vector< Vector< mtk::Field_Type > >& tFieldTypeLeader = tIQI->get_global_field_type_list( mtk::Leader_Follower::LEADER );
 
                 // loop over the IQI active leader dof type
                 for ( uint iDOF = 0; iDOF < tDofTypeLeader.size(); iDOF++ )
@@ -800,12 +777,9 @@ namespace moris
                 }
 
                 // get follower dof and dv types for the IWG
-                const Vector< Vector< MSI::Dof_Type > >& tDofTypeFollower =
-                        tIQI->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
-                const Vector< Vector< gen::PDV_Type > >& tDvTypeFollower =
-                        tIQI->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
-                const Vector< Vector< mtk::Field_Type > >& tFieldTypeFollower =
-                        tIQI->get_global_field_type_list( mtk::Leader_Follower::FOLLOWER );
+                const Vector< Vector< MSI::Dof_Type > >&   tDofTypeFollower   = tIQI->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
+                const Vector< Vector< gen::PDV_Type > >&   tDvTypeFollower    = tIQI->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
+                const Vector< Vector< mtk::Field_Type > >& tFieldTypeFollower = tIQI->get_global_field_type_list( mtk::Leader_Follower::FOLLOWER );
 
                 // loop over the IWG active follower dof type
                 for ( uint iDOF = 0; iDOF < tDofTypeFollower.size(); iDOF++ )
@@ -868,13 +842,11 @@ namespace moris
             mFollowerFieldTypes.shrink_to_fit();
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_unique_dof_dv_and_field_type_maps()
         {
             // dof types
-            //------------------------------------------------------------------------------
             // Create temporary dof type list
             const Vector< enum MSI::Dof_Type >& tDofType = get_unique_dof_type_list();
 
@@ -903,7 +875,6 @@ namespace moris
             }
 
             // dv types
-            //------------------------------------------------------------------------------
             // Create temporary dv type list
             const Vector< enum gen::PDV_Type >& tDvType = get_unique_dv_type_list();
 
@@ -933,7 +904,6 @@ namespace moris
             }
 
             // field types
-            //------------------------------------------------------------------------------
             // Create temporary field type list
             const Vector< mtk::Field_Type >& tFieldType = get_unique_field_type_list();
 
@@ -963,7 +933,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_dof_and_dv_type_maps()
@@ -1126,7 +1095,6 @@ namespace moris
             }
         }
 
-        //-----------------------------------------------------------------------------
 
         void
         Set::create_field_interpolator_managers(
@@ -1212,7 +1180,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         Field_Interpolator_Manager*
         Set::get_field_interpolator_manager(
@@ -1227,12 +1194,11 @@ namespace moris
                     return mFollowerFIManager;
 
                 default:
-                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be leader or follower." );
+                    MORIS_ERROR( false, "Set::get_fi_manager - can only be leader or follower." );
                     return mLeaderFIManager;
             }
         }
 
-        //------------------------------------------------------------------------------
 
         Field_Interpolator_Manager*
         Set::get_field_interpolator_manager_previous_time(
@@ -1244,12 +1210,11 @@ namespace moris
                     return mLeaderPreviousFIManager;
 
                 default:
-                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be leader." );
+                    MORIS_ERROR( false, "Set::get_fi_manager - can only be leader." );
                     return mLeaderPreviousFIManager;
             }
         }
 
-        //------------------------------------------------------------------------------
 
         Field_Interpolator_Manager*
         Set::get_field_interpolator_manager_eigen_vectors(
@@ -1261,12 +1226,11 @@ namespace moris
                     return mLeaderEigenFIManager;
 
                 default:
-                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be leader." );
+                    MORIS_ERROR( false, "Set::get_fi_manager - can only be leader." );
                     return mLeaderPreviousFIManager;
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::set_IWG_field_interpolator_managers()
@@ -1299,7 +1263,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::set_IWG_cluster_for_stabilization_parameters( fem::Cluster* aCluster )
@@ -1309,25 +1272,18 @@ namespace moris
             {
                 // set the fem cluster to IWG
                 tIWG->set_cluster_pointer( aCluster );
-
-                // get the SP from the IWG
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
-                        tIWG->get_stabilization_parameters();
-
                 // loop over the SP
-                for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
+                for ( auto& [ _, tSP ] : tIWG->get_stabilization_parameters() )
                 {
                     // check if SP is null
                     if ( tSP != nullptr )
                     {
-                        // set the fem cluster
-                        tSP->set_cluster( aCluster );
+                        tSP->set_cluster( aCluster );    // set the fem cluster
                     }
                 }
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::set_IQI_cluster_for_stabilization_parameters( fem::Cluster* aCluster )
@@ -1336,26 +1292,18 @@ namespace moris
             for ( auto tIQI : mIQIs )
             {
                 // set the fem cluster to IQI
-                tIQI->set_cluster_pointer( aCluster );
-
-                // get the SP from the IQI
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
-                        tIQI->get_stabilization_parameters();
-
-                // loop over the SPs
-                for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
+                tIQI->set_fem_cluster( aCluster );
+                for ( auto& [ _, tSP ] : tIQI->get_stabilization_parameters() )
                 {
                     // check if SP is null
                     if ( tSP != nullptr )
                     {
-                        // set the fem cluster
-                        tSP->set_cluster( aCluster );
+                        tSP->set_cluster( aCluster );    // set the fem cluster
                     }
                 }
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::build_cluster_measure_specifications()
@@ -1363,7 +1311,12 @@ namespace moris
             // get list of stabilization parameters from IWGs and IQIs
             Vector< std::shared_ptr< Stabilization_Parameter > > tSPs;
 
-            auto tAppendSPs = [ & ]( auto const & aIwgIqi ) { tSPs.append( aIwgIqi->get_stabilization_parameters() ); };
+            auto tAppendSPs = [ & ]( auto const & aIwgIqi ) {
+                for ( auto const& [ _, tSP ] : aIwgIqi->get_stabilization_parameters() )
+                {
+                    tSPs.push_back( tSP );
+                }
+            };
             std::for_each( mIWGs.begin(), mIWGs.end(), tAppendSPs );
             std::for_each( mIQIs.begin(), mIQIs.end(), tAppendSPs );
 
@@ -1394,7 +1347,6 @@ namespace moris
             return mClusterMeasures.value();
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::set_IQI_field_interpolator_managers()
@@ -1404,7 +1356,7 @@ namespace moris
             {
                 // set IQI leader FI manager
                 tIQI->set_field_interpolator_manager( mLeaderFIManager );
-                tIQI->set_set_pointer( this );
+                tIQI->set_fem_set( this );
                 // if double sideset, set follower
                 if (
                         ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
@@ -1424,7 +1376,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_residual_dof_assembly_map()
@@ -1524,7 +1475,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_dof_assembly_map( const bool aIsStaggered )
@@ -1539,7 +1489,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_jacobian_dof_assembly_map()
@@ -1675,7 +1624,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_staggered_jacobian_dof_assembly_map()
@@ -1836,7 +1784,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_mat_pdv_assembly_map()
@@ -1955,7 +1902,6 @@ namespace moris
             mPdvMatAssemblyVector.set_size( tCounter, 1, -1 );
         }
 
-        //--------------------------------------------------------------------------
 
         void
         Set::create_geo_pdv_assembly_map(
@@ -2076,14 +2022,12 @@ namespace moris
 
         }    // end function: fem::Set::create_geo_pdv_assembly_map()
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_requested_IWG_list( const Time_Continuity_Flag aTimeContinuityOnlyFlag )
         {
             // get list of requested dof types from solver
-            Vector< enum MSI::Dof_Type > tRequestedDofTypes =
-                    this->get_requested_dof_types();
+            Vector< enum MSI::Dof_Type > tRequestedDofTypes = this->get_requested_dof_types();
 
             // clear requested IWG list
             mRequestedIWGs.clear();
@@ -2103,8 +2047,7 @@ namespace moris
                     for ( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
                     {
                         // residual dof types for current IWG
-                        const Vector< Vector< MSI::Dof_Type > >& tResDofType =
-                                mIWGs( iIWG )->get_residual_dof_type();
+                        const Vector< Vector< MSI::Dof_Type > >& tResDofType = mIWGs( iIWG )->get_residual_dof_type();
 
                         // number of residual dof types
                         const uint tNumResDofTypes = tResDofType.size();
@@ -2193,7 +2136,6 @@ namespace moris
             mRequestedIWGs.shrink_to_fit();
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_requested_IQI_list()
@@ -2230,7 +2172,6 @@ namespace moris
             mRequestedIQIs.shrink_to_fit();
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::create_IQI_map()
@@ -2307,29 +2248,6 @@ namespace moris
             return tNodalDisplacements;
         }
 
-        //------------------------------------------------------------------------------
-
-        void
-        Set::build_requested_IWG_dof_type_list( const bool aIsStaggered )
-        {
-            for ( const std::shared_ptr< IWG >& tIWG : mRequestedIWGs )
-            {
-                tIWG->build_requested_dof_type_list( aIsStaggered );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        Set::build_requested_IQI_dof_type_list()
-        {
-            for ( const std::shared_ptr< IQI >& tIQI : mRequestedIQIs )
-            {
-                tIQI->build_requested_dof_type_list();
-            }
-        }
-
-        //------------------------------------------------------------------------------
 
         void
         Set::initialize_mJacobian()
@@ -2437,7 +2355,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::initialize_mResidual()
@@ -2518,7 +2435,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::initialize_mQI()
@@ -2563,7 +2479,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::initialize_mdQIdpMat()
@@ -2641,7 +2556,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::initialize_mdQIdpGeo( std::shared_ptr< fem::Cluster > aFemCluster )
@@ -2660,7 +2574,6 @@ namespace moris
             }
         }
 
-        //----------------------------------------------------------------------
 
         void
         Set::initialize_mdRdpMat()
@@ -2760,7 +2673,6 @@ namespace moris
             }
         }
 
-        //----------------------------------------------------------------------
 
         void
         Set::initialize_mdRdpGeo( std::shared_ptr< fem::Cluster > aFemCluster )
@@ -2804,7 +2716,6 @@ namespace moris
             mdRdp( 1 ).set_size( tNumRows, mPdvGeoAssemblyVector.numel(), 0.0 );
         }
 
-        //------------------------------------------------------------------------------
 
         mtk::Interpolation_Order
         Set::get_auto_interpolation_order(
@@ -2899,7 +2810,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         mtk::Interpolation_Type
         Set::get_auto_time_interpolation_type(
@@ -2921,7 +2831,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         mtk::Integration_Order
         Set::get_auto_integration_order(
@@ -3133,7 +3042,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::set_visualization_set(
@@ -3188,7 +3096,6 @@ namespace moris
 
         }    // end function: Set::set_visualization_set()
 
-        //------------------------------------------------------------------------------
 
         void
         Set::construct_cell_assembly_map_for_VIS_set(
@@ -3234,7 +3141,6 @@ namespace moris
 
         }    // end function: fem::Set::construct_cell_assembly_map_for_VIS_set()
 
-        //------------------------------------------------------------------------------
 
         void
         Set::construct_facet_assembly_map_for_VIS_set(
@@ -3379,7 +3285,6 @@ namespace moris
 
         }    // end function: fem::Set::construct_facet_assembly_map_for_VIS_set()
 
-        //------------------------------------------------------------------------------
 
         void
         Set::compute_quantity_of_interest_nodal(
@@ -3407,7 +3312,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         const Vector< std::shared_ptr< fem::IQI > >&
         Set::get_requested_nodal_IQIs_for_visualization()
@@ -3415,7 +3319,6 @@ namespace moris
             return mRequestedNodalIQIs;
         }
 
-        //------------------------------------------------------------------------------
 
         uint
         Set::get_number_of_requested_nodal_IQIs_for_visualization()
@@ -3423,7 +3326,6 @@ namespace moris
             return mRequestedNodalIQIs.size();
         }
 
-        //------------------------------------------------------------------------------
 
         const Vector< moris_index >&
         Set::get_requested_nodal_IQIs_global_indices_for_visualization()
@@ -3431,7 +3333,6 @@ namespace moris
             return mRequestedNodalIQIsGlobalIndices;
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::compute_quantity_of_interest_global(
@@ -3459,7 +3360,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         const Vector< std::shared_ptr< fem::IQI > >&
         Set::get_requested_global_IQIs_for_visualization()
@@ -3467,7 +3367,6 @@ namespace moris
             return mRequestedGlobalIQIs;
         }
 
-        //------------------------------------------------------------------------------
 
         uint
         Set::get_number_of_requested_global_IQIs_for_visualization()
@@ -3475,7 +3374,6 @@ namespace moris
             return mRequestedGlobalIQIs.size();
         }
 
-        //------------------------------------------------------------------------------
 
         const Vector< moris_index >&
         Set::get_requested_global_IQIs_global_indices_for_visualization()
@@ -3483,7 +3381,6 @@ namespace moris
             return mRequestedGlobalIQIsGlobalIndices;
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::compute_quantity_of_interest_elemental(
@@ -3534,7 +3431,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         const Vector< std::shared_ptr< fem::IQI > >&
         Set::get_requested_elemental_IQIs_for_visualization()
@@ -3542,7 +3438,6 @@ namespace moris
             return mRequestedElementalIQIs;
         }
 
-        //------------------------------------------------------------------------------
 
         uint
         Set::get_number_of_requested_elemental_IQIs_for_visualization()
@@ -3550,7 +3445,6 @@ namespace moris
             return mRequestedElementalIQIs.size();
         }
 
-        //------------------------------------------------------------------------------
 
         const Vector< moris_index >&
         Set::get_requested_elemental_IQIs_global_indices_for_visualization()
@@ -3558,7 +3452,6 @@ namespace moris
             return mRequestedElementalIQIsGlobalIndices;
         }
 
-        //------------------------------------------------------------------------------
 
         const Vector< std::shared_ptr< fem::IQI > >&
         Set::get_requested_field_IQIs()
@@ -3566,7 +3459,6 @@ namespace moris
             return mRequestedFieldIQIs;
         }
 
-        //------------------------------------------------------------------------------
 
         uint
         Set::get_number_of_requested_field_IQIs()
@@ -3574,7 +3466,6 @@ namespace moris
             return mRequestedFieldIQIs.size();
         }
 
-        //------------------------------------------------------------------------------
 
         const Vector< moris_index >&
         Set::get_requested_field_IQIs_global_indices()
@@ -3582,7 +3473,6 @@ namespace moris
             return mRequestedFieldIQIsGlobalIndices;
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::gather_requested_IQIs(
@@ -3624,7 +3514,6 @@ namespace moris
             aListOfIQIGlobalIndices.shrink_to_fit();
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::determine_set_type()
@@ -3667,7 +3556,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::set_set_type( fem::Element_Type aElementType )
@@ -3675,7 +3563,6 @@ namespace moris
             mElementType = aElementType;
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::get_ig_unique_dv_types_for_set(
@@ -3694,8 +3581,6 @@ namespace moris
                         aGeoPdvType );
             }
         }
-
-        //------------------------------------------------------------------------------
 
 
         void
@@ -3734,7 +3619,6 @@ namespace moris
             //                    aMatPdvType );
         }
 
-        //------------------------------------------------------------------------------
 
         void
         Set::populate_fields(
@@ -3752,7 +3636,6 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */

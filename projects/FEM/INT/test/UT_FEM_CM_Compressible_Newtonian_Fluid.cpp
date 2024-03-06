@@ -1187,7 +1187,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
             tCMLeaderFluid->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
-            //tMMFluid->set_field_interpolator_manager( &tFIManager );
+            //tMMFluid->set_fi_manager( &tFIManager );
             tCMLeaderFluid->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();

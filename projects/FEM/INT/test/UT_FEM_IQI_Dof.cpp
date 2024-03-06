@@ -113,7 +113,7 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
     static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::BULK );
-    tIQI->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIQI->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIQI->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );

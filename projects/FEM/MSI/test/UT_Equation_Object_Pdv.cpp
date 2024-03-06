@@ -375,7 +375,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         //------------------------------------------------------------------------------
         // set the IWG/IQI fem set
         tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
-        tIQI->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
+        tIQI->set_fem_set( reinterpret_cast< fem::Set* >( tWorkSet ) );
 
         // build global dof type list
         tIWG->get_global_dof_type_list();

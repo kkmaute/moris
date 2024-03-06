@@ -203,7 +203,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tModel.set_design_variable_interface( tGENMSIInterface );
 
     // set fem set pointer for IQI
-    tIQI->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIQI->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set mUniqueDofTypeList
     tIQI->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );

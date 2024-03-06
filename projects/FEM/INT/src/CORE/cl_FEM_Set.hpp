@@ -22,14 +22,10 @@
 // FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Node_Base.hpp"
-#include "cl_FEM_Property.hpp"
-#include "cl_FEM_Constitutive_Model.hpp"
-#include "cl_FEM_Stabilization_Parameter.hpp"
 #include <cl_FEM_Cluster_Measure.hpp>
 #include <set>
 #include <optional>
 #include "cl_FEM_Set_User_Info.hpp"
-#include "cl_FEM_IQI.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
@@ -56,6 +52,10 @@ namespace moris
         class Field_Interpolator;
         class Geometry_Interpolator;
         class Field_Interpolator_Manager;
+        class Property;
+        class Material_Model;
+        class Constitutive_Model;
+        class Stabilization_Parameter;
 
         //------------------------------------------------------------------------------
         /**
@@ -709,18 +709,6 @@ namespace moris
              * create a list of IWGs requested by the solver
              */
             void create_requested_IWG_list( const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag = moris::fem::Time_Continuity_Flag::DEFAULT );
-
-            //------------------------------------------------------------------------------
-            /**
-             * create a dof type list for the list of IWGs requested by the solver
-             * @param[ in ] aIsStaggered bool true if residual evaluation
-             */
-            void build_requested_IWG_dof_type_list( const bool aIsStaggered );
-
-            /**
-             * Create a dof type list for the list of IQIs being requested.
-             */
-            void build_requested_IQI_dof_type_list();
 
             //------------------------------------------------------------------------------
             /**
