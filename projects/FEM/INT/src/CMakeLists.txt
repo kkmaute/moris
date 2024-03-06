@@ -40,8 +40,10 @@ set_property(GLOBAL PROPERTY INT_SRC_LIST "${INT_INTERNAL_INCLUDES}")
 # List header files
 set(HEADERS
 
-    CORE/cl_FEM_Set.hpp
-    CORE/cl_FEM_NodeProxy.hpp
+	CORE/cl_FEM_Set.hpp
+	CORE/cl_FEM_EvaluableTerm.hpp
+	CORE/cl_FEM_EvaluableSideInformation.hpp
+	CORE/cl_FEM_NodeProxy.hpp
     CORE/cl_FEM_Node_Base.hpp
     CORE/cl_FEM_Node.hpp
     CORE/cl_FEM_Field.hpp
@@ -283,14 +285,17 @@ set(LIB_SOURCES
 
 
     CORE/cl_FEM_Set.cpp
-    CORE/cl_FEM_Property.cpp
+	CORE/cl_FEM_EvaluableTerm.cpp
+	CORE/cl_FEM_EvaluableSideInformation.cpp
+	CORE/cl_FEM_Property.cpp
 	CORE/cl_FEM_Model_Initializer.cpp
 	CORE/cl_FEM_Model_Initializer_Legacy.cpp
 	CORE/cl_FEM_Model_Initializer_Phasebased.cpp
 	CORE/cl_FEM_Model.cpp
     CORE/cl_FEM_Field.cpp
+	CORE/cl_FEM_Set_User_Info.cpp
 
-    ELEM/cl_FEM_Cluster.cpp
+	ELEM/cl_FEM_Cluster.cpp
     ELEM/cl_FEM_Element_Factory.cpp
     ELEM/cl_FEM_Element_Bulk.cpp
     ELEM/cl_FEM_Element_Sideset.cpp
