@@ -210,7 +210,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
             this->solve_linear_system( It, tHardBreak );
 
             // save current solution with the load factor
-            mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, tLoadFactor, false );
+            // mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, tLoadFactor, false ); // TODO @ff remove
 
             // Determine load factor
             tLoadControlStrategy.eval(

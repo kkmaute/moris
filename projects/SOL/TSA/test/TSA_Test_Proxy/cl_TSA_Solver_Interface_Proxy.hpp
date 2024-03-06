@@ -164,7 +164,7 @@ namespace moris
             };
 
             uint
-            get_num_my_blocks()
+            get_num_sets()
             {
                 return 1;
             };

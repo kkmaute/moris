@@ -143,7 +143,7 @@ namespace moris
                     return mNumElements=1;
                 };
 
-                uint get_num_my_blocks(){return 1; };
+                uint get_num_sets(){return 1; };
 
                 uint get_num_equation_objects_on_set( uint aBlockInd){return mNumElements=1; };
 

@@ -12,7 +12,6 @@
 #define SRC_cl_MTK_Mesh_DataBase_IG
 
 #include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_TOL_Memory_Map.hpp"
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
 
 namespace moris::mig
@@ -22,6 +21,7 @@ namespace moris::mig
 
 namespace moris
 {
+    class Memory_Map;
     namespace mtk
     {
         // Forward declratios to
