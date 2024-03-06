@@ -277,7 +277,7 @@ namespace moris
          */
 
         bool
-        empty()
+        empty() const
         {
             return mVector.empty();
         }
