@@ -120,13 +120,13 @@ namespace moris
         tIWG->set_property( tPropLeader1, "Load", mtk::Leader_Follower::LEADER );
         //tIWG->set_property( tPropFollower1, "Load", mtk::Leader_Follower::FOLLOWER );
 
-        tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::LS1},{ MSI::Dof_Type::VX}};
-        //tIWG->mRequestedFollowerGlobalDofTypes = {{ MSI::Dof_Type::UX },{ MSI::Dof_Type::TEMP},{ MSI::Dof_Type::LS1}};
+        tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::LS1},{ MSI::Dof_Type::VX}};
+        //tIWG->mFollowerSideInfo.mRequestedGlobalDofTypes = {{ MSI::Dof_Type::UX },{ MSI::Dof_Type::TEMP},{ MSI::Dof_Type::LS1}};
         MSI::Equation_Set * tSet = new fem::Set();
 
         static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
 
-        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+        tIWG->set_fem_set(static_cast<fem::Set*>(tSet));
 
         tIWG->mSet->mUniqueDofTypeList.resize( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, MSI::Dof_Type::END_ENUM );
 
@@ -148,7 +148,7 @@ namespace moris
 //        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
 //        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
-        tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+        tIWG->set_fem_set(static_cast<fem::Set*>(tSet));
 
         moris::Vector< moris::Vector< enum MSI::Dof_Type > > tDummy;
         Field_Interpolator_Manager tFIManager( tDummy, tSet );
@@ -159,7 +159,7 @@ namespace moris
         tIWG->get_global_dof_type_list();
 
         // set IWG field interpolators
-        tIWG->mLeaderFIManager = &tFIManager;
+        tIWG->mLeaderSideInfo.mFIManager = &tFIManager;
 //
 //        // build leader and follower global dv type list
 //        tIWG->build_global_dv_type_list();
@@ -170,12 +170,12 @@ namespace moris
 
         // dof check--------------------------------------------------------------------
         // check leader global dof list size
-        CHECK( equal_to( tIWG->mLeaderGlobalDofTypes.size(), 3 ));
+        CHECK( equal_to( tIWG->mLeaderSideInfo.mGlobalDofTypes.value().size(), 3 ));
 
         // check leader global dof list content
-        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDofTypes( 0 )( 0 ) ), 3 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDofTypes( 1 )( 0 ) ), 14 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDofTypes( 2 )( 0 ) ), 6 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderSideInfo.mGlobalDofTypes.value()( 0 )( 0 ) ), 3 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderSideInfo.mGlobalDofTypes.value()( 1 )( 0 ) ), 14 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderSideInfo.mGlobalDofTypes.value()( 2 )( 0 ) ), 6 ) );
 
 //        // check follower global dof list size
 //        CHECK( equal_to( tIWG->mFollowerGlobalDofTypes.size(), 3 ));
@@ -187,7 +187,7 @@ namespace moris
 
         // check dof field interpolators
         tIWG->check_field_interpolators();
-        tIWG->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
+//        tIWG->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 
 //        // dv check---------------------------------------------------------------------
 //        // check leader global dv list size

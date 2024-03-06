@@ -374,15 +374,15 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // Init IWG and IQI for forward analysis
         //------------------------------------------------------------------------------
         // set the IWG/IQI fem set
-        tIWG->set_set_pointer( reinterpret_cast< fem::Set* >( tWorkSet ) );
+        tIWG->set_fem_set( reinterpret_cast< fem::Set* >( tWorkSet ) );
         tIQI->set_fem_set( reinterpret_cast< fem::Set* >( tWorkSet ) );
 
         // build global dof type list
-        tIWG->get_global_dof_type_list();
-        tIWG->get_global_dv_type_list();
+        tIWG->get_global_dof_type_list(mtk::Leader_Follower::LEADER);
+        tIWG->get_global_dv_type_list(mtk::Leader_Follower::LEADER);
 
         // populate the requested leader dof type
-        tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+        tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
         // compute residual
         tWorkSet->mResidual.resize( 1 );

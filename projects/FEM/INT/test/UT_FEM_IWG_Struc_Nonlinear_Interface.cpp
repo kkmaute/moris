@@ -136,7 +136,7 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Saint_Venant_Kirchhoff",
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
     static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -307,8 +307,8 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Saint_Venant_Kirchhoff",
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
-            tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = tDispDofTypes;
+            tIWG->mFollowerSideInfo.mRequestedGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
@@ -488,7 +488,7 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Saint_Venant_Kirchhoff", "[m
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
     static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -659,8 +659,8 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Saint_Venant_Kirchhoff", "[m
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
-            tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = tDispDofTypes;
+            tIWG->mFollowerSideInfo.mRequestedGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
@@ -840,7 +840,7 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Neo_Hookean", "[moris],[fe
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
     static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -1011,8 +1011,8 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Neo_Hookean", "[moris],[fe
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
-            tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = tDispDofTypes;
+            tIWG->mFollowerSideInfo.mRequestedGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
@@ -1192,7 +1192,7 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Neo_Hookean", "[moris],[fem]
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
     static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -1363,8 +1363,8 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Neo_Hookean", "[moris],[fem]
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
-            tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = tDispDofTypes;
+            tIWG->mFollowerSideInfo.mRequestedGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > >        tDummyDv;

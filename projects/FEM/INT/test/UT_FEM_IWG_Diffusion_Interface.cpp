@@ -134,7 +134,7 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -307,8 +307,8 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tTempDofTypes;
-            tIWG->mRequestedFollowerGlobalDofTypes  = tTempDofTypes;
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = tTempDofTypes;
+            tIWG->mFollowerSideInfo.mRequestedGlobalDofTypes  = tTempDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > > tDummyDv;

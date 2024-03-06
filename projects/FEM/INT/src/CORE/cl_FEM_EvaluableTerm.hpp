@@ -76,16 +76,16 @@ namespace moris::fem
 
         void                                            set_dof_type_list( Vector< Vector< MSI::Dof_Type > > const & aDofTypes, Leader_Follower aIsLeader = Leader_Follower::LEADER ) { get_side( aIsLeader ).set_dof_types( aDofTypes ); }
         [[nodiscard]] Vector< Vector< MSI::Dof_Type > > get_dof_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_dof_types(); }
-        Vector< Vector< MSI::Dof_Type > > const &       get_global_dof_type_list( mtk::Leader_Follower aIsLeader );
+        Vector< Vector< MSI::Dof_Type > > const &       get_global_dof_type_list( mtk::Leader_Follower aIsLeader = Leader_Follower::LEADER );
         Vector< Vector< MSI::Dof_Type > > const &       get_requested_dof_type_list( bool aIsStaggered, mtk::Leader_Follower aIsLeader );
 
         void                                            set_dv_type_list( Vector< Vector< gen::PDV_Type > > const & aDvTypes, Leader_Follower aIsLeader = Leader_Follower::LEADER ) { get_side( aIsLeader ).set_dv_types( aDvTypes ); }
         [[nodiscard]] Vector< Vector< gen::PDV_Type > > get_dv_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_dv_types(); }
-        Vector< Vector< gen::PDV_Type > > const &       get_global_dv_type_list( mtk::Leader_Follower aIsLeader );
+        Vector< Vector< gen::PDV_Type > > const &       get_global_dv_type_list( mtk::Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         void                                              set_field_type_list( Vector< Vector< mtk::Field_Type > > const & aFieldTypes, Leader_Follower aIsLeader = Leader_Follower::LEADER ) { get_side( aIsLeader ).set_field_types( aFieldTypes ); }
         [[nodiscard]] Vector< Vector< mtk::Field_Type > > get_field_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_field_types(); }
-        Vector< Vector< mtk::Field_Type > > const &       get_global_field_type_list( mtk::Leader_Follower aIsLeader );
+        Vector< Vector< mtk::Field_Type > > const &       get_global_field_type_list( mtk::Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         void get_non_unique_dof_dv_and_field_types( Vector< Vector< MSI::Dof_Type > >& aDofTypes, Vector< Vector< gen::PDV_Type > >& aDvTypes, Vector< Vector< mtk::Field_Type > >& aFieldTypes );
 
@@ -95,7 +95,7 @@ namespace moris::fem
         std::shared_ptr< Property > const & get_leader_property( EnumType const & tPropertyType ) const { return get_leader_side().get_property( tPropertyType ); }
         template< typename EnumType >
         std::shared_ptr< Property > const & get_follower_property( EnumType const & tPropertyType ) const { return get_follower_side().get_property( tPropertyType ); }
-        void                                set_property( std::shared_ptr< Property > aProperty, std::string aPropertyString, Leader_Follower aIsLeader );
+        void                                set_property( std::shared_ptr< Property > aProperty, std::string aPropertyString, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         template< typename EnumType >
         void init_material_model( std::string const & aMaterialModelName, EnumType aMaterialModelType );
@@ -103,7 +103,7 @@ namespace moris::fem
         std::shared_ptr< Material_Model > const & get_leader_material_model( EnumType const & tMMType ) const { return get_leader_side().get_material_model( tMMType ); }
         template< typename EnumType >
         std::shared_ptr< Material_Model > const & get_follower_material_model( EnumType const & tMMType ) const { return get_follower_side().get_material_model( tMMType ); }
-        void                                      set_material_model( std::shared_ptr< Material_Model > aMaterialModel, std::string aMaterialModelName, Leader_Follower aIsLeader );
+        void                                      set_material_model( std::shared_ptr< Material_Model > aMaterialModel, std::string aMaterialModelName, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         template< typename EnumType >
         void init_constitutive_model( std::string const & aConstitutiveModelName, EnumType aConstitutiveModelType );
@@ -111,7 +111,7 @@ namespace moris::fem
         std::shared_ptr< Constitutive_Model > const & get_leader_constitutive_model( EnumType const & tCMType ) const { return get_leader_side().get_constitutive_model( tCMType ); }
         template< typename EnumType >
         std::shared_ptr< Constitutive_Model > const & get_follower_constitutive_model( EnumType const & tCMType ) const { return get_follower_side().get_constitutive_model( tCMType ); }
-        void                                          set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel, std::string aConstitutiveModelstring, Leader_Follower aIsLeader );
+        void                                          set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel, std::string aConstitutiveModelstring, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         template< typename EnumType >
         void                                                                             init_stabilization_parameter( std::string const & aStabilizationParameterName, EnumType aStabilizationParameterType );

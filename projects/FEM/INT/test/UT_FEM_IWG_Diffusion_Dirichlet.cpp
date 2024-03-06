@@ -132,7 +132,7 @@ void UT_FEM_IWG_Diffusion_Dirichlet_Core ( enum fem::IWG_Type tIWGType )
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -285,7 +285,7 @@ void UT_FEM_IWG_Diffusion_Dirichlet_Core ( enum fem::IWG_Type tIWGType )
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tTempDofTypes;
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = tTempDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > > tDummyDv;
@@ -494,7 +494,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     MSI::Equation_Set * tSet = new fem::Set();
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
 
-    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
+    tIWG->set_fem_set(static_cast<fem::Set*>(tSet));
 
     tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
@@ -516,7 +516,7 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
-    tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+    tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
     Vector< Vector< enum MSI::Dof_Type > > tDummy;
     Field_Interpolator_Manager tFIManager( tDummy, tSet );

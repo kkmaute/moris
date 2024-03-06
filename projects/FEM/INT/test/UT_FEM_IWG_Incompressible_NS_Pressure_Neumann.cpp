@@ -139,7 +139,7 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
     static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
-    tIWGNeumann->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWGNeumann->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWGNeumann->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -322,7 +322,7 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
             tIWGNeumann->mSet->mJacobian.set_size( tNumDofVel + tNumDofP, tNumDofVel + tNumDofP, 0.0 );
 
             // populate the requested leader dof type
-            tIWGNeumann->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWGNeumann->mLeaderSideInfo.mRequestedGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > >        tDummyDv;

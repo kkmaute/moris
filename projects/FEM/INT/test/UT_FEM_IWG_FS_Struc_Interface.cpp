@@ -301,7 +301,7 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
 
             // set pointer for IWG
-            tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+            tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
             // set size for the set EqnObjDofTypeList
             tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
@@ -346,8 +346,8 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
             tIWG->build_global_dof_dv_and_field_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = { tVelDofTypes, tPDofTypes };
-            tIWG->mRequestedFollowerGlobalDofTypes  = { tVelDofTypes, tPDofTypes };
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = { tVelDofTypes, tPDofTypes };
+            tIWG->mFollowerSideInfo.mRequestedGlobalDofTypes  = { tVelDofTypes, tPDofTypes };
 
             // create a field interpolator manager
             Vector< Vector< enum MSI::Dof_Type > > tDummy;

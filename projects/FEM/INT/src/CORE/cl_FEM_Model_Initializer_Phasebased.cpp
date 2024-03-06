@@ -504,7 +504,7 @@ namespace moris::fem
         // loop over the IQIs
         for ( auto const &tIQIParameter : tIQIParameterList )
         {
-            auto const tIQIName = tIQIParameter.get< std::string >( "IWG_name" );
+            auto const tIQIName = tIQIParameter.get< std::string >( "IQI_name" );
             auto const tIQI     = mIQIs[ tIQIName ];
 
             Vector< std::string > tMeshSetNames;

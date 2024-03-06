@@ -191,7 +191,7 @@ test_IWG_Diffusion_Bulk(
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
     static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::BULK );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
@@ -223,7 +223,7 @@ test_IWG_Diffusion_Bulk(
     tIWG->get_global_dof_type_list();
 
     // populate the requested leader dof type
-    tIWG->mRequestedLeaderGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
+    tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
 
     // create a field interpolator manager
     moris::Vector< moris::Vector< enum MSI::Dof_Type > > tDummy;
@@ -620,7 +620,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     MSI::Equation_Set* tSet = new fem::Set();
     static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::BULK );
 
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
 
@@ -642,7 +642,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
-    tIWG->mRequestedLeaderGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
+    tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
 
     moris::Vector< moris::Vector< enum MSI::Dof_Type > > tDummy;
     Field_Interpolator_Manager                       tFIManager( tDummy, tSet );
@@ -824,7 +824,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    tIWG->get_global_dof_type_list();
     //    tIWG->get_global_dv_type_list();
     //
-    //    tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+    //    tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
     //
     //    Vector< Vector< enum MSI::Dof_Type > > tDummy;
     //    Field_Interpolator_Manager tFIManager( tDummy, tSet );

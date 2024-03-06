@@ -126,7 +126,7 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_Ideal",
 
     MSI::Equation_Set * tSet = new fem::Set();
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -319,7 +319,7 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_Ideal",
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > > tDummyDv;
@@ -512,7 +512,7 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_VdW",
 
     MSI::Equation_Set * tSet = new fem::Set();
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
-    tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tIWG->set_fem_set( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tIWG->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
@@ -705,7 +705,7 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_VdW",
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mLeaderSideInfo.mRequestedGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > > tDummyDv;

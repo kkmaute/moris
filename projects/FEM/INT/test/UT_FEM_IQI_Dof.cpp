@@ -276,7 +276,7 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
             tIQI->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIQI->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIQI->mLeaderSideInfo.mRequestedGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > >        tDummyDv;

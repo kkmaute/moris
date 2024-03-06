@@ -248,7 +248,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tIQI->mSet->mQI( 0 ).set_size( 1, 1, 0.0 );
 
     // populate the requested leader dof type
-    tIQI->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+    tIQI->mLeaderSideInfo.mRequestedGlobalDofTypes = {{ MSI::Dof_Type::UX }};
 
     Vector< Vector< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
     tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );

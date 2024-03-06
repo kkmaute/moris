@@ -35,7 +35,10 @@ namespace moris::fem
         get_side( Leader_Follower::FOLLOWER ).set_fem_set( aSet );
         for ( auto &[ _, tStabilizationParameter ] : mStabilizationParameter )
         {
-            tStabilizationParameter->set_set_pointer( mSet );
+            if ( tStabilizationParameter != nullptr )
+            {
+                tStabilizationParameter->set_set_pointer( aSet );
+            }
         }
     }
 
@@ -43,15 +46,17 @@ namespace moris::fem
             Field_Interpolator_Manager *aFieldInterpolatorManager,
             mtk::Leader_Follower        aIsLeader )
     {
-        EvaluableSideInformation tSide = get_side( aIsLeader );
-        tSide.set_fi_manager( aFieldInterpolatorManager );
+        get_side( aIsLeader ).set_fi_manager( aFieldInterpolatorManager );
         for ( auto &[ _, tStabilizationParameter ] : mStabilizationParameter )
         {
-            tStabilizationParameter->set_field_interpolator_manager( aFieldInterpolatorManager, aIsLeader );
+            if ( tStabilizationParameter != nullptr )
+            {
+                tStabilizationParameter->set_field_interpolator_manager( aFieldInterpolatorManager, aIsLeader );
+            }
         }
 
         // TODO @ff the set update was done in the previous implementation. Is this necessary?
-        tSide.set_fem_set( mSet );
+        get_side( aIsLeader ).set_fem_set( mSet );
         this->set_fem_set( mSet );
     }
 
@@ -134,8 +139,8 @@ namespace moris::fem
 
     void EvaluableTerm::print_names() const
     {
-        auto tPrintSpec = []( std::string aType, auto aMap ) {
-            for ( auto &[ tName, _ ] : aMap ) { std::cout << " - " << aType << " " << tName << "\n"; }
+        auto tPrintSpec = []( std::string aTitle, auto aMap ) {
+            for ( auto &[ tTypeName, _ ] : aMap ) { std::cout << " - " << aTitle << " " << tTypeName << "\n"; }
         };
         std::cout << "----------------------------------------------------------------\n"
                   << "EvaluableTerm: " << mName << "\n";
@@ -153,6 +158,11 @@ namespace moris::fem
     {
         get_side( Leader_Follower::LEADER ).reset_eval_flags();
         get_side( Leader_Follower::FOLLOWER ).reset_eval_flags();
-        std::for_each( mStabilizationParameter.begin(), mStabilizationParameter.end(), []( auto &tStabilizationParameter ) { tStabilizationParameter.second->reset_eval_flags(); } );
+        std::for_each( mStabilizationParameter.begin(), mStabilizationParameter.end(), []( auto &tStabilizationParameter ) {
+            if ( tStabilizationParameter.second != nullptr )
+            {
+                tStabilizationParameter.second->reset_eval_flags();
+            }
+        } );
     }
 }    // namespace moris::fem
