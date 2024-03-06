@@ -6,16 +6,23 @@
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "GEN_Data_Types.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_Vector.hpp"
 #include "moris_typedefs.hpp"
+#include <algorithm>
 #include <map>
 
 namespace moris::fem
 {
-    void EvaluableSideInformation::set_field_interpolator_manager( Field_Interpolator_Manager *aFIManager )
+    void EvaluableSideInformation::set_fi_manager( Field_Interpolator_Manager *aFIManager )
     {
-        auto tUpdateFieldInterpolatorManager = [ aFIManager ]( auto &tItem ) { tItem.second->set_field_interpolator_manager( aFIManager ); };
-        mFIManager                           = aFIManager;
+        auto tUpdateFieldInterpolatorManager = [ aFIManager, this ]( auto &tItem ) {
+            if ( tItem.second != nullptr )
+            {
+                tItem.second->set_field_interpolator_manager( aFIManager );
+            }
+        };
+        mFIManager = aFIManager;
         std::for_each( mConstitutiveModels.begin(), mConstitutiveModels.end(), tUpdateFieldInterpolatorManager );
         std::for_each( mMaterialModel.begin(), mMaterialModel.end(), tUpdateFieldInterpolatorManager );
         std::for_each( mProperties.begin(), mProperties.end(), tUpdateFieldInterpolatorManager );
@@ -24,25 +31,33 @@ namespace moris::fem
     void EvaluableSideInformation::set_fem_set( fem::Set *aSet )
     {
         mSet                 = aSet;
-        auto tUpdatePointers = [ aSet ]( auto &tItem ) { tItem.second->set_set_pointer( aSet ); };
+        auto tUpdatePointers = [ aSet ]( auto &tItem ) {
+            if ( tItem.second != nullptr )
+            {
+                tItem.second->set_set_pointer( aSet );
+            }
+        };
         std::for_each( mConstitutiveModels.begin(), mConstitutiveModels.end(), tUpdatePointers );
         std::for_each( mMaterialModel.begin(), mMaterialModel.end(), tUpdatePointers );
         std::for_each( mProperties.begin(), mProperties.end(), tUpdatePointers );
     }
 
-    void EvaluableSideInformation::set_property( std::shared_ptr< Property > aProperty, std::string aPropertyName )
+    void EvaluableSideInformation::set_property( std::shared_ptr< Property > aProperty, std::string aPropertyType )
     {
-        mProperties[ aPropertyName ] = aProperty;
+        ensure_valid_option( mProperties, aPropertyType, "property" );
+        mProperties[ aPropertyType ] = aProperty;
     }
 
-    void EvaluableSideInformation::set_material_model( std::shared_ptr< fem::Material_Model > const &aMaterialModel, std::string aMaterialModelString )
+    void EvaluableSideInformation::set_material_model( std::shared_ptr< fem::Material_Model > const &aMaterialModel, std::string aMaterialModelType )
     {
-        mMaterialModel[ aMaterialModelString ] = aMaterialModel;
+        ensure_valid_option( mMaterialModel, aMaterialModelType, "material_model" );
+        mMaterialModel[ aMaterialModelType ] = aMaterialModel;
     }
 
-    void EvaluableSideInformation::set_constitutive_models( std::shared_ptr< fem::Constitutive_Model > const &aConstitutiveModel, std::string aConstitutiveModelstring )
+    void EvaluableSideInformation::set_constitutive_model( std::shared_ptr< fem::Constitutive_Model > const &aConstitutiveModel, std::string aConstitutiveModelType )
     {
-        mConstitutiveModels[ aConstitutiveModelstring ] = aConstitutiveModel;
+        ensure_valid_option( mConstitutiveModels, aConstitutiveModelType, "constitutive_model" );
+        mConstitutiveModels[ aConstitutiveModelType ] = aConstitutiveModel;
     }
 
     Vector< Vector< MSI::Dof_Type > > const &EvaluableSideInformation::get_global_dof_types(
@@ -139,11 +154,94 @@ namespace moris::fem
 
     void EvaluableSideInformation::reset_eval_flags()
     {
-        auto tResetEvalFlags = []( auto &tItem ) { tItem.second->reset_eval_flags(); };
+        auto tResetEvalFlags = []( auto &tItem ) {
+            if ( tItem.second != nullptr )
+            {
+                tItem.second->reset_eval_flags();
+            }
+        };
         std::for_each( mProperties.begin(), mProperties.end(), tResetEvalFlags );
         std::for_each( mConstitutiveModels.begin(), mConstitutiveModels.end(), tResetEvalFlags );
         std::for_each( mMaterialModel.begin(), mMaterialModel.end(), tResetEvalFlags );
     }
 
+    template<>
+    uint EvaluableSideInformation::get_number_of_unique_types< MSI::Dof_Type >() const { return mSet->get_num_unique_dof_types(); }
+    template<>
+    uint EvaluableSideInformation::get_number_of_unique_types< gen::PDV_Type >() const { return mSet->get_num_unique_dv_types(); }
+    template<>
+    uint EvaluableSideInformation::get_number_of_unique_types< mtk::Field_Type >() const { return mSet->get_num_unique_field_types(); }
 
+    template<>
+    sint EvaluableSideInformation::get_type_index_from_set< MSI::Dof_Type >( MSI::Dof_Type aType ) { return mSet->get_index_from_unique_dof_type_map( aType ); }
+    template<>
+    sint EvaluableSideInformation::get_type_index_from_set< gen::PDV_Type >( gen::PDV_Type aType ) { return mSet->get_index_from_unique_dv_type_map( aType ); }
+    template<>
+    sint EvaluableSideInformation::get_type_index_from_set< mtk::Field_Type >( mtk::Field_Type aType ) { return mSet->get_index_from_unique_field_type_map( aType ); }
+
+    template<>
+    const Vector< Vector< MSI::Dof_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< Property > &aProperty ) const { return aProperty->get_dof_type_list(); }
+    template<>
+    const Vector< Vector< gen::PDV_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< Property > &aProperty ) const { return aProperty->get_dv_type_list(); }
+    template<>
+    const Vector< Vector< mtk::Field_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< Property > &aProperty ) const { return aProperty->get_field_type_list(); }
+    template<>
+    const Vector< Vector< MSI::Dof_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< Constitutive_Model > &aConstitutiveModel ) const { return aConstitutiveModel->get_global_dof_type_list(); }
+    template<>
+    const Vector< Vector< gen::PDV_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< Constitutive_Model > &aConstitutiveModel ) const { return aConstitutiveModel->get_global_dv_type_list(); }
+    template<>
+    const Vector< Vector< mtk::Field_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< Constitutive_Model > &aConstitutiveModel ) const { return aConstitutiveModel->get_global_field_type_list(); }
+    template<>
+    const Vector< Vector< MSI::Dof_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< Material_Model > &aMaterialModel ) const { return aMaterialModel->get_global_dof_type_list(); }
+    template<>
+    const Vector< Vector< MSI::Dof_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< fem::Stabilization_Parameter > &aStabilizationParameter ) const { return aStabilizationParameter->get_global_dof_type_list( mLeaderFollower ); }
+    template<>
+    const Vector< Vector< gen::PDV_Type > >
+    EvaluableSideInformation::get_types_from_spec( const std::shared_ptr< fem::Stabilization_Parameter > &aStabilizationParameter ) const { return aStabilizationParameter->get_global_dv_type_list( mLeaderFollower ); }
+
+    template<>
+    EvaluableSideInformation::NonUniqueTypes
+    EvaluableSideInformation::get_non_unique_types_from_spec( const std::shared_ptr< Property > &aProperty ) const
+    {
+        Vector< MSI::Dof_Type >   tActiveDofTypes;
+        Vector< gen::PDV_Type >   tActiveDvTypes;
+        Vector< mtk::Field_Type > tActiveFieldTypes;
+        aProperty->get_non_unique_dof_dv_and_field_types( tActiveDofTypes, tActiveDvTypes, tActiveFieldTypes );
+        return NonUniqueTypes{ tActiveDofTypes, tActiveDvTypes, tActiveFieldTypes };
+    }
+    template<>
+    EvaluableSideInformation::NonUniqueTypes
+    EvaluableSideInformation::get_non_unique_types_from_spec( const std::shared_ptr< Constitutive_Model > &aConstitutiveModel ) const
+    {
+        Vector< MSI::Dof_Type >   tActiveDofTypes;
+        Vector< gen::PDV_Type >   tActiveDvTypes;
+        Vector< mtk::Field_Type > tActiveFieldTypes;
+        aConstitutiveModel->get_non_unique_dof_dv_and_field_types( tActiveDofTypes, tActiveDvTypes, tActiveFieldTypes );
+        return NonUniqueTypes{ tActiveDofTypes, tActiveDvTypes, tActiveFieldTypes };
+    }
+    template<>
+    EvaluableSideInformation::NonUniqueTypes
+    EvaluableSideInformation::get_non_unique_types_from_spec( const std::shared_ptr< Material_Model > &aMaterialModel ) const
+    {
+        Vector< MSI::Dof_Type > tActiveDofTypes;
+        aMaterialModel->get_non_unique_dof_types( tActiveDofTypes );
+        return NonUniqueTypes{ tActiveDofTypes, {}, {} };
+    }
+    template<>
+    EvaluableSideInformation::NonUniqueTypes
+    EvaluableSideInformation::get_non_unique_types_from_spec( const std::shared_ptr< fem::Stabilization_Parameter > &aStabilizationParameter ) const
+    {
+        Vector< MSI::Dof_Type > tActiveDofTypes;
+        Vector< gen::PDV_Type > tActiveDvTypes;
+        aStabilizationParameter->get_non_unique_dof_and_dv_types( tActiveDofTypes, tActiveDvTypes );
+        return NonUniqueTypes{ tActiveDofTypes, tActiveDvTypes, {} };
+    };
 }    // namespace moris::fem

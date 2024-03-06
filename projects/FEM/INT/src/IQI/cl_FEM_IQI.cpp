@@ -103,7 +103,7 @@ namespace moris
                 fem::FDScheme_Type aFDSchemeType )
         {
             // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // store QI value
             Matrix< DDRMat > tQIStore = mSet->get_QI()( tQIIndex );
@@ -114,7 +114,7 @@ namespace moris
             uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get leader number of dof types
-            uint tNumLeaderDofType = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumLeaderDofType = get_requested_leader_dof_types().size();
 
             // reset the QI
             mSet->get_QI()( tQIIndex ).fill( 0.0 );
@@ -132,15 +132,14 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iFI );
+Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iFI );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
                 uint tLeaderDepStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
 
                 // get field interpolator for dependency dof type
-                Field_Interpolator* tFI =
-                        mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -221,7 +220,7 @@ namespace moris
             }
 
             // get follower number of dof types
-            uint tNumFollowerDofType = mRequestedFollowerGlobalDofTypes.size();
+            uint tNumFollowerDofType = get_requested_follower_dof_types().size();
 
             // loop over the follower dof types
             for ( uint iFI = 0; iFI < tNumFollowerDofType; iFI++ )
@@ -230,15 +229,14 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Vector< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iFI );
+                Vector< MSI::Dof_Type > tDofType = get_requested_follower_dof_types()( iFI );
 
                 // get the index for the dof type
                 sint tFollowerDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
                 uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDepDofIndex )( tFollowerDepDofIndex, 0 );
 
                 // get follower dependency field interpolator
-                Field_Interpolator* tFI =
-                        mFollowerFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator* tFI = get_follower_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -335,7 +333,7 @@ namespace moris
                 fem::FDScheme_Type aFDSchemeType )
         {
             // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // compute dQIdu with IQI
             this->compute_dQIdu( aWStar );
@@ -414,7 +412,7 @@ namespace moris
                 fem::FDScheme_Type aFDSchemeType )
         {
             // get the column index to assemble in residual
-            sint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+            sint tIQIAssemblyIndex = mSet->get_QI_assembly_index( get_name() );
 
             // store QI value
             Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
@@ -444,8 +442,7 @@ namespace moris
             for ( uint iFI = 0; iFI < tNumPdvType; iFI++ )
             {
                 // get the FI for the dv type
-                Field_Interpolator* tFI =
-                        mLeaderFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -705,7 +702,7 @@ namespace moris
                 Vector< Matrix< IndexMat > >& aVertexIndices )
         {
             // get the IQI index
-            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( get_name() );
 
             // store QI value
             Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
@@ -836,7 +833,7 @@ namespace moris
             mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
 
             // if active cluster measure on IQI
-            if ( mActiveCMEAFlag )
+            if ( is_active_cluster_measure() )
             {
                 // add their contribution to dQIdp
                 this->add_cluster_measure_dQIdp_FD_geometry(
@@ -861,7 +858,7 @@ namespace moris
                 Vector< Matrix< IndexMat > >& aVertexIndices )
         {
             // get the IQI index
-            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( get_name() );
 
             // store QI value
             Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
@@ -1014,7 +1011,7 @@ namespace moris
             mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
 
             // if active cluster measure on IQI
-            if ( mActiveCMEAFlag )
+            if ( is_active_cluster_measure() )
             {
                 // add their contribution to dQIdp
                 this->add_cluster_measure_dQIdp_FD_geometry(
@@ -1037,7 +1034,7 @@ namespace moris
                 fem::FDScheme_Type aFDSchemeType )
         {
             // get the IQI index
-            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+            uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( get_name() );
 
             // store QI value
             Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );

@@ -32,7 +32,7 @@ namespace moris::fem
         void                      set_name( std::string const & aName ) { mName = aName; }
 
         [[nodiscard]] Set* get_fem_set() const { return mSet; };
-        virtual void       set_fem_set( Set* mSet );
+        virtual void       set_fem_set( Set* aSet );
 
         [[nodiscard]] Cluster* get_fem_cluster() const { return mCluster; }
         void                   set_fem_cluster( Cluster* aCluster ) { mCluster = aCluster; }
@@ -56,11 +56,19 @@ namespace moris::fem
 
         void print_names() const;
 
-        Field_Interpolator_Manager* get_field_interpolator_manager( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_field_interpolator_manager(); }
-        Field_Interpolator_Manager* get_leader_field_interpolator_manager() const { return get_field_interpolator_manager( Leader_Follower::LEADER ); }
-        Field_Interpolator_Manager* get_follower_field_interpolator_manager() const { return get_field_interpolator_manager( Leader_Follower::FOLLOWER ); }
-        void                        set_field_interpolator_manager( Field_Interpolator_Manager* aFieldInterpolatorManager, Leader_Follower aIsLeader );
+        Field_Interpolator_Manager* get_field_interpolator_manager( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_fi_manager(); }
+        Field_Interpolator_Manager* get_leader_fi_manager() const { return get_field_interpolator_manager( Leader_Follower::LEADER ); }
+        Field_Interpolator_Manager* get_follower_fi_manager() const { return get_field_interpolator_manager( Leader_Follower::FOLLOWER ); }
+        void                        set_field_interpolator_manager( Field_Interpolator_Manager* aFieldInterpolatorManager, Leader_Follower aIsLeader = Leader_Follower::LEADER );
+
+        Field_Interpolator_Manager* get_field_interpolator_manager_eigen_vector( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_eigen_vector_fi_manager(); }
+        Field_Interpolator_Manager* get_leader_fi_manager_eigen_vector() const { return get_field_interpolator_manager_eigen_vector( Leader_Follower::LEADER ); }
+        Field_Interpolator_Manager* get_follower_fi_manager_eigen_vector() const { return get_field_interpolator_manager_eigen_vector( Leader_Follower::FOLLOWER ); }
         void                        set_field_interpolator_manager_eigen_vector( Field_Interpolator_Manager* aFieldInterpolatorManager, Leader_Follower aIsLeader = Leader_Follower::LEADER );
+
+        Field_Interpolator_Manager* get_field_interpolator_manager_previous_time( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_previous_fi_manager(); }
+        Field_Interpolator_Manager* get_leader_fi_manager_previous_time() const { return get_field_interpolator_manager_previous_time( Leader_Follower::LEADER ); }
+        Field_Interpolator_Manager* get_follower_fi_manager_previous_time() const { return get_field_interpolator_manager_previous_time( Leader_Follower::FOLLOWER ); }
         void                        set_field_interpolator_manager_previous_time( Field_Interpolator_Manager* aFieldInterpolatorManager, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         void                      set_phase_name( std::string aPhaseName, Leader_Follower aIsLeader = Leader_Follower::LEADER ) { get_side( aIsLeader ).set_phase_name( aPhaseName ); };
@@ -81,22 +89,49 @@ namespace moris::fem
 
         void get_non_unique_dof_dv_and_field_types( Vector< Vector< MSI::Dof_Type > >& aDofTypes, Vector< Vector< gen::PDV_Type > >& aDvTypes, Vector< Vector< mtk::Field_Type > >& aFieldTypes );
 
-        void                                                         set_property( std::shared_ptr< Property > aProperty, std::string aPropertyString, Leader_Follower aIsLeader );
-        std::map< std::string, std::shared_ptr< Property > > const & get_properties( Leader_Follower aIsLeader ) { return get_side( aIsLeader ).get_properties(); };
+        template< typename EnumType >
+        void init_property( std::string const & aPropertyName, EnumType aPropertyType );
+        template< typename EnumType >
+        std::shared_ptr< Property > const & get_leader_property( EnumType const & tPropertyType ) const { return get_leader_side().get_property( tPropertyType ); }
+        template< typename EnumType >
+        std::shared_ptr< Property > const & get_follower_property( EnumType const & tPropertyType ) const { return get_follower_side().get_property( tPropertyType ); }
+        void                                set_property( std::shared_ptr< Property > aProperty, std::string aPropertyString, Leader_Follower aIsLeader );
 
-        void                                                               set_material_model( std::shared_ptr< Material_Model > aMaterialModel, std::string aMaterialModelName, Leader_Follower aIsLeader );
-        std::map< std::string, std::shared_ptr< Material_Model > > const & get_material_models( Leader_Follower aIsLeader ) { return get_side( aIsLeader ).get_material_models(); };
+        template< typename EnumType >
+        void init_material_model( std::string const & aMaterialModelName, EnumType aMaterialModelType );
+        template< typename EnumType >
+        std::shared_ptr< Material_Model > const & get_leader_material_model( EnumType const & tMMType ) const { return get_leader_side().get_material_model( tMMType ); }
+        template< typename EnumType >
+        std::shared_ptr< Material_Model > const & get_follower_material_model( EnumType const & tMMType ) const { return get_follower_side().get_material_model( tMMType ); }
+        void                                      set_material_model( std::shared_ptr< Material_Model > aMaterialModel, std::string aMaterialModelName, Leader_Follower aIsLeader );
 
-        void                                                                   set_constitutive_models( std::shared_ptr< Constitutive_Model > aConstitutiveModel, std::string aConstitutiveModelstring, Leader_Follower aIsLeader );
-        std::map< std::string, std::shared_ptr< Constitutive_Model > > const & get_constitutive_models( Leader_Follower aIsLeader ) { return get_side( aIsLeader ).get_constitutive_models(); };
+        template< typename EnumType >
+        void init_constitutive_model( std::string const & aConstitutiveModelName, EnumType aConstitutiveModelType );
+        template< typename EnumType >
+        std::shared_ptr< Constitutive_Model > const & get_leader_constitutive_model( EnumType const & tCMType ) const { return get_leader_side().get_constitutive_model( tCMType ); }
+        template< typename EnumType >
+        std::shared_ptr< Constitutive_Model > const & get_follower_constitutive_model( EnumType const & tCMType ) const { return get_follower_side().get_constitutive_model( tCMType ); }
+        void                                          set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel, std::string aConstitutiveModelstring, Leader_Follower aIsLeader );
 
-        void                                                                             set_stabilization_parameter( std::shared_ptr< fem::Stabilization_Parameter > const & aStabilizationParameter, std::string aStabilizationParameterString );
+        template< typename EnumType >
+        void                                                                             init_stabilization_parameter( std::string const & aStabilizationParameterName, EnumType aStabilizationParameterType );
+        void                                                                             set_stabilization_parameter( std::shared_ptr< fem::Stabilization_Parameter > const & aStabilizationParameter, std::string aStabilizationParameterType );
         std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > const & get_stabilization_parameters() const { return mStabilizationParameter; }
+        template< typename EnumType >
+        std::shared_ptr< Stabilization_Parameter > const & get_stabilization_parameter( EnumType const & tSPType ) const { return mStabilizationParameter.at( mStabilizationParameterTypeToName.at( static_cast< uint >( tSPType ) ) ); }
+        virtual void                                       reset_eval_flags();
 
-        virtual void reset_eval_flags();
+        template< typename T >
+        void ensure_valid_option( std::map< std::string, std::shared_ptr< T > > aMap, std::string const & aOption, std::string const & tContext ) const;
+
 
       private:
-        [[nodiscard]] EvaluableSideInformation get_side( Leader_Follower const aIsLeader ) const;
+        [[nodiscard]] EvaluableSideInformation&        get_side( Leader_Follower const aIsLeader );
+        [[nodiscard]] EvaluableSideInformation const & get_side( Leader_Follower const aIsLeader ) const;
+        [[nodiscard]] EvaluableSideInformation&        get_leader_side() { return get_side( mtk::Leader_Follower::LEADER ); }
+        [[nodiscard]] EvaluableSideInformation const & get_leader_side() const { return get_side( mtk::Leader_Follower::LEADER ); }
+        [[nodiscard]] EvaluableSideInformation&        get_follower_side() { return get_side( mtk::Leader_Follower::FOLLOWER ); }
+        [[nodiscard]] EvaluableSideInformation const & get_follower_side() const { return get_side( mtk::Leader_Follower::FOLLOWER ); }
 
       protected:
         Set*     mSet     = nullptr;
@@ -106,11 +141,14 @@ namespace moris::fem
         std::string      mName;
         Matrix< DDRMat > mNormal;
 
+      private:
         EvaluableSideInformation mLeaderSideInfo{ mtk::Leader_Follower::LEADER };
         EvaluableSideInformation mFollowerSideInfo{ mtk::Leader_Follower::FOLLOWER };
 
-        Vector< Matrix< DDRMat > >                                               mParameters;
+        Vector< Matrix< DDRMat > > mParameters;
+
         std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParameter;
+        std::map< uint, std::string >                                            mStabilizationParameterTypeToName;
 
         bool mGlobalFieldBuild = true;
 
@@ -124,4 +162,51 @@ namespace moris::fem
         // element type
         Element_Type mBulkType = Element_Type::BULK;
     };
+
+    // TODO @ff: the same implementation is in cl_FEM_EvaluableSideInformation. This should be moved to a common place
+    template< typename T >
+    void EvaluableTerm::ensure_valid_option( std::map< std::string, std::shared_ptr< T > > aMap, std::string const & aOption, std::string const & tContext ) const
+    {
+        if ( aMap.find( aOption ) == aMap.end() )
+        {
+            std::string tValidOptions;
+            for ( auto const& [ tName, _ ] : aMap )
+            {
+                tValidOptions += tName + ", ";
+            }
+            if ( !tValidOptions.empty() )
+            {
+                tValidOptions.pop_back();
+                tValidOptions.pop_back();
+            }
+            MORIS_LOG_ERROR( "Invalid option '%s' for '%s'. Valid options are:\n    %s", aOption.c_str(), tContext.c_str(), tValidOptions.c_str() );
+        }
+    }
+
+    template< typename EnumType >
+    void EvaluableTerm::init_property( std::string const & aParameterName, EnumType const aParameterType )
+    {
+        get_leader_side().init_property( aParameterName, aParameterType );
+        get_follower_side().init_property( aParameterName, aParameterType );
+    }
+    template< typename EnumType >
+    void EvaluableTerm::init_constitutive_model( std::string const & aConstitutiveModelName, EnumType const aConstitutiveModelType )
+    {
+        get_leader_side().init_constitutive_model( aConstitutiveModelName, aConstitutiveModelType );
+        get_follower_side().init_constitutive_model( aConstitutiveModelName, aConstitutiveModelType );
+    }
+    template< typename EnumType >
+    void EvaluableTerm::init_material_model( std::string const & aMaterialModelName, EnumType const aMaterialModelType )
+    {
+        get_leader_side().init_material_model( aMaterialModelName, aMaterialModelType );
+        get_follower_side().init_material_model( aMaterialModelName, aMaterialModelType );
+    }
+    template< typename EnumType >
+    void EvaluableTerm::init_stabilization_parameter( std::string const & aStabilizationParameterName, EnumType const aStabilizationParameterType )
+    {
+        mStabilizationParameterTypeToName[ static_cast< uint >( aStabilizationParameterType ) ] = aStabilizationParameterName;
+        mStabilizationParameter[ aStabilizationParameterName ]                                  = nullptr;
+    }
+
+
 }    // namespace moris::fem

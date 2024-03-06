@@ -44,7 +44,7 @@ namespace moris
         /**
          * Integrand of Weak Form of Governing Equations
          */
-        class IWG : EvaluableTerm
+        class IWG : public EvaluableTerm
         {
           protected:
             // nodal weak BCs
@@ -200,7 +200,10 @@ namespace moris
             void check_field_interpolators( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             Vector< Vector< MSI::Dof_Type > > const &
-            get_requested_dof_type_list( mtk::Leader_Follower const & aIsLeader );
+            get_requested_leader_dof_types();
+
+            Vector< Vector< MSI::Dof_Type > > const &
+            get_requested_follower_dof_types();
 
             /**
              * evaluate the residual

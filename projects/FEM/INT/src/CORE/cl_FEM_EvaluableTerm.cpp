@@ -12,14 +12,21 @@
 
 namespace moris::fem
 {
-    EvaluableSideInformation EvaluableTerm::get_side( Leader_Follower const aIsLeader ) const
+    EvaluableSideInformation const &EvaluableTerm::get_side( Leader_Follower const aIsLeader ) const
     {
         MORIS_ASSERT(
                 aIsLeader == Leader_Follower::LEADER || aIsLeader == Leader_Follower::FOLLOWER,
-                "EvaluableTerm: Can only request leader or follower side information." )
+                "EvaluableTerm: Can only request leader or follower side information." );
         return aIsLeader == Leader_Follower::LEADER ? mLeaderSideInfo : mFollowerSideInfo;
     }
 
+    EvaluableSideInformation &EvaluableTerm::get_side( Leader_Follower const aIsLeader )
+    {
+        MORIS_ASSERT(
+                aIsLeader == Leader_Follower::LEADER || aIsLeader == Leader_Follower::FOLLOWER,
+                "EvaluableTerm: Can only request leader or follower side information." );
+        return aIsLeader == Leader_Follower::LEADER ? mLeaderSideInfo : mFollowerSideInfo;
+    }
 
     void EvaluableTerm::set_fem_set( Set *aSet )
     {
@@ -37,10 +44,10 @@ namespace moris::fem
             mtk::Leader_Follower        aIsLeader )
     {
         EvaluableSideInformation tSide = get_side( aIsLeader );
-        tSide.set_field_interpolator_manager( aFieldInterpolatorManager );
+        tSide.set_fi_manager( aFieldInterpolatorManager );
         for ( auto &[ _, tStabilizationParameter ] : mStabilizationParameter )
         {
-            tStabilizationParameter->set_field_interpolator_manager( aFieldInterpolatorManager );
+            tStabilizationParameter->set_field_interpolator_manager( aFieldInterpolatorManager, aIsLeader );
         }
 
         // TODO @ff the set update was done in the previous implementation. Is this necessary?
@@ -51,7 +58,7 @@ namespace moris::fem
     void EvaluableTerm::set_field_interpolator_manager_eigen_vector( Field_Interpolator_Manager *aFieldInterpolatorManager, Leader_Follower aIsLeader )
     {
         MORIS_ASSERT( aIsLeader == Leader_Follower::LEADER, "EvaluableTerm: Can only set the eigen vector field interpolator manager for the leader side." );
-        get_side( aIsLeader ).set_eigen_fi_manager( aFieldInterpolatorManager );
+        get_side( aIsLeader ).set_eigen_vector_fi_manager( aFieldInterpolatorManager );
     }
 
     void EvaluableTerm::set_field_interpolator_manager_previous_time( Field_Interpolator_Manager *aFieldInterpolatorManager, Leader_Follower aIsLeader )
@@ -82,14 +89,15 @@ namespace moris::fem
         get_side( aIsLeader ).set_material_model( aMaterialModel, aMaterialModelName );
     }
 
-    void EvaluableTerm::set_constitutive_models( std::shared_ptr< Constitutive_Model > aConstitutiveModel, std::string aConstitutiveModelstring, Leader_Follower aIsLeader )
+    void EvaluableTerm::set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel, std::string aConstitutiveModelstring, Leader_Follower aIsLeader )
     {
-        get_side( aIsLeader ).set_constitutive_models( aConstitutiveModel, aConstitutiveModelstring );
+        get_side( aIsLeader ).set_constitutive_model( aConstitutiveModel, aConstitutiveModelstring );
     }
 
-    void EvaluableTerm::set_stabilization_parameter( std::shared_ptr< fem::Stabilization_Parameter > const &aStabilizationParameter, std::string aStabilizationParameterString )
+    void EvaluableTerm::set_stabilization_parameter( std::shared_ptr< fem::Stabilization_Parameter > const &aStabilizationParameter, std::string aStabilizationParameterType )
     {
-        mStabilizationParameter[ aStabilizationParameterString ] = aStabilizationParameter;
+        ensure_valid_option( mStabilizationParameter, aStabilizationParameterType, "stabilization_parameter" );
+        mStabilizationParameter[ aStabilizationParameterType ] = aStabilizationParameter;
 
         // set active cluster measure on IWG flag on/off
         mIsActiveClusterMeasure = mIsActiveClusterMeasure || ( aStabilizationParameter->get_cluster_measure_tuple_list().size() > 0 );
@@ -147,5 +155,4 @@ namespace moris::fem
         get_side( Leader_Follower::FOLLOWER ).reset_eval_flags();
         std::for_each( mStabilizationParameter.begin(), mStabilizationParameter.end(), []( auto &tStabilizationParameter ) { tStabilizationParameter.second->reset_eval_flags(); } );
     }
-
 }    // namespace moris::fem

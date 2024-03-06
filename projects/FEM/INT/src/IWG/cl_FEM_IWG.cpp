@@ -157,12 +157,12 @@ namespace moris
                 case mtk::Leader_Follower::LEADER:
                 {
                     // loop over the dof field interpolator pointers
-                    for ( uint iDofFI = 0; iDofFI < get_requested_dof_type_list( mtk::Leader_Follower::LEADER ).size(); iDofFI++ )
+                    for ( uint iDofFI = 0; iDofFI < get_requested_leader_dof_types().size(); iDofFI++ )
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
-                                this->get_field_interpolator_manager( aIsLeader )->    //
-                                        get_field_interpolators_for_type( get_requested_dof_type_list( mtk::Leader_Follower::LEADER )( iDofFI )( 0 ) )
+                                this->get_field_interpolator_manager( aIsLeader )
+                                                ->get_field_interpolators_for_type( get_requested_leader_dof_types()( iDofFI )( 0 ) )
                                         != nullptr,
                                 "IWG::check_field_interpolators - Leader dof FI missing. " );
                     }
@@ -182,12 +182,12 @@ namespace moris
                 case mtk::Leader_Follower::FOLLOWER:
                 {
                     // loop over the dof field interpolator pointers
-                    for ( uint iDofFI = 0; iDofFI < get_requested_dof_type_list( mtk::Leader_Follower::FOLLOWER ).size(); iDofFI++ )
+                    for ( uint iDofFI = 0; iDofFI < get_requested_follower_dof_types().size(); iDofFI++ )
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
                                 this->get_field_interpolator_manager( aIsLeader )->    //
-                                        get_field_interpolators_for_type( get_requested_dof_type_list( mtk::Leader_Follower::FOLLOWER )( iDofFI )( 0 ) )
+                                        get_field_interpolators_for_type( get_requested_follower_dof_types()( iDofFI )( 0 ) )
                                         != nullptr,
                                 "IWG::check_dof_field_interpolators - Follower dof FI missing. " );
                     }
@@ -232,7 +232,7 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get leader number of dof types
-            uint tLeaderNumDofTypes = get_requested_dof_type_list( mtk::Leader_Follower::LEADER ).size();
+            uint tLeaderNumDofTypes = get_requested_leader_dof_types().size();
 
             // reset and evaluate the residual plus
             mSet->get_residual()( 0 ).fill( 0.0 );
@@ -249,7 +249,7 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Vector< MSI::Dof_Type > const & tDofType = get_requested_dof_type_list( mtk::Leader_Follower::LEADER )( iFI );
+                Vector< MSI::Dof_Type > const & tDofType = get_requested_leader_dof_types()( iFI );
 
                 // get the index for the dof type
                 sint tLeaderDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -257,7 +257,7 @@ namespace moris
 
                 // get field interpolator for dependency dof type
                 Field_Interpolator* tFI =
-                        get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
+                        get_leader_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -386,7 +386,7 @@ namespace moris
                             { 0, 0 } );
 
             // get leader number of dof types
-            uint tLeaderNumDofTypes = get_requested_dof_type_list( mtk::Leader_Follower::LEADER ).size();
+            uint tLeaderNumDofTypes = get_requested_leader_dof_types().size();
 
             // loop over the IWG dof types
             for ( uint iFI = 0; iFI < tLeaderNumDofTypes; iFI++ )
@@ -395,14 +395,14 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Vector< MSI::Dof_Type > const & tDofType = get_requested_dof_type_list( mtk::Leader_Follower::LEADER )( iFI );
+                Vector< MSI::Dof_Type > const & tDofType = get_requested_leader_dof_types()( iFI );
 
                 // get the index for the dof type
                 sint tLeaderDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
                 uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tLeaderDepDofIndex, 0 );
 
                 // get field interpolator for dependency dof type
-                Field_Interpolator* tLeaderFI = get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator* tLeaderFI = get_leader_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint const tDerNumBases  = tLeaderFI->get_number_of_space_time_bases();    // coefficients for the interpolation of the field (number of shape functions)
@@ -470,7 +470,7 @@ namespace moris
                             // To obtain the new normal, we currently limit the implementation to line elements to directly calculate the normal vector from the deformed coordinates of the leader element.
                             if ( tIsNonconformal && ( tDofType( 0 ) == MSI::Dof_Type::UX ) )
                             {
-                                Field_Interpolator*    tFollowerFI             = get_follower_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
+                                Field_Interpolator*    tFollowerFI             = get_follower_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
                                 Matrix< DDRMat > const tRemappedFollowerCoords = this->remap_nonconformal_rays( tLeaderFI, tFollowerFI, true );
                                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
                             }
@@ -509,7 +509,7 @@ namespace moris
             }
 
             // get follower number of dof types
-            uint tFollowerNumDofTypes = get_requested_dof_type_list( mtk::Leader_Follower::FOLLOWER ).size();
+            uint tFollowerNumDofTypes = get_requested_follower_dof_types().size();
 
             // loop over the IWG dof types
             for ( uint iFI = 0; iFI < tFollowerNumDofTypes; iFI++ )
@@ -518,14 +518,14 @@ namespace moris
                 uint tDofCounter = 0;
 
                 // get the dof type
-                Vector< MSI::Dof_Type > tDofType = get_requested_dof_type_list( mtk::Leader_Follower::FOLLOWER )( iFI );
+                Vector< MSI::Dof_Type > const & tDofType = get_requested_follower_dof_types()( iFI );
 
                 // get the index for the dof type
                 sint tFollowerDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
                 uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tFollowerDepDofIndex, 0 );
 
                 // get field interpolator for dependency dof type
-                Field_Interpolator* tFollowerFI = get_follower_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator* tFollowerFI = get_follower_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFollowerFI->get_number_of_space_time_bases();
@@ -593,7 +593,7 @@ namespace moris
                             // To obtain the new normal, we currently limit the implementation to line elements to directly calculate the normal vector from the deformed coordinates of the leader element.
                             if ( tIsNonconformal && ( tDofType( 0 ) == MSI::Dof_Type::UX ) )
                             {
-                                Field_Interpolator*    tLeaderFI               = get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
+                                Field_Interpolator*    tLeaderFI               = get_leader_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
                                 Matrix< DDRMat > const tRemappedFollowerCoords = this->remap_nonconformal_rays( tLeaderFI, tFollowerFI, true );
                                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
                             }
@@ -641,7 +641,7 @@ namespace moris
 
             // Get the integration point on the leader side and add the perturbed displacement
             // The leader IG point is the point from which the mapping to the follower cell is performed
-            Geometry_Interpolator* tLeaderIGGI = this->get_leader_field_interpolator_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tLeaderIGGI = this->get_leader_fi_manager()->get_IG_geometry_interpolator();
 
             // Get the nodes of the leader element and add the perturbed displacement on each of them
             // The first column contains the x coordinates, the second column contains the y coordinates
@@ -665,7 +665,7 @@ namespace moris
 
 
             // Get the nodes of the follower element and add the perturbed displacement on each of them
-            Geometry_Interpolator* tFollowerIGGI        = this->get_follower_field_interpolator_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tFollowerIGGI        = this->get_follower_fi_manager()->get_IG_geometry_interpolator();
             Matrix< DDRMat > const tFollowerCoordinates = this->get_deformed_node_coordinates( tFollowerIGGI, aFollowerFieldInterpolator );
 
             // Perform the mapping
@@ -924,7 +924,7 @@ namespace moris
                 uint tNumFDPoints = tFDScheme( 0 ).size();
 
                 // get leader number of dof types
-                uint tLeaderNumDofTypes = get_requested_dof_type_list( mtk::Leader_Follower::LEADER ).size();
+                uint tLeaderNumDofTypes = get_requested_leader_dof_types().size();
 
                 // reset and evaluate the residual plus
                 mSet->get_residual()( 0 ).fill( 0.0 );
@@ -938,7 +938,7 @@ namespace moris
                     uint tDofCounter = 0;
 
                     // get the dof type
-                    Vector< MSI::Dof_Type > const & tDofType = get_requested_dof_type_list( mtk::Leader_Follower::LEADER )( iFI );
+                    Vector< MSI::Dof_Type > const & tDofType = get_requested_leader_dof_types()( iFI );
 
                     // get the index for the dof type
                     sint tLeaderDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -946,7 +946,7 @@ namespace moris
 
                     // get field interpolator for dependency dof type
                     Field_Interpolator* tFI =
-                            get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
+                            get_leader_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                     // get number of leader FI bases and fields
                     uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -2325,7 +2325,7 @@ namespace moris
 
                 // get the FI for the dv type
                 Field_Interpolator* tFI =
-                        get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                        get_leader_fi_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -2487,7 +2487,7 @@ namespace moris
 
                 // get the FI for the dv type
                 Field_Interpolator* tFI =
-                        get_leader_field_interpolator_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                        get_leader_fi_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -2604,7 +2604,7 @@ namespace moris
 
                 // get the FI for the dv type
                 Field_Interpolator* tFI =
-                        get_follower_field_interpolator_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
+                        get_follower_fi_manager()->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) );
 
                 // get number of leader FI bases and fields
                 uint tDerNumBases  = tFI->get_number_of_space_time_bases();
@@ -2737,9 +2737,13 @@ namespace moris
             MORIS_ASSERT( isfinite( mSet->get_drdpmat() ),
                     "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!" );
         }
-        Vector< Vector< MSI::Dof_Type > > const & IWG::get_requested_dof_type_list( mtk::Leader_Follower const & aIsLeader )
+        Vector< Vector< MSI::Dof_Type > > const & IWG::get_requested_leader_dof_types()
         {
-            return EvaluableTerm::get_requested_dof_type_list( is_staggered(), aIsLeader );
+            return EvaluableTerm::get_requested_dof_type_list( is_staggered(), mtk::Leader_Follower::LEADER );
+        }
+        Vector< Vector< MSI::Dof_Type > > const & IWG::get_requested_follower_dof_types()
+        {
+            return EvaluableTerm::get_requested_dof_type_list( is_staggered(), mtk::Leader_Follower::FOLLOWER );
         }
 
 

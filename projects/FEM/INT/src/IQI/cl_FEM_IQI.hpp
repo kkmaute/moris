@@ -44,7 +44,7 @@ namespace moris
         /**
          * Integrand of a quantity of interest
          */
-        class IQI : EvaluableTerm
+        class IQI : public EvaluableTerm
         {
           protected:
             enum fem::IQI_Type      mFEMIQIType;
@@ -58,8 +58,9 @@ namespace moris
 
           private:
             // Normalization
-            real mReferenceValue = 1.0;
-            bool mNormalized     = false;
+            real        mReferenceValue    = 1.0;
+            bool        mNormalized        = false;
+            std::string mNormalizationType = "none";
 
             // function pointers
             void ( IQI::*m_compute_dQIdu_FD )(
@@ -109,12 +110,21 @@ namespace moris
             const Vector< MSI::Dof_Type >&
             get_quantity_dof_type() const { return mQuantityDofType; }
 
+            Vector< Vector< MSI::Dof_Type > > const &
+            get_requested_leader_dof_types() { return get_requested_dof_type_list( false, mtk::Leader_Follower::LEADER ); };    // never staggered
+
+            Vector< Vector< MSI::Dof_Type > > const &
+            get_requested_follower_dof_types() { return get_requested_dof_type_list( false, mtk::Leader_Follower::FOLLOWER ); };    // never staggered
             /**
              * Sets the reference values for this IQI.
              *
              * @param aReferenceValue Reference value for scaling the IQI, can be a norm if IQI is a vector.
              */
             void set_reference_value( real aReferenceValue );
+
+            void set_normalization_type( std::string aNormalizationType ) { mNormalizationType = aNormalizationType; }
+
+            std::string get_normalization_type() const { return mNormalizationType; }
 
             /*
              * set fem set pointer
