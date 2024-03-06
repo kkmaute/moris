@@ -9,7 +9,8 @@
  */
 
 #include "fn_FEM_IWG_Compressible_NS.hpp"
-
+#include "cl_FEM_Material_Model.hpp"
+#include "cl_FEM_Constitutive_Model.hpp"
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"

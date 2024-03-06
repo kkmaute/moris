@@ -24,24 +24,13 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::STRONG_RESIDUAL_INCOMPRESSIBLE_NS;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Gravity" ]          = static_cast< uint >( IQI_Property_Type::GRAVITY );
-            mPropertyMap[ "ThermalExpansion" ] = static_cast< uint >( IQI_Property_Type::THERMAL_EXPANSION );
-            mPropertyMap[ "ReferenceTemp" ]    = static_cast< uint >( IQI_Property_Type::REF_TEMP );
-            mPropertyMap[ "InvPermeability" ]  = static_cast< uint >( IQI_Property_Type::INV_PERMEABILITY );
-            mPropertyMap[ "MassSource" ]       = static_cast< uint >( IQI_Property_Type::MASS_SOURCE );
-            mPropertyMap[ "Load" ]             = static_cast< uint >( IQI_Property_Type::BODY_LOAD );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] =
-                    static_cast< uint >( IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID );
+            init_property( "Gravity", IQI_Property_Type::GRAVITY );
+            init_property( "ThermalExpansion", IQI_Property_Type::THERMAL_EXPANSION );
+            init_property( "ReferenceTemp", IQI_Property_Type::REF_TEMP );
+            init_property( "InvPermeability", IQI_Property_Type::INV_PERMEABILITY );
+            init_property( "MassSource", IQI_Property_Type::MASS_SOURCE );
+            init_property( "Load", IQI_Property_Type::BODY_LOAD );
+            init_constitutive_model( "IncompressibleFluid", IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID );
         }
 
         //------------------------------------------------------------------------------
@@ -69,32 +58,24 @@ namespace moris
             }
 
             // get the velocity and pressure FIs
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the properties
-            const std::shared_ptr< Property >& tGravityProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::GRAVITY ) );
+            const std::shared_ptr< Property >& tGravityProp = get_leader_property(IQI_Property_Type::GRAVITY);
 
-            const std::shared_ptr< Property >& tThermalExpProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::THERMAL_EXPANSION ) );
+            const std::shared_ptr< Property >& tThermalExpProp = get_leader_property(IQI_Property_Type::THERMAL_EXPANSION);
 
-            const std::shared_ptr< Property >& tRefTempProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::REF_TEMP ) );
+            const std::shared_ptr< Property >& tRefTempProp = get_leader_property(IQI_Property_Type::REF_TEMP);
 
-            const std::shared_ptr< Property >& tInvPermeabProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::INV_PERMEABILITY ) );
+            const std::shared_ptr< Property >& tInvPermeabProp = get_leader_property(IQI_Property_Type::INV_PERMEABILITY);
 
-            const std::shared_ptr< Property >& tMassSourceProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::MASS_SOURCE ) );
+            const std::shared_ptr< Property >& tMassSourceProp = get_leader_property(IQI_Property_Type::MASS_SOURCE);
 
             // get the body load property
-            const std::shared_ptr< Property >& tLoadProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tLoadProp = get_leader_property(IQI_Property_Type::BODY_LOAD);
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model(IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID);
 
             // get the density property from CM
             const std::shared_ptr< Property >& tDensityProp =
@@ -151,8 +132,7 @@ namespace moris
                     {
                         // get the temperature field interpolator
                         // FIXME protect FI
-                        Field_Interpolator* tTempFI =
-                                mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                        Field_Interpolator* tTempFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                         // add contribution to residual
                         tRes -= tDensity * tGravityProp->val() * tThermalExpProp->val()
@@ -170,7 +150,7 @@ namespace moris
         IQI_Strong_Residual_Incompressible_NS::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // evaluate strong form
             Matrix< DDRMat > tQI( 1, 1 );
@@ -194,7 +174,7 @@ namespace moris
         void
         IQI_Strong_Residual_Incompressible_NS::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Matrix< DDRMat >&        adQIdu )
         {
             MORIS_ERROR( false,
                     "IQI_Strong_Residual_Incompressible_NS::compute_dQIdu - not implemented\n." );
@@ -203,4 +183,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 }    // namespace moris
-

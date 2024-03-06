@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_FEM_IWG_Compressible_NS_Boundary.cpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Compressible_NS_Boundary.cpp
+ *
  */
 
 #include "cl_FEM_IWG_Compressible_NS_Boundary.hpp"
@@ -25,25 +25,11 @@ namespace moris
 
         IWG_Compressible_NS_Boundary::IWG_Compressible_NS_Boundary()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "HeatFlux" ] = static_cast< uint >( IWG_Property_Type::HEAT_FLUX );
-            mPropertyMap[ "Traction" ] = static_cast< uint >( IWG_Property_Type::TRACTION );
-            mPropertyMap[ "Pressure" ] = static_cast< uint >( IWG_Property_Type::PRESSURE );
-
-            // set size for the material model pointer cell
-            mLeaderMM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the material map
-            mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
+            init_property( "HeatFlux", IWG_Property_Type::HEAT_FLUX );
+            init_property( "Traction", IWG_Property_Type::TRACTION );
+            init_property( "Pressure", IWG_Property_Type::PRESSURE );
+            init_material_model( "FluidMM", IWG_Material_Type::FLUID_MM );
+            init_constitutive_model( "FluidCM", IWG_Constitutive_Type::FLUID_CM );
         }
 
         //------------------------------------------------------------------------------
@@ -51,7 +37,7 @@ namespace moris
         void IWG_Compressible_NS_Boundary::reset_child_eval_flags()
         {
             // reset eval flags
-            mTractionEval = true;
+            mTractionEval    = true;
             mTractionDofEval = true;
         }
 
@@ -64,7 +50,7 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
                     "IWG_Compressible_NS_Boundary::compute_residual() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
@@ -74,12 +60,11 @@ namespace moris
             uint tLeaderRes3StopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDof3Index )( 0, 1 );
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tLeaderRes1StartIndex, tLeaderRes3StopIndex }, { 0, 0 } ) -= aWStar * (
-                    this->W_trans() * this->Traction() );
+            mSet->get_residual()( 0 )( { tLeaderRes1StartIndex, tLeaderRes3StopIndex }, { 0, 0 } ) -= aWStar * ( this->W_trans() * this->Traction() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Boundary::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Boundary::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -91,7 +76,7 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
                     "IWG_Compressible_NS_Boundary::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
@@ -101,24 +86,24 @@ namespace moris
             uint tLeaderRes3StopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDof3Index )( 0, 1 );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ), 
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, get_requested_leader_dof_types() ),
                     "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
 
             // get the indeces for assembly
-            sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( mRequestedLeaderGlobalDofTypes( 0 )( 0 ), mtk::Leader_Follower::LEADER );
-            sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( mRequestedLeaderGlobalDofTypes( 2 )( 0 ), mtk::Leader_Follower::LEADER );
+            sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( get_requested_leader_dof_types()( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( get_requested_leader_dof_types()( 2 )( 0 ), mtk::Leader_Follower::LEADER );
             uint tLeaderDep1StartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDof1Index )( tDofFirstDepIndex, 0 );
-            uint tLeaderDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDof3Index )( tDofThirdDepIndex, 1 );                
+            uint tLeaderDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDof3Index )( tDofThirdDepIndex, 1 );
 
-            // get subview of jacobian for += operations   
-            auto tJac = mSet->get_jacobian()( { tLeaderRes1StartIndex, tLeaderRes3StopIndex }, { tLeaderDep1StartIndex, tLeaderDep3StopIndex } );  
+            // get subview of jacobian for += operations
+            auto tJac = mSet->get_jacobian()( { tLeaderRes1StartIndex, tLeaderRes3StopIndex }, { tLeaderDep1StartIndex, tLeaderDep3StopIndex } );
 
             // compute jacobian
             tJac -= aWStar * ( this->W_trans() * this->dTractiondDOF() );
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Compressible_NS_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -132,25 +117,25 @@ namespace moris
 
         void IWG_Compressible_NS_Boundary::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Boundary::compute_dRdp - Not implemented.");
+            MORIS_ERROR( false, "IWG_Compressible_NS_Boundary::compute_dRdp - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Boundary::Traction()
+        const Matrix< DDRMat > &IWG_Compressible_NS_Boundary::Traction()
         {
             // check if the A matrices have already been assembled
-            if( !mTractionEval )
+            if ( !mTractionEval )
             {
                 return mTraction;
-            }  
-            
+            }
+
             // set the eval flag
-            mTractionEval = false;  
+            mTractionEval = false;
 
             // number of state variables and total bases
-            uint tNumStateVars = this->num_space_dims() + 2; 
+            uint tNumStateVars = this->num_space_dims() + 2;
 
             // initialize traction
             mTraction.set_size( tNumStateVars, 1, 0.0 );
@@ -158,16 +143,16 @@ namespace moris
             auto tTraction3 = mTraction( { tNumStateVars - 1, tNumStateVars - 1 }, { 0, 0 } );
 
             // get the velocity, FIXME: this needs to be done through the material model for conservative and entropy variables
-            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
 
             // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            std::shared_ptr< Material_Model >     tMM = get_leader_material_model(IWG_Material_Type::FLUID_MM);
+            std::shared_ptr< Constitutive_Model > tCM = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_CM);
 
             // get the properties
-            std::shared_ptr< Property > tPropHeatFlux = mLeaderProp( static_cast< uint >( IWG_Property_Type::HEAT_FLUX ) );
-            std::shared_ptr< Property > tPropTraction = mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
-            std::shared_ptr< Property > tPropPressure = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            std::shared_ptr< Property > tPropHeatFlux = get_leader_property(IWG_Property_Type::HEAT_FLUX);
+            std::shared_ptr< Property > tPropTraction = get_leader_property(IWG_Property_Type::TRACTION);
+            std::shared_ptr< Property > tPropPressure = get_leader_property(IWG_Property_Type::PRESSURE);
 
             // check if a traction is prescribed and use it, if not compute it
             if ( tPropTraction != nullptr )
@@ -177,8 +162,8 @@ namespace moris
             }
             else
             {
-                tTraction2 += tCM->traction( mNormal, CM_Function_Type::MECHANICAL ).matrix_data();
-                tTraction3 += tCM->traction( mNormal, CM_Function_Type::WORK ).matrix_data();
+                tTraction2 += tCM->traction( get_normal(), CM_Function_Type::MECHANICAL ).matrix_data();
+                tTraction3 += tCM->traction( get_normal(), CM_Function_Type::WORK ).matrix_data();
             }
 
             // check if a heat flux is prescribed and use it
@@ -190,61 +175,61 @@ namespace moris
             // check if a pressure is prescribed and apply it
             if ( tPropPressure != nullptr )
             {
-                tTraction2 += ( tMM->pressure()( 0 ) - tPropPressure->val()( 0 ) ) * mNormal;
-                tTraction3 += ( tMM->pressure()( 0 ) - tPropPressure->val()( 0 ) ) * tFIVelocity->val_trans() * mNormal;
+                tTraction2 += ( tMM->pressure()( 0 ) - tPropPressure->val()( 0 ) ) * get_normal();
+                tTraction3 += ( tMM->pressure()( 0 ) - tPropPressure->val()( 0 ) ) * tFIVelocity->val_trans() * get_normal();
             }
 
-            // return 
+            // return
             return mTraction;
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Boundary::dTractiondDOF()
+        const Matrix< DDRMat > &IWG_Compressible_NS_Boundary::dTractiondDOF()
         {
             // check if the A matrices have already been assembled
-            if( !mTractionDofEval )
+            if ( !mTractionDofEval )
             {
                 return mTractionDOF;
-            }  
-            
+            }
+
             // set the eval flag
-            mTractionDofEval = false;  
+            mTractionDofEval = false;
 
             // get the velocity, FIXME: this needs to be done through the material model for conservative and entropy variables
-            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
 
             // get the properties
-            std::shared_ptr< Property > tPropMu = mLeaderProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropKappa = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+            std::shared_ptr< Property > tPropMu    = get_leader_property(IWG_Property_Type::DYNAMIC_VISCOSITY);
+            std::shared_ptr< Property > tPropKappa = get_leader_property(IWG_Property_Type::THERMAL_CONDUCTIVITY);
 
             // number of state variables and total bases
             uint tNumStateVars = this->num_space_dims() + 2;
-            uint tTotNumBases = tNumStateVars * this->num_bases();
+            uint tTotNumBases  = tNumStateVars * this->num_bases();
 
             // initialize traction
-            mTractionDOF.set_size( tNumStateVars, tTotNumBases , 0.0 );
+            mTractionDOF.set_size( tNumStateVars, tTotNumBases, 0.0 );
 
             // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            std::shared_ptr< Material_Model >     tMM = get_leader_material_model(IWG_Material_Type::FLUID_MM);
+            std::shared_ptr< Constitutive_Model > tCM = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_CM);
 
             // get the properties
-            std::shared_ptr< Property > tPropHeatFlux = mLeaderProp( static_cast< uint >( IWG_Property_Type::HEAT_FLUX ) );
-            std::shared_ptr< Property > tPropTraction = mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
-            std::shared_ptr< Property > tPropPressure = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            std::shared_ptr< Property > tPropHeatFlux = get_leader_property(IWG_Property_Type::HEAT_FLUX);
+            std::shared_ptr< Property > tPropTraction = get_leader_property(IWG_Property_Type::TRACTION);
+            std::shared_ptr< Property > tPropPressure = get_leader_property(IWG_Property_Type::PRESSURE);
 
             // compute the jacobian for dof dependencies
-            for( uint iDOF = 0; iDOF < mRequestedLeaderGlobalDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < get_requested_leader_dof_types().size(); iDOF++ )
             {
                 // get dof type
-                Vector< MSI::Dof_Type > tDepDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > tDepDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the dof type indices for assembly
                 uint tLeaderDofIndex = mSet->get_dof_index_for_type( this->get_primary_state_var( iDOF ), mtk::Leader_Follower::LEADER );
-                uint tDepDofIndex     = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Leader_Follower::LEADER );
-                uint tDepStartIndex   = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 0 );
-                uint tDepStopIndex    = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 1 );
+                uint tDepDofIndex    = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tDepStartIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 0 );
+                uint tDepStopIndex   = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 1 );
 
                 // get matrix subviews for different residuals - FIXME: assuming three different Residual DoF-Types
                 auto tTraction2DOF = mTractionDOF( { 1, tNumStateVars - 2 }, { tDepStartIndex, tDepStopIndex } );
@@ -266,8 +251,8 @@ namespace moris
                 }
                 else if ( tCM->check_dof_dependency( tDepDofType ) )
                 {
-                    tTraction2DOF += tCM->dTractiondDOF( tDepDofType, mNormal, CM_Function_Type::MECHANICAL ).matrix_data();
-                    tTraction3DOF += tCM->dTractiondDOF( tDepDofType, mNormal, CM_Function_Type::WORK ).matrix_data();
+                    tTraction2DOF += tCM->dTractiondDOF( tDepDofType, get_normal(), CM_Function_Type::MECHANICAL ).matrix_data();
+                    tTraction3DOF += tCM->dTractiondDOF( tDepDofType, get_normal(), CM_Function_Type::WORK ).matrix_data();
                 }
 
                 // check if a heat flux is prescribed and use it
@@ -281,28 +266,28 @@ namespace moris
                 {
                     if ( tPropPressure->check_dof_dependency( tDepDofType ) )
                     {
-                        tTraction2DOF -= mNormal * tPropPressure->dPropdDOF( tDepDofType );
-                        tTraction3DOF -= tFIVelocity->val_trans() * mNormal * tPropPressure->dPropdDOF( tDepDofType );
+                        tTraction2DOF -= get_normal() * tPropPressure->dPropdDOF( tDepDofType );
+                        tTraction3DOF -= tFIVelocity->val_trans() * get_normal() * tPropPressure->dPropdDOF( tDepDofType );
                     }
-                    
+
                     if ( tMM->check_dof_dependency( tDepDofType ) )
                     {
-                        tTraction2DOF += mNormal * tMM->PressureDOF( tDepDofType );
-                        tTraction3DOF += tFIVelocity->val_trans() * mNormal * tMM->PressureDOF( tDepDofType );
+                        tTraction2DOF += get_normal() * tMM->PressureDOF( tDepDofType );
+                        tTraction3DOF += tFIVelocity->val_trans() * get_normal() * tMM->PressureDOF( tDepDofType );
                     }
 
                     if ( tDepDofType( 0 ) == this->get_primary_state_var( 1 ) )
                     {
-                        tTraction3DOF += ( tMM->pressure()( 0 ) - tPropPressure->val()( 0 ) ) * trans( mNormal) * tFIVelocity->N();
+                        tTraction3DOF += ( tMM->pressure()( 0 ) - tPropPressure->val()( 0 ) ) * trans( get_normal() ) * tFIVelocity->N();
                     }
                 }
-            } // end loop over dof dependencies
+            }    // end loop over dof dependencies
 
-            // return 
+            // return
             return mTractionDOF;
         }
 
         //------------------------------------------------------------------------------
-        
+
     } /* namespace fem */
 } /* namespace moris */

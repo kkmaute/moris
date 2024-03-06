@@ -27,26 +27,11 @@ namespace moris
         {
             // set sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "DirichletNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
+            init_property( "Dirichlet", IWG_Property_Type::DIRICHLET );
+            init_property( "Select", IWG_Property_Type::SELECT );
+            init_property( "Thickness", IWG_Property_Type::THICKNESS );
+            init_constitutive_model( "Diffusion", IWG_Constitutive_Type::DIFF_LIN_ISO );
+            init_stabilization_parameter( "DirichletNitsche", IWG_Stabilization_Type::DIRICHLET_NITSCHE );
         }
 
         //------------------------------------------------------------------------------
@@ -65,12 +50,10 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for a given dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property(IWG_Property_Type::SELECT);
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -83,29 +66,25 @@ namespace moris
             }
 
             // get imposed temperature property
-            const std::shared_ptr< Property >& tPropDirichlet =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property >& tPropDirichlet = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             MORIS_ASSERT( tPropDirichlet != nullptr,
                     "IWG_Diffusion_Dirichlet_Nitsche::compute_residual - DBC property missing." );
 
             // get the elasticity CM
-            const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model(IWG_Constitutive_Type::DIFF_LIN_ISO);
 
             MORIS_ASSERT( tCMDiffusion != nullptr,
                     "IWG_Diffusion_Dirichlet_Nitsche::compute_residual - Constitutive model missing." );
 
             // get the stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::DIRICHLET_NITSCHE);
 
             MORIS_ASSERT( tSPNitsche != nullptr,
                     "IWG_Diffusion_Dirichlet_Nitsche::compute_residual - Nitsche stabilization parameter missing." );
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -115,8 +94,8 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
-                    aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->traction( mNormal )                               //
-                               + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
+                    aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->traction( get_normal() )                               //
+                               + mBeta * tCMDiffusion->testTraction( get_normal(), mResidualDofType( 0 ) ) * tM * tJump    //
                                + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tJump );
 
             // check for nan, infinity
@@ -140,12 +119,10 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property(IWG_Property_Type::SELECT);
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -158,20 +135,16 @@ namespace moris
             }
 
             // get imposed temperature property
-            const std::shared_ptr< Property >& tPropDirichlet =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property >& tPropDirichlet = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the elasticity CM
-            const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model(IWG_Constitutive_Type::DIFF_LIN_ISO);
 
             // get the stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::DIRICHLET_NITSCHE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -180,12 +153,12 @@ namespace moris
             real tJump = tFI->val()( 0 ) - tPropDirichlet->val()( 0 );
 
             // compute the Jacobian for indirect dof dependencies through properties
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -200,7 +173,7 @@ namespace moris
                 // if dof type is residual dof type
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    tJac += aWStar * ( mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFI->N() +    //
+                    tJac += aWStar * ( mBeta * tCMDiffusion->testTraction( get_normal(), mResidualDofType( 0 ) ) * tM * tFI->N() +    //
                                        tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tFI->N() );
                 }
 
@@ -208,7 +181,7 @@ namespace moris
                 if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar * ( -mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
+                    tJac += aWStar * ( -mBeta * tCMDiffusion->testTraction( get_normal(), mResidualDofType( 0 ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
                                        - tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
@@ -216,8 +189,8 @@ namespace moris
                 if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal )    //
-                                       + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tM * tJump );
+                    tJac += aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->dTractiondDOF( tDofType, get_normal() )    //
+                                       + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, get_normal(), mResidualDofType( 0 ) ) * tM * tJump );
                 }
 
                 // if dependency on the dof type

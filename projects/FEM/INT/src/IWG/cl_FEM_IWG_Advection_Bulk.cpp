@@ -25,26 +25,12 @@ namespace moris
 
         IWG_Advection_Bulk::IWG_Advection_Bulk()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Load" ] = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "SUPG" ]   = static_cast< uint >( IWG_Stabilization_Type::SUPG );
-            mStabilizationMap[ "YZBeta" ] = static_cast< uint >( IWG_Stabilization_Type::YZBETA );
-            mStabilizationMap[ "DiffusionCrosswind" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
-            mStabilizationMap[ "DiffusionIsotropic" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
+            init_property( "Load", IWG_Property_Type::BODY_LOAD );
+            init_constitutive_model( "Diffusion", IWG_Constitutive_Type::DIFFUSION );
+            init_stabilization_parameter( "SUPG", IWG_Stabilization_Type::SUPG );
+            init_stabilization_parameter( "YZBeta", IWG_Stabilization_Type::YZBETA );
+            init_stabilization_parameter( "DiffusionCrosswind", IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
+            init_stabilization_parameter( "DiffusionIsotropic", IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
         }
 
         //------------------------------------------------------------------------------
@@ -62,33 +48,26 @@ namespace moris
             const uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the residual dof (here temperature) field interpolator
-            Field_Interpolator* tFITemp =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model( IWG_Constitutive_Type::DIFFUSION );
 
             // get the SUPG stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG = get_stabilization_parameter( IWG_Stabilization_Type::SUPG );
 
             // get the YZBeta stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPYZBeta =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::YZBETA ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPYZBeta = get_stabilization_parameter( IWG_Stabilization_Type::YZBETA );
 
             // get the crosswind diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPCrosswind =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind = get_stabilization_parameter( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
 
             // get the isotropic diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPIsotropic =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic = get_stabilization_parameter( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
 
             // compute the residual strong form if either SUPG or YZBeta is used
             Matrix< DDRMat > tRT;
@@ -101,37 +80,34 @@ namespace moris
             auto tRes = mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex } );
 
             // compute the residual
-            tRes += aWStar *
-                    tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->gradEnergy();
+            tRes += aWStar * tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->gradEnergy();
 
             // compute SUPG contribution to residual
             if ( tSPSUPG )
             {
-                tRes += aWStar *
-                        tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 );
+                tRes += aWStar * tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 );
             }
 
             // compute YZBeta contribution to residual
             if ( tSPYZBeta )
             {
-                tRes += aWStar *
-                        tSPYZBeta->val()( 0 ) * std::abs(tRT( 0, 0 )) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy();
+                tRes += aWStar * tSPYZBeta->val()( 0 ) * std::abs( tRT( 0, 0 ) ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy();
             }
 
             // if crosswind stabilization
-            if( tSPCrosswind || tSPIsotropic )
+            if ( tSPCrosswind || tSPIsotropic )
             {
                 // bool for crosswind or isotropic
                 bool tIsCrosswind = tSPCrosswind != nullptr;
 
                 // get conductivity property from CM
-                const std::shared_ptr< Property >& tPropConductivity = //
+                const std::shared_ptr< Property >& tPropConductivity =    //
                         tCMDiffusion->get_property( "Conductivity" );
 
                 // get zero tolerance for isotropic or crosswind
                 real tEpsilon;
                 real tSPValue;
-                if( tIsCrosswind )
+                if ( tIsCrosswind )
                 {
                     // get zero tolerance for crosswind
                     tEpsilon = tSPCrosswind->val()( 1 );
@@ -158,12 +134,11 @@ namespace moris
                 real tCrosswind = std::max( tSPValue * tRAbs / tNorm - tPropConductivity->val()( 0 ), 0.0 );
 
                 // id crosswind stabilization parameter is greater than zero
-                if( tCrosswind > 0.0 )
+                if ( tCrosswind > 0.0 )
                 {
                     // get the velocity FI
                     // FIXME protect dof type
-                    Field_Interpolator* tFIVelocity = //
-                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
                     // get space dimension
                     uint tSpaceDim = tFIVelocity->get_number_of_fields();
@@ -171,8 +146,11 @@ namespace moris
                     // compute crosswind projection of temperature gradient
                     // FIXME protect velocity dof type
                     Matrix< DDRMat > tcgradxt;
-                    compute_cgradxw( { MSI::Dof_Type::VX }, mResidualDofType( 0 ), //
-                            mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                    compute_cgradxw( { MSI::Dof_Type::VX }, mResidualDofType( 0 ),    //
+                            get_leader_fi_manager(),
+                            tSpaceDim,
+                            tEpsilon,
+                            tIsCrosswind,    //
                             tcgradxt );
 
                     // add contribution to residual
@@ -182,7 +160,7 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Advection_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Advection_Bulk::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -200,32 +178,26 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the residual dof (here temperature) field interpolator
-            Field_Interpolator* tFITemp = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model( IWG_Constitutive_Type::DIFFUSION );
 
             // get the SUPG stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG = get_stabilization_parameter( IWG_Stabilization_Type::SUPG );
 
             // get the YZBeta stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPYZBeta =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::YZBETA ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPYZBeta = get_stabilization_parameter( IWG_Stabilization_Type::YZBETA );
 
             // get the crosswind diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPCrosswind =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind = get_stabilization_parameter( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
 
             // get the isotropic diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPIsotropic =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic = get_stabilization_parameter( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
 
             // compute the residual strong form if either SUPG or YZBeta is used
             Matrix< DDRMat > tRT;
@@ -235,13 +207,13 @@ namespace moris
             }
 
             // get number of leader dof dependencies
-            const  uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            const uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // loop over leader dof dependencies
-            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -255,26 +227,23 @@ namespace moris
 
                 // if velocity dof type
                 // FIXME protect dof type
-                if( tDofType( 0 ) == MSI::Dof_Type::VX )
+                if ( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar *
-                            tFITemp->N_trans() * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N();
+                    tJac += aWStar * tFITemp->N_trans() * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N();
 
                     // consider SUPG term
                     if ( tSPSUPG )
                     {
-                        tJac += aWStar *
-                                tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 );
+                        tJac += aWStar * tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 );
                     }
                 }
 
                 // if diffusion CM depends on dof type
-                if( tCMDiffusion->check_dof_dependency( tDofType ) )
+                if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar *
-                            ( tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->dGradEnergydDOF( tDofType ) );
+                    tJac += aWStar * ( tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->dGradEnergydDOF( tDofType ) );
                 }
 
                 // compute the Jacobian strong form
@@ -289,15 +258,13 @@ namespace moris
                 if ( tSPSUPG )
                 {
                     // contribution due to the dof dependence of strong form
-                    tJac += aWStar * (
-                            tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
+                    tJac += aWStar * ( tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
 
                     // if SUPG stabilization parameter depends on dof type
-                    if( tSPSUPG->check_dof_dependency( tDofType ) )
+                    if ( tSPSUPG->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to Jacobian
-                        tJac += aWStar * (
-                                trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdLeaderDOF( tDofType ) );
+                        tJac += aWStar * ( trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdLeaderDOF( tDofType ) );
                     }
                 }
 
@@ -307,38 +274,35 @@ namespace moris
                     // contribution from strong form of residual
                     const real tSign = tRT( 0, 0 ) < 0 ? -1.0 : 1.0;
 
-                    tJac += tSign * aWStar * (
-                            tSPYZBeta->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tJT );
+                    tJac += tSign * aWStar * ( tSPYZBeta->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tJT );
 
                     // contribution from spatial gradient of energy
-                    if( tCMDiffusion->check_dof_dependency( tDofType ) )
+                    if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                     {
-                        tJac += aWStar * std::abs( tRT( 0, 0 ) ) * (
-                                tSPYZBeta->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->dGradEnergydDOF( tDofType ) );
+                        tJac += aWStar * std::abs( tRT( 0, 0 ) ) * ( tSPYZBeta->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->dGradEnergydDOF( tDofType ) );
                     }
 
                     // if YZBeta stabilization parameter depends on dof type
-                    if( tSPYZBeta->check_dof_dependency( tDofType ) )
+                    if ( tSPYZBeta->check_dof_dependency( tDofType ) )
                     {
-                        tJac += aWStar * std::abs( tRT( 0, 0 ) ) * (
-                                trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tSPYZBeta->dSPdLeaderDOF( tDofType ) );
+                        tJac += aWStar * std::abs( tRT( 0, 0 ) ) * ( trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tSPYZBeta->dSPdLeaderDOF( tDofType ) );
                     }
                 }
 
                 // if isotropic or crosswind diffusion stabilization
-                if( tSPCrosswind || tSPIsotropic )
+                if ( tSPCrosswind || tSPIsotropic )
                 {
                     // bool for crosswind or isotropic
                     bool tIsCrosswind = tSPCrosswind != nullptr;
 
                     // get conductivity property from CM
-                    const std::shared_ptr< Property >& tPropConductivity = //
+                    const std::shared_ptr< Property >& tPropConductivity =    //
                             tCMDiffusion->get_property( "Conductivity" );
 
                     // get zero tolerance for isotropic or crosswind
                     real tEpsilon;
                     real tSPValue;
-                    if( tIsCrosswind )
+                    if ( tIsCrosswind )
                     {
                         // get zero tolerance for crosswind
                         tEpsilon = tSPCrosswind->val()( 1 );
@@ -369,8 +333,7 @@ namespace moris
                     {
                         // get the velocity FI
                         // FIXME protect dof type
-                        Field_Interpolator* tFIVelocity = //
-                                mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                        Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
                         // get space dimension
                         uint tSpaceDim = tFIVelocity->get_number_of_fields();
@@ -378,15 +341,22 @@ namespace moris
                         // compute crosswind projection of velocity gradient
                         // FIXME protect dof type
                         Matrix< DDRMat > tcgradxt;
-                        compute_cgradxw( { MSI::Dof_Type::VX }, mResidualDofType( 0 ), //
-                                mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                        compute_cgradxw( { MSI::Dof_Type::VX }, mResidualDofType( 0 ),    //
+                                get_leader_fi_manager(),
+                                tSpaceDim,
+                                tEpsilon,
+                                tIsCrosswind,    //
                                 tcgradxt );
 
                         // compute derivative of crosswind projection of velocity gradient
                         // FIXME protect dof type
                         Matrix< DDRMat > tdcgradtdu;
-                        compute_dcgradxwdu( { MSI::Dof_Type::VX }, mResidualDofType( 0 ),      //
-                                mLeaderFIManager, tDofType, tSpaceDim, tEpsilon, tIsCrosswind, //
+                        compute_dcgradxwdu( { MSI::Dof_Type::VX }, mResidualDofType( 0 ),    //
+                                get_leader_fi_manager(),
+                                tDofType,
+                                tSpaceDim,
+                                tEpsilon,
+                                tIsCrosswind,    //
                                 tdcgradtdu );
 
                         // add contribution to jacobian per direction
@@ -400,15 +370,15 @@ namespace moris
                             const real tNormDeno = std::max( std::pow( tNorm, 3.0 ), tEpsilon );
 
                             // add contribution of derivative of crosswind stabilization to jacobian
-                            tJac -= aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt * //
+                            tJac -= aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt *    //
                                     tSPValue * tRAbs * trans( tFITemp->gradx( 1 ) ) * tFITemp->dnNdxn( 1 ) / tNormDeno;
                         }
 
                         // if absolute value of strong form residual greater than zero
-                        if( tRAbs > tEpsilon )
+                        if ( tRAbs > tEpsilon )
                         {
                             // add contribution of derivative of crosswind stabilization to jacobian
-                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt * //
+                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt *    //
                                     tSPValue * tRT( 0 ) * tJT / ( tNorm * tRAbs );
                         }
 
@@ -416,7 +386,7 @@ namespace moris
                         if ( tPropConductivity->check_dof_dependency( tDofType ) )
                         {
                             // add contribution of derivative of crosswind stabilization to jacobian
-                            tJac -= aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt *//
+                            tJac -= aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt *    //
                                     tPropConductivity->dPropdDOF( tDofType );
                         }
 
@@ -424,16 +394,16 @@ namespace moris
                         if ( tIsCrosswind && tSPCrosswind->check_dof_dependency( tDofType ) )
                         {
                             // add contribution of derivative of crosswind stabilization to jacobian
-                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt * //
-                                    tRAbs * tSPCrosswind->dSPdLeaderDOF( tDofType ) / tNorm ;
+                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt *    //
+                                    tRAbs * tSPCrosswind->dSPdLeaderDOF( tDofType ) / tNorm;
                         }
 
                         // if isotropic diffusion and SP depends on dof
                         if ( !tIsCrosswind && tSPIsotropic->check_dof_dependency( tDofType ) )
                         {
                             // add contribution of derivative of crosswind stabilization to jacobian
-                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt * //
-                                    tRAbs * tSPIsotropic->dSPdLeaderDOF( tDofType ) / tNorm ;
+                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt *    //
+                                    tRAbs * tSPIsotropic->dSPdLeaderDOF( tDofType ) / tNorm;
                         }
                     }
                 }
@@ -441,7 +411,7 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
-                    "IWG_Advection_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+                    "IWG_Advection_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -460,24 +430,19 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Advection_Bulk::compute_residual_strong_form( Matrix< DDRMat > & aRT )
+        void IWG_Advection_Bulk::compute_residual_strong_form( Matrix< DDRMat >& aRT )
         {
             // get the velocity dof field interpolator
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model( IWG_Constitutive_Type::DIFFUSION );
 
             // get body load property
-            const std::shared_ptr< Property > & tPropLoad =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tPropLoad = get_leader_property( IWG_Property_Type::BODY_LOAD );
 
-            aRT = tCMDiffusion->EnergyDot() +
-                    tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() -
-                    tCMDiffusion->divflux();
+            aRT = tCMDiffusion->EnergyDot() + tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() - tCMDiffusion->divflux();
 
             // if body load exists
             if ( tPropLoad != nullptr )
@@ -489,47 +454,41 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Advection_Bulk::compute_jacobian_strong_form (
-                const Vector< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & aJT )
+        void IWG_Advection_Bulk::compute_jacobian_strong_form(
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&              aJT )
         {
             // get the res dof and the derivative dof FIs
-            Field_Interpolator * tFIDer =
-                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tFIDer = get_leader_fi_manager()->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // initialize aJT
-            aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients());
+            aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model( IWG_Constitutive_Type::DIFFUSION );
 
             // get body load property
-            const std::shared_ptr< Property > & tPropLoad =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tPropLoad = get_leader_property( IWG_Property_Type::BODY_LOAD );
 
             // if CM diffusion depends on dof type
-            if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
+            if ( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to Jacobian strong form
-                aJT =   tCMDiffusion->dEnergyDotdDOF( aDofTypes ) +
-                        tFIVelocity->val_trans() * tCMDiffusion->dGradEnergydDOF( aDofTypes ) -
-                        tCMDiffusion->ddivfluxdu( aDofTypes );
+                aJT = tCMDiffusion->dEnergyDotdDOF( aDofTypes ) + tFIVelocity->val_trans() * tCMDiffusion->dGradEnergydDOF( aDofTypes ) - tCMDiffusion->ddivfluxdu( aDofTypes );
             }
             else
             {
-                aJT.fill(0.0);
+                aJT.fill( 0.0 );
             }
 
             // if derivative wrt to velocity dof type
-            if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
+            if ( aDofTypes( 0 ) == MSI::Dof_Type::VX )
             {
-                aJT += trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() ;
+                aJT += trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N();
             }
 
             // if body load exists and depends on DOFs
@@ -545,4 +504,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

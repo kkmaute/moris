@@ -21,13 +21,8 @@ namespace moris
 
         IQI_Traction::IQI_Traction()
         {
-            mFEMIQIType = fem::IQI_Type::TRACTION;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "TractionCM" ] = (uint)IQI_Constitutive_Type::TRACTION_CM;
+            mFEMIQIType                      = fem::IQI_Type::TRACTION;
+            init_constitutive_model( "TractionCM", IQI_Constitutive_Type::TRACTION_CM );
         }
 
         //------------------------------------------------------------------------------
@@ -36,17 +31,16 @@ namespace moris
         IQI_Traction::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get the constitutive model for computing the fluxes/tractions
-            const std::shared_ptr< Constitutive_Model >& tCMLeader =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeader = get_leader_constitutive_model(IQI_Constitutive_Type::TRACTION_CM);
 
-            MORIS_ASSERT( mNormal.numel() > 0,
+            MORIS_ASSERT( get_normal().numel() > 0,
                     "IQI_Traction::compute_QI() - "
                     "Normal is not set. IQIs requiring a normal must be evaluated elementally "
                     "and averaged such that there is a well-defined normal." );
 
-                    // evaluate traction
-                    const Matrix< DDRMat >
-                            tTraction = tCMLeader->traction( mNormal );
+            // evaluate traction
+            const Matrix< DDRMat >
+                    tTraction = tCMLeader->traction( get_normal() );
 
             // based on the IQI index select the norm or the individual component
             if ( mIQITypeIndex == -1 )
@@ -68,20 +62,19 @@ namespace moris
         IQI_Traction::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the constitutive model for computing the fluxes/tractions
-            const std::shared_ptr< Constitutive_Model >& tCMLeader =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeader = get_leader_constitutive_model(IQI_Constitutive_Type::TRACTION_CM);
 
-            MORIS_ASSERT( mNormal.numel() > 0,
+            MORIS_ASSERT( get_normal().numel() > 0,
                     "IQI_Traction::compute_QI() - "
                     "Normal is not set. IQIs requiring a normal must be evaluated elementally "
                     "and averaged such that there is a well-defined normal." );
 
-                    // evaluate traction
-                    const Matrix< DDRMat >
-                            tTraction = tCMLeader->traction( mNormal );
+            // evaluate traction
+            const Matrix< DDRMat >
+                    tTraction = tCMLeader->traction( get_normal() );
 
             // initialize the output matrix
             Matrix< DDRMat > tMat;
@@ -116,7 +109,7 @@ namespace moris
         void
         IQI_Traction::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Matrix< DDRMat >&        adQIdu )
         {
             MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
         }

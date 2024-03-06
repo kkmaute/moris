@@ -25,18 +25,9 @@ namespace moris
 
         IWG_History_Bulk::IWG_History_Bulk()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Weight" ] = static_cast< uint >( IWG_Property_Type::WEIGHT );
-            mPropertyMap[ "Lump" ]   = static_cast< uint >( IWG_Property_Type::LUMP );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "ElasticDamage" ] = static_cast< uint >( IWG_Constitutive_Type::ELASTIC_DAMAGE );
+            init_property("Weight", IWG_Property_Type::WEIGHT);
+            init_property("Lump", IWG_Property_Type::LUMP);
+            init_constitutive_model("ElasticDamage", IWG_Constitutive_Type::ELASTIC_DAMAGE);
         }
 
         //------------------------------------------------------------------------------
@@ -55,20 +46,16 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get weight coefficient
-            const std::shared_ptr< Property >& tPropWeight =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT ) );
+            const std::shared_ptr< Property >& tPropWeight = get_leader_property(IWG_Property_Type::WEIGHT);
 
             // get lump coefficient
-            const std::shared_ptr< Property >& tPropLump =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::LUMP ) );
+            const std::shared_ptr< Property >& tPropLump = get_leader_property(IWG_Property_Type::LUMP);
 
             // get the elasticity with damage CM
-            const std::shared_ptr< Constitutive_Model >& tCMElasticityDamage =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELASTIC_DAMAGE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMElasticityDamage = get_leader_constitutive_model(IWG_Constitutive_Type::ELASTIC_DAMAGE);
 
             // cast constitutive model base class pointer to elasticity damage constitutive model
             CM_Struc_Linear_Isotropic_Damage* tCMElasticityDamagePtr =
@@ -136,20 +123,16 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for a given dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get weight coefficient
-            const std::shared_ptr< Property >& tPropWeight =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT ) );
+            const std::shared_ptr< Property >& tPropWeight = get_leader_property(IWG_Property_Type::WEIGHT);
 
             // get lump coefficient
-            const std::shared_ptr< Property >& tPropLump =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::LUMP ) );
+            const std::shared_ptr< Property >& tPropLump = get_leader_property(IWG_Property_Type::LUMP);
 
             // get the elasticity with damage CM
-            const std::shared_ptr< Constitutive_Model >& tCMElasticityDamage =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELASTIC_DAMAGE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMElasticityDamage = get_leader_constitutive_model(IWG_Constitutive_Type::ELASTIC_DAMAGE);
 
             // cast constitutive model base class pointer to elasticity damage constitutive model
             CM_Struc_Linear_Isotropic_Damage* tCMElasticityDamagePtr =
@@ -164,13 +147,13 @@ namespace moris
             }
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // loop over leader dof type dependencies
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );

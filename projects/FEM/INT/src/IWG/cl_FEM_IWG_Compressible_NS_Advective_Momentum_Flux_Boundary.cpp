@@ -25,11 +25,7 @@ namespace moris
 
         IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::IWG_Compressible_NS_Advective_Momentum_Flux_Boundary()
         {
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID );
+            init_constitutive_model( "Fluid", IWG_Constitutive_Type::FLUID );
         }
 
         //------------------------------------------------------------------------------
@@ -47,8 +43,8 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the field interpolators
-            Field_Interpolator * tDensityFI = mLeaderFIManager->get_field_interpolators_for_type( mDofDensity );
-            Field_Interpolator * tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tDensityFI  = get_leader_fi_manager()->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator *tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // build dyadic product of velocity vectors
             Matrix< DDRMat > tUiUj;
@@ -59,12 +55,11 @@ namespace moris
             this->compute_normal_matrix( tNormalMatrix );
 
             // compute the residual weak form
-            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) += aWStar * (
-                    tDensityFI->val()( 0 ) * tVelocityFI->N_trans() * tNormalMatrix * tUiUj );
+            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) += aWStar * ( tDensityFI->val()( 0 ) * tVelocityFI->N_trans() * tNormalMatrix * tUiUj );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -81,15 +76,15 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the FIs
-            Field_Interpolator * tFIDensity =  mLeaderFIManager->get_field_interpolators_for_type( mDofDensity );
-            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tFIDensity  = get_leader_fi_manager()->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // compute the jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
-            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
+            for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -97,7 +92,7 @@ namespace moris
                 uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
-                if( tDofType( 0 ) == mDofDensity )
+                if ( tDofType( 0 ) == mDofDensity )
                 {
                     // build dyadic product of velocity vectors
                     Matrix< DDRMat > tUiUj;
@@ -110,12 +105,11 @@ namespace moris
                     // add contribution
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
-                                    tFIVelocity->N_trans() * tNormalMatrix * tUiUj * tFIDensity->N() );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * ( tFIVelocity->N_trans() * tNormalMatrix * tUiUj * tFIDensity->N() );
                 }
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
-                if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
+                if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // build derivative of dyadic product of velocity vectors wrt to dofs
                     Matrix< DDRMat > tdUiUjdDOF;
@@ -128,14 +122,13 @@ namespace moris
                     // add contribution
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
-                                    tFIDensity->val()( 0 ) * tFIVelocity->N_trans() * tNormalMatrix * tdUiUjdDOF );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * ( tFIDensity->val()( 0 ) * tFIVelocity->N_trans() * tNormalMatrix * tdUiUjdDOF );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -165,8 +158,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual_strong_form(
-                Matrix< DDRMat > & aRM,
-                real             & aRC )
+                Matrix< DDRMat > &aRM,
+                real             &aRC )
         {
             MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual_strong_form - Not implemented." );
         }
@@ -174,33 +167,32 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_strong_form(
-                Vector< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & aJM,
-                Matrix< DDRMat >             & aJC )
+                Vector< MSI::Dof_Type > aDofTypes,
+                Matrix< DDRMat >       &aJM,
+                Matrix< DDRMat >       &aJC )
         {
             MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Mass_Flux_Boundary::compute_jacobian_strong_form - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_uiuj(Matrix< DDRMat > & auiuj)
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_uiuj( Matrix< DDRMat > &auiuj )
         {
             // get the velocity vector
-            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mDofVelocity );
 
             // get the velocity vector
             Matrix< DDRMat > tVelocityVec = tFIVelocity->val();
 
             // assembly into flattened tensor
             // for 2D
-            if( tFIVelocity->get_number_of_fields() == 2 )
+            if ( tFIVelocity->get_number_of_fields() == 2 )
             {
                 auiuj.set_size( 3, 1, 0.0 );
 
                 auiuj( 0 ) = std::pow( tVelocityVec( 0 ), 2.0 );
                 auiuj( 1 ) = std::pow( tVelocityVec( 1 ), 2.0 );
                 auiuj( 2 ) = tVelocityVec( 0 ) * tVelocityVec( 1 );
-
             }
             // for 3D
             else
@@ -218,21 +210,21 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF)
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_duiujdDOF( Matrix< DDRMat > &aduiujdDOF )
         {
             // get the velocity vector
-            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mDofVelocity );
 
             // get the velocity vector and shape functions
             Matrix< DDRMat > tUvec = tFIVelocity->val();
             Matrix< DDRMat > tNmat = tFIVelocity->N();
 
             // get number of bases
-            uint tNumBases = mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_space_time_bases();
+            uint tNumBases = get_leader_fi_manager()->get_field_interpolators_for_type( mDofVelocity )->get_number_of_space_time_bases();
 
             // assembly
             // for 2D
-            if( tFIVelocity->get_number_of_fields() == 2 )
+            if ( tFIVelocity->get_number_of_fields() == 2 )
             {
                 // initialize
                 aduiujdDOF.set_size( 3, tNumBases * 2, 0.0 );
@@ -260,31 +252,31 @@ namespace moris
                 aduiujdDOF( { 4, 4 }, { 0, tNumBases - 1 } )                 = tUvec( 2 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
                 aduiujdDOF( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tUvec( 0 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
 
-                aduiujdDOF( { 5, 5 }, { 0, tNumBases - 1 } )                 = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
-                aduiujdDOF( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } )     = tUvec( 0 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+                aduiujdDOF( { 5, 5 }, { 0, tNumBases - 1 } )             = tUvec( 1 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
+                aduiujdDOF( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = tUvec( 0 ) * tNmat( { 0, 0 }, { 0, tNumBases - 1 } );
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_normal_matrix( Matrix< DDRMat > & aNormalMatrix )
+        void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_normal_matrix( Matrix< DDRMat > &aNormalMatrix )
         {
             // clang-format off
             // assembly into matrix
             // for 2D
-            if( mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_fields() == 2 )
+            if( get_leader_fi_manager()->get_field_interpolators_for_type( mDofVelocity )->get_number_of_fields() == 2 )
             {
                 aNormalMatrix = {
-                        { mNormal( 0 ),         0.0 , mNormal( 1 ) },
-                        {         0.0 , mNormal( 1 ), mNormal( 0 ) } };
+                        { get_normal()( 0 ),         0.0 , get_normal()( 1 ) },
+                        {         0.0 , get_normal()( 1 ), get_normal()( 0 ) } };
             }
             // for 3D
             else
             {
                 aNormalMatrix = {
-                        { mNormal( 0 ),         0.0 ,         0.0 ,         0.0 , mNormal( 2 ), mNormal( 1 ) },
-                        {         0.0 , mNormal( 1 ),         0.0 , mNormal( 2 ),         0.0 , mNormal( 0 ) },
-                        {         0.0 ,         0.0 , mNormal( 2 ), mNormal( 1 ), mNormal( 0 ),         0.0  } };
+                        { get_normal()( 0 ),         0.0 ,         0.0 ,         0.0 , get_normal()( 2 ), get_normal()( 1 ) },
+                        {         0.0 , get_normal()( 1 ),         0.0 , get_normal()( 2 ),         0.0 , get_normal()( 0 ) },
+                        {         0.0 ,         0.0 , get_normal()( 2 ), get_normal()( 1 ), get_normal()( 0 ),         0.0  } };
             }
             // clang-format on
         }
@@ -292,4 +284,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

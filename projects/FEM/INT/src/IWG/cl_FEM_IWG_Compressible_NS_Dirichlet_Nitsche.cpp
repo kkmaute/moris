@@ -13,7 +13,7 @@
 #include "cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.hpp"
 #include "fn_FEM_IWG_Compressible_NS.hpp"
 
-//LINALG/src
+// LINALG/src
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
@@ -30,36 +30,16 @@ namespace moris
         {
             // set sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "PrescribedDof1" ]      = static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 );
-            mPropertyMap[ "PrescribedVelocity" ]  = static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY );
-            mPropertyMap[ "SelectVelocity" ]      = static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY );
-            mPropertyMap[ "PrescribedDof3" ]      = static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 );
-            mPropertyMap[ "PressureUpwind" ]      = static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND );
-            mPropertyMap[ "DynamicViscosity" ]    = static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY );
-            mPropertyMap[ "ThermalConductivity" ] = static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY );
-
-            // set size for the material model pointer cell
-            mLeaderMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
-
-            // populate the material map
-            mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "NitschePenaltyParameter" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER );
+            init_property( "PrescribedDof1", IWG_Property_Type::PRESCRIBED_DOF_1 );
+            init_property( "PrescribedVelocity", IWG_Property_Type::PRESCRIBED_VELOCITY );
+            init_property( "SelectVelocity", IWG_Property_Type::SELECT_VELOCITY );
+            init_property( "PrescribedDof3", IWG_Property_Type::PRESCRIBED_DOF_3 );
+            init_property( "PressureUpwind", IWG_Property_Type::PRESSUREUPWIND );
+            init_property( "DynamicViscosity", IWG_Property_Type::DYNAMIC_VISCOSITY );
+            init_property( "ThermalConductivity", IWG_Property_Type::THERMAL_CONDUCTIVITY );
+            init_material_model( "FluidMM", IWG_Material_Type::FLUID_MM );
+            init_constitutive_model( "FluidCM", IWG_Constitutive_Type::FLUID_CM );
+            init_stabilization_parameter( "NitschePenaltyParameter", IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER );
         }
 
         //------------------------------------------------------------------------------
@@ -67,13 +47,13 @@ namespace moris
         void IWG_Compressible_NS_Dirichlet_Nitsche::reset_child_eval_flags()
         {
             // reset eval flags
-            mJumpEval = true;
-            mJumpDofEval = true;
+            mJumpEval         = true;
+            mJumpDofEval      = true;
             mSelectMatrixEval = true;
 
-            mTractionEval = true;
-            mTractionDofEval = true;
-            mTestTractionEval = true;
+            mTractionEval        = true;
+            mTractionDofEval     = true;
+            mTestTractionEval    = true;
             mTestTractionDofEval = true;
 
             mUpwindOperatorEval = true;
@@ -100,19 +80,18 @@ namespace moris
 
             // construct temporary Vector for residual
             Matrix< DDRMat > tTempRes( tNumTotalBases, 1, 0.0 );
-            auto tRes = tTempRes( { 0, tNumTotalBases - 1 }, { 0, 0 } );
+            auto             tRes = tTempRes( { 0, tNumTotalBases - 1 }, { 0, 0 } );
 
             // Boundary terms from Ibp (consistency term)
             // FIXME: only penalty for now
-             tRes -= aWStar * this->W_trans() * this->select_matrix() * this->Traction();
+            tRes -= aWStar * this->W_trans() * this->select_matrix() * this->Traction();
 
             // adjoint term
             // FIXME: something is wrong with the adjoint term
             tRes -= aWStar * mBeta * this->TestTraction() * this->jump();
 
             // get the Nitsche stabilization parameter - is a diagonal matrix, each diagonal entry corresponding to the respective Dof Type
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER ) );
+           std::shared_ptr< Stabilization_Parameter > const &tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER);
 
             // Nitsche Penalty Term
             if ( tSPNitsche != nullptr )
@@ -129,7 +108,7 @@ namespace moris
             }
 
             // get the upwind property
-            std::shared_ptr< Property > tPropUpwind = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
+            std::shared_ptr< Property > tPropUpwind = get_leader_property(IWG_Property_Type::PRESSUREUPWIND);
 
             // Upwind Term
             if ( tPropUpwind != nullptr )
@@ -159,7 +138,7 @@ namespace moris
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ),
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, get_requested_leader_dof_types() ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Set of DoF dependencies not suppported. See error message above." );
 
             // get number of space dimensions
@@ -170,11 +149,11 @@ namespace moris
 
             // construct temporary Matrix for elemental Jacobian in standardized format
             Matrix< DDRMat > tTempJac( tNumTotalBases, tNumTotalBases, 0.0 );
-            auto tJac = tTempJac( { 0, tNumTotalBases - 1 }, { 0, tNumTotalBases - 1 } );
+            auto             tJac = tTempJac( { 0, tNumTotalBases - 1 }, { 0, tNumTotalBases - 1 } );
 
             // Boundary terms from Ibp
             // FIXME: only penalty for now
-             tJac -= aWStar * this->W_trans() * this->select_matrix() * this->dTractiondDOF();
+            tJac -= aWStar * this->W_trans() * this->select_matrix() * this->dTractiondDOF();
 
             // adjoint term
             // FIXME: something is wrong with the adjoint term
@@ -182,8 +161,7 @@ namespace moris
             tJac -= aWStar * mBeta * this->dTestTractiondDOF( this->jump() );
 
             // get the Nitsche stabilization parameter - is a diagonal matrix, each diagonal entry corresponding to the respective Dof Type
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER ) );
+           std::shared_ptr< Stabilization_Parameter > const &tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER);
 
             // Nitsche Penalty Term
             if ( tSPNitsche != nullptr )
@@ -202,26 +180,25 @@ namespace moris
             }
 
             // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            std::shared_ptr< Material_Model >     tMM = get_leader_material_model(IWG_Material_Type::FLUID_MM);
+            std::shared_ptr< Constitutive_Model > tCM = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_CM);
 
             // get the upwind property
-            std::shared_ptr< Property > tPropUpwind = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
+            std::shared_ptr< Property > tPropUpwind = get_leader_property(IWG_Property_Type::PRESSUREUPWIND);
 
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
                 // add contribution
-                tJac -= aWStar * tPropUpwind->val()( 0 ) * this->W_trans() * (
-                        this->UpwindOperator() * this->dJumpdDOF() + this->dUpwindOperatordY( this->jump() ) * this->W() );
+                tJac -= aWStar * tPropUpwind->val()( 0 ) * this->W_trans() * ( this->UpwindOperator() * this->dJumpdDOF() + this->dUpwindOperatordY( this->jump() ) * this->W() );
             }
 
             // assemble jacobian into set jacobian
             this->assemble_jacobian( tTempJac );
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -252,4 +229,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

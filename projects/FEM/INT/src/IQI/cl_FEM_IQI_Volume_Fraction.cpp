@@ -22,26 +22,18 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::VOLUME_FRACTION;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mStabilizationMap[ "Reciprocal_total_vol" ] = static_cast< uint >( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
+            init_stabilization_parameter( "Reciprocal_total_vol", IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_Volume_Fraction::compute_QI( Matrix< DDRMat > & aQI )
+        void IQI_Volume_Fraction::compute_QI( Matrix< DDRMat > &aQI )
         {
             // set the size for the QI
             aQI.set_size( 1, 1 );
 
             // evaluate the QI
-            aQI( 0 ) = mStabilizationParam( 0 )->val()( 0 );
+            aQI( 0 ) = get_stabilization_parameter( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME )->val()( 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -49,14 +41,13 @@ namespace moris
         void IQI_Volume_Fraction::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * ( mStabilizationParam( 0 )->val() );
+            mSet->get_QI()( tQIIndex ) += aWStar * ( get_stabilization_parameter( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME )->val() );
         }
 
         //------------------------------------------------------------------------------
 
-    }/* end namespace fem */
-}/* end namespace moris */
-
+    } /* end namespace fem */
+} /* end namespace moris */

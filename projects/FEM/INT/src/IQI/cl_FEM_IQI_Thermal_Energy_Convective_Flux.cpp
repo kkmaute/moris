@@ -24,29 +24,22 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IQI_Constitutive_Type::DIFFUSION );
+            init_constitutive_model( "Diffusion", IQI_Constitutive_Type::DIFFUSION );
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_Thermal_Energy_Convective_Flux::compute_QI( Matrix< DDRMat > & aQI )
+        void IQI_Thermal_Energy_Convective_Flux::compute_QI( Matrix< DDRMat > &aQI )
         {
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model > &tCMDiffusion = get_leader_constitutive_model(IQI_Constitutive_Type::DIFFUSION);
 
             // FIXME protect dof type
             // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // evaluate the QI
-            aQI = tCMDiffusion->Energy()(0) * tFIVelocity->val_trans() * mNormal;
+            aQI = tCMDiffusion->Energy()( 0 ) * tFIVelocity->val_trans() * get_normal();
         }
 
         //------------------------------------------------------------------------------
@@ -54,20 +47,17 @@ namespace moris
         void IQI_Thermal_Energy_Convective_Flux::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model > &tCMDiffusion = get_leader_constitutive_model(IQI_Constitutive_Type::DIFFUSION);
 
             // FIXME protect dof type
             // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * (
-                    tCMDiffusion->Energy()(0) * tFIVelocity->val_trans() * mNormal );
+            mSet->get_QI()( tQIIndex ) += aWStar * ( tCMDiffusion->Energy()( 0 ) * tFIVelocity->val_trans() * get_normal() );
         }
 
         //------------------------------------------------------------------------------
@@ -75,25 +65,23 @@ namespace moris
         void IQI_Thermal_Energy_Convective_Flux::compute_dQIdu( real aWStar )
         {
             // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model > &tCMDiffusion = get_leader_constitutive_model(IQI_Constitutive_Type::DIFFUSION);
 
             // FIXME protect dof type
             // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
+            for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDof );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -105,8 +93,7 @@ namespace moris
                 if ( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     mSet->get_residual()( tQIIndex )(
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
-                                    tCMDiffusion->Energy()(0) * tFIVelocity->N_trans() * mNormal );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * ( tCMDiffusion->Energy()( 0 ) * tFIVelocity->N_trans() * get_normal() );
                 }
 
                 // if density depends on dof type
@@ -114,9 +101,7 @@ namespace moris
                 {
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
-                                    dot( tFIVelocity->val(), mNormal ) *
-                                    trans( tCMDiffusion->dEnergydDOF( tDofType ) ) );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * ( dot( tFIVelocity->val(), get_normal() ) * trans( tCMDiffusion->dEnergydDOF( tDofType ) ) );
                 }
             }
         }
@@ -124,34 +109,31 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Thermal_Energy_Convective_Flux::compute_dQIdu(
-                Vector< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+                Vector< MSI::Dof_Type > &aDofType,
+                Matrix< DDRMat >        &adQIdu )
         {
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model > &tCMDiffusion = get_leader_constitutive_model(IQI_Constitutive_Type::DIFFUSION);
 
             // FIXME protect dof type
             // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // if dof type is velocity
             // FIXME protect dof type
             if ( aDofType( 0 ) == MSI::Dof_Type::VX )
             {
-                adQIdu += tCMDiffusion->Energy()(0) * tFIVelocity->N_trans() * mNormal;
+                adQIdu += tCMDiffusion->Energy()( 0 ) * tFIVelocity->N_trans() * get_normal();
             }
 
             // if density depends on dof type
             if ( tCMDiffusion->check_dof_dependency( aDofType ) )
             {
                 // compute dQIdu
-                adQIdu += dot( tFIVelocity->val(), mNormal ) * trans( tCMDiffusion->dEnergydDOF( aDofType ) );
+                adQIdu += dot( tFIVelocity->val(), get_normal() ) * trans( tCMDiffusion->dEnergydDOF( aDofType ) );
             }
         }
 
         //------------------------------------------------------------------------------
-    }/* end_namespace_fem */
-}/* end_namespace_moris */
-
+    }    // namespace fem
+}    // namespace moris

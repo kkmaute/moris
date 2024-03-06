@@ -28,26 +28,11 @@ namespace moris
         {
             // set sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
-            mPropertyMap[ "Upwind" ]    = static_cast< uint >( IWG_Property_Type::UPWIND );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "DirichletNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
+            init_property("Dirichlet", IWG_Property_Type::DIRICHLET);
+            init_property("Select", IWG_Property_Type::SELECT);
+            init_property("Upwind", IWG_Property_Type::UPWIND);
+            init_constitutive_model("IncompressibleFluid", IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
+            init_stabilization_parameter("DirichletNitsche", IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE);
         }
 
         //------------------------------------------------------------------------------
@@ -66,12 +51,10 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the leader field interpolator for the residual dof type
-            Field_Interpolator* tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property(IWG_Property_Type::SELECT);
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -92,20 +75,16 @@ namespace moris
             }
 
             // get the imposed velocity property
-            const std::shared_ptr< Property >& tPropVelocity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property >& tPropVelocity = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the upwind property
-            const std::shared_ptr< Property >& tPropUpwind =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
+            const std::shared_ptr< Property >& tPropUpwind = get_leader_property(IWG_Property_Type::UPWIND);
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFluid = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE);
 
             // check that prescribed velocity parameter is defined
             MORIS_ASSERT( tPropVelocity,
@@ -118,8 +97,8 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) +=                                                //
                     aWStar * (                                                                                                  //
-                            -tFIVelocity->N_trans() * tM * tCMFluid->traction( mNormal )                                        //
-                            - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tVelocityJump    //
+                            -tFIVelocity->N_trans() * tM * tCMFluid->traction( get_normal() )                                        //
+                            - mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tM * tVelocityJump    //
                             + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tVelocityJump );
 
             // if upwind
@@ -134,7 +113,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) -=    //
                         aWStar * (                                                      //
-                                tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) * tM * tVelocityJump );
+                                tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() * dot( tFIVelocity->val(), get_normal() ) * tM * tVelocityJump );
             }
 
             // check for nan, infinity
@@ -158,12 +137,10 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the leader field interpolator for residual dof type
-            Field_Interpolator* tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property(IWG_Property_Type::SELECT);
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -184,32 +161,28 @@ namespace moris
             }
 
             // get the imposed velocity property
-            const std::shared_ptr< Property >& tPropVelocity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property >& tPropVelocity = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the upwind property
-            const std::shared_ptr< Property >& tPropUpwind =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
+            const std::shared_ptr< Property >& tPropUpwind = get_leader_property(IWG_Property_Type::UPWIND);
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFluid = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE);
 
             // compute the jump
             const auto tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
 
             // get number of leader dependencies
-            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the jacobian for indirect dof dependencies through leader
             for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -224,7 +197,7 @@ namespace moris
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                                                            //
                             aWStar * (                                                                                                    //
-                                    -mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tFIVelocity->N()    //
+                                    -mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tM * tFIVelocity->N()    //
                                     + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tFIVelocity->N() );
                 }
 
@@ -236,7 +209,7 @@ namespace moris
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=                                                                                //
                             aWStar * (                                                                                                                        //
-                                    -mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tPropVelocity->dPropdDOF( tDofType )    //
+                                    -mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tM * tPropVelocity->dPropdDOF( tDofType )    //
                                     + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
@@ -248,8 +221,8 @@ namespace moris
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                                     //
                             aWStar * (                                                                             //
-                                    -tFIVelocity->N_trans() * tM * tCMFluid->dTractiondDOF( tDofType, mNormal )    //
-                                    - mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType( 0 ) ) );
+                                    -tFIVelocity->N_trans() * tM * tCMFluid->dTractiondDOF( tDofType, get_normal() )    //
+                                    - mBeta * tCMFluid->dTestTractiondDOF( tDofType, get_normal(), tM * tVelocityJump, mResidualDofType( 0 ) ) );
                 }
 
                 // if stabilization parameter depends on the dof type
@@ -280,8 +253,8 @@ namespace moris
                                 { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=                            //
                                 aWStar * (                                                                    //
                                         tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() * (       //
-                                                dot( tFIVelocity->val(), mNormal ) * tM * tFIVelocity->N()    //
-                                                + tM * tVelocityJump * ( trans( mNormal ) * tFIVelocity->N() ) ) );
+                                                dot( tFIVelocity->val(), get_normal() ) * tM * tFIVelocity->N()    //
+                                                + tM * tVelocityJump * ( trans( get_normal() ) * tFIVelocity->N() ) ) );
                     }
 
                     // if imposed velocity depends on dof type
@@ -292,7 +265,7 @@ namespace moris
                                 { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                       //
                                 aWStar * (                                                               //
                                         tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() *    //
-                                        dot( tFIVelocity->val(), mNormal ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
+                                        dot( tFIVelocity->val(), get_normal() ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
                     }
 
                     // if upwind parameter depends on the dof type
@@ -303,7 +276,7 @@ namespace moris
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
                                 { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=                                  //
                                 aWStar * (                                                                          //
-                                        tFIVelocity->N_trans() * tDensity * dot( tFIVelocity->val(), mNormal ) *    //
+                                        tFIVelocity->N_trans() * tDensity * dot( tFIVelocity->val(), get_normal() ) *    //
                                         tM * tVelocityJump * tPropUpwind->dPropdDOF( tDofType ) );
                     }
 
@@ -314,7 +287,7 @@ namespace moris
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
                                 { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=                                                 //
                                 aWStar * (                                                                                         //
-                                        tFIVelocity->N_trans() * tPropUpwind->val()( 0 ) * dot( tFIVelocity->val(), mNormal ) *    //
+                                        tFIVelocity->N_trans() * tPropUpwind->val()( 0 ) * dot( tFIVelocity->val(), get_normal() ) *    //
                                         tM * tVelocityJump * tDensityProp->dPropdDOF( tDofType ) );
                     }
                 }

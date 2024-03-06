@@ -27,18 +27,8 @@ namespace moris
         {
             // set sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
+            init_property("Dirichlet", IWG_Property_Type::DIRICHLET);
+            init_constitutive_model("IncompressibleFluid", IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
         }
 
         //------------------------------------------------------------------------------
@@ -57,19 +47,16 @@ namespace moris
 
             // get the veocity dof type
             // FIXME protect dof type
-            Field_Interpolator * tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator * tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the imposed velocity property
-            const std::shared_ptr< Property > & tPropVelocity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property > & tPropVelocity = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+            const std::shared_ptr< Constitutive_Model > & tCMFluid = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
 
             // build projector
-            const Matrix<DDRMat> tNormalProjector  = mNormal * trans( mNormal );
+            const Matrix<DDRMat> tNormalProjector  = get_normal() * trans( get_normal() );
 
             // compute velocity jump in normal direction
             const Matrix<DDRMat> tNormalVelocityJump = tNormalProjector  * ( tVelocityFI->val() - tPropVelocity->val() );
@@ -77,7 +64,7 @@ namespace moris
             // compute leader residual
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) -= aWStar * (
-                             mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tNormalVelocityJump );
+                             mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tNormalVelocityJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -100,31 +87,28 @@ namespace moris
 
             // get the veocity dof type
             // FIXME protect dof type
-            Field_Interpolator * tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator * tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the imposed velocity property
-            const std::shared_ptr< Property > & tPropVelocity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property > & tPropVelocity = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+            const std::shared_ptr< Constitutive_Model > & tCMFluid = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
 
             // build projector
-            const Matrix<DDRMat> tNormalProjector  = mNormal * trans( mNormal );
+            const Matrix<DDRMat> tNormalProjector  = get_normal() * trans( get_normal() );
 
             // compute velocity jump in normal direction
             const Matrix<DDRMat> tNormalVelocityJump = tNormalProjector  * ( tVelocityFI->val() - tPropVelocity->val() );
 
             // get number of leader dependencies
-            const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            const uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the Jacobian for indirect dof dependencies through leader
             for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type > & tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -139,7 +123,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tNormalProjector * tVelocityFI->N() );
+                                     mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tNormalProjector * tVelocityFI->N() );
                 }
 
                 // if imposed velocity property depends on dof type
@@ -149,7 +133,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
-                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tNormalProjector * tPropVelocity->dPropdDOF( tDofType ) );
+                                     mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tNormalProjector * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -159,7 +143,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                     mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tNormalVelocityJump, mResidualDofType( 0 ) ) );
+                                     mBeta * tCMFluid->dTestTractiondDOF( tDofType, get_normal(), tNormalVelocityJump, mResidualDofType( 0 ) ) );
                 }
             }
 

@@ -11,7 +11,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp"
-//LINALG/src
+// LINALG/src
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
@@ -28,25 +28,10 @@ namespace moris
         {
             // set sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "PrescribedValue" ] = static_cast< uint >( IWG_Property_Type::PRESCRIBED_VALUE );
-            mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "NitschePenaltyParameter" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER );
+            init_property( "PrescribedValue", IWG_Property_Type::PRESCRIBED_VALUE );
+            init_property( "Select", IWG_Property_Type::SELECT );
+            init_constitutive_model( "Fluid", IWG_Constitutive_Type::FLUID );
+            init_stabilization_parameter( "NitschePenaltyParameter", IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER );
         }
 
         //------------------------------------------------------------------------------
@@ -64,12 +49,10 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the leader field interpolator for the residual dof type
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mDofVelocity );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            std::shared_ptr< Property > const &tPropSelect = get_leader_property( IWG_Property_Type::SELECT );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -87,16 +70,13 @@ namespace moris
             }
 
             // get the imposed velocity property
-            std::shared_ptr< Property > & tPropVelocity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_VALUE ) );
+            std::shared_ptr< Property > const &tPropVelocity = get_leader_property( IWG_Property_Type::PRESCRIBED_VALUE );
 
             // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            std::shared_ptr< Constitutive_Model > const &tCMFluid = get_leader_constitutive_model( IWG_Constitutive_Type::FLUID );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER ) );
+            std::shared_ptr< Stabilization_Parameter > const &tSPNitsche = get_stabilization_parameter( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER );
 
             // compute the jump
             Matrix< DDRMat > tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
@@ -104,8 +84,7 @@ namespace moris
             // compute leader residual
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex },
-                    { 0, 0 } ) -= aWStar * (
-                            mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tVelocityJump );
+                    { 0, 0 } ) -= aWStar * ( mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tVelocityJump );
 
             // if residual dof type is velocity
             if ( mResidualDofType( 0 )( 0 ) == mDofVelocity )
@@ -113,14 +92,12 @@ namespace moris
                 // compute leader residual
                 mSet->get_residual()( 0 )(
                         { tLeaderResStartIndex, tLeaderResStopIndex },
-                        { 0, 0 } ) -= aWStar * (
-                                tFIVelocity->N_trans() * tM * tCMFluid->traction( mNormal, CM_Function_Type::MECHANICAL) +
-                                tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tVelocityJump );
+                        { 0, 0 } ) -= aWStar * ( tFIVelocity->N_trans() * tM * tCMFluid->traction( get_normal(), CM_Function_Type::MECHANICAL ) + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tVelocityJump );
             }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -138,12 +115,10 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the leader field interpolator for residual dof type
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mDofVelocity );
 
             // get the selection matrix property
-            std::shared_ptr< Property > & tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+           std::shared_ptr< Property > const &tPropSelect = get_leader_property( IWG_Property_Type::SELECT );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -161,28 +136,25 @@ namespace moris
             }
 
             // get the imposed velocity property
-            std::shared_ptr< Property > & tPropVelocity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_VALUE ) );
+            std::shared_ptr< Property > const &tPropVelocity = get_leader_property( IWG_Property_Type::PRESCRIBED_VALUE );
 
             // get the fluid constitutive model
-            std::shared_ptr< Constitutive_Model > & tCMFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            std::shared_ptr< Constitutive_Model > const &tCMFluid = get_leader_constitutive_model( IWG_Constitutive_Type::FLUID );
 
             // get the Nitsche stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER ) );
+            std::shared_ptr< Stabilization_Parameter > const &tSPNitsche = get_stabilization_parameter( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER );
 
             // compute the jump
             Matrix< DDRMat > tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
 
             // get number of leader dependencies
-            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the jacobian for indirect dof dependencies through leader
-            for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -192,9 +164,7 @@ namespace moris
                 // test-traction contribution
                 mSet->get_jacobian()(
                         { tLeaderResStartIndex, tLeaderResStopIndex },
-                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                mBeta * tCMFluid->dTestTractiondDOF(
-                                        tDofType, mNormal, tM * tVelocityJump, mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) );
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * tCMFluid->dTestTractiondDOF( tDofType, get_normal(), tM * tVelocityJump, mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) );
 
                 //---------------------------------------------------------------------
                 // if residual dof type is velocity
@@ -203,8 +173,7 @@ namespace moris
                     // compute leader residual
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                    tFIVelocity->N_trans() * tM * tCMFluid->dTractiondDOF( tDofType, mNormal, CM_Function_Type::MECHANICAL ) );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( tFIVelocity->N_trans() * tM * tCMFluid->dTractiondDOF( tDofType, get_normal(), CM_Function_Type::MECHANICAL ) );
 
                     // if dof type is velocity
                     if ( tDofType( 0 ) == mDofVelocity )
@@ -212,9 +181,7 @@ namespace moris
                         // compute jacobian direct dependencies
                         mSet->get_jacobian()(
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tFIVelocity->N()
-                                        + tSPNitsche->val()( 0 )  * tFIVelocity->N_trans() * tM * tFIVelocity->N() );
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tFIVelocity->N() + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tFIVelocity->N() );
                     }
 
                     // if imposed velocity depends on dof type
@@ -223,9 +190,7 @@ namespace moris
                         // add contribution from property to jacobian
                         mSet->get_jacobian()(
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tPropVelocity->dPropdDOF( tDofType )
-                                        + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tPropVelocity->dPropdDOF( tDofType ) );
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tPropVelocity->dPropdDOF( tDofType ) );
                     }
 
                     // if stabilization parameter depends on the dof type
@@ -234,20 +199,18 @@ namespace moris
                         // add contribution of SP to jacobian
                         mSet->get_jacobian()(
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                        tFIVelocity->N_trans() * tM * tVelocityJump * tSPNitsche->dSPdLeaderDOF( tDofType ) );
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( tFIVelocity->N_trans() * tM * tVelocityJump * tSPNitsche->dSPdLeaderDOF( tDofType ) );
                     }
                 }
                 //---------------------------------------------------------------------
-                else // residual dof type is density or temperature
+                else    // residual dof type is density or temperature
                 {
                     // if dof type is velocity
                     if ( tDofType( 0 ) == mDofVelocity )
                     {
                         mSet->get_jacobian()(
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tFIVelocity->N() );
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tFIVelocity->N() );
                     }
 
                     // if imposed velocity depends on dof type
@@ -256,15 +219,14 @@ namespace moris
                         // add contribution from property to jacobian
                         mSet->get_jacobian()(
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
-                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                        mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ), CM_Function_Type::MECHANICAL ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
                     }
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Compressible_NS_Velocity_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -294,4 +256,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

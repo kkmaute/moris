@@ -26,19 +26,10 @@ namespace moris
 
         IWG_Spalart_Allmaras_Turbulence_Bulk::IWG_Spalart_Allmaras_Turbulence_Bulk()
         {
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "SpalartAllmarasTurbulence" ] = static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "SUPG" ] = static_cast< uint >( IWG_Stabilization_Type::SUPG );
-            mStabilizationMap[ "DiffusionCrosswind" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
-            mStabilizationMap[ "DiffusionIsotropic" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
+            init_constitutive_model("SpalartAllmarasTurbulence", IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE);
+            init_stabilization_parameter("SUPG", IWG_Stabilization_Type::SUPG);
+            init_stabilization_parameter("DiffusionCrosswind", IWG_Stabilization_Type::DIFFUSION_CROSSWIND);
+            init_stabilization_parameter("DiffusionIsotropic", IWG_Stabilization_Type::DIFFUSION_ISOTROPIC);
         }
 
         //------------------------------------------------------------------------------
@@ -57,23 +48,19 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence = get_leader_constitutive_model(IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE);
 
             // get the SUPG stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG = get_stabilization_parameter(IWG_Stabilization_Type::SUPG);
 
             // get the crosswind diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind = get_stabilization_parameter(IWG_Stabilization_Type::DIFFUSION_CROSSWIND);
 
             // get the isotropic diffusion  stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic = get_stabilization_parameter(IWG_Stabilization_Type::DIFFUSION_ISOTROPIC);
 
             // compute residual of the strong form
             Matrix< DDRMat > tR;
@@ -136,7 +123,7 @@ namespace moris
                     // get the velocity FI
                     // FIXME protect dof type
                     Field_Interpolator* tFIVelocity = //
-                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                            get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
                     // get space dimension
                     uint tSpaceDim = tFIVelocity->get_number_of_fields();
@@ -145,7 +132,7 @@ namespace moris
                     // FIXME protect velocity dof type
                     Matrix< DDRMat > tcgradxnu;
                     compute_cgradxw( { MSI::Dof_Type::VX }, mResidualDofType( 0 ), //
-                            mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                            get_leader_fi_manager(), tSpaceDim, tEpsilon, tIsCrosswind,   //
                             tcgradxnu );
 
                     // add contribution to residual
@@ -174,36 +161,32 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence = get_leader_constitutive_model(IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE);
 
             // get the SUPG stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG = get_stabilization_parameter(IWG_Stabilization_Type::SUPG);
 
             // get the crosswind diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind = get_stabilization_parameter(IWG_Stabilization_Type::DIFFUSION_CROSSWIND);
 
             // get the isotropic diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic = get_stabilization_parameter(IWG_Stabilization_Type::DIFFUSION_ISOTROPIC);
 
             // compute residual of the strng form
             Matrix< DDRMat > tR;
             this->compute_residual_strong_form( tR );
 
             // get number of dof dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // loop over the dof dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -294,7 +277,7 @@ namespace moris
                         // get the velocity FI
                         // FIXME protect dof type
                         Field_Interpolator* tFIVelocity = //
-                                mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                                get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
                         // get space dimension
                         uint tSpaceDim = tFIVelocity->get_number_of_fields();
@@ -303,14 +286,14 @@ namespace moris
                         // FIXME protect dof type
                         Matrix< DDRMat > tcgradxnu;
                         compute_cgradxw( { MSI::Dof_Type::VX }, mResidualDofType( 0 ), //
-                                mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                                get_leader_fi_manager(), tSpaceDim, tEpsilon, tIsCrosswind,   //
                                 tcgradxnu );
 
                         // compute derivative of crosswind projection of velocity gradient
                         // FIXME protect dof type
                         Matrix< DDRMat > tdcgradnudu;
                         compute_dcgradxwdu( { MSI::Dof_Type::VX }, mResidualDofType( 0 ),      //
-                                mLeaderFIManager, tDofType, tSpaceDim, tEpsilon, tIsCrosswind, //
+                                get_leader_fi_manager(), tDofType, tSpaceDim, tEpsilon, tIsCrosswind, //
                                 tdcgradnudu );
 
                         // add contribution to jacobian per direction
@@ -398,11 +381,10 @@ namespace moris
         IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual_strong_form( Matrix< DDRMat >& aR )
         {
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence = get_leader_constitutive_model(IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE);
 
             // compute strong form of residual
             aR = tFIViscosity->gradt( 1 )
@@ -423,14 +405,13 @@ namespace moris
                 Matrix< DDRMat >&                   aJ )
         {
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence = get_leader_constitutive_model(IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE);
 
             // get the der FI
-            Field_Interpolator* tFIDer = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tFIDer = get_leader_fi_manager()->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init aJ
             aJ.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );

@@ -43,25 +43,9 @@ namespace moris::fem
     IWG_Isotropic_Struc_Nonlinear_Contact_Seitz::IWG_Isotropic_Struc_Nonlinear_Contact_Seitz( sint aBeta )
             : mBeta( aBeta )      // sign for symmetric/unsymmetric Nitsche
     {
-        // set size for the property pointer cell
-        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-        // populate the property map
-        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-
-        // set size for the constitutive model pointer cell
-        // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
-        mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-        mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-        // populate the constitutive map
-        mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-
-        // set size for the stabilization parameter pointer cell
-        mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-        // populate the stabilization map
-        mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+        init_property("Thickness", IWG_Property_Type::THICKNESS);
+        init_constitutive_model("ElastLinIso", IWG_Constitutive_Type::ELAST_LIN_ISO);
+        init_stabilization_parameter("NitscheInterface", IWG_Stabilization_Type::NITSCHE_INTERFACE);
     }
 
     //------------------------------------------------------------------------------
@@ -90,17 +74,17 @@ namespace moris::fem
         auto const tResRange      = std::make_pair( tResStartIndex, tResStopIndex );
 
         // get field interpolator for the residual dof type
-        Field_Interpolator*    tLeaderDofs     = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
-        Geometry_Interpolator* tLeaderGeometry = mLeaderFIManager->get_IG_geometry_interpolator();
+        Field_Interpolator*    tLeaderDofs     = get_leader_fi_manager()->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
+        Geometry_Interpolator* tLeaderGeometry = get_leader_fi_manager()->get_IG_geometry_interpolator();
 
         // get follower field interpolator for the residual dof type
-        Field_Interpolator*    tFollowerDofs     = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
-        Geometry_Interpolator* tFollowerGeometry = mFollowerFIManager->get_IG_geometry_interpolator();
+        Field_Interpolator*    tFollowerDofs     = get_follower_fi_manager()->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
+        Geometry_Interpolator* tFollowerGeometry = get_follower_fi_manager()->get_IG_geometry_interpolator();
 
         // get user defined constitutive model, stabilization parameter and thickness property
-        const std::shared_ptr< Constitutive_Model >&      tConstitutiveModel      = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-        const std::shared_ptr< Stabilization_Parameter >& tStabilizationParameter = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
-        const std::shared_ptr< Property >&                tThicknessProperty      = mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+        const std::shared_ptr< Constitutive_Model >&      tConstitutiveModel      = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
+        const std::shared_ptr< Stabilization_Parameter >& tStabilizationParameter = get_stabilization_parameter(IWG_Stabilization_Type::NITSCHE_INTERFACE);
+        const std::shared_ptr< Property >&                tThicknessProperty      = get_leader_property(IWG_Property_Type::THICKNESS);
 
         // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
         aWStar *= ( tThicknessProperty != nullptr ) ? tThicknessProperty->val()( 0 ) : 1;
@@ -108,7 +92,7 @@ namespace moris::fem
         const real tNitscheParam = tStabilizationParameter->val()( 0 );    // stabilization parameter gamma
 
         // utility variables
-        const uint             tDim      = mNormal.numel();
+        const uint             tDim      = get_normal().numel();
         const Matrix< DDRMat > tIdentity = eye( tDim, tDim );
 
         // displacement of leader (L) and follower (F)
@@ -147,7 +131,7 @@ namespace moris::fem
         const Matrix< DDRMat > tFF = tIdentity + tGrad_UF;    // (2 x 2)
 
         // normal of leader (L) in the deformed configuration
-        const Matrix< DDRMat > tNormalL = tFL * mNormal;
+        const Matrix< DDRMat > tNormalL = tFL * get_normal();
 
         const Matrix< DDRMat > tNormalProjector = tNormalL * trans( tNormalL );
 
@@ -156,13 +140,13 @@ namespace moris::fem
         const real tGap = dot( ( txF - txL ), tNormalL );
 
         // evaluate traction and their pressure equivalent (normal component)
-        const Matrix< DDRMat > tTraction       = tConstitutiveModel->traction( mNormal, CM_Function_Type::PK1 );    // ( 2 x 1 )
+        const Matrix< DDRMat > tTraction       = tConstitutiveModel->traction( get_normal(), CM_Function_Type::PK1 );    // ( 2 x 1 )
         const real             tPressure       = dot( tTraction, tNormalL );
         const Matrix< DDRMat > tNormalTraction = tPressure * tNormalL;    // ( 2 x 1 ) normal component of traction
 
         // evaluate test traction and the corresponding pressure equivalent (normal component) by computing the dot product between
         // each column of tTestTraction and tNormalL. This is done by element-wise multiplication and then summing the columns.
-        const Matrix< DDRMat > tTestTraction       = tConstitutiveModel->testTraction( mNormal, tDisplDofTypes, CM_Function_Type::PK1 );    // ( 2 x 8 )
+        const Matrix< DDRMat > tTestTraction       = tConstitutiveModel->testTraction( get_normal(), tDisplDofTypes, CM_Function_Type::PK1 );    // ( 2 x 8 )
         const Matrix< DDRMat > tTestPressure       = trans( tNormalL ) * tTestTraction;                                                     // ( 1 x 8 )
         const Matrix< DDRMat > tNormalTestTraction = tNormalL * tTestPressure;                                                              // ( 2 x 8 ) normal component of test traction
 
@@ -208,8 +192,8 @@ namespace moris::fem
         //         << tFILeader->val()( 1 ) << ","
         //         << tFIFollower->val()( 0 ) << ","
         //         << tFIFollower->val()( 1 ) << ","
-        //         << mNormal( 0 ) << ","
-        //         << mNormal( 1 ) << ","
+        //         << get_normal()( 0 ) << ","
+        //         << get_normal()( 1 ) << ","
         //         << tGap << ","
         //         << tResiduals
         //         << "\n";
@@ -239,24 +223,24 @@ namespace moris::fem
         auto const tResRange      = std::make_pair( tResStartIndex, tResStopIndex );
 
         // get field interpolator for the residual dof type
-        Field_Interpolator*    tLeaderDofs     = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
-        Geometry_Interpolator* tLeaderGeometry = mLeaderFIManager->get_IG_geometry_interpolator();
+        Field_Interpolator*    tLeaderDofs     = get_leader_fi_manager()->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
+        Geometry_Interpolator* tLeaderGeometry = get_leader_fi_manager()->get_IG_geometry_interpolator();
 
         // get follower field interpolator for the residual dof type
-        Field_Interpolator*    tFollowerDofs     = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
-        Geometry_Interpolator* tFollowerGeometry = mFollowerFIManager->get_IG_geometry_interpolator();
+        Field_Interpolator*    tFollowerDofs     = get_follower_fi_manager()->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
+        Geometry_Interpolator* tFollowerGeometry = get_follower_fi_manager()->get_IG_geometry_interpolator();
 
         // get user defined constitutive model, stabilization parameter and thickness property
-        std::shared_ptr< Constitutive_Model >&            tConstitutiveModel      = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-        const std::shared_ptr< Stabilization_Parameter >& tStabilizationParameter = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
-        const std::shared_ptr< Property >&                tThicknessProperty      = mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+       std::shared_ptr< Constitutive_Model > const &tConstitutiveModel      = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
+        const std::shared_ptr< Stabilization_Parameter >& tStabilizationParameter = get_stabilization_parameter(IWG_Stabilization_Type::NITSCHE_INTERFACE);
+        const std::shared_ptr< Property >&                tThicknessProperty      = get_leader_property(IWG_Property_Type::THICKNESS);
 
         // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
         aWStar *= ( tThicknessProperty != nullptr ) ? tThicknessProperty->val()( 0 ) : 1;
 
         const real tNitscheParam = tStabilizationParameter->val()( 0 );    // stabilization parameter gamma
 
-        uint const tDim = mNormal.numel();
+        uint const tDim = get_normal().numel();
 
         // displacement of leader (L) and follower (F)
         const Matrix< DDRMat > tUL = tLeaderDofs->val();      // ( 2 x 1 )
@@ -291,7 +275,7 @@ namespace moris::fem
         Matrix< DDRMat > const tFF = tIdentity + tGrad_UF;    // (2 x 2)
 
         // normal of leader (L) and follower (F) in the deformed configuration
-        const Matrix< DDRMat > tNormalL = tFL * mNormal;
+        const Matrix< DDRMat > tNormalL = tFL * get_normal();
         const Matrix< DDRMat > tNormalF = tFF * tFollowerGeometry->get_normal();
 
         const Matrix< DDRMat > tNormalProjector = tNormalL * trans( tNormalL );
@@ -316,10 +300,10 @@ namespace moris::fem
         const real tContactTerm = tPressure + tNitscheParam * tGap;
 
         // compute the Jacobian for all dof dependencies on the leader
-        for ( uint iDOF = 0; iDOF < mRequestedLeaderGlobalDofTypes.size(); iDOF++ )
+        for ( uint iDOF = 0; iDOF < get_requested_leader_dof_types().size(); iDOF++ )
         {
             // get the dof type
-            const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+            const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
             // get the index for the dof type
             const sint tDofDepIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -386,14 +370,14 @@ namespace moris::fem
 
                 // if ( tContactTerm < 0 )
                 // {
-                //     const Matrix< DDRMat > tdTractiondDof     = trans( mNormal ) * tConstitutiveModel->dTractiondDOF( tDofType, mNormal, CM_Function_Type::PK1 );
-                //     const Matrix< DDRMat > tdTestTractiondDof = tConstitutiveModel->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tJump, tDisplDofTypes, CM_Function_Type::PK1 );
+                //     const Matrix< DDRMat > tdTractiondDof     = trans( get_normal() ) * tConstitutiveModel->dTractiondDOF( tDofType, get_normal(), CM_Function_Type::PK1 );
+                //     const Matrix< DDRMat > tdTestTractiondDof = tConstitutiveModel->dTestTractiondDOF( tDofType, get_normal(), tNormalProjector * tJump, tDisplDofTypes, CM_Function_Type::PK1 );
                 //     tJac( tResRange, tDepRange ) += aWStar * ( -trans( tdUL ) * tNormalProjector * tdTractiondDof + mBeta * tdTestTractiondDof );
                 // }
                 // else
                 // {
-                //     const Matrix< DDRMat > tdTractiondDof     = tConstitutiveModel->dTractiondDOF( tDofType, mNormal, CM_Function_Type::PK1 );
-                //     const Matrix< DDRMat > tdTestTractiondDof = tConstitutiveModel->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tTraction, tDisplDofTypes, CM_Function_Type::PK1 );
+                //     const Matrix< DDRMat > tdTractiondDof     = tConstitutiveModel->dTractiondDOF( tDofType, get_normal(), CM_Function_Type::PK1 );
+                //     const Matrix< DDRMat > tdTestTractiondDof = tConstitutiveModel->dTestTractiondDOF( tDofType, get_normal(), tNormalProjector * tTraction, tDisplDofTypes, CM_Function_Type::PK1 );
                 //     tJac( tResRange, tDepRange ) += aWStar * -mBeta / tNitscheParam * ( trans( tTestTraction ) * tNormalProjector * tdTractiondDof + tdTestTractiondDof );
                 // }
             }
@@ -419,7 +403,7 @@ namespace moris::fem
             //     else
             //     {
             //         tJacMM += aWStar * (    //
-            //                           -mBeta * tConstitutiveModel->testTraction_trans( mNormal, tDisplDofTypes ) * tNormalProjectorLeader * tTraction )
+            //                           -mBeta * tConstitutiveModel->testTraction_trans( get_normal(), tDisplDofTypes ) * tNormalProjectorLeader * tTraction )
             //                 * ( 1.0 / tNitsche * tLeaderWeightDer - 1 / tNitsche / tNitsche * tNitscheDer );
             //     }
             // }

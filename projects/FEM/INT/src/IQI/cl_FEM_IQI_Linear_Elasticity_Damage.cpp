@@ -24,13 +24,7 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::LINEAR_ELASTICITY_DAMAGE;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "ElasticDamage" ] =
-                    static_cast< uint >( IQI_Constitutive_Type::ELASTIC_DAMAGE );
+            init_constitutive_model("ElasticDamage", IQI_Constitutive_Type::ELASTIC_DAMAGE);
         }
 
         //------------------------------------------------------------------------------
@@ -39,8 +33,7 @@ namespace moris
         IQI_Linear_Elasticity_Damage::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get the elasticity with damage CM
-            const std::shared_ptr< Constitutive_Model >& tCMElasticityDamage =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELASTIC_DAMAGE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMElasticityDamage = get_leader_constitutive_model(IQI_Constitutive_Type::ELASTIC_DAMAGE);
 
             // cast constitutive model base class pointer to elasticity damage constitutive model
             CM_Struc_Linear_Isotropic_Damage* tCMElasticityDamagePtr =
@@ -75,7 +68,7 @@ namespace moris
                             "IQI_Linear_Elasticity_Damage::compute_QI - no specified dof, exiting!" );
 
                     // FIXME
-                    aQI = tCMElasticityDamagePtr->traction( mNormal )( 0 );
+                    aQI = tCMElasticityDamagePtr->traction( get_normal() )( 0 );
                     break;
                 }
                     // if none of the above
@@ -92,7 +85,7 @@ namespace moris
         IQI_Linear_Elasticity_Damage::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // init QI value matrix
             Matrix< DDRMat > tQI( 1, 1 );

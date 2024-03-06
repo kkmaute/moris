@@ -26,20 +26,10 @@ namespace moris
 
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::MAX_STRESS;
-
-            // set the property pointer cell size
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "ReferenceValue" ] = static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE );
-            mPropertyMap[ "Exponent" ]       = static_cast< uint >( IQI_Property_Type::EXPONENT );
-            mPropertyMap[ "Shift" ]          = static_cast< uint >( IQI_Property_Type::SHIFT );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
+            init_property( "ReferenceValue", IQI_Property_Type::REFERENCE_VALUE );
+            init_property( "Exponent", IQI_Property_Type::EXPONENT );
+            init_property( "Shift", IQI_Property_Type::SHIFT );
+            init_constitutive_model( "ElastLinIso", IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
 
         //------------------------------------------------------------------------------
@@ -48,7 +38,7 @@ namespace moris
         IQI_Max_Stress::compute_QI( Matrix< DDRMat >& aQI )
         {
             // check if dof index was set
-            if ( ( mLeaderDofTypes( 0 ).size() > 1 ) &&    //
+            if ( ( get_dof_type_list( mtk::Leader_Follower::LEADER )( 0 ).size() > 1 ) &&    //
                     ( mStressType != Stress_Type::VON_MISES_STRESS ) )
             {
                 MORIS_ERROR( mIQITypeIndex != -1,
@@ -85,20 +75,20 @@ namespace moris
             }
 
             // check if properties set
-            MORIS_ERROR( mLeaderProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
+            MORIS_ERROR( get_leader_property( IQI_Property_Type::REFERENCE_VALUE ) != nullptr,
                     "IQI_Max_Stress - no reference value set" );
 
-            MORIS_ERROR( mLeaderProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) ) != nullptr,
+            MORIS_ERROR( get_leader_property( IQI_Property_Type::EXPONENT ) != nullptr,
                     "IQI_Max_Stress - no exponent set" );
 
             // get property values
-            real tRefValue = mLeaderProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
-            real tExponent = mLeaderProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
+            real tRefValue = get_leader_property( IQI_Property_Type::REFERENCE_VALUE )->val()( 0 );
+            real tExponent = get_leader_property( IQI_Property_Type::EXPONENT )->val()( 0 );
 
             real tShift = 1.0;
 
-            if ( mLeaderProp( static_cast< uint >( IQI_Property_Type::SHIFT ) ) != nullptr )
-                tShift = mLeaderProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
+            if ( get_leader_property( IQI_Property_Type::SHIFT ) != nullptr )
+                tShift = get_leader_property( IQI_Property_Type::SHIFT )->val()( 0 );
 
             // evaluate the QI
             aQI = { { std::pow( 1.0 / tRefValue * tStressValue - tShift, tExponent ) } };
@@ -110,10 +100,10 @@ namespace moris
         IQI_Max_Stress::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // check if dof index was set
-            if ( ( mLeaderDofTypes( 0 ).size() > 1 ) &&    //
+            if ( ( get_dof_type_list( mtk::Leader_Follower::LEADER )( 0 ).size() > 1 ) &&    //
                     ( mStressType != Stress_Type::VON_MISES_STRESS ) )
             {
                 MORIS_ERROR( mIQITypeIndex != -1,
@@ -150,18 +140,18 @@ namespace moris
             }
 
             // check if properties set
-            MORIS_ERROR( mLeaderProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) ) != nullptr,
+            MORIS_ERROR( get_leader_property( IQI_Property_Type::REFERENCE_VALUE ) != nullptr,
                     "IQI_Max_Stress - no reference value set" );
 
-            MORIS_ERROR( mLeaderProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) ) != nullptr,
+            MORIS_ERROR( get_leader_property( IQI_Property_Type::EXPONENT ) != nullptr,
                     "IQI_Max_Stress - no exponent set" );
 
             // get property values
-            real tRefValue = mLeaderProp( static_cast< uint >( IQI_Property_Type::REFERENCE_VALUE ) )->val()( 0 );
-            real tExponent = mLeaderProp( static_cast< uint >( IQI_Property_Type::EXPONENT ) )->val()( 0 );
+            real tRefValue = get_leader_property( IQI_Property_Type::REFERENCE_VALUE )->val()( 0 );
+            real tExponent = get_leader_property( IQI_Property_Type::EXPONENT )->val()( 0 );
             real tShift    = 1.0;
-            if ( mLeaderProp( static_cast< uint >( IQI_Property_Type::SHIFT ) ) != nullptr )
-                tShift = mLeaderProp( static_cast< uint >( IQI_Property_Type::SHIFT ) )->val()( 0 );
+            if ( get_leader_property( IQI_Property_Type::SHIFT ) != nullptr )
+                tShift = get_leader_property( IQI_Property_Type::SHIFT )->val()( 0 );
 
             // evaluate the QI
             mSet->get_QI()( tQIIndex ) += aWStar * ( std::pow( 1.0 / tRefValue * tStressValue - tShift, tExponent ) );
@@ -206,7 +196,7 @@ namespace moris
 
             // switch between the 2D case and the 3D case
             // for 2D
-            if ( mLeaderFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions() == 2 )
+            if ( get_leader_fi_manager()->get_IP_geometry_interpolator()->get_number_of_space_dimensions() == 2 )
             {
                 switch ( aPrincipalStressIndex )
                 {
@@ -309,8 +299,7 @@ namespace moris
             Matrix< DDRMat > tStressVector( 6, 1, 0.0 );
 
             // get stress vector from Constitutive model
-            Matrix< DDRMat > tCMStress =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
+            Matrix< DDRMat > tCMStress = get_leader_constitutive_model( IQI_Constitutive_Type::ELAST_LIN_ISO )->flux();
 
             // pull apart stress vector into components
             uint tNumStressComponents = tCMStress.length();
@@ -350,4 +339,3 @@ namespace moris
 
     }    // namespace fem
 }    // namespace moris
-

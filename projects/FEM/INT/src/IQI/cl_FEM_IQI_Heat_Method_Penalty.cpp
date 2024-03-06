@@ -13,6 +13,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include "fn_isfinite.hpp"
 #include "fn_dot.hpp"
 
 namespace moris
@@ -25,14 +26,9 @@ namespace moris
         {
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::H1_ERROR;
-
-            // set the property pointer cell size
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "L2_Reference" ]  = static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE );
-            mPropertyMap[ "H1S_Reference" ] = static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE );
-            mPropertyMap[ "Select" ]        = static_cast< uint >( IQI_Property_Type::SELECT );
+            init_property( "L2_Reference", IQI_Property_Type::L2_REFERENCE_VALUE );
+            init_property( "H1S_Reference", IQI_Property_Type::H1S_REFERENCE_VALUE );
+            init_property( "Select", IQI_Property_Type::SELECT );
         }
 
         //------------------------------------------------------------------------------
@@ -42,22 +38,24 @@ namespace moris
         {
             if ( !mIsInitialized )
             {
+                Vector< Matrix< DDRMat > > const & tParameters = get_parameters();
+
                 // check for proper size of constant function parameters
-                MORIS_ERROR( mParameters.size() == 7 || mParameters.size() == 8,
+                MORIS_ERROR( tParameters.size() == 7 || tParameters.size() == 8,
                         "IQI_Heat_Method_Penalty::initialize - Needs 7 or 8 constant parameters." );
 
                 // get weights for L2 and H1 semi-norm contributions
-                mPhiBound      = mParameters( 0 )( 0 );
-                mPhiGradient   = mParameters( 1 )( 0 );
-                mPhiGamma      = mParameters( 2 )( 0 );
-                mWeightPhi1    = mParameters( 3 )( 0 );
-                mWeightPhi2    = mParameters( 4 )( 0 );
-                mWeightDelPhi1 = mParameters( 5 )( 0 );
-                mWeightDelPhi2 = mParameters( 6 )( 0 );
+                mPhiBound      = tParameters( 0 )( 0 );
+                mPhiGradient   = tParameters( 1 )( 0 );
+                mPhiGamma      = tParameters( 2 )( 0 );
+                mWeightPhi1    = tParameters( 3 )( 0 );
+                mWeightPhi2    = tParameters( 4 )( 0 );
+                mWeightDelPhi1 = tParameters( 5 )( 0 );
+                mWeightDelPhi2 = tParameters( 6 )( 0 );
 
-                if ( mParameters.size() == 8 )
+                if ( tParameters.size() == 8 )
                 {
-                    mLevelSetSign = mParameters( 7 )( 0 );
+                    mLevelSetSign = tParameters( 7 )( 0 );
                 }
 
                 // check mQuantityDofType is defined
@@ -78,8 +76,7 @@ namespace moris
             aQI.fill( 0.0 );
 
             // get select property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property( IQI_Property_Type::SELECT );
 
             // check if Heat Penalty is used
             if ( tPropSelect != nullptr && tPropSelect->val()( 0 ) < MORIS_REAL_EPS )
@@ -91,8 +88,7 @@ namespace moris
             this->initialize();
 
             // get field interpolator
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // project level set field
             real tVal = std::exp( -2.0 * mPhiGradient * mLevelSetSign * tFI->val()( 0 ) / mPhiBound );
@@ -112,8 +108,7 @@ namespace moris
             moris::real tWPhi    = mWeightPhi1 * tAlpha + mWeightPhi2 * ( 1.0 - tAlpha );
             moris::real tWDelPhi = mWeightDelPhi1 * tAlpha + mWeightDelPhi2 * ( 1.0 - tAlpha );
 
-            const std::shared_ptr< Property >& tPropL2Value =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE ) );
+            const std::shared_ptr< Property >& tPropL2Value = get_leader_property( IQI_Property_Type::L2_REFERENCE_VALUE );
 
             // compute difference between dof value and reference value
             auto tL2error = tPropL2Value->val() - tPhiTilde;
@@ -121,8 +116,7 @@ namespace moris
             // compute L2 error
             real tL2Contribution = tWPhi * dot( tL2error, tL2error );
 
-            const std::shared_ptr< Property >& tPropH1SValue =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );
+            const std::shared_ptr< Property >& tPropH1SValue = get_leader_property( IQI_Property_Type::H1S_REFERENCE_VALUE );
 
             // compute difference between dof spatial gradient and reference value and flatten it
             Matrix< DDRMat > tH1Serror = vectorize( tPropH1SValue->val() - tPhiTildeDx );
@@ -200,7 +194,7 @@ namespace moris
         IQI_Heat_Method_Penalty::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             Matrix< DDRMat > tQI( 1, 1 );
 
@@ -230,7 +224,7 @@ namespace moris
         void
         IQI_Heat_Method_Penalty::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Matrix< DDRMat >&        adQIdu )
         {
             // check whether to compute derivatives
             if ( true )

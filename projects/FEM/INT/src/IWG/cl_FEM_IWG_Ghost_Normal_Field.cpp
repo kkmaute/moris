@@ -25,12 +25,7 @@ namespace moris
         {
             // set ghost flag
             mIsGhost = true;
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "GhostSP" ] = static_cast< uint >( IWG_Stabilization_Type::GHOST_SP );
+            init_stabilization_parameter("GhostSP", IWG_Stabilization_Type::GHOST_SP);
         }
 
         //------------------------------------------------------------------------------
@@ -57,16 +52,13 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get the leader field interpolator for residual dof type
-            Field_Interpolator * tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the follower field interpolator for residual dof type
-            Field_Interpolator * tFIFollower  =
-                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIFollower  = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSP =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_SP ) );
+           std::shared_ptr< Stabilization_Parameter > const &tSP = get_stabilization_parameter(IWG_Stabilization_Type::GHOST_SP);
 
             // get the part of the matrix to assemble into
             auto tLeaderRes = mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } );
@@ -128,20 +120,17 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get the leader field interpolator for residual dof type
-            Field_Interpolator * tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the follower field interpolator for residual dof type
-            Field_Interpolator * tFIFollower  =
-                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIFollower  = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSP =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_SP ) );
+           std::shared_ptr< Stabilization_Parameter > const &tSP = get_stabilization_parameter(IWG_Stabilization_Type::GHOST_SP);
 
             // get number of leader and follower dependencies
-            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
-            uint tFollowerNumDofDependencies  = mRequestedFollowerGlobalDofTypes.size();
+            uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
+            uint tFollowerNumDofDependencies  = get_requested_follower_dof_types().size();
 
             // loop over the interpolation orders
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -163,7 +152,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -204,7 +193,7 @@ namespace moris
                 for( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Vector< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                    Vector< MSI::Dof_Type > tDofType = get_requested_follower_dof_types()( iDOF );
 
                     // get the index for the dof type
                     sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
@@ -253,7 +242,7 @@ namespace moris
                 uint               aOrder )
         {
             // get spatial dimensions
-            uint tSpaceDim = mNormal.numel();
+            uint tSpaceDim = get_normal().numel();
 
             // switch on the ghost order
             switch( aOrder )
@@ -264,12 +253,12 @@ namespace moris
                     {
                         case 2 :
                         {
-                            aFlatNormal = trans( mNormal );
+                            aFlatNormal = trans( get_normal() );
                             break;
                         }
                         case 3 :
                         {
-                            aFlatNormal = trans( mNormal );
+                            aFlatNormal = trans( get_normal() );
                             break;
                         }
                         default:
@@ -290,11 +279,11 @@ namespace moris
                             aFlatNormal.set_size( 2, 3, 0.0 );
 
                             // fill the normal matrix
-                            aFlatNormal( 0, 0 ) = mNormal( 0 );
-                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 0, 0 ) = get_normal()( 0 );
+                            aFlatNormal( 1, 1 ) = get_normal()( 1 );
 
-                            aFlatNormal( 0, 2 ) = mNormal( 1 );
-                            aFlatNormal( 1, 2 ) = mNormal( 0 );
+                            aFlatNormal( 0, 2 ) = get_normal()( 1 );
+                            aFlatNormal( 1, 2 ) = get_normal()( 0 );
 
                             break;
                         }
@@ -304,18 +293,18 @@ namespace moris
                             aFlatNormal.set_size( 3, 6, 0.0 );
 
                             // fill the normal matrix
-                            aFlatNormal( 0, 0 ) = mNormal( 0 );
-                            aFlatNormal( 1, 1 ) = mNormal( 1 );
-                            aFlatNormal( 2, 2 ) = mNormal( 2 );
+                            aFlatNormal( 0, 0 ) = get_normal()( 0 );
+                            aFlatNormal( 1, 1 ) = get_normal()( 1 );
+                            aFlatNormal( 2, 2 ) = get_normal()( 2 );
 
-                            aFlatNormal( 1, 3 ) = mNormal( 2 );
-                            aFlatNormal( 2, 3 ) = mNormal( 1 );
+                            aFlatNormal( 1, 3 ) = get_normal()( 2 );
+                            aFlatNormal( 2, 3 ) = get_normal()( 1 );
 
-                            aFlatNormal( 0, 4 ) = mNormal( 2 );
-                            aFlatNormal( 2, 4 ) = mNormal( 0 );
+                            aFlatNormal( 0, 4 ) = get_normal()( 2 );
+                            aFlatNormal( 2, 4 ) = get_normal()( 0 );
 
-                            aFlatNormal( 0, 5 ) = mNormal( 1 );
-                            aFlatNormal( 1, 5 ) = mNormal( 0 );
+                            aFlatNormal( 0, 5 ) = get_normal()( 1 );
+                            aFlatNormal( 1, 5 ) = get_normal()( 0 );
 
                             break;
                         }
@@ -336,16 +325,16 @@ namespace moris
                             // set the normal matrix size
                             aFlatNormal.set_size( 3, 4, 0.0 );
 
-                            aFlatNormal( 0, 0 ) = mNormal( 0 );
-                            aFlatNormal( 1, 1 ) = mNormal( 1 );
+                            aFlatNormal( 0, 0 ) = get_normal()( 0 );
+                            aFlatNormal( 1, 1 ) = get_normal()( 1 );
 
-                            aFlatNormal( 0, 2 ) = mNormal( 1 );
-                            aFlatNormal( 1, 3 ) = mNormal( 0 );
+                            aFlatNormal( 0, 2 ) = get_normal()( 1 );
+                            aFlatNormal( 1, 3 ) = get_normal()( 0 );
 
                             real tSqrtOf2 = std::sqrt( 2 );
 
-                            aFlatNormal( 2, 2 ) = tSqrtOf2 * mNormal( 0 );
-                            aFlatNormal( 2, 3 ) = tSqrtOf2 * mNormal( 1 );
+                            aFlatNormal( 2, 2 ) = tSqrtOf2 * get_normal()( 0 );
+                            aFlatNormal( 2, 3 ) = tSqrtOf2 * get_normal()( 1 );
                             break;
                         }
                         case 3 :
@@ -353,32 +342,32 @@ namespace moris
                             // set the normal matrix size
                             aFlatNormal.set_size( 6, 10, 0.0 );
 
-                            aFlatNormal( 0, 0 ) = mNormal( 0 );
-                            aFlatNormal( 1, 1 ) = mNormal( 1 );
-                            aFlatNormal( 2, 2 ) = mNormal( 2 );
+                            aFlatNormal( 0, 0 ) = get_normal()( 0 );
+                            aFlatNormal( 1, 1 ) = get_normal()( 1 );
+                            aFlatNormal( 2, 2 ) = get_normal()( 2 );
 
-                            aFlatNormal( 0, 3 ) = mNormal( 1 );
-                            aFlatNormal( 0, 4 ) = mNormal( 2 );
+                            aFlatNormal( 0, 3 ) = get_normal()( 1 );
+                            aFlatNormal( 0, 4 ) = get_normal()( 2 );
 
-                            aFlatNormal( 1, 5 ) = mNormal( 0 );
-                            aFlatNormal( 1, 6 ) = mNormal( 2 );
+                            aFlatNormal( 1, 5 ) = get_normal()( 0 );
+                            aFlatNormal( 1, 6 ) = get_normal()( 2 );
 
-                            aFlatNormal( 2, 7 ) = mNormal( 0 );
-                            aFlatNormal( 2, 8 ) = mNormal( 1 );
+                            aFlatNormal( 2, 7 ) = get_normal()( 0 );
+                            aFlatNormal( 2, 8 ) = get_normal()( 1 );
 
                             real tSqrtOf2 = std::sqrt( 2 );
 
-                            aFlatNormal( 3, 3 ) = tSqrtOf2 * mNormal( 0 );
-                            aFlatNormal( 3, 5 ) = tSqrtOf2 * mNormal( 1 );
-                            aFlatNormal( 3, 9 ) = tSqrtOf2 * mNormal( 2 );
+                            aFlatNormal( 3, 3 ) = tSqrtOf2 * get_normal()( 0 );
+                            aFlatNormal( 3, 5 ) = tSqrtOf2 * get_normal()( 1 );
+                            aFlatNormal( 3, 9 ) = tSqrtOf2 * get_normal()( 2 );
 
-                            aFlatNormal( 4, 6 ) = tSqrtOf2 * mNormal( 1 );
-                            aFlatNormal( 4, 8 ) = tSqrtOf2 * mNormal( 2 );
-                            aFlatNormal( 4, 9 ) = tSqrtOf2 * mNormal( 0 );
+                            aFlatNormal( 4, 6 ) = tSqrtOf2 * get_normal()( 1 );
+                            aFlatNormal( 4, 8 ) = tSqrtOf2 * get_normal()( 2 );
+                            aFlatNormal( 4, 9 ) = tSqrtOf2 * get_normal()( 0 );
 
-                            aFlatNormal( 5, 4 ) = tSqrtOf2 * mNormal( 0 );
-                            aFlatNormal( 5, 7 ) = tSqrtOf2 * mNormal( 2 );
-                            aFlatNormal( 5, 9 ) = tSqrtOf2 * mNormal( 1 );
+                            aFlatNormal( 5, 4 ) = tSqrtOf2 * get_normal()( 0 );
+                            aFlatNormal( 5, 7 ) = tSqrtOf2 * get_normal()( 2 );
+                            aFlatNormal( 5, 9 ) = tSqrtOf2 * get_normal()( 1 );
                             break;
                         }
                         default:

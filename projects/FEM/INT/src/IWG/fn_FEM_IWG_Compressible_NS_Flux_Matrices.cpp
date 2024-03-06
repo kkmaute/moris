@@ -9,7 +9,8 @@
  */
 
 #include "fn_FEM_IWG_Compressible_NS.hpp"
-
+#include "cl_FEM_Material_Model.hpp"
+#include "cl_FEM_Constitutive_Model.hpp"
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
@@ -22,29 +23,29 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_A(
-                std::shared_ptr< Material_Model >                   aMM,
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                Vector< Matrix< DDRMat > >                   & aAMats )
+                std::shared_ptr< Material_Model >        aMM,
+                std::shared_ptr< Constitutive_Model >    aCM,
+                Field_Interpolator_Manager              *aLeaderFIManager,
+                const Vector< Vector< MSI::Dof_Type > > &aResidualDofTypes,
+                Vector< Matrix< DDRMat > >              &aAMats )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
                     "fn_FEM_IWG_Compressible_NS::eval_A_matrices - list of aResidualDofTypes not supported, see messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
             // get commonly used values
-            real tRho = aMM->density()( 0 );
-            real tUx = tFIVelocity->val()( 0 );
-            real tUy = tFIVelocity->val()( 1 );
+            real tRho    = aMM->density()( 0 );
+            real tUx     = tFIVelocity->val()( 0 );
+            real tUy     = tFIVelocity->val()( 1 );
             real tAlphaP = aMM->AlphaP()( 0 );
-            real tBetaT = aMM->BetaT()( 0 );
-            real tEtot = aCM->Energy()( 0 );
+            real tBetaT  = aMM->BetaT()( 0 );
+            real tEtot   = aCM->Energy()( 0 );
 
             // constants computed as in M. Polner's 2005 PhD thesis
             real tE1p = tBetaT * tEtot;
@@ -55,7 +56,7 @@ namespace moris
             // reset A matrices
             Matrix< DDRMat > tEmptyA( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
             aAMats.assign( tNumSpaceDims + 2, tEmptyA );
-            //mA.resize( tNumSpaceDims + 2 );
+            // mA.resize( tNumSpaceDims + 2 );
 
             // clang-format off
             // assemble matrices based on
@@ -141,13 +142,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_K(
-                std::shared_ptr< Property >                      aPropDynamicViscosity,
-                std::shared_ptr< Property >                      aPropThermalConductivity,
-                Field_Interpolator_Manager                     * aLeaderFIManager,
-                Vector< Vector< Matrix< DDRMat > > > & aKMats )
+                std::shared_ptr< Property >           aPropDynamicViscosity,
+                std::shared_ptr< Property >           aPropThermalConductivity,
+                Field_Interpolator_Manager           *aLeaderFIManager,
+                Vector< Vector< Matrix< DDRMat > > > &aKMats )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -162,7 +163,7 @@ namespace moris
 
             // set number of K matrices
             aKMats.resize( tNumSpaceDims );
-            for ( uint iDim = 0; iDim < tNumSpaceDims ; iDim++)
+            for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
             {
                 aKMats( iDim ).resize( tNumSpaceDims );
             }
@@ -304,17 +305,17 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_KijYj(
-                std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > > & aResidualDofTypes,
-                Matrix< DDRMat >                                  & aKijYj )
+                std::shared_ptr< Constitutive_Model >    aCM,
+                Field_Interpolator_Manager              *aLeaderFIManager,
+                const Vector< Vector< MSI::Dof_Type > > &aResidualDofTypes,
+                Matrix< DDRMat >                        &aKijYj )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
                     "fn_FEM_IWG_Compressible_NS::eval_KijYj - list of aResidualDofTypes not supported, see error messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -334,17 +335,17 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_KijYji(
-                std::shared_ptr< Constitutive_Model >                aCM,
-                Field_Interpolator_Manager                         * aLeaderFIManager,
-                const Vector< Vector< MSI::Dof_Type > >  & aResidualDofTypes,
-                Matrix< DDRMat >                                   & aKijYji )
+                std::shared_ptr< Constitutive_Model >    aCM,
+                Field_Interpolator_Manager              *aLeaderFIManager,
+                const Vector< Vector< MSI::Dof_Type > > &aResidualDofTypes,
+                Matrix< DDRMat >                        &aKijYji )
         {
             // check inputs
             MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
                     "fn_FEM_IWG_Compressible_NS::eval_KijYji - list of aResidualDofTypes not supported, see error messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -364,13 +365,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void eval_dKijdxi(
-                std::shared_ptr< Property >       aPropDynamicViscosity,
-                std::shared_ptr< Property >       aPropThermalConductivity,
-                Field_Interpolator_Manager      * aLeaderFIManager,
-                Vector< Matrix< DDRMat > > & adKijdxi )
+                std::shared_ptr< Property > aPropDynamicViscosity,
+                std::shared_ptr< Property > aPropThermalConductivity,
+                Field_Interpolator_Manager *aLeaderFIManager,
+                Vector< Matrix< DDRMat > > &adKijdxi )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator *tFIVelocity = aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -384,7 +385,7 @@ namespace moris
 
             // get commonly used values
             real tMu = aPropDynamicViscosity->val()( 0 );
-            //tKa = aPropThermalConductivity->val()( 0 );
+            // tKa = aPropThermalConductivity->val()( 0 );
             Matrix< DDRMat > tGradVel = tFIVelocity->gradx( 1 );
 
             // fill
@@ -433,4 +434,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

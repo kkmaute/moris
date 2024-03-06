@@ -24,19 +24,12 @@ namespace moris
 
         IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed::IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            init_property("Youngsmodulus_Leader", IWG_Property_Type::YOUNGS_MODULUS_LEADER);
+            init_property("Youngsmodulus_Follower", IWG_Property_Type::YOUNGS_MODULUS_FOLLOWER);
 
-            // populate the property map
-            mPropertyMap[ "Youngsmodulus_Leader" ] = static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_LEADER );
-            mPropertyMap[ "Youngsmodulus_Follower" ] = static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_FOLLOWER );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+
 
         }
 
@@ -62,27 +55,21 @@ namespace moris
             const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator* tFILambdaLeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILambdaLeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFILambdaFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILambdaFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            Field_Interpolator* tFIDisplLeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFIDisplLeader = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFIDisplFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFIDisplFollower = get_follower_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get the property youngsmodulus Leader
-            const std::shared_ptr< Property > & tPropYoungsLeader =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_LEADER ) );
+            const std::shared_ptr< Property > & tPropYoungsLeader = get_leader_property(IWG_Property_Type::YOUNGS_MODULUS_LEADER);
 
             // get the property youngsmodulus Follower
-            const std::shared_ptr< Property > & tPropYoungsFollower =
-            		mLeaderProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_FOLLOWER ) );
+            const std::shared_ptr< Property > & tPropYoungsFollower = get_leader_property(IWG_Property_Type::YOUNGS_MODULUS_FOLLOWER);
 
             // evaluate displacement jump
             const auto tDisplJump = tFIDisplLeader->val() - tFIDisplFollower->val();
@@ -124,34 +111,28 @@ namespace moris
             const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator* tFILambdaLeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILambdaLeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFILambdaFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILambdaFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            Field_Interpolator* tFIDisplLeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFIDisplLeader = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFIDisplFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFIDisplFollower = get_follower_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get the property youngsmodulus Leader
-            const std::shared_ptr< Property > & tPropYoungsLeader =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_LEADER ) );
+            const std::shared_ptr< Property > & tPropYoungsLeader = get_leader_property(IWG_Property_Type::YOUNGS_MODULUS_LEADER);
 
             // get the property youngsmodulus Follower
-            const std::shared_ptr< Property > & tPropYoungsFollower =
-            		mLeaderProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_FOLLOWER ) );
+            const std::shared_ptr< Property > & tPropYoungsFollower = get_leader_property(IWG_Property_Type::YOUNGS_MODULUS_FOLLOWER);
 
             // compute the jacobian for indirect dof dependencies through leader constitutive models
-            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
             for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -177,11 +158,11 @@ namespace moris
             }
 
             // compute the jacobian for indirect dof dependencies through follower constitutive models
-            uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+            uint tFollowerNumDofDependencies = get_requested_follower_dof_types().size();
             for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_follower_dof_types()( iDOF );
 
                 // get the index for the dof type
                 const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );

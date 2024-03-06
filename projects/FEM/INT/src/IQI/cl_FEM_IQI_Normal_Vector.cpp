@@ -29,13 +29,13 @@ namespace moris
         void
         IQI_Normal_Vector::compute_QI( Matrix< DDRMat >& aQI )
         {
-            MORIS_ASSERT( mNormal.numel() > 0,
+            MORIS_ASSERT( get_normal().numel() > 0,
                     "IQI_Normal_Vector::compute_QI() - "
                     "Normal is not set. IQIs requiring a normal must be evaluated elementally "
                     "and averaged such that there is a well-defined normal." );
 
-            Field_Interpolator* tFILeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
-            Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
+            Field_Interpolator* tFILeader   = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Geometry_Interpolator* tGILeader   = get_leader_fi_manager()->get_IG_geometry_interpolator();
 
             Matrix< DDRMat > tCurrentNormal = tGILeader->get_normal_current( tFILeader );
 

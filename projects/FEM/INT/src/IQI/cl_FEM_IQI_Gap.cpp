@@ -30,11 +30,11 @@ namespace moris
         void
         IQI_Gap::compute_QI( Matrix< DDRMat >& aQI )
         {
-            Field_Interpolator* tFILeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
-            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFILeader   = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
-            Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
-            Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tGILeader   = get_leader_fi_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tGIFollower = get_follower_fi_manager()->get_IG_geometry_interpolator();
 
             Matrix< DDRMat > tCurrentNormal = tGILeader->get_normal_current( tFILeader );
 
@@ -50,11 +50,11 @@ namespace moris
         void
         IQI_Gap::compute_QI( real aWStar )
         {
-            Field_Interpolator* tFILeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
-            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFILeader   = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
-            Geometry_Interpolator* tGILeader   = mLeaderFIManager->get_IG_geometry_interpolator();
-            Geometry_Interpolator* tGIFollower = mFollowerFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tGILeader   = get_leader_fi_manager()->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tGIFollower = get_follower_fi_manager()->get_IG_geometry_interpolator();
 
             Matrix< DDRMat > tCurrentNormal = tGILeader->get_normal_current( tFILeader );
 
@@ -62,7 +62,7 @@ namespace moris
                     tGIFollower->valx_current( tFIFollower ) - tGILeader->valx_current( tFILeader ),
                     tCurrentNormal );
 
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
             mSet->get_QI()( tQIIndex ) += aWStar * tGap;
         }
 

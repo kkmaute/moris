@@ -24,15 +24,11 @@ namespace moris
 
         IWG_Incompressible_NS_Pressure_Neumann::IWG_Incompressible_NS_Pressure_Neumann()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Pressure" ]           = static_cast< uint >( IWG_Property_Type::PRESSURE );
-            mPropertyMap[ "TotalPressure" ]      = static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE );
-            mPropertyMap[ "Density" ]            = static_cast< uint >( IWG_Property_Type::DENSITY );
-            mPropertyMap[ "BackFlowPrevention" ] = static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION );
-            mPropertyMap[ "Select" ]             = static_cast< uint >( IWG_Property_Type::SELECT );
+            init_property("Pressure", IWG_Property_Type::PRESSURE);
+            init_property("TotalPressure", IWG_Property_Type::TOTAL_PRESSURE);
+            init_property("Density", IWG_Property_Type::DENSITY);
+            init_property("BackFlowPrevention", IWG_Property_Type::BACKFLOW_PREVENTION);
+            init_property("Select", IWG_Property_Type::SELECT);
         }
 
         //------------------------------------------------------------------------------
@@ -51,28 +47,22 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the velocity FI
-            Field_Interpolator* tVelocityFI =    //
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the imposed pressure property
-            const std::shared_ptr< Property >& tPropPressure =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            const std::shared_ptr< Property >& tPropPressure = get_leader_property(IWG_Property_Type::PRESSURE);
 
             // get the imposed total pressure property
-            const std::shared_ptr< Property >& tPropTotalPressure =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
+            const std::shared_ptr< Property >& tPropTotalPressure = get_leader_property(IWG_Property_Type::TOTAL_PRESSURE);
 
             // get density property
-            const std::shared_ptr< Property >& tPropDensity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+            const std::shared_ptr< Property >& tPropDensity = get_leader_property(IWG_Property_Type::DENSITY);
 
             // get back flow prevention prevention property
-            const std::shared_ptr< Property >& tPropBackflowPrevention =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION ) );
+            const std::shared_ptr< Property >& tPropBackflowPrevention = get_leader_property(IWG_Property_Type::BACKFLOW_PREVENTION);
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property(IWG_Property_Type::SELECT);
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -102,7 +92,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tLeaderResStartIndex, tLeaderResStopIndex },
                         { 0, 0 } ) +=
-                        aWStar * ( tVelocityFI->N_trans() * tM * tPropPressure->val()( 0 ) * mNormal );
+                        aWStar * ( tVelocityFI->N_trans() * tM * tPropPressure->val()( 0 ) * get_normal() );
             }
 
             // when total pressure is imposed
@@ -120,13 +110,13 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tLeaderResStartIndex, tLeaderResStopIndex },
                         { 0, 0 } ) +=
-                        aWStar * ( tM * tImposedPressure * tVelocityFI->N_trans() * mNormal );
+                        aWStar * ( tM * tImposedPressure * tVelocityFI->N_trans() * get_normal() );
             }
 
             if ( tPropBackflowPrevention != nullptr )
             {
                 // compute normal velocity
-                const real tNormalVelocity = dot( tVelocityFI->val(), mNormal );
+                const real tNormalVelocity = dot( tVelocityFI->val(), get_normal() );
 
                 // check for back flow
                 if ( tNormalVelocity < 0.0 )
@@ -168,27 +158,22 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the velocity FI
-            Field_Interpolator* tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the imposed pressure property
-            const std::shared_ptr< Property >& tPropPressure =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            const std::shared_ptr< Property >& tPropPressure = get_leader_property(IWG_Property_Type::PRESSURE);
 
             // get the imposed total pressure property
-            const std::shared_ptr< Property >& tPropTotalPressure =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
+            const std::shared_ptr< Property >& tPropTotalPressure = get_leader_property(IWG_Property_Type::TOTAL_PRESSURE);
 
             // get back flow prevention prevention property
-            const std::shared_ptr< Property >& tPropBackflowPrevention =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION ) );
+            const std::shared_ptr< Property >& tPropBackflowPrevention = get_leader_property(IWG_Property_Type::BACKFLOW_PREVENTION);
 
             // get density property
-            const std::shared_ptr< Property >& tPropDensity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+            const std::shared_ptr< Property >& tPropDensity = get_leader_property(IWG_Property_Type::DENSITY);
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property(IWG_Property_Type::SELECT);
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -201,12 +186,12 @@ namespace moris
             }
 
             // compute the Jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -225,7 +210,7 @@ namespace moris
                     if ( tPropPressure->check_dof_dependency( tDofType ) )
                     {
                         // compute the Jacobian
-                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * get_normal() * tPropPressure->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -239,14 +224,14 @@ namespace moris
                                 -1.0 * tPropDensity->val()( 0 ) * tVelocityFI->val_trans() * tVelocityFI->N();
 
                         // compute the jacobian/
-                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * mNormal * tdpredvel );
+                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * get_normal() * tdpredvel );
                     }
 
                     // if imposed total pressure property depends on the dof type
                     if ( tPropTotalPressure->check_dof_dependency( tDofType ) )
                     {
                         // compute the Jacobian
-                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * mNormal * tPropTotalPressure->dPropdDOF( tDofType ) );
+                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * get_normal() * tPropTotalPressure->dPropdDOF( tDofType ) );
                     }
 
                     // if density property depends on the dof type
@@ -256,14 +241,14 @@ namespace moris
                         const real tdpreddens = -0.5 * std::pow( norm( tVelocityFI->val() ), 2.0 );
 
                         // compute the Jacobian
-                        tJac += aWStar * ( tM * tdpreddens * tVelocityFI->N_trans() * mNormal * tPropDensity->dPropdDOF( tDofType ) );
+                        tJac += aWStar * ( tM * tdpreddens * tVelocityFI->N_trans() * get_normal() * tPropDensity->dPropdDOF( tDofType ) );
                     }
                 }
 
                 if ( tPropBackflowPrevention != nullptr )
                 {
                     // compute normal velocity
-                    const real tNormalVelocity = dot( tVelocityFI->val(), mNormal );
+                    const real tNormalVelocity = dot( tVelocityFI->val(), get_normal() );
 
                     // check for back flow
                     if ( tNormalVelocity < 0.0 )
@@ -278,7 +263,7 @@ namespace moris
                                             tPropBackflowPrevention->val()( 0 ) * tDensity *    //
                                             tVelocityFI->N_trans() * tM * (                     //
                                                     tNormalVelocity * tVelocityFI->N()          //
-                                                    + tVelocityFI->val() * trans( mNormal ) * tVelocityFI->N() ) );
+                                                    + tVelocityFI->val() * trans( get_normal() ) * tVelocityFI->N() ) );
                         }
 
                         // if back flow prevention property depends on the dof type

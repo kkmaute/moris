@@ -28,26 +28,11 @@ namespace moris
         {
             // set sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ]      = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "NeumannPenalty" ] = static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY );
-            mPropertyMap[ "Traction" ]       = static_cast< uint >( IWG_Property_Type::TRACTION );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "RobinNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::ROBIN_NITSCHE );
+            init_property("Dirichlet", IWG_Property_Type::DIRICHLET);
+            init_property("NeumannPenalty", IWG_Property_Type::NEUMANN_PENALTY);
+            init_property("Traction", IWG_Property_Type::TRACTION);
+            init_constitutive_model("Diffusion", IWG_Constitutive_Type::DIFFUSION);
+            init_stabilization_parameter("RobinNitsche", IWG_Stabilization_Type::ROBIN_NITSCHE);
         }
 
         //------------------------------------------------------------------------------
@@ -66,31 +51,25 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the leader field interpolator for the residual dof type
-            Field_Interpolator* tFITemp =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the imposed velocity property
-            const std::shared_ptr< Property >& tPropDirichlet =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property >& tPropDirichlet = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the slip length property
-            const std::shared_ptr< Property >& tPropNeumannPen =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY ) );
+            const std::shared_ptr< Property >& tPropNeumannPen = get_leader_property(IWG_Property_Type::NEUMANN_PENALTY);
 
             // get the traction property
-            const std::shared_ptr< Property >& tPropTraction =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+            const std::shared_ptr< Property >& tPropTraction = get_leader_property(IWG_Property_Type::TRACTION);
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model(IWG_Constitutive_Type::DIFFUSION);
 
             // get the dynamic viscosity property
             const std::shared_ptr< Property >& tPropConductivity = tCMDiffusion->get_property( "Conductivity" );
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::ROBIN_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::ROBIN_NITSCHE);
 
             // check that slip length is defined
             MORIS_ASSERT( tPropNeumannPen and tPropConductivity,
@@ -108,7 +87,7 @@ namespace moris
             }
 
             // compute the traction jump
-            tJump += tNeumannPen * tCMDiffusion->traction( mNormal );
+            tJump += tNeumannPen * tCMDiffusion->traction( get_normal() );
             if ( tPropTraction )
             {
                 // subtract the prescribed traction , by default is zero
@@ -126,9 +105,9 @@ namespace moris
             // compute leader residual
             tRes += aWStar * (                                                                            //
                             tFITemp->N_trans() * (                                                        //
-                                    -tCMDiffusion->traction( mNormal )                                    //                                     //
+                                    -tCMDiffusion->traction( get_normal() )                                    //                                     //
                                     + tStabilityPenalty * tJump )                                         //
-                            - mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * (    //                                                 //
+                            - mBeta * tCMDiffusion->testTraction( get_normal(), mResidualDofType( 0 ) ) * (    //                                                 //
                                       tAdjointPenalty * tJump ) );                                        //
 
             // check for nan, infinity
@@ -152,31 +131,25 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the leader field interpolator for the residual dof type
-            Field_Interpolator* tFITemp =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the imposed velocity property
-            const std::shared_ptr< Property >& tPropDirichlet =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property >& tPropDirichlet = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the slip length property
-            const std::shared_ptr< Property >& tPropNeumannPen =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY ) );
+            const std::shared_ptr< Property >& tPropNeumannPen = get_leader_property(IWG_Property_Type::NEUMANN_PENALTY);
 
             // get the traction property
-            const std::shared_ptr< Property >& tPropTraction =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+            const std::shared_ptr< Property >& tPropTraction = get_leader_property(IWG_Property_Type::TRACTION);
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model(IWG_Constitutive_Type::DIFFUSION);
 
             // get the dynamic viscosity property
             const std::shared_ptr< Property >& tPropConductivity = tCMDiffusion->get_property( "Conductivity" );
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::ROBIN_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::ROBIN_NITSCHE);
 
             // check that slip length is defined
             MORIS_ASSERT( tPropNeumannPen and tPropConductivity,
@@ -194,7 +167,7 @@ namespace moris
             }
 
             // compute the traction jump
-            tJump += tNeumannPen * tCMDiffusion->traction( mNormal );
+            tJump += tNeumannPen * tCMDiffusion->traction( get_normal() );
             if ( tPropTraction )
             {
                 // subtract the prescribed traction , by default is zero
@@ -206,13 +179,13 @@ namespace moris
             const real tAdjointPenalty   = tSPNitsche->val()( 1 );
 
             // get number of leader dependencies
-            const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            const uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the Jacobian for indirect dof dependencies through leader
             for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -231,7 +204,7 @@ namespace moris
                     tJac += aWStar * (                                                                            //
                                     tFITemp->N_trans() * (                                                        //
                                             tStabilityPenalty * tPropConductivity->val() * tFITemp->N() )         //
-                                    - mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * (    //
+                                    - mBeta * tCMDiffusion->testTraction( get_normal(), mResidualDofType( 0 ) ) * (    //
                                               tAdjointPenalty * tPropConductivity->val() * tFITemp->N() ) );      //
                 }
 
@@ -241,16 +214,16 @@ namespace moris
                     // compute Jacobian direct dependencies
                     tJac += aWStar * (                                                                                           //
                                     tFITemp->N_trans() * (                                                                       //
-                                            -tCMDiffusion->dTractiondDOF( tDofType, mNormal ) )                                  //
-                                    - mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * (    //
+                                            -tCMDiffusion->dTractiondDOF( tDofType, get_normal() ) )                                  //
+                                    - mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, get_normal(), mResidualDofType( 0 ) ) * (    //
                                               tAdjointPenalty * tJump( 0 ) ) );
 
                     // compute the dependencies of the jacobian on the jump term which has traction in it
                     tJac += aWStar * (                                                                                              //
                                     tFITemp->N_trans() * (                                                                          //
-                                            tStabilityPenalty * tNeumannPen * tCMDiffusion->dTractiondDOF( tDofType, mNormal ) )    //
-                                    - mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * (                      //
-                                              tAdjointPenalty * tNeumannPen * tCMDiffusion->dTractiondDOF( tDofType, mNormal ) ) );
+                                            tStabilityPenalty * tNeumannPen * tCMDiffusion->dTractiondDOF( tDofType, get_normal() ) )    //
+                                    - mBeta * tCMDiffusion->testTraction( get_normal(), mResidualDofType( 0 ) ) * (                      //
+                                              tAdjointPenalty * tNeumannPen * tCMDiffusion->dTractiondDOF( tDofType, get_normal() ) ) );
                 }
 
                 // if prescribed traction depends on the dof type

@@ -11,6 +11,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Max_Dof.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris
 {
@@ -24,21 +25,21 @@ namespace moris
             if ( !mIsInitialized )
             {
                 // size of parameter list
-                uint tParamSize = mParameters.size();
+                uint tParamSize = get_parameters().size();
 
                 // check for proper size of constant function parameters
                 MORIS_ERROR( tParamSize >= 2 && tParamSize <= 4,
                         "IQI_Max_Dof::initialize - either 2, 3 or 4 constant parameters need to be set." );
 
-                mRefValue = mParameters( 0 )( 0 );
-                mExponent = mParameters( 1 )( 0 );
+                mRefValue = get_parameters()( 0 )( 0 );
+                mExponent = get_parameters()( 1 )( 0 );
 
                 // shift parameter
                 mShift = 1.0;
 
                 if ( tParamSize > 2 )
                 {
-                    mShift = mParameters( 2 )( 0 );
+                    mShift = get_parameters()( 2 )( 0 );
                 }
 
                 // sign parameter
@@ -46,7 +47,7 @@ namespace moris
 
                 if ( tParamSize > 3 )
                 {
-                    mSign = (sint)mParameters( 3 )( 0 );
+                    mSign = (sint)get_parameters()( 3 )( 0 );
                 }
 
                 // check mQuantityDofType is defined
@@ -77,8 +78,7 @@ namespace moris
             this->initialize();
 
             // get field interpolator for a given dof type
-            Field_Interpolator* tFIMaxDof =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFIMaxDof = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // evaluate the QI
             real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue - mShift;
@@ -93,8 +93,7 @@ namespace moris
                     break;
             }
 
-            const std::shared_ptr< Property >& tPropWeight =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::WEIGHT ) );
+            const std::shared_ptr< Property >& tPropWeight = get_leader_property( IQI_Property_Type::WEIGHT );
 
             // check if the weight property has been stipulated
             if ( tPropWeight != nullptr )
@@ -119,11 +118,10 @@ namespace moris
             this->initialize();
 
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get field interpolator for a given dof type
-            Field_Interpolator* tFIMaxDof =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFIMaxDof = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // evaluate the QI
             real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue - mShift;
@@ -138,8 +136,7 @@ namespace moris
                     break;
             }
 
-            const std::shared_ptr< Property >& tPropWeight =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::WEIGHT ) );
+            const std::shared_ptr< Property >& tPropWeight = get_leader_property( IQI_Property_Type::WEIGHT );
 
             // check if the weight property has been stipulated
             if ( tPropWeight != nullptr )
@@ -161,20 +158,19 @@ namespace moris
         IQI_Max_Dof::compute_dQIdu( real aWStar )
         {
             // get field interpolator for max dof type
-            Field_Interpolator* tFIMaxDof =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFIMaxDof = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute dQIdu for indirect dof dependencies
             for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+                Vector< MSI::Dof_Type > const & tDofType = get_requested_leader_dof_types()( iDof );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -206,8 +202,7 @@ namespace moris
 
                     real tdQI = std::pow( tArgument, mExponent - 1.0 );
 
-                    const std::shared_ptr< Property >& tPropWeight =
-                            mLeaderProp( static_cast< uint >( IQI_Property_Type::WEIGHT ) );
+                    const std::shared_ptr< Property >& tPropWeight = get_leader_property( IQI_Property_Type::WEIGHT );
 
                     // check if the weight property has been stipulated
                     if ( tPropWeight != nullptr )
@@ -239,11 +234,10 @@ namespace moris
         void
         IQI_Max_Dof::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Matrix< DDRMat >&        adQIdu )
         {
             // get field interpolator for max dof type
-            Field_Interpolator* tFIMaxDof =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFIMaxDof = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // if derivative dof type is max dof type
             if ( aDofType( 0 ) == mQuantityDofType( 0 ) )
@@ -270,8 +264,7 @@ namespace moris
 
                 real tdQI = std::pow( tArgument, mExponent - 1.0 );
 
-                const std::shared_ptr< Property >& tPropWeight =
-                        mLeaderProp( static_cast< uint >( IQI_Property_Type::WEIGHT ) );
+                const std::shared_ptr< Property >& tPropWeight = get_leader_property( IQI_Property_Type::WEIGHT );
 
                 // check if the weight property has been stipulated
                 if ( tPropWeight != nullptr )
@@ -294,4 +287,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 }    // namespace moris
-

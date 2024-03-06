@@ -26,31 +26,16 @@ namespace moris
 
         IWG_Incompressible_NS_Velocity_Bulk::IWG_Incompressible_NS_Velocity_Bulk()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Gravity" ]          = static_cast< uint >( IWG_Property_Type::GRAVITY );
-            mPropertyMap[ "ThermalExpansion" ] = static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION );
-            mPropertyMap[ "ReferenceTemp" ]    = static_cast< uint >( IWG_Property_Type::REF_TEMP );
-            mPropertyMap[ "InvPermeability" ]  = static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY );
-            mPropertyMap[ "MassSource" ]       = static_cast< uint >( IWG_Property_Type::MASS_SOURCE );
-            mPropertyMap[ "Load" ]             = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] =
-                    static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "IncompressibleFlow" ] = static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW );
-            mStabilizationMap[ "DiffusionCrosswind" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
-            mStabilizationMap[ "DiffusionIsotropic" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
+            init_property( "Gravity", IWG_Property_Type::GRAVITY );
+            init_property( "ThermalExpansion", IWG_Property_Type::THERMAL_EXPANSION );
+            init_property( "ReferenceTemp", IWG_Property_Type::REF_TEMP );
+            init_property( "InvPermeability", IWG_Property_Type::INV_PERMEABILITY );
+            init_property( "MassSource", IWG_Property_Type::MASS_SOURCE );
+            init_property( "Load", IWG_Property_Type::BODY_LOAD );
+            init_constitutive_model( "IncompressibleFluid", IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
+            init_stabilization_parameter( "IncompressibleFlow", IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW );
+            init_stabilization_parameter( "DiffusionCrosswind", IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
+            init_stabilization_parameter( "DiffusionIsotropic", IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
         }
 
         //------------------------------------------------------------------------------
@@ -69,47 +54,37 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the velocity FI
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the gravity property
-            const std::shared_ptr< Property >& tGravityProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            const std::shared_ptr< Property >& tGravityProp = get_leader_property( IWG_Property_Type::GRAVITY );
 
             // get the thermal expansion property
-            const std::shared_ptr< Property >& tThermalExpProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            const std::shared_ptr< Property >& tThermalExpProp = get_leader_property( IWG_Property_Type::THERMAL_EXPANSION );
 
             // get the reference temperature property
-            const std::shared_ptr< Property >& tRefTempProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            const std::shared_ptr< Property >& tRefTempProp = get_leader_property( IWG_Property_Type::REF_TEMP );
 
             // get the inverted permeability (porosity) property
-            const std::shared_ptr< Property >& tInvPermeabProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+            const std::shared_ptr< Property >& tInvPermeabProp = get_leader_property( IWG_Property_Type::INV_PERMEABILITY );
 
             // get the body load property
-            const std::shared_ptr< Property >& tLoadProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tLoadProp = get_leader_property( IWG_Property_Type::BODY_LOAD );
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
 
             // get the density property
             const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the incompressible flow stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG = get_stabilization_parameter( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW );
 
             // get the crosswind diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind = get_stabilization_parameter( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
 
             // get the isotropic stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic = get_stabilization_parameter( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
 
             // compute the strong form residual for momentum
             Matrix< DDRMat > tRM;
@@ -169,7 +144,7 @@ namespace moris
             {
                 // get the temperature field interpolator
                 // FIXME protect FI
-                Field_Interpolator* tTempFI = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                Field_Interpolator* tTempFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                 // add contribution to residual
                 tRes -= aWStar
@@ -227,7 +202,7 @@ namespace moris
                 Matrix< DDRMat > tcgradxv;
                 compute_cgradxw( mResidualDofType( 0 ),    //
                         mResidualDofType( 0 ),
-                        mLeaderFIManager,
+                        get_leader_fi_manager(),
                         tSpaceDim,
                         tEpsilon,
                         tIsCrosswind,
@@ -289,32 +264,25 @@ namespace moris
             const uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get velocity FI
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the gravity property
-            const std::shared_ptr< Property >& tGravityProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            const std::shared_ptr< Property >& tGravityProp = get_leader_property( IWG_Property_Type::GRAVITY );
 
             // get the thermal expansion property
-            const std::shared_ptr< Property >& tThermalExpProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            const std::shared_ptr< Property >& tThermalExpProp = get_leader_property( IWG_Property_Type::THERMAL_EXPANSION );
 
             // get the reference temperature property
-            const std::shared_ptr< Property >& tRefTempProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            const std::shared_ptr< Property >& tRefTempProp = get_leader_property( IWG_Property_Type::REF_TEMP );
 
             // get the inverted permeability property
-            const std::shared_ptr< Property >& tInvPermeabProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+            const std::shared_ptr< Property >& tInvPermeabProp = get_leader_property( IWG_Property_Type::INV_PERMEABILITY );
 
             // get the body load property
-            const std::shared_ptr< Property >& tLoadProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tLoadProp = get_leader_property( IWG_Property_Type::BODY_LOAD );
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
 
             // get the density property from CM
             const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -323,16 +291,13 @@ namespace moris
             const real tDensity = tDensityProp->val()( 0 );
 
             // get the incompressible flow stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG = get_stabilization_parameter( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW );
 
             // get the crosswind diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind = get_stabilization_parameter( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
 
             // get the isotropic diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic = get_stabilization_parameter( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
 
             // build multiplication matrix for sigma_ij epsilon_ij
             Matrix< DDRMat > tPre;
@@ -363,12 +328,12 @@ namespace moris
             this->compute_residual_strong_form_continuity( tRC );
 
             // compute the Jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -493,8 +458,7 @@ namespace moris
                 {
                     // get the temperature field interpolator
                     // FIXME protect FI
-                    Field_Interpolator* tTempFI =
-                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                    Field_Interpolator* tTempFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                     // if dof is temperature
                     if ( tDofType( 0 ) == MSI::Dof_Type::TEMP )
@@ -582,7 +546,7 @@ namespace moris
                     Matrix< DDRMat > tcgradxv;
                     compute_cgradxw( mResidualDofType( 0 ),    //
                             mResidualDofType( 0 ),
-                            mLeaderFIManager,
+                            get_leader_fi_manager(),
                             tSpaceDim,
                             tEpsilon,
                             tIsCrosswind,
@@ -595,7 +559,7 @@ namespace moris
                         // compute derivative of crosswind projection of velocity gradient
                         compute_dcgradxwdu( mResidualDofType( 0 ),    //
                                 mResidualDofType( 0 ),
-                                mLeaderFIManager,
+                                get_leader_fi_manager(),
                                 tDofType,
                                 tSpaceDim,
                                 tEpsilon,
@@ -604,8 +568,7 @@ namespace moris
                     }
 
                     // compute strong residual based coefficient in total and per space direction
-                    Field_Interpolator* tDerivativeFI =
-                            mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                    Field_Interpolator* tDerivativeFI = get_leader_fi_manager()->get_field_interpolators_for_type( tDofType( 0 ) );
 
                     uint tNumCoeff            = tDerivativeFI->get_number_of_space_time_coefficients();
                     uint tNumCoeffPerSpaceDir = tVelocityFI->get_number_of_space_time_coefficients() / tSpaceDim;
@@ -754,29 +717,22 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Bulk::compute_residual_strong_form_momentum( Matrix< DDRMat >& aRM )
         {
             // get the velocity and pressure FIs
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the properties
-            const std::shared_ptr< Property >& tGravityProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            const std::shared_ptr< Property >& tGravityProp = get_leader_property( IWG_Property_Type::GRAVITY );
 
-            const std::shared_ptr< Property >& tThermalExpProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            const std::shared_ptr< Property >& tThermalExpProp = get_leader_property( IWG_Property_Type::THERMAL_EXPANSION );
 
-            const std::shared_ptr< Property >& tRefTempProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            const std::shared_ptr< Property >& tRefTempProp = get_leader_property( IWG_Property_Type::REF_TEMP );
 
-            const std::shared_ptr< Property >& tInvPermeabProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+            const std::shared_ptr< Property >& tInvPermeabProp = get_leader_property( IWG_Property_Type::INV_PERMEABILITY );
 
             // get the body load property
-            const std::shared_ptr< Property >& tLoadProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tLoadProp = get_leader_property( IWG_Property_Type::BODY_LOAD );
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
 
             // get the density property from CM
             const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -814,8 +770,7 @@ namespace moris
                 {
                     // get the temperature field interpolator
                     // FIXME protect FI
-                    Field_Interpolator* tTempFI =
-                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                    Field_Interpolator* tTempFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                     // add contribution to residual
                     aRM -= tDensity * tGravityProp->val() * tThermalExpProp->val()
@@ -830,16 +785,13 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Bulk::compute_residual_strong_form_continuity( real& aRC )
         {
             // get the velocity and pressure FIs
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the mass source property
-            const std::shared_ptr< Property >& tMassSourceProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+            const std::shared_ptr< Property >& tMassSourceProp = get_leader_property( IWG_Property_Type::MASS_SOURCE );
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
 
             // get the density property from CM
             const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -863,36 +815,29 @@ namespace moris
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form_momentum(
                 const Vector< MSI::Dof_Type >& aDofTypes,
-                Matrix< DDRMat >&                   aJM )
+                Matrix< DDRMat >&              aJM )
         {
             // get the res dof and the derivative dof FIs
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-            Field_Interpolator* tDerFI = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tDerFI      = get_leader_fi_manager()->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init aJM and aJC
             aJM.set_size( tVelocityFI->get_number_of_fields(), tDerFI->get_number_of_space_time_coefficients() );
 
             // get the properties
-            const std::shared_ptr< Property >& tGravityProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+            const std::shared_ptr< Property >& tGravityProp = get_leader_property( IWG_Property_Type::GRAVITY );
 
-            const std::shared_ptr< Property >& tThermalExpProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+            const std::shared_ptr< Property >& tThermalExpProp = get_leader_property( IWG_Property_Type::THERMAL_EXPANSION );
 
-            const std::shared_ptr< Property >& tRefTempProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+            const std::shared_ptr< Property >& tRefTempProp = get_leader_property( IWG_Property_Type::REF_TEMP );
 
-            const std::shared_ptr< Property >& tInvPermeabProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+            const std::shared_ptr< Property >& tInvPermeabProp = get_leader_property( IWG_Property_Type::INV_PERMEABILITY );
 
             // get the body load property
-            const std::shared_ptr< Property >& tLoadProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tLoadProp = get_leader_property( IWG_Property_Type::BODY_LOAD );
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
 
             // get the density property from CM
             const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -986,8 +931,7 @@ namespace moris
                 {
                     // get the temperature field interpolator
                     // FIXME protect FI
-                    Field_Interpolator* tTempFI =
-                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                    Field_Interpolator* tTempFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                     if ( aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
                     {
@@ -1034,22 +978,19 @@ namespace moris
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form_continuity(
                 const Vector< MSI::Dof_Type >& aDofTypes,
-                Matrix< DDRMat >&                   aJC )
+                Matrix< DDRMat >&              aJC )
         {
             // get the res dof and the derivative dof FIs
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-            Field_Interpolator* tDerFI = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tDerFI      = get_leader_fi_manager()->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init aJC
             aJC.set_size( 1, tDerFI->get_number_of_space_time_coefficients() );
 
-            const std::shared_ptr< Property >& tMassSourceProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+            const std::shared_ptr< Property >& tMassSourceProp = get_leader_property( IWG_Property_Type::MASS_SOURCE );
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
 
             // get the density property from CM
             const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -1093,8 +1034,7 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Bulk::compute_ujvij( Matrix< DDRMat >& aujvij )
         {
             // get the residual dof type FI (here velocity)
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // init size for uj vij
             uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
@@ -1118,8 +1058,7 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Bulk::compute_ujvijrm( Matrix< DDRMat >& aujvijrm, Matrix< DDRMat >& arm )
         {
             // get the residual dof type FI (here velocity)
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // set size for uj vij rM
             uint tNumField = tVelocityFI->get_number_of_fields();
@@ -1149,8 +1088,7 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Bulk::compute_dnNdtn( Matrix< DDRMat >& adnNdtn )
         {
             // get the residual dof type FI (here velocity)
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // init size for dnNdtn
             uint tNumRowt = tVelocityFI->get_number_of_fields();

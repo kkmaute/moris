@@ -25,12 +25,7 @@ namespace moris
         {
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::H1_ERROR_ANALYTIC;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "H1Check" ] = static_cast< uint >( IQI_Property_Type::H1_CHECK );
+            init_property("H1Check", IQI_Property_Type::H1_CHECK);
         }
 
         //------------------------------------------------------------------------------
@@ -43,12 +38,10 @@ namespace moris
                     "IQI_L2_Error_Analytic::compute_QI - mQuantityDofType not set." );
 
             // get field interpolator
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get analytical solution property
-            std::shared_ptr< Property >& tPropH1Check =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
+           std::shared_ptr< Property > const &tPropH1Check = get_leader_property(IQI_Property_Type::H1_CHECK);
 
             // get jump between value and analytic
             real tJumpNorm = norm( vectorize( tFI->gradx( 1 ) - tPropH1Check->val() ) );
@@ -63,19 +56,17 @@ namespace moris
         IQI_H1_Error_Analytic::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // check that mQuantityDofType is set
             MORIS_ERROR( mQuantityDofType.size() > 0,
                     "IQI_L2_Error_Analytic::compute_QI - mQuantityDofType not set." );
 
             // get field interpolator
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get analytical solution property
-            std::shared_ptr< Property >& tPropH1Check =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
+           std::shared_ptr< Property > const &tPropH1Check = get_leader_property(IQI_Property_Type::H1_CHECK);
 
             // get jump between value and analytic
             real tJumpNorm = norm( vectorize( tFI->gradx( 1 ) - tPropH1Check->val() ) );

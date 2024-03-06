@@ -29,13 +29,7 @@ namespace moris
         IQI_Contact_Pressure::IQI_Contact_Pressure()
         {
             mFEMIQIType = fem::IQI_Type::JUMP_TRACTION;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "TractionCM" ] = (uint)IQI_Constitutive_Type::TRACTION_CM;
+            init_constitutive_model( "TractionCM", IQI_Constitutive_Type::TRACTION_CM );
         }
 
         //------------------------------------------------------------------------------
@@ -43,15 +37,15 @@ namespace moris
         void
         IQI_Contact_Pressure::compute_QI( Matrix< DDRMat >& aQI )
         {
-            MORIS_ASSERT( mNormal.numel() > 0,
+            MORIS_ASSERT( get_normal().numel() > 0,
                     "IQI_Contact_Pressure::compute_QI() - "
                     "Normal is not set. IQIs requiring a normal must be evaluated elementally "
                     "and averaged such that there is a well-defined normal." );
 
             // get the constitutive model for computing the fluxes/tractions
-            const std::shared_ptr< Constitutive_Model >& tCMLeader       = mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
-            Field_Interpolator*                          tLeaderDofs     = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
-            Geometry_Interpolator*                       tLeaderGeometry = mLeaderFIManager->get_IG_geometry_interpolator();
+            const std::shared_ptr< Constitutive_Model >& tCMLeader       = get_leader_constitutive_model(IQI_Constitutive_Type::TRACTION_CM);
+            Field_Interpolator*                          tLeaderDofs     = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Geometry_Interpolator*                       tLeaderGeometry = get_leader_fi_manager()->get_IG_geometry_interpolator();
 
             Matrix< DDRMat >       tNormalLeader = tLeaderGeometry->get_normal_current( tLeaderDofs );
             const Matrix< DDRMat > tTraction     = tCMLeader->traction( tNormalLeader );    // ( 2 x 1 )
@@ -76,17 +70,17 @@ namespace moris
         IQI_Contact_Pressure::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
-            MORIS_ASSERT( mNormal.numel() > 0,
+            MORIS_ASSERT( get_normal().numel() > 0,
                     "IQI_Contact_Pressure::compute_QI() - "
                     "Normal is not set. IQIs requiring a normal must be evaluated elementally "
                     "and averaged such that there is a well-defined normal." );
 
             // get the constitutive model for computing the fluxes/tractions
-            const std::shared_ptr< Constitutive_Model >& tCMLeader       = mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
-            Field_Interpolator*                          tLeaderDofs     = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
-            Geometry_Interpolator*                       tLeaderGeometry = mLeaderFIManager->get_IG_geometry_interpolator();
+            const std::shared_ptr< Constitutive_Model >& tCMLeader       = get_leader_constitutive_model(IQI_Constitutive_Type::TRACTION_CM);
+            Field_Interpolator*                          tLeaderDofs     = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+            Geometry_Interpolator*                       tLeaderGeometry = get_leader_fi_manager()->get_IG_geometry_interpolator();
 
             Matrix< DDRMat >       tNormalLeader = tLeaderGeometry->get_normal_current( tLeaderDofs );
             const Matrix< DDRMat > tTraction     = tCMLeader->traction( tNormalLeader );    // ( 2 x 1 )

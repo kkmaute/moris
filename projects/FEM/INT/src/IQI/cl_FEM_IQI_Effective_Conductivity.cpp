@@ -23,13 +23,7 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::EFFECTIVE_CONDUCTIVITY;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion_Turbulence" ] =
-                    static_cast< uint >( IQI_Constitutive_Type::DIFFUSION_TURBULENCE );
+            init_constitutive_model("Diffusion_Turbulence", IQI_Constitutive_Type::DIFFUSION_TURBULENCE);
         }
 
         //------------------------------------------------------------------------------
@@ -37,8 +31,7 @@ namespace moris
         void IQI_Effective_Conductivity::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusionTurbulence =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusionTurbulence = get_leader_constitutive_model(IQI_Constitutive_Type::DIFFUSION_TURBULENCE);
 
             // compute turbulent dynamic viscosity
             aQI = tCMDiffusionTurbulence->effective_conductivity();
@@ -49,11 +42,10 @@ namespace moris
         void IQI_Effective_Conductivity::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model > & tCMDiffusionTurbulence =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusionTurbulence = get_leader_constitutive_model(IQI_Constitutive_Type::DIFFUSION_TURBULENCE);
 
             // compute turbulent dynamic viscosity
             mSet->get_QI()( tQIIndex ) += aWStar * ( tCMDiffusionTurbulence->effective_conductivity() );

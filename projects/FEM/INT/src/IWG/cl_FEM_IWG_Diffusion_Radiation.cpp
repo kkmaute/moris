@@ -25,14 +25,10 @@ namespace moris
 
         IWG_Diffusion_Radiation::IWG_Diffusion_Radiation()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Emissivity" ]         = static_cast< uint >( IWG_Property_Type::EMISSIVITY );
-            mPropertyMap[ "AmbientTemperature" ] = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
-            mPropertyMap[ "AbsoluteZero" ]       = static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO );
-            mPropertyMap[ "Thickness" ]          = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            init_property("Emissivity", IWG_Property_Type::EMISSIVITY);
+            init_property("AmbientTemperature", IWG_Property_Type::AMBIENT_TEMP);
+            init_property("AbsoluteZero", IWG_Property_Type::ABSOLUTE_ZERO);
+            init_property("Thickness", IWG_Property_Type::THICKNESS);
         }
 
         //------------------------------------------------------------------------------
@@ -45,20 +41,16 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // get emissivity property
-            const std::shared_ptr< Property >& tPropEmissivity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::EMISSIVITY ) );
+            const std::shared_ptr< Property >& tPropEmissivity = get_leader_property(IWG_Property_Type::EMISSIVITY);
 
             // get ambient temperature property
-            const std::shared_ptr< Property >& tPropAmbientTemp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP ) );
+            const std::shared_ptr< Property >& tPropAmbientTemp = get_leader_property(IWG_Property_Type::AMBIENT_TEMP);
 
             // get reference temperature property
-            const std::shared_ptr< Property >& tPropAbsoluteZero =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO ) );
+            const std::shared_ptr< Property >& tPropAbsoluteZero = get_leader_property(IWG_Property_Type::ABSOLUTE_ZERO);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -69,7 +61,7 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get filed interpolator for residual dof type
-            Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get property values
             real tT0    = tPropAbsoluteZero->val()( 0 );
@@ -103,20 +95,16 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // get emissivity property
-            const std::shared_ptr< Property >& tPropEmissivity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::EMISSIVITY ) );
+            const std::shared_ptr< Property >& tPropEmissivity = get_leader_property(IWG_Property_Type::EMISSIVITY);
 
             // get ambient temperature property
-            const std::shared_ptr< Property >& tPropAmbientTemp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP ) );
+            const std::shared_ptr< Property >& tPropAmbientTemp = get_leader_property(IWG_Property_Type::AMBIENT_TEMP);
 
             // get reference temperature property
-            const std::shared_ptr< Property >& tPropAbsoluteZero =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::ABSOLUTE_ZERO ) );
+            const std::shared_ptr< Property >& tPropAbsoluteZero = get_leader_property(IWG_Property_Type::ABSOLUTE_ZERO);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -127,7 +115,7 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get property values
             real tT0    = tPropAbsoluteZero->val()( 0 );
@@ -138,10 +126,10 @@ namespace moris
             real tT = tFI->val()( 0 );
 
             // compute the jacobian for dof dependencies
-            for ( uint iDOF = 0; iDOF < mRequestedLeaderGlobalDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < get_requested_leader_dof_types().size(); iDOF++ )
             {
                 // get dof type
-                const Vector< MSI::Dof_Type >& tDepDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDepDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the dof type indices for assembly
                 uint tDepDofIndex   = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Leader_Follower::LEADER );

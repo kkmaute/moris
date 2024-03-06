@@ -15,6 +15,7 @@
 #include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 
 #include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris
 {
@@ -26,18 +27,8 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::SP_CROSSWIND_SA;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "SpalartAllmarasTurbulence" ] = static_cast< uint >( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "Crosswind" ] = static_cast< uint >( IQI_Stabilization_Type::CROSSWIND );
+            init_constitutive_model( "SpalartAllmarasTurbulence", IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+            init_stabilization_parameter( "Crosswind", IQI_Stabilization_Type::CROSSWIND );
         }
 
         //------------------------------------------------------------------------------
@@ -46,20 +37,17 @@ namespace moris
         IQI_SP_Crosswind_SA::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = //
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VISCOSITY );
+            Field_Interpolator* tFIViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VISCOSITY );
 
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence = get_leader_constitutive_model( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
 
             // cast constitutive model base class pointer to SA constitutive model
             CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =
                     dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMSATurbulence.get() );
 
             // get the crosswind stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind =
-                    mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::CROSSWIND ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind = get_stabilization_parameter( IQI_Stabilization_Type::CROSSWIND );
 
             // get zero tolerance for crosswind
             const real tEpsilon = tSPCrosswind->val()( 1 );
@@ -75,7 +63,7 @@ namespace moris
             real tRAbs = std::max( std::abs( tR( 0, 0 ) ), tEpsilon );
 
             // compute full crosswind stabilization parameter value
-            aQI = std::max( tSPCrosswind->val()( 0 ) * tRAbs / tNorm - tCMSATurbulencePtr->diffusion_coefficient()( 0 ), 0.0) ;
+            aQI = std::max( tSPCrosswind->val()( 0 ) * tRAbs / tNorm - tCMSATurbulencePtr->diffusion_coefficient()( 0 ), 0.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -84,7 +72,7 @@ namespace moris
         IQI_SP_Crosswind_SA::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // evaluate strong form
             Matrix< DDRMat > tQI( 1, 1 );
@@ -108,7 +96,7 @@ namespace moris
         void
         IQI_SP_Crosswind_SA::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Matrix< DDRMat >&        adQIdu )
         {
             MORIS_ERROR( false,
                     "IQI_SP_Crosswind_SA::compute_dQIdu - not implemented\n." );
@@ -121,19 +109,17 @@ namespace moris
         {
             // get the residual viscosity FI
             // FIXME protect dof type
-            Field_Interpolator* tFIViscosity = //
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VISCOSITY );
+            Field_Interpolator* tFIViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VISCOSITY );
 
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence = get_leader_constitutive_model( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
 
             // compute strong form of residual
             aR = tFIViscosity->gradt( 1 )
-                               + trans( tCMSATurbulence->modified_velocity() ) * tFIViscosity->gradx( 1 )
-                               - tCMSATurbulence->production_term()
-                               + tCMSATurbulence->wall_destruction_term()
-                               - tCMSATurbulence->divflux();
+               + trans( tCMSATurbulence->modified_velocity() ) * tFIViscosity->gradx( 1 )
+               - tCMSATurbulence->production_term()
+               + tCMSATurbulence->wall_destruction_term()
+               - tCMSATurbulence->divflux();
 
             MORIS_ASSERT( isfinite( aR ),
                     "IQI_SP_Crosswind_SA::compute_residual_strong_form - Residual contains NAN or INF, exiting!" );
@@ -142,4 +128,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 }    // namespace moris
-

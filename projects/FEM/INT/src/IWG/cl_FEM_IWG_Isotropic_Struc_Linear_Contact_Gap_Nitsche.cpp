@@ -26,27 +26,10 @@ namespace moris
         {
             // sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-            mPropertyMap[ "Gap" ]       = static_cast< uint >( IWG_Property_Type::GAP );
-
-            // set size for the constitutive model pointer cell
-            // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+            init_property("Thickness", IWG_Property_Type::THICKNESS);
+            init_property("Gap", IWG_Property_Type::GAP);
+            init_constitutive_model("ElastLinIso", IWG_Constitutive_Type::ELAST_LIN_ISO);
+            init_stabilization_parameter("NitscheInterface", IWG_Stabilization_Type::NITSCHE_INTERFACE);
         }
 
         //------------------------------------------------------------------------------
@@ -71,25 +54,21 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
-            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
-                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model > &tCMFollowerElasticity = get_follower_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::NITSCHE_INTERFACE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -99,8 +78,8 @@ namespace moris
             const real tFollowerWeight  = tSPNitsche->val()( 2 );
 
             // normals on leader and follower side (needs to be generalized)
-            const Matrix< DDRMat > tNormalLeader = mNormal;
-            const Matrix< DDRMat > tNormalFollower  = -1.0 * mNormal;
+            const Matrix< DDRMat > tNormalLeader = get_normal();
+            const Matrix< DDRMat > tNormalFollower  = -1.0 * get_normal();
 
             // projections from follower to leader and leader to follower (needs to be generalized)
             const real tPrjFollowerToLeader      = 1.0;    // should be matrix
@@ -205,25 +184,21 @@ namespace moris
             const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
-            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
-                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model > &tCMFollowerElasticity = get_follower_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::NITSCHE_INTERFACE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -233,8 +208,8 @@ namespace moris
             const real tFollowerWeight  = tSPNitsche->val()( 2 );
 
             // normals on leader and follower side (needs to be generalized)
-            const Matrix< DDRMat > tNormalLeader = mNormal;
-            const Matrix< DDRMat > tNormalFollower  = -1.0 * mNormal;
+            const Matrix< DDRMat > tNormalLeader = get_normal();
+            const Matrix< DDRMat > tNormalFollower  = -1.0 * get_normal();
 
             // projections from follower to leader and leader to follower (needs to be generalized)
             const real tPrjFollowerToLeader      = 1.0;    // should be matrix
@@ -263,13 +238,13 @@ namespace moris
             const real tIfcPressureFollower  = dot( tTractionFollower, tNormalFollower );
 
             // get number of leader dof dependencies
-            const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            const uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the Jacobian for indirect dof dependencies through leader constitutive models
             for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -386,11 +361,11 @@ namespace moris
             }
 
             // compute the Jacobian for indirect dof dependencies through follower constitutive models
-            uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+            uint tFollowerNumDofDependencies = get_requested_follower_dof_types().size();
             for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_follower_dof_types()( iDOF );
 
                 // get the index for the dof type
                 const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );

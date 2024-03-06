@@ -24,43 +24,30 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::STRONG_RESIDUAL_SA;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "SpalartAllmarasTurbulence" ] =
-                    static_cast< uint >( IQI_Constitutive_Type::TURBULENCE );
+            init_constitutive_model( "SpalartAllmarasTurbulence", IQI_Constitutive_Type::TURBULENCE );
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_Strong_Residual_SA::compute_QI( Matrix< DDRMat > & aQI )
+        void IQI_Strong_Residual_SA::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get the viscosity FI
             // FIXME protect dof type
-            Field_Interpolator* tFIViscosity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VISCOSITY );
+            Field_Interpolator* tFIViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VISCOSITY );
 
             // get the velocity FI
             // FIXME protect dof type
-            Field_Interpolator* tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence = get_leader_constitutive_model(IQI_Constitutive_Type::TURBULENCE);
 
             // compute modified velocity
             Matrix< DDRMat > tModVelocity =
                     tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma;
 
             // compute strong form of residual
-            Matrix< DDRMat > tR = tFIViscosity->gradt( 1 ) +
-                    trans( tModVelocity ) * tFIViscosity->gradx( 1 ) -
-                    tCMSATurbulence->production_term() +
-                    tCMSATurbulence->wall_destruction_term() -
-                    tCMSATurbulence->divflux();
+            Matrix< DDRMat > tR = tFIViscosity->gradt( 1 ) + trans( tModVelocity ) * tFIViscosity->gradx( 1 ) - tCMSATurbulence->production_term() + tCMSATurbulence->wall_destruction_term() - tCMSATurbulence->divflux();
 
             // evaluate the QI
             aQI = tR;
@@ -71,10 +58,10 @@ namespace moris
         void IQI_Strong_Residual_SA::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // evaluate strong form
-            Matrix< DDRMat > tQI(1,1);
+            Matrix< DDRMat > tQI( 1, 1 );
             this->compute_QI( tQI );
 
             // evaluate the QI
@@ -85,21 +72,20 @@ namespace moris
 
         void IQI_Strong_Residual_SA::compute_dQIdu( real aWStar )
         {
-            MORIS_ERROR(false,
-                    "IQI_Strong_Residual_SA::compute_dQIdu - not implemented\n.");
+            MORIS_ERROR( false,
+                    "IQI_Strong_Residual_SA::compute_dQIdu - not implemented\n." );
         }
 
         //------------------------------------------------------------------------------
 
         void IQI_Strong_Residual_SA::compute_dQIdu(
-                Vector< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+                Vector< MSI::Dof_Type >& aDofType,
+                Matrix< DDRMat >&        adQIdu )
         {
-            MORIS_ERROR(false,
-                    "IQI_Strong_Residual_SA::compute_dQIdu - not implemented\n.");
+            MORIS_ERROR( false,
+                    "IQI_Strong_Residual_SA::compute_dQIdu - not implemented\n." );
         }
 
         //------------------------------------------------------------------------------
-    }/* end_namespace_fem */
-}/* end_namespace_moris */
-
+    }    // namespace fem
+}    // namespace moris

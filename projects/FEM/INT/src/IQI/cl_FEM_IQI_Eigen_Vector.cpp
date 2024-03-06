@@ -32,17 +32,17 @@ namespace moris
             IQI::set_parameters( aParameters );
 
             // size of parameter list
-            uint tParamSize = mParameters.size();
+            uint tParamSize = get_parameters().size();
 
             // check that eigen vector index is defined
             MORIS_ERROR( tParamSize == 1,
                     "IQI_Eigen_Vector::set_parameters - index of eigen vector needs to be specified.\n" );
 
             // extract spatial derivative order
-            MORIS_ERROR( mParameters( 0 ).numel() == 1,
+            MORIS_ERROR( get_parameters()( 0 ).numel() == 1,
                     "IQI_Eigen_Vector::set_parameters - size of parameter list needs to be one.\n" );
 
-            mEigenVectorIndex = mParameters( 0 )( 0 );
+            mEigenVectorIndex = get_parameters()( 0 )( 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ namespace moris
         IQI_Eigen_Vector::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // check if dof index was set (for the case of vector field)
             if ( mQuantityDofType.size() > 1 )
@@ -85,8 +85,7 @@ namespace moris
         IQI_Eigen_Vector::evaluate_QI( Matrix< DDRMat >& aMat )
         {
             // get field interpolator for a given dof type
-            Field_Interpolator* tFI =
-                    mLeaderEigenFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ), mEigenVectorIndex );
+            Field_Interpolator* tFI = get_leader_fi_manager_eigen_vector()->get_field_interpolators_for_type( mQuantityDofType( 0 ), mEigenVectorIndex );
 
             // check that field interpolator exists
             MORIS_ASSERT( tFI != nullptr,
@@ -117,7 +116,7 @@ namespace moris
         void
         IQI_Eigen_Vector::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Matrix< DDRMat >&        adQIdu )
         {
             MORIS_ERROR( false,
                     "IQI_Eigen_Vector::compute_dQIdu - not implemented." );

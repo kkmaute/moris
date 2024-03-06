@@ -20,26 +20,19 @@ namespace moris
 
         IQI_Property::IQI_Property()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Property" ] = static_cast< uint >( IQI_Property_Type::PROPERTY );
+            init_property( "Property", IQI_Property_Type::PROPERTY );
         }
 
         //------------------------------------------------------------------------------
 
         void
-        IQI_Property::compute_QI( Matrix< DDRMat >& aQI )
+        IQI_Property::compute_QI( Matrix< DDRMat > &aQI )
         {
-            // get property index
-            uint tPropertyIndex = static_cast< uint >( IQI_Property_Type::PROPERTY );
-
             // get index of property if defined; otherwise set to 0
             uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
 
             // evaluate the QI
-            aQI = mLeaderProp( tPropertyIndex )->val()( tTypeIndex );
+            aQI = get_leader_property( IQI_Property_Type::PROPERTY )->val()( tTypeIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -48,11 +41,10 @@ namespace moris
         IQI_Property::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the property
-            std::shared_ptr< Property >& tProperty =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
+            std::shared_ptr< Property > const &tProperty = get_leader_property( IQI_Property_Type::PROPERTY );
 
             // check that pointer to property exists
             MORIS_ASSERT( tProperty,
@@ -71,20 +63,19 @@ namespace moris
         IQI_Property::compute_dQIdu( real aWStar )
         {
             // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the property
-            std::shared_ptr< Property >& tProperty =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
+            std::shared_ptr< Property > const &tProperty = get_leader_property( IQI_Property_Type::PROPERTY );
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute dQIdu for indirect dof dependencies
             for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDof );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -125,12 +116,11 @@ namespace moris
 
         void
         IQI_Property::compute_dQIdu(
-                Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Vector< MSI::Dof_Type > &aDofType,
+                Matrix< DDRMat >        &adQIdu )
         {
             // get the property
-            std::shared_ptr< Property >& tProperty =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
+            std::shared_ptr< Property > const &tProperty = get_leader_property( IQI_Property_Type::PROPERTY );
 
             // if property depends on dof type
             if ( tProperty->check_dof_dependency( aDofType ) )
@@ -143,4 +133,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 }    // namespace moris
-

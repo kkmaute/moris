@@ -26,19 +26,8 @@ namespace moris
         {
             // set sint for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-            mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Weight" ] = static_cast< uint >( IWG_Property_Type::WEIGHT );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+            init_property( "Weight", IWG_Property_Type::WEIGHT );
+            init_stabilization_parameter( "NitscheInterface", IWG_Stabilization_Type::NITSCHE_INTERFACE );
         }
 
         //------------------------------------------------------------------------------
@@ -46,15 +35,13 @@ namespace moris
         void
         IWG_Nonlocal_Interface::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
         {
-            // set parameters
-            mParameters = aParameters;
-
             // check characteristic length provided
-            MORIS_ERROR( mParameters.size() >= 1 && mParameters.size() < 3,
+            MORIS_ERROR( aParameters.size() >= 1 && aParameters.size() < 3,
                     "IWG_Nonlocal_Interface::set_parameters - requires a characteristic length.\n" );
+            EvaluableTerm::set_parameters( aParameters );
 
             // set a characteristic length
-            mCharacteristicLength = aParameters( 0 )( 0 );
+            mCharacteristicLength = get_parameters()( 0 )( 0 );
 
             // FIXME add higher order
             //            // set a order if provided by default 1
@@ -90,53 +77,49 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get the Leader field interpolator for the residual dof type
-            Field_Interpolator* tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the follower field interpolator for the residual dof type
-            Field_Interpolator* tFIFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get weight coefficient
-            const std::shared_ptr< Property >& tPropWeight =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT ) );
+            const std::shared_ptr< Property >& tPropWeight = get_leader_property( IWG_Property_Type::WEIGHT );
 
             // if weight property is provided
             real tWeight = 1.0;
-            if( tPropWeight )
+            if ( tPropWeight )
             {
                 tWeight = tPropWeight->val()( 0 );
             }
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter( IWG_Stabilization_Type::NITSCHE_INTERFACE );
 
-            real tNitsche      = tSPNitsche->val()( 0 );
-            real tLeaderWeight = tSPNitsche->val()( 1 );
+            real tNitsche        = tSPNitsche->val()( 0 );
+            real tLeaderWeight   = tSPNitsche->val()( 1 );
             real tFollowerWeight = tSPNitsche->val()( 2 );
 
             // evaluate average traction
             Matrix< DDRMat > tTraction =
-                    tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->gradx( 1 ) ) * mNormal / mOrderCoeff( mOrder )
-                    + tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->gradx( 1 ) ) * mNormal / mOrderCoeff( mOrder );
+                    tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->gradx( 1 ) ) * get_normal() / mOrderCoeff( mOrder )
+                    + tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->gradx( 1 ) ) * get_normal() / mOrderCoeff( mOrder );
 
             // evaluate jump
             Matrix< DDRMat > tJump = tFILeader->val() - tFIFollower->val();
 
             // compute leader residual
             mSet->get_residual()( 0 )(
-            		{ tLeaderResStartIndex, tLeaderResStopIndex } ) +=
-            				aWStar * tWeight * ( -tFILeader->N_trans() * tTraction                                                                                                                        //
-            						+ mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
-									+ tNitsche * tFILeader->N_trans() * tJump );                                                                                                             //
+                    { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
+                    aWStar * tWeight * ( -tFILeader->N_trans() * tTraction                                                                                                                             //
+                                         + mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * get_normal() * tJump / mOrderCoeff( mOrder )    //
+                                         + tNitsche * tFILeader->N_trans() * tJump );                                                                                                                  //
 
             // compute follower residual
             mSet->get_residual()( 0 )(
-            		{ tFollowerResStartIndex, tFollowerResStopIndex } ) +=
-            				aWStar * tWeight * ( +tFIFollower->N_trans() * tTraction                                                                                                                          //
-            						+ mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
-									- tNitsche * tFIFollower->N_trans() * tJump );                                                                                                               //
+                    { tFollowerResStartIndex, tFollowerResStopIndex } ) +=
+                    aWStar * tWeight * ( +tFIFollower->N_trans() * tTraction                                                                                                                               //
+                                         + mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * get_normal() * tJump / mOrderCoeff( mOrder )    //
+                                         - tNitsche * tFIFollower->N_trans() * tJump );                                                                                                                    //
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -165,43 +148,39 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator* tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFIFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get weight coefficient property
-            const std::shared_ptr< Property >& tPropWeight =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT ) );
+            const std::shared_ptr< Property >& tPropWeight = get_leader_property( IWG_Property_Type::WEIGHT );
 
             // if weight property is provided
             real tWeight = 1.0;
-            if( tPropWeight )
+            if ( tPropWeight )
             {
                 tWeight = tPropWeight->val()( 0 );
             }
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter( IWG_Stabilization_Type::NITSCHE_INTERFACE );
 
-            real tNitsche      = tSPNitsche->val()( 0 );
-            real tLeaderWeight = tSPNitsche->val()( 1 );
+            real tNitsche        = tSPNitsche->val()( 0 );
+            real tLeaderWeight   = tSPNitsche->val()( 1 );
             real tFollowerWeight = tSPNitsche->val()( 2 );
 
             // evaluate temperature jump
             Matrix< DDRMat > tJump = tFILeader->val() - tFIFollower->val();
 
             // get number of leader dof dependencies
-            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // loop over leader dof dependencies
             for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -222,23 +201,23 @@ namespace moris
                 {
                     // compute derivative of traction
                     Matrix< DDRMat > tTractionDer =    //
-                            tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( mNormal ) * tFILeader->dnNdxn( 1 ) / mOrderCoeff( mOrder );
+                            tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( get_normal() ) * tFILeader->dnNdxn( 1 ) / mOrderCoeff( mOrder );
 
                     // add contribution to leader
                     tJacLeader +=
-                            aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                              //
-                                                                 + mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tFILeader->N() / mOrderCoeff( mOrder )    //
-                                                                 + tNitsche * tFILeader->N_trans() * tFILeader->N() );
+                            aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                                   //
+                                                 + mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * get_normal() * tFILeader->N() / mOrderCoeff( mOrder )    //
+                                                 + tNitsche * tFILeader->N_trans() * tFILeader->N() );
 
                     // add contribution to follower
                     tJacFollower +=
-                            aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                                //
-                                                                 + mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tFILeader->N() / mOrderCoeff( mOrder )    //
-                                                                 - tNitsche * tFIFollower->N_trans() * tFILeader->N() );
+                            aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                                     //
+                                                 + mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * get_normal() * tFILeader->N() / mOrderCoeff( mOrder )    //
+                                                 - tNitsche * tFIFollower->N_trans() * tFILeader->N() );
                 }
 
                 // if dependency of constitutive models on the dof type
-                if( tPropWeight )
+                if ( tPropWeight )
                 {
                     if ( tPropWeight->check_dof_dependency( tDofType ) )
                     {
@@ -258,28 +237,28 @@ namespace moris
 
                     // get traction derivative
                     Matrix< DDRMat > tTractionDer =
-                            std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( mNormal ) * tFILeader->gradx( 1 ) * tLeaderWeightDer / mOrderCoeff( mOrder )    //
-                            + std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( mNormal ) * tFIFollower->gradx( 1 ) * tFollowerWeightDer / mOrderCoeff( mOrder );
+                            std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( get_normal() ) * tFILeader->gradx( 1 ) * tLeaderWeightDer / mOrderCoeff( mOrder )    //
+                            + std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( get_normal() ) * tFIFollower->gradx( 1 ) * tFollowerWeightDer / mOrderCoeff( mOrder );
 
                     // add contribution to Jacobian
-                    tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                        //
-                                                                       + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump * tLeaderWeightDer / mOrderCoeff( mOrder )    //
-                                                                       + tFILeader->N_trans() * tJump * tNitscheDer );
+                    tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                             //
+                                                       + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * get_normal() * tJump * tLeaderWeightDer / mOrderCoeff( mOrder )    //
+                                                       + tFILeader->N_trans() * tJump * tNitscheDer );
 
-                    tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                          //
-                                                                         + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump * tFollowerWeightDer / mOrderCoeff( mOrder )    //
-                                                                         - tFIFollower->N_trans() * tJump * tNitscheDer );
+                    tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                               //
+                                                         + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * get_normal() * tJump * tFollowerWeightDer / mOrderCoeff( mOrder )    //
+                                                         - tFIFollower->N_trans() * tJump * tNitscheDer );
                 }
             }
 
             // get number of follower dof dependencies
-            uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+            uint tFollowerNumDofDependencies = get_requested_follower_dof_types().size();
 
             // loop over follower dof dependencies
             for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                const Vector< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type > tDofType = get_requested_follower_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex           = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
@@ -301,20 +280,20 @@ namespace moris
 
                     // compute derivative of traction
                     Matrix< DDRMat > tTractionDer =    //
-                            tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( mNormal ) * tFIFollower->dnNdxn( 1 ) / mOrderCoeff( mOrder );
+                            tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( get_normal() ) * tFIFollower->dnNdxn( 1 ) / mOrderCoeff( mOrder );
 
                     // add contribution to leader
-                    tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                                //
-                                                                       - mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tFIFollower->N() / mOrderCoeff( mOrder )    //
-                                                                       - tNitsche * tFILeader->N_trans() * tFIFollower->N() );
+                    tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                                     //
+                                                       - mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * get_normal() * tFIFollower->N() / mOrderCoeff( mOrder )    //
+                                                       - tNitsche * tFILeader->N_trans() * tFIFollower->N() );
 
-                    tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                                  //
-                                                                         - mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tFIFollower->N() / mOrderCoeff( mOrder )    //
-                                                                         + tNitsche * tFIFollower->N_trans() * tFIFollower->N() );
+                    tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                                       //
+                                                         - mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * get_normal() * tFIFollower->N() / mOrderCoeff( mOrder )    //
+                                                         + tNitsche * tFIFollower->N_trans() * tFIFollower->N() );
                 }
 
                 // if dependency on the dof type
-                if( tPropWeight )
+                if ( tPropWeight )
                 {
                     if ( tPropWeight->check_dof_dependency( tDofType ) )
                     {
@@ -334,17 +313,17 @@ namespace moris
 
                     // get traction derivative
                     Matrix< DDRMat > tTractionDer =
-                            std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( mNormal ) * tFILeader->gradx( 1 ) * tLeaderWeightDer / mOrderCoeff( mOrder )    //
-                            + std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( mNormal ) * tFIFollower->gradx( 1 ) * tFollowerWeightDer / mOrderCoeff( mOrder );
+                            std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( get_normal() ) * tFILeader->gradx( 1 ) * tLeaderWeightDer / mOrderCoeff( mOrder )    //
+                            + std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( get_normal() ) * tFIFollower->gradx( 1 ) * tFollowerWeightDer / mOrderCoeff( mOrder );
 
                     // add contribution to Jacobian
-                    tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                        //
-                                                                       + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump * tLeaderWeightDer / mOrderCoeff( mOrder )    //
-                                                                       + tFILeader->N_trans() * tJump * tNitscheDer );
+                    tJacLeader += aWStar * tWeight * ( -tFILeader->N_trans() * tTractionDer                                                                                                                             //
+                                                       + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * get_normal() * tJump * tLeaderWeightDer / mOrderCoeff( mOrder )    //
+                                                       + tFILeader->N_trans() * tJump * tNitscheDer );
 
-                    tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                          //
-                                                                         + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump * tFollowerWeightDer / mOrderCoeff( mOrder )    //
-                                                                         - tFIFollower->N_trans() * tJump * tNitscheDer );
+                    tJacFollower += aWStar * tWeight * ( +tFIFollower->N_trans() * tTractionDer                                                                                                                               //
+                                                         + mBeta * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * get_normal() * tJump * tFollowerWeightDer / mOrderCoeff( mOrder )    //
+                                                         - tFIFollower->N_trans() * tJump * tNitscheDer );
                 }
             }
 
@@ -372,4 +351,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

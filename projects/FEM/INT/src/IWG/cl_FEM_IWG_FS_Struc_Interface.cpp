@@ -41,12 +41,10 @@ namespace moris
 
             // get leader field interpolator for the residual dof type
             // FIXME protect dof type
-            Field_Interpolator * tFIFluidPressure =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::P );
+            Field_Interpolator * tFIFluidPressure = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::P );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator * tFISolidDispl =
-                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFISolidDispl = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute follower residual
             mSet->get_residual()( 0 )(
@@ -79,21 +77,19 @@ namespace moris
 
             // get leader field interpolator for the residual dof type
             // FIXME protect dof type
-            Field_Interpolator * tFIFluidPressure =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::P );
+            Field_Interpolator * tFIFluidPressure = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::P );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator * tFISolidDispl =
-                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFISolidDispl = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get number of leader dof dependencies
-            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the jacobian for indirect dof dependencies through leader constitutive models
             for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );

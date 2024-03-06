@@ -26,19 +26,9 @@ namespace moris
 
         IWG_Isotropic_Struc_Linear_Fluid_Interface::IWG_Isotropic_Struc_Linear_Fluid_Interface()
         {
-            // set size for the property pointer cell
-             mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive  map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-            mConstitutiveMap[ "Fluid" ]       = static_cast< uint >( IWG_Constitutive_Type::FLUID );
+            init_property("Thickness", IWG_Property_Type::THICKNESS);
+            init_constitutive_model("ElastLinIso", IWG_Constitutive_Type::ELAST_LIN_ISO);
+            init_constitutive_model("Fluid", IWG_Constitutive_Type::FLUID);
         }
 
         //------------------------------------------------------------------------------
@@ -56,16 +46,13 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
-            Field_Interpolator * tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ) );
+            Field_Interpolator * tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ) );
 
             // get follower fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMFollowerFluid =
-                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            const std::shared_ptr< Constitutive_Model > &tCMFollowerFluid = get_follower_constitutive_model(IWG_Constitutive_Type::FLUID);
 
             // get thickness property
-            const std::shared_ptr< Property > & tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property > & tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
@@ -73,7 +60,7 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) -= aWStar * (
-                            tFILeader->N_trans() * tCMFollowerFluid->traction( mNormal ) );
+                            tFILeader->N_trans() * tCMFollowerFluid->traction( get_normal() ) );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -94,27 +81,24 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
-            Field_Interpolator * tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ) );
+            Field_Interpolator * tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ) );
 
             // get follower fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMFollowerFluid =
-                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            const std::shared_ptr< Constitutive_Model > &tCMFollowerFluid = get_follower_constitutive_model(IWG_Constitutive_Type::FLUID);
 
             // get thickness property
-            const std::shared_ptr< Property > & tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property > & tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // get number of leader dof dependencies
-            const  uint tNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+            const  uint tNumDofDependencies = get_requested_follower_dof_types().size();
 
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get dependent dof type
-                const Vector< MSI::Dof_Type > & tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type > & tDofType = get_requested_follower_dof_types()( iDOF );
 
                 // get the index for the dof type
                 const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
@@ -128,7 +112,7 @@ namespace moris
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tFollowerDepStartIndex,  tFollowerDepStopIndex  } ) += aWStar * (
-                                    - tFILeader->N_trans() * tCMFollowerFluid->dTractiondDOF( tDofType, mNormal ) );
+                                    - tFILeader->N_trans() * tCMFollowerFluid->dTractiondDOF( tDofType, get_normal() ) );
                 }
             }
 

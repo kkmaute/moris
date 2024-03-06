@@ -25,11 +25,7 @@ namespace moris
 
         IWG_Compressible_NS_Advective_Energy_Flux_Boundary::IWG_Compressible_NS_Advective_Energy_Flux_Boundary()
         {
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Fluid" ] = static_cast< uint >(  IWG_Constitutive_Type::FLUID );
+            init_constitutive_model( "Fluid", IWG_Constitutive_Type::FLUID );
         }
 
         //------------------------------------------------------------------------------
@@ -47,20 +43,17 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get Temp FI
-            Field_Interpolator * tFITemp =  mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the compressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMFluid = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            std::shared_ptr< Constitutive_Model > tCMFluid = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID);
 
             // compute the residual weak form
-            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) += aWStar * (
-                    tFITemp->N_trans() * (
-                            tCMFluid->traction( mNormal, CM_Function_Type::ENERGY ) -
-                            tCMFluid->traction( mNormal, CM_Function_Type::WORK ) ) );
+            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) += aWStar * ( tFITemp->N_trans() * ( tCMFluid->traction( get_normal(), CM_Function_Type::ENERGY ) - tCMFluid->traction( get_normal(), CM_Function_Type::WORK ) ) );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Advective_Energy_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Advective_Energy_Flux_Boundary::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -77,17 +70,17 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get Temp FI
-            Field_Interpolator * tFITemp =  mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the compressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMFluid = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            std::shared_ptr< Constitutive_Model > tCMFluid = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID);
 
             // compute the jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
-            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
+            for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -100,16 +93,13 @@ namespace moris
                     // add contribution
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
-                                    tFITemp->N_trans() * (
-                                            tCMFluid->dTractiondDOF( tDofType, mNormal, CM_Function_Type::ENERGY ) -
-                                            tCMFluid->dTractiondDOF( tDofType, mNormal, CM_Function_Type::WORK   ) ) );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * ( tFITemp->N_trans() * ( tCMFluid->dTractiondDOF( tDofType, get_normal(), CM_Function_Type::ENERGY ) - tCMFluid->dTractiondDOF( tDofType, get_normal(), CM_Function_Type::WORK ) ) );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Advective_Energy_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Compressible_NS_Advective_Energy_Flux_Boundary::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -139,8 +129,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Advective_Energy_Flux_Boundary::compute_residual_strong_form(
-                Matrix< DDRMat > & aRM,
-                real             & aRC )
+                Matrix< DDRMat > &aRM,
+                real             &aRC )
         {
             MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Energy_Flux_Boundary::compute_residual_strong_form - Not implemented." );
         }
@@ -148,9 +138,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IWG_Compressible_NS_Advective_Energy_Flux_Boundary::compute_jacobian_strong_form(
-                Vector< MSI::Dof_Type >   aDofTypes,
-                Matrix< DDRMat >             & aJM,
-                Matrix< DDRMat >             & aJC )
+                Vector< MSI::Dof_Type > aDofTypes,
+                Matrix< DDRMat >       &aJM,
+                Matrix< DDRMat >       &aJC )
         {
             MORIS_ERROR( false, "IWG_Compressible_NS_Advective_Energy_Flux_Boundary::compute_jacobian_strong_form - Not implemented." );
         }
@@ -158,4 +148,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

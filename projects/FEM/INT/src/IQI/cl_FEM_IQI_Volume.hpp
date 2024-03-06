@@ -84,7 +84,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * @brief checks if the gauss point location lies with the box bounds specified in input(mParameters)
+                 * @brief checks if the gauss point location lies with the box bounds specified in input parameters
                  *
                  */
                 bool is_within_box_bounds();

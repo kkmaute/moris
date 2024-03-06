@@ -27,17 +27,19 @@ namespace moris
         {
             if ( !mIsInitialized )
             {
+                Vector< Matrix< DDRMat > > tParameters = get_parameters();
+
                 // size of parameter list
-                uint tParamSize = mParameters.size();
+                uint tParamSize = tParameters.size();
 
                 // extract spatial derivative order
                 if ( tParamSize > 0 )
                 {
-                    MORIS_ERROR( mParameters( 0 ).numel() == 2,
+                    MORIS_ERROR( tParameters( 0 ).numel() == 2,
                             "IQI_Dof::initialize - Spatial gradient definition requires exactly two coefficients.\n" );
 
-                    mSpatialDerivativeDirection = mParameters( 0 )( 0 );
-                    mSpatialDerivativeOrder     = mParameters( 0 )( 1 );
+                    mSpatialDerivativeDirection = tParameters( 0 )( 0 );
+                    mSpatialDerivativeOrder     = tParameters( 0 )( 1 );
                 }
 
                 // extract time derivative order
@@ -46,10 +48,10 @@ namespace moris
                     MORIS_ERROR( mSpatialDerivativeOrder == 0,
                             "IQI_Dof::initialize - Time gradient can only be computed if spatial gradient order is zero.\n" );
 
-                    MORIS_ERROR( mParameters( 1 ).numel() == 1,
+                    MORIS_ERROR( tParameters( 1 ).numel() == 1,
                             "IQI_Dof::initialize - Time gradient definition requires exactly one coefficient.\n" );
 
-                    mTimeDerivativeOrder = mParameters( 1 )( 0 );
+                    mTimeDerivativeOrder = tParameters( 1 )( 0 );
                 }
 
                 // set initialize flag to true
@@ -66,7 +68,7 @@ namespace moris
             this->initialize();
 
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // check if dof index was set (for the case of vector field)
             if ( mQuantityDofType.size() > 1 )
@@ -103,8 +105,7 @@ namespace moris
         IQI_Dof::evaluate_QI( Matrix< DDRMat >& aMat )
         {
             // get field interpolator for a given dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // check that field interpolator exists
             MORIS_ASSERT( tFI != nullptr,
@@ -143,20 +144,19 @@ namespace moris
         IQI_Dof::compute_dQIdu( real aWStar )
         {
             // get field interpolator for a given dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute dQIdu for indirect dof dependencies
             for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDof );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -239,8 +239,7 @@ namespace moris
                 Matrix< DDRMat >&             adQIdu )
         {
             // get field interpolator for a given dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // if derivative dof type is max dof type
             if ( aDofType( 0 ) == mQuantityDofType( 0 ) )

@@ -24,14 +24,11 @@ namespace moris
         //------------------------------------------------------------------------------
         IWG_L2::IWG_L2()
         {
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "L2coefficient" ] = static_cast< uint >( IWG_Property_Type::L2COEFFICIENT );
-            mPropertyMap[ "H1coefficient" ] = static_cast< uint >( IWG_Property_Type::H1COEFFICIENT );
-            mPropertyMap[ "Diffusion" ]     = static_cast< uint >( IWG_Property_Type::DIFFUSION );
-            mPropertyMap[ "Source" ]        = static_cast< uint >( IWG_Property_Type::SOURCE );
-            mPropertyMap[ "Thickness" ]     = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            init_property("L2coefficient", IWG_Property_Type::L2COEFFICIENT);
+            init_property("H1coefficient", IWG_Property_Type::H1COEFFICIENT);
+            init_property("Diffusion", IWG_Property_Type::DIFFUSION);
+            init_property("Source", IWG_Property_Type::SOURCE);
+            init_property("Thickness", IWG_Property_Type::THICKNESS);
         }
         //------------------------------------------------------------------------------
 
@@ -49,11 +46,10 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get the field interpolator for residual dof type
-            Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get L2 coefficient
-            const std::shared_ptr< Property >& tPropL2Term =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::L2COEFFICIENT ) );
+            const std::shared_ptr< Property >& tPropL2Term = get_leader_property(IWG_Property_Type::L2COEFFICIENT);
 
             real tL2Term = 1.0;
 
@@ -63,20 +59,16 @@ namespace moris
             }
 
             // get H1 coefficient property
-            const std::shared_ptr< Property >& tPropH1Term =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H1COEFFICIENT ) );
+            const std::shared_ptr< Property >& tPropH1Term = get_leader_property(IWG_Property_Type::H1COEFFICIENT);
 
             // get diffusion coefficient property
-            const std::shared_ptr< Property >& tPropDiffusion =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIFFUSION ) );
+            const std::shared_ptr< Property >& tPropDiffusion = get_leader_property(IWG_Property_Type::DIFFUSION);
 
             // get source property
-            const std::shared_ptr< Property >& tPropSource =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SOURCE ) );
+            const std::shared_ptr< Property >& tPropSource = get_leader_property(IWG_Property_Type::SOURCE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -130,11 +122,10 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get the field interpolator for residual dof type
-            Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get L2 coefficient
-            const std::shared_ptr< Property >& tPropL2Term =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::L2COEFFICIENT ) );
+            const std::shared_ptr< Property >& tPropL2Term = get_leader_property(IWG_Property_Type::L2COEFFICIENT);
 
             real tL2Term = 1.0;
 
@@ -144,32 +135,28 @@ namespace moris
             }
 
             // get H1 coefficient property
-            const std::shared_ptr< Property >& tPropH1Term =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::H1COEFFICIENT ) );
+            const std::shared_ptr< Property >& tPropH1Term = get_leader_property(IWG_Property_Type::H1COEFFICIENT);
 
             // get diffusion coefficient property
-            const std::shared_ptr< Property >& tPropDiffusion =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIFFUSION ) );
+            const std::shared_ptr< Property >& tPropDiffusion = get_leader_property(IWG_Property_Type::DIFFUSION);
 
             // get source property
-            const std::shared_ptr< Property >& tPropSource =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SOURCE ) );
+            const std::shared_ptr< Property >& tPropSource = get_leader_property(IWG_Property_Type::SOURCE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // loop over leader dof type dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );

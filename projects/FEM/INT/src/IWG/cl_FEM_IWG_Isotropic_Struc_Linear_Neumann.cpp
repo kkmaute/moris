@@ -25,13 +25,9 @@ namespace moris
 
         IWG_Isotropic_Struc_Linear_Neumann::IWG_Isotropic_Struc_Linear_Neumann()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Traction" ]  = static_cast< uint >( IWG_Property_Type::TRACTION );
-            mPropertyMap[ "Pressure" ]  = static_cast< uint >( IWG_Property_Type::PRESSURE );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            init_property("Traction", IWG_Property_Type::TRACTION);
+            init_property("Pressure", IWG_Property_Type::PRESSURE);
+            init_property("Thickness", IWG_Property_Type::THICKNESS);
         }
 
         //------------------------------------------------------------------------------
@@ -50,20 +46,16 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get traction load property
-            const std::shared_ptr< Property >& tPropTraction =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+            const std::shared_ptr< Property >& tPropTraction = get_leader_property(IWG_Property_Type::TRACTION);
 
             // get traction load property
-            const std::shared_ptr< Property >& tPropPressure =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            const std::shared_ptr< Property >& tPropPressure = get_leader_property(IWG_Property_Type::PRESSURE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -80,7 +72,7 @@ namespace moris
 
             if ( tPropPressure != nullptr )
             {
-                tRes -= aWStar * ( tFI->N_trans() * mNormal * tPropPressure->val() );
+                tRes -= aWStar * ( tFI->N_trans() * get_normal() * tPropPressure->val() );
             }
 
             // check for nan, infinity
@@ -103,29 +95,25 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get traction load property
-            const std::shared_ptr< Property >& tPropTraction =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+            const std::shared_ptr< Property >& tPropTraction = get_leader_property(IWG_Property_Type::TRACTION);
 
             // get traction load property
-            const std::shared_ptr< Property >& tPropPressure =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            const std::shared_ptr< Property >& tPropPressure = get_leader_property(IWG_Property_Type::PRESSURE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // compute the Jacobian for indirect IWG dof dependencies through properties
-            for ( uint iDOF = 0; iDOF < mRequestedLeaderGlobalDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < get_requested_leader_dof_types().size(); iDOF++ )
             {
                 // get dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -152,7 +140,7 @@ namespace moris
                     if ( tPropPressure->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to Jacobian
-                        tJac -= aWStar * ( tFI->N_trans() * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                        tJac -= aWStar * ( tFI->N_trans() * get_normal() * tPropPressure->dPropdDOF( tDofType ) );
                     }
                 }
             }

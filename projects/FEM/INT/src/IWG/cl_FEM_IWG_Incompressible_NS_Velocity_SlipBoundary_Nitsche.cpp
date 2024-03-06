@@ -28,26 +28,11 @@ namespace moris
                 {
             // set sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ]  = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "SlipLength" ] = static_cast< uint >( IWG_Property_Type::SLIPLENGTH );
-            mPropertyMap[ "Traction" ]   = static_cast< uint >( IWG_Property_Type::TRACTION );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "DirichletNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::VELOCITY_SPLIPLENGTH_NITSCHE );
+            init_property("Dirichlet", IWG_Property_Type::DIRICHLET);
+            init_property("SlipLength", IWG_Property_Type::SLIPLENGTH);
+            init_property("Traction", IWG_Property_Type::TRACTION);
+            init_constitutive_model("IncompressibleFluid", IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
+            init_stabilization_parameter("DirichletNitsche", IWG_Stabilization_Type::VELOCITY_SPLIPLENGTH_NITSCHE);
                 }
 
         //------------------------------------------------------------------------------
@@ -65,28 +50,22 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the leader field interpolator for the residual dof type
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the imposed velocity property
-            const std::shared_ptr< Property > & tPropVelocity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property > & tPropVelocity = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the slip length property
-            const std::shared_ptr< Property > & tPropSlipLength =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SLIPLENGTH ) );
+            const std::shared_ptr< Property > & tPropSlipLength = get_leader_property(IWG_Property_Type::SLIPLENGTH);
 
             // get the traction property
-            const std::shared_ptr< Property > & tPropTraction =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+            const std::shared_ptr< Property > & tPropTraction = get_leader_property(IWG_Property_Type::TRACTION);
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+            const std::shared_ptr< Constitutive_Model > & tCMFluid = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VELOCITY_SPLIPLENGTH_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::VELOCITY_SPLIPLENGTH_NITSCHE);
 
             // get the dynamic viscosity property
             const std::shared_ptr< Property > & tPropViscosity = tCMFluid->get_property( "Viscosity" );
@@ -109,14 +88,14 @@ namespace moris
             uint tSpaceDim = tFIVelocity->get_number_of_fields();
 
             // build projector
-            const Matrix<DDRMat> tNormalProjector  = mNormal * trans( mNormal );
+            const Matrix<DDRMat> tNormalProjector  = get_normal() * trans( get_normal() );
             const Matrix<DDRMat> tTangentProjector = moris::eye(tSpaceDim,tSpaceDim) - tNormalProjector;
 
             // compute velocity jump in normal direction
             const Matrix<DDRMat> tNormalVelocityJump = tNormalProjector * ( tFIVelocity->val() - tPropVelocity->val() );
 
             // slip condition violation
-            Matrix<DDRMat> tSlipVelocityJump = tTangentProjector * ( tSplipLength * tCMFluid->traction( mNormal )
+            Matrix<DDRMat> tSlipVelocityJump = tTangentProjector * ( tSplipLength * tCMFluid->traction( get_normal() )
                     + tViscosity * ( tFIVelocity->val() - tPropVelocity->val() ) );
 
             // add contribution of prescribed traction to slip condition violation
@@ -134,10 +113,10 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) += aWStar * (
                             + tFIVelocity->N_trans() * (
-                                    - tCMFluid->traction( mNormal )
+                                    - tCMFluid->traction( get_normal() )
                                     + tNormalPenalty   * tNormalVelocityJump
                                     + tTangentPenalty1 * tSlipVelocityJump )
-                            - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * (
+                            - mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * (
                                     + tNormalVelocityJump
                                     + tTangentPenalty2 * tSlipVelocityJump ) );
 
@@ -161,28 +140,22 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the leader field interpolator for residual dof type
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the imposed velocity property
-            const std::shared_ptr< Property > & tPropVelocity =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property > & tPropVelocity = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get the slip length property
-            const std::shared_ptr< Property > & tPropSlipLength =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SLIPLENGTH ) );
+            const std::shared_ptr< Property > & tPropSlipLength = get_leader_property(IWG_Property_Type::SLIPLENGTH);
 
             // get the traction property
-            const std::shared_ptr< Property > & tPropTraction =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+            const std::shared_ptr< Property > & tPropTraction = get_leader_property(IWG_Property_Type::TRACTION);
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+            const std::shared_ptr< Constitutive_Model > & tCMFluid = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE);
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::VELOCITY_SPLIPLENGTH_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::VELOCITY_SPLIPLENGTH_NITSCHE);
 
             // get the dynamic viscosity property
             const std::shared_ptr< Property > & tPropViscosity = tCMFluid->get_property( "Viscosity" );
@@ -197,14 +170,14 @@ namespace moris
             uint tSpaceDim = tFIVelocity->get_number_of_fields();
 
             // build projector
-            const Matrix<DDRMat> tNormalProjector  = mNormal * trans( mNormal );
+            const Matrix<DDRMat> tNormalProjector  = get_normal() * trans( get_normal() );
             const Matrix<DDRMat> tTangentProjector = moris::eye(tSpaceDim,tSpaceDim) - tNormalProjector;
 
             // compute velocity jump in normal direction
             const Matrix<DDRMat> tNormalVelocityJump = tNormalProjector * ( tFIVelocity->val() - tPropVelocity->val() );
 
             // slip condition violation
-            Matrix<DDRMat> tSlipVelocityJump = tTangentProjector * ( tSplipLength * tCMFluid->traction( mNormal )
+            Matrix<DDRMat> tSlipVelocityJump = tTangentProjector * ( tSplipLength * tCMFluid->traction( get_normal() )
                     + tViscosity * ( tFIVelocity->val() - tPropVelocity->val() ) );
 
             // add contribution of prescribed traction to slip condition violation
@@ -219,13 +192,13 @@ namespace moris
             const real tTangentPenalty2 = tSPNitsche->val()( 2 );
 
             // get number of leader dependencies
-            const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            const uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the Jacobian for indirect dof dependencies through leader
             for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type > & tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -242,7 +215,7 @@ namespace moris
                                     + tFIVelocity->N_trans() * (
                                             + tNormalPenalty   * tNormalProjector
                                             + tTangentPenalty1 * tTangentProjector * tViscosity ) * tFIVelocity->N()
-                                    - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * (
+                                    - mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * (
                                             + tNormalProjector
                                             + tTangentPenalty2 * tTangentProjector * tViscosity  ) * tFIVelocity->N() );
                 }
@@ -257,7 +230,7 @@ namespace moris
                                     + tFIVelocity->N_trans() * (
                                             + tNormalPenalty   * tNormalProjector
                                             + tTangentPenalty1 * tTangentProjector * tViscosity ) * tPropVelocity->dPropdDOF( tDofType )
-                                    - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * (
+                                    - mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * (
                                             + tNormalProjector
                                             + tTangentPenalty2 * tTangentProjector * tViscosity  ) * tPropVelocity->dPropdDOF( tDofType ) );
                 }
@@ -269,10 +242,10 @@ namespace moris
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
-                                    - tFIVelocity->N_trans() * tCMFluid->dTractiondDOF( tDofType, mNormal )
+                                    - tFIVelocity->N_trans() * tCMFluid->dTractiondDOF( tDofType, get_normal() )
                                     - mBeta * tCMFluid->dTestTractiondDOF(
                                             tDofType,
-                                            mNormal,
+                                            get_normal(),
                                             tNormalVelocityJump + tTangentPenalty2 * tSlipVelocityJump,
                                             mResidualDofType( 0 ) ) );
 
@@ -281,8 +254,8 @@ namespace moris
                             { tLeaderResStartIndex, tLeaderResStopIndex },
                             { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * tSplipLength * ( (
                                     + tTangentPenalty1 * tFIVelocity->N_trans()
-                                    - tTangentPenalty2 * mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) ) *
-                                    tTangentProjector * tCMFluid->dTractiondDOF( tDofType, mNormal ) );
+                                    - tTangentPenalty2 * mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) ) *
+                                    tTangentProjector * tCMFluid->dTractiondDOF( tDofType, get_normal() ) );
                 }
 
                 // if prescribed traction depends on the dof type
@@ -317,7 +290,7 @@ namespace moris
 
                     // add the following lines if Nitsche penalty for tangential direction depends on dofs
                     //                        + tSlipVelocityJump   * tDSPNitsche.get_row( 1 ) )
-                    //                - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) *
+                    //                - mBeta * trans( tCMFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) *
                     //                        tSlipVelocityJump * tDSPNitsche.get_row( 2 ) );
                 }
             }

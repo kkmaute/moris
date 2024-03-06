@@ -36,7 +36,7 @@ namespace moris
             uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator * tFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // FIXME should be a property
             // velocity field value
@@ -61,7 +61,7 @@ namespace moris
             uint tEndRow   = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator * tFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // FIXME should be a property
             // velocity field value

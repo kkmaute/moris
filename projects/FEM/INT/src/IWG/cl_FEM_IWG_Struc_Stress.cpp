@@ -25,21 +25,10 @@ namespace moris
         {
             // set stress type
             mStressType = aStressType;
+            init_property("Thickness", IWG_Property_Type::THICKNESS);
+            init_constitutive_model("ElastLinIso", IWG_Constitutive_Type::ELAST_LIN_ISO);
 
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
         }
 
         //------------------------------------------------------------------------------
@@ -58,18 +47,16 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 1 );
 
             // get residual dof type field interpolator
-            Field_Interpolator* tFISig = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFISig = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get stress vector from Constitutive model
-            const Matrix< DDRMat >& tStressTensor =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
+            const Matrix< DDRMat >& tStressTensor = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO)->flux();
 
             Matrix< DDRMat > tDummy;
             moris::real      tStressVal;
@@ -111,27 +98,25 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 1 );
 
             // get field interpolator for a given dof type
-            Field_Interpolator* tFISig = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFISig = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get elasticity CM
-            std::shared_ptr< Constitutive_Model >& tCMElasticity =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+           std::shared_ptr< Constitutive_Model > const &tCMElasticity = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // loop over leader dof type dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -153,11 +138,9 @@ namespace moris
                 if ( tCMElasticity->check_dof_dependency( tDofType ) )
                 {
                     // get stress vector from Constitutive model
-                    const Matrix< DDRMat >& tStressTensor =
-                            mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
+                    const Matrix< DDRMat >& tStressTensor = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO)->flux();
 
-                    const Matrix< DDRMat >& tDStressTensor =
-                            mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) )->dFluxdDOF( tDofType );
+                    const Matrix< DDRMat >& tDStressTensor = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO)->dFluxdDOF( tDofType );
 
                     moris::real      tStressVal;
                     Matrix< DDRMat > tDStressVal;

@@ -12,6 +12,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
+#include "fn_isfinite.hpp"
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
@@ -25,11 +26,7 @@ namespace moris
 
         IWG_Compressible_NS_Traction_Neumann::IWG_Compressible_NS_Traction_Neumann()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Traction" ] = static_cast< uint >( IWG_Property_Type::TRACTION );
+            init_property( "Traction", IWG_Property_Type::TRACTION );
         }
 
         //------------------------------------------------------------------------------
@@ -47,20 +44,16 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type (velocity)
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
-
-            // get indices for SP, CM, properties
-            uint tPropTractionIndex = static_cast< uint >( IWG_Property_Type::TRACTION );
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tResStartIndex, tResStopIndex },
-                    { 0, 0 } ) += aWStar * ( -1.0 * trans( tFIVelocity->N() ) * mLeaderProp( tPropTractionIndex )->val() );
+                    { 0, 0 } ) += aWStar * ( -1.0 * trans( tFIVelocity->N() ) * get_leader_property( IWG_Property_Type::TRACTION )->val() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Traction_Neumann::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Compressible_NS_Traction_Neumann::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -78,17 +71,16 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type (velocity)
-            Field_Interpolator * tFIVelocity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator *tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get indices for SP, CM, properties
-            uint tPropTractionIndex = static_cast< uint >( IWG_Property_Type::TRACTION );
+            std::shared_ptr< Property > tLeaderProp = get_leader_property( IWG_Property_Type::TRACTION );
 
             // compute the jacobian for dof dependencies
-            for( uint iDOF = 0; iDOF < mRequestedLeaderGlobalDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < get_requested_leader_dof_types().size(); iDOF++ )
             {
                 // get dof type
-                Vector< MSI::Dof_Type > tDepDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > tDepDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the dof type indices for assembly
                 uint tDepDofIndex   = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -96,19 +88,18 @@ namespace moris
                 uint tDepStopIndex  = mSet->get_jac_dof_assembly_map()( tDofIndex )( tDepDofIndex, 1 );
 
                 // if dependency in the dof type
-                if ( mLeaderProp( tPropTractionIndex )->check_dof_dependency( tDepDofType ) )
+                if ( tLeaderProp->check_dof_dependency( tDepDofType ) )
                 {
                     // add contribution to jacobian
                     mSet->get_jacobian()(
                             { tResStartIndex, tResStopIndex },
-                            { tDepStartIndex, tDepStopIndex } ) += aWStar * ( -1.0 *
-                                    trans( tFIVelocity->N() ) * mLeaderProp( tPropTractionIndex )->dPropdDOF( tDepDofType ) );
+                            { tDepStartIndex, tDepStopIndex } ) += aWStar * ( -1.0 * trans( tFIVelocity->N() ) * tLeaderProp->dPropdDOF( tDepDofType ) );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Traction_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Compressible_NS_Traction_Neumann::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -122,10 +113,9 @@ namespace moris
 
         void IWG_Compressible_NS_Traction_Neumann::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Compressible_NS_Traction_Neumann::compute_dRdp - Not implemented.");
+            MORIS_ERROR( false, "IWG_Compressible_NS_Traction_Neumann::compute_dRdp - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

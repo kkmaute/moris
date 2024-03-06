@@ -24,34 +24,21 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::ADVECTION_STRONG_RESIDUAL;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Load" ] = static_cast< uint >( IQI_Property_Type::BODY_LOAD );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IQI_Constitutive_Type::DIFFUSION );
+            init_property("Load", IQI_Property_Type::BODY_LOAD);
+            init_constitutive_model("Diffusion", IQI_Constitutive_Type::DIFFUSION);
         }
 
         //------------------------------------------------------------------------------
 
         void IQI_Advection_Strong_Residual::compute_QI( Matrix< DDRMat > & aQI )
         {
-            Field_Interpolator* tFIVelocity =
-                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFIVelocity = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
              // get the diffusion CM
-             const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                     mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
+             const std::shared_ptr< Constitutive_Model > & tCMDiffusion = get_leader_constitutive_model(IQI_Constitutive_Type::DIFFUSION);
 
              // get body load property
-             const std::shared_ptr< Property > & tPropLoad =
-                     mLeaderProp( static_cast< uint >( IQI_Property_Type::BODY_LOAD ) );
+             const std::shared_ptr< Property > & tPropLoad = get_leader_property(IQI_Property_Type::BODY_LOAD);
 
              Matrix< DDRMat > tRT = tCMDiffusion->EnergyDot() +
                      tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() -
@@ -73,7 +60,7 @@ namespace moris
         void IQI_Advection_Strong_Residual::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // evaluate strong form
             Matrix< DDRMat > tQI(1,1);

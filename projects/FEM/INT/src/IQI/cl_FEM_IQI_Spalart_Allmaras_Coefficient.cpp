@@ -24,13 +24,7 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::SPALART_ALLMARAS_COEFFICIENT;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "SpalartAllmarasTurbulence" ] =
-                    static_cast< uint >( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+            init_constitutive_model( "SpalartAllmarasTurbulence", IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
         }
 
         //------------------------------------------------------------------------------
@@ -39,8 +33,7 @@ namespace moris
         IQI_Spalart_Allmaras_Coefficient::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get the diffusion CM
-            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence = get_leader_constitutive_model(IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE);
 
             // cast constitutive model base class pointer to SA constitutive model
             CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =
@@ -155,7 +148,7 @@ namespace moris
         IQI_Spalart_Allmaras_Coefficient::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // init QI value matrix
             Matrix< DDRMat > tQI( 1, 1 );
@@ -167,4 +160,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 }    // namespace moris
-

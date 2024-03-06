@@ -23,13 +23,8 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::TURBULENT_KINEMATIC_VISCOSITY;
-
-            // set the property pointer cell size
-            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the map
-            mPropertyMap[ "Density" ]          = static_cast< uint >( Property_Type::DENSITY );
-            mPropertyMap[ "DynamicViscosity" ] = static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY );
+            init_property( "Density", Property_Type::DENSITY );
+            init_property( "DynamicViscosity", Property_Type::KINEMATIC_VISCOSITY );
         }
 
         //------------------------------------------------------------------------------
@@ -37,8 +32,8 @@ namespace moris
         void
         IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list(
                 Vector< Vector< MSI::Dof_Type > > &aDofTypes,
-                Vector< std::string >                  &aDofStrings,
-                mtk::Leader_Follower                         aIsLeader )
+                Vector< std::string >             &aDofStrings,
+                mtk::Leader_Follower               aIsLeader )
         {
             // switch on leader follower
             switch ( aIsLeader )
@@ -92,16 +87,13 @@ namespace moris
         IQI_Turbulent_Kinematic_Viscosity::compute_QI( Matrix< DDRMat > &aQI )
         {
             // get field interpolator for modified viscosity
-            Field_Interpolator *tFIModViscosity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofViscosity );
+            Field_Interpolator *tFIModViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( mLeaderDofViscosity );
 
             // get the density property
-            const std::shared_ptr< Property > &tPropDensity =
-                    mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
+            const std::shared_ptr< Property > &tPropDensity = get_leader_property(Property_Type::DENSITY);
 
             // get the kinematic viscosity property
-            const std::shared_ptr< Property > &tPropKinViscosity =
-                    mLeaderProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
+            const std::shared_ptr< Property > &tPropKinViscosity = get_leader_property(Property_Type::KINEMATIC_VISCOSITY);
 
             // compute fv1
             real tFv1 = compute_fv1(
@@ -119,19 +111,16 @@ namespace moris
         IQI_Turbulent_Kinematic_Viscosity::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get field interpolator for modified viscosity
-            Field_Interpolator *tFIModViscosity =
-                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofViscosity );
+            Field_Interpolator *tFIModViscosity = get_leader_fi_manager()->get_field_interpolators_for_type( mLeaderDofViscosity );
 
             // get the density property
-            const std::shared_ptr< Property > &tPropDensity =
-                    mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
+            const std::shared_ptr< Property > &tPropDensity = get_leader_property(Property_Type::DENSITY);
 
             // get the kinematic viscosity property
-            const std::shared_ptr< Property > &tPropKinViscosity =
-                    mLeaderProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
+            const std::shared_ptr< Property > &tPropKinViscosity = get_leader_property(Property_Type::KINEMATIC_VISCOSITY);
 
             // compute fv1
             real tFv1 = compute_fv1(

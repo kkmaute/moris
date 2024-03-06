@@ -26,26 +26,9 @@ namespace moris
         {
             // sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-
-            // set size for the constitutive model pointer cell
-            // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+            init_property("Thickness", IWG_Property_Type::THICKNESS);
+            init_constitutive_model("ElastLinIso", IWG_Constitutive_Type::ELAST_LIN_ISO);
+            init_stabilization_parameter("NitscheInterface", IWG_Stabilization_Type::NITSCHE_INTERFACE);
         }
 
         //------------------------------------------------------------------------------
@@ -70,25 +53,21 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
-            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
-                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model > &tCMFollowerElasticity = get_follower_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::NITSCHE_INTERFACE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -98,21 +77,21 @@ namespace moris
             const real tFollowerWeight  = tSPNitsche->val()( 2 );
 
             // normal projection operator
-            const Matrix< DDRMat > tNormalProjector = mNormal * trans( mNormal );
+            const Matrix< DDRMat > tNormalProjector = get_normal() * trans( get_normal() );
 
             // compute the jump
             const Matrix< DDRMat > tJump = tFILeader->val() - tFIFollower->val();
 
             // compute projection of displacement jump onto normal
-            const real tNormalJump = dot( tJump, mNormal );
+            const real tNormalJump = dot( tJump, get_normal() );
 
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
-                    tLeaderWeight * tCMLeaderElasticity->traction( mNormal )    //
-                    + tFollowerWeight * tCMFollowerElasticity->traction( mNormal );
+                    tLeaderWeight * tCMLeaderElasticity->traction( get_normal() )    //
+                    + tFollowerWeight * tCMFollowerElasticity->traction( get_normal() );
 
             // compute contact pressure
-            const real tIfcPressure = dot( tTraction, mNormal );
+            const real tIfcPressure = dot( tTraction, get_normal() );
 
             // check for contact
             if ( tIfcPressure - tNitsche * tNormalJump < 0 )
@@ -122,7 +101,7 @@ namespace moris
                         { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                                                                                        //
                         aWStar * (                                                                                                                                //
                                 -tFILeader->N_trans() * tNormalProjector * tTraction                                                                              //
-                                + mBeta * tLeaderWeight * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump    //
+                                + mBeta * tLeaderWeight * tCMLeaderElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tJump    //
                                 + tNitsche * tFILeader->N_trans() * tNormalProjector * tJump );
 
                 // compute follower residual
@@ -130,7 +109,7 @@ namespace moris
                         { tFollowerResStartIndex, tFollowerResStopIndex } ) +=                                                                                        //
                         aWStar * (                                                                                                                              //
                                 +tFIFollower->N_trans() * tNormalProjector * tTraction                                                                             //
-                                + mBeta * tFollowerWeight * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump    //
+                                + mBeta * tFollowerWeight * tCMFollowerElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tJump    //
                                 - tNitsche * tFIFollower->N_trans() * tNormalProjector * tJump );
             }
             else
@@ -138,12 +117,12 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tLeaderResStartIndex, tLeaderResStopIndex } ) +=    //
                         aWStar * (                                            //
-                                -mBeta / tNitsche * tLeaderWeight * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tTraction );
+                                -mBeta / tNitsche * tLeaderWeight * tCMLeaderElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tTraction );
 
                 mSet->get_residual()( 0 )(
                         { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
                         aWStar * (                                          //
-                                -mBeta / tNitsche * tFollowerWeight * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tTraction );
+                                -mBeta / tNitsche * tFollowerWeight * tCMFollowerElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tTraction );
             }
 
             // check for nan, infinity
@@ -173,25 +152,21 @@ namespace moris
             const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get leader field interpolator for the residual dof type
-            Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get follower field interpolator for the residual dof type
-            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
-            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
-                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model > &tCMFollowerElasticity = get_follower_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::NITSCHE_INTERFACE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -201,29 +176,29 @@ namespace moris
             const real tFollowerWeight  = tSPNitsche->val()( 2 );
 
             // normal projection operator
-            const Matrix< DDRMat > tNormalProjector = mNormal * trans( mNormal );
+            const Matrix< DDRMat > tNormalProjector = get_normal() * trans( get_normal() );
 
             // compute the jump
             const Matrix< DDRMat > tJump = tFILeader->val() - tFIFollower->val();
 
             // compute projection of displacement jump onto normal
-            const real tNormalJump = dot( tJump, mNormal );
+            const real tNormalJump = dot( tJump, get_normal() );
 
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
-                    tLeaderWeight * tCMLeaderElasticity->traction( mNormal ) + tFollowerWeight * tCMFollowerElasticity->traction( mNormal );
+                    tLeaderWeight * tCMLeaderElasticity->traction( get_normal() ) + tFollowerWeight * tCMFollowerElasticity->traction( get_normal() );
 
             // compute contact pressure
-            const real tIfcPressure = dot( tTraction, mNormal );
+            const real tIfcPressure = dot( tTraction, get_normal() );
 
             // get number of leader dof dependencies
-            const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            const uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the Jacobian for indirect dof dependencies through leader constitutive models
             for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -246,11 +221,11 @@ namespace moris
                     if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         tJacMM += aWStar * (                                                                                                                                        //
-                                          +mBeta * tLeaderWeight * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFILeader->N()    //
+                                          +mBeta * tLeaderWeight * tCMLeaderElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tFILeader->N()    //
                                           + tNitsche * tFILeader->N_trans() * tNormalProjector * tFILeader->N() );
 
                         tJacSM += aWStar * (                                                                                                                                      //
-                                          +mBeta * tFollowerWeight * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFILeader->N()    //
+                                          +mBeta * tFollowerWeight * tCMFollowerElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tFILeader->N()    //
                                           - tNitsche * tFIFollower->N_trans() * tNormalProjector * tFILeader->N() );
                     }
                 }
@@ -262,19 +237,19 @@ namespace moris
                     {
                         // add contribution to Jacobian
                         tJacMM += aWStar * (                                                                                                                    //
-                                          -tLeaderWeight * tFILeader->N_trans() * tNormalProjector * tCMLeaderElasticity->dTractiondDOF( tDofType, mNormal )    //
-                                          + mBeta * tLeaderWeight * tCMLeaderElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tJump, mResidualDofType( 0 ) ) );
+                                          -tLeaderWeight * tFILeader->N_trans() * tNormalProjector * tCMLeaderElasticity->dTractiondDOF( tDofType, get_normal() )    //
+                                          + mBeta * tLeaderWeight * tCMLeaderElasticity->dTestTractiondDOF( tDofType, get_normal(), tNormalProjector * tJump, mResidualDofType( 0 ) ) );
 
-                        tJacSM += aWStar * ( tLeaderWeight * tFIFollower->N_trans() * tNormalProjector * tCMLeaderElasticity->dTractiondDOF( tDofType, mNormal ) );
+                        tJacSM += aWStar * ( tLeaderWeight * tFIFollower->N_trans() * tNormalProjector * tCMLeaderElasticity->dTractiondDOF( tDofType, get_normal() ) );
                     }
                     else
                     {
                         tJacMM += aWStar * -mBeta / tNitsche * tLeaderWeight * (                                                                                                                                    //
-                                          tLeaderWeight * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tCMLeaderElasticity->dTractiondDOF( tDofType, mNormal )    //
-                                          + tCMLeaderElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tTraction, mResidualDofType( 0 ) ) );
+                                          tLeaderWeight * tCMLeaderElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tCMLeaderElasticity->dTractiondDOF( tDofType, get_normal() )    //
+                                          + tCMLeaderElasticity->dTestTractiondDOF( tDofType, get_normal(), tNormalProjector * tTraction, mResidualDofType( 0 ) ) );
 
                         tJacSM += aWStar * -mBeta / tNitsche * tFollowerWeight * (    //
-                                          tLeaderWeight * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tCMLeaderElasticity->dTractiondDOF( tDofType, mNormal ) );
+                                          tLeaderWeight * tCMFollowerElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tCMLeaderElasticity->dTractiondDOF( tDofType, get_normal() ) );
                     }
                 }
 
@@ -288,19 +263,19 @@ namespace moris
 
                     // get traction derivative
                     const Matrix< DDRMat > tTractionDer =
-                            tCMLeaderElasticity->traction( mNormal ) * tLeaderWeightDer + tCMFollowerElasticity->traction( mNormal ) * tFollowerWeightDer;
+                            tCMLeaderElasticity->traction( get_normal() ) * tLeaderWeightDer + tCMFollowerElasticity->traction( get_normal() ) * tFollowerWeightDer;
 
                     if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMM += aWStar * (                                                                                                                                   //
                                           -tFILeader->N_trans() * tNormalProjector * tTractionDer                                                                              //
-                                          + mBeta * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tLeaderWeightDer    //
+                                          + mBeta * tCMLeaderElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tJump * tLeaderWeightDer    //
                                           + tFILeader->N_trans() * tNormalProjector * tJump * tNitscheDer );
 
                         tJacSM += aWStar * (                                                                                                                                 //
                                           +tFIFollower->N_trans() * tNormalProjector * tTractionDer                                                                             //
-                                          + mBeta * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tFollowerWeightDer    //
+                                          + mBeta * tCMFollowerElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tJump * tFollowerWeightDer    //
                                           - tFIFollower->N_trans() * tNormalProjector * tJump * tNitscheDer );
                     }
                     else
@@ -311,11 +286,11 @@ namespace moris
             }
 
             // compute the Jacobian for indirect dof dependencies through follower constitutive models
-            uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+            uint tFollowerNumDofDependencies = get_requested_follower_dof_types().size();
             for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_follower_dof_types()( iDOF );
 
                 // get the index for the dof type
                 const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
@@ -337,11 +312,11 @@ namespace moris
                     if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         tJacMS += aWStar * (                                                                                                                                       //
-                                          -mBeta * tLeaderWeight * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFIFollower->N()    //
+                                          -mBeta * tLeaderWeight * tCMLeaderElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tFIFollower->N()    //
                                           - tNitsche * tFILeader->N_trans() * tNormalProjector * tFIFollower->N() );
 
                         tJacSS += aWStar * (                                                                                                                                     //
-                                          -mBeta * tFollowerWeight * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFIFollower->N()    //
+                                          -mBeta * tFollowerWeight * tCMFollowerElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tFIFollower->N()    //
                                           + tNitsche * tFIFollower->N_trans() * tNormalProjector * tFIFollower->N() );
                     }
                 }
@@ -352,20 +327,20 @@ namespace moris
                     if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         // add contribution to Jacobian
-                        tJacMS += aWStar * ( -tFollowerWeight * tFILeader->N_trans() * tNormalProjector * tCMFollowerElasticity->dTractiondDOF( tDofType, mNormal ) );
+                        tJacMS += aWStar * ( -tFollowerWeight * tFILeader->N_trans() * tNormalProjector * tCMFollowerElasticity->dTractiondDOF( tDofType, get_normal() ) );
 
                         tJacSS += aWStar * (                                                                                                                 //
-                                          +tFollowerWeight * tFIFollower->N_trans() * tNormalProjector * tCMFollowerElasticity->dTractiondDOF( tDofType, mNormal )    //
-                                          + mBeta * tFollowerWeight * tCMFollowerElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tJump, mResidualDofType( 0 ) ) );
+                                          +tFollowerWeight * tFIFollower->N_trans() * tNormalProjector * tCMFollowerElasticity->dTractiondDOF( tDofType, get_normal() )    //
+                                          + mBeta * tFollowerWeight * tCMFollowerElasticity->dTestTractiondDOF( tDofType, get_normal(), tNormalProjector * tJump, mResidualDofType( 0 ) ) );
                     }
                     else
                     {
                         tJacMS += aWStar * -mBeta / tNitsche * tLeaderWeight * (    //
-                                          tFollowerWeight * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tCMFollowerElasticity->dTractiondDOF( tDofType, mNormal ) );
+                                          tFollowerWeight * tCMLeaderElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tCMFollowerElasticity->dTractiondDOF( tDofType, get_normal() ) );
 
                         tJacSS += aWStar * -mBeta / tNitsche * tFollowerWeight * (                                                                                                                                  //
-                                          tFollowerWeight * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tCMFollowerElasticity->dTractiondDOF( tDofType, mNormal )    //
-                                          + tCMFollowerElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tTraction, mResidualDofType( 0 ) ) );
+                                          tFollowerWeight * tCMFollowerElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tCMFollowerElasticity->dTractiondDOF( tDofType, get_normal() )    //
+                                          + tCMFollowerElasticity->dTestTractiondDOF( tDofType, get_normal(), tNormalProjector * tTraction, mResidualDofType( 0 ) ) );
                     }
                 }
 
@@ -379,19 +354,19 @@ namespace moris
 
                     // get traction derivative
                     const Matrix< DDRMat > tTractionDer =
-                            tCMLeaderElasticity->traction( mNormal ) * tLeaderWeightDer + tCMFollowerElasticity->traction( mNormal ) * tFollowerWeightDer;
+                            tCMLeaderElasticity->traction( get_normal() ) * tLeaderWeightDer + tCMFollowerElasticity->traction( get_normal() ) * tFollowerWeightDer;
 
                     if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMS += aWStar * (                                                                                                                                   //
                                           -tFILeader->N_trans() * tNormalProjector * tTractionDer                                                                              //
-                                          + mBeta * tCMLeaderElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tLeaderWeightDer    //
+                                          + mBeta * tCMLeaderElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tJump * tLeaderWeightDer    //
                                           + tFILeader->N_trans() * tNormalProjector * tJump * tNitscheDer );
 
                         tJacSS += aWStar * (                                                                                                                                 //
                                           tFIFollower->N_trans() * tTractionDer                                                                                                 //
-                                          + mBeta * tCMFollowerElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tFollowerWeightDer    //
+                                          + mBeta * tCMFollowerElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ) ) * tNormalProjector * tJump * tFollowerWeightDer    //
                                           - tFIFollower->N_trans() * tNormalProjector * tJump * tNitscheDer );
                     }
                     else

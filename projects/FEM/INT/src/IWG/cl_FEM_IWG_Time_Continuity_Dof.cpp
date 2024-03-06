@@ -28,17 +28,12 @@ namespace moris
             mIWGType = moris::fem::IWG_Type::TIME_CONTINUITY_DOF;
 
             // set time continuity flag
-            mTimeContinuity = true;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "WeightCurrent" ]    = static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT );
-            mPropertyMap[ "WeightPrevious" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS );
-            mPropertyMap[ "InitialCondition" ] = static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION );
-            mPropertyMap[ "WeightResidual" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL );
-            mPropertyMap[ "Thickness" ]        = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            set_time_continuity( true );
+            init_property( "WeightCurrent", IWG_Property_Type::WEIGHT_CURRENT );
+            init_property( "WeightPrevious", IWG_Property_Type::WEIGHT_PREVIOUS );
+            init_property( "InitialCondition", IWG_Property_Type::INITIAL_CONDITION );
+            init_property( "WeightResidual", IWG_Property_Type::WEIGHT_RESIDUAL );
+            init_property( "Thickness", IWG_Property_Type::THICKNESS );
         }
 
         //------------------------------------------------------------------------------
@@ -56,31 +51,25 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator for current time step
-            Field_Interpolator* tFICurrent =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFICurrent = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get residual dof type field interpolator for previous time step
-            Field_Interpolator* tFIPrevious =
-                    mLeaderPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIPrevious = get_leader_fi_manager_previous_time()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // store field manager of previous time step with field manager of current time step (previous state might be used in property)
-            mLeaderFIManager->set_field_interpolator_manager_previous( mLeaderPreviousFIManager );
+            get_leader_fi_manager()->set_field_interpolator_manager_previous( get_leader_fi_manager_previous_time() );
 
             // get current weight property
-            const std::shared_ptr< Property >& tPropWeightCurrent =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT ) );
+            const std::shared_ptr< Property >& tPropWeightCurrent = get_leader_property( IWG_Property_Type::WEIGHT_CURRENT );
 
             // get previous weight property
-            const std::shared_ptr< Property >& tPropWeightPrevious =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
+            const std::shared_ptr< Property >& tPropWeightPrevious = get_leader_property( IWG_Property_Type::WEIGHT_PREVIOUS );
 
             // get residual weight property
-            const std::shared_ptr< Property >& tPropWeightResidual =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL ) );
+            const std::shared_ptr< Property >& tPropWeightResidual = get_leader_property( IWG_Property_Type::WEIGHT_RESIDUAL );
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property( IWG_Property_Type::THICKNESS );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -100,7 +89,7 @@ namespace moris
             Matrix< DDRMat > tJump = tPropWeightCurrent->val()( 0 ) * tFICurrent->val();
 
             // if not the first time step
-            if ( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
+            if ( get_leader_fi_manager()->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
             {
                 // compute the jump
                 tJump -= tPropWeightPrevious->val()( 0 ) * tFIPrevious->val();
@@ -109,8 +98,7 @@ namespace moris
             else
             {
                 // get initial condition property
-                const std::shared_ptr< Property >& tPropInitialCondition =
-                        mLeaderProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
+                const std::shared_ptr< Property >& tPropInitialCondition = get_leader_property( IWG_Property_Type::INITIAL_CONDITION );
 
                 // compute the jump
                 tJump -= tPropWeightPrevious->val()( 0 ) * tPropInitialCondition->val();
@@ -141,37 +129,32 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator for current time step
-            Field_Interpolator* tFICurrent =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFICurrent = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get residual dof type field interpolator for previous time step
             Field_Interpolator* tFIPrevious =
-                    mLeaderPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    get_leader_fi_manager_previous_time()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // store field manager of previous time step with field manager of current time step (previous state might be used in property)
-            mLeaderFIManager->set_field_interpolator_manager_previous( mLeaderPreviousFIManager );
+            get_leader_fi_manager()->set_field_interpolator_manager_previous( get_leader_fi_manager_previous_time() );
 
             // get current weight property
-            const std::shared_ptr< Property >& tPropWeightCurrent =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT ) );
+            const std::shared_ptr< Property >& tPropWeightCurrent = get_leader_property( IWG_Property_Type::WEIGHT_CURRENT );
 
             // get previous weight property
-            const std::shared_ptr< Property >& tPropWeightPrevious =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
+            const std::shared_ptr< Property >& tPropWeightPrevious = get_leader_property( IWG_Property_Type::WEIGHT_PREVIOUS );
 
             // get initial condition property
-            const std::shared_ptr< Property >& tPropInitialCondition =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
+            const std::shared_ptr< Property >& tPropInitialCondition = get_leader_property( IWG_Property_Type::INITIAL_CONDITION );
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property( IWG_Property_Type::THICKNESS );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // FIXME set initial time
             real tInitTime = 0.0;
@@ -180,7 +163,7 @@ namespace moris
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -211,7 +194,7 @@ namespace moris
                 if ( tPropWeightPrevious->check_dof_dependency( tDofType ) )
                 {
                     // if not the first time step
-                    if ( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
+                    if ( get_leader_fi_manager()->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
                     {
                         mSet->get_jacobian()(
                                 { tLeaderResStartIndex, tLeaderResStopIndex },
@@ -266,28 +249,26 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator for current time step
-            Field_Interpolator* tFICurrent =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFICurrent = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get residual dof type field interpolator for previous time step
             Field_Interpolator* tFIPrevious =
-                    mLeaderPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    get_leader_fi_manager_previous_time()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get previous weight property
-            const std::shared_ptr< Property >& tPropWeightPrevious =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
+            const std::shared_ptr< Property >& tPropWeightPrevious = get_leader_property( IWG_Property_Type::WEIGHT_PREVIOUS );
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // FIXME if not first time step
-            // if( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > 0.0 )
+            // if( get_leader_fi_manager()->get_IP_geometry_interpolator()->valt()( 0 ) > 0.0 )
             //{
             // loop over leader dof type dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // FIXME needs to be assemble on previous time step solution?
                 // get the index for dof type, indices for assembly

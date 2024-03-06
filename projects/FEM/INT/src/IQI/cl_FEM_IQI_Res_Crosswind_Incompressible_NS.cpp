@@ -25,31 +25,15 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::RES_CROSSWIND_INCOMPRESSIBLE_NS;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Gravity" ]          = static_cast< uint >( IQI_Property_Type::GRAVITY );
-            mPropertyMap[ "ThermalExpansion" ] = static_cast< uint >( IQI_Property_Type::THERMAL_EXPANSION );
-            mPropertyMap[ "ReferenceTemp" ]    = static_cast< uint >( IQI_Property_Type::REF_TEMP );
-            mPropertyMap[ "InvPermeability" ]  = static_cast< uint >( IQI_Property_Type::INV_PERMEABILITY );
-            mPropertyMap[ "MassSource" ]       = static_cast< uint >( IQI_Property_Type::MASS_SOURCE );
-            mPropertyMap[ "Load" ]             = static_cast< uint >( IQI_Property_Type::BODY_LOAD );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] =
-                    static_cast< uint >( IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "DiffusionCrosswind" ] = static_cast< uint >( IQI_Stabilization_Type::DIFFUSION_CROSSWIND );
-            mStabilizationMap[ "DiffusionIsotropic" ] = static_cast< uint >( IQI_Stabilization_Type::DIFFUSION_ISOTROPIC );
+            init_property("Gravity", IQI_Property_Type::GRAVITY);
+            init_property("ThermalExpansion", IQI_Property_Type::THERMAL_EXPANSION);
+            init_property("ReferenceTemp", IQI_Property_Type::REF_TEMP);
+            init_property("InvPermeability", IQI_Property_Type::INV_PERMEABILITY);
+            init_property("MassSource", IQI_Property_Type::MASS_SOURCE);
+            init_property("Load", IQI_Property_Type::BODY_LOAD);
+            init_constitutive_model("IncompressibleFluid", IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID);
+            init_stabilization_parameter("DiffusionCrosswind", IQI_Stabilization_Type::DIFFUSION_CROSSWIND);
+            init_stabilization_parameter("DiffusionIsotropic", IQI_Stabilization_Type::DIFFUSION_ISOTROPIC);
         }
 
         //------------------------------------------------------------------------------
@@ -58,8 +42,7 @@ namespace moris
         IQI_Res_Crosswind_Incompressible_NS::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get the velocity and pressure FIs
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get space dimension
             uint tSpaceDim = tVelocityFI->get_number_of_fields();
@@ -69,16 +52,13 @@ namespace moris
                     "IQI_SP_Crosswind_Incompressible_NS::compute_QI - incorrect vectorial index." );
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model(IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID);
 
             // get the crosswind diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind =
-                    mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind = get_stabilization_parameter(IQI_Stabilization_Type::DIFFUSION_CROSSWIND);
 
             // get the isotropic diffusion stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic =
-                    mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic = get_stabilization_parameter(IQI_Stabilization_Type::DIFFUSION_ISOTROPIC);
 
             // bool for crosswind or isotropic
             bool tIsCrosswind = tSPCrosswind != nullptr;
@@ -114,7 +94,7 @@ namespace moris
             // compute crosswind projection of velocity gradient
             Matrix< DDRMat > tcgradxv;
             compute_cgradxw( { MSI::Dof_Type::VX }, { MSI::Dof_Type::VX }, //
-                    mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                    get_leader_fi_manager(), tSpaceDim, tEpsilon, tIsCrosswind,   //
                     tcgradxv );
 
             // compute the norm of the gradient of v in direction
@@ -137,7 +117,7 @@ namespace moris
         IQI_Res_Crosswind_Incompressible_NS::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // evaluate strong form
             Matrix< DDRMat > tQI( 1, 1 );
@@ -174,29 +154,22 @@ namespace moris
         {
             // get the velocity and pressure FIs
             // FIXME protect dof type
-            Field_Interpolator* tVelocityFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tVelocityFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the properties
-            const std::shared_ptr< Property >& tGravityProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::GRAVITY ) );
+            const std::shared_ptr< Property >& tGravityProp = get_leader_property(IQI_Property_Type::GRAVITY);
 
-            const std::shared_ptr< Property >& tThermalExpProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::THERMAL_EXPANSION ) );
+            const std::shared_ptr< Property >& tThermalExpProp = get_leader_property(IQI_Property_Type::THERMAL_EXPANSION);
 
-            const std::shared_ptr< Property >& tRefTempProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::REF_TEMP ) );
+            const std::shared_ptr< Property >& tRefTempProp = get_leader_property(IQI_Property_Type::REF_TEMP);
 
-            const std::shared_ptr< Property >& tInvPermeabProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::INV_PERMEABILITY ) );
+            const std::shared_ptr< Property >& tInvPermeabProp = get_leader_property(IQI_Property_Type::INV_PERMEABILITY);
 
             // get the body load property
-            const std::shared_ptr< Property >& tLoadProp =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tLoadProp = get_leader_property(IQI_Property_Type::BODY_LOAD);
 
             // get the incompressible fluid constitutive model
-            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM = get_leader_constitutive_model(IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID);
 
             // get the density property from CM
             const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -234,8 +207,7 @@ namespace moris
                 {
                     // get the temperature field interpolator
                     // FIXME protect FI
-                    Field_Interpolator* tTempFI =
-                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                    Field_Interpolator* tTempFI = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                     // add contribution to residual
                     aRM -= tDensity * tGravityProp->val() * tThermalExpProp->val()

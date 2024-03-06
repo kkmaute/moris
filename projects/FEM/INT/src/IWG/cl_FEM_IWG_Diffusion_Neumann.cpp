@@ -25,12 +25,8 @@ namespace moris
 
         IWG_Diffusion_Neumann::IWG_Diffusion_Neumann()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Neumann" ]   = static_cast< uint >( IWG_Property_Type::NEUMANN );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            init_property( "Neumann", IWG_Property_Type::NEUMANN );
+            init_property( "Thickness", IWG_Property_Type::THICKNESS );
         }
 
         //------------------------------------------------------------------------------
@@ -48,19 +44,16 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get filed interpolator for residual dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropNeumann =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
+            const std::shared_ptr< Property >& tPropNeumann = get_leader_property(IWG_Property_Type::NEUMANN);
 
             MORIS_ASSERT( tPropNeumann != nullptr,
                     "IWG_Diffusion_Neumann::compute_residual - invalid boundary property" );
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -90,28 +83,25 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator* tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropNeumann =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::NEUMANN ) );
+            const std::shared_ptr< Property >& tPropNeumann = get_leader_property(IWG_Property_Type::NEUMANN);
 
             MORIS_ASSERT( tPropNeumann != nullptr,
                     "IWG_Diffusion_Neumann::compute_residual - invalid boundary property" );
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // compute the jacobian for dof dependencies
-            for ( uint iDOF = 0; iDOF < mRequestedLeaderGlobalDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < get_requested_leader_dof_types().size(); iDOF++ )
             {
                 // get dof type
-                const Vector< MSI::Dof_Type > tDepDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type > tDepDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the dof type indices for assembly
                 uint tDepDofIndex   = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Leader_Follower::LEADER );

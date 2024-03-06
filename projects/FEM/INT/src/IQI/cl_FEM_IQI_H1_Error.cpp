@@ -23,36 +23,33 @@ namespace moris
         {
             // set FEM IQI type
             mFEMIQIType = fem::IQI_Type::H1_ERROR;
-
-            // set the property pointer cell size
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "L2_Reference" ]    = static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE );
-            mPropertyMap[ "H1S_Reference" ]   = static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE );
+            init_property( "L2_Reference", IQI_Property_Type::L2_REFERENCE_VALUE );
+            init_property( "H1S_Reference", IQI_Property_Type::H1S_REFERENCE_VALUE );
         }
 
         //------------------------------------------------------------------------------
 
         void IQI_H1_Error::initialize()
         {
-            if ( ! mIsInitialized )
+            if ( !mIsInitialized )
             {
+                Vector< Matrix< DDRMat > > tParameters = get_parameters();
+
                 // size of parameter list
-                uint tParamSize = mParameters.size();
+                uint tParamSize = tParameters.size();
 
                 // check for proper size of constant function parameters
                 MORIS_ERROR( tParamSize == 2 || tParamSize == 3,
                         "IQI_H1_Error::initialize - either 2 or 3 constant parameters need to be set." );
 
                 // get weights for L2 and H1 semi-norm contributions
-                mL2Weight  = mParameters( 0 )( 0 );
-                mH1SWeight = mParameters( 1 )( 0 );
+                mL2Weight  = tParameters( 0 )( 0 );
+                mH1SWeight = tParameters( 1 )( 0 );
 
                 // extract parameter whether to skip computing dQIdu
                 if ( tParamSize > 2 )
                 {
-                    mSkipComputeDQIDU = mParameters(2)(0) > 0;
+                    mSkipComputeDQIDU = tParameters( 2 )( 0 ) > 0;
                 }
 
                 // check mQuantityDofType is defined
@@ -66,26 +63,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_H1_Error::compute_QI( Matrix< DDRMat > & aQI )
+        void IQI_H1_Error::compute_QI( Matrix< DDRMat > &aQI )
         {
             // initialize if needed
             this->initialize();
 
             // get field interpolator
-            Field_Interpolator * tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator *tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // initialize QI
-            aQI.fill(0.0);
+            aQI.fill( 0.0 );
 
             // L2 contributions
             if ( mL2Weight > 0.0 )
             {
-                MORIS_ASSERT (  mLeaderProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ),
-                        "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n");
+                MORIS_ASSERT( get_leader_property( IQI_Property_Type::L2_REFERENCE_VALUE ),
+                        "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n" );
 
-                const std::shared_ptr< Property > & tPropL2Value =
-                        mLeaderProp( static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE ) );
+                const std::shared_ptr< Property > &tPropL2Value = get_leader_property( IQI_Property_Type::L2_REFERENCE_VALUE );
 
                 // compute difference between dof value and reference value
                 auto tL2error = tFI->val() - tPropL2Value->val();
@@ -97,14 +92,13 @@ namespace moris
             // H1 semi-norm contribution
             if ( mH1SWeight > 0.0 )
             {
-                MORIS_ASSERT (  mLeaderProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ),
-                        "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n");
+                MORIS_ASSERT( get_leader_property( IQI_Property_Type::H1S_REFERENCE_VALUE ),
+                        "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n" );
 
-                const std::shared_ptr< Property > & tPropH1SValue =
-                        mLeaderProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );
+                const std::shared_ptr< Property > &tPropH1SValue = get_leader_property( IQI_Property_Type::H1S_REFERENCE_VALUE );
 
                 // compute difference between dof spatial gradient and reference value and flatten it
-                Matrix<DDRMat> tH1Serror = vectorize( tFI->gradx( 1 ) - tPropH1SValue->val() );
+                Matrix< DDRMat > tH1Serror = vectorize( tFI->gradx( 1 ) - tPropH1SValue->val() );
 
                 // compute H1 semi-norm error
                 aQI += mH1SWeight * trans( tH1Serror ) * tH1Serror;
@@ -116,14 +110,14 @@ namespace moris
         void IQI_H1_Error::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
-            Matrix<DDRMat> tQI(1,1);
+            Matrix< DDRMat > tQI( 1, 1 );
 
             this->compute_QI( tQI );
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * tQI(0);
+            mSet->get_QI()( tQIIndex ) += aWStar * tQI( 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -140,20 +134,19 @@ namespace moris
             this->initialize();
 
             // get field interpolator
-            Field_Interpolator * tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator *tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
+            for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDof );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -167,17 +160,16 @@ namespace moris
                 // L2 contributions
                 if ( mL2Weight > 0.0 )
                 {
-                    MORIS_ASSERT (  mLeaderProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ),
-                            "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n");
+                    MORIS_ASSERT( get_leader_property( IQI_Property_Type::L2_REFERENCE_VALUE ),
+                            "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n" );
 
-                    const std::shared_ptr< Property > & tPropL2Value =
-                            mLeaderProp( static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE ) );
+                    const std::shared_ptr< Property > &tPropL2Value = get_leader_property( IQI_Property_Type::L2_REFERENCE_VALUE );
 
                     // compute difference between dof value and reference value
                     auto tL2error = tFI->val() - tPropL2Value->val();
 
                     // derivative with respect to quantity dof type
-                    if( tDofType( 0 ) == mQuantityDofType( 0 ) )
+                    if ( tDofType( 0 ) == mQuantityDofType( 0 ) )
                     {
                         // compute dQIdDof
                         tRes += 2.0 * aWStar * mL2Weight * tFI->N_trans() * tL2error;
@@ -194,17 +186,16 @@ namespace moris
                 // H1 semi-norm contribution
                 if ( mH1SWeight > 0.0 )
                 {
-                    MORIS_ASSERT (  mLeaderProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ),
-                            "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n");
+                    MORIS_ASSERT( get_leader_property( IQI_Property_Type::H1S_REFERENCE_VALUE ),
+                            "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n" );
 
-                    const std::shared_ptr< Property > & tPropH1SValue =
-                            mLeaderProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );
+                    const std::shared_ptr< Property > &tPropH1SValue = get_leader_property( IQI_Property_Type::H1S_REFERENCE_VALUE );
 
                     // compute difference between dof spatial gradient and reference value
                     auto tH1Serror = tFI->gradx( 1 ) - tPropH1SValue->val();
 
                     // derivative with respect to quantity dof type
-                    if( tDofType( 0 ) == mQuantityDofType( 0 ) )
+                    if ( tDofType( 0 ) == mQuantityDofType( 0 ) )
                     {
                         // compute dQIdDof
                         tRes += 2.0 * aWStar * mH1SWeight * trans( tFI->dnNdxn( 1 ) ) * tH1Serror;
@@ -223,8 +214,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_H1_Error::compute_dQIdu(
-                Vector< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+                Vector< MSI::Dof_Type > &aDofType,
+                Matrix< DDRMat >        &adQIdu )
         {
             // check whether to compute derivatives
             if ( mSkipComputeDQIDU )
@@ -236,23 +227,21 @@ namespace moris
             this->initialize();
 
             // get field interpolator
-            Field_Interpolator * tFI =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator *tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // L2 contributions
             if ( mL2Weight > 0.0 )
             {
-                MORIS_ASSERT (  mLeaderProp( (uint) IQI_Property_Type::L2_REFERENCE_VALUE ),
-                        "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n");
+                MORIS_ASSERT( get_leader_property( IQI_Property_Type::L2_REFERENCE_VALUE ),
+                        "IQI_H1_Error::compute_QI - no weight for L2 contribution provided.\n" );
 
-                const std::shared_ptr< Property > & tPropL2Value =
-                        mLeaderProp( static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE ) );
+                const std::shared_ptr< Property > &tPropL2Value = get_leader_property( IQI_Property_Type::L2_REFERENCE_VALUE );
 
                 // compute difference between dof value and reference value
                 auto tL2error = tFI->val() - tPropL2Value->val();
 
                 // derivative with respect to quantity dof type
-                if( aDofType( 0 ) == mQuantityDofType( 0 ) )
+                if ( aDofType( 0 ) == mQuantityDofType( 0 ) )
                 {
                     // compute dQIdDof
                     adQIdu += 2.0 * mL2Weight * tFI->N_trans() * tL2error;
@@ -269,33 +258,31 @@ namespace moris
             // H1 semi-norm contribution
             if ( mH1SWeight > 0.0 )
             {
-                MORIS_ASSERT (  mLeaderProp( (uint) IQI_Property_Type::H1S_REFERENCE_VALUE ),
-                        "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n");
+                MORIS_ASSERT( get_leader_property( IQI_Property_Type::H1S_REFERENCE_VALUE ),
+                        "IQI_H1_Error::compute_QI - no weight for H1 semi-norm contribution provided.\n" );
 
-                const std::shared_ptr< Property > & tPropH1SValue =
-                        mLeaderProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );
+                const std::shared_ptr< Property > &tPropH1SValue = get_leader_property( IQI_Property_Type::H1S_REFERENCE_VALUE );
 
                 // compute difference between dof spatial gradient and reference value
                 auto tH1Serror = tFI->gradx( 1 ) - tPropH1SValue->val();
 
                 // derivative with respect to quantity dof type
-                if( aDofType( 0 ) == mQuantityDofType( 0 ) )
+                if ( aDofType( 0 ) == mQuantityDofType( 0 ) )
                 {
                     // compute dQIdDof
-                    adQIdu += 2.0* mH1SWeight * trans( tFI->dnNdxn( 1 ) ) * tH1Serror;
+                    adQIdu += 2.0 * mH1SWeight * trans( tFI->dnNdxn( 1 ) ) * tH1Serror;
                 }
 
                 // if H1S reference value depends on dof type
                 if ( tPropH1SValue->check_dof_dependency( aDofType ) )
                 {
                     // compute dQIdDof
-                    adQIdu -= 2.0* mH1SWeight * tPropH1SValue->dPropdDOF( aDofType ) * tH1Serror;
+                    adQIdu -= 2.0 * mH1SWeight * tPropH1SValue->dPropdDOF( aDofType ) * tH1Serror;
                 }
             }
         }
 
         //------------------------------------------------------------------------------
 
-    }/* end_namespace_fem */
-}/* end_namespace_moris */
-
+    }    // namespace fem
+}    // namespace moris

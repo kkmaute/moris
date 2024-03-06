@@ -11,7 +11,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
-//LINALG/src
+// LINALG/src
 #include "fn_trans.hpp"
 
 namespace moris
@@ -25,19 +25,8 @@ namespace moris
         {
             // set mBeta for symmetric/skew symmetric Nitsche
             mBeta = aBeta;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+            init_constitutive_model( "IncompressibleFluid", IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
+            init_stabilization_parameter( "NitscheInterface", IWG_Stabilization_Type::NITSCHE_INTERFACE );
         }
 
         //------------------------------------------------------------------------------
@@ -61,22 +50,17 @@ namespace moris
 
             // get the velocity dof type FI
             // FIXME protect dof type
-            Field_Interpolator * tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
-            Field_Interpolator * tFIFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator *tFILeader   = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator *tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get leader/follower fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMLeaderFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
-            const std::shared_ptr< Constitutive_Model > & tCMFollowerFluid =
-                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+            const std::shared_ptr< Constitutive_Model > &tCMLeaderFluid   = get_leader_constitutive_model( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
+            const std::shared_ptr< Constitutive_Model > &tCMFollowerFluid = get_follower_constitutive_model( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
-            real tLeaderWeight = tSPNitsche->val()( 1 );
-            real tFollowerWeight  = tSPNitsche->val()( 2 );
+            const std::shared_ptr< Stabilization_Parameter > &tSPNitsche      = get_stabilization_parameter( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+            real                                              tLeaderWeight   = tSPNitsche->val()( 1 );
+            real                                              tFollowerWeight = tSPNitsche->val()( 2 );
 
             // compute the jump
             Matrix< DDRMat > tVelocityJump = tFILeader->val() - tFIFollower->val();
@@ -84,18 +68,16 @@ namespace moris
             // compute leader residual
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex },
-                    { 0, 0 } ) -= aWStar * (
-                            mBeta * tLeaderWeight * trans( tCMLeaderFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump );
+                    { 0, 0 } ) -= aWStar * ( mBeta * tLeaderWeight * trans( tCMLeaderFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tVelocityJump );
 
             // compute follower residual
             mSet->get_residual()( 0 )(
                     { tFollowerResStartIndex, tFollowerResStopIndex },
-                    { 0, 0 } ) -= aWStar * (
-                            mBeta * tFollowerWeight * trans( tCMFollowerFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump );
+                    { 0, 0 } ) -= aWStar * ( mBeta * tFollowerWeight * trans( tCMFollowerFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tVelocityJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Incompressible_NS_Pressure_Interface::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Incompressible_NS_Pressure_Interface::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -119,34 +101,29 @@ namespace moris
 
             // get the velocity dof type FI
             // FIXME protect dof type
-            Field_Interpolator * tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
-            Field_Interpolator * tFIFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator *tFILeader   = get_leader_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator *tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get leader/follower fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMLeaderFluid =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
-            const std::shared_ptr< Constitutive_Model > & tCMFollowerFluid =
-                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+            const std::shared_ptr< Constitutive_Model > &tCMLeaderFluid   = get_leader_constitutive_model( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
+            const std::shared_ptr< Constitutive_Model > &tCMFollowerFluid = get_follower_constitutive_model( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
-            real tLeaderWeight = tSPNitsche->val()( 1 );
-            real tFollowerWeight  = tSPNitsche->val()( 2 );
+            const std::shared_ptr< Stabilization_Parameter > &tSPNitsche      = get_stabilization_parameter( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+            real                                              tLeaderWeight   = tSPNitsche->val()( 1 );
+            real                                              tFollowerWeight = tSPNitsche->val()( 2 );
 
             // compute the jump
             Matrix< DDRMat > tVelocityJump = tFILeader->val() - tFIFollower->val();
 
             // get number of leader dependencies
-            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute the jacobian for indirect dof dependencies through leader
-            for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -160,14 +137,12 @@ namespace moris
                     // add contribution to leader jacobian
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                    mBeta * tLeaderWeight * trans( tCMLeaderFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tFILeader->N() );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * tLeaderWeight * trans( tCMLeaderFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tFILeader->N() );
 
                     // add contribution to follower jacobian
                     mSet->get_jacobian()(
                             { tFollowerResStartIndex, tFollowerResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                    mBeta * tFollowerWeight * trans( tCMFollowerFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tFILeader->N() );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * tFollowerWeight * trans( tCMFollowerFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tFILeader->N() );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -176,38 +151,34 @@ namespace moris
                     // add contribution to leader jacobian
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                    mBeta * tLeaderWeight * tCMLeaderFluid->dTestTractiondDOF(
-                                            tDofType, mNormal, tVelocityJump, mResidualDofType( 0 ) ) );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * tLeaderWeight * tCMLeaderFluid->dTestTractiondDOF( tDofType, get_normal(), tVelocityJump, mResidualDofType( 0 ) ) );
                 }
 
                 // if leader SP depends on dof type
-                if( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::LEADER ) )
+                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::LEADER ) )
                 {
                     // get derivatives of SP
-                    Matrix< DDRMat > tLeaderWeightDer = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 1 );
-                    Matrix< DDRMat > tFollowerWeightDer  = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 2 );
+                    Matrix< DDRMat > tLeaderWeightDer   = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 1 );
+                    Matrix< DDRMat > tFollowerWeightDer = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 2 );
 
                     // add contribution to leader jacobian
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
-                                    mBeta * trans( tCMLeaderFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump * tLeaderWeightDer
-                                    + mBeta * trans( tCMFollowerFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump * tFollowerWeightDer );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * ( mBeta * trans( tCMLeaderFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tVelocityJump * tLeaderWeightDer + mBeta * trans( tCMFollowerFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tVelocityJump * tFollowerWeightDer );
                 }
             }
 
             // get number of follower dependencies
-            uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+            uint tFollowerNumDofDependencies = get_requested_follower_dof_types().size();
 
             // compute the jacobian for indirect dof dependencies through leader
-            for( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                Vector< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > tDofType = get_requested_follower_dof_types()( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
+                sint tDofDepIndex           = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
                 uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
                 uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
 
@@ -218,14 +189,12 @@ namespace moris
                     // add contribution to leader jacobian
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) += aWStar * (
-                                    mBeta * tLeaderWeight * trans( tCMLeaderFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tFIFollower->N() );
+                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) += aWStar * ( mBeta * tLeaderWeight * trans( tCMLeaderFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tFIFollower->N() );
 
                     // add contribution to follower jacobian
                     mSet->get_jacobian()(
                             { tFollowerResStartIndex, tFollowerResStopIndex },
-                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) += aWStar * (
-                                    mBeta * tFollowerWeight * trans( tCMFollowerFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tFIFollower->N() );
+                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) += aWStar * ( mBeta * tFollowerWeight * trans( tCMFollowerFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tFIFollower->N() );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -234,30 +203,26 @@ namespace moris
                     // add contribution to follower jacobian
                     mSet->get_jacobian()(
                             { tFollowerResStartIndex, tFollowerResStopIndex },
-                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) -= aWStar * (
-                                    mBeta * tFollowerWeight * tCMFollowerFluid->dTestTractiondDOF(
-                                            tDofType, mNormal, tVelocityJump, mResidualDofType( 0 ) ) );
+                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) -= aWStar * ( mBeta * tFollowerWeight * tCMFollowerFluid->dTestTractiondDOF( tDofType, get_normal(), tVelocityJump, mResidualDofType( 0 ) ) );
                 }
 
                 // if leader SP depends on dof type
-                if( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::FOLLOWER ) )
+                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::FOLLOWER ) )
                 {
                     // get derivatives of SP
-                    Matrix< DDRMat > tLeaderWeightDer = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 1 );
-                    Matrix< DDRMat > tFollowerWeightDer  = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 2 );
+                    Matrix< DDRMat > tLeaderWeightDer   = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 1 );
+                    Matrix< DDRMat > tFollowerWeightDer = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 2 );
 
                     // add contribution to leader jacobian
                     mSet->get_jacobian()(
                             { tLeaderResStartIndex, tLeaderResStopIndex },
-                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) -= aWStar * (
-                                    mBeta * trans( tCMLeaderFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump * tLeaderWeightDer
-                                    + mBeta * trans( tCMFollowerFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tVelocityJump * tFollowerWeightDer );
+                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) -= aWStar * ( mBeta * trans( tCMLeaderFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tVelocityJump * tLeaderWeightDer + mBeta * trans( tCMFollowerFluid->testTraction( get_normal(), mResidualDofType( 0 ) ) ) * tVelocityJump * tFollowerWeightDer );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Incompressible_NS_Pressure_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Incompressible_NS_Pressure_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -287,4 +252,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

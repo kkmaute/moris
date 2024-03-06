@@ -31,17 +31,18 @@ namespace moris
         {
             if ( !mIsInitialized )
             {
-                // size of parameter list
-                uint tParamSize = mParameters.size();
+                Vector< Matrix< DDRMat > > tParameters = get_parameters();
+
+                uint tParamSize = tParameters.size();
 
                 // extract spatial derivative order
                 if ( tParamSize > 0 )
                 {
-                    MORIS_ERROR( mParameters( 0 ).numel() == 2,
+                    MORIS_ERROR( tParameters( 0 ).numel() == 2,
                             "IQI_Dof::initialize - Spatial gradient definition requires exactly two coefficients.\n" );
 
-                    mSpatialDerivativeDirection = mParameters( 0 )( 0 );
-                    mSpatialDerivativeOrder     = mParameters( 0 )( 1 );
+                    mSpatialDerivativeDirection = tParameters( 0 )( 0 );
+                    mSpatialDerivativeOrder     = tParameters( 0 )( 1 );
                 }
 
                 // extract time derivative order
@@ -50,10 +51,10 @@ namespace moris
                     MORIS_ERROR( mSpatialDerivativeOrder == 0,
                             "IQI_Dof::initialize - Time gradient can only be computed if spatial gradient order is zero.\n" );
 
-                    MORIS_ERROR( mParameters( 1 ).numel() == 1,
+                    MORIS_ERROR( tParameters( 1 ).numel() == 1,
                             "IQI_Dof::initialize - Time gradient definition requires exactly one coefficient.\n" );
 
-                    mTimeDerivativeOrder = mParameters( 1 )( 0 );
+                    mTimeDerivativeOrder = tParameters( 1 )( 0 );
                 }
 
                 // set initialize flag to true
@@ -82,7 +83,7 @@ namespace moris
             this->initialize();
 
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             Matrix< DDRMat > tMat;
 
@@ -104,7 +105,7 @@ namespace moris
         void
         IQI_Jump_Dof::compute_dQIdu(
                 Vector< MSI::Dof_Type >& aDofType,
-                Matrix< DDRMat >&             adQIdu )
+                Matrix< DDRMat >&        adQIdu )
         {
             MORIS_ERROR( false, "Not Implemented for psedudo error for double sided set " );
         }
@@ -115,12 +116,10 @@ namespace moris
         IQI_Jump_Dof::evaluate_QI( Matrix< DDRMat >& aMat )
         {
             // get field interpolator for leader side
-            Field_Interpolator* tFILeader =
-                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get field interpolator for follower side
-            Field_Interpolator* tFIFollower =
-                    mFollowerFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            Field_Interpolator* tFIFollower = get_follower_fi_manager()->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // check that field interpolater exists
             MORIS_ASSERT( tFILeader != nullptr and tFIFollower != nullptr,
@@ -129,7 +128,7 @@ namespace moris
             // evaluate spatial derivative of dof
             if ( mSpatialDerivativeOrder > 0 )
             {
-                const Matrix< DDRMat >& tSpatialGradient = tFILeader->gradx( mSpatialDerivativeOrder ) - tFIFollower->gradx( mSpatialDerivativeOrder ) ;
+                const Matrix< DDRMat >& tSpatialGradient = tFILeader->gradx( mSpatialDerivativeOrder ) - tFIFollower->gradx( mSpatialDerivativeOrder );
 
                 aMat = { tSpatialGradient( mSpatialDerivativeDirection, mIQITypeIndex ) };
             }
@@ -137,7 +136,7 @@ namespace moris
             // evaluate time derivative of dof
             else if ( mTimeDerivativeOrder > 0 )
             {
-                const Matrix< DDRMat >& tTemporalGradient = tFILeader->gradt( mTimeDerivativeOrder ) - tFIFollower->gradt( mTimeDerivativeOrder ) ;
+                const Matrix< DDRMat >& tTemporalGradient = tFILeader->gradt( mTimeDerivativeOrder ) - tFIFollower->gradt( mTimeDerivativeOrder );
 
                 aMat = { tTemporalGradient( mIQITypeIndex ) };
             }
@@ -164,4 +163,3 @@ namespace moris
 
     } /* end namespace fem */
 } /* end namespace moris */
-

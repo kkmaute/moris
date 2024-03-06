@@ -23,24 +23,10 @@ namespace moris
 
         IWG_Diffusion_Bulk::IWG_Diffusion_Bulk()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Load" ]      = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "GGLSParam" ] = static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION );
+            init_property( "Load", IWG_Property_Type::BODY_LOAD );
+            init_property( "Thickness", IWG_Property_Type::THICKNESS );
+            init_constitutive_model( "Diffusion", IWG_Constitutive_Type::DIFFUSION );
+            init_stabilization_parameter( "GGLSParam", IWG_Stabilization_Type::GGLS_DIFFUSION );
         }
 
         //------------------------------------------------------------------------------
@@ -59,23 +45,19 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get residual dof type field interpolator (here temperature)
-            Field_Interpolator* tFITemp = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get body load property
-            const std::shared_ptr< Property >& tPropLoad =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tPropLoad = get_leader_property(IWG_Property_Type::BODY_LOAD);
 
             // get the elasticity CM
-            const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model(IWG_Constitutive_Type::DIFFUSION);
 
             // get the Stabilization Parameter
-            const std::shared_ptr< Stabilization_Parameter >& tGGLSParam =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
+            const std::shared_ptr< Stabilization_Parameter >& tGGLSParam = get_stabilization_parameter(IWG_Stabilization_Type::GGLS_DIFFUSION);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -126,35 +108,31 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for a given dof type
-            Field_Interpolator* tFITemp = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get body load property
-            const std::shared_ptr< Property >& tPropLoad =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            const std::shared_ptr< Property >& tPropLoad = get_leader_property(IWG_Property_Type::BODY_LOAD);
 
             // get the elasticity CM
-            const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            const std::shared_ptr< Constitutive_Model >& tCMDiffusion = get_leader_constitutive_model(IWG_Constitutive_Type::DIFFUSION);
 
             // get the Stabilization Parameter
-            const std::shared_ptr< Stabilization_Parameter >& tGGLSParam =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
+            const std::shared_ptr< Stabilization_Parameter >& tGGLSParam = get_stabilization_parameter(IWG_Stabilization_Type::GGLS_DIFFUSION);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // loop over leader dof type dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -254,23 +232,23 @@ namespace moris
             //            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
             //
             //            // get residual dof type field interpolator (here temperature)
-            //            Field_Interpolator * tFITemp = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            //            Field_Interpolator * tFITemp = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
             //
             //            // get body load property
             //            std::shared_ptr< Property > tPropLoad
-            //            = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+            //            = get_leader_property(IWG_Property_Type::BODY_LOAD);
             //
             //            // get density property
             //            std::shared_ptr< Property > tPropDensity
-            //            = mLeaderProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+            //            = get_leader_property(IWG_Property_Type::DENSITY);
             //
             //            // get heat capacity property
             //            std::shared_ptr< Property > tPropHeatCapacity
-            //            = mLeaderProp( static_cast< uint >( IWG_Property_Type::HEAT_CAPACITY ) );
+            //            = get_leader_property(IWG_Property_Type::HEAT_CAPACITY);
             //
             //            // get the elasticity CM
             //            std::shared_ptr< Constitutive_Model > tCMDiffusion
-            //            = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+            //            = get_leader_constitutive_model(IWG_Constitutive_Type::DIFFUSION);
             //
             //            // get number of leader dv dependencies
             //            uint tNumDvDependencies = mLeaderGlobalDvTypes.size();

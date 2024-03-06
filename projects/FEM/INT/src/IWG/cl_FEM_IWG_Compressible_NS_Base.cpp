@@ -106,7 +106,7 @@ namespace moris
                     "IWG_Compressible_NS_Base::assemble_jacobian() - Only pressure or density primitive variables supported for jacobian assembly." );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ),
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, get_requested_leader_dof_types() ),
                     "IWG_Compressible_NS_Base::assemble_jacobian() - Set of DoF dependencies not suppported." );
 
             // loop over residual dof types
@@ -124,19 +124,19 @@ namespace moris
                 uint tStdResStopIndex  = this->get_assembly_indices( mResidualDofType( iResDof )( 0 ) )( 1 );
 
                 // loop over dependent dof types
-                for ( uint iDepDof = 0; iDepDof < mRequestedLeaderGlobalDofTypes.size(); iDepDof++ )
+                for ( uint iDepDof = 0; iDepDof < get_requested_leader_dof_types().size(); iDepDof++ )
                 {
                     // get index for dependent dof types
                     sint tDepDofIndex =
-                            mSet->get_dof_index_for_type( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ), mtk::Leader_Follower::LEADER );
+                            mSet->get_dof_index_for_type( get_requested_leader_dof_types()( iDepDof )( 0 ), mtk::Leader_Follower::LEADER );
 
                     // get dependent variable indices for assembly
                     uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 0 );
                     uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 1 );
 
                     // get indices, where corresponding dof entries sit in standardized residual
-                    uint tStdDepStartIndex = this->get_assembly_indices( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ) )( 0 );
-                    uint tStdDepStopIndex  = this->get_assembly_indices( mRequestedLeaderGlobalDofTypes( iDepDof )( 0 ) )( 1 );
+                    uint tStdDepStartIndex = this->get_assembly_indices( get_requested_leader_dof_types()( iDepDof )( 0 ) )( 0 );
+                    uint tStdDepStopIndex  = this->get_assembly_indices( get_requested_leader_dof_types()( iDepDof )( 0 ) )( 1 );
 
                     // assemble into set jacobian
                     mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex }, { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
@@ -192,7 +192,7 @@ namespace moris
         IWG_Compressible_NS_Base::num_space_dims()
         {
             // get number of spatial dimensions from velocity, momentum, etc. field interpolator
-            return mLeaderFIManager->get_field_interpolators_for_type( mVectorDof )->get_number_of_fields();
+            return get_leader_fi_manager()->get_field_interpolators_for_type( mVectorDof )->get_number_of_fields();
         }
 
         //------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ namespace moris
         IWG_Compressible_NS_Base::num_bases()
         {
             // get number of bases from first state var FI
-            return mLeaderFIManager->get_field_interpolators_for_type( mFirstDof )->get_number_of_space_time_bases();
+            return get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof )->get_number_of_space_time_bases();
         }
 
         //------------------------------------------------------------------------------
@@ -222,9 +222,9 @@ namespace moris
                     "IWG_Compressible_NS_Base::Y() - check for residual DoF types failed. See Error message above for more info." );
 
             // get field interpolators
-            Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
-            Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
+            Field_Interpolator* tFI1 = get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator* tFI2 = get_leader_fi_manager()->get_field_interpolators_for_type( mVectorDof );
+            Field_Interpolator* tFI3 = get_leader_fi_manager()->get_field_interpolators_for_type( mLastDof );
 
             // clang-format off
             // construct Y - vector based on the number of space dims
@@ -285,9 +285,9 @@ namespace moris
                     "IWG_Compressible_NS_Base::dYdt() - check for residual DoF types failed. See Error message above for more info." );
 
             // get field interpolators
-            Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
-            Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
+            Field_Interpolator* tFI1 = get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator* tFI2 = get_leader_fi_manager()->get_field_interpolators_for_type( mVectorDof );
+            Field_Interpolator* tFI3 = get_leader_fi_manager()->get_field_interpolators_for_type( mLastDof );
 
             // clang-format off
             // construct Y - vector based on the number of space dims
@@ -346,9 +346,9 @@ namespace moris
                     "IWG_Compressible_NS_Base::dYdx() - check for residual DoF types failed. See Error message above for more info." );
 
             // get field interpolators
-            Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
-            Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
+            Field_Interpolator* tFI1 = get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator* tFI2 = get_leader_fi_manager()->get_field_interpolators_for_type( mVectorDof );
+            Field_Interpolator* tFI3 = get_leader_fi_manager()->get_field_interpolators_for_type( mLastDof );
 
             // clang-format off
             // construct Y - vector based on the number of space dims
@@ -443,9 +443,9 @@ namespace moris
                     "IWG_Compressible_NS_Base::d2Ydx2() - check for residual DoF types failed. See Error message above for more info." );
 
             // get field interpolators
-            Field_Interpolator* tFI1 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
-            Field_Interpolator* tFI2 = mLeaderFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator* tFI3 = mLeaderFIManager->get_field_interpolators_for_type( mLastDof );
+            Field_Interpolator* tFI1 = get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator* tFI2 = get_leader_fi_manager()->get_field_interpolators_for_type( mVectorDof );
+            Field_Interpolator* tFI3 = get_leader_fi_manager()->get_field_interpolators_for_type( mLastDof );
 
             // clang-format off
             // construct Y - vector based on the number of space dims
@@ -525,7 +525,7 @@ namespace moris
 
             // get representative values for the different basis function vectors
             // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
-            Field_Interpolator * tFI =  mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator * tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof );
             Matrix< DDRMat > tN = tFI->N()( { 0, 0 }, { 0, this->num_bases() - 1 } );
 
             // go through residual dof types and assemble the test function matrix
@@ -585,7 +585,7 @@ namespace moris
 
             // get representative values for the different basis function vectors
             // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
-            Field_Interpolator * tFI =  mLeaderFIManager->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator * tFI = get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof );
             Matrix< DDRMat > tdNdt = tFI->dnNdtn( 1 )( { 0, 0 }, { 0, this->num_bases() - 1 } );
 
             // go through residual dof types and assemble the test function matrix
@@ -648,7 +648,7 @@ namespace moris
 
             // get representative values for the different basis function vectors
             // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
-            Matrix< DDRMat > tdNdx = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof )->dnNdxn( 1 );
+            Matrix< DDRMat > tdNdx = get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof )->dnNdxn( 1 );
 
             // go through residual dof types and assemble the test function matrix
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
@@ -722,7 +722,7 @@ namespace moris
 
             // get representative values for the different basis function vectors
             // NOTE: only works under the assumption that all state variable fields are interpolated on the same mesh
-            Matrix< DDRMat > td2Ndx2 = mLeaderFIManager->get_field_interpolators_for_type( mFirstDof )->dnNdxn( 2 );
+            Matrix< DDRMat > td2Ndx2 = get_leader_fi_manager()->get_field_interpolators_for_type( mFirstDof )->dnNdxn( 2 );
 
             // go through residual dof types and assemble the test function matrix
             for ( uint iVar = 0; iVar < tNumStateVars; iVar++ )
@@ -757,11 +757,11 @@ namespace moris
             mAEval = false;
 
             // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            std::shared_ptr< Material_Model > tMM = get_leader_material_model(IWG_Material_Type::FLUID_MM);
+            std::shared_ptr< Constitutive_Model > tCM = get_leader_constitutive_model(IWG_Constitutive_Type::FLUID_CM);
 
             // evaluate A-matrices and store them
-            eval_A( tMM, tCM, mLeaderFIManager, mResidualDofType, mA );
+            eval_A( tMM, tCM, get_leader_fi_manager(), mResidualDofType, mA );
 
             // return requested value
             return mA( aK );
@@ -787,11 +787,11 @@ namespace moris
             mKEval = false;
 
             // get the viscosity
-            std::shared_ptr< Property > tPropDynamicViscosity = mLeaderProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropThermalConductivity = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+            std::shared_ptr< Property > tPropDynamicViscosity = get_leader_property(IWG_Property_Type::DYNAMIC_VISCOSITY);
+            std::shared_ptr< Property > tPropThermalConductivity = get_leader_property(IWG_Property_Type::THERMAL_CONDUCTIVITY);
 
             // eval K matrices and store them
-            eval_K( tPropDynamicViscosity, tPropThermalConductivity, mLeaderFIManager, mK );
+            eval_K( tPropDynamicViscosity, tPropThermalConductivity, get_leader_fi_manager(), mK );
 
             // return requested K matrix
             return mK( aI )( aJ );
@@ -815,11 +815,11 @@ namespace moris
             mKijiEval = false;
 
             // get the viscosity
-            std::shared_ptr< Property > tPropDynamicViscosity = mLeaderProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropThermalConductivity = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+            std::shared_ptr< Property > tPropDynamicViscosity = get_leader_property(IWG_Property_Type::DYNAMIC_VISCOSITY);
+            std::shared_ptr< Property > tPropThermalConductivity = get_leader_property(IWG_Property_Type::THERMAL_CONDUCTIVITY);
 
             // eval spatial derivatives of K matrices and store them
-            eval_dKijdxi( tPropDynamicViscosity, tPropThermalConductivity, mLeaderFIManager, mKiji );
+            eval_dKijdxi( tPropDynamicViscosity, tPropThermalConductivity, get_leader_fi_manager(), mKiji );
 
             // return requested Kiji matrix
             return mKiji( aJ );
@@ -839,7 +839,7 @@ namespace moris
             mCEval = false;
 
             // get the body heat load
-            std::shared_ptr< Property > tPropBodyHeatLoad = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            std::shared_ptr< Property > tPropBodyHeatLoad = get_leader_property(IWG_Property_Type::BODY_HEAT_LOAD);
             real tQ = 0.0;
             if ( tPropBodyHeatLoad != nullptr )
             {
@@ -847,10 +847,10 @@ namespace moris
             }
 
             // FIXME: body force not considered yet
-            // std::shared_ptr< Property > tPropBodyForce = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
+            // std::shared_ptr< Property > tPropBodyForce = get_leader_property(IWG_Property_Type::BODY_FORCE);
 
             // get the material model
-            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Material_Model > tMM = get_leader_material_model(IWG_Material_Type::FLUID_MM);
 
             // get number of state variables
             uint tNumStateVars = this->num_space_dims() + 2;
@@ -875,7 +875,7 @@ namespace moris
                     "IWG_Compressible_NS_Base::dCdY_VR() - pre-multiplication vector of incorrect size." );
 
             // get the body heat load
-            std::shared_ptr< Property > tPropBodyHeatLoad = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            std::shared_ptr< Property > tPropBodyHeatLoad = get_leader_property(IWG_Property_Type::BODY_HEAT_LOAD);
             real tQ = 0.0;
             if ( tPropBodyHeatLoad != nullptr )
             {
@@ -883,10 +883,10 @@ namespace moris
             }
 
             // FIXME: body force not considered yet
-            // std::shared_ptr< Property > tPropBodyForce = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
+            // std::shared_ptr< Property > tPropBodyForce = get_leader_property(IWG_Property_Type::BODY_FORCE);
 
             // get the material model temperature
-            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Material_Model > tMM = get_leader_material_model(IWG_Material_Type::FLUID_MM);
             real tTemp = tMM->temperature()( 0 );
 
             // get last entry of Vr
@@ -915,7 +915,7 @@ namespace moris
             mdCdYEval = false;
 
             // get the body heat load
-            std::shared_ptr< Property > tPropBodyHeatLoad = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            std::shared_ptr< Property > tPropBodyHeatLoad = get_leader_property(IWG_Property_Type::BODY_HEAT_LOAD);
             real tQ = 0.0;
             if ( tPropBodyHeatLoad != nullptr )
             {
@@ -923,10 +923,10 @@ namespace moris
             }
 
             // FIXME: body force not considered yet
-            // std::shared_ptr< Property > tPropBodyForce = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
+            // std::shared_ptr< Property > tPropBodyForce = get_leader_property(IWG_Property_Type::BODY_FORCE);
 
             // get the material model temperature
-            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Material_Model > tMM = get_leader_material_model(IWG_Material_Type::FLUID_MM);
             real tTemp = tMM->temperature()( 0 );
 
             // get number of state variables

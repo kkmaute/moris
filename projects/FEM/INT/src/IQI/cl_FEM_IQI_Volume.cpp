@@ -20,16 +20,12 @@ namespace moris
 
         IQI_Volume::IQI_Volume()
         {
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Density" ] = static_cast< uint >( IQI_Property_Type::DENSITY );
+            init_property( "Density", IQI_Property_Type::DENSITY );
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_Volume::compute_QI( Matrix< DDRMat > & aQI )
+        void IQI_Volume::compute_QI( Matrix< DDRMat > &aQI )
         {
             // check the point is inside the bounded box
             if ( !this->is_within_box_bounds() )
@@ -38,8 +34,7 @@ namespace moris
             }
 
             // get density property
-            std::shared_ptr< Property > & tPropDensity =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+            std::shared_ptr< Property > const &tPropDensity = get_leader_property( IQI_Property_Type::DENSITY );
 
             // if density property
             if ( tPropDensity != nullptr )
@@ -50,7 +45,7 @@ namespace moris
             else
             {
                 // set density to 1
-                aQI = {{ 1.0 }};
+                aQI = { { 1.0 } };
             }
         }
 
@@ -65,11 +60,10 @@ namespace moris
             }
 
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get density property
-            std::shared_ptr< Property > & tPropDensity =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+            std::shared_ptr< Property > const &tPropDensity = get_leader_property( IQI_Property_Type::DENSITY );
 
             // if density property
             if ( tPropDensity != nullptr )
@@ -95,20 +89,19 @@ namespace moris
             }
 
             // get the column index to assemble in residual
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get density property
-            const std::shared_ptr< Property > & tPropDensity =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+            const std::shared_ptr< Property > &tPropDensity = get_leader_property( IQI_Property_Type::DENSITY );
 
             // get the number of leader dof type dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
 
             // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
+            for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDof );
 
                 // get leader index for residual dof type, indices for assembly
                 uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -129,8 +122,8 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void IQI_Volume::compute_dQIdu(
-                Vector< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+                Vector< MSI::Dof_Type > &aDofType,
+                Matrix< DDRMat >        &adQIdu )
         {
             // check the point is inside the bounded box
             if ( !this->is_within_box_bounds() )
@@ -139,8 +132,7 @@ namespace moris
             }
 
             // get density property
-            std::shared_ptr< Property > & tPropDensity =
-                    mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+            std::shared_ptr< Property > const &tPropDensity = get_leader_property( IQI_Property_Type::DENSITY );
 
             // Dof dependency
             if ( tPropDensity != nullptr && tPropDensity->check_dof_dependency( aDofType ) )
@@ -154,31 +146,27 @@ namespace moris
 
         bool IQI_Volume::is_within_box_bounds()
         {
-                // check if the box bounds are empty then skip
-                if ( mParameters.empty() ) 
-                {
-                        return true;
-                }
+            Vector< Matrix< DDRMat > > const &tParameters = get_parameters();
+            // check if the box bounds are empty then skip
+            if ( tParameters.empty() )
+            {
+                return true;
+            }
 
-                //if the box bounds are not empty then check if it is inside the box
-                else
-                {
-                        // get the coordinate 
-                        const Matrix<DDRMat> & tGaussPoint = mLeaderFIManager->get_IG_geometry_interpolator()->valx();
+            // if the box bounds are not empty then check if it is inside the box
+            
+            // get the coordinate
+            const Matrix< DDRMat > &tGaussPoint = get_leader_fi_manager()->get_IG_geometry_interpolator()->valx();
 
-                        //check if the calculation point coordinates are more then lower corner of the box 
-                        bool tLowerBound = std::equal(mParameters(0).begin(), mParameters(0).end(), tGaussPoint.begin(),tGaussPoint.end() , 
-                        [](real aA, real aB) -> bool { return aA < aB ;} );
-                        
-                        //check if the calculation point coordinates are less then upper corner of the box 
-                        bool tUpperBound = std::equal(tGaussPoint.begin(),tGaussPoint.end(), mParameters(1).begin(), mParameters(1).end(),
-                         [](real aA, real aB) -> bool { return aA < aB ;} );
-                        
-                        //combine the two bounds that satisfy both
-                        return tUpperBound and tLowerBound; 
-                }
+            // check if the calculation point coordinates are more then lower corner of the box
+            bool tLowerBound = std::equal( tParameters( 0 ).begin(), tParameters( 0 ).end(), tGaussPoint.begin(), tGaussPoint.end(), []( real aA, real aB ) -> bool { return aA < aB; } );
+
+            // check if the calculation point coordinates are less then upper corner of the box
+            bool tUpperBound = std::equal( tGaussPoint.begin(), tGaussPoint.end(), tParameters( 1 ).begin(), tParameters( 1 ).end(), []( real aA, real aB ) -> bool { return aA < aB; } );
+
+            // combine the two bounds that satisfy both
+            return tUpperBound and tLowerBound;
         }
 
-    }/* end namespace fem */
-}/* end namespace moris */
-
+    } /* end namespace fem */
+} /* end namespace moris */

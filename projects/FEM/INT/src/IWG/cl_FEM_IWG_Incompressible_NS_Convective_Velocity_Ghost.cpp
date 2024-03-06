@@ -26,12 +26,7 @@ namespace moris
         {
             // set ghost flag
             mIsGhost = true;
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "ConvectiveGhost" ] = static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST );
+            init_stabilization_parameter("ConvectiveGhost", IWG_Stabilization_Type::CONVECTIVE_GHOST);
         }
 
         //------------------------------------------------------------------------------
@@ -54,14 +49,13 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get the leader field interpolator for the residual dof type
-            Field_Interpolator * tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the follower field interpolator for the residual dof type
-            Field_Interpolator * tFIFollower  = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIFollower  = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the convective stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPConvective =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
+            const std::shared_ptr< Stabilization_Parameter > & tSPConvective = get_stabilization_parameter(IWG_Stabilization_Type::CONVECTIVE_GHOST);
 
             // get flattened derivatives dnNdxn for leader and follower
             Matrix< DDRMat > tLeaderdNdx;
@@ -110,14 +104,13 @@ namespace moris
             uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
             // get the leader field interpolator for residual dof type
-            Field_Interpolator * tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFILeader = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the follower field interpolator for residual dof type
-            Field_Interpolator * tFIFollower  = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIFollower  = get_follower_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the convective stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPConvective =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
+            const std::shared_ptr< Stabilization_Parameter > & tSPConvective = get_stabilization_parameter(IWG_Stabilization_Type::CONVECTIVE_GHOST);
 
             // get flattened derivatives dnNdxn for leader and follower
             Matrix< DDRMat > tLeaderdNdx;
@@ -126,14 +119,14 @@ namespace moris
             this->compute_dnNdxn( tFollowerdNdx, mtk::Leader_Follower::FOLLOWER );
 
             // get number of leader dependencies
-            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
-            uint tFollowerNumDofDependencies  = mRequestedFollowerGlobalDofTypes.size();
+            uint tLeaderNumDofDependencies = get_requested_leader_dof_types().size();
+            uint tFollowerNumDofDependencies  = get_requested_follower_dof_types().size();
 
             // compute the jacobian for indirect dof dependencies through leader
             for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Vector< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > const &tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -182,7 +175,7 @@ namespace moris
             for( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Vector< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+                Vector< MSI::Dof_Type > tDofType = get_requested_follower_dof_types()( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );

@@ -33,26 +33,11 @@ namespace moris
             // assign stress and strain type to evaluate the IWG
             mStressType = aStressType;
             mStrainType = aStrainType;
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
-            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-
-            // set size for the stabilization parameter pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-            mStabilizationMap[ "DirichletNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE );
+            init_property("Dirichlet", IWG_Property_Type::DIRICHLET);
+            init_property("Select", IWG_Property_Type::SELECT);
+            init_property("Thickness", IWG_Property_Type::THICKNESS);
+            init_constitutive_model("ElastLinIso", IWG_Constitutive_Type::ELAST_LIN_ISO);
+            init_stabilization_parameter("DirichletNitsche", IWG_Stabilization_Type::DIRICHLET_NITSCHE);
         }
 
         //------------------------------------------------------------------------------
@@ -71,11 +56,10 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator* tFIDispl = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIDispl = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property(IWG_Property_Type::SELECT);
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -93,20 +77,16 @@ namespace moris
             }
 
             // get the imposed displacement property
-            const std::shared_ptr< Property >& tPropDirichlet =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property >& tPropDirichlet = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get CM for elasticity
-            const std::shared_ptr< Constitutive_Model >& tCMElasticity =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMElasticity = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
             // get SP for Nitsche
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::DIRICHLET_NITSCHE);
 
             // get thickness property
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -118,8 +98,8 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                                                                 //
                     aWStar * (                                                                                                         //
-                            -tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal, mStressType )                                //
-                            + mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tJump    //
+                            -tFIDispl->N_trans() * tM * tCMElasticity->traction( get_normal(), mStressType )                                //
+                            + mBeta * tCMElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ), mStressType ) * tM * tJump    //
                             + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump );
 
             // check for nan, infinity
@@ -143,12 +123,10 @@ namespace moris
             uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator* tFIDispl =
-                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIDispl = get_leader_fi_manager()->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelect =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelect = get_leader_property(IWG_Property_Type::SELECT);
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -166,19 +144,15 @@ namespace moris
             }
 
             // get the imposed displacement property
-            const std::shared_ptr< Property >& tPropDirichlet =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+            const std::shared_ptr< Property >& tPropDirichlet = get_leader_property(IWG_Property_Type::DIRICHLET);
 
             // get CM for elasticity
-            const std::shared_ptr< Constitutive_Model >& tCMElasticity =
-                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMElasticity = get_leader_constitutive_model(IWG_Constitutive_Type::ELAST_LIN_ISO);
 
             // get SP for Nitsche
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche = get_stabilization_parameter(IWG_Stabilization_Type::DIRICHLET_NITSCHE);
 
-            const std::shared_ptr< Property >& tPropThickness =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+            const std::shared_ptr< Property >& tPropThickness = get_leader_property(IWG_Property_Type::THICKNESS);
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -187,11 +161,11 @@ namespace moris
             Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();
 
             // get number of dof dependencies
-            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tNumDofDependencies = get_requested_leader_dof_types().size();
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+                const Vector< MSI::Dof_Type >& tDofType = get_requested_leader_dof_types()( iDOF );
 
                 // get the index for dof type, indices for assembly
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
@@ -208,7 +182,7 @@ namespace moris
                 {
                     // compute the jacobian for direct dof dependencies
                     tJac += aWStar * (                                                                                                               //
-                                    mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tFIDispl->N()    //
+                                    mBeta * tCMElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ), mStressType ) * tM * tFIDispl->N()    //
                                     + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tFIDispl->N() );
                 }
 
@@ -217,7 +191,7 @@ namespace moris
                 {
                     // add contribution to jacobian
                     tJac -= aWStar * (                                                                                                                                       //
-                                    mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
+                                    mBeta * tCMElasticity->testTraction_trans( get_normal(), mResidualDofType( 0 ), mStressType ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
                                     + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
@@ -226,8 +200,8 @@ namespace moris
                 {
                     // add contribution to jacobian
                     tJac += aWStar * (                                                                                            //
-                                    -tFIDispl->N_trans() * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal, mStressType )    //
-                                    + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ), mStressType ) );
+                                    -tFIDispl->N_trans() * tM * tCMElasticity->dTractiondDOF( tDofType, get_normal(), mStressType )    //
+                                    + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, get_normal(), tM * tJump, mResidualDofType( 0 ), mStressType ) );
                 }
 
                 // if dependency on the dof type

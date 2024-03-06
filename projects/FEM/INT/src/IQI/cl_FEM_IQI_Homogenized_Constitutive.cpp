@@ -23,18 +23,8 @@ namespace moris
         {
             // set fem IQI type
             mFEMIQIType = fem::IQI_Type::HOMOGENIZED_CONSTITUTIVE;
-
-            // set size for the constitutive model pointer cell
-            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mConstitutiveMap[ "Elast" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
-
-            // set size for the property pointer cell
-            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-            // populate the property map
-            mPropertyMap[ "EigenStrain" ] = static_cast< uint >( IQI_Property_Type::EIGEN_STRAIN );
+            init_constitutive_model( "Elast", IQI_Constitutive_Type::ELAST_LIN_ISO );
+            init_property( "EigenStrain", IQI_Property_Type::EIGEN_STRAIN );
         }
 
         //------------------------------------------------------------------------------
@@ -43,8 +33,7 @@ namespace moris
         IQI_Homogenized_Constitutive::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get the const. model pointer element corresponding to elasticity from the cell
-            std::shared_ptr< fem::Constitutive_Model >& tCMElasticity =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+            std::shared_ptr< fem::Constitutive_Model > const & tCMElasticity = get_leader_constitutive_model( IQI_Constitutive_Type::ELAST_LIN_ISO );
 
             // Jacob Fish 2014, Practical Multiscaling, 2.2.1 Tow-Scale Formulation
             // note: strain = elastic strain
@@ -59,11 +48,10 @@ namespace moris
         IQI_Homogenized_Constitutive::compute_QI( real aWStar )
         {
             // get index for QI
-            sint tQIIndex = mSet->get_QI_assembly_index( mName );
+            sint tQIIndex = mSet->get_QI_assembly_index( get_name() );
 
             // get the const. model pointer element corresponding to elasticity from the cell
-            std::shared_ptr< fem::Constitutive_Model >& tCMElasticity =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+            std::shared_ptr< fem::Constitutive_Model > const & tCMElasticity = get_leader_constitutive_model( IQI_Constitutive_Type::ELAST_LIN_ISO );
 
             // Jacob Fish 2014, Practical Multiscaling, 2.2.1 Tow-Scale Formulation
             // note: strain = elastic strain
