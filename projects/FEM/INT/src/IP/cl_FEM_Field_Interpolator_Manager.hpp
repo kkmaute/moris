@@ -26,7 +26,6 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"    //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                     //FEM/INT/src
 #include "cl_FEM_Node.hpp"                      //FEM/INT/src
-#include "cl_FEM_IWG.hpp"                       //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp"     //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"        //FEM/INT/src
 #include "cl_MTK_Integrator.hpp"                //FEM/INT/src
@@ -37,6 +36,7 @@ namespace moris
     namespace fem
     {
         class Set;
+        class IWG;
         //------------------------------------------------------------------------------
         /**
          * Field interpolator manager
