@@ -127,7 +127,7 @@ namespace moris
         // number of elements on proc
 
         uint
-        get_num_my_blocks()
+        get_num_sets()
         {
             return 1;
         }

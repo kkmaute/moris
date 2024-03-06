@@ -334,9 +334,14 @@ namespace moris
              * \brief Get the displacement for every node in the set.
              * \return A map from the node index to the displacement vector.
              */
-            virtual std::map< moris_index, Vector< real > > get_nodal_displacements( std::set< moris_index > aRequestedNodes) = 0;
+            virtual std::map< moris_index, Vector< real > > get_nodal_displacements( std::set< moris_index > aRequestedNodes){
+                MORIS_ERROR( false, "Equation_Set::get_nodal_displacements - not implemented for virtual member function" );
+                return std::map< moris_index, Vector< real > >();
+            };
 
-            virtual void update() = 0;
+            virtual void update(){
+                MORIS_ERROR( false, "Equation_Set::update - not implemented for virtual member function" );
+            };
 
             //-------------------------------------------------------------------------------------------------
             /**
