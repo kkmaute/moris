@@ -15,19 +15,19 @@ namespace moris::fem
     {
       public:
         Model_Initializer_Phasebased(
-                Vector< Vector< ParameterList > >      aParameterList,
+                Vector< Vector< ParameterList > >                aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
                 mtk::Mesh_Pair const                            *aMeshPair,
                 uint                                             aSpatialDimension,
                 bool                                             aUseNewGhostSets,
                 std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
                 : Model_Initializer(
-                        aParameterList,
-                        aMeshPair,
-                        aLibrary,
-                        aSpatialDimension,
-                        aUseNewGhostSets,
-                        aDofTypeToBsplineMeshIndex ){};
+                          aParameterList,
+                          aMeshPair,
+                          aLibrary,
+                          aSpatialDimension,
+                          aUseNewGhostSets,
+                          aDofTypeToBsplineMeshIndex ){};
 
       protected:
 
@@ -44,19 +44,27 @@ namespace moris::fem
         void print_physics_model() override;
 
       private:
+        std::string
+        read_phase_name( ParameterList const &aParameterList, mtk::Leader_Follower const aLeaderFollower ) const;
+
+        Vector< std::pair< std::shared_ptr< Constitutive_Model >, std::string > >
+        read_constitutive_models( ParameterList const &aParameterList, mtk::Leader_Follower const &tLeaderFollower );
+
+        Vector< std::pair< std::shared_ptr< Stabilization_Parameter >, std::string > >
+        read_stabilization_parameters( ParameterList const &aParameterList );
+
         void create_phases();
 
         void get_mesh_set_names(
-                fem::Element_Type           aBulkType,
-                const std::string          &aLeaderPhaseName,
-                const std::string          &aFollowerPhaseName,
-                const std::string          &aNeighborPhasesString,
-                const std::string          &aSideOrdinalsString,
-                bool                        aIsGhost,
+                fem::Element_Type      aBulkType,
+                const std::string     &aLeaderPhaseName,
+                const std::string     &aFollowerPhaseName,
+                const std::string     &aNeighborPhasesString,
+                const std::string     &aSideOrdinalsString,
+                bool                   aIsGhost,
                 Vector< std::string > &aMeshSetNames );
 
-        Vector< fem::Phase_User_Info > mPhaseInfo;
-        std::map< std::string, uint >       mPhaseMap;
+        std::map< std::string, std::shared_ptr< fem::Phase_User_Info > > mPhases;
     };
 }    // namespace moris::fem
 

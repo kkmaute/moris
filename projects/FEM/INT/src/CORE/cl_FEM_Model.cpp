@@ -435,7 +435,7 @@ namespace moris
             std::map< moris_index, Vector< real > > tNodalDisplacements;
             for ( auto const &tSet : mFemSets )
             {
-                if ( !tSet->is_empty_set() && !tRequestedIGNodes.empty() && tSet->get_set_name().find( "ghost" ) == std::string::npos)
+                if ( !tSet->is_empty_set() && !tRequestedIGNodes.empty() && tSet->get_set_name().find( "ghost" ) == std::string::npos )
                 {
                     // skip ghost sets
                     std::map< moris::moris_index, Vector< moris::real > > tNewNodes = tSet->get_nodal_displacements( tRequestedIGNodes );
@@ -497,11 +497,8 @@ namespace moris
                 mtk::Interpolation_Mesh *aIPMesh,
                 mtk::Integration_Mesh   *aIGMesh )
         {
-            // get number of fem sets
-            uint tNumFemSets = mSetInfo.size();
-
             // set size for list of equation sets
-            mFemSets.resize( tNumFemSets, nullptr );
+            mFemSets.resize( mSetInfo.size(), nullptr );
 
             // get number of IP cells
             uint tNumIPCells = aIPMesh->get_num_elems();
@@ -510,19 +507,12 @@ namespace moris
             mFemClusters.reserve( tNumIPCells );
 
             // loop over the used fem set
-            for ( luint iSet = 0; iSet < tNumFemSets; iSet++ )
+            uint iSet = 0;
+            for ( auto const &[ tSetSpec, tSetInfo ] : mSetInfo )
             {
-                // get the mesh set name
-                std::string tMeshSetName = mSetInfo( iSet ).get_mesh_set_name();
-
-                // get the mesh set index from its name
-                moris_index tMeshSetIndex = aIGMesh->get_set_index_by_name( tMeshSetName );
-
                 // fill the mesh set index to fem set index map
-                mMeshSetToFemSetMap[ std::make_tuple(
-                        tMeshSetIndex,
-                        mSetInfo( iSet ).get_time_continuity(),
-                        mSetInfo( iSet ).get_time_boundary() ) ] = iSet;
+                moris_index tMeshSetIndex                                                                                     = aIGMesh->get_set_index_by_name( std::get< 0 >( tSetSpec ) );
+                mMeshSetToFemSetMap[ std::make_tuple( tMeshSetIndex, std::get< 1 >( tSetSpec ), std::get< 2 >( tSetSpec ) ) ] = iSet;
 
                 // get the mesh set pointer
                 moris::mtk::Set *tMeshSet = aIGMesh->get_set_by_index( tMeshSetIndex );
@@ -534,7 +524,7 @@ namespace moris
                 if ( tNumClustersOnSet != 0 )
                 {
                     // create new fem set
-                    mFemSets( iSet ) = new fem::Set( this, tMeshSet, mSetInfo( iSet ), mIPNodes );
+                    mFemSets( iSet ) = new fem::Set( this, tMeshSet, tSetInfo, mIPNodes );
                 }
                 // if clusters don't exist on the set, create an empty set
                 else
@@ -551,6 +541,7 @@ namespace moris
 
                 // add equation objects collected to the current set
                 mFemClusters.append( tEquationObjectList );
+                iSet++;
             }
 
             // shrink to fit
@@ -824,10 +815,10 @@ namespace moris
                 }
             }
             tModelInitializer->initialize();
-            mSetInfo    = tModelInitializer->get_set_info();
-            mIQIs       = tModelInitializer->get_iqis();
-            mFields     = tModelInitializer->get_fields();
-            mFieldTypes = tModelInitializer->get_field_types();
+            mSetInfo         = tModelInitializer->get_set_info();
+            mIQIs            = tModelInitializer->get_iqis();
+            mFields          = tModelInitializer->get_fields();
+            mFieldTypeToName = tModelInitializer->get_field_type_to_name_map();
         }
 
         FEM_Model::~FEM_Model()
@@ -886,17 +877,18 @@ namespace moris
             for ( uint tRequestedIQIIndex = 0; tRequestedIQIIndex < mRequestedIQINames.size(); tRequestedIQIIndex++ )
             {
                 // IQI index
-                uint tIQIIndex = 0;
-                while ( tIQIIndex < mIQIs.size() and ( mIQIs( tIQIIndex )->get_name() not_eq mRequestedIQINames( tRequestedIQIIndex ) ) )
-                {
-                    tIQIIndex++;
-                }
-                MORIS_ASSERT( tIQIIndex < mIQIs.size(),
+                //                uint tIQIIndex = 0;
+                //                while ( tIQIIndex < mIQIs.size() and ( mIQIs( tIQIIndex )->get_name() not_eq mRequestedIQINames( tRequestedIQIIndex ) ) )
+                //                {
+                //                    tIQIIndex++;
+                //                }
+                MORIS_ASSERT( mIQIs.find( mRequestedIQINames( tRequestedIQIIndex ) ) != mIQIs.end(),
                         "IQI was not found with the requested name %s",
                         mRequestedIQINames( tRequestedIQIIndex ).c_str() );
+                std::shared_ptr< IQI > tIQI = mIQIs[ mRequestedIQINames( tRequestedIQIIndex ) ];
 
                 // Set normalization
-                std::string tNormalization = mParameterList( 4 )( tIQIIndex ).get< std::string >( "normalization" );
+                std::string tNormalization = tIQI->get_normalization_type();
                 if ( tNormalization == "none" )
                 {
                     // Do nothing
@@ -907,7 +899,7 @@ namespace moris
                 }
                 else if ( tNormalization == "design" )
                 {
-                    mIQIs( tRequestedIQIIndex )->set_reference_value( mGlobalIQIVal( tRequestedIQIIndex )( 0 ) );
+                    tIQI->set_reference_value( mGlobalIQIVal( tRequestedIQIIndex )( 0 ) );
                     mGlobalIQIVal( tRequestedIQIIndex )( 0 ) = 1.0;
                 }
                 else
@@ -915,7 +907,7 @@ namespace moris
                     // Try to set reference values directly
                     try
                     {
-                        mIQIs( tRequestedIQIIndex )->set_reference_value( string_to_mat< DDRMat >( tNormalization )( 0 ) );
+                        tIQI->set_reference_value( string_to_mat< DDRMat >( tNormalization )( 0 ) );
                     } catch ( ... )
                     {
                         // error
@@ -931,21 +923,18 @@ namespace moris
         const std::shared_ptr< fem::Field > &
         FEM_Model::get_field( mtk::Field_Type tFieldType )
         {
-            size_t tIndex = mFieldTypes( static_cast< sint >( tFieldType ) );
-            return mFields( tIndex );
+            return mFields.at( mFieldTypeToName.at( static_cast< sint >( tFieldType ) ) );
         }
 
 
         Vector< std::shared_ptr< mtk::Field > >
         FEM_Model::get_fields()
         {
-            Vector< std::shared_ptr< mtk::Field > > tFields( mFields.size(), nullptr );
-
-            for ( uint Ik = 0; Ik < mFields.size(); Ik++ )
+            Vector< std::shared_ptr< mtk::Field > > tFields;
+            for ( auto [ tFieldName, tField ] : mFields )
             {
-                tFields( Ik ) = mFields( Ik );
+                tFields.push_back( tField );
             }
-
             return tFields;
         }
 
@@ -966,28 +955,27 @@ namespace moris
             tFieldToPopulate.reserve( mFields.size() );
             tFieldIQINames.reserve( mFields.size() );
 
-            for ( uint iField = 0; iField < mFields.size(); iField++ )
+            for ( auto const &[ tFieldName, tField ] : mFields )
             {
-                if ( mFields( iField )->get_populate_field_with_IQI() )
+                if ( tField->get_populate_field_with_IQI() )
                 {
-                    tFieldToPopulate.push_back( mFields( iField ) );
-                    tFieldIQINames.push_back( mFields( iField )->get_IQI_name() );
+                    tFieldToPopulate.push_back( tField );
+                    tFieldIQINames.push_back( tField->get_IQI_name() );
                 }
             }
 
-            for ( uint iSet = 0; iSet < mFemSets.size(); iSet++ )
+            for ( auto const &tFemSet : mFemSets )
             {
-                if ( mFemSets( iSet )->get_element_type() == Element_Type::BULK )
+                if ( tFemSet->get_element_type() == Element_Type::BULK )
                 {
-                    mFemSets( iSet )->populate_fields( tFieldToPopulate, tFieldIQINames );
+                    tFemSet->populate_fields( tFieldToPopulate, tFieldIQINames );
                 }
             }
 
             // output fields to file. // FIXME: better should be done somewhere else.
-            for ( uint iSet = 0; iSet < mFields.size(); iSet++ )
+            for ( auto const &[ _, tField ] : mFields )
             {
-                mFields( iSet )->output_field_to_file();
-
+                tField->output_field_to_file();
                 // mFields( iSet )->save_field_to_exodus( "FEM_Field.Exo" );
             }
         }
@@ -1002,11 +990,9 @@ namespace moris
             uint tCounter = 0;
 
             // loop over all IQIs and build a name to index map
-            for ( const std::shared_ptr< IQI > &tIQI : mIQIs )
+            for ( auto const &[ tIQIName, tIQI ] : mIQIs )
             {
-                std::string tIQIName = tIQI->get_name();
-
-                mIQINameToIndexMap[ tIQIName ] = tCounter++;
+                mIQINameToIndexMap[ tIQIName ] = tCounter++; // TODO @ff: Check this!
             }
         }
 
@@ -1028,11 +1014,8 @@ namespace moris
 
             for ( auto &tQI : mGlobalIQIVal )
             {
-                // use the map to get the IQI index of requested IQI
-                moris_index tIQIIndex = mIQINameToIndexMap[ mRequestedIQINames( iIQICounter ) ];
-
                 // get the matrix dimension of the IQI
-                std::pair< uint, uint > tMatrixDim = mIQIs( tIQIIndex )->get_matrix_dim();
+                std::pair< uint, uint > tMatrixDim = mIQIs[ mRequestedIQINames( iIQICounter ) ]->get_matrix_dim();
 
                 // set size for the QI value and initialize the value with 0
                 tQI.set_size( tMatrixDim.first, tMatrixDim.second, 0.0 );
