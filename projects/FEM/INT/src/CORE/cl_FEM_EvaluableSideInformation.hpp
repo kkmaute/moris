@@ -34,12 +34,14 @@ namespace moris::fem
         template< typename T >
         using TypeList = Vector< Vector< T > >;
 
-        [[nodiscard]] std::string const                 &get_phase_name() const { return mPhaseName; }
-        void                                             set_phase_name( std::string const &aPhaseName ) { mPhaseName = aPhaseName; }
+        [[nodiscard]] std::string const &get_phase_name() const { return mPhaseName; }
+        void                             set_phase_name( std::string const &aPhaseName ) { mPhaseName = aPhaseName; }
+        [[nodiscard]] bool               is_staggered() const { return mIsStaggered; }
+        void                             set_is_staggered( bool aIsStaggered );
         [[nodiscard]] TypeList< MSI::Dof_Type > const   &get_dof_types() const { return mDofTypes; }
         void                                             set_dof_types( TypeList< MSI::Dof_Type > const &aDofTypes ) { mDofTypes = aDofTypes; }
         [[nodiscard]] TypeList< MSI::Dof_Type > const   &get_global_dof_types( std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > const &aStabilizationParameter );
-        [[nodiscard]] TypeList< MSI::Dof_Type > const   &get_requested_global_dof_types( bool aIsStaggered, std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > const &aStabilizationParameter );
+        [[nodiscard]] TypeList< MSI::Dof_Type > const   &get_requested_global_dof_types(  std::map<std::string, std::shared_ptr< fem::Stabilization_Parameter > > const &aStabilizationParameter );
         [[nodiscard]] TypeList< gen::PDV_Type > const   &get_dv_types() const { return mDvTypes; }
         void                                             set_dv_types( TypeList< gen::PDV_Type > const &aDvTypes ) { mDvTypes = aDvTypes; }
         [[nodiscard]] TypeList< gen::PDV_Type > const   &get_global_dv_types( std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > const &aStabilizationParameter );
@@ -51,7 +53,7 @@ namespace moris::fem
                 std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > const &aStabilizationParameter,
                 Vector< MSI::Dof_Type >                                                        &aDofTypes,
                 Vector< gen::PDV_Type >                                                        &aDvTypes,
-                Vector< mtk::Field_Type >                                                      &aFieldTypes );
+                Vector< mtk::Field_Type >                                                      &aFieldTypes ) const;
 
         template< typename EnumType >
         void                                                                      init_property( std::string const &aPropertyName, EnumType const aPropertyType );
@@ -91,7 +93,7 @@ namespace moris::fem
         void ensure_valid_option( std::map< std::string, std::shared_ptr< T > > aMap, std::string const &aOption, std::string const &tContext ) const;
 
       private:
-        Vector< Vector< MSI::Dof_Type > > build_requested_dof_types( bool aIsStaggered, std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > const &aStabilizationParameter );
+        Vector< Vector< MSI::Dof_Type > > build_requested_dof_types( std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > const &aStabilizationParameter );
 
         template< typename T >
         TypeList< T > build_global_types( std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > aStabilizationParameter, TypeList< T > const &aLocalTypes );
@@ -103,21 +105,21 @@ namespace moris::fem
         sint get_type_index_from_set( T aType );
 
         template< typename P, typename T >
-        const TypeList< T > get_types_from_spec( const std::shared_ptr< P > &aSpec ) const { return TypeList< T >{}; }
+        const TypeList< T > get_types_from_spec( const std::shared_ptr< P > &aSpec ) const;
 
         template< typename P, typename T >
         void populate_global_types_from_spec( std::map< std::string, std::shared_ptr< P > > const &aMap, TypeList< T > &aGlobalTypes, Matrix< DDSMat > aCheckList );
 
         using NonUniqueTypes = std::tuple< Vector< MSI::Dof_Type >, Vector< gen::PDV_Type >, Vector< mtk::Field_Type > >;
         template< typename P >
-        NonUniqueTypes get_non_unique_types_from_spec( const std::shared_ptr< P > &aSpec ) const { return NonUniqueTypes{ {}, {}, {} }; }
+        NonUniqueTypes get_non_unique_types_from_spec( const std::shared_ptr< P > &aSpec ) const;
 
         template< typename P >
         void populate_non_unique_types_from_spec(
                 std::map< std::string, std::shared_ptr< P > > const &aSpecificationMap,
-                Vector< MSI::Dof_Type >                              aDofTypes,
-                Vector< gen::PDV_Type >                              aDvTypes,
-                Vector< mtk::Field_Type >                            aFieldTypes ) const
+                Vector< MSI::Dof_Type >                             &aDofTypes,
+                Vector< gen::PDV_Type >                             &aDvTypes,
+                Vector< mtk::Field_Type >                           &aFieldTypes ) const
         {
             for ( auto const &[ _, tSpec ] : aSpecificationMap )
             {
@@ -133,7 +135,8 @@ namespace moris::fem
 
       private:
         mtk::Leader_Follower const mLeaderFollower;
-        Set                       *mSet = nullptr;
+        Set                       *mSet         = nullptr;
+        bool                       mIsStaggered = false;
 
         std::string                 mPhaseName;
         TypeList< MSI::Dof_Type >   mDofTypes;
@@ -199,55 +202,5 @@ namespace moris::fem
         }
     }
 
-    template< typename T >
-    sint EvaluableSideInformation::get_type_index_from_set( T aType ) { return 0; }
-
-
-    template< typename T >
-    EvaluableSideInformation::TypeList< T > EvaluableSideInformation::build_global_types(
-            std::map< std::string, std::shared_ptr< fem::Stabilization_Parameter > > aStabilizationParameter,
-            TypeList< T > const                                                     &aLocalTypes )
-    {
-        uint const       tNumberOfUniqueTypes = get_number_of_unique_types< T >();
-        Matrix< DDSMat > tCheckList( tNumberOfUniqueTypes, 1, -1 );    // (used to avoid repeating a dof or a dv type)
-
-        TypeList< T > tGlobalTypes;
-        for ( uint iType = 0; iType < aLocalTypes.size(); iType++ )
-        {
-            sint tTypeIndex          = get_type_index_from_set< T >( aLocalTypes( iType )( 0 ) );    // get set index for dof type
-            tCheckList( tTypeIndex ) = 1;                                                            // put the dof type in the checklist
-            tGlobalTypes.push_back( aLocalTypes( iType ) );                                          // put the dof type in the global type list
-        }
-
-        populate_global_types_from_spec< Property, T >( mProperties, tGlobalTypes, tCheckList );
-        populate_global_types_from_spec< Constitutive_Model, T >( mConstitutiveModels, tGlobalTypes, tCheckList );
-        populate_global_types_from_spec< Material_Model, T >( mMaterialModel, tGlobalTypes, tCheckList );
-        populate_global_types_from_spec< fem::Stabilization_Parameter, T >( aStabilizationParameter, tGlobalTypes, tCheckList );
-
-        tGlobalTypes.shrink_to_fit();
-        return tGlobalTypes;
-    }
-
-    template< typename P, typename T >
-    void EvaluableSideInformation::populate_global_types_from_spec( std::map< std::string, std::shared_ptr< P > > const &aMap, TypeList< T > &aGlobalTypes, Matrix< DDSMat > aCheckList )
-    {
-        for ( auto const &[ _, tSpec ] : aMap )
-        {
-            if ( tSpec != nullptr )
-            {
-                // get types (dof, dv, field) from specification (property, constitutive model, material model, stabilization parameter)
-                const TypeList< T > tActiveTypes = get_types_from_spec< P, T >( tSpec );
-                for ( uint iType = 0; iType < tActiveTypes.size(); iType++ )
-                {
-                    sint tDofTypeIndex = get_type_index_from_set< T >( tActiveTypes( iType )( 0 ) );    // get set index for type (dof, dv, field)
-                    if ( aCheckList( tDofTypeIndex ) != 1 )                                             // if type enum not in the list
-                    {
-                        aCheckList( tDofTypeIndex ) = 1;                    // put the dof type in the checklist
-                        aGlobalTypes.push_back( tActiveTypes( iType ) );    // put the dof type in the global type list
-                    }
-                }
-            }
-        }
-    }
 
 }    // namespace moris::fem

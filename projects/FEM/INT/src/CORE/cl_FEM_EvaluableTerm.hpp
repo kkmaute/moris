@@ -53,64 +53,71 @@ namespace moris::fem
         void                                     set_parameters( Vector< Matrix< DDRMat > > const & aParameters ) { mParameters = aParameters; }
 
         bool is_active_cluster_measure() const { return mIsActiveClusterMeasure; }
+        bool is_staggered() const { return get_leader_side_c().is_staggered(); }
+        void set_is_staggered( bool aIsStaggered )
+        {
+            get_leader_side().set_is_staggered( aIsStaggered );
+            get_follower_side().set_is_staggered( aIsStaggered );
+        }
 
         void print_names() const;
 
-        Field_Interpolator_Manager* get_field_interpolator_manager( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_fi_manager(); }
+        Field_Interpolator_Manager* get_field_interpolator_manager( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side_c( aIsLeader ).get_fi_manager(); }
         Field_Interpolator_Manager* get_leader_fi_manager() const { return get_field_interpolator_manager( Leader_Follower::LEADER ); }
         Field_Interpolator_Manager* get_follower_fi_manager() const { return get_field_interpolator_manager( Leader_Follower::FOLLOWER ); }
         void                        set_field_interpolator_manager( Field_Interpolator_Manager* aFieldInterpolatorManager, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
-        Field_Interpolator_Manager* get_field_interpolator_manager_eigen_vector( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_eigen_vector_fi_manager(); }
+        Field_Interpolator_Manager* get_field_interpolator_manager_eigen_vector( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side_c( aIsLeader ).get_eigen_vector_fi_manager(); }
         Field_Interpolator_Manager* get_leader_fi_manager_eigen_vector() const { return get_field_interpolator_manager_eigen_vector( Leader_Follower::LEADER ); }
         Field_Interpolator_Manager* get_follower_fi_manager_eigen_vector() const { return get_field_interpolator_manager_eigen_vector( Leader_Follower::FOLLOWER ); }
         void                        set_field_interpolator_manager_eigen_vector( Field_Interpolator_Manager* aFieldInterpolatorManager, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
-        Field_Interpolator_Manager* get_field_interpolator_manager_previous_time( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_previous_fi_manager(); }
+        Field_Interpolator_Manager* get_field_interpolator_manager_previous_time( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side_c( aIsLeader ).get_previous_fi_manager(); }
         Field_Interpolator_Manager* get_leader_fi_manager_previous_time() const { return get_field_interpolator_manager_previous_time( Leader_Follower::LEADER ); }
         Field_Interpolator_Manager* get_follower_fi_manager_previous_time() const { return get_field_interpolator_manager_previous_time( Leader_Follower::FOLLOWER ); }
         void                        set_field_interpolator_manager_previous_time( Field_Interpolator_Manager* aFieldInterpolatorManager, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         void                      set_phase_name( std::string aPhaseName, Leader_Follower aIsLeader = Leader_Follower::LEADER ) { get_side( aIsLeader ).set_phase_name( aPhaseName ); };
-        [[nodiscard]] std::string get_phase_name( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_phase_name(); };
+        [[nodiscard]] std::string get_phase_name( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side_c( aIsLeader ).get_phase_name(); };
 
         void                                            set_dof_type_list( Vector< Vector< MSI::Dof_Type > > const & aDofTypes, Leader_Follower aIsLeader = Leader_Follower::LEADER ) { get_side( aIsLeader ).set_dof_types( aDofTypes ); }
-        [[nodiscard]] Vector< Vector< MSI::Dof_Type > > get_dof_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_dof_types(); }
+        [[nodiscard]] Vector< Vector< MSI::Dof_Type > > get_dof_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side_c( aIsLeader ).get_dof_types(); }
         Vector< Vector< MSI::Dof_Type > > const &       get_global_dof_type_list( mtk::Leader_Follower aIsLeader = Leader_Follower::LEADER );
-        Vector< Vector< MSI::Dof_Type > > const &       get_requested_dof_type_list( bool aIsStaggered, mtk::Leader_Follower aIsLeader );
-
+        Vector< Vector< MSI::Dof_Type > > const &       get_requested_dof_type_list( mtk::Leader_Follower aIsLeader );
+        Vector< Vector< MSI::Dof_Type > > const & get_requested_leader_dof_types() { return get_requested_dof_type_list(  mtk::Leader_Follower::LEADER ); };    // never staggered
+        Vector< Vector< MSI::Dof_Type > > const & get_requested_follower_dof_types() { return get_requested_dof_type_list(  mtk::Leader_Follower::FOLLOWER ); };    // never staggered
         void                                            set_dv_type_list( Vector< Vector< gen::PDV_Type > > const & aDvTypes, Leader_Follower aIsLeader = Leader_Follower::LEADER ) { get_side( aIsLeader ).set_dv_types( aDvTypes ); }
-        [[nodiscard]] Vector< Vector< gen::PDV_Type > > get_dv_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_dv_types(); }
+        [[nodiscard]] Vector< Vector< gen::PDV_Type > > get_dv_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side_c( aIsLeader ).get_dv_types(); }
         Vector< Vector< gen::PDV_Type > > const &       get_global_dv_type_list( mtk::Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         void                                              set_field_type_list( Vector< Vector< mtk::Field_Type > > const & aFieldTypes, Leader_Follower aIsLeader = Leader_Follower::LEADER ) { get_side( aIsLeader ).set_field_types( aFieldTypes ); }
-        [[nodiscard]] Vector< Vector< mtk::Field_Type > > get_field_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side( aIsLeader ).get_field_types(); }
+        [[nodiscard]] Vector< Vector< mtk::Field_Type > > get_field_type_list( Leader_Follower aIsLeader = Leader_Follower::LEADER ) const { return get_side_c( aIsLeader ).get_field_types(); }
         Vector< Vector< mtk::Field_Type > > const &       get_global_field_type_list( mtk::Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
-        void get_non_unique_dof_dv_and_field_types( Vector< Vector< MSI::Dof_Type > >& aDofTypes, Vector< Vector< gen::PDV_Type > >& aDvTypes, Vector< Vector< mtk::Field_Type > >& aFieldTypes );
+        void get_non_unique_dof_dv_and_field_types( Vector< Vector< MSI::Dof_Type > >& aDofTypes, Vector< Vector< gen::PDV_Type > >& aDvTypes, Vector< Vector< mtk::Field_Type > >& aFieldTypes ) const;
 
         template< typename EnumType >
         void init_property( std::string const & aPropertyName, EnumType aPropertyType );
         template< typename EnumType >
-        std::shared_ptr< Property > const & get_leader_property( EnumType const & tPropertyType ) const { return get_leader_side().get_property( tPropertyType ); }
+        std::shared_ptr< Property > const & get_leader_property( EnumType const & tPropertyType ) const { return get_leader_side_c().get_property( tPropertyType ); }
         template< typename EnumType >
-        std::shared_ptr< Property > const & get_follower_property( EnumType const & tPropertyType ) const { return get_follower_side().get_property( tPropertyType ); }
+        std::shared_ptr< Property > const & get_follower_property( EnumType const & tPropertyType ) const { return get_follower_side_c().get_property( tPropertyType ); }
         void                                set_property( std::shared_ptr< Property > aProperty, std::string aPropertyString, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         template< typename EnumType >
         void init_material_model( std::string const & aMaterialModelName, EnumType aMaterialModelType );
         template< typename EnumType >
-        std::shared_ptr< Material_Model > const & get_leader_material_model( EnumType const & tMMType ) const { return get_leader_side().get_material_model( tMMType ); }
+        std::shared_ptr< Material_Model > const & get_leader_material_model( EnumType const & tMMType ) const { return get_leader_side_c().get_material_model( tMMType ); }
         template< typename EnumType >
-        std::shared_ptr< Material_Model > const & get_follower_material_model( EnumType const & tMMType ) const { return get_follower_side().get_material_model( tMMType ); }
+        std::shared_ptr< Material_Model > const & get_follower_material_model( EnumType const & tMMType ) const { return get_follower_side_c().get_material_model( tMMType ); }
         void                                      set_material_model( std::shared_ptr< Material_Model > aMaterialModel, std::string aMaterialModelName, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         template< typename EnumType >
         void init_constitutive_model( std::string const & aConstitutiveModelName, EnumType aConstitutiveModelType );
         template< typename EnumType >
-        std::shared_ptr< Constitutive_Model > const & get_leader_constitutive_model( EnumType const & tCMType ) const { return get_leader_side().get_constitutive_model( tCMType ); }
+        std::shared_ptr< Constitutive_Model > const & get_leader_constitutive_model( EnumType const & tCMType ) const { return get_leader_side_c().get_constitutive_model( tCMType ); }
         template< typename EnumType >
-        std::shared_ptr< Constitutive_Model > const & get_follower_constitutive_model( EnumType const & tCMType ) const { return get_follower_side().get_constitutive_model( tCMType ); }
+        std::shared_ptr< Constitutive_Model > const & get_follower_constitutive_model( EnumType const & tCMType ) const { return get_follower_side_c().get_constitutive_model( tCMType ); }
         void                                          set_constitutive_model( std::shared_ptr< Constitutive_Model > aConstitutiveModel, std::string aConstitutiveModelstring, Leader_Follower aIsLeader = Leader_Follower::LEADER );
 
         template< typename EnumType >
@@ -127,11 +134,11 @@ namespace moris::fem
 
       private:
         [[nodiscard]] EvaluableSideInformation&        get_side( Leader_Follower const aIsLeader );
-        [[nodiscard]] EvaluableSideInformation const & get_side( Leader_Follower const aIsLeader ) const;
+        [[nodiscard]] EvaluableSideInformation const & get_side_c( Leader_Follower const aIsLeader ) const;
         [[nodiscard]] EvaluableSideInformation&        get_leader_side() { return get_side( mtk::Leader_Follower::LEADER ); }
-        [[nodiscard]] EvaluableSideInformation const & get_leader_side() const { return get_side( mtk::Leader_Follower::LEADER ); }
+        [[nodiscard]] EvaluableSideInformation const & get_leader_side_c() const { return get_side_c( mtk::Leader_Follower::LEADER ); }
         [[nodiscard]] EvaluableSideInformation&        get_follower_side() { return get_side( mtk::Leader_Follower::FOLLOWER ); }
-        [[nodiscard]] EvaluableSideInformation const & get_follower_side() const { return get_side( mtk::Leader_Follower::FOLLOWER ); }
+        [[nodiscard]] EvaluableSideInformation const & get_follower_side_c() const { return get_side_c( mtk::Leader_Follower::FOLLOWER ); }
 
       protected:
         Set*     mSet     = nullptr;

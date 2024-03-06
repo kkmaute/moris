@@ -2737,15 +2737,5 @@ namespace moris
             MORIS_ASSERT( isfinite( mSet->get_drdpmat() ),
                     "IWG::compute_dRdp_FD_material - dRdp contains NAN or INF, exiting!" );
         }
-        Vector< Vector< MSI::Dof_Type > > const & IWG::get_requested_leader_dof_types()
-        {
-            return EvaluableTerm::get_requested_dof_type_list( is_staggered(), mtk::Leader_Follower::LEADER );
-        }
-        Vector< Vector< MSI::Dof_Type > > const & IWG::get_requested_follower_dof_types()
-        {
-            return EvaluableTerm::get_requested_dof_type_list( is_staggered(), mtk::Leader_Follower::FOLLOWER );
-        }
-
-
     }    // namespace fem
 }    // namespace moris

@@ -65,8 +65,6 @@ namespace moris
             // bool for ghost
             bool mIsGhost = false;
 
-            bool mIsStaggered = false;
-
           protected:
             // compute the jacobian using finite differencing (independent on the setting for the whole FEM set)
             bool mIsAnalyticalJacobian = false;
@@ -125,8 +123,6 @@ namespace moris
             enum moris::fem::IWG_Type
             get_IWG_type() { return mIWGType; };
 
-            bool is_staggered() const { return mIsStaggered; }
-            void set_is_staggered( bool aIsStaggered ) { mIsStaggered = aIsStaggered; }
 
             bool is_analytical_jacobian() const { return mIsAnalyticalJacobian; };
             void set_is_analytical_jacobian( bool aIsAnalyticalJacobian ) { mIsAnalyticalJacobian = aIsAnalyticalJacobian; };
@@ -198,12 +194,6 @@ namespace moris
              * @param[ in ]  aIsLeader enum leader or follower
              */
             void check_field_interpolators( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
-
-            Vector< Vector< MSI::Dof_Type > > const &
-            get_requested_leader_dof_types();
-
-            Vector< Vector< MSI::Dof_Type > > const &
-            get_requested_follower_dof_types();
 
             /**
              * evaluate the residual

@@ -12,7 +12,7 @@
 
 namespace moris::fem
 {
-    EvaluableSideInformation const &EvaluableTerm::get_side( Leader_Follower const aIsLeader ) const
+    EvaluableSideInformation const &EvaluableTerm::get_side_c( Leader_Follower const aIsLeader ) const
     {
         MORIS_ASSERT(
                 aIsLeader == Leader_Follower::LEADER || aIsLeader == Leader_Follower::FOLLOWER,
@@ -123,18 +123,18 @@ namespace moris::fem
         return get_side( aIsLeader ).get_global_field_types( mStabilizationParameter );
     }
 
-    Vector< Vector< MSI::Dof_Type > > const &EvaluableTerm::get_requested_dof_type_list( bool aIsStaggered, mtk::Leader_Follower aIsLeader )
+    Vector< Vector< MSI::Dof_Type > > const &EvaluableTerm::get_requested_dof_type_list( mtk::Leader_Follower aIsLeader )
     {
-        return get_side( aIsLeader ).get_requested_global_dof_types( aIsStaggered, mStabilizationParameter );
+        return get_side( aIsLeader ).get_requested_global_dof_types( mStabilizationParameter );
     }
 
-    void EvaluableTerm::get_non_unique_dof_dv_and_field_types( Vector< Vector< MSI::Dof_Type > > &aDofTypes, Vector< Vector< gen::PDV_Type > > &aDvTypes, Vector< Vector< mtk::Field_Type > > &aFieldTypes )
+    void EvaluableTerm::get_non_unique_dof_dv_and_field_types( Vector< Vector< MSI::Dof_Type > > &aDofTypes, Vector< Vector< gen::PDV_Type > > &aDvTypes, Vector< Vector< mtk::Field_Type > > &aFieldTypes ) const
     {
         aDofTypes.resize( 2 );
         aDvTypes.resize( 2 );
         aFieldTypes.resize( 2 );
-        get_side( Leader_Follower::LEADER ).get_non_unique_dof_dv_and_field_types( mStabilizationParameter, aDofTypes( 0 ), aDvTypes( 0 ), aFieldTypes( 0 ) );
-        get_side( Leader_Follower::FOLLOWER ).get_non_unique_dof_dv_and_field_types( mStabilizationParameter, aDofTypes( 1 ), aDvTypes( 1 ), aFieldTypes( 1 ) );
+        get_side_c( Leader_Follower::LEADER ).get_non_unique_dof_dv_and_field_types( mStabilizationParameter, aDofTypes( 0 ), aDvTypes( 0 ), aFieldTypes( 0 ) );
+        get_side_c( Leader_Follower::FOLLOWER ).get_non_unique_dof_dv_and_field_types( mStabilizationParameter, aDofTypes( 1 ), aDvTypes( 1 ), aFieldTypes( 1 ) );
     }
 
     void EvaluableTerm::print_names() const
@@ -144,12 +144,12 @@ namespace moris::fem
         };
         std::cout << "----------------------------------------------------------------\n"
                   << "EvaluableTerm: " << mName << "\n";
-        tPrintSpec( "Leader property:            ", get_side( Leader_Follower::LEADER ).get_properties() );
-        tPrintSpec( "Follower property:          ", get_side( Leader_Follower::FOLLOWER ).get_properties() );
-        tPrintSpec( "Leader material model:      ", get_side( Leader_Follower::LEADER ).get_material_models() );
-        tPrintSpec( "Follower material model:    ", get_side( Leader_Follower::FOLLOWER ).get_material_models() );
-        tPrintSpec( "Leader constitutive model:  ", get_side( Leader_Follower::LEADER ).get_constitutive_models() );
-        tPrintSpec( "Follower constitutive model:", get_side( Leader_Follower::FOLLOWER ).get_constitutive_models() );
+        tPrintSpec( "Leader property:            ", get_side_c( Leader_Follower::LEADER ).get_properties() );
+        tPrintSpec( "Follower property:          ", get_side_c( Leader_Follower::FOLLOWER ).get_properties() );
+        tPrintSpec( "Leader material model:      ", get_side_c( Leader_Follower::LEADER ).get_material_models() );
+        tPrintSpec( "Follower material model:    ", get_side_c( Leader_Follower::FOLLOWER ).get_material_models() );
+        tPrintSpec( "Leader constitutive model:  ", get_side_c( Leader_Follower::LEADER ).get_constitutive_models() );
+        tPrintSpec( "Follower constitutive model:", get_side_c( Leader_Follower::FOLLOWER ).get_constitutive_models() );
         tPrintSpec( "Stabilization parameter:    ", mStabilizationParameter );
         std::cout << "----------------------------------------------------------------" << std::endl;
     }

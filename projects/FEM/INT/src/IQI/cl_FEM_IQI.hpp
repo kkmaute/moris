@@ -110,11 +110,6 @@ namespace moris
             const Vector< MSI::Dof_Type >&
             get_quantity_dof_type() const { return mQuantityDofType; }
 
-            Vector< Vector< MSI::Dof_Type > > const &
-            get_requested_leader_dof_types() { return get_requested_dof_type_list( false, mtk::Leader_Follower::LEADER ); };    // never staggered
-
-            Vector< Vector< MSI::Dof_Type > > const &
-            get_requested_follower_dof_types() { return get_requested_dof_type_list( false, mtk::Leader_Follower::FOLLOWER ); };    // never staggered
             /**
              * Sets the reference values for this IQI.
              *
