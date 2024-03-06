@@ -23,6 +23,7 @@
 #include "cl_FEM_Enums.hpp"                         //FEM/INT/src
 #include "cl_FEM_Node.hpp"                          //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                           //FEM/INT/src
+#include "cl_FEM_IQI.hpp"                           //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp"         //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"            //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src

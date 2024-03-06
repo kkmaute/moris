@@ -17,7 +17,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Enums.hpp"                  //FEM/INT/src
-#include "cl_FEM_IWG.hpp"                    //FEM/INT/src
 #include "cl_FEM_Node.hpp"                   //FEM/INT/src
 #include "cl_MTK_Cell.hpp"                   //MTK
 #include "cl_MTK_Cell_Cluster.hpp"           //MTK
@@ -36,6 +35,7 @@ namespace moris
         class Set;
         class Element;
         class Cluster;
+        class IWG;
         //------------------------------------------------------------------------------
 
         /**

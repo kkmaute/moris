@@ -371,7 +371,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( false, "Stabilization_Parameter::set_field_interpolator_manager - can only be leader or follower" );
+                    MORIS_ERROR( false, "Stabilization_Parameter::set_fi_manager - can only be leader or follower" );
                 }
             }
 
@@ -416,7 +416,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( false, "Stabilization_Parameter::get_field_interpolator_manager - can only be leader or follower" );
+                    MORIS_ERROR( false, "Stabilization_Parameter::get_fi_manager - can only be leader or follower" );
                     return mLeaderFIManager;
                 }
             }
