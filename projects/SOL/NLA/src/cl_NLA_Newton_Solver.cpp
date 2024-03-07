@@ -139,11 +139,11 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 "LoadFactor",
                 tLoadFactor );
 
-
-        if ( It > 1 || true ) // TODO: REMOVE "true", this is only to output the debug json of the initial state
-        {
-            mNonlinearProblem->update_fem_model();
-        }
+        // TODO @ff: use this to update fem models in nonconformal problems
+//        if ( It > 1 || true ) // TODO: REMOVE "true", this is only to output the debug json of the initial state
+//        {
+//            mNonlinearProblem->update_fem_model();
+//        }
         // build residual and jacobian
         // restart and switch not clear
         if ( It == 1 && mParameterListNonlinearSolver.get< sint >( "NLA_restart" ) != 0 )
@@ -170,8 +170,8 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         if ( tIsConverged and tLoadFactor >= 1.0 )
         {
             MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
-            gLogger.iterate(); // TODO: REMOVE! This is only used to output the debug json of the final state
-            mNonlinearProblem->update_fem_model(); // TODO: REMOVE! This is only used to output the debug json of the final state
+//            gLogger.iterate(); // TODO: REMOVE! This is only used to output the debug json of the final state
+//            mNonlinearProblem->update_fem_model(); // TODO: REMOVE! This is only used to output the debug json of the final state
             break;
         }
 
@@ -179,8 +179,8 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         if ( tHardBreak or ( It == tMaxIts && tMaxIts > 1 ) )
         {
             MORIS_LOG_INFO( "Number of Iterations (Hard Stop): %d", It );
-            gLogger.iterate(); // TODO: REMOVE! This is only used to output the debug json of the final state
-            mNonlinearProblem->update_fem_model(); // TODO: REMOVE! This is only used to output the debug json of the final state
+//            gLogger.iterate(); // TODO: REMOVE! This is only used to output the debug json of the final state
+//            mNonlinearProblem->update_fem_model(); // TODO: REMOVE! This is only used to output the debug json of the final state
             break;
         }
 
