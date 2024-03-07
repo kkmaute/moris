@@ -156,7 +156,7 @@ namespace moris
             bool mIsGhost = false;
 
             // compute the jacobian using finite differencing (independent on the setting for the whole FEM set)
-            bool mIsAnalyticalJacobian = false;
+            bool mIsAnalyticalJacobian = true;
 
           protected:
             // string for IWG name
