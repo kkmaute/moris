@@ -289,6 +289,7 @@ set(LIB_SOURCES
 	CORE/cl_FEM_Model_Initializer_Phasebased.cpp
 	CORE/cl_FEM_Model.cpp
     CORE/cl_FEM_Field.cpp
+	CORE/cl_FEM_Set_User_Info.cpp
 
     ELEM/cl_FEM_Cluster.cpp
     ELEM/cl_FEM_Element_Factory.cpp

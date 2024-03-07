@@ -158,6 +158,7 @@ namespace moris
             // Normalization
             real mReferenceValue = 1.0;
             bool mNormalized     = false;
+            std::string mNormalizationType = "none";
 
             // function pointers
             void ( IQI::*m_compute_dQIdu_FD )(
@@ -356,6 +357,10 @@ namespace moris
              * @param aReferenceValue Reference value for scaling the IQI, can be a norm if IQI is a vector.
              */
             void set_reference_value( real aReferenceValue );
+
+            void set_normalization_type( std::string aNormalizationType ) { mNormalizationType = aNormalizationType; }
+
+            std::string get_normalization_type() const { return mNormalizationType; }
 
             //------------------------------------------------------------------------------
             /*
