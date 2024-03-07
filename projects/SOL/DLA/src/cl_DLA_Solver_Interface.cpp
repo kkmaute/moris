@@ -31,7 +31,7 @@ void Solver_Interface::build_graph( moris::sol::Dist_Matrix* aMat, bool aUseSpar
     }
 
     // Get local number of elements
-    moris::uint numBlocks = this->get_num_my_blocks();
+    moris::uint numBlocks = this->get_num_sets();
 
     // Loop over all local elements to build matrix graph
     for ( moris::uint Ii = 0; Ii < numBlocks; Ii++ )
@@ -110,7 +110,7 @@ void Solver_Interface::assemble_RHS(
         const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag )
 {
     // Get local number of elements
-    moris::uint tNumBlocks = this->get_num_my_blocks();
+    moris::uint tNumBlocks = this->get_num_sets();
 
     moris::uint tNumRHS = this->get_num_rhs();
 
@@ -162,7 +162,7 @@ void Solver_Interface::assemble_RHS(
 void Solver_Interface::assemble_staggered_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS )
 {
     // Get local number of elements
-    moris::uint tNumBlocks = this->get_num_my_blocks();
+    moris::uint tNumBlocks = this->get_num_sets();
 
     moris::uint tNumRHS = this->get_num_rhs();
 
@@ -212,7 +212,7 @@ void Solver_Interface::assemble_staggered_RHS_contribution( moris::sol::Dist_Vec
 void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS )
 {
     // Get local number of elements
-    moris::uint tNumBlocks = this->get_num_my_blocks();
+    moris::uint tNumBlocks = this->get_num_sets();
 
     moris::uint tNumRHS = this->get_num_rhs();
 
@@ -271,7 +271,7 @@ void Solver_Interface::assemble_jacobian(
         const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag )
 {
     // Get local number of elements
-    moris::uint numBlocks = this->get_num_my_blocks();
+    moris::uint tNumSets = this->get_num_sets();
 
     Matrix< DDSMat > tElementTopology;
     Matrix< DDRMat > tElementMatrix;
@@ -279,9 +279,9 @@ void Solver_Interface::assemble_jacobian(
     this->report_beginning_of_assembly();
 
     // Loop over all local elements to build matrix graph
-    for ( moris::uint Ii = 0; Ii < numBlocks; Ii++ )
+    for ( uint Ii = 0; Ii < tNumSets; Ii++ )
     {
-        moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
+        uint const tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
         this->initialize_set( Ii, false, aTimeContinuityOnlyFlag );
 
@@ -318,7 +318,7 @@ void Solver_Interface::fill_matrix_and_RHS(
 {
     this->report_beginning_of_assembly();
 
-    uint const tNumBlocks = this->get_num_my_blocks();
+    uint const tNumBlocks = this->get_num_sets();
     uint const tNumRHS    = this->get_num_rhs();
     // Loop over all local elements to build matrix graph
     for ( uint iBlock = 0; iBlock < tNumBlocks; iBlock++ )
@@ -379,10 +379,10 @@ void Solver_Interface::fill_matrix_and_RHS(
 
 void Solver_Interface::get_adof_ids_based_on_criteria(
         Vector< moris::Matrix< IdMat > >& aCriteriaIds,
-        const moris::real                        aThreshold )    // FIXME find better name
+        const moris::real                 aThreshold )    // FIXME find better name
 {
     // Get number of Sets
-    moris::uint tNumSets = this->get_num_my_blocks();
+    moris::uint tNumSets = this->get_num_sets();
 
     uint        tCounter        = 0;
     moris::real tMinVolFraction = 1.0;
