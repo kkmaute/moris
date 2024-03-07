@@ -9,7 +9,10 @@
  */
 #include <iostream>
 #include <set>
+#include <algorithm>
 
+#include "cl_FEM_Cluster_Measure.hpp"
+#include "cl_FEM_Cluster_Measure.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"        //FEM/MSI/src
 #include "cl_MSI_Solver_Interface.hpp"              //FEM/MSI/src
 #include "cl_FEM_Model.hpp"                         //FEM/INT/src
@@ -174,8 +177,7 @@ namespace moris
                 return;
             }
             mEquationObjList.clear();
-
-            mBuildClusterMEA = false;    // force rebuild of cluster measures
+            mClusterMeasures.reset();    // force rebuild of cluster measures
             this->create_fem_clusters();
         }
         //------------------------------------------------------------------------------
@@ -256,9 +258,6 @@ namespace moris
             Vector< mtk::Cluster const * > tMeshClusterList = mMeshSet->get_clusters_on_set();
             uint                           tNumMeshClusters = tMeshClusterList.size();
             mEquationObjList.resize( tNumMeshClusters, nullptr );
-
-            // get cluster measures used on set
-            this->build_cluster_measure_tuples_and_map();
 
             // create a fem cluster factory
             fem::Element_Factory tClusterFactory;
@@ -1359,192 +1358,40 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Set::build_cluster_measure_tuples_and_map()
+        Set::build_cluster_measure_specifications()
         {
-            // init cluster measure counter
-            uint tCMEACounter = 0;
+            // get list of stabilization parameters from IWGs and IQIs
+            Vector< std::shared_ptr< Stabilization_Parameter > > tSPs;
 
-            // loop over the IWGs
-            for ( auto tIWG : mIWGs )
+            auto tAppendSPs = [ & ]( auto const & aIwgIqi ) { tSPs.append( aIwgIqi->get_stabilization_parameters() ); };
+            std::for_each( mIWGs.begin(), mIWGs.end(), tAppendSPs );
+            std::for_each( mIQIs.begin(), mIQIs.end(), tAppendSPs );
+
+            mClusterMeasures = std::set< Cluster_Measure::ClusterMeasureSpecification >();    // reset in case the fem set is rebuilt
+
+            // loop over all the stabilization parameters and populate the cluster measure set
+            for ( auto const & tStabilizationParameter : tSPs )
             {
-                // get the SP from the IWG
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs = tIWG->get_stabilization_parameters();
-
-                // loop over the SP
-                for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
+                if ( tStabilizationParameter != nullptr )
                 {
-                    // check if SP is null
-                    if ( tSP != nullptr )
+                    for ( auto const & tClusterSpecification : tStabilizationParameter->get_cluster_measure_tuple_list() )
                     {
-                        // get list of cluster measure tuple from SP
-                        Vector< std::tuple<
-                                fem::Measure_Type,
-                                mtk::Primary_Void,
-                                mtk::Leader_Follower > >
-                                tClusterMEASPTuples = tSP->get_cluster_measure_tuple_list();
-
-                        // add number of cluster measure tuple to counter
-                        tCMEACounter += tClusterMEASPTuples.size();
+                        MORIS_ASSERT( mClusterMeasures.has_value(), "The std::optional variable should have a underlying value at this point..." );
+                        mClusterMeasures->insert( tClusterSpecification );
                     }
                 }
             }
-
-            // loop over the IQIs
-            for ( auto tIQI : mIQIs )
-            {
-                // get the SP from the IQI
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs = tIQI->get_stabilization_parameters();
-
-                // loop over the SPs
-                for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
-                {
-                    // check if SP is null
-                    if ( tSP != nullptr )
-                    {
-                        // get list of cluster measure tuple from SP
-                        Vector< std::tuple<
-                                fem::Measure_Type,
-                                mtk::Primary_Void,
-                                mtk::Leader_Follower > >
-                                tClusterMEASPTuples = tSP->get_cluster_measure_tuple_list();
-
-                        // add number of cluster measure tuple to counter
-                        tCMEACounter += tClusterMEASPTuples.size();
-                    }
-                }
-            }
-
-            // reset in case the fem set is rebuilt
-            mClusterMEATuples.clear();
-            mClusterMEAMap.clear();
-
-            // init size for cell of cluster measure tuples
-            mClusterMEATuples.resize( tCMEACounter );
-
-            // reset CMECounter
-            tCMEACounter = 0;
-
-            // loop over the IWGs
-            for ( auto tIWG : mIWGs )
-            {
-                // get the SP from the IWG
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs = tIWG->get_stabilization_parameters();
-
-                // loop over the SP
-                for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
-                {
-                    // check if SP is null
-                    if ( tSP != nullptr )
-                    {
-                        // get list of cluster measure tuple from SP
-                        Vector< std::tuple<
-                                fem::Measure_Type,
-                                mtk::Primary_Void,
-                                mtk::Leader_Follower > >
-                                tClusterMEASPTuples = tSP->get_cluster_measure_tuple_list();
-
-                        // loop over the cluster measure tuples from SP
-                        for ( uint iCMEA = 0; iCMEA < tClusterMEASPTuples.size(); iCMEA++ )
-                        {
-                            // check if the cluster measure tuple already in map
-                            if ( mClusterMEAMap.find( tClusterMEASPTuples( iCMEA ) ) == mClusterMEAMap.end() )
-                            {
-                                // add cluster measure tuple in map
-                                mClusterMEAMap[ tClusterMEASPTuples( iCMEA ) ] = tCMEACounter;
-
-                                // add cluster measure tuple to list
-                                mClusterMEATuples( tCMEACounter ) = tClusterMEASPTuples( iCMEA );
-
-                                // update counter
-                                tCMEACounter++;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // loop over the IQIs
-            for ( auto tIQI : mIQIs )
-            {
-                // get the SP from the IQI
-                Vector< std::shared_ptr< Stabilization_Parameter > >& tSPs =
-                        tIQI->get_stabilization_parameters();
-
-                // loop over the SPs
-                for ( const std::shared_ptr< Stabilization_Parameter >& tSP : tSPs )
-                {
-                    // check if SP is null
-                    if ( tSP != nullptr )
-                    {
-                        // get list of cluster measure tuple from SP
-                        Vector< std::tuple<
-                                fem::Measure_Type,
-                                mtk::Primary_Void,
-                                mtk::Leader_Follower > >
-                                tClusterMEASPTuples =
-                                        tSP->get_cluster_measure_tuple_list();
-
-                        // loop over the cluster measure tuples from SP
-                        for ( uint iCMEA = 0; iCMEA < tClusterMEASPTuples.size(); iCMEA++ )
-                        {
-                            // check if the cluster measure tuple already in map
-                            if ( mClusterMEAMap.find( tClusterMEASPTuples( iCMEA ) ) == mClusterMEAMap.end() )
-                            {
-                                // add cluster measure tuple in map
-                                mClusterMEAMap[ tClusterMEASPTuples( iCMEA ) ] = tCMEACounter;
-
-                                // add cluster measure tuple to list
-                                mClusterMEATuples( tCMEACounter ) = tClusterMEASPTuples( iCMEA );
-
-                                // update counter
-                                tCMEACounter++;
-                            }
-                        }
-                    }
-                }
-            }
-            // shrink to fit as list of tuples shorter than what was reserved
-            // mClusterMEATuples.resize( tCMEACounter );
-
-            // set build bool to true
-            mBuildClusterMEA = true;
         }
 
-        //------------------------------------------------------------------------------
-
-        Vector< std::tuple<
-                fem::Measure_Type,
-                mtk::Primary_Void,
-                mtk::Leader_Follower > >&
-        Set::get_cluster_measure_tuples()
-        {
-            // check that tuples were built
-            if ( mBuildClusterMEA == false )
-            {
-                // if not build list
-                this->build_cluster_measure_tuples_and_map();
-            }
-
-            return mClusterMEATuples;
-        }
-
-        //------------------------------------------------------------------------------
-
-        std::map< std::tuple<
-                          fem::Measure_Type,
-                          mtk::Primary_Void,
-                          mtk::Leader_Follower >,
-                uint >&
-        Set::get_cluster_measure_map()
+        std::set< Cluster_Measure::ClusterMeasureSpecification > const &
+        Set::get_cluster_measure_specifications()
         {
             // check that map was built
-            if ( mBuildClusterMEA == false )
+            if ( !mClusterMeasures.has_value() )
             {
-                // if not build map
-                this->build_cluster_measure_tuples_and_map();
+                this->build_cluster_measure_specifications();
             }
-
-            return mClusterMEAMap;
+            return mClusterMeasures.value();
         }
 
         //------------------------------------------------------------------------------

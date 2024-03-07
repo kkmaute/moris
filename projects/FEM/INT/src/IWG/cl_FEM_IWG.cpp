@@ -2470,9 +2470,9 @@ namespace moris
             tRLI.perform_raytracing();
             //                                MORIS_ASSERT( tRLI.has_intersection(), "Perturbed point could not be mapped onto the follower cell... this case is currently not handled" );
 
-            Matrix< DDRMat > tFollowerSpaceTime;
-            Matrix< DDRMat > tFollowerPhysical = tNormal;
-            [[maybe_unused]] uint             tSuccess          = 0;
+            Matrix< DDRMat >      tFollowerSpaceTime;
+            Matrix< DDRMat >      tFollowerPhysical = tNormal;
+            [[maybe_unused]] uint tSuccess          = 0;
             tFollowerIGGI->get_space_time( tFollowerSpaceTime );
             if ( tRLI.has_intersection() )
             {
@@ -2498,24 +2498,24 @@ namespace moris
                 // M     = mapped point on follower (or end of normal, if no intersection found)
                 // SUCC/FAIL = success or failure of the mapping (1 or 0)
                 // Order of output: Ox, Oy, L1x, L1y, L2x, L2y, F1x, F1y, F2x, F2y, Ix, Iy, Mx, My, SUCC/FAIL
-//                std::cout << "FD-REMAPPING: "
-//                          << std::setprecision( 15 )
-//                          << tLeaderIGGI->valx()( 0 ) << ","
-//                          << tLeaderIGGI->valx()( 1 ) << ","
-//                          << tLeaderCoords( 0, 0 ) << ","
-//                          << tLeaderCoords( 0, 1 ) << ","
-//                          << tLeaderCoords( 1, 0 ) << ","
-//                          << tLeaderCoords( 1, 1 ) << ","
-//                          << tFollowerCoordinates( 0, 0 ) << ","
-//                          << tFollowerCoordinates( 0, 1 ) << ","
-//                          << tFollowerCoordinates( 1, 0 ) << ","
-//                          << tFollowerCoordinates( 1, 1 ) << ","
-//                          << tLeaderIGPoint( 0 ) << ","
-//                          << tLeaderIGPoint( 1 ) << ","
-//                          << tFollowerPhysical( 0 ) << ","
-//                          << tFollowerPhysical( 1 ) << ","
-//                          << tSuccess
-//                          << "\n";
+                //                std::cout << "FD-REMAPPING: "
+                //                          << std::setprecision( 15 )
+                //                          << tLeaderIGGI->valx()( 0 ) << ","
+                //                          << tLeaderIGGI->valx()( 1 ) << ","
+                //                          << tLeaderCoords( 0, 0 ) << ","
+                //                          << tLeaderCoords( 0, 1 ) << ","
+                //                          << tLeaderCoords( 1, 0 ) << ","
+                //                          << tLeaderCoords( 1, 1 ) << ","
+                //                          << tFollowerCoordinates( 0, 0 ) << ","
+                //                          << tFollowerCoordinates( 0, 1 ) << ","
+                //                          << tFollowerCoordinates( 1, 0 ) << ","
+                //                          << tFollowerCoordinates( 1, 1 ) << ","
+                //                          << tLeaderIGPoint( 0 ) << ","
+                //                          << tLeaderIGPoint( 1 ) << ","
+                //                          << tFollowerPhysical( 0 ) << ","
+                //                          << tFollowerPhysical( 1 ) << ","
+                //                          << tSuccess
+                //                          << "\n";
             }
 
             return tFollowerSpaceTime;
@@ -3901,12 +3901,8 @@ namespace moris
             uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // loop over the cluster measures
-            for ( uint iCMEA = 0; iCMEA < mCluster->get_cluster_measures().size(); iCMEA++ )
+            for ( auto const& [ _, tClusterMeasure ] : mCluster->get_cluster_measures() )
             {
-                // get treated cluster measure
-                std::shared_ptr< Cluster_Measure >& tClusterMeasure =
-                        mCluster->get_cluster_measures()( iCMEA );
-
                 // evaluate the perturbation of cluster measure
                 tDeltaCM = this->build_perturbation_size(
                         aPerturbation,
@@ -4007,12 +4003,8 @@ namespace moris
             uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // loop over the cluster measures
-            for ( uint iCMEA = 0; iCMEA < mCluster->get_cluster_measures().size(); iCMEA++ )
+            for ( auto const& [ _, tClusterMeasure ] : mCluster->get_cluster_measures() )
             {
-                // get treated cluster measure
-                std::shared_ptr< Cluster_Measure >& tClusterMeasure =
-                        mCluster->get_cluster_measures()( iCMEA );
-
                 // evaluate the perturbation of cluster measure
                 tDeltaCM = this->build_perturbation_size(
                         aPerturbation,

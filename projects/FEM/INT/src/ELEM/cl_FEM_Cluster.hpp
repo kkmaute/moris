@@ -75,10 +75,7 @@ namespace moris
             const real mVolumeError = 1e-6;
 
             // cluster measures
-            Vector< std::shared_ptr< Cluster_Measure > > mClusterMEA;
-
-            // cluster measure map
-            std::map< std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >, uint > mClusterMEAMap;
+            std::map< Cluster_Measure::ClusterMeasureSpecification, std::shared_ptr< Cluster_Measure > > mClusterMeasures;
 
             // flag to easily differentiate between ACTUAL FEM and VIS clusters for debugging
             bool mIsVisCluster = false;
@@ -308,7 +305,7 @@ namespace moris
             /**
              * get cluster measure
              */
-            std::shared_ptr< Cluster_Measure > &get_cluster_measure(
+            std::shared_ptr< Cluster_Measure > get_cluster_measure(
                     fem::Measure_Type    aMeasureType,
                     mtk::Primary_Void    aIsPrimary,
                     mtk::Leader_Follower aIsLeader );
@@ -317,10 +314,10 @@ namespace moris
             /**
              * get cluster measures
              */
-            Vector< std::shared_ptr< Cluster_Measure > > &
+            std::map< Cluster_Measure::ClusterMeasureSpecification, std::shared_ptr< Cluster_Measure > >
             get_cluster_measures()
             {
-                return mClusterMEA;
+                return mClusterMeasures;
             }
 
             //------------------------------------------------------------------------------
