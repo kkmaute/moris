@@ -21,6 +21,14 @@
 #include "HDF5_Tools.hpp"
 #include "paths.hpp"
 
+#if __has_include( <filesystem>)
+#include <filesystem>
+namespace filesystem = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace filesystem = std::experimental::filesystem;
+#endif
+
 using namespace moris;
 
 //---------------------------------------------------------------
@@ -35,32 +43,18 @@ TEST_CASE( "image_bear",
     // get the root path for MORIS
     std::string tMorisRoot = moris::get_base_moris_dir();
 
-    // get the relevant file paths
-    std::string tExamplesDir = tMorisRoot + "/share/doc/mesh_generation/examples/";
-    std::string tXmlSource   = tExamplesDir + "Bear_Example.xml";
-    std::string tHdf5Source  = tExamplesDir + "Bear.hdf5";
-    std::string tTargetDir   = std::getenv( "PWD" );
+    // get all the relevant file paths
+    filesystem::path tMorisRootPath( tMorisRoot );
+    filesystem::path tExamplesDir = tMorisRootPath / "share/doc/mesh_generation/examples/";
+    filesystem::path tXmlSource   = tExamplesDir / "Bear_Example.xml";
+    filesystem::path tHdf5Source  = tExamplesDir / "Bear.hdf5";
+    filesystem::path tTargetDir   = filesystem::current_path();
+    filesystem::path tXmlTarget   = tTargetDir / tXmlSource.filename();
+    filesystem::path tHdf5Target  = tTargetDir / tHdf5Source.filename();
 
     // copy relevant files from example directory into working directory
-    std::string tMoveStringXml = "cp -f " + tXmlSource + " " + tTargetDir;
-    std::string tMoveStringHdf5 = "cp -f " + tHdf5Source + " " + tTargetDir;
-    
-    // fixme: should be changed to C++ commands rather than system calls
-    MORIS_ERROR( std::system( tMoveStringXml.c_str() ) > 0, "failure" );
-    MORIS_ERROR( std::system( tMoveStringHdf5.c_str() )  > 0, "failure" );
-
-    // FIXME: remove the previous and use the below to use std::filesystem paths/copies, requires C++17 with gcc version >=8
-    // // get all the relevant file paths
-    // std::filesystem::path tExamplesDir = tMorisRoot + "/share/doc/mesh_generation/examples/";
-    // std::filesystem::path tXmlSource   = tExamplesDir + "Bear_Example.xml";
-    // std::filesystem::path tHdf5Source  = tExamplesDir + "Bear.hdf5";
-    // std::filesystem::path tTargetDir   = std::getenv( "PWD" );
-    // std::filesystem::path tXmlTarget   = tTargetDir / tXmlSource.filename();
-    // std::filesystem::path tHdf5Target  = tTargetDir / tHdf5Source.filename();
-
-    // // copy relevant files from example directory into working directory
-    // std::filesystem::copy_file( tXmlSource, tXmlTarget, fs::copy_options::overwrite_existing );
-    // std::filesystem::copy_file( tHdf5Source, tHdf5Target, fs::copy_options::overwrite_existing );
+    filesystem::copy_file( tXmlSource, tXmlTarget, filesystem::copy_options::overwrite_existing );
+    filesystem::copy_file( tHdf5Source, tHdf5Target, filesystem::copy_options::overwrite_existing );
 
     // define command line call
     int argc = 3;
