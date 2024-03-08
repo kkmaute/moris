@@ -33,9 +33,8 @@ namespace moris
         class Preconditioner_Trilinos : public Preconditioner
         {
           private:
-
             // possible trillions preconditioner
-            Teuchos::RCP< Ifpack_Preconditioner > mIfPackPrec;
+            Teuchos::RCP< Ifpack_Preconditioner >               mIfPackPrec;
             Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > mMlPrec;
 
             //-------------------------------------------------------------------------------
@@ -64,8 +63,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             Preconditioner_Trilinos(
-                    moris::ParameterList* aParameterlist,
-                    Linear_Problem*       aLinearSystem );
+                    moris::ParameterList* aParameterlist );
 
             //-------------------------------------------------------------------------------
 
@@ -77,8 +75,7 @@ namespace moris
              * initialize preconditioner by setting parameter list and linear system
              */
             void initialize(
-                    moris::ParameterList* aParameterlist,
-                    Linear_Problem*       aLinearSystem );
+                    moris::ParameterList* aParameterlist );
 
             //-------------------------------------------------------------------------------
 
@@ -130,9 +127,9 @@ namespace moris
 
             /**
              * @brief Set the param object
-             * 
-             * @param aKey 
-             * @return ParameterListTypes& 
+             *
+             * @param aKey
+             * @return ParameterListTypes&
              */
 
             ParameterListTypes&
