@@ -946,9 +946,7 @@ namespace moris
 
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
             tParameterlist( 0 )( 0 ).set( "KSPType", std::string( "fgmres" ) );
-            tParameterlist( 0 )( 0 ).set( "PCType", std::string( "mg" ) );
-            tParameterlist( 0 )( 0 ).set( "ILUFill", 3 );
-            tParameterlist( 0 )( 0 ).set( "ILUTol", 1e-6 );
+            tParameterlist( 0 )( 0 ).set( "preconditioners", std::string( "0" ) );
 
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
@@ -964,7 +962,8 @@ namespace moris
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
-            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC );
+            tParameterlist( 7 )( 0 ).set( "PCType", std::string( "mg" ) );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 

@@ -9,8 +9,8 @@
  */
 
 #include "catch.hpp"
-#include "fn_equal_to.hpp"    // ALG/src
-#include "moris_typedefs.hpp"       // COR/src
+#include "fn_equal_to.hpp"       // ALG/src
+#include "moris_typedefs.hpp"    // COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -22,9 +22,9 @@
 #include "Epetra_FEVector.h"
 #include "Epetra_IntVector.h"
 
-#include "cl_Communication_Manager.hpp"        // COM/src/
-#include "cl_Communication_Tools.hpp"          // COM/src/
-#include "cl_DLA_Linear_Solver_Aztec.hpp"      // DLA/src/
+#include "cl_Communication_Manager.hpp"      // COM/src/
+#include "cl_Communication_Tools.hpp"        // COM/src/
+#include "cl_DLA_Linear_Solver_Aztec.hpp"    // DLA/src/
 
 #include "cl_SOL_Matrix_Vector_Factory.hpp"    // DLA/src/
 #include "cl_Solver_Interface_Proxy.hpp"       // DLA/src/
@@ -32,6 +32,10 @@
 #include "cl_SOL_Warehouse.hpp"
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"    // DLA/src/
+
+#ifdef MORIS_HAVE_PETSC
+#include "cl_DLA_Preconditioner_PETSc.hpp"
+#endif
 
 
 #include "fn_PRM_SOL_Parameters.hpp"
@@ -217,7 +221,7 @@ namespace moris
 
 
                 // create preconditioner
-                Preconditioner_Trilinos tPreconditioner( &tParamList, nullptr );
+                Preconditioner_Trilinos tPreconditioner( &tParamList );
                 tLinSolver->set_preconditioner( &tPreconditioner );
 
                 //        tLinProblem->assemble_residual_and_jacobian();
@@ -286,11 +290,13 @@ namespace moris
                 std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::PETSC );
 
                 tLinProblem->assemble_residual_and_jacobian();
+                tLinSolver->set_param( "KSPType" ) = std::string( "fgmres" );
 
-                tLinSolver->set_param( "KSPType" )             = std::string( "fgmres" );
-                tLinSolver->set_param( "PCType" )              = std::string( "none" );
-                tLinSolver->set_param( "ILUFill" )             = 3;
-                tLinSolver->set_param( "ouput_eigenspectrum" ) = (uint)1;
+                // create preconditioner
+                ParameterList tParamList;
+                tParamList.insert( "PCType", std::string( "none" ) );
+                Preconditioner_PETSc tPreconditioner( &tParamList );
+                tLinSolver->set_preconditioner( &tPreconditioner );
 
                 tLinSolver->solve_linear_system( tLinProblem );
 
@@ -394,7 +400,7 @@ namespace moris
                 tParamList.insert( "Amesos_Direct_Solver_Type", "Amesos_Klu" );
 
                 // create preconditioner
-                Preconditioner_Trilinos tPreconditioner( &tParamList, nullptr );
+                Preconditioner_Trilinos tPreconditioner( &tParamList );
                 tEigSolver->set_preconditioner( &tPreconditioner );
 
                 tEigProblem->set_rhs_matrix_type( tRHSMatType );
