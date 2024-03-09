@@ -15,9 +15,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Field_Array_Factory::Field_Array_Factory( const ParameterList& aFieldArrayParameters )
-            : mOffsetPerRowX( aFieldArrayParameters.get< real >( "offset_per_row_x") )
-            , mOffsetPerRowY( aFieldArrayParameters.get< real >( "offset_per_row_y") )
-            , mOffsetPerRowZ( aFieldArrayParameters.get< real >( "offset_per_row_z") )
+            : mOffsetPerRowX( aFieldArrayParameters.get< real >( "offset_per_row_x" ) )
+            , mOffsetPerRowY( aFieldArrayParameters.get< real >( "offset_per_row_y" ) )
+            , mOffsetPerRowZ( aFieldArrayParameters.get< real >( "offset_per_row_z" ) )
     {
         this->set_x_parameters(
                 aFieldArrayParameters.get< real >( "lower_bound_x" ),
@@ -59,12 +59,12 @@ namespace moris::gen
         if ( mNumberOfFieldsX > 1 )
         {
             mStartingPointX = aLowerBound;
-            mSpacingX = ( aUpperBound - aLowerBound ) / ( mNumberOfFieldsX - 1 );
+            mSpacingX       = ( aUpperBound - aLowerBound ) / ( mNumberOfFieldsX - 1 );
         }
         else
         {
             mStartingPointX = ( aUpperBound + aLowerBound ) / 2;
-            mSpacingX = MORIS_REAL_MAX;
+            mSpacingX       = 0.0;
         }
     }
 
@@ -91,12 +91,12 @@ namespace moris::gen
         if ( mNumberOfFieldsY > 1 )
         {
             mStartingPointY = aLowerBound;
-            mSpacingY = ( aUpperBound - aLowerBound ) / ( mNumberOfFieldsY - 1 );
+            mSpacingY       = ( aUpperBound - aLowerBound ) / ( mNumberOfFieldsY - 1 );
         }
         else
         {
             mStartingPointY = ( aUpperBound + aLowerBound ) / 2;
-            mSpacingY = MORIS_REAL_MAX;
+            mSpacingY       = 0.0;
         }
     }
 
@@ -123,12 +123,12 @@ namespace moris::gen
         if ( mNumberOfFieldsZ > 1 )
         {
             mStartingPointZ = aLowerBound;
-            mSpacingZ = ( aUpperBound - aLowerBound ) / ( mNumberOfFieldsZ - 1 );
+            mSpacingZ       = ( aUpperBound - aLowerBound ) / ( mNumberOfFieldsZ - 1 );
         }
         else
         {
             mStartingPointZ = ( aUpperBound + aLowerBound ) / 2;
-            mSpacingZ = MORIS_REAL_MAX;
+            mSpacingZ       = 0.0;
         }
     }
 
@@ -137,7 +137,7 @@ namespace moris::gen
     std::shared_ptr< Combined_Fields >
     Field_Array_Factory::create_field_array(
             std::shared_ptr< Field > aCopyField,
-            bool aMinimum )
+            bool                     aMinimum )
     {
         // Store field for copying
         mCopyField = aCopyField;
@@ -231,11 +231,17 @@ namespace moris::gen
                 // Offset z coordinate (or y in 2D)
                 if ( mNumberOfFieldsZ > 0 )
                 {
-                    mStartingPointZ += std::fmod( iFieldIndex * mOffsetPerRowZ, mSpacingZ );
+                    if ( mSpacingZ > MORIS_REAL_EPS )
+                    {
+                        mStartingPointZ += std::fmod( iFieldIndex * mOffsetPerRowZ, mSpacingZ );
+                    }
                 }
                 else if ( mNumberOfFieldsY > 0 )
                 {
-                    mStartingPointY += std::fmod( iFieldIndex * mOffsetPerRowY, mSpacingY );
+                    if ( mSpacingY > MORIS_REAL_EPS )
+                    {
+                        mStartingPointY += std::fmod( iFieldIndex * mOffsetPerRowY, mSpacingY );
+                    }
                 }
 
                 // Loop over y
@@ -244,11 +250,17 @@ namespace moris::gen
                 // Un-offset z coordinate
                 if ( mNumberOfFieldsZ > 0 )
                 {
-                    mStartingPointZ -= std::fmod( iFieldIndex * mOffsetPerRowZ, mSpacingZ );
+                    if ( mSpacingZ > MORIS_REAL_EPS )
+                    {
+                        mStartingPointZ -= std::fmod( iFieldIndex * mOffsetPerRowZ, mSpacingZ );
+                    }
                 }
                 else if ( mNumberOfFieldsY > 0 )
                 {
-                    mStartingPointY -= std::fmod( iFieldIndex * mOffsetPerRowY, mSpacingY );
+                    if ( mSpacingY > MORIS_REAL_EPS )
+                    {
+                        mStartingPointY -= std::fmod( iFieldIndex * mOffsetPerRowY, mSpacingY );
+                    }
                 }
             }
         }
@@ -276,7 +288,10 @@ namespace moris::gen
                 // Offset x coordinate
                 if ( mNumberOfFieldsX > 0 )
                 {
-                    mCoordinates( 0 ) += std::fmod( iFieldIndex * mOffsetPerRowX, mSpacingX );
+                    if ( mSpacingX > MORIS_REAL_EPS )
+                    {
+                        mCoordinates( 0 ) += std::fmod( iFieldIndex * mOffsetPerRowX, mSpacingX );
+                    }
                 }
 
                 // Loop over z
@@ -285,7 +300,10 @@ namespace moris::gen
                 // Un-offset x coordinate
                 if ( mNumberOfFieldsX > 0 )
                 {
-                    mCoordinates( 0 ) -= std::fmod( iFieldIndex * mOffsetPerRowX, mSpacingX );
+                    if ( mSpacingX > MORIS_REAL_EPS )
+                    {
+                        mCoordinates( 0 ) -= std::fmod( iFieldIndex * mOffsetPerRowX, mSpacingX );
+                    }
                 }
             }
         }
@@ -313,7 +331,10 @@ namespace moris::gen
                 // Offset y coordinate
                 if ( mNumberOfFieldsY > 0 )
                 {
-                    mCoordinates( aUsedDimensionIndex - 1 ) += std::fmod( iFieldIndex * mOffsetPerRowY, mSpacingY );
+                    if ( mSpacingY > MORIS_REAL_EPS )
+                    {
+                        mCoordinates( aUsedDimensionIndex - 1 ) += std::fmod( iFieldIndex * mOffsetPerRowY, mSpacingY );
+                    }
                 }
 
                 // Create new field
@@ -322,7 +343,10 @@ namespace moris::gen
                 // Un-offset y coordinate
                 if ( mNumberOfFieldsY > 0 )
                 {
-                    mCoordinates( aUsedDimensionIndex - 1 ) -= std::fmod( iFieldIndex * mOffsetPerRowY, mSpacingY );
+                    if ( mSpacingY > MORIS_REAL_EPS )
+                    {
+                        mCoordinates( aUsedDimensionIndex - 1 ) -= std::fmod( iFieldIndex * mOffsetPerRowY, mSpacingY );
+                    }
                 }
             }
         }
@@ -335,4 +359,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen
