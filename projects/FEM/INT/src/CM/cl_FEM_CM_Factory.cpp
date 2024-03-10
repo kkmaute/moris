@@ -18,7 +18,8 @@
 #include "cl_FEM_CM_Struc_Linear_Isotropic_Damage.hpp"
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp"
-#include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.hpp"
+#include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet.hpp"
+#include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Wriggers.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible.hpp"
 #include "cl_FEM_CM_Fluid_Turbulence.hpp"
 #include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
@@ -50,7 +51,7 @@ namespace moris
                     return std::make_shared< CM_Struc_Linear_Isotropic >();
 
                 case Constitutive_Type::STRUC_LIN_ISO_DAMAGE:
-                	return std::make_shared< CM_Struc_Linear_Isotropic_Damage >();
+                    return std::make_shared< CM_Struc_Linear_Isotropic_Damage >();
 
                 case Constitutive_Type::STRUC_LIN_MT:
                     return std::make_shared< CM_Struc_Linear_MoriTanaka >();
@@ -58,8 +59,11 @@ namespace moris
                 case  Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF :
                     return std::make_shared< CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff >();
 
-                case Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN:
-                    return std::make_shared< CM_Struc_Nonlinear_Isotropic_Neo_Hookean >();
+                case Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_BONET :
+                    return std::make_shared< CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet >();
+
+                case Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS :
+                    return std::make_shared< CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Wriggers >();
 
                 case Constitutive_Type::FLUID_INCOMPRESSIBLE :
                     return std::make_shared< CM_Fluid_Incompressible >();
