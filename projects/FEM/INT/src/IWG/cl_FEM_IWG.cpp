@@ -2489,7 +2489,7 @@ namespace moris
                 // TODO @ff: What can I do in this case?
             }
 
-            if ( aDebugOutput )
+            if ( aDebugOutput ) // TODO @ff: Remove this debug output
             {
                 // O     = Original point on leader
                 // L1/L2 = leader point 1/2
