@@ -283,7 +283,7 @@ namespace moris::gen
          * Finds the background elemenent in aField that contains aCoordinates
          *
          * @param aCoordinate Search global coordinate location
-         * @param aBoundingBox Return variable that holds the bounding box of the found cell
+         * @param aBoundingBox Return variable that holds the bounding box of the found cell 
          *
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */

@@ -554,10 +554,18 @@ namespace moris::gen
             mtk::Mesh_Pair    aMeshPair,
             sol::Dist_Vector* aOwnedADVs )
     {
-        MORIS_ASSERT( mSharedADVIDs.size() == 1,
-                "discretize() - Level Set geometries should have one set of shared ADV IDs. Size = %ld",
-                mSharedADVIDs.size() );
-        Design_Field::discretize( aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+
+        if ( mSharedADVIDs.size() == 0 )
+        {
+            Design_Field::discretize( aMeshPair, aOwnedADVs, { {} }, mOffsetID );
+        }
+        else
+        {
+            MORIS_ASSERT( mSharedADVIDs.size() == 1,
+                    "discretize() - Level Set geometries should have max one set of shared ADV IDs. Size = %ld",
+                    mSharedADVIDs.size() );
+            Design_Field::discretize( aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -568,10 +576,21 @@ namespace moris::gen
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs )
     {
-        MORIS_ASSERT( mSharedADVIDs.size() == 1,
-                "discretize() - Level Set geometries should have one set of shared ADV IDs. Size = %ld",
-                mSharedADVIDs.size() );
-        Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+
+        if ( aMTKField->get_label() == this->get_name() )
+        {
+            if ( mSharedADVIDs.size() == 0 )
+            {
+                Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, { {} }, mOffsetID );
+            }
+            else
+            {
+                MORIS_ASSERT( mSharedADVIDs.size() == 1,
+                        "discretize() - Level Set geometries should have max one set of shared ADV IDs. Size = %ld",
+                        mSharedADVIDs.size() );
+                Design_Field::discretize( aMTKField, aMeshPair, aOwnedADVs, mSharedADVIDs( 0 ), mOffsetID );
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -275,40 +275,43 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     bool
-    Geometry_Engine::is_intersected(
-            uint                      aGeometryIndex,
-            const Matrix< IndexMat >& aNodeIndices,
-            const Matrix< DDRMat >&   aNodeCoordinates )
+    Geometry_Engine::is_intersected_by_active_geometry( const Matrix< IndexMat >& aNodeIndices )
     {
-        // Create node coordinates
-        Vector< std::shared_ptr< Matrix< DDRMat > > > tNodeCoordinates( aNodeIndices.max() + 1 );
+        // Get first geometric region
+        Geometric_Region tFirstNodeGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), mNodeManager.get_node( aNodeIndices( 0 ) ).get_global_coordinates() );
 
-        // Fill node coordinates
+        // Test nodes for other geometric regions
         for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
         {
-            tNodeCoordinates( aNodeIndices( iNodeInEntityIndex ) ) = std::make_shared< Matrix< DDRMat > >( aNodeCoordinates.get_row( iNodeInEntityIndex ) );
+            // Get test geometric region
+            Geometric_Region tTestGeometricRegion = mGeometries( mActiveGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), mNodeManager.get_node( aNodeIndices( iNodeInEntityIndex ) ).get_global_coordinates() );
+
+            // Test if it is different from the first region. If so, the entity is intersected
+            if ( tTestGeometricRegion != tFirstNodeGeometricRegion )
+            {
+                return true;
+            }
         }
 
-        // Return result
-        return is_intersected( aGeometryIndex, aNodeIndices, &tNodeCoordinates );
+        // If no differences were found, this entity is not intersected
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     bool
     Geometry_Engine::is_intersected(
-            uint                                                         aGeometryIndex,
-            const Matrix< IndexMat >&                                    aNodeIndices,
-            Vector< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates )
+            uint                      aGeometryIndex,
+            const Matrix< IndexMat >& aNodeIndices )
     {
         // Get first geometric region
-        Geometric_Region tFirstNodeGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), *( *aNodeCoordinates )( aNodeIndices( 0 ) ) );
+        Geometric_Region tFirstNodeGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( 0 ), mNodeManager.get_node( aNodeIndices( 0 ) ).get_global_coordinates() );
 
         // Test nodes for other geometric regions
         for ( uint iNodeInEntityIndex = 0; iNodeInEntityIndex < aNodeIndices.length(); iNodeInEntityIndex++ )
         {
             // Get test geometric region
-            Geometric_Region tTestGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), *( *aNodeCoordinates )( aNodeIndices( iNodeInEntityIndex ) ) );
+            Geometric_Region tTestGeometricRegion = mGeometries( aGeometryIndex )->get_geometric_region( aNodeIndices( iNodeInEntityIndex ), mNodeManager.get_node( aNodeIndices( iNodeInEntityIndex ) ).get_global_coordinates() );
 
             // Test if it is different from the first region. If so, the entity is intersected
             if ( tTestGeometricRegion != tFirstNodeGeometricRegion )
@@ -762,7 +765,6 @@ namespace moris::gen
             }
             for ( moris::uint iGeom = 0; iGeom < this->get_number_of_geometries(); iGeom++ )
             {
-                // BRENDAN is this okay?
                 Vector< real > tGeometryInfo;
                 mGeometries( iGeom )->get_design_info( tVertex.get_index(), tCoords, tGeometryInfo );
 
@@ -1005,12 +1007,9 @@ namespace moris::gen
                 bool tUseMTKField = false;
                 for ( const auto& iMTKField : aFields )
                 {
-                    if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
-                    {
-                        mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs );
-                        tUseMTKField = true;
-                        break;
-                    }
+                    mGeometries( iGeometryIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs );
+                    tUseMTKField = true;
+                    break;
                 }
 
                 // Otherwise discretize with original field
@@ -1031,7 +1030,6 @@ namespace moris::gen
             bool tUseMTKField = false;
             for ( const auto& iMTKField : aFields )
             {
-                // FIXME: needs to loop over fields
                 if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
                 {
                     mProperties( iPropertyIndex )->discretize( iMTKField, aMeshPair, tNewOwnedADVs );
@@ -1368,116 +1366,6 @@ namespace moris::gen
             // Finalize
             tWriter.close_file( true );
         }
-
-        // Write mesh
-        mtk::Writer_Exodus tWriter( aMesh );
-        tWriter.write_mesh( "./", aExodusFileName, "./", "gen_temp.exo" );
-
-        // Setup field names
-        uint tNumGeometryFields = 0;
-        uint tNumPropertyFields = 0;
-        for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
-        {
-            tNumGeometryFields += mGeometries( iGeom )->get_num_fields();
-        }
-        for ( uint iProperty = 0; iProperty < mProperties.size(); iProperty++ )
-        {
-            tNumPropertyFields += mProperties( iProperty )->get_num_fields();
-        }
-        Vector< std::string > tFieldNames( tNumGeometryFields + tNumPropertyFields );
-
-        // Geometry field names
-        uint iFieldIndex = 0;
-        for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-        {
-            for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
-            {
-                tFieldNames( iFieldIndex ) = mGeometries( tGeometryIndex )->get_name();
-                if ( tFieldNames( tGeometryIndex ).empty() )
-                {
-                    tFieldNames( tGeometryIndex ) = "Geometry " + std::to_string( tGeometryIndex ) + "Field " + std::to_string( iGeometryFieldIndex );
-                }
-                iFieldIndex++;
-            }
-        }
-
-        MORIS_ASSERT( iFieldIndex == tNumGeometryFields, "GEN - Geometry_Engine::output_fields_on_mesh() Number of output fields does not equal total number of geometry fields." );
-
-        // Property field names
-        for ( uint tPropertyIndex = 0; tPropertyIndex < tNumPropertyFields; tPropertyIndex++ )
-        {
-            for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
-            {
-                tFieldNames( tNumGeometryFields + tPropertyIndex ) = mProperties( tPropertyIndex )->get_name();
-                if ( tFieldNames( tNumGeometryFields + tPropertyIndex ).empty() )
-                {
-                    tFieldNames( tNumGeometryFields + tPropertyIndex ) = "Property " + std::to_string( tPropertyIndex ) + "Field " + std::to_string( iPropertyFieldIndex );
-                }
-            }
-        }
-
-        // write time to file
-        tWriter.set_time( tTimeShift );
-
-        // Set nodal fields based on field names
-        tWriter.set_nodal_fields( tFieldNames );
-
-        // Get all node coordinates
-        Vector< Matrix< DDRMat > > tNodeCoordinates( aMesh->get_num_nodes() );
-        for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
-        {
-            tNodeCoordinates( tNodeIndex ) = aMesh->get_node_coordinate( tNodeIndex );
-        }
-
-        // Loop over geometries
-        for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-        {
-            for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
-            {
-                // Create field vector
-                Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
-
-                for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
-                {
-                    // Get design info from the geometry
-                    Vector< real > tGeometryInfo;
-                    mGeometries( tGeometryIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tGeometryInfo );
-
-                    // Assign field to vector
-                    tFieldData( tNodeIndex ) = tGeometryInfo( iGeometryFieldIndex );
-                }
-
-                // Create field on mesh
-                tWriter.write_nodal_field( tFieldNames( tGeometryIndex ), tFieldData );
-            }
-        }
-
-        // Loop over properties
-        for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
-        {
-            for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
-            {
-                // Create field vector
-                Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
-
-                // Loop over all nodes on the mesh
-                for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
-                {
-                    // Get design info from the property
-                    Vector< real > tPropertyInfo;
-                    mProperties( tPropertyIndex )->get_design_info( tNodeIndex, tNodeCoordinates( tNodeIndex ), tPropertyInfo );
-
-                    // Assign field to vector
-                    tFieldData( tNodeIndex ) = tPropertyInfo( iPropertyFieldIndex );
-                }
-
-                // Create field on mesh
-                tWriter.write_nodal_field( tFieldNames( tNumGeometryFields + tPropertyIndex ), tFieldData );
-            }
-        }
-
-        // Finalize
-        tWriter.close_file( true );
     }
 
     //--------------------------------------------------------------------------------------------------------------

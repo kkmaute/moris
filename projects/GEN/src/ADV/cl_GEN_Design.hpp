@@ -44,8 +44,8 @@ namespace moris::gen
         Design_Parameters mParameters;
 
       protected:
-        uint                       mOffsetID;     // Offset of the global ADVs to this Design's ADVs 
-        Vector< Matrix< DDSMat > > mSharedADVIDs; // IDs of the ADVs that this design shares. Size = number of fields
+        uint                       mOffsetID;             // Offset of the global ADVs to this Design's ADVs
+        Vector< Matrix< DDSMat > > mSharedADVIDs;    // IDs of the ADVs that this design shares. Size = number of fields
 
       public:
         /**

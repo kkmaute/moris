@@ -474,7 +474,7 @@ namespace moris::xtk
             // iterate through all geometries for current cell
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
-                if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity(), tGeometricQuery.get_query_indexed_coordinates() ) )
+                if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity() ) )
                 {
                     // add background cell to the list for iGEOM
                     aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
@@ -538,7 +538,7 @@ namespace moris::xtk
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
                 // set to true if cell is cut by current or any previous geometry
-                tCellIsCut = tCellIsCut || mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity(), tGeometricQuery.get_query_indexed_coordinates() );
+                tCellIsCut = tCellIsCut || mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity() );
             }
 
             // if the cell is not cut by any geometry, store the cell's index
@@ -871,8 +871,8 @@ namespace moris::xtk
                     }
                 }    // end: only consider neighbors that already have a bulk-phase assigned to them
 
-            }        // end: only treat facets with two IG cells connected to it
-        }            // end: loop over all facets attached to current IG cell
+            }    // end: only treat facets with two IG cells connected to it
+        }        // end: loop over all facets attached to current IG cell
 
         // initialize vote counter
         moris_index tWinnerBulkPhase = MORIS_INDEX_MAX;
@@ -1847,7 +1847,7 @@ namespace moris::xtk
 
             }    // end for: communicated sub-phases from current proc
 
-        }        // end for: communication list for each processor
+        }    // end for: communication list for each processor
     }
 
     // ----------------------------------------------------------------------------------
@@ -1997,7 +1997,7 @@ namespace moris::xtk
 
         }    // end if: parallel
 
-    }        // end function: Cut_Integration_Mesh::assign_subphase_group_glob_ids()
+    }    // end function: Cut_Integration_Mesh::assign_subphase_group_glob_ids()
 
     // ----------------------------------------------------------------------------------
 
@@ -2139,7 +2139,7 @@ namespace moris::xtk
 
             }    // end for: communication for each entity with current processor
 
-        }        // end for: communication list for each processor
+        }    // end for: communication list for each processor
     }
 
     // ----------------------------------------------------------------------------------
@@ -5102,11 +5102,11 @@ namespace moris::xtk
 
                 }    // end for: loop over the Lagrange elements inside the current coarsest B-spline element
 
-            }        // end if: only treat elements whose void MSD Indices have not been found yet
+            }    // end if: only treat elements whose void MSD Indices have not been found yet
 
-        }            // end for: loop over all lagrange elements
+        }    // end for: loop over all lagrange elements
 
-    }                // end function: Integration_Mesh_Generator::construct_SPG_material_connectivity_information(...)
+    }    // end function: Integration_Mesh_Generator::construct_SPG_material_connectivity_information(...)
 
     // ----------------------------------------------------------------------------------
 

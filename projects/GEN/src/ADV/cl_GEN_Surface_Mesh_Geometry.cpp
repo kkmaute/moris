@@ -47,7 +47,7 @@ namespace moris::gen
             , Object( aParameters.mFilePath, aParameters.mIntersectionTolerance, aParameters.mOffsets, aParameters.mScale )
             , mParameters( aParameters )
             , mMesh( aMesh )
-            , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mVertices.size() )
+            , mOriginalVertexCoordinates( Object::mVertices.size(), Object::mDimension )
             , mPerturbationFields( 0 )
     {
         // Check the correct number of ADVs are provided (either as many as dimensions or zero)
@@ -309,8 +309,11 @@ namespace moris::gen
 
         // update the surface mesh with the new field data
         // FIXME: Put this in the above loop so it doesn't get called unless necessary
-        Vector< Vector< real > > tElementBoundingBox( 2, Object::mDimension );
-        Matrix< DDRMat >         tVertexParametricCoordinates( Object::mDimension, 1 );
+
+        // Initialize a bounding box
+        Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
+
+        Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
         for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
         {
             // Initialize perturbation vector
@@ -325,6 +328,7 @@ namespace moris::gen
             {    // determine the local coordinates of the vertex inside the mtk::Cell
                 for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
                 {
+                    // BRENDAN, parametric coordinates might need to be between -1 and 1
                     tVertexParametricCoordinates( iDimensionIndex, 0 ) = ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex )
                                                                                  - tElementBoundingBox( 0 )( iDimensionIndex ) )
                                                                        / ( tElementBoundingBox( 1 )( iDimensionIndex )
@@ -411,6 +415,9 @@ namespace moris::gen
             mtk::Mesh_Pair    aMeshPair,
             sol::Dist_Vector* aOwnedADVs )
     {
+        MORIS_ASSERT( Design::mSharedADVIDs.size() == Object::mDimension or Design::mSharedADVIDs.size() == 0,
+                "mSharedADVIDs should have as many entries as dimensions. Size = %ld",
+                mSharedADVIDs.size() );
         if ( mParameters.mDiscretizationIndex >= 0 )
         {
             for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
@@ -537,17 +544,22 @@ namespace moris::gen
             Vector< Vector< real > >& aBoundingBox )
     {
         // Loop through each mtk::Cell
-        for ( uint iElementIndex = 0; iElementIndex < mMesh->get_num_elems(); iElementIndex++ )
+        for ( uint iCellIndex = 0; iCellIndex < mMesh->get_num_elems(); iCellIndex++ )
         {
-            // Get the vertices of the mtk::Cell at this index
-            Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = mMesh->get_mtk_cell( iElementIndex ).get_vertex_coords();
+            // Determine if the coordinate is in the bounding box
+            bool tCoordinateInCell = true;
 
-            // Build bounding box for this mtk::Cell
-            // Loop over dimensions
+            // Get the vertices of the mtk::Cell at this index
+            Matrix< DDRMat > tCurrentSearchElementVertexCoordinates = mMesh->get_mtk_cell( iCellIndex ).get_vertex_coords();
+
+            // Build bounding box, set the box as the coordinates for the first vertex
             for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
             {
-                // Loop over vertices
-                for ( uint iVertexIndex = 0; iVertexIndex < tCurrentSearchElementVertexCoordinates.n_rows(); iVertexIndex++ )
+                aBoundingBox( 0 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
+                aBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( 0, iDimensionIndex );
+
+                // Loop over the rest of the vertices
+                for ( uint iVertexIndex = 1; iVertexIndex < tCurrentSearchElementVertexCoordinates.n_rows(); iVertexIndex++ )
                 {
                     // check if the entry is less than the minimum
                     if ( tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex ) < aBoundingBox( 0 )( iDimensionIndex ) )
@@ -560,33 +572,27 @@ namespace moris::gen
                         aBoundingBox( 1 )( iDimensionIndex ) = tCurrentSearchElementVertexCoordinates( iVertexIndex, iDimensionIndex );
                     }
                 }
-            }
 
-            // Check if the query point is inside the bounding box
-            bool tInsideBoundingBox = true;
-
-            // Loop over dimensions
-            for ( uint iDimensionIndex = 0; iDimensionIndex < tCurrentSearchElementVertexCoordinates.n_cols(); iDimensionIndex++ )
-            {
-                // Check if the point is outside the bounding box
+                // check if the point is outside the bounding box
                 if ( aCoordinate( iDimensionIndex ) < aBoundingBox( 0 )( iDimensionIndex )
                         or aCoordinate( iDimensionIndex ) > aBoundingBox( 1 )( iDimensionIndex ) )
                 {
-                    // if outside, set flag to false
-                    tInsideBoundingBox = false;
+                    tCoordinateInCell = false;
                 }
             }
 
-            // if the element has been found, return its index
-            if ( tInsideBoundingBox )
+            // The coordinate is in the cell if it is within the bounding box in every dimension
+            if ( tCoordinateInCell == true )
             {
-                return iElementIndex;
+                // If so, return this element's index
+                return iCellIndex;
             }
         }
 
         // if no element found, return -1
         return -1;
     }
+
 
     real Surface_Mesh_Geometry::interpolate_perturbation_from_background_element(
             mtk::Cell*              aBackgroundElement,
@@ -600,7 +606,7 @@ namespace moris::gen
         mtk::Interpolation_Function_Factory tFactory;
         mtk::Interpolation_Function_Base*   tInterpolation;
 
-        // create interpolation function based on spatial dimension  of problem
+        // create interpolation function based on spatial dimension of problem
         tInterpolation = tFactory.create_interpolation_function(
                 aBackgroundElement->get_geometry_type(),
                 mtk::Interpolation_Type::LAGRANGE,
@@ -621,13 +627,6 @@ namespace moris::gen
         for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
             Matrix< DDRMat > tVertexCoordinates( &tAllVertexCoordinates( iBackgroundNodeIndex, 0 ), 0, Object::mDimension );
-
-            // // FIXME: get vertex coordinates for this vertex. This copy is slow to have to do for every surface mesh vertex
-            // Matrix< DDRMat > tVertexCoordinates( 1, Object::mDimension );
-            // for ( uint iDimension = 0; iDimension < Object::mDimension; iDimension++ )
-            // {
-            //     tVertexCoordinates( 0, iDimension ) = tAllVertexCoordinates( iBackgroundNodeIndex, iDimension );
-            // }
 
             // add this vertex's field value to the value
             tPerturbation += tBasis( iBackgroundNodeIndex ) * mPerturbationFields( aFieldIndex )->get_field_value( tVertexIndices( iBackgroundNodeIndex ), tVertexCoordinates );

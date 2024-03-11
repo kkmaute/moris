@@ -221,7 +221,14 @@ namespace moris::xtk
             }
 
             // see if the edge is intersected using the geometry engine
-            bool tIsIntersected = mGeometryEngine->queue_intersection( tEdgeToVertex( 0 ),
+            bool tIsIntersected = mGeometryEngine->is_intersected_by_active_geometry( tEdgeToVertex );
+
+            // for intersected edges, invoke intersection procedure
+            if ( tIsIntersected )
+            {
+                // Queue intersection node
+                mGeometryEngine->queue_intersection( 
+                    tEdgeToVertex( 0 ),
                     tEdgeToVertex( 1 ),
                     tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
                     tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
@@ -229,9 +236,6 @@ namespace moris::xtk
                     tGeometricQuery.get_geometry_type(),
                     tGeometricQuery.get_interpolation_order() );
 
-            // for intersected edges, invoke intersection procedure
-            if ( tIsIntersected )
-            {
                 bool tBothVerticesNotOnInterface =
                         !mGeometryEngine->queued_intersection_first_parent_on_interface()
                         && !mGeometryEngine->queued_intersection_second_parent_on_interface();

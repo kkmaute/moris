@@ -24,13 +24,13 @@ namespace moris::gen
 {
     class Geometry;
     class Property;
-}
+}    // namespace moris::gen
 
 namespace moris::MSI
 {
     // Forward declare design variable interface
     class Design_Variable_Interface;
-}
+}    // namespace moris::MSI
 
 namespace moris::sol
 {
@@ -43,14 +43,12 @@ namespace moris::gen
     {
 
       protected:
-
         // Protected for access in test version
-        Node_Manager                        mNodeManager;
+        Node_Manager                          mNodeManager;
         Vector< std::shared_ptr< Geometry > > mGeometries;
         Vector< std::shared_ptr< Property > > mProperties;
 
       private:
-
         // Phase Table
         Phase_Table mPhaseTable;
 
@@ -79,16 +77,15 @@ namespace moris::gen
         real        mTimeOffset;
 
         // PDVs
-        PDV_Host_Manager                     mPDVHostManager;
+        PDV_Host_Manager   mPDVHostManager;
         Intersection_Node* mQueuedIntersectionNode = nullptr;
 
         // diagnostic information
-        bool        mDiagnostics    = false;
+        bool        mDiagnostics = false;
         std::string mDiagnosticPath;
         std::string mDiagnosticId;
 
       public:
-
         /**
          * Constructor using cell of cell of parameter lists
          *
@@ -97,7 +94,7 @@ namespace moris::gen
          * @param aMesh Mesh for discrete or mesh based geomtries
          */
         explicit Geometry_Engine(
-                Vector< Vector< ParameterList > >        aParameterLists,
+                Vector< Vector< ParameterList > >    aParameterLists,
                 const std::shared_ptr< Library_IO >& aLibrary = nullptr,
                 mtk::Mesh*                           aMesh    = nullptr );
 
@@ -163,8 +160,8 @@ namespace moris::gen
          */
         void
         set_phase_function(
-                PHASE_FUNCTION      aPhaseFunction,
-                uint                aNumPhases,
+                PHASE_FUNCTION               aPhaseFunction,
+                uint                         aNumPhases,
                 const Vector< std::string >& aPhaseNames = {} );
 
         /**
@@ -174,7 +171,7 @@ namespace moris::gen
         void
         set_dQIdp(
                 const Vector< Matrix< DDRMat >* >& adQIdp,
-                Matrix< DDSMat >*                aMap );
+                Matrix< DDSMat >*                  aMap );
 
         /**
          * Gets the sensitivities of the criteria with respect to the advs
@@ -191,17 +188,12 @@ namespace moris::gen
         MSI::Design_Variable_Interface* get_design_variable_interface();
 
         /**
-         * Returns if the element consisting of provided node indices and coordinates is intersected by the given geometry.
-         *
-         * @param aGeometryIndex Geometry index
+         * Returns if the element consisting of provided node indices and coordinates is intersected by the active geometry index.
+         * 
          * @param aNodeIndices Node indices
-         * @param aNodeCoordinates Node coordinates
          * @return If the element is intersected
          */
-        bool is_intersected(
-                uint                      aGeometryIndex,
-                const Matrix< IndexMat >& aNodeIndices,
-                const Matrix< DDRMat >&   aNodeCoordinates );
+        bool is_intersected_by_active_geometry( const Matrix< IndexMat >& aNodeIndices );
 
         /**
          * Returns if the element consisting of provided node indices and coordinates is intersected by the given geometry.
@@ -212,9 +204,9 @@ namespace moris::gen
          * @return If the element is intersected
          */
         bool is_intersected(
-                uint                                         aGeometryIndex,
-                const Matrix< IndexMat >&                    aNodeIndices,
-                Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
+                uint                      aGeometryIndex,
+                const Matrix< IndexMat >& aNodeIndices
+                /*Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates BRENDAN*/ );
 
         /**
          * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
@@ -295,8 +287,8 @@ namespace moris::gen
         void create_new_derived_nodes(
                 const Vector< Matrix< IndexMat > >& aVertexIndices,
                 const Vector< Matrix< DDRMat > >&   aParametricCoordinates,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder );
+                mtk::Geometry_Type                  aBackgroundGeometryType,
+                mtk::Interpolation_Order            aBackgroundInterpolationOrder );
 
         /**
          * Overloaded version of creating derived nodes. Calls other version internally.
@@ -413,7 +405,7 @@ namespace moris::gen
          */
         void distribute_advs(
                 mtk::Mesh_Pair                          aMeshPair,
-                Vector< std::shared_ptr< mtk::Field > > aFields = {},
+                Vector< std::shared_ptr< mtk::Field > > aFields        = {},
                 mtk::EntityRank                         aADVEntityRank = mtk::EntityRank::BSPLINE );
 
         /**
@@ -480,7 +472,6 @@ namespace moris::gen
         //-------------------------------------------------------------------------------
 
       private:
-
         /**
          * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh
          *
@@ -488,8 +479,8 @@ namespace moris::gen
          * @param aMeshIndex Interpolation mesh index
          */
         void create_interpolation_pdvs(
-                mtk::Interpolation_Mesh*         aInterpolationMesh,
-                mtk::Integration_Mesh*           aIntegrationMesh,
+                mtk::Interpolation_Mesh*               aInterpolationMesh,
+                mtk::Integration_Mesh*                 aIntegrationMesh,
                 Vector< Vector< Vector< PDV_Type > > > aPDVTypes );
 
         /**
@@ -512,7 +503,7 @@ namespace moris::gen
          */
         static Phase_Table create_phase_table(
                 const Vector< Vector< ParameterList > >& aParameterLists,
-                const std::shared_ptr< Library_IO >& aLibrary );
+                const std::shared_ptr< Library_IO >&     aLibrary );
 
         /**
          * Decides how to construct the phase table based on the given parameter lists
@@ -527,6 +518,5 @@ namespace moris::gen
                 const Matrix< DDUMat >& aBulkPhases,
                 PHASE_FUNCTION          aPhaseFunction = nullptr,
                 uint                    aNumPhases     = 1 );
-
     };
-}
+}    // namespace moris::gen
