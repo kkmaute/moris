@@ -270,7 +270,7 @@ namespace moris::fem
             tIWG->set_name( tIWGName );
             mIWGs[ tIWGName ] = tIWG;
 
-            tIWG->set_is_analytical_jacobian( tIWGParameter.get< bool >( "analytical_jacobian" ) );
+            tIWG->set_is_fd_jacobian( not tIWGParameter.get< bool >( "analytical_jacobian" ) ); // warning: this is a negation
 
             // get function parameters
             auto tFuncParameters = string_to_cell_mat_2< DDRMat >( tIWGParameter.get< std::string >( "function_parameters" ) );
@@ -338,7 +338,7 @@ namespace moris::fem
             tIQI->set_parameters( tFuncParameters );
 
             tIQI->set_normalization_type( tIQIParameter.get< std::string >( "normalization" ) );
-            
+
             // loop over leader and follower and set the appropriate properties
             Vector< mtk::Leader_Follower > const tLeaderFollower{ mtk::Leader_Follower::LEADER, mtk::Leader_Follower::FOLLOWER };
             for ( auto const &tLeaderFollowerType : tLeaderFollower )

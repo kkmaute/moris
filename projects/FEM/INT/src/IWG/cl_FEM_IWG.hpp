@@ -156,7 +156,7 @@ namespace moris
             bool mIsGhost = false;
 
             // compute the jacobian using finite differencing (independent on the setting for the whole FEM set)
-            bool mIsAnalyticalJacobian = true;
+            bool mIsFDJacobian = false;
 
           protected:
             // string for IWG name
@@ -328,14 +328,14 @@ namespace moris
              */
             void print_names();
 
-            bool is_analytical_jacobian() const
+            bool is_fd_jacobian() const
             {
-                return mIsAnalyticalJacobian;
+                return mIsFDJacobian;
             };
 
-            void set_is_analytical_jacobian( bool aIsAnalyticalJacobian )
+            void set_is_fd_jacobian( bool aIsFDJacobian )
             {
-                mIsAnalyticalJacobian = aIsAnalyticalJacobian;
+                mIsFDJacobian = aIsFDJacobian;
             };
             //------------------------------------------------------------------------------
             /*
