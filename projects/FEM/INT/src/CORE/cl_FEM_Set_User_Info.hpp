@@ -71,6 +71,8 @@ namespace moris
                // enum for perturbation strategy used for FD (FA and SA)
                 fem::Perturbation_Type mPerturbationStrategy = fem::Perturbation_Type::RELATIVE;
 
+                mtk::Integration_Order mIntegrationOrder = mtk::Integration_Order::UNDEFINED;
+
                 //------------------------------------------------------------------------------
             public :
 
@@ -340,6 +342,16 @@ namespace moris
                 enum fem::Perturbation_Type get_perturbation_strategy() const
                 {
                     return mPerturbationStrategy;
+                }
+
+                mtk::Integration_Order get_integration_order() const
+                {
+                    return mIntegrationOrder;
+                }
+
+                void set_integration_order( mtk::Integration_Order aIntegrationOrder )
+                {
+                    mIntegrationOrder = aIntegrationOrder;
                 }
 
                 //------------------------------------------------------------------------------

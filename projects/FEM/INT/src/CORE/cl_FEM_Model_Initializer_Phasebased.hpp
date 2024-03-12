@@ -50,7 +50,7 @@ namespace moris::fem
                 fem::Element_Type           aBulkType,
                 const std::string          &aLeaderPhaseName,
                 const std::string          &aFollowerPhaseName,
-                const std::string          &aNeighborPhasesString,
+                const std::string          &aNeighborPhaseString,
                 const std::string          &aSideOrdinalsString,
                 bool                        aIsGhost,
                 Vector< std::string > &aMeshSetNames );

@@ -191,7 +191,7 @@ namespace moris
             tParameterList.insert( "side_ordinals", "" );
             tParameterList.insert( "neighbor_phases", "" );
 
-            tParameterList.insert("analytical_jacobian", true);
+            tParameterList.insert( "analytical_jacobian", true );
 
             tParameterList.insert( "time_continuity", false );
             tParameterList.insert( "time_boundary", false );
@@ -295,6 +295,9 @@ namespace moris
 
             // real for relative perturbation size for finite difference for forward analysis
             tParameterList.insert( "finite_difference_perturbation_size_forward", 1e-6 );
+
+            // integration order that should be used for the raytracing of nonconformal side sets
+            tParameterList.insert( "nonconformal_integration_order", static_cast< uint >( mtk::Integration_Order::UNDEFINED ) );
 
             // bool true for analytical sensitivity analysis, false for finite difference
             // decide if dRdp and dQIdp are computed by A/FD

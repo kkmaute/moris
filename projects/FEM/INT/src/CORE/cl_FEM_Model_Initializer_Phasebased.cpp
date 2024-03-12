@@ -8,6 +8,7 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_IQI_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_Set_User_Info.hpp"
 
 namespace moris::fem
 {
@@ -584,7 +585,7 @@ namespace moris::fem
 
                 // check for unknown phase
                 MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                        "Model_Initializer_Phasebased::create_IWGs_without_phase - Unknown phase name: %s \n",
+                        "Unknown phase name: %s \n",
                         tPhaseName.c_str() );
 
                 // set phase name
@@ -612,7 +613,7 @@ namespace moris::fem
 
                     // check for unknown property
                     MORIS_ERROR( mPropertyMap.find( tPropertyName ) != mPropertyMap.end(),
-                            "Model_Initializer_Phasebased::create_IWGs_without_phase - Unknown %s aPropertyString: %s \n",
+                            "Unknown %s aPropertyString: %s \n",
                             tIsLeaderString.c_str(),
                             tPropertyName.c_str() );
 
@@ -631,7 +632,7 @@ namespace moris::fem
                 string_to_cell_of_cell(
                         tIWGParameter.get< std::string >( tIsLeaderString + "_material_model" ),
                         tMMNamesPair );
-                MORIS_ERROR( tMMNamesPair.size() <= 1, "Model_Initializer_Phasebased::create_IWGs_without_phase() - Only one material model per CM allowed." );
+                MORIS_ERROR( tMMNamesPair.size() <= 1, "Model_Initializer_Phasebased::create_iwgs() - Only one material model per CM allowed." );
 
                 // loop over material model
                 for ( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
@@ -688,7 +689,7 @@ namespace moris::fem
 
                 // check for unknown SP
                 MORIS_ERROR( mStabilizationParameterMap.find( tSPName ) != mStabilizationParameterMap.end(),
-                        "Model_Initializer_Phasebased::create_IWGs_without_phase - Unknown aSPString: %s \n",
+                        "Unknown aSPString: %s \n",
                         tSPName.c_str() );
 
                 // get SP index
@@ -716,7 +717,7 @@ namespace moris::fem
 
             // check for unknown phase
             MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                    "Model_Initializer_Phasebased::create_IWGs_without_phase - Unknown phase name: %s \n",
+                    "Unknown phase name: %s \n",
                     tPhaseName.c_str() );
 
             // get the phase index
@@ -744,7 +745,7 @@ namespace moris::fem
 
                 // check for unknown phase
                 MORIS_ERROR( mPhaseMap.find( tFollowerPhaseName ) != mPhaseMap.end(),
-                        "Model_Initializer_Phasebased::create_IWGs_without_phase - Unknown phase name: %s \n",
+                        "Unknown phase name: %s \n",
                         tFollowerPhaseName.c_str() );
 
                 // get CM index
@@ -1023,20 +1024,16 @@ namespace moris::fem
             bool tIsGhost = mIWGs( iIWG )->get_ghost_flag();
 
             // get the IWG leader phase name
-            std::string tLeaderPhaseName =
-                    mIWGs( iIWG )->get_phase_name( mtk::Leader_Follower::LEADER );
+            std::string tLeaderPhaseName = mIWGs( iIWG )->get_phase_name( mtk::Leader_Follower::LEADER );
 
             // get the IWG follower phase name
-            std::string tFollowerPhaseName =
-                    mIWGs( iIWG )->get_phase_name( mtk::Leader_Follower::FOLLOWER );
+            std::string tFollowerPhaseName = mIWGs( iIWG )->get_phase_name( mtk::Leader_Follower::FOLLOWER );
 
             // get follower phase string from IWG input
-            std::string tFollowerPhaseString =
-                    tIWGParameter.get< std::string >( "neighbor_phases" );
+            std::string tNeighborPhasesName = tIWGParameter.get< std::string >( "neighbor_phases" );
 
             // get ordinal string from IWG input
-            std::string tOrdinalString =
-                    tIWGParameter.get< std::string >( "side_ordinals" );
+            std::string tOrdinalString = tIWGParameter.get< std::string >( "side_ordinals" );
 
             // get mesh set names for IWG
             Vector< std::string > tMeshSetNames;
@@ -1044,7 +1041,7 @@ namespace moris::fem
                     tIWGBulkType,
                     tLeaderPhaseName,
                     tFollowerPhaseName,
-                    tFollowerPhaseString,
+                    tNeighborPhasesName,
                     tOrdinalString,
                     tIsGhost,
                     tMeshSetNames );
@@ -1106,6 +1103,13 @@ namespace moris::fem
 
                     // set its perturbation strategy for finite difference
                     aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
+
+                    if ( tIWGBulkType == fem::Element_Type::NONCONFORMAL_SIDESET )
+                    {
+                        mtk::Integration_Order tIntegrationOrder = static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
+                        MORIS_ASSERT( tIntegrationOrder != mtk::Integration_Order::UNDEFINED, "Integration order for nonconformal sideset 'nonconformal_integration_order' is not defined in the computation parameter list." );
+                        aSetUserInfo.set_integration_order( tIntegrationOrder );
+                    }
 
                     // set the IWG
                     aSetUserInfo.add_IWG( mIWGs( iIWG ) );
@@ -1243,17 +1247,15 @@ namespace moris::fem
             fem::Element_Type      aIWGBulkType,
             const std::string     &aLeaderPhaseName,
             const std::string     &aFollowerPhaseName,
-            const std::string     &aFollowerPhaseString,
+            const std::string     &aNeighborPhaseString,
             const std::string     &aOrdinalString,
             bool                   aIsGhost,
             Vector< std::string > &aMeshSetNames )
     {
         // get the leader phase mesh index
-        moris::Matrix< moris::IndexMat > tLeaderPhaseIndices =
-                mPhaseInfo( mPhaseMap[ aLeaderPhaseName ] ).get_phase_indices();
-
-        // get the number of leader phase mesh indices
-        uint tNumLeaderIndices = tLeaderPhaseIndices.numel();
+        MORIS_ERROR( mPhaseMap.find( aLeaderPhaseName ) != mPhaseMap.end(), "Unknown leader phase name: %s \n", aLeaderPhaseName.c_str() );
+        moris::Matrix< moris::IndexMat > tLeaderPhaseIndices = mPhaseInfo( mPhaseMap[ aLeaderPhaseName ] ).get_phase_indices();
+        uint                             tNumLeaderIndices   = tLeaderPhaseIndices.numel();
 
         // switch on the element type
         switch ( aIWGBulkType )
@@ -1280,16 +1282,14 @@ namespace moris::fem
             case fem::Element_Type::SIDESET:
             {
                 // get neighbor phase names from string
-                Vector< std::string > tFollowerPhaseNames;
-                string_to_cell( aFollowerPhaseString, tFollowerPhaseNames );
+                Vector< std::string > tNeighborPhaseNames = string_to_cell< std::string >( aNeighborPhaseString );
 
                 // get number of neighbor phase
-                uint tNumSingle = tFollowerPhaseNames.size();
+                uint tNumSingle = tNeighborPhaseNames.size();
 
                 // get ordinals for boundary from string
-                Matrix< DDSMat > tOrdinals;
-                string_to_mat( aOrdinalString, tOrdinals );
-                uint tNumBoundary = tOrdinals.numel();
+                Matrix< DDSMat > tOrdinals    = string_to_mat< DDSMat >( aOrdinalString );
+                uint             tNumBoundary = tOrdinals.numel();
 
                 // loop over leader phase mesh indices
                 for ( uint iLeaderMeshIndex = 0; iLeaderMeshIndex < tNumLeaderIndices; iLeaderMeshIndex++ )
@@ -1298,21 +1298,20 @@ namespace moris::fem
                     for ( uint iSingle = 0; iSingle < tNumSingle; iSingle++ )
                     {
                         // get the neighbor phase name
-                        std::string tNeighborPhaseName = tFollowerPhaseNames( iSingle );
+                        std::string tNeighborPhaseName = tNeighborPhaseNames( iSingle );
 
                         // get the follower phase mesh index
-                        moris::Matrix< moris::IndexMat > tFollowerPhaseIndices =
-                                mPhaseInfo( mPhaseMap[ tNeighborPhaseName ] ).get_phase_indices();
+                        moris::Matrix< moris::IndexMat > tNeighborPhaseIndices = mPhaseInfo( mPhaseMap[ tNeighborPhaseName ] ).get_phase_indices();
 
                         // get number of neighbor phase mesh indices
-                        uint tNumNeighborIndices = tFollowerPhaseIndices.numel();
+                        uint tNumNeighborIndices = tNeighborPhaseIndices.numel();
 
                         for ( uint iNeighborMeshIndex = 0; iNeighborMeshIndex < tNumNeighborIndices; iNeighborMeshIndex++ )
                         {
                             // FIXME get this info from the mesh
                             // add mesh set name to list
                             aMeshSetNames.push_back(
-                                    "iside_b0_" + std::to_string( tLeaderPhaseIndices( iLeaderMeshIndex ) ) + "_b1_" + std::to_string( tFollowerPhaseIndices( iNeighborMeshIndex ) ) );
+                                    "iside_b0_" + std::to_string( tLeaderPhaseIndices( iLeaderMeshIndex ) ) + "_b1_" + std::to_string( tNeighborPhaseIndices( iNeighborMeshIndex ) ) );
                         }
                     }
 
@@ -1379,6 +1378,46 @@ namespace moris::fem
                                 aMeshSetNames.push_back(
                                         "dbl_iside_p0_" + std::to_string( tLeaderPhaseIndices( iLeaderMeshIndex ) ) + "_p1_" + std::to_string( tFollowerPhaseIndices( iFollowerMeshIndex ) ) );
                             }
+                        }
+                    }
+                }
+                break;
+            }
+            case Element_Type::NONCONFORMAL_SIDESET:
+            {
+                MORIS_ERROR( !aIsGhost, "Nonconformal sideset cannot be a ghost set" );
+                MORIS_ERROR( !aNeighborPhaseString.empty() && !aFollowerPhaseName.empty(), "Nonconformal sideset requires leader, follower and neighbor (void) phase names" );
+                MORIS_ERROR( aLeaderPhaseName != aFollowerPhaseName, "Leader and follower phases are the same, FIXME case not handled yet " );
+
+                Vector< std::string > tNeighborPhaseNames = string_to_cell< std::string >( aNeighborPhaseString );
+                Vector< uint >        tNeighborPhaseIndices;
+                for ( auto const &tNeighborPhaseName : tNeighborPhaseNames )
+                {
+                    MORIS_ERROR( tNeighborPhaseName != aLeaderPhaseName, "Nonconformal sideset cannot have leader phase as neighbor" );
+                    MORIS_ERROR( tNeighborPhaseName != aFollowerPhaseName, "Nonconformal sideset cannot have follower phase as neighbor" );
+                    MORIS_ERROR( mPhaseMap.find( tNeighborPhaseName ) != mPhaseMap.end(), "Unknown neighbor phase name: %s", tNeighborPhaseName.c_str() );
+
+                    // append the neighbor indices into the continuous list
+                    Matrix< IndexMat > tNeighborIndices = mPhaseInfo( mPhaseMap[ tNeighborPhaseName ] ).get_phase_indices();
+                    for ( auto const tNeighborIndex : tNeighborIndices )
+                    {
+                        tNeighborPhaseIndices.push_back( tNeighborIndex );
+                    }
+                }
+
+                MORIS_ERROR( mPhaseMap.find( aFollowerPhaseName ) != mPhaseMap.end(), "Unknown follower phase name: %s", aFollowerPhaseName.c_str() );
+                Matrix< moris::IndexMat > tFollowerPhaseIndices = mPhaseInfo( mPhaseMap[ aFollowerPhaseName ] ).get_phase_indices();
+
+                for ( auto const tLeaderPhaseIndex : tLeaderPhaseIndices )
+                {
+                    for ( auto const tFollowerPhaseIndex : tFollowerPhaseIndices )
+                    {
+                        for ( auto const tNeighborPhaseIndex : tNeighborPhaseIndices )
+                        {
+                            std::string tMeshName = "ncss";    // TODO @ff: this is a temporary solution, we need to find a better way to name the nonconformal sidesets
+                            tMeshName += "|iside_b0_" + std::to_string( tLeaderPhaseIndex ) + "_b1_" + std::to_string( tNeighborPhaseIndex );
+                            tMeshName += "|iside_b0_" + std::to_string( tFollowerPhaseIndex ) + "_b1_" + std::to_string( tNeighborPhaseIndex );
+                            aMeshSetNames.push_back( tMeshName );
                         }
                     }
                 }
