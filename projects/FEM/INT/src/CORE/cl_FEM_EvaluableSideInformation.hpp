@@ -11,7 +11,6 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include "cl_FEM_Set.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Material_Model.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
@@ -25,6 +24,7 @@
 
 namespace moris::fem
 {
+    class Set;
     class EvaluableSideInformation
     {
       public:

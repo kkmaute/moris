@@ -4,6 +4,7 @@
 
 #include "cl_FEM_EvaluableSideInformation.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
+#include "cl_FEM_Set.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "GEN_Data_Types.hpp"
 #include "cl_MTK_Enums.hpp"

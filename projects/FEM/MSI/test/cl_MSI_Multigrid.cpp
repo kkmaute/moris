@@ -37,6 +37,7 @@
 #include "cl_FEM_Node_Base.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_Element_Bulk.hpp"
+#include "cl_FEM_Set_User_Info.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"

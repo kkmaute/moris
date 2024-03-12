@@ -123,10 +123,6 @@ namespace moris
             enum moris::fem::IWG_Type
             get_IWG_type() { return mIWGType; };
 
-
-            bool is_analytical_jacobian() const { return mIsAnalyticalJacobian; };
-            void set_is_analytical_jacobian( bool aIsAnalyticalJacobian ) { mIsAnalyticalJacobian = aIsAnalyticalJacobian; };
-
             bool is_fd_jacobian() const
             {
                 return mIsFDJacobian;

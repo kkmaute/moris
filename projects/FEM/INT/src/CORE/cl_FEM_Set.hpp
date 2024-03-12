@@ -25,7 +25,6 @@
 #include <cl_FEM_Cluster_Measure.hpp>
 #include <set>
 #include <optional>
-#include "cl_FEM_Set_User_Info.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
@@ -54,6 +53,7 @@ namespace moris
         class Field_Interpolator_Manager;
         class Property;
         class Material_Model;
+        class Set_User_Info;
         class Constitutive_Model;
         class Stabilization_Parameter;
 

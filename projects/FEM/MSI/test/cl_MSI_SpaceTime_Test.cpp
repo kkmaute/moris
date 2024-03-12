@@ -49,6 +49,7 @@
 #include "cl_FEM_Set.hpp"                      //FEM/INT/src
 
 #include "fn_PRM_MSI_Parameters.hpp"                      //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"
 
 namespace moris
 {
