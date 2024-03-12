@@ -32,7 +32,7 @@ namespace moris::hmr
             const Arguments                  & aArguments,
             const Paramfile                  & aParamfile,
             HMR                              * aHMR,
-            Vector< std::shared_ptr< Field > > & aFields )
+        Vector< std::shared_ptr< Field > > & aFields )
     {
         // reset field container
         aFields.clear();

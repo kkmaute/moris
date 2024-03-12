@@ -17,7 +17,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     //-------------------------------------------------------------------------------------
 
@@ -91,6 +91,6 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* fn_XTK_Multiset_Operations.hpp */

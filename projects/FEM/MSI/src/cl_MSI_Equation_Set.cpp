@@ -506,7 +506,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Vector < enum gen::PDV_Type > Equation_Set::get_requested_dv_types()
+        Vector< enum gen::PDV_Type > Equation_Set::get_requested_dv_types()
         {
             Vector< enum gen::PDV_Type > tDvTypes;
             mEquationModel->get_design_variable_interface()->get_ip_requested_dv_types( tDvTypes );

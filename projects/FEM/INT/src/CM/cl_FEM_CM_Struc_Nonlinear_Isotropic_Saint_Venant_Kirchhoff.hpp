@@ -14,7 +14,7 @@
 #include <map>
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Vector.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                          //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -41,16 +41,26 @@ namespace moris
                 MSI::Dof_Type mDofPressure = MSI::Dof_Type::UNDEFINED;
 
                 // property type for CM
-                enum class CM_Property_Type
+                enum class CM_Property_Type_Saint_Venant_Kirchhoff
                 {
-                        EMOD,
-                        NU,
-                        MAX_ENUM
+                    EMOD,
+                    NU,
+                    MAX_ENUM
                 };
+
+                // default local properties
+                std::shared_ptr< Property > mPropEMod    = nullptr;
+                std::shared_ptr< Property > mPropPoisson = nullptr;
 
                 // function pointers
                 void ( CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff:: * m_eval_d1PKStressdDOF )(
                         const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
+
+                void ( CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::*m_d1PKNdFdF )(
+                        Matrix< DDRMat >       &aPNdFdF,
+                        const real             &aLame1,
+                        const real             &aLame2,
+                        const Matrix< DDRMat > &aNorm ) = nullptr;
 
                 void ( CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff:: * mConstFunc )(
                         const real &,
@@ -156,13 +166,6 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * evaluate the traction based on second Piola-Kirchhoff stress Ts = S N
-                 * @param[ in ] aNormal normal in the reference configuration
-                 */
-                void eval_traction_second_piola_kirchhoff( const Matrix< DDRMat > & aNormal );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
                  * evaluate the traction based on cauchy stress t = sigma n
                  * @param[ in ] aNormal normal in the reference configuration
                  */
@@ -175,16 +178,6 @@ namespace moris
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  */
                 void eval_dTractiondDOF_first_piola_kirchhoff(
-                        const Matrix< DDRMat > & aNormal,
-                        const Vector< MSI::Dof_Type > & aDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the derivative of traction based on the second Piola-Kirchhoff stress wrt. dof
-                 * @param[ in ] aNormal normal in the reference configuration
-                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 */
-                void eval_dTractiondDOF_second_piola_kirchhoff(
                         const Matrix< DDRMat > & aNormal,
                         const Vector< MSI::Dof_Type > & aDofTypes );
 
@@ -205,16 +198,6 @@ namespace moris
                  * @param[ in ] aTestDofTypes a test dof type
                  */
                 void eval_testTraction_first_piola_kirchhoff(
-                        const Matrix< DDRMat >      & aNormal,
-                        const Vector< MSI::Dof_Type > & aTestDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the test traction based on the second Piola-Kirchhoff stress
-                 * @param[ in ] aNormal       normal in the reference configuration
-                 * @param[ in ] aTestDofTypes a test dof type
-                 */
-                void eval_testTraction_second_piola_kirchhoff(
                         const Matrix< DDRMat >      & aNormal,
                         const Vector< MSI::Dof_Type > & aTestDofTypes );
 
@@ -245,21 +228,6 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * evaluate the test traction derivative based on the second Piola-Kirchhoff stress
-                 * wrt to a dof type
-                 * @param[ in ] aDofTypes     a dof type wrt which the derivative is evaluated
-                 * @param[ in ] aNormal       normal in the reference configuration
-                 * @param[ in ] aJump         jump in the displacement field
-                 * @param[ in ] aTestDofTypes a test dof type
-                 */
-                void eval_dTestTractiondDOF_second_piola_kirchhoff(
-                        const Vector< MSI::Dof_Type > & aDofTypes,
-                        const Matrix< DDRMat >      & aNormal,
-                        const Matrix< DDRMat >      & aJump,
-                        const Vector< MSI::Dof_Type > & aTestDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
                  * evaluate the test traction derivative based on the cauchy stress
                  * wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
@@ -272,6 +240,38 @@ namespace moris
                         const Matrix< DDRMat >      & aNormal,
                         const Matrix< DDRMat >      & aJump,
                         const Vector< MSI::Dof_Type > & aTestDofTypes );
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the second derivative of the traction wrt the deformation gradient
+                 * @param[ in ] ad1PKNdFdF second derivative of the traction wrt the deformation gradient to fill
+                 * @param[ in ] aLame1     first Lame coefficient
+                 * @param[ in ] aLame2     second Lame coefficient
+                 * @param[ in ] aNorm      normal vector
+                 *
+                 */
+                void d1PKNdFdF(
+                        Matrix< DDRMat >       &ad1PKNdFdF,
+                        const real             &aLame1,
+                        const real             &aLame2,
+                        const Matrix< DDRMat > &aNorm )
+                {
+                    ( this->*m_d1PKNdFdF )( ad1PKNdFdF, aLame1, aLame2, aNorm );
+                }
+
+                void
+                eval_symbolic_d1PKNdFdF_2d(
+                        Matrix< DDRMat >       &adPNdFdF,
+                        const real             &aLame1,
+                        const real             &aLame2,
+                        const Matrix< DDRMat > &aNorm );
+
+                void
+                eval_symbolic_d1PKNdFdF_3d(
+                        Matrix< DDRMat >       &adPNdFdF,
+                        const real             &aLame1,
+                        const real             &aLame2,
+                        const Matrix< DDRMat > &aNorm );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**

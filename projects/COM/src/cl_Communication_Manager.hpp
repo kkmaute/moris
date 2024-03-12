@@ -13,7 +13,7 @@
 
 #include <mpi.h>
 #include <string>
-#include "cl_Vector.hpp" // CON/src
+#include "cl_Vector.hpp"    // CON/src
 
 #include "assert.hpp"
 
@@ -108,8 +108,8 @@ namespace moris
 
     private:
         // A moris cell of communicators
-        Vector<MPI_Comm> mComm;
-        Vector<std::string> mCommName;
+      Vector<MPI_Comm> mComm;
+      Vector<std::string> mCommName;
 
         // path to running executable
         std::string mMorisExec;

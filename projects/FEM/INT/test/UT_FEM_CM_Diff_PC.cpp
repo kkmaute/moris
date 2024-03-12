@@ -26,10 +26,13 @@
 #undef protected
 #undef private
 
+using namespace moris;
+using namespace fem;
+
 inline void
 tValFunctionCM_Diff_Lin_Iso(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) +    //
@@ -39,7 +42,7 @@ tValFunctionCM_Diff_Lin_Iso(
 inline void
 tConstValFunction_UT_CM_Diff_PC(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -48,7 +51,7 @@ tConstValFunction_UT_CM_Diff_PC(
 inline void
 tDerFunctionCM_Diff_Lin_Iso(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
@@ -57,16 +60,13 @@ tDerFunctionCM_Diff_Lin_Iso(
 inline void
 tDer0FunctionCM_Diff_Lin_Iso(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = 0.0 * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-using namespace moris;
-using namespace fem;
-
-inline moris::Vector< bool >
+inline Vector< bool >
 test_phase_change_constitutive_model(
         Matrix< DDRMat >        aXHat,
         Matrix< DDRMat >        aTHat,
@@ -77,7 +77,7 @@ test_phase_change_constitutive_model(
         uint                    aSpatialDim = 2 )
 {
     // initialize cell of checks
-    moris::Vector< bool > tChecks( 5, false );
+    Vector< bool > tChecks( 5, false );
 
     // size of finite difference perturbation
     real tPertubationSize = 7.0e-6;
@@ -345,7 +345,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD4", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD4]
     Matrix< DDRMat > tParametricPoint = { { -0.4 }, { 0.1 }, { -0.6 } };
 
     // run test
-    moris::Vector< bool > tChecks = test_phase_change_constitutive_model(
+    Vector< bool > tChecks = test_phase_change_constitutive_model(
             tXHat,
             tTHat,
             tGeomInterpRule,
@@ -428,7 +428,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_HEX8", "[moris],[fem],[CM_Diff_Lin_Iso_PC_HEX8]" 
     Matrix< DDRMat > tParametricPoint = { { -0.4 }, { 0.1 }, { -0.6 }, { 0.3 } };
 
     // run test
-    moris::Vector< bool > tChecks = test_phase_change_constitutive_model(
+    Vector< bool > tChecks = test_phase_change_constitutive_model(
             tXHat,
             tTHat,
             tGeomInterpRule,
@@ -600,7 +600,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_PC_HEX27]
     Matrix< DDRMat > tParametricPoint = { { 0.35 }, { -0.25 }, { 0.75 }, { 0.4 } };
 
     // run test
-    moris::Vector< bool > tChecks = test_phase_change_constitutive_model(
+    Vector< bool > tChecks = test_phase_change_constitutive_model(
             tXHat,
             tTHat,
             tGeomInterpRule,
@@ -741,7 +741,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD1
     Matrix< DDRMat > tParametricPoint = { { 0.8 }, { -0.9 }, { 0.2 } };
 
     // run test
-    moris::Vector< bool > tChecks = test_phase_change_constitutive_model(
+    Vector< bool > tChecks = test_phase_change_constitutive_model(
             tXHat,
             tTHat,
             tGeomInterpRule,

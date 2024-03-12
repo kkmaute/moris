@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_
-#define PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_
+#pragma once
 
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
@@ -20,7 +19,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     struct Decomposition_Data
     {
@@ -41,12 +40,6 @@ namespace xtk
         Vector< Vector< moris_index > >      tCMNewNodeLoc;           // input: Cell group index || output: list of edge indices
         Vector< Vector< Matrix< DDRMat > > > tCMNewNodeParamCoord;    // input: Cell group index || output: list of coordinates
         /* Note: this stores some duplicate parametric coordinates but is necessary for flexible use*/
-
-        // geometric proximity of vertices and cells
-        Vector< Vector< Geometric_Proximity > > mVertexProximity; // input: Vertex index, Geometry index || output: geometric proximity of the vertex wrt to the specified geometry
-        Vector< Vector< bool > > mVertexProximitySet; // input: Vertex index, Geometry index || output: whether this Vertex's proximity has already been decided
-        Vector< Vector< Geometric_Proximity > > mCellProximity; // input: Cell index, Geometry index || output: geometric proximity of the cell wrt to the specified geometry
-        Vector< Vector< bool > > mCellProximitySet; // input: Cell index, Geometry index || output: whether this Cell's proximity has already been decided
 
         // New node indices
         Vector< moris_index > tNewNodeIndex;
@@ -102,7 +95,7 @@ namespace xtk
         Vector< IndexMap > mFaceIndexToSecondaryIdAndNewNodeLoc;
 
         std::unordered_map< moris_index, moris_index > mEdgeIndexToNodeLoc;
-        Vector< IndexMap >                               mEdgeIndexToSecondaryIdAndNewNodeLoc;
+        Vector< IndexMap >                             mEdgeIndexToSecondaryIdAndNewNodeLoc;
 
         // map from edge to location in tNewNodeParentIndex
         std::unordered_map< moris_index, moris_index > tEdgeIndexToNodeLoc;
@@ -599,6 +592,4 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-}    // namespace xtk
-
-#endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_ */
+}    // namespace moris::xtk

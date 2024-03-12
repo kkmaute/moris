@@ -200,11 +200,11 @@ namespace moris
 
                 void
                 elementwise_bruteforce_search (
-                        Vector < moris::Matrix <DDRMat> >  const &  tParamCoordsCell,
+                        Vector< moris::Matrix <DDRMat> >  const &  tParamCoordsCell,
                         moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap,
-                        Vector < moris::Matrix <DDRMat> >  const &  tParamCoordsCell2,
+                        Vector< moris::Matrix <DDRMat> >  const &  tParamCoordsCell2,
                         moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap2,
-                        Vector < moris::Matrix <DDRMat> > &         tCutTriangles,
+                        Vector< moris::Matrix <DDRMat> > &         tCutTriangles,
                         moris::Matrix< moris::IndexMat> &                tCutTrianglesIdentifier) const;
 
                 // ----------------------------------------------------------------------------

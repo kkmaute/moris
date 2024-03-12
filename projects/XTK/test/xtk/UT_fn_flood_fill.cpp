@@ -25,7 +25,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
 
     TEST_CASE( "Generic Floodfill Consecutive Subdomain", "[GEN_FLOOD_FILL]" )
@@ -234,4 +234,4 @@ namespace xtk
         CHECK( equal_to( tElementSubphase, tExpElementSubphase ) );
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk

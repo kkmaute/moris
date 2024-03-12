@@ -32,7 +32,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ namespace xtk
         shift_indices( moris_index aCell );
 
         Vector< moris::mtk::Cell* > mIgCellGroup;
-        IndexMap                         mIgCellIndexToCellOrdinal;
+        IndexMap                    mIgCellIndexToCellOrdinal;
 
     };    // struct IG_Cell_Group
 
@@ -71,7 +71,7 @@ namespace xtk
         Vector< moris::mtk::Cell* > mIgCells;               // over allocated
         Vector< moris_index >       mIgCellSideOrdinals;    // over allocated
 
-    };                                                           // struct IG_Cell_Side_Group
+    };                                                      // struct IG_Cell_Side_Group
 
     // ----------------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ namespace xtk
     {
       private:
         Vector< moris::mtk::Vertex const * >          mIgVertexGroup;
-        IndexMap                                           mIgVertexIndexToVertexOrdinal;
+        IndexMap                                      mIgVertexIndexToVertexOrdinal;
         Vector< std::shared_ptr< Matrix< DDRMat > > > mIgVertexLocalCoords;
 
       public:
@@ -762,17 +762,17 @@ namespace xtk
         bool mSameLevelChildMeshes = true;
 
         // integration cells
-        moris_index                                           mFirstControlledCellIndex;
+        moris_index                                      mFirstControlledCellIndex;
         Vector< moris::mtk::Cell* >                      mIntegrationCells;
         Vector< std::shared_ptr< xtk::Cell_XTK_No_CM > > mControlledIgCells;
 
         // quantities related to integration cells
         Vector< Vector< moris_index > > mIntegrationCellToCellGroupIndex;
-        Vector< moris_index >                mIntegrationCellToSubphaseIndex;
-        Vector< moris_index >                mIntegrationCellBulkPhase;
+        Vector< moris_index >           mIntegrationCellToSubphaseIndex;
+        Vector< moris_index >           mIntegrationCellBulkPhase;
 
         // integration vertices
-        moris_index                                              mFirstControlledVertexIndex;
+        moris_index                                         mFirstControlledVertexIndex;
         Vector< moris::mtk::Vertex* >                       mIntegrationVertices;
         Vector< std::shared_ptr< moris::mtk::Vertex_XTK > > mControlledIgVerts;
 
@@ -791,7 +791,7 @@ namespace xtk
         Vector< std::shared_ptr< Child_Mesh_Experimental > > mNotOwnedChildMeshes;
 
         // communication map
-        moris::Matrix< IdMat >            mCommunicationTable;
+        Matrix< IdMat >                   mCommunicationTable;
         std::map< moris_id, moris_index > mCommunicationMap;
         bool                              mCommMapHasBeenConstructed = false;
 
@@ -824,11 +824,11 @@ namespace xtk
         Vector< std::shared_ptr< IG_Cell_Group > > mSubPhaseCellGroups;       // input: sub-phase index || output: pointer to IG-Cell group on which subphase lives
         Vector< moris_index >                      mSubPhaseBulkPhase;        // input: sub-phase index || output: index of bulk-phase (i.e. material phase)
         Vector< moris::mtk::Cell* >                mSubPhaseParentCell;       // input: sub-phase index || output: index of Bg-cell sub-phase lives on
-        Vector< Vector< moris_index > >       mParentCellToSubphase;     // input: Bg-cell index   || output: list of sub-phase indices present in Bg-cell
+        Vector< Vector< moris_index > >            mParentCellToSubphase;     // input: Bg-cell index   || output: list of sub-phase indices present in Bg-cell
         Vector< moris_index >                      mParentCellHasChildren;    // input: Bg-cell index   || output: bool, whether Bg-cell has Ig-cells living on it
 
-        Vector< moris_index >                  mOwnedSubphaseGroupsInds;
-        Vector< moris_index >                  mNotOwnedSubphaseGroupsInds;
+        Vector< moris_index >                       mOwnedSubphaseGroupsInds;
+        Vector< moris_index >                       mNotOwnedSubphaseGroupsInds;
         std::unordered_map< moris_id, moris_index > mGlobalToLocalSubphaseMap;
 
         // subphase connectivity
@@ -856,14 +856,14 @@ namespace xtk
         Vector< std::shared_ptr< Vector< moris_index > > > mBGFacetToChildFacet;
 
         // block set data
-        std::unordered_map< std::string, moris_index >  mBlockSetLabelToOrd;
-        Vector< std::string >                      mBlockSetNames;
-        Vector< std::shared_ptr< IG_Cell_Group > > mBlockSetCellGroup;
-        Vector< mtk::CellTopology >                mBlockCellTopo;
+        std::unordered_map< std::string, moris_index > mBlockSetLabelToOrd;
+        Vector< std::string >                          mBlockSetNames;
+        Vector< std::shared_ptr< IG_Cell_Group > >     mBlockSetCellGroup;
+        Vector< mtk::CellTopology >                    mBlockCellTopo;
 
         // Side Set Data
-        std::unordered_map< std::string, moris_index >       mSideSideSetLabelToOrd;
-        Vector< std::string >                                  mSideSetLabels;
+        std::unordered_map< std::string, moris_index >  mSideSideSetLabelToOrd;
+        Vector< std::string >                           mSideSetLabels;
         Vector< std::shared_ptr< IG_Cell_Side_Group > > mSideSetCellSides;
 
         // connectivity from vertex to child mesh
@@ -1115,7 +1115,7 @@ namespace xtk
                 moris_index                              aCellIndex,
                 moris_id                                 aCellId,
                 std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
-                Vector< moris::mtk::Vertex* >&      aVertexPointers );
+                Vector< moris::mtk::Vertex* >&           aVertexPointers );
 
         // ----------------------------------------------------------------------------------
 
@@ -1201,7 +1201,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         set_child_mesh_subphase(
-                moris_index                 aCMIndex,
+                moris_index            aCMIndex,
                 Vector< moris_index >& aSubphasesGroups );
 
         // ----------------------------------------------------------------------------------
@@ -1348,8 +1348,8 @@ namespace xtk
         void
         prepare_requests_for_not_owned_IG_cell_IDs(
                 Vector< Vector< moris_index > >& aNotOwnedIgCellGroups,
-                Vector< Matrix< IdMat > >&     aParentCellIds,
-                Vector< Matrix< IndexMat > >&  aNumIgCellsInParentCell );
+                Vector< Matrix< IdMat > >&       aParentCellIds,
+                Vector< Matrix< IndexMat > >&    aNumIgCellsInParentCell );
 
         // ----------------------------------------------------------------------------------
 
@@ -1377,7 +1377,7 @@ namespace xtk
         void
         handle_requested_IG_cell_ID_answers(
                 Vector< Vector< moris_index > > const & aNotOwnedIgCellGroups,
-                Vector< Matrix< IdMat > > const &     aReceivedFirstIgCellIdsInCellGroups );
+                Vector< Matrix< IdMat > > const &       aReceivedFirstIgCellIdsInCellGroups );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
@@ -1473,7 +1473,7 @@ namespace xtk
 
         Vector< moris_index >
         register_block_set_names( Vector< std::string > const & aBlockSetNames,
-                mtk::CellTopology                                    aCellTopo );
+                mtk::CellTopology                               aCellTopo );
 
         // ----------------------------------------------------------------------------------
 
@@ -1757,6 +1757,6 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif

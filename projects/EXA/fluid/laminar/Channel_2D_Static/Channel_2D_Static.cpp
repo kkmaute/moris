@@ -104,7 +104,7 @@ extern "C"
 
         moris::real Func_Plane(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const Vector< moris::real > & aGeometryParameters )
+                const Vector< real > & aGeometryParameters )
         {
             moris::real tXNormal = aGeometryParameters( 0 );
             moris::real tYNormal = aGeometryParameters( 1 );

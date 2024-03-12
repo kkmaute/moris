@@ -14,7 +14,7 @@
 #include "containers.hpp"
 
 using namespace moris;
-namespace xtk
+namespace moris::xtk
 {
     //-------------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ namespace xtk
     template< class T >
     inline void
     convert_cell_to_map(
-            Vector< T > const &    aCellToConvert,
+            Vector< T > const &         aCellToConvert,
             Mini_Map< T, moris_index >& aIndexMapToFill )
     {
         for ( uint i = 0; i < aCellToConvert.size(); i++ )
@@ -36,24 +36,24 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-//     /**
-//      * @brief convert a cell of typename T to an std::unordered_map
-//      * where the keys are the contents in the cell, and they map to their index in the cell
-//      */
-//     template< class T >
-//     inline void
-//     convert_cell_to_map(
-//             Vector< T > const &              aCellToConvert,
-//             std::unordered_map< T, moris_index >& aIndexMapToFill )
-//     {
-//         for ( uint i = 0; i < aCellToConvert.size(); i++ )
-//         {
-//             aIndexMapToFill[ aCellToConvert( i ) ] = i;
-//         }
-//     }
+    //     /**
+    //      * @brief convert a cell of typename T to an std::unordered_map
+    //      * where the keys are the contents in the cell, and they map to their index in the cell
+    //      */
+    //     template< class T >
+    //     inline void
+    //     convert_cell_to_map(
+    //             Vector< T > const &              aCellToConvert,
+    //             std::unordered_map< T, moris_index >& aIndexMapToFill )
+    //     {
+    //         for ( uint i = 0; i < aCellToConvert.size(); i++ )
+    //         {
+    //             aIndexMapToFill[ aCellToConvert( i ) ] = i;
+    //         }
+    //     }
 
     //-------------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* fn_XTK_convert_cell_to_map.hpp */

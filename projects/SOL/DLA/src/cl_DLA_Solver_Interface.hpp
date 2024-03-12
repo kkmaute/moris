@@ -44,16 +44,7 @@ namespace moris
     class Solver_Interface
     {
       private:
-        dla::Geometric_Multigrid* mGeoMultigrid = nullptr;
-
         // Dummy member variable
-        moris::Matrix< DDUMat >              mMat1;
-        moris::Matrix< DDSMat >              mMat5;
-        Vector< Matrix< DDUMat > >           mMat2;
-        Vector< Matrix< DDSMat > >           mMat3;
-        Vector< Matrix< DDRMat > >           mMat6;
-        Vector< Vector< Matrix< DDSMat > > > mMat4;
-        Vector< enum MSI::Dof_Type >         mDummyDofs;
 
         bool mIsForwardAnalysis = true;
 
@@ -64,12 +55,6 @@ namespace moris
       public:
         /** Destructor */
         virtual ~Solver_Interface(){};
-
-        void
-        delete_multigrid()
-        {
-            delete ( mGeoMultigrid );
-        };
 
         //------------------------------------------------------------------------------
         /**
@@ -270,7 +255,7 @@ namespace moris
         get_requested_dof_types()
         {
             MORIS_ERROR( false, "Solver_Interface::get_requested_dof_types: not set." );
-            return mDummyDofs;
+            return *( new Vector< enum MSI::Dof_Type >() );
         };
 
         //------------------------------------------------------------------------------
@@ -500,7 +485,7 @@ namespace moris
         get_lists_of_ext_index_multigrid()
         {
             MORIS_ERROR( false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid" );
-            return mMat2;
+            return *( new Vector< Matrix< DDUMat > >() );
         };
 
         //------------------------------------------------------------------------------
@@ -509,7 +494,7 @@ namespace moris
         get_lists_of_multigrid_identifiers()
         {
             MORIS_ERROR( false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid" );
-            return mMat3;
+            return *( new Vector< Matrix< DDSMat > >() );
         };
 
         //------------------------------------------------------------------------------
@@ -518,7 +503,7 @@ namespace moris
         get_multigrid_map()
         {
             MORIS_ERROR( false, "Solver_Interface::get_multigrid_map, Only works with MSI and multigrid" );
-            return mMat4;
+            return *( new Vector< Vector< Matrix< DDSMat > > >() );
         };
 
         //------------------------------------------------------------------------------
@@ -527,7 +512,7 @@ namespace moris
         get_number_remaining_dofs()
         {
             MORIS_ERROR( false, "Solver_Interface::get_number_remaining_dofs, Only works with MSI and multigrid" );
-            return mMat1;
+            return *( new Matrix< DDUMat >() );
         };
 
         //------------------------------------------------------------------------------
@@ -536,7 +521,7 @@ namespace moris
         get_type_time_identifier_to_type_map()
         {
             MORIS_ERROR( false, "Solver_Interface::get_type_time_identifier_to_type_map, Only works with MSI and multigrid" );
-            return mMat5;
+            return *( new Matrix< DDSMat >() );
         };
 
         //------------------------------------------------------------------------------
@@ -546,22 +531,6 @@ namespace moris
         {
             MORIS_ERROR( false, "Solver_Interface::get_adof_index_for_type, Only works with MSI and multigrid" );
             return 0;
-        };
-
-        //------------------------------------------------------------------------------
-
-        void
-        build_multigrid_operators()
-        {
-            mGeoMultigrid = new dla::Geometric_Multigrid( this );
-        };
-
-        //------------------------------------------------------------------------------
-
-        dla::Geometric_Multigrid*
-        get_multigrid_operator_pointer()
-        {
-            return mGeoMultigrid;
         };
 
         //---------------------------------------------------------------------------------------------------------
@@ -631,7 +600,7 @@ namespace moris
         get_criteria( const moris::uint& aMySetInd )
         {
             MORIS_ERROR( false, "Solver_Interface::get_criteria(), not implemented for base class" );
-            return mMat6;
+            return *( new Vector< moris::Matrix< DDRMat > >() );
         };
 
         //---------------------------------------------------------------------------------------------------------

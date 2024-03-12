@@ -176,7 +176,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         moris::gen::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
-        xtk::Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
+        moris::xtk::Model tXTKModel(tModelDimension, tInterpMesh, &tGeometryEngine);
         tXTKModel.mVerbose = false;
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -186,8 +186,8 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+        moris::xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        moris::xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
 //        moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
 //        tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
@@ -431,7 +431,7 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         // output solution and meshes
         // FIXME add with output if needed
 
-//        xtk::Output_Options tOutputOptions;
+//        moris::xtk::Output_Options tOutputOptions;
 //        tOutputOptions.mAddNodeSets = false;
 //        tOutputOptions.mAddSideSets = true;
 //        tOutputOptions.mAddClusters = false;

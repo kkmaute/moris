@@ -4,17 +4,17 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.hpp
+ * cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet.hpp
  *
  */
 
-#ifndef SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_NEO_HOOKEAN_HPP_
-#define SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_NEO_HOOKEAN_HPP_
+#ifndef SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_COMPRESSIBLE_NEO_HOOKEAN_BONET_HPP_
+#define SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_COMPRESSIBLE_NEO_HOOKEAN_BONET_HPP_
 
 #include <map>
 
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Vector.hpp"                      //MRS/CNT/src
+#include "cl_Vector.hpp"                          //MRS/CNT/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -29,10 +29,10 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        // Neo-Hookean constitutive model based on
-        // [Bonet & Wood 2008 - Nonlinear Continuum Mechanics for Finite Element Analysis 2nd Edition]
+        // Compressible Neo-Hookean constitutive model based on
+        // [Bonet, Gil, & Wood 2008 - Nonlinear Continuum Mechanics for Finite Element Analysis 2nd Edition]
 
-        class CM_Struc_Nonlinear_Isotropic_Neo_Hookean : public CM_Struc_Nonlinear_Isotropic
+        class CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet : public CM_Struc_Nonlinear_Isotropic
         {
             protected:
 
@@ -44,87 +44,85 @@ namespace moris
                 MSI::Dof_Type mDofPressure = MSI::Dof_Type::UNDEFINED;
 
                 // property type for CM
-                enum class CM_Property_Type
+                enum class CM_Property_Type_Bonet
                 {
-                        EMOD,
-                        NU,
-                        MAX_ENUM
+                    EMOD,
+                    NU,
+                    MAX_ENUM
                 };
 
+                // default local properties
+                std::shared_ptr< Property > mPropEMod    = nullptr;
+                std::shared_ptr< Property > mPropPoisson = nullptr;
+
                 // function pointers
-                void ( CM_Struc_Nonlinear_Isotropic_Neo_Hookean:: * m_eval_d1PKStressdDOF )(
+                void ( CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet:: * m_eval_d1PKStressdDOF )(
                         const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
 
-                void ( CM_Struc_Nonlinear_Isotropic_Neo_Hookean:: * m_eval_symbolic_traction_derivs )(
-                        const Matrix< DDRMat > & aDisplGrad,
-                        const real & aMu,
-                        const real & aLam,
-                        const Matrix< DDRMat > & aNorm ) = nullptr;
+                void ( CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet::*m_dPNdFdF )(
+                        Matrix< DDRMat >       &aPNdFdF,
+                        const real             &aLame1,
+                        const real             &aLame2,
+                        const Matrix< DDRMat > &aNorm ) = nullptr;
 
-                void ( CM_Struc_Nonlinear_Isotropic_Neo_Hookean:: * m_proj_jump )(
-                        const Matrix< DDRMat > & aVector,
-                        Matrix< DDRMat >       & aProjMatrix ) = nullptr;
+                //                void ( CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet:: * m_proj_jump )(
+                //                        const Matrix< DDRMat > & aVector,
+                //                        Matrix< DDRMat >       & aProjMatrix ) = nullptr;
 
-                void ( CM_Struc_Nonlinear_Isotropic_Neo_Hookean:: * mConstFunc )(
+                void ( CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet:: * mConstFunc )(
                         const real &,
-                        const real &) = &CM_Struc_Nonlinear_Isotropic_Neo_Hookean::full_3d;
-
-                // flag for the derivatives of the traction evaluation - based on a routine symbolically generated in MATLAB
-                bool m2PKTraction_symEval = true;
-
-                // storage for derivatives of traction  - based on a routine symbolically generated in MATLAB
-                Vector< Matrix< DDRMat > > m2PKTraction_sym;
+                        const real &) = &CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet::full_3d;
 
                 //--------------------------------------------------------------------------------------------------------------
             public:
                 /*
                  * trivial constructor
                  */
-                CM_Struc_Nonlinear_Isotropic_Neo_Hookean(
-                        enum Constitutive_Type aConstType = Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN );
+              CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet(
+                      enum Constitutive_Type aConstType = Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_BONET );
 
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~CM_Struc_Nonlinear_Isotropic_Neo_Hookean(){};
+              //--------------------------------------------------------------------------------------------------------------
+              /**
+               * trivial destructor
+               */
+              ~CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet(){};
 
-                //------------------------------------------------------------------------------
-                /*
-                 * @return constitutive_type
-                 */
-                Constitutive_Type
-                get_constitutive_type() const
-                {
-                    return Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN;
-                }
+              //------------------------------------------------------------------------------
+              /*
+               * @return constitutive_type
+               */
+              Constitutive_Type
+              get_constitutive_type() const
+              {
+                  return Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_BONET;
+              }
 
-                //------------------------------------------------------------------------------
-                /**
-                 * reset local evaluation flags
-                 */
-                void reset_eval_flags();
+              //                //------------------------------------------------------------------------------
+              //                /**
+              //                 * reset local evaluation flags
+              //                 */
+              //                void reset_eval_flags();
+              //
+              //                //------------------------------------------------------------------------------
+              //                /**
+              //                 * create a global dof type list including local constitutive dependencies
+              //                 */
+              //                void build_global_dof_type_list();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * create a global dof type list including local constitutive dependencies
-                 */
-                void build_global_dof_type_list();
+              //------------------------------------------------------------------------------
+              /**
+               * set local properties
+               */
+              void set_local_properties();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * set local properties
-                 */
-                void set_local_properties();
+              //--------------------------------------------------------------------------------------------------------------
+              /**
+               * set spatial dimensions. Modified from base to set function pointers to the appropriate eval_const()
+               * @param[ in ] aSpaceDim a spatial dimension
+               */
+              void set_space_dim( uint aSpaceDim );
 
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * set spatial dimensions. Modified from base to set function pointers to the appropriate eval_const()
-                 * @param[ in ] aSpaceDim a spatial dimension
-                 */
-                void set_space_dim( uint aSpaceDim );
-
-                //--------------------------------------------------------------------------------------------------------------
+              //--------------------------------------------------------------------------------------------------------------
             private:
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -304,38 +302,35 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * evaluate the constitutive model matrix derivative wrt to a dof type
-                 * @param[ in ] aDofTypes   a dof type wrt which the derivative is evaluated
-                 * @param[ in ] adConstdDOF a matrix to fill with derivative evaluation
+                 * evaluate the second derivative of the traction wrt the deformation gradient
+                 * @param[ in ] adPNdFdF second derivative of the traction wrt the deformation gradient to fill
+                 * @param[ in ] aLame1   first Lame coefficient
+                 * @param[ in ] aLame2   second Lame coefficient
+                 * @param[ in ] aNorm    normal vector
+                 *
                  */
-
-                const Matrix< DDRMat > & symbolic_traction_derivs(
-                        const Matrix< DDRMat > & aDisplGrad,
-                        const real & aMu,
-                        const real & aLam,
-                        const Matrix< DDRMat > & aNorm,
-                        uint number);
-
-                void eval_symbolic_traction_derivs(
-                        const Matrix< DDRMat > & aDisplGrad,
-                        const real & aMu,
-                        const real & aLam,
-                        const Matrix< DDRMat > & aNorm)
+                void dPNdFdF(
+                        Matrix< DDRMat >       &adPNdFdF,
+                        const real             &aLame1,
+                        const real             &aLame2,
+                        const Matrix< DDRMat > &aNorm )
                 {
-                    ( this->*m_eval_symbolic_traction_derivs )( aDisplGrad, aMu, aLam, aNorm );
+                    ( this->*m_dPNdFdF )( adPNdFdF, aLame1, aLame2, aNorm );
                 }
 
-                void eval_symbolic_traction_derivs_2d(
-                        const Matrix< DDRMat > & aDisplGrad,
-                        const real & aMu,
-                        const real & aLam,
-                        const Matrix< DDRMat > & aNorm);
+                void
+                eval_symbolic_dPNdFdF_2d(
+                        Matrix< DDRMat >       &adPNdFdF,
+                        const real             &aLame1,
+                        const real             &aLame2,
+                        const Matrix< DDRMat > &aNorm );
 
-                void eval_symbolic_traction_derivs_3d(
-                        const Matrix< DDRMat > & aDisplGrad,
-                        const real & aMu,
-                        const real & aLam,
-                        const Matrix< DDRMat > & aNorm);
+                void
+                eval_symbolic_dPNdFdF_3d(
+                        Matrix< DDRMat >       &adPNdFdF,
+                        const real             &aLame1,
+                        const real             &aLame2,
+                        const Matrix< DDRMat > &aNorm );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -402,29 +397,12 @@ namespace moris
                  * @param aNu Poisson ratio
                  */
                 void deviatoric_3d(
-                        const real & aEmod,
-                        const real & aNu  );
-
-                // FIXME Nils provide headers!!!
-                void proj_jump(
-                        const Matrix< DDRMat > & aVector,
-                        Matrix< DDRMat >       & aProjMatrix )
-                {
-                    ( this->*m_proj_jump )( aVector, aProjMatrix );
-                }
-
-                void proj_jump_2d(
-                        const Matrix< DDRMat > & aVector,
-                        Matrix< DDRMat >       & aProjMatrix );
-
-                void proj_jump_3d(
-                        const Matrix< DDRMat > & aVector,
-                        Matrix< DDRMat >       & aProjMatrix );
-
+                        const real &aEmod,
+                        const real &aNu );
         };
         //--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_NEO_HOOKEAN_HPP_ */
+#endif /* SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_COMPRESSIBLE_NEO_HOOKEAN_BONET_HPP_ */
 

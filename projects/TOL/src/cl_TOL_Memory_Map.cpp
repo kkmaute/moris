@@ -22,7 +22,7 @@ namespace moris
 
     // ----------------------------------------------------------------------------------
 
-    Memory_Map::Memory_Map(Vector<std::string> const & aKeys,
+    Memory_Map::Memory_Map( Vector<std::string> const & aKeys,
                            Matrix<DDSTMat>   const & aVals)
     {
         MORIS_ERROR(aKeys.size() == aVals.numel(), "Dimension mismatch on allocation.");
@@ -191,7 +191,7 @@ namespace moris
     // ----------------------------------------------------------------------------------
 
     void
-    Memory_Map::gather_all(Vector<Memory_Map> & aGatheredMemMap)
+    Memory_Map::gather_all( Vector<Memory_Map> & aGatheredMemMap)
     {
         // serialize my map as a cell of keys (str) and a cell of size_t (mem)
         Vector<std::string> tKeyCell;
@@ -217,7 +217,7 @@ namespace moris
     // ----------------------------------------------------------------------------------
 
     void
-    Memory_Map::serialize(Vector<std::string> & aKeyCell,
+    Memory_Map::serialize( Vector<std::string> & aKeyCell,
                            Matrix<DDSTMat>  & aValCell)
     {
         // size the serialized vars
@@ -237,9 +237,9 @@ namespace moris
     // ----------------------------------------------------------------------------------
 
     void
-    Memory_Map::deserialize(Vector<Vector<std::string>> & aGatheredKeyCells,
-                            Vector<Matrix<DDSTMat>>   & aGatheredValCells,
-                            Vector<Memory_Map>        & aGatheredMemMaps)
+    Memory_Map::deserialize( Vector<Vector<std::string>> & aGatheredKeyCells,
+            Vector<Matrix<DDSTMat>>   & aGatheredValCells,
+            Vector<Memory_Map>        & aGatheredMemMaps)
     {
         aGatheredMemMaps.resize(par_size());
         for(moris::uint i = 0; i < aGatheredKeyCells.size(); i++)

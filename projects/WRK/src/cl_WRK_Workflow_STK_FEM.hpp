@@ -76,7 +76,7 @@ namespace moris
                 Matrix<DDRMat> compute_dcriteria_dadv();
 
                 void
-                create_stk(Vector< Vector<ParameterList> > & aParameterLists);
+                create_stk( Vector< Vector<ParameterList> > & aParameterLists);
 
         };
         //------------------------------------------------------------------------------

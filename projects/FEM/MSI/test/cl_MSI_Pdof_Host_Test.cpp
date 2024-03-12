@@ -149,7 +149,7 @@ namespace moris
         tPdofHost.set_pdof_type( tDofType, tTimePerDofType, tNumMaxPdofTypes, tDofTypeIndexMap );
 
         // Create external adof list
-        Vector< Vector < Adof * > > tAdofList;
+        Vector< Vector< Adof * > > tAdofList;
         tAdofList.resize( 1 );
         tAdofList( 0 ).resize( 5 );
 
@@ -157,7 +157,7 @@ namespace moris
 
         moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
 
-        Vector < Equation_Object* >tListEqnObj;
+        Vector< Equation_Object* >tListEqnObj;
         Model_Solver_Interface  tMSI( tMSIParameters, tListEqnObj );
 
         Dof_Manager tDofMgn;

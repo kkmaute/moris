@@ -22,7 +22,7 @@
 namespace moris
 {
     template< typename T >
-    class Cell;
+    class Vector;
     namespace mtk
     {
         class Field;

@@ -432,11 +432,7 @@ namespace moris::mtk
 
         // ----------------------------------------------------------------------------
 
-        /**
-         * Returns the list of sets based on the a set type specified
-         * by default it return all sets
-         *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset,or all
-         */
+
 
         /**
          * @brief Get the list of all sets in the mesh.

@@ -196,7 +196,7 @@ namespace moris
             get_nodes_in_proximity(
                     const Matrix< DDRMat > & aCoords,
                     const             real & aDistance,
-                            Vector< Node * > & aNodes )
+                    Vector< Node * > & aNodes )
             {
                 for( Node * tNeighbor : mNeighbors )
                 {

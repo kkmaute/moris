@@ -359,6 +359,9 @@ Vector_PETSc::import_local_to_global( sol::Dist_Vector& aSourceVec )
         // perform scattering
         VecScatterBegin( tVecScatter, tSourceVec, mPetscVector, INSERT_VALUES, SCATTER_FORWARD );
         VecScatterEnd( tVecScatter, tSourceVec, mPetscVector, INSERT_VALUES, SCATTER_FORWARD );
+
+        // destroy the scatter vector object
+        VecScatterDestroy(&tVecScatter);
     }
 }
 

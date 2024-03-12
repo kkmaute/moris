@@ -184,6 +184,41 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        // creates a parameter list with default inputs
+        inline void
+        create_petsc_preconditioner_parameterlist( ParameterList& aParameterlist )
+        {
+            enum moris::sol::PreconditionerType tType = moris::sol::PreconditionerType::PETSC;
+
+            aParameterlist.set_or_insert( "Preconditioner_Implementation", (uint)( tType ) );
+
+            // Set default preconditioner
+            aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "none"
+
+            // Sets the number of levels of fill to use for ILU
+            aParameterlist.insert( "ILUFill", 0 );
+
+            // Sets drop tolerance for ilu
+            aParameterlist.insert( "ILUTol", 1e-6 );
+
+            // Set multigrid levels
+            aParameterlist.insert( "MultigridLevels", 3 );
+
+            // Schwarz preconditioner volume fraction threshold
+            aParameterlist.insert( "MG_use_schwarz_smoother", false );
+
+            // Schwarz smoothing iterations
+            aParameterlist.insert( "MG_schwarz_smoothing_iters", 1 );
+
+            // Schwarz preconditioner volume fraction threshold
+            aParameterlist.insert( "ASM_volume_fraction_threshold", 0.1 );
+
+            // blocks in addtive Schwartz algorthim
+            aParameterlist.insert( "ASM_blocks_output_filename", "" );
+        }
+
+        //------------------------------------------------------------------------------
+
         inline void
         create_ml_preconditioner_parameterlist( ParameterList& aParameterlist )
         {
@@ -543,10 +578,10 @@ namespace moris
             tLinAlgorithmParameterList.insert( "Solver_Implementation", (uint)( tType ) );
 
             // Set KSP type
-            tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );
+            tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );    //  "gmres" , "fgmres", "preonly"
 
             // Set default preconditioner
-            tLinAlgorithmParameterList.insert( "PCType", std::string( "ilu" ) );
+            tLinAlgorithmParameterList.insert( "PCType", std::string( "none" ) );
 
             // Sets maximal iters for KSP
             tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
@@ -612,8 +647,8 @@ namespace moris
             tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
 
             // operaotr and precondioned opeartor condition number with arma/eigen
-            tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", false );
-            tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", false );
+            tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", "" );         // "" : do not compute, "dense", "sparse"
+            tLinSolverParameterList.insert( "DLA_prec_operator_condition_number_with_moris", "" );    // "" : do not compute, "dense", "sparse"
 
             return tLinSolverParameterList;
         }
@@ -935,6 +970,9 @@ namespace moris
                     break;
                 case sol::PreconditionerType::ML:
                     create_ml_preconditioner_parameterlist( tParameterList );
+                    break;
+                case sol::PreconditionerType::PETSC:
+                    create_petsc_preconditioner_parameterlist( tParameterList );
                     break;
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );

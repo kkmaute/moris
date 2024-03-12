@@ -37,7 +37,7 @@
 #include "cl_XTK_Basis_Processor.hpp"
 #include "fn_equal_to.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     TEST_CASE( "XTK Basis Extension", "[XTK],[XTK_Basis_Extension]" )
     {
@@ -82,7 +82,7 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            auto tCircle = std::make_shared< moris::gen::Circle >( 3.0, 0.5, 2.5 );
+            auto                                              tCircle   = std::make_shared< moris::gen::Circle >( 3.0, 0.5, 2.5 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             // define ge engine
@@ -203,7 +203,7 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            auto tCircle = std::make_shared< moris::gen::Circle >( 3.0, 0.5, 2.5 );
+            auto                                              tCircle   = std::make_shared< moris::gen::Circle >( 3.0, 0.5, 2.5 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
 
             // define ge engine
@@ -286,4 +286,4 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk

@@ -3659,7 +3659,7 @@ namespace moris
             uint const tNumDimensions = tLeaderIPGI->get_number_of_space_dimensions();
 
             // init FD scheme
-            moris::Vector< moris::Vector< real > > tFDScheme;
+            Vector< Vector< real > > tFDScheme;
 
             // loop over the IG nodes
             for ( uint iLeaderNode = 0; iLeaderNode < tNumBases; iLeaderNode++ )

@@ -296,7 +296,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
@@ -304,8 +304,8 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
 
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
-        xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
+        moris::xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        moris::xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -715,7 +715,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
@@ -725,7 +725,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         // Write mesh
-        xtk::Enriched_Integration_Mesh& tEnrIgMesh = tXTKModel.get_enriched_integ_mesh( 0 );
+        moris::xtk::Enriched_Integration_Mesh& tEnrIgMesh = tXTKModel.get_enriched_integ_mesh( 0 );
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( 6, "ghost_ss_0" );
         tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_0", mtk::CellTopology::HEX8 );
@@ -746,8 +746,8 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         writer.set_time( 0.0 );
         writer.close_file();
 
-        xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
+        moris::xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        moris::xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -1101,7 +1101,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
 
         //        // Declare the fields related to enrichment strategy in output options
         //        // output solution and meshes
-        //        xtk::Output_Options tOutputOptions;
+        //        moris::xtk::Output_Options tOutputOptions;
         //        tOutputOptions.mAddNodeSets = false;
         //        tOutputOptions.mAddSideSets = true;
         //        tOutputOptions.mAddClusters = false;

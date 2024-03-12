@@ -12,17 +12,12 @@
 #define PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
 
 #include "moris_typedefs.hpp"                       //MRS/COR/src
-#include "cl_Vector.hpp"                        //MRS/CNT/src
+#include "cl_Vector.hpp"                            //MRS/CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_Communication_Tools.hpp"
-
-namespace xtk
-{
-    class Model;
-}
 
 namespace moris
 {
@@ -39,6 +34,10 @@ namespace moris
     namespace gen
     {
         class Geometry_Engine;
+    }
+    namespace xtk
+    {
+        class Model;
     }
     namespace mdl
     {

@@ -28,7 +28,7 @@
 #include "fn_determine_cell_topology.hpp"
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
 
@@ -389,7 +389,7 @@ namespace xtk
             mIntegrationVertexIndexToId( mIntegrationVertices( iV )->get_index() ) = mIntegrationVertices( iV )->get_id();
 
             // store the coordinate
-            mVertexCoordinates( mIntegrationVertices( iV )->get_index() ) = std::make_shared< moris::Matrix< DDRMat > >( mIntegrationVertices( iV )->get_coords() );
+            mVertexCoordinates( mIntegrationVertices( iV )->get_index() ) = std::make_shared< Matrix< DDRMat > >( mIntegrationVertices( iV )->get_coords() );
 
             // verify that we are not doubling up vertices in the id map
             MORIS_ERROR( mIntegrationVertexIdToIndexMap.find( mIntegrationVertices( iV )->get_id() ) == mIntegrationVertexIdToIndexMap.end(), "Provided Vertex Id is already in the integration vertex map: Vertex Id =%uon process %u", mIntegrationVertices( iV )->get_id(), par_rank() );
@@ -943,7 +943,7 @@ namespace xtk
             moris_index                              aCellIndex,
             moris_id                                 aCellId,
             std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
-            Vector< moris::mtk::Vertex* >&      aVertexPointers )
+            Vector< moris::mtk::Vertex* >&           aVertexPointers )
     {
         MORIS_ERROR( aCellIndex >= mFirstControlledCellIndex, "Cannot set integration cell that I do not control." );
 
@@ -1194,7 +1194,7 @@ namespace xtk
 
     void
     Cut_Integration_Mesh::set_child_mesh_subphase(
-            moris_index                 aCMIndex,
+            moris_index            aCMIndex,
             Vector< moris_index >& aSubphasesGroups )
     {
         Vector< std::shared_ptr< IG_Cell_Group > > tIgCellSubphases( aSubphasesGroups.size() );
@@ -1631,7 +1631,7 @@ namespace xtk
     Vector< moris_index >
     Cut_Integration_Mesh::register_block_set_names(
             Vector< std::string > const & aBlockSetNames,
-            mtk::CellTopology                  aCellTopo )
+            mtk::CellTopology             aCellTopo )
     {
         uint tNumSetsToRegister = aBlockSetNames.size();
 
@@ -1851,7 +1851,7 @@ namespace xtk
 
         for ( uint i = 0; i < this->get_num_entities( mtk::EntityRank::ELEMENT, 0 ); i++ )
         {
-            mtk::Cell&                         tCell     = this->get_mtk_cell( (moris_index)i );
+            mtk::Cell&                    tCell     = this->get_mtk_cell( (moris_index)i );
             Vector< moris::mtk::Vertex* > tVertices = tCell.get_vertex_pointers();
 
             tStringStream << std::to_string( tCell.get_id() ) + ",";
@@ -1926,7 +1926,7 @@ namespace xtk
             tStringStream << tVertex.get_owner() << ",";
             tStringStream << par_rank() << ",";
 
-            moris::Matrix< moris::DDRMat > tCoords = tVertex.get_coords();
+            Matrix< DDRMat > tCoords = tVertex.get_coords();
 
             for ( uint iSp = 0; iSp < this->get_spatial_dim(); iSp++ )
             {
@@ -2022,7 +2022,7 @@ namespace xtk
         {
             // Build list of processors with whom current processor shares nodes
             std::unordered_map< moris_id, moris_id > tProcList;
-            Vector< moris_index >                      tCellOfProcs;
+            Vector< moris_index >                    tCellOfProcs;
 
             // Loop over all nodes in background mesh and get node's owner
             for ( uint i = 0; i < mBackgroundMesh->get_num_entities( mtk::EntityRank::NODE ); i++ )
@@ -2074,7 +2074,7 @@ namespace xtk
                 // c) the union of the two for each given proc (these sets are the final comm-tables)
                 Vector< std::set< moris_id > > tCommRequestedTo( par_size() );
                 Vector< std::set< moris_id > > tCommRequestedFrom( par_size() );
-                Vector< Vector< moris_id > >     tCommTables( par_size() );
+                Vector< Vector< moris_id > >   tCommTables( par_size() );
 
                 // loop over the processors that request the following procs to communicate to
                 for ( moris_id iProcToCommFrom = 0; iProcToCommFrom < par_size(); iProcToCommFrom++ )
@@ -2272,8 +2272,8 @@ namespace xtk
 
             // initialize lists of information that identifies IG cells (on other procs)
             Vector< Vector< moris_index > > tNotOwnedIgCellGroups;      // IG cell group index (local to current proc, just used for construction of arrays)
-            Vector< Matrix< IdMat > >     tParentCellIds;             // IDs of the IG cells' parent cells
-            Vector< Matrix< IndexMat > >  tNumIgCellsInParentCell;    // Number of IG cells in parent cell
+            Vector< Matrix< IdMat > >       tParentCellIds;             // IDs of the IG cells' parent cells
+            Vector< Matrix< IndexMat > >    tNumIgCellsInParentCell;    // Number of IG cells in parent cell
 
             // fill the identifying information
             this->prepare_requests_for_not_owned_IG_cell_IDs( tNotOwnedIgCellGroups, tParentCellIds, tNumIgCellsInParentCell );
@@ -2383,8 +2383,8 @@ namespace xtk
     void
     Cut_Integration_Mesh::prepare_requests_for_not_owned_IG_cell_IDs(
             Vector< Vector< moris_index > >& aNotOwnedIgCellGroups,
-            Vector< Matrix< IdMat > >&     aParentCellIds,
-            Vector< Matrix< IndexMat > >&  aNumIgCellsInParentCell )
+            Vector< Matrix< IdMat > >&       aParentCellIds,
+            Vector< Matrix< IndexMat > >&    aNumIgCellsInParentCell )
     {
         // get the communication table and map
         Matrix< IdMat >                   tCommTable              = this->get_communication_table();
@@ -2525,7 +2525,7 @@ namespace xtk
     void
     Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers(
             Vector< Vector< moris_index > > const & aNotOwnedIgCellGroups,
-            Vector< Matrix< IdMat > > const &     aReceivedFirstIgCellIdsInCellGroups )
+            Vector< Matrix< IdMat > > const &       aReceivedFirstIgCellIdsInCellGroups )
     {
         // get the communication table and map
         Matrix< IdMat > tCommTable     = this->get_communication_table();
@@ -2657,4 +2657,4 @@ namespace xtk
         mCommMapHasBeenConstructed = false;
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk

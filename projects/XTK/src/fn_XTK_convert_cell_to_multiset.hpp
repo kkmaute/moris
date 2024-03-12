@@ -16,7 +16,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     //-------------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ namespace xtk
     template< class T >
     inline void
     convert_index_cell_to_index_multiset(
-            Vector< T > const &   aIndexCell,
+            Vector< T > const & aIndexCell,
             std::multiset< T >& aMultiSet )
     {
         for ( uint i = 0; i < aIndexCell.size(); i++ )
@@ -40,6 +40,6 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* fn_XTK_convert_cell_to_multiset.hpp */

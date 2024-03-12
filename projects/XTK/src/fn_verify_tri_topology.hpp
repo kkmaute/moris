@@ -15,16 +15,16 @@
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "fn_print.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
 
-    inline moris::Matrix< moris::IndexMat >
+    inline Matrix< IndexMat >
     construct_expected_edge_to_node_tri3(
-            moris::moris_index                       iElem,
-            moris::Matrix< moris::IndexMat > const & aElementToNode )
+            moris::moris_index        iElem,
+            Matrix< IndexMat > const &aElementToNode )
     {
         // Initialize output
-        moris::Matrix< moris::IndexMat > tExpectedEdgeToNode = {
+        Matrix< IndexMat > tExpectedEdgeToNode = {
             { aElementToNode( iElem, 0 ), aElementToNode( iElem, 1 ) },
             { aElementToNode( iElem, 1 ), aElementToNode( iElem, 2 ) },
             { aElementToNode( iElem, 0 ), aElementToNode( iElem, 2 ) }
@@ -37,9 +37,9 @@ namespace xtk
 
     inline bool
     verify_tri3_edge_topology(
-            moris::Matrix< moris::IndexMat > const & aElementToNode,
-            moris::Matrix< moris::IndexMat > const & aElementToEdge,
-            moris::Matrix< moris::IndexMat > const & aEdgeToNode )
+            Matrix< IndexMat > const &aElementToNode,
+            Matrix< IndexMat > const &aElementToEdge,
+            Matrix< IndexMat > const &aEdgeToNode )
     {
         // Number of elements
         bool tValidEdgeTopo = true;
@@ -48,9 +48,9 @@ namespace xtk
         moris::moris_index tNumEdgePerElem = aElementToEdge.n_cols();
 
         // Initilize expected edge to node connectivity
-        moris::Matrix< moris::IndexMat > tExpectedEdgeToNode;
-        moris::Matrix< moris::IndexMat > tActualEdgeToNode( 6, 2 );
-        moris::Matrix< moris::IndexMat > tReorderEdgesMatrix( tNumElem, 6 );
+        Matrix< IndexMat > tExpectedEdgeToNode;
+        Matrix< IndexMat > tActualEdgeToNode( 6, 2 );
+        Matrix< IndexMat > tReorderEdgesMatrix( tNumElem, 6 );
 
         MORIS_ASSERT( tNumEdgePerElem == 3, "TRI3 NEEDS TO HAVE 3 EDGES (3 COLUMNS)" );
 
@@ -114,9 +114,9 @@ namespace xtk
 
     inline bool
     verify_tri3_topology(
-            moris::Matrix< moris::IndexMat > const & aElementToNode,
-            moris::Matrix< moris::IndexMat > const & aElementToEdge,
-            moris::Matrix< moris::IndexMat > const & aEdgeToNode )
+            Matrix< IndexMat > const &aElementToNode,
+            Matrix< IndexMat > const &aElementToEdge,
+            Matrix< IndexMat > const &aEdgeToNode )
     {
         MORIS_ASSERT( aElementToNode.n_cols() == 3, "UNDEFINED NUMBER OF NODES PROVIDED, NEEDS TO BE 3 FOR TRI3" );
 
@@ -137,6 +137,6 @@ namespace xtk
         return tValidTopo;
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_MESH_FN_VERIFY_TRI_TOPOLOGY_HPP_ */

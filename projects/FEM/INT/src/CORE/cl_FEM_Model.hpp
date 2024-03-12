@@ -370,6 +370,17 @@ namespace moris
                 mSpaceDim = aSpaceDim;
             }
 
+            //------------------------------------------------------------------------------
+            /**
+             * get equation sets for test
+             */
+            Vector< MSI::Equation_Set * > &
+            get_equation_sets()
+            {
+                return mFemSets;
+            }
+
+            //------------------------------------------------------------------------------
             /**
              * @brief set requested IQI names
              * @param[ in ] aRequestedIQINames List of requested IQI names

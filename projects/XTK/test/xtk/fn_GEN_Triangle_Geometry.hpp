@@ -27,13 +27,13 @@ namespace moris
          */
         inline void
         compute_tri_surface_normal(
-                moris::Matrix< moris::IndexMat > const & aTriangleNodes,
-                moris::Matrix< moris::DDRMat > const &   aNodeCoordinates,
-                moris::Matrix< moris::DDRMat >&          aSurfaceNormal,
-                bool                                     aPosDirection = false )
+                moris::Matrix< IndexMat > const & aTriangleNodes,
+                moris::Matrix< DDRMat > const &   aNodeCoordinates,
+                moris::Matrix< DDRMat >&          aSurfaceNormal,
+                bool                              aPosDirection = false )
         {
-            moris::Matrix< moris::DDRMat > tVec1( 1, 3, 0 );
-            moris::Matrix< moris::DDRMat > tVec2( 1, 3, 0 );
+            moris::Matrix< DDRMat > tVec1( 1, 3, 0 );
+            moris::Matrix< DDRMat > tVec2( 1, 3, 0 );
 
             moris::moris_index tN1 = aTriangleNodes( 0, 0 );
             moris::moris_index tN2 = aTriangleNodes( 0, 1 );
@@ -74,13 +74,13 @@ namespace moris
 
         inline moris::real
         compute_volume_for_multiple_tets(
-                moris::Matrix< moris::DDRMat > const &   aAllNodeCoords,
-                moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity )
+                moris::Matrix< DDRMat > const &   aAllNodeCoords,
+                moris::Matrix< IndexMat > const & aElementToNodeConnectivity )
         {
             size_t tNumTets = aElementToNodeConnectivity.n_rows();
 
-            moris::Matrix< moris::DDRMat > tCoords( aElementToNodeConnectivity.n_cols(), 3 );
-            moris::Matrix< moris::DDRMat > tCoordRow( 1, 3 );
+            moris::Matrix< DDRMat > tCoords( aElementToNodeConnectivity.n_cols(), 3 );
+            moris::Matrix< DDRMat > tCoordRow( 1, 3 );
 
             moris::real tTotalVolume = 0;
             moris::real tSingleVolume;
@@ -115,20 +115,20 @@ namespace moris
 
             return tValMat;
         }
-    }    // namespace ge
+    }    // namespace gen
 
     //-----------------------------------------------------------------------
 
     inline moris::real
     compute_area_for_multiple_triangles(
-            moris::Matrix< moris::DDRMat > const &   aAllNodeCoords,
-            moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity )
+            moris::Matrix< DDRMat > const &   aAllNodeCoords,
+            moris::Matrix< IndexMat > const & aElementToNodeConnectivity )
     {
         size_t tNumTriangles     = aElementToNodeConnectivity.n_rows();
         size_t tSpacialDimension = aElementToNodeConnectivity.n_cols();
 
-        moris::Matrix< moris::DDRMat > tCoords( aElementToNodeConnectivity.n_cols(), 2 );
-        moris::Matrix< moris::DDRMat > tCoordRow( 1, 2 );
+        moris::Matrix< DDRMat > tCoords( aElementToNodeConnectivity.n_cols(), 2 );
+        moris::Matrix< DDRMat > tCoordRow( 1, 2 );
 
         moris::real tTotalArea = 0;
         moris::real tSingleArea;

@@ -15,7 +15,7 @@
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_Vector.hpp"
-namespace xtk
+namespace moris::xtk
 {
 
     /*
@@ -36,8 +36,8 @@ namespace xtk
         moris::mtk::Mesh const & tBackgroundMeshData = aBackgroundMesh.get_mesh_data();
 
         // Initialize Data (using output mesh because this knows the total number of elements
-        moris::size_t                  tNumElementsOutput = aOutputMesh.get_num_entities( mtk::EntityRank::ELEMENT );
-        moris::Matrix< moris::DDRMat > tOwnerData( 1, tNumElementsOutput );
+        moris::size_t    tNumElementsOutput = aOutputMesh.get_num_entities( mtk::EntityRank::ELEMENT );
+        Matrix< DDRMat > tOwnerData( 1, tNumElementsOutput );
 
         // Iterate through background mesh elements (i here corresponds to elemental index)
         for ( moris::size_t i = 0; i < tBackgroundMeshData.get_num_entities( mtk::EntityRank::ELEMENT ); i++ )
@@ -55,7 +55,7 @@ namespace xtk
                 moris::size_t tChildMeshIndex = aBackgroundMesh.child_mesh_index( i, mtk::EntityRank::ELEMENT );
 
                 // Retrieve all the element Ids of the children
-                moris::Matrix< moris::IndexMat > const & tElementIds = aCutMesh.get_element_ids( tChildMeshIndex );
+                Matrix< IndexMat > const & tElementIds = aCutMesh.get_element_ids( tChildMeshIndex );
 
                 // Iterate through children elements and ask the output mesh for the indices using ids.
                 //  The index is then used to place the data in the correct location of tOwnerData.
@@ -86,6 +86,6 @@ namespace xtk
         aOutputMesh.add_mesh_field_real_scalar_data_loc_inds( aOwnerFieldName, mtk::EntityRank::ELEMENT, tOwnerData );
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_MESH_FN_WRITE_ELEMENT_OWNERSHIP_AS_FIELD_HPP_ */

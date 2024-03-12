@@ -117,7 +117,7 @@ namespace moris
         }
 #else
         ~Vector() = default;    // 'default' tells the compiler to automatically
-                              // delete the underlying Vector
+                                // delete the underlying Vector
 #endif
 
         //------------------------------------------------------------------
@@ -811,7 +811,7 @@ namespace moris
     void
     print(
             Vector< T > const & aVector,
-            std::string       aStr = "Vector" )
+            std::string         aStr = "Vector" )
     {
         std::cout << "Vector Name: " << aStr << "\n";
         std::cout << "Number of entries = " << aVector.size() << "\n";
@@ -886,7 +886,7 @@ namespace moris
     void
     print_as_row_vector(
             Vector< T > const & aVector,
-            std::string       aStr = "Vector" )
+            std::string         aStr = "Vector" )
     {
         std::cout << aStr << " = " << print_nested_cells( aVector ) << std::endl;
     }
@@ -927,7 +927,7 @@ namespace moris
     void
     write_to_txt_file(
             Vector< T > const & aVector,
-            std::string       aFileName )
+            std::string         aFileName )
     {
         // Open a file stream for writing
         std::ofstream tOutFile( aFileName );

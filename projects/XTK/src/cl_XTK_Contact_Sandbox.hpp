@@ -22,7 +22,7 @@
 // #include <Kokkos_Core.hpp>
 // #include "cl_Stopwatch.hpp" //CHR/src
 
-// namespace xtk
+// namespace moris::xtk
 // {
 //     using ExecSpace = Kokkos::DefaultExecutionSpace;
 //     using MemSpace = typename ExecSpace::memory_space;
@@ -180,7 +180,7 @@
 // };
 // }
 // }
-// namespace xtk
+// namespace moris::xtk
 // {
 
 //     class Contact_Sandbox
@@ -306,7 +306,7 @@
 
 //             for(moris::uint i = 0; i < tNumClusters; i++)
 //             {
-//                   moris::Matrix<moris::IndexMat> tVerticesInCluster = tClusters(i)->get_primary_vertices_inds_in_cluster();\
+//                   Matrix<IndexMat> tVerticesInCluster = tClusters(i)->get_primary_vertices_inds_in_cluster();\
 
 //                   this->construct_AABB_from_vertices(tVerticesInCluster,aCurrentDispVec,aPredictedDispVec,aSideClusterBBs(i));
 //             }
@@ -320,7 +320,7 @@
 //                     Vector<Bounding_Box>       & aVertexBBs)
 //         {
 //             // get the set clusters
-//             moris::Matrix< IndexMat > tSetIgVerts = aSet->get_ig_vertices_inds_on_block(true);
+//             Matrix< IndexMat > tSetIgVerts = aSet->get_ig_vertices_inds_on_block(true);
 
 //             // number of clusters
 //             moris::uint tNumVerts  = tSetIgVerts.numel();
@@ -360,7 +360,7 @@
 
 //             for(moris::moris_index i = 0; i <(moris::moris_index)tNumNodes; i++)
 //             {
-//                 moris::Matrix< moris::DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVerticesForBB(i));
+//                 Matrix< DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVerticesForBB(i));
 
 //                 for(moris::uint iSpatial = 0; iSpatial<tSpatialDim; iSpatial++)
 //                 {
@@ -412,7 +412,7 @@
 //                                      Bounding_Box         & aVertexSetBB)
 //             {
 //                 moris::uint tSpatialDim = mIntegrationMesh->get_spatial_dim();
-//                 moris::Matrix< moris::DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVertexIndex);
+//                 Matrix< DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVertexIndex);
 
 //                 // allocate bounds
 //                 Matrix<DDRMat> tBounds(tSpatialDim,2);

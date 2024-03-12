@@ -25,7 +25,7 @@
 // #include "cl_Param_List.hpp"
 // #include "fn_stringify_matrix.hpp"
 
-// namespace xtk
+// namespace moris::xtk
 // {
 
 // TEST_CASE("Mesh Cleanup","[Mesh_Cleanup_2d]")
@@ -293,7 +293,7 @@
 //         tGenParamList( 0 )( 0 ).set("isocontour_threshold", 1e-12);      // Level-set isocontour level
 //         tGenParamList( 0 )( 0 ).set("isocontour_tolerance", 1e-12);      // Level-set isocontour level
 
-//         // moris::Matrix<moris::DDUMat> tPhaseMap(16,1,7);
+//         // moris::Matrix<DDUMat> tPhaseMap(16,1,7);
 //         // tPhaseMap(8)  = 0;
 //         // tPhaseMap(12) = 0;
 //         // tPhaseMap(13) = 1;
@@ -408,4 +408,3 @@
 //     }
 
 // }
-

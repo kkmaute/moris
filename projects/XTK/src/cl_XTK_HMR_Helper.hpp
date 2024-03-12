@@ -28,7 +28,7 @@ namespace moris::mtk
 {
     class Cell;
 }
-namespace xtk
+namespace moris::xtk
 {
     // forward declaration of the class model
     class Model;
@@ -58,7 +58,7 @@ namespace xtk
         // Bpsline mesh index
         uint mBsplineMeshIndex = 0;
 
-        Matrix< DDRMat >                mL2ProjectionMatrix = { {} };
+        Matrix< DDRMat >           mL2ProjectionMatrix = { {} };
         Vector< Matrix< DDRMat > > mMatrices1D;
 
         // local order of the basis in the bspline element
@@ -115,7 +115,7 @@ namespace xtk
          * @return Vector< moris_id >& enirched basis ids ordered in the order of hmr nodes
          */
 
-        Vector< moris_id > const&
+        Vector< moris_id > const &
         get_enriched_basis_id_of_cell( const mtk::Cell* aCell, moris_index aSPGIndex );
 
         //------------------------------------------------------------------------------------
@@ -216,9 +216,9 @@ namespace xtk
 
         /**
          * @brief Get the enriched basis owners of cell object this function is used in conjunction with the get_enriched_basis_id_of_cell function
-         *  
+         *
          * @return Vector<moris_id>& the owners of the basis in the order of hmr nodes
-         * 
+         *
          * This is done this way to save memory, since the size enriched basis owners are the same size for all the subphase groups, so this cell gets overwritten
          */
 
@@ -240,4 +240,4 @@ namespace xtk
         const luint*
         get_ijk_bspline_cell( const mtk::Cell* aCell );
     };
-}    // namespace xtk
+}    // namespace moris::xtk

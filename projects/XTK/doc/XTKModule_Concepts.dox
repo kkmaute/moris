@@ -1,48 +1,49 @@
 #
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#Copyright( c ) 2022 University of Colorado
+#Licensed under the MIT license.See LICENSE.txt file in the MORIS root for details.
 #
-#------------------------------------------------------------------------------------
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 #
 
-namespace moris {
+namespace moris
+{
 
-/** @defgroup XTKConcepts Phase Concepts
+    /** @defgroup XTKConcepts Phase Concepts
 
-@section XTKBpSpSpNeigh Bulk-phase, Sub-phase and Sub-phase Neighborhood
+    @section XTKBpSpSpNeigh Bulk-phase, Sub-phase and Sub-phase Neighborhood
 
-\anchor XC1
-\image html  bulkphase.png "Figure 1: Colored by bulk-phase"
-\anchor XC2
-\image html  subphase_neighborhood.png "Figure 2: Colored by sub-phase with sub-phase neighborhood relationships"
+    \anchor XC1
+    \image html  bulkphase.png "Figure 1: Colored by bulk-phase"
+    \anchor XC2
+    \image html  subphase_neighborhood.png "Figure 2: Colored by sub-phase with sub-phase neighborhood relationships"
 
-A bulk-phase is an index, \f$i\f$, which describes an entities membership in \f$\Omega_i\f$. Not all points in \f$\Omega_i\f$ 
-are topologically connected. A sub-phase is a set of points \f$\mathbf{x}\f$ which are topologically connected, have the same 
-bulk-phase and are in the non-zero support of the same set of background basis functions, each color in Figure \ref XC2 "2". 
-All regions which have space between them are different sub-phases although some colors have been reused. The sub-phase 
-neighborhood is a first order adjacency matrix between sub-phases of the same bulk-phase, see the connecting lines in Figure  
-\ref XC2 "2" where the color of the line indicates the bulk-phase. For emphasis, notice that there are no sub-phase 
-neighborhood relationships between sub-phases in different bulk-phases.
- 
-@section XTKParallel Parallel Routines Standard
- All routines within XTK that need to create new parallel consistent data on the mesh follow the same structure as shown here.
- \anchor XC3
-\image html  parallel_standard.png "Figure 3: Generic parallel routine in XTK"
- 
-Requests are made by anchoring information that needs to be consistent to the model such that the owning processor of the data 
-can determine the correct information to return.  For example, when a new vertex is created during the decomposition strategy, 
-the id is created by anchoring the vertex to a parent entity id and a secondary identifier (cantor pair of the two vertices it 
-was constructed between). Sometimes, additional information is sent to debug or verify further the consistency of data between 
-processors. Note that all processors send at least a dummy message to all processors in their communication table. Processors 
-in the communication table include all processors which own an entity existing on a partition. XTK constructs its own 
-communication table and makes them symmetric in cl_XTK_Background_Mesh.hpp:setup_comm_map().
- 
- The function which use this standard in XTK are as follows:
- - assign_node_requests_identifiers() in cl_XTK_Model.hpp
- - assign_child_element_identifiers() in cl_XTK_Model.hpp
- - assign_subphase_glob_ids() in cl_XTK_Model.hpp
- - assign_enriched_coefficients_identifiers() in cl_XTK_Enrichment.hpp
- - identify_and_setup_aura_vertices_in_ghost() in cl_XTK_Ghost_Stabilization.hpp
- 
- */
- }
+    A bulk-phase is an index, \f$i\f$, which describes an entities membership in \f$\Omega_i\f$. Not all points in \f$\Omega_i\f$
+    are topologically connected. A sub-phase is a set of points \f$\mathbf{x}\f$ which are topologically connected, have the same
+    bulk-phase and are in the non-zero support of the same set of background basis functions, each color in Figure \ref XC2 "2".
+    All regions which have space between them are different sub-phases although some colors have been reused. The sub-phase
+    neighborhood is a first order adjacency matrix between sub-phases of the same bulk-phase, see the connecting lines in Figure
+    \ref XC2 "2" where the color of the line indicates the bulk-phase. For emphasis, notice that there are no sub-phase
+    neighborhood relationships between sub-phases in different bulk-phases.
+
+    @section XTKParallel Parallel Routines Standard
+     All routines within XTK that need to create new parallel consistent data on the mesh follow the same structure as shown here.
+     \anchor XC3
+    \image html  parallel_standard.png "Figure 3: Generic parallel routine in XTK"
+
+    Requests are made by anchoring information that needs to be consistent to the model such that the owning processor of the data
+    can determine the correct information to return.  For example, when a new vertex is created during the decomposition strategy,
+    the id is created by anchoring the vertex to a parent entity id and a secondary identifier (cantor pair of the two vertices it
+    was constructed between). Sometimes, additional information is sent to debug or verify further the consistency of data between
+    processors. Note that all processors send at least a dummy message to all processors in their communication table. Processors
+    in the communication table include all processors which own an entity existing on a partition. XTK constructs its own
+    communication table and makes them symmetric in cl_XTK_Background_Mesh.hpp:setup_comm_map().
+
+     The function which use this standard in XTK are as follows:
+     - assign_node_requests_identifiers() in cl_XTK_Model.hpp
+     - assign_child_element_identifiers() in cl_XTK_Model.hpp
+     - assign_subphase_glob_ids() in cl_XTK_Model.hpp
+     - assign_enriched_coefficients_identifiers() in cl_XTK_Enrichment.hpp
+     - identify_and_setup_aura_vertices_in_ghost() in cl_XTK_Ghost_Stabilization.hpp
+
+     */
+}

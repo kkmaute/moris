@@ -11,16 +11,16 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_NO_CM_HPP_
 
 #include "cl_MTK_Cell.hpp"
-#include "moris_typedefs.hpp"         //MRS/COR/src
-#include "cl_Vector.hpp"          //MRS/CNT/src
-#include "cl_MTK_Vertex.hpp"    //MTK/src
-#include "cl_MTK_Enums.hpp"     //MTK/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
+#include "cl_MTK_Vertex.hpp"     //MTK/src
+#include "cl_MTK_Enums.hpp"      //MTK/src
 #include "cl_MTK_Cell_Info.hpp"
 
 using namespace moris;
 
 //------------------------------------------------------------------------------
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
     /**
@@ -32,7 +32,7 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       private:
-        mtk::Cell_Info const *      mCellInfo = nullptr;
+        mtk::Cell_Info const * mCellInfo = nullptr;
         Vector< mtk::Vertex* > mCellVertices;
 
         //------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ namespace xtk
                 moris::moris_index                aElementIndex,
                 moris::moris_index                aElementOwner,
                 std::shared_ptr< mtk::Cell_Info > aCellInfo,
-                Vector< mtk::Vertex* >       aVertices );
+                Vector< mtk::Vertex* >            aVertices );
 
         //------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 //------------------------------------------------------------------------------
 

@@ -35,7 +35,7 @@
 
 #include "fn_unique.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
 
     class Model;
@@ -49,11 +49,11 @@ namespace xtk
 
         Vector< moris_index > mEnrichedBasisToBackgroundBasis;
 
-        Vector< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;
-        Vector< moris::Matrix< DDSMat > > mCoarseBasisToFineBasis;
-        Vector< moris::Matrix< DDRMat > > mCoarseBasisToFineBasisWeights;
+        Vector< Matrix< DDSMat > > mFineBasisToCoarseBasis;
+        Vector< Matrix< DDSMat > > mCoarseBasisToFineBasis;
+        Vector< Matrix< DDRMat > > mCoarseBasisToFineBasisWeights;
 
-        moris::Matrix< DDRMat > mEnrichedBasisLevel;
+        Matrix< DDRMat > mEnrichedBasisLevel;
 
         uint mNumBasis = MORIS_UINT_MAX;
 
@@ -140,7 +140,7 @@ namespace xtk
 
         //-------------------------------------------------------------------------------
 
-        moris::Matrix< DDSMat >
+        Matrix< DDSMat >
         get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex,
                 const moris_index                       aBasisIndex )
         {
@@ -149,7 +149,7 @@ namespace xtk
 
         //-------------------------------------------------------------------------------
 
-        moris::Matrix< DDRMat >
+        Matrix< DDRMat >
         get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex,
                 const moris_index                          aBasisIndex )
         {
@@ -170,11 +170,10 @@ namespace xtk
 #ifdef MORIS_HAVE_DEBUG
 
       private:
-        moris::Matrix< DDRMat > mEnrichedBasisCoords;
+        Matrix< DDRMat > mEnrichedBasisCoords;
 
-        moris::Matrix< DDRMat > mEnrichedBasisStatus;
+        Matrix< DDRMat > mEnrichedBasisStatus;
 #endif
     };
-}    // namespace xtk
+}    // namespace moris::xtk
 #endif /* XTK_SRC_XTK_CL_XTK_MULTIGRID_HPP_ */
-

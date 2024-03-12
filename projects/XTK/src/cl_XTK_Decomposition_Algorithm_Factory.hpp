@@ -15,7 +15,7 @@
 #include <memory>
 #include "cl_Param_List.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     class Decomposition_Algorithm;
 
@@ -24,6 +24,6 @@ namespace xtk
             enum Subdivision_Method aSubdivisionMethod,
             moris::ParameterList&   aParameterList );
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* cl_XTK_Decomposition_Algorithm_Factory.hpp */

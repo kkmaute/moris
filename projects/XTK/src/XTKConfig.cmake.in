@@ -1,41 +1,43 @@
 #
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#Copyright( c ) 2022 University of Colorado
+#Licensed under the MIT license.See LICENSE.txt file in the MORIS root for details.
 #
-#------------------------------------------------------------------------------------
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 #
 
-### XTK Library Config File ###
+## #XTK Library Config File## #
 
-if(@XTK@_CONFIGURED)
-	return()
-endif()
+        if ( @XTK @_CONFIGURED ) return ()
+                endif()
 
-set(@XTK@_CONFIGURED TRUE)
+                        set( @XTK @_CONFIGURED TRUE )
 
-# CMake configuration
-@PACKAGE_INIT@
+#CMake configuration
+                                @PACKAGE_INIT @
 
-# Additional macros
-include(CMakeFindDependencyMacro)
+#Additional macros
+        include( CMakeFindDependencyMacro )
 
-# Compilers and used in build
-set(@XTK@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
-set(@XTK@_C_COMPLIER "@MORIS_C_COMPLIER@")
+#Compilers and used in build
+                set( @XTK @_CXX_COMPILER "@MORIS_CXX_COMPILER@" )
+                        set( @XTK @_C_COMPLIER "@MORIS_C_COMPLIER@" )
 
-# Flags used in build
-set(@XTK@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@XTK_COMPILE_DEFINITIONS@")
-set(@XTK@_C_FLAGS "@MORIS_C_FLAGS@" "@XTK_COMPILE_DEFINITIONS@")
+#Flags used in build
+                                set( @XTK @_CXX_FLAGS
+                                        "@MORIS_CXX_FLAGS@"
+                                        "@XTK_COMPILE_DEFINITIONS@" )
+                                        set( @XTK @_C_FLAGS
+                                                "@MORIS_C_FLAGS@"
+                                                "@XTK_COMPILE_DEFINITIONS@" )
 
-# Find dependencies
-@XTK_CONFIG_TPL_DEPENDENCIES@
-@XTK_CONFIG_MORIS_DEPENDENCIES@
+#Find dependencies
+                                                @XTK_CONFIG_TPL_DEPENDENCIES @ @XTK_CONFIG_MORIS_DEPENDENCIES @
 
-# Create library target
-include("@PACKAGE_XTK_CONFIG_INSTALL_DIR@/@XTK@Targets.cmake")
+#Create library target
+        include( "@PACKAGE_XTK_CONFIG_INSTALL_DIR@/@XTK@Targets.cmake" )
 
-# Library target list
-set(@XTK@_LIBRARIES @XTK@-lib)
+#Library target list
+                set( @XTK @_LIBRARIES @XTK @-lib )
 
-# add to moris
-set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@XTK@-lib")
+#add to moris
+                        set( ALL_MRS_LIBS "${ALL_MRS_LIBS};@XTK@-lib" )

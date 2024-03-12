@@ -55,7 +55,7 @@
 
 #include "cl_Param_List.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     class Integration_Mesh_Generator;
     class Enrichment;
@@ -66,11 +66,11 @@ namespace xtk
     class Ghost_Stabilization;
     class Multigrid;
     class Basis_Processor;
-}    // namespace xtk
+}    // namespace moris::xtk
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     class Model
     {
@@ -93,12 +93,12 @@ namespace xtk
         uint                                    mModelDimension;
         moris::mtk::Interpolation_Mesh*         mBackgroundMesh;
         Cut_Mesh                                mCutMesh;
-        moris::gen::Geometry_Engine*             mGeometryEngine;
+        moris::gen::Geometry_Engine*            mGeometryEngine;
         std::shared_ptr< Cut_Integration_Mesh > mCutIntegrationMesh;
         Enrichment*                             mEnrichment;
         Ghost_Stabilization*                    mGhostStabilization;
-        Vector< Enriched_Interpolation_Mesh* >    mEnrichedInterpMesh;
-        Vector< Enriched_Integration_Mesh* >      mEnrichedIntegMesh;
+        Vector< Enriched_Interpolation_Mesh* >  mEnrichedInterpMesh;
+        Vector< Enriched_Integration_Mesh* >    mEnrichedIntegMesh;
         std::shared_ptr< xtk::Multigrid >       mMultigrid;
         Matrix< IndexMat >                      mBsplineMeshIndices;
 
@@ -128,7 +128,7 @@ namespace xtk
         std::string mDiagnosticId   = "";
 
         // communication table
-        moris::Matrix< IdMat > mCommunicationMap;
+        Matrix< IdMat > mCommunicationMap;
 
         // cell map
         std::map< moris_id, moris_index > mCellGlbToLocalMap;
@@ -173,7 +173,7 @@ namespace xtk
          */
         Model( uint                             aModelDimension,
                 moris::mtk::Interpolation_Mesh* aMeshData,
-                moris::gen::Geometry_Engine*     aGeometryEngine,
+                moris::gen::Geometry_Engine*    aGeometryEngine,
                 bool                            aLinkGeometryOnConstruction = true );
 
         //--------------------------------------------------------------------------------
@@ -397,7 +397,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::Matrix< IndexMat >
+        Matrix< IndexMat >
         get_Bspline_mesh_indices() const;
 
         // ----------------------------------------------------------------------------------
@@ -470,7 +470,7 @@ namespace xtk
         get_subphase_to_subphase_neighbor_side_ords();
 
         //-----------------------------------------------------------------------------------
-        moris::Matrix< moris::IndexMat >
+        Matrix< IndexMat >
         get_num_subphase_neighbors();
 
         //-----------------------------------------------------------------------------------
@@ -485,7 +485,7 @@ namespace xtk
 
         //-----------------------------------------------------------------------------------
 
-        moris::Matrix< moris::IndexMat >
+        Matrix< IndexMat >
         get_element_to_subphase();
 
         //-----------------------------------------------------------------------------------
@@ -700,9 +700,9 @@ namespace xtk
 
         void
         run_first_cut_routine(
-                moris::uint                       aGeomIndex,
-                moris::Matrix< moris::IndexMat >& aActiveChildMeshIndices,
-                moris::Matrix< moris::IndexMat >& aNewPairBool );
+                moris::uint         aGeomIndex,
+                Matrix< IndexMat >& aActiveChildMeshIndices,
+                Matrix< IndexMat >& aNewPairBool );
 
         //------------------------------------------------------------------------------
         /*
@@ -726,9 +726,9 @@ namespace xtk
          */
         void
         setup_interface_single_side_sets(
-                Output_Options const &                 aOutputOptions,
-                Vector< moris::Matrix< moris::IdMat > >& aCellIdsAndSideOrds,
-                Vector< std::string >&                   aInterfaceSetNames );
+                Output_Options const &     aOutputOptions,
+                Vector< Matrix< IdMat > >& aCellIdsAndSideOrds,
+                Vector< std::string >&     aInterfaceSetNames );
 
         //------------------------------------------------------------------------------
 
@@ -752,8 +752,8 @@ namespace xtk
          */
         Vector< moris::mtk::MtkSideSetInfo >
         propogate_background_side_sets(
-                Vector< moris::Matrix< IndexMat > >& aSideSetData,
-                Output_Options const &                    aOutputOptions );
+                Vector< Matrix< IndexMat > >& aSideSetData,
+                Output_Options const &        aOutputOptions );
 
         //------------------------------------------------------------------------------
 
@@ -762,13 +762,13 @@ namespace xtk
          */
         void
         propogate_background_side_set(
-                std::string const &                        aSideSetName,
-                moris::moris_index                         aNoChildIndex,
-                moris::moris_index                         aChildIndex,
-                Vector< moris::Matrix< IndexMat > >&  aElementIdsAndSideOrd,
+                std::string const &                   aSideSetName,
+                moris::moris_index                    aNoChildIndex,
+                moris::moris_index                    aChildIndex,
+                Vector< Matrix< IndexMat > >&         aElementIdsAndSideOrd,
                 Vector< moris::mtk::MtkSideSetInfo >& aSideSetData,
-                Output_Options const &                     aOutputOptions,
-                bool                                       aOutputIndices );
+                Output_Options const &                aOutputOptions,
+                bool                                  aOutputIndices );
 
         //------------------------------------------------------------------------------
 
@@ -785,10 +785,10 @@ namespace xtk
         /*!
          * Combine interface and non-interface blocks
          */
-        Vector< moris::Matrix< moris::IdMat > >
+        Vector< Matrix< IdMat > >
         combine_interface_and_non_interface_blocks(
-                Vector< moris::Matrix< moris::IdMat > >& tChildElementsByPhase,
-                Vector< moris::Matrix< moris::IdMat > >& tNoChildElementsByPhase );
+                Vector< Matrix< IdMat > >& tChildElementsByPhase,
+                Vector< Matrix< IdMat > >& tNoChildElementsByPhase );
 
         //------------------------------------------------------------------------------
 
@@ -807,17 +807,17 @@ namespace xtk
         setup_cell_clusters_for_output(
                 moris::mtk::Cell_Cluster_Input& aCellClusterInput,
                 Output_Options const &          aOutputOptions,
-                Vector< Matrix< IdMat > >& tCellIds );
+                Vector< Matrix< IdMat > >&      tCellIds );
 
         //------------------------------------------------------------------------------
 
         void
         setup_interface_side_cluster(
-                std::string                      aInterfaceSideLabelBase,
-                moris::mtk::Side_Cluster_Input&  aCellClusterInput,
-                Output_Options const &           aOutputOptions,
-                Vector< Matrix< IdMat > >&  tCellIdsandSideOrds,
-                Vector< Matrix< DDRMat > >& tParametricCoordinates );
+                std::string                     aInterfaceSideLabelBase,
+                moris::mtk::Side_Cluster_Input& aCellClusterInput,
+                Output_Options const &          aOutputOptions,
+                Vector< Matrix< IdMat > >&      tCellIdsandSideOrds,
+                Vector< Matrix< DDRMat > >&     tParametricCoordinates );
 
         //------------------------------------------------------------------------------
 
@@ -838,15 +838,15 @@ namespace xtk
 
         moris::size_t
         determine_element_phase_index(
-                moris::size_t                            aRowIndex,
-                moris::Matrix< moris::IndexMat > const & aElementToNodeIndex );
+                moris::size_t              aRowIndex,
+                Matrix< IndexMat > const & aElementToNodeIndex );
 
         //------------------------------------------------------------------------------
 
         void
         collect_subphases_attached_to_facet_on_cell(
-                moris::moris_index          aCellIndex,
-                moris::moris_index          aFacetOrdinal,
+                moris::moris_index            aCellIndex,
+                moris::moris_index            aFacetOrdinal,
                 Vector< moris::moris_index >& aCellSubphaseIndices,
                 Vector< moris::moris_index >& aCellSubphaseBulkIndices,
                 Vector< moris::moris_index >& aRepresentativeCellInd,
@@ -876,6 +876,6 @@ namespace xtk
                 bool                       aSortBasisEnrichmentLevels,
                 bool                       aUseSpgBasedEnrichment = false );
     };
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_XTK_CL_XTK_MODEL_HPP_ */

@@ -205,7 +205,7 @@ namespace moris::hmr
           * set the DOFs
           */
          void set_coefficients( const uint                   aBSplineMeshIndex,
-                                      Vector< mtk::Vertex* > & aDOFs )
+                 Vector< mtk::Vertex* > & aDOFs )
          {
              mInterpolations( aBSplineMeshIndex )->set_coefficients( aDOFs );
          }

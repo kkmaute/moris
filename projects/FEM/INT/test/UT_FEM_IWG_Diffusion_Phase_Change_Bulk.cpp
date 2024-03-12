@@ -31,9 +31,12 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 
+using namespace moris;
+using namespace fem;
+
 void tConstValFunction_UTIWGDIFFPCBULK
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -41,7 +44,7 @@ void tConstValFunction_UTIWGDIFFPCBULK
 
 void tGeoValFunction_UTIWGDIFFBULK
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
@@ -49,7 +52,7 @@ void tGeoValFunction_UTIWGDIFFBULK
 
 void tFIValFunction_UTIWGDIFFBULK
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
@@ -57,16 +60,13 @@ void tFIValFunction_UTIWGDIFFBULK
 
 void tFIDerFunction_UTIWGDIFFBULK
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-  moris::Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
+  Vector< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-using namespace moris;
-using namespace fem;
-
-moris::Vector<bool> test_IWG_Diffusion_Phase_Change_Bulk(
+Vector<bool> test_IWG_Diffusion_Phase_Change_Bulk(
         Matrix< DDRMat > aXHat,
         Matrix< DDRMat > aTHat,
         mtk::Interpolation_Rule aGIRule,
@@ -77,7 +77,7 @@ moris::Vector<bool> test_IWG_Diffusion_Phase_Change_Bulk(
         uint aSpatialDim = 2 )
 {
     // initialize cell of checks
-    moris::Vector<bool> tChecks( 1, false );
+    Vector<bool> tChecks( 1, false );
 
     // define an epsilon environment
     real tEpsilon = 1.0e-6;
@@ -221,7 +221,7 @@ moris::Vector<bool> test_IWG_Diffusion_Phase_Change_Bulk(
     tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
     // create a field interpolator manager
-    moris::Vector< moris::Vector< enum MSI::Dof_Type > > tDummy;
+    Vector< Vector< enum MSI::Dof_Type > > tDummy;
     Field_Interpolator_Manager tFIManager( tDummy, tSet );
 
     // populate the field interpolator manager
@@ -309,7 +309,7 @@ TEST_CASE( "IWG_Diffusion_Phase_Change_Bulk_HEX8", "[moris],[fem],[IWG_Diffusion
     Matrix< DDRMat > tParametricPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.4 }};
 
     // run test
-    moris::Vector<bool> tChecks = test_IWG_Diffusion_Phase_Change_Bulk(
+    Vector<bool> tChecks = test_IWG_Diffusion_Phase_Change_Bulk(
                     tXHat,
                     tTHat,
                     tGeomInterpRule,
@@ -370,7 +370,7 @@ TEST_CASE( "IWG_Diffusion_Phase_Change_Bulk_HEX27", "[moris],[fem],[IWG_Diffusio
     Matrix< DDRMat > tParametricPoint = {{ 0.35}, {-0.25}, { 0.75}, { 0.4 }};
 
     // run test
-    moris::Vector<bool> tChecks = test_IWG_Diffusion_Phase_Change_Bulk(
+    Vector<bool> tChecks = test_IWG_Diffusion_Phase_Change_Bulk(
                     tXHat,
                     tTHat,
                     tGeomInterpRule,

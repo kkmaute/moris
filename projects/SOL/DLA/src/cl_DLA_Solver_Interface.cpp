@@ -412,7 +412,7 @@ void Solver_Interface::get_adof_ids_based_on_criteria(
                 this->calculate_criteria( Ii, Ik );
 
                 // get criteria
-                const moris::Vector< moris::Matrix< DDRMat > >& tCriteria = this->get_criteria( Ii );
+                const Vector< moris::Matrix< DDRMat > >& tCriteria = this->get_criteria( Ii );
 
                 // if criteria meets requirement
                 if ( tCriteria( 0 )( 0 ) < aThreshold )

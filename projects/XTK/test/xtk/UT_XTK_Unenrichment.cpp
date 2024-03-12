@@ -37,7 +37,7 @@
 
 #include "cl_MTK_Intersection_Mesh.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     TEST_CASE( "XTK UnEnrichment", "[XTK],[XTK_UnEnrichment]" )
     {
@@ -98,7 +98,7 @@ namespace xtk
             tXTKParameters.set( "write_cell_enrichments_levels", false );
 
             // define the sphere such that it is non interacting
-            auto tPlane = std::make_shared< moris::gen::Plane >( 1.5, 0.5, 1.0, 0.0 );
+            auto                                              tPlane    = std::make_shared< moris::gen::Plane >( 1.5, 0.5, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometry = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
             // define ge engine
@@ -129,7 +129,7 @@ namespace xtk
             xtk::Enriched_Interpolation_Mesh& tInterpMesh = tXTKModel.get_enriched_interp_mesh();
 
             // mesh indices
-            moris::Matrix< moris::IndexMat > tMeshIndices( 1, 1, 0 );
+            moris::Matrix< IndexMat > tMeshIndices( 1, 1, 0 );
 
             // check if the unenrichment mesh indices are set
             REQUIRE( tInterpMesh.mUnenrichedMeshIndices( 0 ) == tMeshIndices( 0 ) );
@@ -151,15 +151,15 @@ namespace xtk
                     mtk::Vertex_Interpolation const * tBaseVertex = iVertexEnrichment->get_base_vertex_interpolation();
                     if ( tBaseVertex )
                     {
-                        moris::Matrix< moris::IndexMat >         tBaseIndices = tBaseVertex->get_indices();
-                        moris::Matrix< moris::IndexMat > const & tIndices     = iVertexEnrichment->get_basis_indices();
+                        moris::Matrix< IndexMat >         tBaseIndices = tBaseVertex->get_indices();
+                        moris::Matrix< IndexMat > const & tIndices     = iVertexEnrichment->get_basis_indices();
 
-                        moris::Matrix< moris::IdMat >         tBaseIds = tBaseVertex->get_ids();
-                        moris::Matrix< moris::IdMat > const & tIds     = iVertexEnrichment->get_basis_ids();
+                        moris::Matrix< IdMat >         tBaseIds = tBaseVertex->get_ids();
+                        moris::Matrix< IdMat > const & tIds     = iVertexEnrichment->get_basis_ids();
 
 
-                        moris::Matrix< moris::IdMat >         tBaseOwners = tBaseVertex->get_owners();
-                        moris::Matrix< moris::IdMat > const & tOwners     = iVertexEnrichment->get_owners();
+                        moris::Matrix< IdMat >         tBaseOwners = tBaseVertex->get_owners();
+                        moris::Matrix< IdMat > const & tOwners     = iVertexEnrichment->get_owners();
 
 
                         bool tSameIndex = std::equal( tBaseIndices.begin(), tBaseIndices.end(), tIndices.begin(),    //
@@ -182,9 +182,9 @@ namespace xtk
                     // we will check that ids created during the ghost
                     else
                     {
-                        moris::Matrix< moris::IndexMat > const & tIndices = iVertexEnrichment->get_basis_indices();
-                        moris::Matrix< moris::IdMat > const &    tIds     = iVertexEnrichment->get_basis_ids();
-                        moris::Matrix< moris::IdMat > const &    tOwners  = iVertexEnrichment->get_owners();
+                        moris::Matrix< IndexMat > const & tIndices = iVertexEnrichment->get_basis_indices();
+                        moris::Matrix< IdMat > const &    tIds     = iVertexEnrichment->get_basis_ids();
+                        moris::Matrix< IdMat > const &    tOwners  = iVertexEnrichment->get_owners();
 
                         // if there is a vertex that belongs to the other processor, it should be added to the map and
                         // the indices and id's should not exist in the map beforehand
@@ -223,4 +223,4 @@ namespace xtk
             CHECK( tInterpMesh.get_max_num_coeffs_on_proc( tMeshIndices( 0 ) ) == (uint)( tMaxIndex + 1 ) );
         }
     }
-}    // namespace xtk
+}    // namespace moris::xtk

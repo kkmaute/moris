@@ -22,7 +22,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     HMR_Helper::HMR_Helper( xtk::Model* aXTKModel, moris_index aMeshIndex )
             : mXTKModelPtr( aXTKModel )
@@ -114,7 +114,7 @@ namespace xtk
         // get the BG basis and level for the corresponding SPG, this data is necessary to identity the enriched basis
         Vector< moris_index > const & tBGBasisIndices = mEnrichmentData->mSubphaseGroupBGBasisIndices( aSPGIndex );
         Vector< moris_index > const & tBGBasisLevels  = mEnrichmentData->mSubphaseGroupBGBasisEnrLev( aSPGIndex );
-        IndexMap                           tBasisToLocalIndexMapRoot;
+        IndexMap                      tBasisToLocalIndexMapRoot;
 
         // convert bg basis indices to a map
         convert_cell_to_map( tBGBasisIndices, tBasisToLocalIndexMapRoot );
@@ -143,7 +143,7 @@ namespace xtk
         }
 
         // transform the basis indices to basis ids
-        moris::Matrix< IdMat > const & tEnrichedBasisIndexToId = mEnrichmentData->mEnrichedBasisIndexToId;
+        Matrix< IdMat > const & tEnrichedBasisIndexToId = mEnrichmentData->mEnrichedBasisIndexToId;
 
         // use the transform function to get the enriched basis ids from the enriched basis indices
         std::transform( mEnrichedBasisIDs.begin(), mEnrichedBasisIDs.end(), mEnrichedBasisIDs.begin(),    //
@@ -544,7 +544,7 @@ namespace xtk
         // get the BG basis and their level
         Vector< moris_index > const & tBGBasisIndices = mEnrichmentData->mSubphaseGroupBGBasisIndices( aSPGIndex );
         Vector< moris_index > const & tBGBasisLevels  = mEnrichmentData->mSubphaseGroupBGBasisEnrLev( aSPGIndex );
-        IndexMap                           tBasisToLocalIndexMapRoot;
+        IndexMap                      tBasisToLocalIndexMapRoot;
 
         // need to convert the first one to map
         convert_cell_to_map( tBGBasisIndices, tBasisToLocalIndexMapRoot );
@@ -591,4 +591,4 @@ namespace xtk
     }
 
 
-}    // namespace xtk
+}    // namespace moris::xtk

@@ -19,7 +19,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     // class Cut_Integration_Mesh;
 
@@ -33,8 +33,8 @@ namespace xtk
 
         // ----------------------------------------------------------------------------
 
-        moris::moris_index                mMergeNum;     // Number of vertices to merge
-        Vector< moris::moris_index > mMergeInds;    // Indices of vertices of merge
+        moris::moris_index           mMergeNum;         // Number of vertices to merge
+        Vector< moris::moris_index > mMergeInds;        // Indices of vertices of merge
         Vector< moris::moris_index > mMergeIndsV2;
         Vector< moris::moris_index > mCellMergeInds;    // Indices of cells merged
         Vector< moris::moris_index > mFacetMergeInds;
@@ -65,7 +65,6 @@ namespace xtk
         // ----------------------------------------------------------------------------
 
       public:
-
         // ----------------------------------------------------------------------------
 
         Integration_Mesh_Cleanup() = default;
@@ -132,7 +131,7 @@ namespace xtk
          * @param aNotOwnedCellVerts not owned cell vertices
          */
         void
-        communicate_merged_cells( moris::Matrix< IdMat > aNotOwnedCellVerts );
+        communicate_merged_cells( Matrix< IdMat > aNotOwnedCellVerts );
 
         // ----------------------------------------------------------------------------
 
@@ -180,7 +179,7 @@ namespace xtk
         void
         perform(
                 Vector< moris::mtk::Cell* >& aActiveIgCells,
-                moris::gen::Geometry_Engine*       aGeometryEngine );
+                moris::gen::Geometry_Engine* aGeometryEngine );
 
         // ----------------------------------------------------------------------------
 
@@ -220,9 +219,9 @@ namespace xtk
          */
         double_t
         minAngle2D(
-                moris::Matrix< DDRMat > C1,
-                moris::Matrix< DDRMat > C2,
-                moris::Matrix< DDRMat > C3 );
+                Matrix< DDRMat > C1,
+                Matrix< DDRMat > C2,
+                Matrix< DDRMat > C3 );
 
         // ----------------------------------------------------------------------------
 
@@ -236,10 +235,10 @@ namespace xtk
          */
         double_t
         minAngle3D(
-                moris::Matrix< DDRMat > C1,
-                moris::Matrix< DDRMat > C2,
-                moris::Matrix< DDRMat > C3,
-                moris::Matrix< DDRMat > C4 );
+                Matrix< DDRMat > C1,
+                Matrix< DDRMat > C2,
+                Matrix< DDRMat > C3,
+                Matrix< DDRMat > C4 );
 
         // ----------------------------------------------------------------------------
 
@@ -253,10 +252,10 @@ namespace xtk
          */
         double_t
         solidAngle(
-                moris::Matrix< DDRMat > nodeO,
-                moris::Matrix< DDRMat > nodeA,
-                moris::Matrix< DDRMat > nodeB,
-                moris::Matrix< DDRMat > nodeC );
+                Matrix< DDRMat > nodeO,
+                Matrix< DDRMat > nodeA,
+                Matrix< DDRMat > nodeB,
+                Matrix< DDRMat > nodeC );
 
         // ----------------------------------------------------------------------------
 
@@ -268,8 +267,8 @@ namespace xtk
          */
         double_t
         angle(
-                moris::Matrix< DDRMat > nodeA,
-                moris::Matrix< DDRMat > nodeB );
+                Matrix< DDRMat > nodeA,
+                Matrix< DDRMat > nodeB );
 
         // ----------------------------------------------------------------------------
 
@@ -289,7 +288,7 @@ namespace xtk
          * @param aCoords rows of coordinates spanning the shape/volume
          */
         double_t
-        n_area( moris::Matrix< DDRMat > aCoords );
+        n_area( Matrix< DDRMat > aCoords );
 
         // ----------------------------------------------------------------------------
 
@@ -343,14 +342,13 @@ namespace xtk
          * @param aV2 Coordinates 2
          */
         double_t
-        dist( moris::Matrix< DDRMat > aV1, moris::Matrix< DDRMat > aV2 );
+        dist( Matrix< DDRMat > aV1, Matrix< DDRMat > aV2 );
 
         // ----------------------------------------------------------------------------
-
     };
 
     // ----------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif    // SRC_cl_XTK_Integration_Mesh_Cleanup_HPP_

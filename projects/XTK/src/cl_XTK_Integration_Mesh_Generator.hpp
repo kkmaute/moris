@@ -28,7 +28,7 @@
 #include "cl_XTK_Subphase_Group.hpp"
 #include "cl_Tracer.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
 
@@ -76,13 +76,13 @@ namespace xtk
 
         Vector< moris::mtk::Cell* >*                  mAssociatedBgCellForEdge = nullptr;
         Vector< std::shared_ptr< IG_Vertex_Group > >* mAssociatedVertexGroup   = nullptr;
-        Cut_Integration_Mesh*                              mCutIntegrationMesh      = nullptr;
+        Cut_Integration_Mesh*                         mCutIntegrationMesh      = nullptr;
 
         // parent info
         moris::mtk::Cell* mParentCell;
 
         // row-based and indexed based on the indexing in mQueryEntityToVertices.
-        Vector< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* mQueryEntityIndexedCoordinates = nullptr;
+        Vector< std::shared_ptr< Matrix< DDRMat > > >* mQueryEntityIndexedCoordinates = nullptr;
 
         // geometric index
         moris_index mGeometricIndex;
@@ -161,7 +161,7 @@ namespace xtk
         }
 
         void
-        set_coordinates_matrix( Vector< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aCoordinates )
+        set_coordinates_matrix( Vector< std::shared_ptr< Matrix< DDRMat > > >* aCoordinates )
         {
             mQueryEntityIndexedCoordinates = aCoordinates;
         }
@@ -190,7 +190,7 @@ namespace xtk
             return mQueryEntityToVertices;
         }
 
-        Vector< std::shared_ptr< moris::Matrix< moris::DDRMat > > >*
+        Vector< std::shared_ptr< Matrix< DDRMat > > >*
         get_query_indexed_coordinates() const
         {
             return mQueryEntityIndexedCoordinates;
@@ -253,8 +253,8 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
       private:
-        Model*                      mXTKModel       = nullptr;
-        moris::gen::Geometry_Engine* mGeometryEngine = nullptr;
+        Model*                            mXTKModel       = nullptr;
+        moris::gen::Geometry_Engine*      mGeometryEngine = nullptr;
         Vector< enum Subdivision_Method > mSubdivisionMethods;
 
         bool mOutputCutIgMesh = false;
@@ -267,8 +267,8 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         Integration_Mesh_Generator(
-                xtk::Model*                      aXTKModelPtr,
-                Vector< enum Subdivision_Method >  aMethods );
+                xtk::Model*                       aXTKModelPtr,
+                Vector< enum Subdivision_Method > aMethods );
 
         // ----------------------------------------------------------------------------------
 
@@ -358,22 +358,22 @@ namespace xtk
         deduce_interfaces(
                 Cut_Integration_Mesh*                       aCutIntegrationMesh,
                 std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
-                Vector< moris_index >&                 aInterfaces );
+                Vector< moris_index >&                      aInterfaces );
 
         // ----------------------------------------------------------------------------------
 
         void
         construct_bulk_phase_to_bulk_phase_interface(
-                Cut_Integration_Mesh*                                                aCutIntegrationMesh,
-                Vector< moris_index >&                                          aInterfaces,
+                Cut_Integration_Mesh*                                      aCutIntegrationMesh,
+                Vector< moris_index >&                                     aInterfaces,
                 Vector< Vector< std::shared_ptr< IG_Cell_Side_Group > > >& aInterfaceBulkPhaseToBulk );
 
         // ----------------------------------------------------------------------------------
 
         void
         construct_bulk_phase_to_bulk_phase_dbl_side_interface(
-                Cut_Integration_Mesh*                                                       aCutIntegrationMesh,
-                Vector< moris_index >&                                                 aInterfaces,
+                Cut_Integration_Mesh*                                             aCutIntegrationMesh,
+                Vector< moris_index >&                                            aInterfaces,
                 Vector< Vector< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aDblSideInterfaceBulkPhaseToBulk );
 
         // ----------------------------------------------------------------------------------
@@ -388,21 +388,21 @@ namespace xtk
 
         void
         construct_interface_sets(
-                Cut_Integration_Mesh*                                                aCutIntegrationMesh,
+                Cut_Integration_Mesh*                                      aCutIntegrationMesh,
                 Vector< Vector< std::shared_ptr< IG_Cell_Side_Group > > >& aInterfaceBulkPhaseToBulk );
 
         // ----------------------------------------------------------------------------------
 
         void
         construct_bulk_phase_cell_groups(
-                Cut_Integration_Mesh*                            aCutIntegrationMesh,
+                Cut_Integration_Mesh*                       aCutIntegrationMesh,
                 Vector< std::shared_ptr< IG_Cell_Group > >& aBulkPhaseCellGroups );
 
         // ----------------------------------------------------------------------------------
 
         void
         construct_bulk_phase_blocks(
-                Cut_Integration_Mesh*                            aCutIntegrationMesh,
+                Cut_Integration_Mesh*                       aCutIntegrationMesh,
                 Vector< std::shared_ptr< IG_Cell_Group > >& aBulkPhaseCellGroups );
 
         // ----------------------------------------------------------------------------------
@@ -416,8 +416,8 @@ namespace xtk
 
         void
         collect_vertex_groups_for_background_cells(
-                Integration_Mesh_Generation_Data*                  aMeshGenerationData,
-                Cut_Integration_Mesh*                              aCutIntegrationMesh,
+                Integration_Mesh_Generation_Data*             aMeshGenerationData,
+                Cut_Integration_Mesh*                         aCutIntegrationMesh,
                 Vector< moris::mtk::Cell* >*                  aBackgroundCells,
                 Vector< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups );
 
@@ -429,32 +429,32 @@ namespace xtk
          */
         moris_index
         edge_exists(
-                Vector< moris::mtk::Vertex* >&                aVerticesOnEdge,
-                std::unordered_map< moris_index, moris_index >&    aLocaLVertexMap,
-                Vector< Vector< uint > >&                aVertexToEdge,
-                Vector< Vector< moris::mtk::Vertex* > >& aFullEdgeVertices );
+                Vector< moris::mtk::Vertex* >&                  aVerticesOnEdge,
+                std::unordered_map< moris_index, moris_index >& aLocaLVertexMap,
+                Vector< Vector< uint > >&                       aVertexToEdge,
+                Vector< Vector< moris::mtk::Vertex* > >&        aFullEdgeVertices );
 
         // ----------------------------------------------------------------------------------
 
         moris_index
         facet_exists(
-                Vector< moris::mtk::Vertex* >&                aVerticesOnFacet,
-                std::unordered_map< moris_index, moris_index >&    aLocaLVertexMap,
-                Vector< Vector< uint > >&                aVertexToFacet,
-                Vector< Vector< moris::mtk::Vertex* > >& aFullFacetVertices );
+                Vector< moris::mtk::Vertex* >&                  aVerticesOnFacet,
+                std::unordered_map< moris_index, moris_index >& aLocaLVertexMap,
+                Vector< Vector< uint > >&                       aVertexToFacet,
+                Vector< Vector< moris::mtk::Vertex* > >&        aFullFacetVertices );
 
         // ----------------------------------------------------------------------------------
 
         void
         construct_ig_cell_groups_facet_conn(
-                Vector< std::shared_ptr< IG_Cell_Group > >&     aActiveIgCellGroups,
+                Vector< std::shared_ptr< IG_Cell_Group > >&            aActiveIgCellGroups,
                 Vector< std::shared_ptr< Facet_Based_Connectivity > >& aGroupFaceConn );
 
         // ----------------------------------------------------------------------------------
 
         void
         generate_cell_neighborhood(
-                Vector< moris::mtk::Cell* >&                 aCells,
+                Vector< moris::mtk::Cell* >&                      aCells,
                 std::shared_ptr< Facet_Based_Connectivity >       aFaceConnectivity,
                 std::shared_ptr< Cell_Neighborhood_Connectivity > aNeighborhood );
 
@@ -462,7 +462,7 @@ namespace xtk
 
         void
         create_facet_from_element_to_node(
-                Vector< moris::mtk::Cell* >&           aCells,
+                Vector< moris::mtk::Cell* >&                aCells,
                 std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity );
 
         // ----------------------------------------------------------------------------------
@@ -476,7 +476,7 @@ namespace xtk
 
         void
         create_edges_from_element_to_node(
-                Vector< moris::mtk::Cell* >           aCells,
+                Vector< moris::mtk::Cell* >                aCells,
                 std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity );
 
         // ----------------------------------------------------------------------------------
@@ -485,7 +485,7 @@ namespace xtk
         select_background_cell_for_edge(
                 std::shared_ptr< Edge_Based_Connectivity > aEdgeBasedConnectivity,
                 Cut_Integration_Mesh*                      aCutIntegrationMesh,
-                Vector< moris::mtk::Cell* >&          aBackgroundCellForEdge );
+                Vector< moris::mtk::Cell* >&               aBackgroundCellForEdge );
 
         // ----------------------------------------------------------------------------------
 
@@ -493,7 +493,7 @@ namespace xtk
         select_background_cell_for_facet(
                 std::shared_ptr< Facet_Based_Connectivity > aEdgeBasedConnectivity,
                 Cut_Integration_Mesh*                       aCutIntegrationMesh,
-                Vector< moris::mtk::Cell* >&           aBackgroundCellForEdge );
+                Vector< moris::mtk::Cell* >&                aBackgroundCellForEdge );
 
         // ----------------------------------------------------------------------------------
 
@@ -502,17 +502,17 @@ namespace xtk
                 Cut_Integration_Mesh*                       aCutIntegrationMesh,
                 moris::mtk::Mesh*                           aBackgroundMesh,
                 std::shared_ptr< Facet_Based_Connectivity > aIgCellGroupFacetConnectivity,
-                Vector< moris::mtk::Cell* > const &    aParentCellForDeduction,
+                Vector< moris::mtk::Cell* > const &         aParentCellForDeduction,
                 std::shared_ptr< Facet_Based_Ancestry >     aIgFacetAncestry );
 
         // ----------------------------------------------------------------------------------
 
         void
         compute_bg_facet_to_child_facet_connectivity(
-                Cut_Integration_Mesh*                                                aCutIntegrationMesh,
-                moris::mtk::Mesh*                                                    aBackgroundMesh,
-                std::shared_ptr< Facet_Based_Connectivity >                          aIgCellGroupFacetConnectivity,
-                std::shared_ptr< Facet_Based_Ancestry >                              aIgFacetAncestry,
+                Cut_Integration_Mesh*                                      aCutIntegrationMesh,
+                moris::mtk::Mesh*                                          aBackgroundMesh,
+                std::shared_ptr< Facet_Based_Connectivity >                aIgCellGroupFacetConnectivity,
+                std::shared_ptr< Facet_Based_Ancestry >                    aIgFacetAncestry,
                 Vector< std::shared_ptr< Vector< moris::moris_index > > >& aBgFacetToIgFacet );
 
         // ----------------------------------------------------------------------------------
@@ -522,7 +522,7 @@ namespace xtk
                 Cut_Integration_Mesh*                      aCutIntegrationMesh,
                 moris::mtk::Mesh*                          aBackgroundMesh,
                 std::shared_ptr< Edge_Based_Connectivity > aIgCellGroupEdgeConnectivity,
-                Vector< moris::mtk::Cell* > const &   aParentCellForDeduction,
+                Vector< moris::mtk::Cell* > const &        aParentCellForDeduction,
                 std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry );
 
         // ----------------------------------------------------------------------------------
@@ -573,32 +573,32 @@ namespace xtk
 
         void
         construct_subphase_neighborhood(
-                Cut_Integration_Mesh*                                                aCutIntegrationMesh,
-                moris::mtk::Mesh*                                                    aBackgroundMesh,
-                std::shared_ptr< Facet_Based_Connectivity >                          aFacetConnectivity,
+                Cut_Integration_Mesh*                                      aCutIntegrationMesh,
+                moris::mtk::Mesh*                                          aBackgroundMesh,
+                std::shared_ptr< Facet_Based_Connectivity >                aFacetConnectivity,
                 Vector< std::shared_ptr< Vector< moris::moris_index > > >* aBgFacetToChildFacet,
-                std::shared_ptr< Subphase_Neighborhood_Connectivity >                aSubphaseNeighborhood );
+                std::shared_ptr< Subphase_Neighborhood_Connectivity >      aSubphaseNeighborhood );
 
         // ----------------------------------------------------------------------------------
 
         void
         collect_subphases_attached_to_facet_on_cell(
-                Cut_Integration_Mesh*                                aCutIntegrationMesh,
-                moris::mtk::Cell const *                             aBGCell,
-                moris::moris_index                                   aFacetOrdinal,
-                moris::moris_index                                   aSharedFacetIndex,
-                std::shared_ptr< Facet_Based_Connectivity >          aFacetConnectivity,
+                Cut_Integration_Mesh*                           aCutIntegrationMesh,
+                moris::mtk::Cell const *                        aBGCell,
+                moris::moris_index                              aFacetOrdinal,
+                moris::moris_index                              aSharedFacetIndex,
+                std::shared_ptr< Facet_Based_Connectivity >     aFacetConnectivity,
                 std::shared_ptr< Vector< moris::moris_index > > aBgFacetToChildrenFacets,
-                Vector< moris::moris_index >&                          aSubphaseIndices,
-                Vector< moris::moris_index >&                          aRepresentativeIgCells,
-                Vector< moris::moris_index >&                          aRepresentativeIgCellsOrdinal );
+                Vector< moris::moris_index >&                   aSubphaseIndices,
+                Vector< moris::moris_index >&                   aRepresentativeIgCells,
+                Vector< moris::moris_index >&                   aRepresentativeIgCellsOrdinal );
 
         // ----------------------------------------------------------------------------------
 
         void
         collect_ig_cells_and_side_ords_on_bg_facet(
-                Cut_Integration_Mesh*             aCutIntegrationMesh,
-                moris::moris_index                aBackgroundFacetIndex,
+                Cut_Integration_Mesh*        aCutIntegrationMesh,
+                moris::moris_index           aBackgroundFacetIndex,
                 Vector< moris::mtk::Cell* >& aIgCell,
                 Vector< moris_index >&       aIgCellSideOrds );
 
@@ -643,11 +643,11 @@ namespace xtk
          */
         void
         prepare_requests_for_not_owned_subphase_IDs(
-                Cut_Integration_Mesh*        aCutIntegrationMesh,
+                Cut_Integration_Mesh*            aCutIntegrationMesh,
                 Vector< Vector< moris_index > >& aNotOwnedSubphasesToProcs,
-                Vector< Matrix< IdMat > >&     aParentCellIds,
-                Vector< Matrix< IdMat > >&     aFirstChildIgCellIds,
-                Vector< Matrix< IdMat > >&     aNumChildCellsInSubphases );
+                Vector< Matrix< IdMat > >&       aParentCellIds,
+                Vector< Matrix< IdMat > >&       aFirstChildIgCellIds,
+                Vector< Matrix< IdMat > >&       aNumChildCellsInSubphases );
 
         // ----------------------------------------------------------------------------------
 
@@ -662,7 +662,7 @@ namespace xtk
          */
         void
         prepare_answers_for_owned_subphase_IDs(
-                Cut_Integration_Mesh*           aCutIntegrationMesh,
+                Cut_Integration_Mesh*             aCutIntegrationMesh,
                 Vector< Matrix< IdMat > >&        aSubphaseIds,
                 Vector< Matrix< IdMat > > const & aReceivedParentCellIds,
                 Vector< Matrix< IdMat > > const & aReceivedFirstChildIgCellIds,
@@ -679,9 +679,9 @@ namespace xtk
          */
         void
         handle_requested_subphase_ID_answers(
-                Cut_Integration_Mesh*               aCutIntegrationMesh,
+                Cut_Integration_Mesh*                   aCutIntegrationMesh,
                 Vector< Vector< moris_index > > const & tNotOwnedSubphasesToProcs,
-                Vector< Matrix< IdMat > > const &     tReceivedSubphaseIds );
+                Vector< Matrix< IdMat > > const &       tReceivedSubphaseIds );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
@@ -711,11 +711,11 @@ namespace xtk
          */
         void
         prepare_requests_for_not_owned_subphase_group_IDs(
-                Cut_Integration_Mesh*        aCutIntegrationMesh,
-                Bspline_Mesh_Info*           aBsplineMeshInfo,
+                Cut_Integration_Mesh*            aCutIntegrationMesh,
+                Bspline_Mesh_Info*               aBsplineMeshInfo,
                 Vector< Vector< moris_index > >& aNotOwnedSpgsToProcs,
-                Vector< Matrix< IdMat > >&     aSubphaseIds,
-                Vector< Matrix< IdMat > >&     aNumSpsInSpg );
+                Vector< Matrix< IdMat > >&       aSubphaseIds,
+                Vector< Matrix< IdMat > >&       aNumSpsInSpg );
 
         // ----------------------------------------------------------------------------------
 
@@ -730,8 +730,8 @@ namespace xtk
          */
         void
         prepare_answers_for_owned_subphase_group_IDs(
-                Cut_Integration_Mesh*           aCutIntegrationMesh,
-                Bspline_Mesh_Info*              aBsplineMeshInfo,
+                Cut_Integration_Mesh*             aCutIntegrationMesh,
+                Bspline_Mesh_Info*                aBsplineMeshInfo,
                 Vector< Matrix< IdMat > >&        aSubphaseGroupIds,
                 Vector< Matrix< IdMat > > const & aReceivedSubphaseIds,
                 Vector< Matrix< IdMat > > const & aReceivedNumSpsInSpg );
@@ -748,10 +748,10 @@ namespace xtk
          */
         void
         handle_requested_subphase_group_ID_answers(
-                Cut_Integration_Mesh*               aCutIntegrationMesh,
-                Bspline_Mesh_Info*                  aBsplineMeshInfo,
+                Cut_Integration_Mesh*                   aCutIntegrationMesh,
+                Bspline_Mesh_Info*                      aBsplineMeshInfo,
                 Vector< Vector< moris_index > > const & aNotOwnedSpgsToProcs,
-                Vector< Matrix< IdMat > > const &     aReceivedSubphaseGroupIds );
+                Vector< Matrix< IdMat > > const &       aReceivedSubphaseGroupIds );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
@@ -763,9 +763,9 @@ namespace xtk
          * @param aCutNeighborhood Cell_Neighborhood_Connectivity of proc local mesh
          * @param aIgCellGroup pointer to IG_Cell_Group to perform flood fill on
          * @param aMaxValueAssigned (return value) number of subphases assigned during flood-fill (= max bg-cell local index of subphases assigned)
-         * @return moris::Matrix< moris::IndexMat > List (vector) of subphase indices. Index in list corresponds to IG cell group local index of IG cell
+         * @return Matrix< IndexMat > List (vector) of subphase indices. Index in list corresponds to IG cell group local index of IG cell
          */
-        moris::Matrix< moris::IndexMat >
+        Matrix< IndexMat >
         flood_fill_ig_cell_group(
                 Cut_Integration_Mesh*                             aCutIntegrationMesh,
                 std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood,
@@ -809,18 +809,18 @@ namespace xtk
                 Decomposition_Data&                       tDecompData,
                 Cut_Integration_Mesh*                     aCutIntegrationMesh,
                 moris::mtk::Mesh*                         aBackgroundMesh,
-                Vector< uint >&                             aOwnedRequests,
-                Vector< Vector< uint > >&                     aNotOwnedRequests,
-                Vector< uint >&                             aProcRanks,
+                Vector< uint >&                           aOwnedRequests,
+                Vector< Vector< uint > >&                 aNotOwnedRequests,
+                Vector< uint >&                           aProcRanks,
                 std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData );
 
         // ----------------------------------------------------------------------------------
 
         void
         assign_owned_request_id(
-                Decomposition_Data&  aDecompData,
+                Decomposition_Data&    aDecompData,
                 Vector< uint > const & aOwnedRequest,
-                moris::moris_id&     aNodeId );
+                moris::moris_id&       aNodeId );
 
         // ----------------------------------------------------------------------------------
 
@@ -828,17 +828,17 @@ namespace xtk
         setup_outward_requests(
                 Decomposition_Data const &                aDecompData,
                 moris::mtk::Mesh*                         aBackgroundMesh,
-                Vector< Vector< uint > > const &              aNotOwnedRequests,
-                Vector< uint > const &                      aProcRanks,
+                Vector< Vector< uint > > const &          aNotOwnedRequests,
+                Vector< uint > const &                    aProcRanks,
                 std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData,
-                Vector< Matrix< IndexMat > >&               aOutwardRequests );
+                Vector< Matrix< IndexMat > >&             aOutwardRequests );
 
         // ----------------------------------------------------------------------------------
 
         void
         prepare_request_answers(
-                Decomposition_Data&                aDecompData,
-                moris::mtk::Mesh*                  aBackgroundMesh,
+                Decomposition_Data&                  aDecompData,
+                moris::mtk::Mesh*                    aBackgroundMesh,
                 Vector< Matrix< IndexMat > > const & aReceiveData,
                 Vector< Matrix< IndexMat > >&        aRequestAnswers );
 
@@ -846,11 +846,11 @@ namespace xtk
 
         void
         handle_received_request_answers(
-                Decomposition_Data&                aDecompData,
-                moris::mtk::Mesh*                  aBackgroundMesh,
+                Decomposition_Data&                  aDecompData,
+                moris::mtk::Mesh*                    aBackgroundMesh,
                 Vector< Matrix< IndexMat > > const & aRequests,
                 Vector< Matrix< IndexMat > > const & aRequestAnswers,
-                moris::moris_id&                   aNodeId );
+                moris::moris_id&                     aNodeId );
 
         // ----------------------------------------------------------------------------------
 
@@ -951,8 +951,8 @@ namespace xtk
          */
         void
         construct_subphase_in_bspline_cell_map(
-                moris::Matrix< moris::IndexMat > const & aSubphaseIndicesInBsplineCell,
-                IndexMap&                                aSubphaseIndexToBsplineCellIndex );
+                Matrix< IndexMat > const & aSubphaseIndicesInBsplineCell,
+                IndexMap&                  aSubphaseIndexToBsplineCellIndex );
 
         // ----------------------------------------------------------------------------------
 
@@ -966,10 +966,10 @@ namespace xtk
          */
         void
         generate_pruned_subphase_graph_in_bspline_cell(
-                Cut_Integration_Mesh*                    aCutIntegrationMesh,
-                moris::Matrix< moris::IndexMat > const & aSubphasesInBsplineCell,
-                IndexMap&                                aSubphaseIndicesToBspline,
-                moris::Matrix< moris::IndexMat >&        aPrunedBsplineSubphaseToSubphase );
+                Cut_Integration_Mesh*      aCutIntegrationMesh,
+                Matrix< IndexMat > const & aSubphasesInBsplineCell,
+                IndexMap&                  aSubphaseIndicesToBspline,
+                Matrix< IndexMat >&        aPrunedBsplineSubphaseToSubphase );
 
         // ----------------------------------------------------------------------------------
 
@@ -983,10 +983,10 @@ namespace xtk
          */
         void
         find_subphase_bin_enrichment_levels_in_bspline_cell(
-                moris::Matrix< moris::IndexMat > const & aSubphasesInBspCell,
-                moris::Matrix< moris::IndexMat > const & aPrunedSubPhaseToSubphase,
-                moris::Matrix< moris::IndexMat >&        aSubPhaseBinEnrichmentVals,
-                moris_index&                             aMaxEnrichmentLevel );
+                Matrix< IndexMat > const & aSubphasesInBspCell,
+                Matrix< IndexMat > const & aPrunedSubPhaseToSubphase,
+                Matrix< IndexMat >&        aSubPhaseBinEnrichmentVals,
+                moris_index&               aMaxEnrichmentLevel );
 
         // ----------------------------------------------------------------------------------
 
@@ -1000,9 +1000,9 @@ namespace xtk
          */
         Vector< Vector< moris_index > >
         split_flood_fill_bin(
-                moris::Matrix< moris::IndexMat >& aSubphaseBin,
-                moris::Matrix< moris::IndexMat >& aSubphaseIndicesInBsplineCell,
-                uint                              aNumSPGs );
+                Matrix< IndexMat >& aSubphaseBin,
+                Matrix< IndexMat >& aSubphaseIndicesInBsplineCell,
+                uint                aNumSPGs );
 
         // ----------------------------------------------------------------------------------
 
@@ -1016,9 +1016,9 @@ namespace xtk
          */
         Vector< bool >
         collect_subphase_group_ligament_side_ordinals(
-                Cut_Integration_Mesh*       aCutIntegrationMesh,
+                Cut_Integration_Mesh*  aCutIntegrationMesh,
                 Vector< moris_index >& aSPsInGroup,
-                IndexMap&                   aSubphaseIndicesToBspline );
+                IndexMap&              aSubphaseIndicesToBspline );
 
         // ----------------------------------------------------------------------------------
 
@@ -1032,7 +1032,7 @@ namespace xtk
          */
         void
         collect_ig_cell_indices_in_SPG(
-                Cut_Integration_Mesh*              aCutIntegrationMesh,
+                Cut_Integration_Mesh*         aCutIntegrationMesh,
                 Vector< moris_index > const & aSPsInSPG,
                 Vector< moris_index >&        aIgCellIndicesInSPG );
 
@@ -1077,9 +1077,9 @@ namespace xtk
          */
         void
         find_material_SPGs_on_Lagrange_Cell(
-                Cut_Integration_Mesh*       aCutIntegrationMesh,
-                const moris_index           aLagrangeElementIndex,
-                const moris_index           aBsplineMeshListIndex,
+                Cut_Integration_Mesh*  aCutIntegrationMesh,
+                const moris_index      aLagrangeElementIndex,
+                const moris_index      aBsplineMeshListIndex,
                 Vector< moris_index >& aMaterialSpgIndices,
                 Vector< moris_index >& aVoidSpgIndices );
 
@@ -1089,6 +1089,6 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif

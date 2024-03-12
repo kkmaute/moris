@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_XTK_Side_Cluster_Group.hpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Side_Cluster_Group.hpp
+ *
  */
 #ifndef SRC_cl_XTK_Side_Cluster_Group
 #define SRC_cl_XTK_Side_Cluster_Group
@@ -19,7 +19,7 @@ namespace moris::mtk
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
 
@@ -27,8 +27,7 @@ namespace xtk
     {
         //------------------------------------------------------------------------------
 
-    protected:
-
+      protected:
         // list of clusters in group
         Vector< std::shared_ptr< mtk::Cluster > > mSideClusters;
 
@@ -39,59 +38,57 @@ namespace xtk
 
         /**
          * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
-         * 
+         *
          * @return Vector< Cluster const* > const& list of clusters in the cluster group
          */
-        const Vector< mtk::Cluster const* >
+        const Vector< mtk::Cluster const * >
         get_side_clusters_in_group() const;
 
         //------------------------------------------------------------------------------
 
         /**
          * @brief Get a the list of clusters in the cluster group (how the cell cluster group is accessed is handled by the children)
-         * 
+         *
          * @return mtk::Cluster_Group const* pointer to the bulk cluster group associated with the current side cluster group
          */
-        mtk::Cluster_Group const* 
+        mtk::Cluster_Group const *
         get_associated_cell_cluster_group() const;
 
         //------------------------------------------------------------------------------
 
-    public:
-
+      public:
         //------------------------------------------------------------------------------
 
         /**
          * @brief Constructor
-         * 
-         * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with 
-         * @param aClusters 
-         * @param aAssociatedCellClusterGroup 
+         *
+         * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with
+         * @param aClusters
+         * @param aAssociatedCellClusterGroup
          */
-        Side_Cluster_Group( 
-                const moris_index                              aDiscretizationMeshIndex,
+        Side_Cluster_Group(
+                const moris_index                         aDiscretizationMeshIndex,
                 Vector< std::shared_ptr< mtk::Cluster > > aClusters,
-                std::shared_ptr< mtk::Cluster_Group >          aAssociatedCellClusterGroup );
+                std::shared_ptr< mtk::Cluster_Group >     aAssociatedCellClusterGroup );
 
         //------------------------------------------------------------------------------
 
         /**
          * @brief default constructor initializing nothing
-         * 
+         *
          */
         Side_Cluster_Group() = default;
 
         /**
          * @brief Default Destructor
-         * 
+         *
          */
-        virtual
-        ~Side_Cluster_Group(){};
+        virtual ~Side_Cluster_Group(){};
 
         //------------------------------------------------------------------------------
 
-    }; // class xtk::Side_Cluster_Group
+    };    // class xtk::Side_Cluster_Group
 
-} // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* cl_XTK_Side_Cluster_Group.hpp */

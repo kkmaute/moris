@@ -29,7 +29,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-namespace xtk
+namespace moris::xtk
 {
 
     class Interpolation_Vertex_Unzipped;
@@ -39,15 +39,14 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       protected:
-
         // friend class
         friend class Enrichment;
         friend class Ghost_Stabilization;
         friend class Enriched_Interpolation_Mesh;
 
-        moris::mtk::Cell*                                  mBaseCell;
-        moris::moris_index                                 mSubPhaseIndex;
-        moris::moris_index                                 mBulkPhaseIndex;
+        moris::mtk::Cell*                             mBaseCell;
+        moris::moris_index                            mSubPhaseIndex;
+        moris::moris_index                            mBulkPhaseIndex;
         Vector< xtk::Interpolation_Vertex_Unzipped* > mVertices;
 
         Vector< moris::moris_index > mSpgIndices;
@@ -213,7 +212,7 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-    }; // class Interpolation_Cell_Unzipped
+    };    // class Interpolation_Cell_Unzipped
 
     //------------------------------------------------------------------------------
     // free functions
@@ -254,6 +253,6 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_CELL_UNZIPPED_HPP_ */

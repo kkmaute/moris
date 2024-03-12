@@ -52,9 +52,11 @@ Solver_Factory::create_preconditioner( const enum sol::PreconditionerType aPreco
         case ( sol::PreconditionerType::NONE ):
             return nullptr;
         case ( sol::PreconditionerType::IFPACK ):
-            return new Preconditioner_Trilinos( &aParameterlist, nullptr );
+            return new Preconditioner_Trilinos( &aParameterlist );
         case ( sol::PreconditionerType::ML ):
-            return new Preconditioner_Trilinos( &aParameterlist, nullptr );
+            return new Preconditioner_Trilinos( &aParameterlist );
+        case ( sol::PreconditionerType::PETSC ):
+            return new Preconditioner_PETSc( &aParameterlist );
         default:
             MORIS_ERROR( false, "No solver type specified" );
             return nullptr;

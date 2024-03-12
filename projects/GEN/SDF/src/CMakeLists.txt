@@ -28,8 +28,8 @@ set(HEADERS
     cl_SDF_STK.hpp
     cl_SDF_Triangle.hpp
     cl_SDF_Vertex.hpp
-    cl_SDF_tools.hpp
     fn_SDF_Raycast.hpp
+    SDF_Tools.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

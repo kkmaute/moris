@@ -82,7 +82,18 @@ template< template< typename > class MatType, typename ElementType >
 MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix const &aEpetraMatrix )
 {
     int                    tMatrixSize = aEpetraMatrix.NumGlobalRows();
-    MatType< ElementType > tReturnMatrix( tMatrixSize, tMatrixSize, 0.0 );
+    MatType< ElementType > tReturnMatrix;
+
+    // different cases for different matrix types
+    if constexpr ( std::is_same< MatType< ElementType >, moris::Matrix< ElementType > >::value )
+    {
+        tReturnMatrix = MatType< ElementType >( tMatrixSize, tMatrixSize, 0.0 );
+    }
+    else if constexpr ( std::is_same< MatType< ElementType >, arma::SpMat< ElementType > >::value )
+    {
+        tReturnMatrix = MatType< ElementType >( tMatrixSize, tMatrixSize );
+        tReturnMatrix.mem_resize( aEpetraMatrix.NumGlobalNonzeros() );
+    }
 
     // write a function that extract s
     if ( aEpetraMatrix.RowMap().Comm().NumProc() == 1 )
@@ -182,5 +193,9 @@ void write_serial_matrix( Epetra_CrsMatrix const &aEpetraMatrix, MatType< Elemen
             aArmaMatrix( I, J ) = tValues[ iCol ];
         }
     }
+
+    // delete the pointers
+    delete[] tValues;
+    delete[] tColIndices;
 }
 // #endif

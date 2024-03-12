@@ -1086,9 +1086,9 @@ namespace moris
 
         void
         Mesh_Core_STK::get_sideset_cells_and_ords(
-                const std::string&                aSetName,
+                const std::string&           aSetName,
                 Vector< mtk::Cell const * >& aCells,
-                Matrix< IndexMat >&               aSidesetOrdinals ) const
+                Matrix< IndexMat >&          aSidesetOrdinals ) const
         {
             Matrix< IndexMat > tCellInds;
 
@@ -1128,7 +1128,8 @@ namespace moris
             stk::mesh::get_selected_entities( tDifference, mSTKMeshData->mMtkMeshBulkData->buckets( stk::topology::NODE_RANK ), aEntities );
 
             // Get entity Ids
-            uint                                      tNumEntities = aEntities.size();
+            uint tNumEntities = aEntities.size();
+
             Vector< moris::mtk::Vertex const * > tOutputEntityIds( tNumEntities );
             for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
             {
@@ -1795,8 +1796,9 @@ namespace moris
                         // number of sharing (size of matrix)
                         uint tSizeOfMat = tCellsWithAdditionalSharing( tShareProcRank )( iCell ).numel();
 
-                        tCellsMatsWithAdditionalSharing( iProc )( { iCell, iCell }, { 0, tSizeOfMat - 1 } ) =
-                                tCellsWithAdditionalSharing( tShareProcRank )( iCell ).get_row( 0 );
+                        Matrix< moris::IdMat > tIdMat = tCellsWithAdditionalSharing( tShareProcRank )( iCell );
+
+                        tCellsMatsWithAdditionalSharing( iProc )( { iCell, iCell }, { 0, tSizeOfMat - 1 } ) = tIdMat.get_row( 0 );
                     }
                 }
 

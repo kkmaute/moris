@@ -28,8 +28,8 @@ namespace moris
         class Design_Variable_Interface_Proxy : public Design_Variable_Interface
         {
         private:
-            Vector< Vector< enum gen::PDV_Type >>     mDvTypes;
-            Vector< enum gen::PDV_Type >            mDvTypesUnique;
+          Vector< Vector< enum gen::PDV_Type >>     mDvTypes;
+          Vector< enum gen::PDV_Type >            mDvTypesUnique;
             moris::Matrix< DDRMat >        mDvValues;
             moris::Matrix< DDSMat >        mIsActiveDv;
             Vector< moris::Matrix< IdMat > > mDvIds;

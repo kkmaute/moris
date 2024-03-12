@@ -201,6 +201,13 @@ void Linear_System_Trilinos::get_solution( Matrix< DDRMat >& LHSValues )
 //------------------------------------------------------------------------------------------
 void Linear_System_Trilinos::construct_rhs_matrix()
 {
+       //delete the previous mass matrix if it exits
+    if ( mMassMat != nullptr )
+    {
+        delete mMassMat;
+        mMassMat = nullptr;
+    }
+    
     // use copy constructor to create mass matrix
     sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 

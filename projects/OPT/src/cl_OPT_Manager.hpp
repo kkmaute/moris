@@ -24,7 +24,7 @@ namespace moris
         class Manager
         {
         private:
-            Vector< std::shared_ptr<Algorithm> > mAlgorithms; // Cell of pointers of optimization algorithms
+          Vector< std::shared_ptr<Algorithm> > mAlgorithms; // Cell of pointers of optimization algorithms
             std::shared_ptr<Problem> mProblem;
 
         public:
@@ -36,7 +36,7 @@ namespace moris
              * @param aCriteriaInterface criteria interfaces, in addition to any specified in the parameter lists
              */
             Manager(const Vector<Vector<ParameterList>>& aParameterLists,
-                    Vector<std::shared_ptr<Criteria_Interface>> aInterfaces = Vector<std::shared_ptr<Criteria_Interface>>(0));
+                  Vector<std::shared_ptr<Criteria_Interface>> aInterfaces = Vector<std::shared_ptr<Criteria_Interface>>(0));
 
             /**
              * Constructor with problem class already created

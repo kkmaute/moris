@@ -43,7 +43,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
@@ -80,7 +80,7 @@ namespace xtk
     Model::Model(
             uint                            aModelDimension,
             moris::mtk::Interpolation_Mesh *aMeshData,
-            moris::gen::Geometry_Engine     *aGeometryEngine,
+            moris::gen::Geometry_Engine    *aGeometryEngine,
             bool                            aLinkGeometryOnConstruction )
             : mModelDimension( aModelDimension )
             , mBackgroundMesh( aMeshData )
@@ -301,7 +301,7 @@ namespace xtk
 
                 // initialize the lists of double sided side sets to be created
                 // Note: the number of side set combinations is ( n^2 - n ) where n is the number of bulk phases - we're only looking at the lower triangular part, so divide by 2
-                uint tNumDblSideSetsToCreate = tNumBulkPhases * ( tNumBulkPhases - 1 ) / 2;
+                uint                  tNumDblSideSetsToCreate = tNumBulkPhases * ( tNumBulkPhases - 1 ) / 2;
                 Vector< moris_index > tLeaderPhaseIndices( tNumDblSideSetsToCreate, MORIS_INDEX_MAX );
                 Vector< moris_index > tFollowerPhaseIndices( tNumDblSideSetsToCreate, MORIS_INDEX_MAX );
 
@@ -317,7 +317,7 @@ namespace xtk
                         {
                             tLeaderPhaseIndices( tNumDblSideSetsCreated )   = (moris_index)iLeaderPhaseIndex;
                             tFollowerPhaseIndices( tNumDblSideSetsCreated ) = (moris_index)iFollowerPhaseIndex;
-                            tNumDblSideSetsCreated ++;
+                            tNumDblSideSetsCreated++;
                         }
                     }
                 }
@@ -910,9 +910,9 @@ namespace xtk
         {
             Tracer tTracer( "XTK", "BG Cell Probe", "Cell Id " + std::to_string( tBGCellIds( i ) ) );
 
-            moris_index                  tIndex      = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), mtk::EntityRank::ELEMENT );
-            mtk::Cell                   &tCell       = mBackgroundMesh->get_mtk_cell( tIndex );
-            Matrix< IndexMat >           tVertexIds  = tCell.get_vertex_ids();
+            moris_index             tIndex      = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), mtk::EntityRank::ELEMENT );
+            mtk::Cell              &tCell       = mBackgroundMesh->get_mtk_cell( tIndex );
+            Matrix< IndexMat >      tVertexIds  = tCell.get_vertex_ids();
             Vector< mtk::Vertex * > tVertexPtrs = tCell.get_vertex_pointers();
 
             MORIS_LOG_SPEC( "Cell Id", tBGCellIds( i ) );
@@ -1106,7 +1106,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Matrix< IndexMat >
+    Matrix< IndexMat >
     Model::get_Bspline_mesh_indices() const
     {
         return mBsplineMeshIndices;
@@ -1244,11 +1244,11 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::IndexMat >
+    Matrix< IndexMat >
     Model::get_num_subphase_neighbors()
     {
         Vector< Vector< moris_index > > const &tSubPhaseToSubphase = this->get_subphase_to_subphase();
-        moris::Matrix< moris::IndexMat >                 tSubphaseNumNeighbors( 1, tSubPhaseToSubphase.size() );
+        Matrix< IndexMat >                     tSubphaseNumNeighbors( 1, tSubPhaseToSubphase.size() );
         for ( size_t iSP = 0; iSP < tSubPhaseToSubphase.size(); iSP++ )
         {
             tSubphaseNumNeighbors( iSP ) = tSubPhaseToSubphase( iSP ).size();
@@ -1443,4 +1443,4 @@ namespace xtk
         return mParameterList.get< bool >( "delete_xtk_after_generation" );
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk

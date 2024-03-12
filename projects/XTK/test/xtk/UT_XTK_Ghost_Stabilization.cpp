@@ -8,28 +8,28 @@
  *
  */
 
-//#include "catch.hpp"
+// #include "catch.hpp"
 //
-//#include "cl_XTK_Model.hpp"
+// #include "cl_XTK_Model.hpp"
 //
-//#include "cl_XTK_Enriched_Integration_Mesh.hpp"
-//#include "cl_MTK_Writer_Exodus.hpp"
+// #include "cl_XTK_Enriched_Integration_Mesh.hpp"
+// #include "cl_MTK_Writer_Exodus.hpp"
 //
 //
-//#include "cl_GEN_Geometry.hpp"
-//#include "cl_GEN_Plane.hpp"
+// #include "cl_GEN_Geometry.hpp"
+// #include "cl_GEN_Plane.hpp"
 //
-//#include "cl_MTK_Mesh_Factory.hpp"
+// #include "cl_MTK_Mesh_Factory.hpp"
 //
-//namespace xtk
+// namespace moris::xtk
 //{
 //
-//TEST_CASE("Face oriented ghost stabilization","[GHOST]")
+// TEST_CASE("Face oriented ghost stabilization","[GHOST]")
 //{
 ////    if(par_size() == 1)
 ////    {
-//    moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
-//    moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
+//    moris::Matrix<DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
+//    moris::Matrix<DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
 //
 //    Vector<std::shared_ptr<moris::gen::Level_Set_Geometry>> tGeometry(1);
 //    tGeometry(0) = std::make_shared<moris::gen::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
@@ -71,4 +71,3 @@
 //
 //}
 //}
-

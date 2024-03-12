@@ -68,7 +68,6 @@ namespace moris::gen
         // Bounds
         Matrix< DDRMat > mLowerBounds;
         Matrix< DDRMat > mUpperBounds;
-        Matrix< IdMat >  mOwnedijklIds;
 
         // IQIs
         Vector< std::string > mRequestedIQIs;
@@ -116,12 +115,6 @@ namespace moris::gen
          * Destructor
          */
         ~Geometry_Engine();
-
-        /**
-         * Returns pdv host manager.
-         *
-         */
-        moris::gen::PDV_Host_Manager* get_pdv_host_manager();
 
         /**
          * Sets new ADVs for the geometry engine.

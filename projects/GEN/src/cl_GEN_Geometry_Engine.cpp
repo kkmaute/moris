@@ -150,16 +150,12 @@ namespace moris::gen
 
     Geometry_Engine::~Geometry_Engine()
     {
+        // Delete stored distributed vectors
         delete mOwnedADVs;
         delete mPrimitiveADVs;
-    }
 
-    //--------------------------------------------------------------------------------------------------------------
-
-    PDV_Host_Manager*
-    Geometry_Engine::get_pdv_host_manager()
-    {
-        return &mPDVHostManager;
+        // Delete queued intersection node, in case it wasn't admitted
+        delete mQueuedIntersectionNode;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -908,9 +904,9 @@ namespace moris::gen
 
         // Set primitive IDs
         Matrix< DDSMat > tPrimitiveADVIds( mInitialPrimitiveADVs.length(), 1 );
-        for ( uint tADVIndex = 0; tADVIndex < mInitialPrimitiveADVs.length(); tADVIndex++ )
+        for ( uint iADVIndex = 0; iADVIndex < mInitialPrimitiveADVs.length(); iADVIndex++ )
         {
-            tPrimitiveADVIds( tADVIndex ) = tADVIndex;
+            tPrimitiveADVIds( iADVIndex ) = iADVIndex;
         }
 
         // Start with primitive IDs for owned IDs on processor 0
@@ -921,22 +917,22 @@ namespace moris::gen
         }
 
         // this is done to initialize primitive adv positions with gNoID
-        mOwnedijklIds.set_size( tPrimitiveADVIds.numel(), 1, gNoID );
+        Matrix< IdMat > tOwnedijklIDs( tPrimitiveADVIds.numel(), 1, gNoID );
 
         // Owned and shared ADVs per field
         Vector< Matrix< DDSMat > > tSharedADVIds( tDesigns.size() );
         Matrix< DDUMat >         tAllOffsetIDs( tDesigns.size(), 1 );
-
         Vector< uint > tNumCoeff( tDesigns.size() );
+
         // Loop over all geometries to get number of new ADVs
         sint tOffsetID = tPrimitiveADVIds.length();
-        for ( uint tDesignIndex = 0; tDesignIndex < tDesigns.size(); tDesignIndex++ )
+        for ( uint iDesignIndex = 0; iDesignIndex < tDesigns.size(); iDesignIndex++ )
         {
             // Determine if level set will be created
-            if ( tDesigns( tDesignIndex )->intended_discretization() )
+            if ( tDesigns( iDesignIndex )->intended_discretization() )
             {
                 // Get discretization mesh index
-                uint tDiscretizationMeshIndex = tDesigns( tDesignIndex )->get_discretization_mesh_index();
+                uint tDiscretizationMeshIndex = tDesigns( iDesignIndex )->get_discretization_mesh_index();
 
                 uint tMaxNumberOfCoefficients = tMesh->get_max_num_coeffs_on_proc( tDiscretizationMeshIndex );
 
@@ -945,26 +941,26 @@ namespace moris::gen
                 Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
                 Matrix< IdMat >    tAllCoefijklIDs( tMaxNumberOfCoefficients, 1, gNoID );
 
-                for ( uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++ )
+                for ( uint iNodeIndex = 0; iNodeIndex < tMesh->get_num_nodes(); iNodeIndex++ )
                 {
                     // check whether node has an underlying discretization on this processor
                     bool tNodeHasDiscretization =
-                            tMesh->get_mtk_vertex( tNodeIndex ).has_interpolation( tDiscretizationMeshIndex );
+                            tMesh->get_mtk_vertex( iNodeIndex ).has_interpolation( tDiscretizationMeshIndex );
 
                     // process only nodes that have discretization
                     if ( tNodeHasDiscretization )
                     {
                         // get indices and IDs from mtk mesh - FIXME: should return const &
                         const Matrix< IndexMat > tCoefIndices = tMesh->get_coefficient_indices_of_node(
-                                tNodeIndex,
+                                iNodeIndex,
                                 tDiscretizationMeshIndex );
 
                         const Matrix< IdMat > tCoefIds = tMesh->get_coefficient_IDs_of_node(
-                                tNodeIndex,
+                                iNodeIndex,
                                 tDiscretizationMeshIndex );
 
                         const Matrix< IdMat > tCoefOwners = tMesh->get_coefficient_owners_of_node(
-                                tNodeIndex,
+                                iNodeIndex,
                                 tDiscretizationMeshIndex );
 
                         Matrix< IdMat > tCoeffijklIDs;
@@ -972,7 +968,7 @@ namespace moris::gen
                         if ( mtk::MeshType::HMR == tMesh->get_mesh_type() )
                         {
                             tCoeffijklIDs = tMesh->get_coefficient_ijkl_IDs_of_node(
-                                    tNodeIndex,
+                                    iNodeIndex,
                                     tDiscretizationMeshIndex );
                         }
 
@@ -992,7 +988,7 @@ namespace moris::gen
                             if ( tAllCoefIds( tCurrentIndex ) == -1 )
                             {
                                 // increase field coefficient count
-                                tNumCoeff( tDesignIndex )++;
+                                tNumCoeff( iDesignIndex )++;
 
                                 // populate mesh index to mesh coefficient id map
                                 tAllCoefIds( tCurrentIndex ) = tCoefIds( tCoefIndex );
@@ -1022,7 +1018,7 @@ namespace moris::gen
                             tAllCoefOwners,
                             tAllCoefijklIDs,
                             tNumCoeff,
-                            tDesignIndex,
+                            iDesignIndex,
                             tDiscretizationMeshIndex,
                             tMesh->get_mesh_type() );
                 }
@@ -1058,28 +1054,28 @@ namespace moris::gen
                 tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                 mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                 mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                mOwnedijklIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                tSharedADVIds( tDesignIndex ).resize( tAllCoefIds.length(), 1 );
+                tOwnedijklIDs.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
+                tSharedADVIds( iDesignIndex ).resize( tAllCoefIds.length(), 1 );
 
                 // Add owned coefficients to lists
-                for ( uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++ )
+                for ( uint iOwnedCoefficient = 0; iOwnedCoefficient < tNumOwnedCoefficients; iOwnedCoefficient++ )
                 {
                     // Set the ADV ID as the offset plus the entity ID
                     sint tADVId = tOffsetID
                                 + tMesh->get_glb_entity_id_from_entity_loc_index(
-                                        tOwnedCoefficients( tOwnedCoefficient ),
+                                        tOwnedCoefficients( iOwnedCoefficient ),
                                         aADVEntityRank,
                                         tDiscretizationMeshIndex );
 
-                    MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( tOwnedCoefficient ) ), "check if this is a problem" );
+                    MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( iOwnedCoefficient ) ), "check if this is a problem" );
 
-                    tOwnedADVIds( tNumOwnedADVs + tOwnedCoefficient ) = tADVId;
-                    mLowerBounds( tNumOwnedADVs + tOwnedCoefficient ) = tDesigns( tDesignIndex )->get_discretization_lower_bound();
-                    mUpperBounds( tNumOwnedADVs + tOwnedCoefficient ) = tDesigns( tDesignIndex )->get_discretization_upper_bound();
+                    tOwnedADVIds( tNumOwnedADVs + iOwnedCoefficient ) = tADVId;
+                    mLowerBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_lower_bound();
+                    mUpperBounds( tNumOwnedADVs + iOwnedCoefficient ) = tDesigns( iDesignIndex )->get_discretization_upper_bound();
 
                     if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
-                        mOwnedijklIds( tNumOwnedADVs + tOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( tOwnedCoefficient ) );
+                        tOwnedijklIDs( tNumOwnedADVs + iOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( iOwnedCoefficient ) );
                     }
                 }
 
@@ -1087,11 +1083,11 @@ namespace moris::gen
                 for ( uint iSharedCoefficientIndex = 0; iSharedCoefficientIndex < tAllCoefIds.length(); iSharedCoefficientIndex++ )
                 {
                     // Set the ADV ID as the offset plus the entity ID
-                    tSharedADVIds( tDesignIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
+                    tSharedADVIds( iDesignIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
                 }
 
                 // Update offset based on maximum ID
-                tAllOffsetIDs( tDesignIndex ) = tOffsetID;
+                tAllOffsetIDs( iDesignIndex ) = tOffsetID;
                 tOffsetID += tMesh->get_max_entity_id( aADVEntityRank, tDiscretizationMeshIndex );
             }
         }
@@ -1109,15 +1105,27 @@ namespace moris::gen
         // Create factory for distributed ADV vector
         sol::Matrix_Vector_Factory tDistributedFactory;
 
-        // Create map for distributed vectors
-        sol::Dist_Map* tOwnedADVMap     = tDistributedFactory.create_map( tOwnedADVIds );
-        sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map( tPrimitiveADVIds );
-
-        // Create vectors
+        // Create owned ADV vector
+        sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map( tOwnedADVIds );
         sol::Dist_Vector* tNewOwnedADVs = tDistributedFactory.create_vector( tOwnedADVMap, 1, false, true );
-        mPrimitiveADVs                  = tDistributedFactory.create_vector( tPrimitiveADVMap, 1, false, true );
 
-        // Assign primitive ADVs
+        // Determine if primitive ADVs have been created already
+        if ( mPrimitiveADVs )
+        {
+            // Assign old primitive ADVs to initial vector
+            for ( uint iADVIndex = 0; iADVIndex < mInitialPrimitiveADVs.length(); iADVIndex++ )
+            {
+                mInitialPrimitiveADVs( iADVIndex ) = mPrimitiveADVs->operator()( iADVIndex, 0 );
+            }
+        }
+        else
+        {
+            // Create primitive ADV vector
+            sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map( tPrimitiveADVIds );
+            mPrimitiveADVs = tDistributedFactory.create_vector( tPrimitiveADVMap, 1, false, true );
+        }
+
+        // Assign primitive ADVs to the owned vector
         if ( par_rank() == 0 )
         {
             tNewOwnedADVs->replace_global_values( tPrimitiveADVIds, mInitialPrimitiveADVs );
@@ -1143,14 +1151,7 @@ namespace moris::gen
         //----------------------------------------//
         // Convert to B-spline fields             //
         //----------------------------------------//
-
-        clock_t                         tStart_Convert_to_Bspline_Fields = clock();
-        moris::map< std::string, uint > tFieldNameToIndexMap;
-        for ( uint Ik = 0; Ik < aFields.size(); Ik++ )
-        {
-            std::string tLabel             = aFields( Ik )->get_label();
-            tFieldNameToIndexMap[ tLabel ] = Ik;
-        }
+        clock_t tStart_Convert_to_Bspline_Fields = clock();
 
         // Loop to discretize geometries when requested
         for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
@@ -1223,7 +1224,8 @@ namespace moris::gen
             }
         }
 
-        // Save new owned ADVs
+        // Delete old owned ADVs and save ADVs
+        delete mOwnedADVs;
         mOwnedADVs = tNewOwnedADVs;
 
         MORIS_LOG_INFO( "Time to convert to Bspline fields: %f sec", ( moris::real )( clock() - tStart_Convert_to_Bspline_Fields ) / CLOCKS_PER_SEC );
@@ -1268,7 +1270,7 @@ namespace moris::gen
             tSendingIDs         = { tOwnedADVIds };
             tSendingLowerBounds = { mLowerBounds };
             tSendingUpperBounds = { mUpperBounds };
-            tSendingijklIDs     = { mOwnedijklIds };
+            tSendingijklIDs     = { tOwnedijklIDs };
         }
 
         // Communicate mats
@@ -1291,7 +1293,7 @@ namespace moris::gen
             mFullADVIds = tOwnedADVIds;
             if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
             {
-                mFullijklIDs = mOwnedijklIds;
+                mFullijklIDs = tOwnedijklIDs;
             }
             else
             {

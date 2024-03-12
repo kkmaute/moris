@@ -88,7 +88,8 @@ set(HEADERS
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp
-    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.hpp
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet.hpp
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Wriggers.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic_Damage.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.hpp
@@ -324,7 +325,8 @@ set(LIB_SOURCES
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.cpp
-    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.cpp
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet.cpp
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Wriggers.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic_Damage.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.cpp

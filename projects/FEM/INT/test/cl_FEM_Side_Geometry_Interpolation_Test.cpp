@@ -392,7 +392,7 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, mtk::CellShape::GENERAL, true );
 
         // side space ordinal
-        Vector< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2 };
+       Vector< moris::moris_index > tListOfSideOrdinals = { 0, 1, 2 };
 
         // create a side integration
         mtk::Integration_Rule tSideIntegrationRule( tSideGeometryType,

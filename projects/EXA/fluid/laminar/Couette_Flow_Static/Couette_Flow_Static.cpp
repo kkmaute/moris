@@ -125,7 +125,7 @@ namespace moris
     moris::real
     Func_Cylinder(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real >& aGeometryParameters )
+            const Vector< real >& aGeometryParameters )
     {
         moris::real tR       = aGeometryParameters( 0 );
         moris::real tXCenter = aGeometryParameters( 1 );

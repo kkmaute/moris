@@ -76,42 +76,42 @@ class Query
 
     void skip_header();
 
-    uint find_instances(Vector<uint> * aInstanceIDs,
-                        Vector<uint> * aInstanceIndents,
+    uint find_instances( Vector<uint> * aInstanceIDs,
+            Vector<uint> * aInstanceIndents,
                         enum EntityBase aEntityBase,
                         enum EntityType aEntityType,
                         enum EntityAction aEntityAction);
 
     Vector<Vector<uint>> split_instances_into_iterations(uint aCurrentInstanceID);
 
-    void extract_iteration(      Vector<enum EntityBase> * aListOfEntityBases,
-                                 Vector<enum EntityType> * aListOfEntityTypes,
-                                 Vector<enum EntityAction> * aListOfEntityActions,
-                                 Vector<enum OutputSpecifier> * aListOfOutputSpecs,
-                                 Vector<std::string> * aListOfOutputValues,
+    void extract_iteration( Vector<enum EntityBase> * aListOfEntityBases,
+            Vector<enum EntityType> * aListOfEntityTypes,
+            Vector<enum EntityAction> * aListOfEntityActions,
+            Vector<enum OutputSpecifier> * aListOfOutputSpecs,
+            Vector<std::string> * aListOfOutputValues,
                            const Vector<Vector<uint>> aIterationStartEnd,
                            const uint aIteration,
                            const uint aCurrentInstanceID);
 
     void merge_iteration_outputs( Vector<enum EntityBase>      * aRefListOfEntityBases,
-                                  Vector<enum EntityType>      * aRefListOfEntityTypes,
-                                  Vector<enum EntityAction>    * aRefListOfEntityActions,
-                                  Vector<enum OutputSpecifier> * aRefListOfOutputSpecs,
-                                  Vector<Vector<std::string>>    * aFullListOfOutputValues,
+            Vector<enum EntityType>      * aRefListOfEntityTypes,
+            Vector<enum EntityAction>    * aRefListOfEntityActions,
+            Vector<enum OutputSpecifier> * aRefListOfOutputSpecs,
+            Vector<Vector<std::string>>    * aFullListOfOutputValues,
 
-                                  Vector<enum EntityBase>      aNewListOfEntityBases,
-                                  Vector<enum EntityType>      aNewListOfEntityTypes,
-                                  Vector<enum EntityAction>    aNewListOfEntityActions,
-                                  Vector<enum OutputSpecifier> aNewListOfOutputSpecs,
-                                  Vector<std::string>          aNewListOfOutputValues);
+            Vector<enum EntityBase>      aNewListOfEntityBases,
+            Vector<enum EntityType>      aNewListOfEntityTypes,
+            Vector<enum EntityAction>    aNewListOfEntityActions,
+            Vector<enum OutputSpecifier> aNewListOfOutputSpecs,
+            Vector<std::string>          aNewListOfOutputValues);
 
     void insert_empty_column( Vector<Vector<std::string>> * aCellMatrix, uint aColumnIndex);
 
     void write_instance_table_header(std::ofstream * aLogFileWrite,
-                                     Vector<enum EntityBase> aRefListOfEntityBases,
-                                     Vector<enum EntityType> aRefListOfEntityTypes,
-                                     Vector<enum EntityAction> aRefListOfEntityActions,
-                                     Vector<enum OutputSpecifier> aRefListOfOutputSpecs);
+            Vector<enum EntityBase> aRefListOfEntityBases,
+            Vector<enum EntityType> aRefListOfEntityTypes,
+            Vector<enum EntityAction> aRefListOfEntityActions,
+            Vector<enum OutputSpecifier> aRefListOfOutputSpecs);
 
     //-----------------------------------------------------------------------------------------------------------//
     // PUBLIC CONSTRUCTOR / DESTRUCTOR

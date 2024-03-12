@@ -25,11 +25,11 @@ namespace moris
             //------------------------------------------------------------------------------
 
           private:
-            moris::moris_id                                   mVertexId;
-            moris::moris_index                                mVertexIndex;
-            moris::moris_index                                mVertexOwner;
-            Vertex_Interpolation_XTK*                         mVertexInterpolation = nullptr;    // (basis weights and basis identity)
-            std::shared_ptr< moris::Matrix< moris::DDRMat > > mCoordinates;
+            moris::moris_id                     mVertexId;
+            moris::moris_index                  mVertexIndex;
+            moris::moris_index                  mVertexOwner;
+            Vertex_Interpolation_XTK*           mVertexInterpolation = nullptr;    // (basis weights and basis identity)
+            std::shared_ptr< Matrix< DDRMat > > mCoordinates;
 
             //------------------------------------------------------------------------------
 
@@ -41,10 +41,10 @@ namespace moris
              */
             Vertex_XTK();
 
-            Vertex_XTK( moris::moris_id                               aVertexId,
-                    moris::moris_index                                aVertexIndex,
-                    moris::moris_index                                aOwner,
-                    std::shared_ptr< moris::Matrix< moris::DDRMat > > aCoordinates );
+            Vertex_XTK( moris::moris_id                 aVertexId,
+                    moris::moris_index                  aVertexIndex,
+                    moris::moris_index                  aOwner,
+                    std::shared_ptr< Matrix< DDRMat > > aCoordinates );
             //------------------------------------------------------------------------------
 
             /**
@@ -59,7 +59,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * returns a moris::Matrix with node coordinates
+             * returns a Matrix with node coordinates
              */
             Matrix< DDRMat >
             get_coords() const;
@@ -114,7 +114,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-        }; // class Vertex_XTK
+        };    // class Vertex_XTK
 
         //------------------------------------------------------------------------------
 

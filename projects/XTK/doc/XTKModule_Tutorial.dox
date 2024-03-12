@@ -1,15 +1,16 @@
 #
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#Copyright( c ) 2022 University of Colorado
+#Licensed under the MIT license.See LICENSE.txt file in the MORIS root for details.
 #
-#------------------------------------------------------------------------------------
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 #
 
-namespace moris {
+namespace moris
+{
 
-/** @defgroup XTKTutorial Tutorials
-    
-    - XTK_Tutorial_Multi.cpp - A tutorial on an XTK model with multiple geometries.
-*/
+    /** @defgroup XTKTutorial Tutorials
+
+        - XTK_Tutorial_Multi.cpp - A tutorial on an XTK model with multiple geometries.
+    */
 
 }

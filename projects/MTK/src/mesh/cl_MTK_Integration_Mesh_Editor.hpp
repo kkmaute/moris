@@ -472,6 +472,19 @@ namespace moris::mtk
         add_cells( Vector< Vector< moris_index > >& aSideClusterToCells,
                 Vector< Vector< moris_index > >&    aCellToVertexIndices );
 
+        // ----------------------------------------------------------------------------
+
+        virtual void
+        construct_periodic_data_base(
+                Vector< Vector< moris_index > >& aSideClusterToVertexIndices,
+                Matrix< DDRMat >                           aVerticesCoords,
+                Vector< Vector< moris_index > >& aSideClusterToCells,
+                Vector< Vector< moris_index > >& aCellToVertexIndices,
+                Vector< moris_index >&                aSideClusterToIPCell,
+                Matrix< DDRMat >&                          aVertexParametricCoords,
+                Vector< moris_index >&                aDoubleSidedClustersIndex,
+                uint                                       mNumDblSideCluster,
+                uint                                       aNumGeometry );
 
         // ----------------------------------------------------------------------------
 

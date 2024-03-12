@@ -15,7 +15,7 @@
 #include <functional>
 #include <cmath>
 
-namespace xtk
+namespace moris::xtk
 {
     inline Vector< moris::real >
     linspace(
@@ -394,11 +394,11 @@ namespace xtk
     class Octree_Template
     {
         // backend mesh for template (very simple ijk mesh)
-        const moris_index                mLevel = -1;
-        const IJK_Mesh                   mOctreeMeshGrid;
-        const Matrix< DDRMat >           mOctreeParamCoords;
-        const Matrix< IndexMat >         mOctreeCells;
-        const Vertex_Ancestry            mVertexAncestry;
+        const moris_index           mLevel = -1;
+        const IJK_Mesh              mOctreeMeshGrid;
+        const Matrix< DDRMat >      mOctreeParamCoords;
+        const Matrix< IndexMat >    mOctreeCells;
+        const Vertex_Ancestry       mVertexAncestry;
         const Vector< moris_index > mVertexHash;
 
       public:
@@ -465,7 +465,7 @@ namespace xtk
             Vector< moris::real > const tLinSpace = xtk::linspace( -1.0, 1.0, mOctreeMeshGrid.num_vert_x() );
 
             // allocate the output matrix
-            moris::Matrix< moris::DDRMat > tParamCoords( mOctreeMeshGrid.num_verts(), 3 );
+            Matrix< DDRMat > tParamCoords( mOctreeMeshGrid.num_verts(), 3 );
 
             // fill the matrix
             for ( moris::uint k = 0; k < mOctreeMeshGrid.num_vert_z(); k++ )
@@ -628,7 +628,7 @@ namespace xtk
         /**
          * @brief List of IJK positions unique to the fine grid
          *
-         * @return Vector<IJK>  container of IJK positions in fine grid
+         * @return Cell<IJK>  container of IJK positions in fine grid
          */
         Vector< IJK >
         unique_to_fine_grid() const
@@ -658,7 +658,7 @@ namespace xtk
     class Octree_Interface : public Decomposition_Algorithm
     {
       private:
-        moris::lint                                                   mOctreeRefinementLevel;
+        moris::lint                                              mOctreeRefinementLevel;
         Vector< std::shared_ptr< Octree_Template const > >       mOctreeTemplates;
         Vector< moris_index >                                    mDifference;
         Vector< std::unordered_map< moris_index, moris_index > > mIgVertexGroupIndexToIjkIndex;
@@ -726,6 +726,6 @@ namespace xtk
         generate_octree_template_vertex_group_to_ijk_map();
     };
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* cl_XTK_Octree_Interface.hpp */

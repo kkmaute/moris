@@ -33,11 +33,11 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
-        "[CM_Struc_NonLinear_Saint_Venant_Kirchhoff]" )
+void Test_CM_Struc_NL_Compressible(
+        fem::Constitutive_Type aConstitutiveModel )
 {
     // define an epsilon environment
-    real tEpsilon = 5.0E-4;
+    real tEpsilon = 5.0E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1.0E-6;
@@ -73,17 +73,15 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
     tPropEMod->set_parameters( { { { 1.0 } } } );
-    tPropEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
     tPropNu->set_parameters( { { { 0.3 } } } );
-    tPropNu->set_val_function( tConstValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
+            tCMFactory.create_CM( aConstitutiveModel );
     tCMLeaderStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMLeaderStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMLeaderStrucLinIso->set_property( tPropNu, "PoissonRatio" );
@@ -227,14 +225,14 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
             Matrix< DDRMat > tLeaderDOFHatVel;
             fill_uhat_Elast( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
-            tLeaderDOFHatVel = tLeaderDOFHatVel * 0.01;
+            tLeaderDOFHatVel = tLeaderDOFHatVel * 0.001;
 
             // create a cell of field interpolators for IWG
             Vector< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tLeaderFIs( 0 )->set_coeff( 0.1 * tLeaderDOFHatVel );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create a field interpolator manager
             Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
@@ -278,35 +276,6 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                     // derivative dof type
                     Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
-                    // strain
-                    //------------------------------------------------------------------------------
-                    // evaluate Lagrange Green strain
-                    //                    const Matrix< DDRMat > & tLGStrain =
-                    //                            tCMLeaderStrucLinIso->strain( CM_Function_Type::LAGRANGIAN );
-
-                    // evaluate dLGStraindu
-                    Matrix< DDRMat > tdLGStraindu =
-                            tCMLeaderStrucLinIso->dStraindDOF(
-                                    tDofDerivative,
-                                    CM_Function_Type::LAGRANGIAN );
-
-                    //                    const Matrix< DDRMat > & tLGTestStrain =
-                    //                            tCMLeaderStrucLinIso->testStrain( CM_Function_Type::LAGRANGIAN );
-                    //                    print(tLGTestStrain,"tLGTestStrain");
-
-                    // evaluate dLGStraindu by FD
-                    Matrix< DDRMat > tdLGStrainduFD;
-                    tCMLeaderStrucLinIso->eval_dStraindDOF_FD(
-                            tDofDerivative,
-                            tdLGStrainduFD,
-                            tPerturbation,
-                            fem::FDScheme_Type::POINT_5,
-                            CM_Function_Type::LAGRANGIAN );
-
-                    // check that analytical and FD match
-                    bool tCheckLGStrain = fem::check( tdLGStraindu, tdLGStrainduFD, tEpsilon );
-                    REQUIRE( tCheckLGStrain );
-
                     // flux
                     //------------------------------------------------------------------------------
                     // evaluate PK1
@@ -333,13 +302,17 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdPK2StressduFD;
-                    tCMLeaderStrucLinIso->eval_dFluxdDOF_FD(
-                            tDofDerivative,
+                    tCMLeaderStrucLinIso->eval_derivative_FD(
+                            CM_Request_Type::FLUX,
                             tdPK2StressduFD,
+                            tDofDerivative,
                             tPerturbation,
-                            fem::FDScheme_Type::POINT_5,
+                            tDofDerivative,    // dummy
+                            tNormal,           // dummy
+                            tJump,             // dummy
+                            FDScheme_Type::POINT_5,
                             CM_Function_Type::PK2 );
-                    //                    print(tdPK2StressduFD,"tdPK2StressduFD");
+                    // print(tdPK2StressduFD,"tdPK2StressduFD");
 
                     // check that analytical and FD match
                     bool tCheckPK2 = fem::check( tdPK2Stressdu, tdPK2StressduFD, tEpsilon );
@@ -350,17 +323,21 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                             tCMLeaderStrucLinIso->dFluxdDOF(
                                     tDofDerivative,
                                     CM_Function_Type::PK1 );
-                    //                    print(tdPK1Stressdu,"tdPK1Stressdu");
+                    // print(tdPK1Stressdu,"tdPK1Stressdu");
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdPK1StressduFD;
-                    tCMLeaderStrucLinIso->eval_dFluxdDOF_FD(
-                            tDofDerivative,
+                    tCMLeaderStrucLinIso->eval_derivative_FD(
+                            CM_Request_Type::FLUX,
                             tdPK1StressduFD,
+                            tDofDerivative,
                             tPerturbation,
-                            fem::FDScheme_Type::POINT_5,
+                            tDofDerivative,    // dummy
+                            tNormal,           // dummy
+                            tJump,             // dummy
+                            FDScheme_Type::POINT_5,
                             CM_Function_Type::PK1 );
-                    //                    print(tdPK1StressduFD,"tdPK1StressduFD");
+                    // print(tdPK1StressduFD,"tdPK1StressduFD");
 
                     // check that analytical and FD match
                     bool tCheckPK1 = fem::check( tdPK1Stressdu, tdPK1StressduFD, tEpsilon );
@@ -368,141 +345,85 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
 
                     // traction
                     //------------------------------------------------------------------------------
-                    // evaluate PK1 traction
-                    //                    const Matrix< DDRMat > & tPK1Traction =
+                    //                    // evaluate PK1 traction
+                    //                    const Matrix< DDRMat >& tPK1Traction =
                     //                            tCMLeaderStrucLinIso->traction( tNormal, CM_Function_Type::PK1 );
-                    //                    print( tPK1Traction, "tPK1Traction" );
-
-                    // evaluate PK2 traction
-                    //                    const Matrix< DDRMat > & tPK2Traction =
-                    //                            tCMLeaderStrucLinIso->traction( tNormal, CM_Function_Type::PK2 );
-                    //                    print( tPK2Traction, "tPK2Traction" );
-
+                    //                    //print( tPK1Traction, "tPK1Traction" );
+                    //
                     //                    // evaluate Cauchy
-                    //                    const Matrix< DDRMat > & tCauchyTraction =
+                    //                    const Matrix< DDRMat >& tCauchyTraction =
                     //                            tCMLeaderStrucLinIso->traction( tNormal, CM_Function_Type::CAUCHY );
-                    ////                    print( tCauchyTraction, "tCauchyTraction" );
-
-                    //                    // evaluate dPK2Tractiondu
-                    Matrix< DDRMat > tdPK2Tractiondu =
-                            tCMLeaderStrucLinIso->dTractiondDOF( tDofDerivative, tNormal, CM_Function_Type::PK2 );
-
-                    // evaluate dPK2Tractiondu by FD
-                    Matrix< DDRMat > tdPK2TractionduFD;
-                    tCMLeaderStrucLinIso->eval_dtractiondu_FD(
-                            tDofDerivative,
-                            tdPK2TractionduFD,
-                            tPerturbation,
-                            tNormal,
-                            fem::FDScheme_Type::POINT_5,
-                            CM_Function_Type::PK2 );
-
-                    // check that analytical and FD match
-                    bool tCheckPK2Traction = fem::check( tdPK2Tractiondu, tdPK2TractionduFD, tEpsilon );
-                    REQUIRE( tCheckPK2Traction );
+                    //                    //print( tCauchyTraction, "tCauchyTraction" );
 
                     // evaluate dPK1Tractiondu
                     Matrix< DDRMat > tdPK1Tractiondu =
                             tCMLeaderStrucLinIso->dTractiondDOF( tDofDerivative, tNormal, CM_Function_Type::PK1 );
+                    // print(tdPK1Tractiondu,"tdPK1Tractiondu");
 
                     // evaluate dPK1Tractiondu by FD
                     Matrix< DDRMat > tdPK1TractionduFD;
-                    tCMLeaderStrucLinIso->eval_dtractiondu_FD(
-                            tDofDerivative,
+                    tCMLeaderStrucLinIso->eval_derivative_FD(
+                            CM_Request_Type::TRACTION,
                             tdPK1TractionduFD,
+                            tDofDerivative,
                             tPerturbation,
+                            tDofDerivative,    // dummy
                             tNormal,
-                            fem::FDScheme_Type::POINT_5,
+                            tJump,    // dummy
+                            FDScheme_Type::POINT_5,
                             CM_Function_Type::PK1 );
-
-                    Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
-
-                    //                    const Matrix< DDRMat > & tPK1TestTraction =
-                    //                            tCMLeaderStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
+                    // print(tdPK1TractionduFD,"tdPK1TractionduFD");
 
                     // check that analytical and FD match
                     bool tCheckPK1Traction = fem::check( tdPK1Tractiondu, tdPK1TractionduFD, tEpsilon );
                     REQUIRE( tCheckPK1Traction );
 
-                    //                    // test traction
-                    //                    //------------------------------------------------------------------------------
-                    //
-                    //                    // loop over test dof type
+                    // test traction
+                    //------------------------------------------------------------------------------
+
+                    // loop over test dof type
                     for ( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
-                        //                        // get the test dof type
+                        // get the test dof type
                         Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
-                        //
-                        //                        // evaluate PK1 test traction
-                        //                        const Matrix< DDRMat > & tPK1TestTraction =
-                        //                                tCMLeaderStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
-                        //                        print( tPK1TestTraction, "tPK1TestTraction" );
-                        //
-                        //                        // evaluate PK2 test traction
-                        //                        const Matrix< DDRMat > & tPK2TestTraction =
-                        //                                tCMLeaderStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK2 );
-                        //                        print( tPK2TestTraction, "tPK2TestTraction" );
-                        //
-                        ////                        // evaluate Cauchy test traction
-                        ////                        const Matrix< DDRMat > & tCauchyTestTraction =
-                        ////                                tCMLeaderStrucLinIso->testTraction( tDofTest, tNormal, CM_Function_Type::CAUCHY );
-                        ////                        print( tCauchyTestTraction, "tCauchyTestTraction" );
 
-                        // evaluate dPK2testtractiondu
-                        Matrix< DDRMat > tdPK2testtractiondu =
+                        //                        // evaluate PK1 test traction
+                        //                        const Matrix< DDRMat >& tPK1TestTraction =
+                        //                                tCMLeaderStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
+                        //                        //print( tPK1TestTraction, "tPK1TestTraction" );
+                        //
+                        //                        // evaluate Cauchy test traction
+                        //                        const Matrix< DDRMat >& tCauchyTestTraction =
+                        //                                tCMLeaderStrucLinIso->testTraction( tDofTest, tNormal, CM_Function_Type::CAUCHY );
+                        //                        //print( tCauchyTestTraction, "tCauchyTestTraction" );
+
+                        // evaluate dPK1testtractiondu
+                        Matrix< DDRMat > tdPK1testtractiondu =
                                 tCMLeaderStrucLinIso->dTestTractiondDOF(
                                         tDofDerivative,
                                         tNormal,
                                         tJump,
                                         tDofTest,
-                                        CM_Function_Type::PK2 );
-                        //
-                        //                        // evaluate dPK2testtractiondu by FD
-                        Matrix< DDRMat > dPK2testtractionduFD;
-                        tCMLeaderStrucLinIso->eval_dtesttractiondu_FD(
-                                tDofDerivative,
-                                tDofTest,
-                                dPK2testtractionduFD,
-                                tPerturbation,
-                                tNormal,
-                                tJump,
-                                fem::FDScheme_Type::POINT_5,
-                                CM_Function_Type::PK2 );
+                                        CM_Function_Type::PK1 );
+                        // print( tdPK1testtractiondu, "tdPK1testtractiondu" );
 
-                        //                        print(tdPK2testtractiondu-dPK2testtractionduFD,"dif");
-                        //
-                        //                        // check that analytical and FD match
-                        bool tCheckPK2TestTraction = fem::check( tdPK2testtractiondu, dPK2testtractionduFD, tEpsilon );
-                        REQUIRE( tCheckPK2TestTraction );
-                        //
-                        //                        // evaluate dPK1testtractiondu
-                        //                        Matrix< DDRMat > tdPK1testtractiondu =
-                        //                                tCMLeaderStrucLinIso->dTestTractiondDOF(
-                        //                                tDofDerivative,
-                        //                                tNormal,
-                        //                                tJump,
-                        //                                tDofTest,
-                        //                                CM_Function_Type::PK1 );
-                        //                        print(tdPK1testtractiondu,"tdPK1testtractiondu");
-                        //
-                        //                        // evaluate dPK1testtractiondu by FD
+                        // evaluate dPK1testtractiondu by FD
                         Matrix< DDRMat > dPK1testtractionduFD;
-                        tCMLeaderStrucLinIso->eval_dtesttractiondu_FD(
-                                tDofDerivative,
-                                tDofTest,
+                        tCMLeaderStrucLinIso->eval_derivative_FD(
+                                CM_Request_Type::TEST_TRACTION,
                                 dPK1testtractionduFD,
+                                tDofDerivative,
                                 tPerturbation,
+                                tDofTest,
                                 tNormal,
                                 tJump,
-                                fem::FDScheme_Type::POINT_5,
+                                FDScheme_Type::POINT_5,
                                 CM_Function_Type::PK1 );
-                        //                        print(dPK1testtractionduFD,"dPK1testtractionduFD");
+                        // print( dPK1testtractionduFD, "dPK1testtractionduFD" );
 
-                        //                        print(tdPK1testtractiondu-dPK1testtractionduFD,"dif");
-                        //
-                        //                        // check that analytical and FD match
-                        //                        bool tCheckPK1TestTraction = fem::check( tdPK1testtractiondu, dPK1testtractionduFD, tEpsilon );
-                        //                        REQUIRE( tCheckPK1TestTraction );
+                        // check that analytical and FD match
+                        bool tCheckPK1TestTraction = fem::check( tdPK1testtractiondu, dPK1testtractionduFD, tEpsilon );
+                        REQUIRE( tCheckPK1TestTraction );
                     }
                 }
             }
@@ -510,4 +431,32 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
             tLeaderFIs.clear();
         }
     }
-} /*END_TEST_CASE*/
+}
+
+//---------------------------------------------------------------------------------------------
+
+TEST_CASE( "CM_Struc_NL_Compressible_Saint_Venant_Kirchhoff",
+        "[moris],[fem],[CM_Struc_NL_Compressible_Saint_Venant_Kirchhoff]" )
+{
+    Test_CM_Struc_NL_Compressible( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
+} /* END_TEST_CASE */
+
+//---------------------------------------------------------------------------------------------
+
+TEST_CASE( "CM_Struc_NL_Compressible_Neo_Hookean_Bonet",
+        "[moris],[fem],[CM_Struc_NL_Compressible_Neo_Hookean_Bonet]" )
+{
+    Test_CM_Struc_NL_Compressible( fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_BONET );
+} /* END_TEST_CASE */
+
+//---------------------------------------------------------------------------------------------
+
+TEST_CASE( "CM_Struc_NL_Compressible_Neo_Hookean_Wriggers",
+        "[moris],[fem],[CM_Struc_NL_Compressible_Neo_Hookean_Wriggers]" )
+{
+    Test_CM_Struc_NL_Compressible( fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS );
+} /* END_TEST_CASE */
+
+//---------------------------------------------------------------------------------------------
+
+/*END_TEST_CASE*/

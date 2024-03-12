@@ -19,12 +19,12 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     class Enriched_Interpolation_Mesh;
 }
 
-namespace xtk
+namespace moris::xtk
 {
     class Vertex_Enrichment : public mtk::Vertex_Interpolation
     {
@@ -33,15 +33,15 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       protected:
-        moris::moris_index               mNodeIndex;
-        moris::Matrix< moris::IndexMat > mBasisIndices;
-        moris::Matrix< moris::IndexMat > mBasisIds;
-        moris::Matrix< moris::IndexMat > mBasisOwners;
-        moris::Matrix< moris::DDRMat >   mBasisWeights;
-        mtk::Vertex_Interpolation*       mBaseVertexInterp;
-        IndexMap                         mBasisMap; /*From basis to local index*/
+        moris::moris_index         mNodeIndex;
+        Matrix< IndexMat >         mBasisIndices;
+        Matrix< IndexMat >         mBasisIds;
+        Matrix< IndexMat >         mBasisOwners;
+        Matrix< DDRMat >           mBasisWeights;
+        mtk::Vertex_Interpolation* mBaseVertexInterp;
+        IndexMap                   mBasisMap; /*From basis to local index*/
 
-                                                    //------------------------------------------------------------------------------
+                                              //------------------------------------------------------------------------------
 
       public:
         /**
@@ -80,7 +80,7 @@ namespace xtk
          * set the interpolation weights
          */
         void
-        set_weights( const moris::Matrix< DDRMat >& aWeights )
+        set_weights( const Matrix< DDRMat >& aWeights )
         {
             MORIS_ERROR( 0, "set_weights not implemented in xtk vertex interpolation" );
         }
@@ -159,18 +159,18 @@ namespace xtk
          */
         void
         add_basis_information(
-                moris::Matrix< moris::IndexMat > const & aBasisIndices,
-                moris::Matrix< moris::IndexMat > const & aBasisId );
+                Matrix< IndexMat > const & aBasisIndices,
+                Matrix< IndexMat > const & aBasisId );
 
         void
         add_basis_weights(
-                moris::Matrix< moris::IndexMat > const & aBasisIndices,
-                moris::Matrix< moris::DDRMat > const &   aBasisWeight );
+                Matrix< IndexMat > const & aBasisIndices,
+                Matrix< DDRMat > const &   aBasisWeight );
 
         void
         add_basis_owners(
-                moris::Matrix< moris::IndexMat > const & aBasisIndices,
-                moris::Matrix< moris::IndexMat > const & aBasisOwners );
+                Matrix< IndexMat > const & aBasisIndices,
+                Matrix< IndexMat > const & aBasisOwners );
 
         void
         add_base_vertex_interpolation( mtk::Vertex_Interpolation* aBaseVertInterp );
@@ -187,16 +187,16 @@ namespace xtk
         void
         condense_out_basis_with_0_weight();
 
-        moris::Matrix< moris::IndexMat > const &
+        Matrix< IndexMat > const &
         get_basis_indices() const;
 
-        moris::Matrix< moris::IndexMat > const &
+        Matrix< IndexMat > const &
         get_basis_ids() const;
 
-        moris::Matrix< moris::DDRMat > const &
+        Matrix< DDRMat > const &
         get_basis_weights() const;
 
-        moris::Matrix< moris::DDRMat >&
+        Matrix< DDRMat >&
         get_basis_weights();
 
         bool
@@ -235,8 +235,8 @@ namespace xtk
         // check basis indices ...............
 
         // get basis indices of aA,aB
-        moris::Matrix< moris::IndexMat > const & tBasisIndicesA = aA.get_basis_indices();
-        moris::Matrix< moris::IndexMat > const & tBasisIndicesB = aB.get_basis_indices();
+        Matrix< IndexMat > const & tBasisIndicesA = aA.get_basis_indices();
+        Matrix< IndexMat > const & tBasisIndicesB = aB.get_basis_indices();
 
         uint tSizeA = tBasisIndicesA.numel();
         uint tSizeB = tBasisIndicesB.numel();
@@ -268,8 +268,8 @@ namespace xtk
         // check weights ...............
 
         // get basis weights of aA,aB
-        moris::Matrix< moris::DDRMat > const & tWeightsA = aA.get_basis_weights();
-        moris::Matrix< moris::DDRMat > const & tWeightsB = aB.get_basis_weights();
+        Matrix< DDRMat > const & tWeightsA = aA.get_basis_weights();
+        Matrix< DDRMat > const & tWeightsB = aB.get_basis_weights();
 
         // check size
         MORIS_ASSERT( tWeightsA.numel() == tSizeA, "xtk::Vertex_Enrichment::operator== - Size of weights and indices don't match for A." );
@@ -304,13 +304,13 @@ namespace xtk
     inline std::ostream&
     operator<<( std::ostream& os, const xtk::Vertex_Enrichment& dt )
     {
-        moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_indices();
-        moris::Matrix< moris::IndexMat > const & tBasisOwner   = dt.get_owners();
-        moris::Matrix< moris::DDRMat > const &   tBasisWeights = dt.get_basis_weights();
+        Matrix< IndexMat > const & tBasisIndices = dt.get_basis_indices();
+        Matrix< IndexMat > const & tBasisOwner   = dt.get_owners();
+        Matrix< DDRMat > const &   tBasisWeights = dt.get_basis_weights();
 
         // base vertex
         mtk::Vertex_Interpolation const * tBaseVertIp       = dt.get_base_vertex_interpolation();
-        moris::Matrix< moris::IndexMat >  tBackBasisIndices = tBaseVertIp->get_indices();
+        Matrix< IndexMat >                tBackBasisIndices = tBaseVertIp->get_indices();
         for ( uint iBasis = 0; iBasis < tBasisIndices.numel(); iBasis++ )
         {
             os << "Basis Index: " << std::setw( 9 ) << tBasisIndices( iBasis );
@@ -325,7 +325,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 //------------------------------------------------------------------------------
 

@@ -14,7 +14,7 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
 
     //-------------------------------------------------------------------------------------
@@ -66,6 +66,6 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* fn_XTK_punch_card_sum.hpp */

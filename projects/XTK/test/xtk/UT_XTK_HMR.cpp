@@ -26,24 +26,24 @@ namespace moris
 {
 
     moris::real
-    LevelSetSphereCylinder( const moris::Matrix< moris::DDRMat >& aPoint )
+    LevelSetSphereCylinder( const moris::Matrix< DDRMat >& aPoint )
     {
-        moris::Matrix< moris::DDRMat > aCenter = { { 0.01 }, { 0.01 }, { 0.01 } };
-        moris::Matrix< moris::DDRMat > aAxis   = { { 0.0 }, { 1.0 }, { 0.0 } };
-        moris::real                    aRad    = 0.77;
-        moris::real                    aLength = 5;
+        moris::Matrix< DDRMat > aCenter = { { 0.01 }, { 0.01 }, { 0.01 } };
+        moris::Matrix< DDRMat > aAxis   = { { 0.0 }, { 1.0 }, { 0.0 } };
+        moris::real             aRad    = 0.77;
+        moris::real             aLength = 5;
 
         MORIS_ASSERT( aCenter.numel() == 3, "Centers need to have length 3" );
         MORIS_ASSERT( aAxis.numel() == 3, "axis need to have length 3" );
 
         Vector< moris::real > relativePosition = { ( aPoint( 0 ) - aCenter( 0 ) ), ( aPoint( 1 ) - aCenter( 1 ) ), ( aPoint( 2 ) - aCenter( 2 ) ) };
-        moris::real         lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
-        moris::real         lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
+        moris::real           lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
+        moris::real           lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
 
-        moris::real         axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
+        moris::real           axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
         Vector< moris::real > radDir    = { ( relativePosition( 0 ) - aAxis( 0 ) * axialCrd ), ( relativePosition( 1 ) - aAxis( 1 ) * axialCrd ), ( relativePosition( 2 ) - aAxis( 2 ) * axialCrd ) };
-        moris::real         radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
-        moris::real         lsFromRad = radDist - aRad;
+        moris::real           radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
+        moris::real           lsFromRad = radDist - aRad;
 
         return -std::max( std::max( lsFromLeft, lsFromRight ), lsFromRad );
     }
@@ -54,7 +54,7 @@ namespace moris
     }
 
     moris::real
-    LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat >& aPoint )
+    LevelSetPlaneFunction( const moris::Matrix< DDRMat >& aPoint )
     {
 
         real mXn = 0.0;
@@ -108,14 +108,14 @@ namespace moris
             tHMR->perform_initial_refinement();
             tHMR->perform();
 
-            auto                                              tField          = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
+            auto                                       tField          = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Matrix< DDRMat >( 0, 0 ) );
             Vector< std::shared_ptr< gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tField ) };
 
-            size_t                                tModelDimension = 3;
+            size_t                                 tModelDimension = 3;
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
             moris::gen::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
-            xtk::Model                 tXTKModel( tModelDimension, tMeshManager->get_interpolation_mesh( 0 ), &tGeometryEngine );
+            xtk::Model                  tXTKModel( tModelDimension, tMeshManager->get_interpolation_mesh( 0 ), &tGeometryEngine );
             tXTKModel.mVerbose = true;
 
             Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };

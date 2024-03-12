@@ -32,7 +32,7 @@
 // Topology includes
 #include "topology/cl_XTK_Hexahedron_8_Topology.hpp"
 
-using namespace xtk;
+using namespace moris::xtk;
 
 /*
  * Test Cases
@@ -50,16 +50,16 @@ TEST_CASE( "STK Mesh Test Serial", "[MESH][STK]" )
     {
 
         // Intialize STK Mesh Builder
-        mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > tMeshBuilder;
+        mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat > tMeshBuilder;
 
         SECTION( "Mesh from file" )
         {
             // Specify Mesh Inputs
-            std::string                tMeshFileName = "generated:1x1x2";
+            std::string           tMeshFileName = "generated:1x1x2";
             Vector< std::string > tScalarFields( 0 );
 
             // Generate mesh from file
-            std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true );
+            std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true );
 
             // Get information from Mesh
             xtk::size_t tNumNodes    = tMeshData->get_num_entities( mtk::EntityRank::NODE );
@@ -106,8 +106,8 @@ TEST_CASE( "STK Mesh Test Serial", "[MESH][STK]" )
 
             // Check node coordinates
             moris::Matrix< moris::DDSTMat > tNodeIndex( { { 0, 1, 2, 4 } } );
-            moris::Matrix< moris::DDRMat >  tNodeCoordinates = tMeshData->get_selected_node_coordinates_loc_inds( tNodeIndex );
-            moris::Matrix< moris::DDRMat >  tExpectedNodeCoordinates( { { 0, 0, 0 }, { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } } );
+            moris::Matrix< DDRMat >         tNodeCoordinates = tMeshData->get_selected_node_coordinates_loc_inds( tNodeIndex );
+            moris::Matrix< DDRMat >         tExpectedNodeCoordinates( { { 0, 0, 0 }, { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } } );
 
             CHECK( xtk::equal_to( tNodeCoordinates, tExpectedNodeCoordinates ) );
         }
@@ -139,10 +139,10 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
     /*
      * Construct the Mesh
      */
-    Vector< std::string >                                                                            tScalarFields( 0 );
-    std::string                                                                                           tMeshFileName = "generated:1x1x2";
-    mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat >             tMeshBuilder;
-    std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true );
+    Vector< std::string >                                                                          tScalarFields( 0 );
+    std::string                                                                                    tMeshFileName = "generated:1x1x2";
+    mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat >             tMeshBuilder;
+    std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true );
 
     /*
      * Test Allocation of Entity Ids
@@ -169,41 +169,41 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
     /*
      * Setup pending node data structure
      */
-    Vector< xtk::Pending_Node< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tPendingNodes( 3 );
+    Vector< xtk::Pending_Node< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat > > tPendingNodes( 3 );
 
     /*
      * Setup Parent Element Topology with Nodes Corresponding to Element 1
      */
-    moris::Matrix< moris::DDSTMat >                                                               tElementNodesForTopology = tMeshData->get_entity_connected_to_entity_loc_inds( 0, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
-    xtk::Hexahedron_8_Topology< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > tDummyTopology( tElementNodesForTopology );
+    moris::Matrix< moris::DDSTMat >                                                        tElementNodesForTopology = tMeshData->get_entity_connected_to_entity_loc_inds( 0, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
+    xtk::Hexahedron_8_Topology< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat > tDummyTopology( tElementNodesForTopology );
 
     /*
      * Pending Node 0
      */
-    xtk::size_t                    tNodeIndex1 = 12;
-    xtk::size_t                    tNodeId1    = 51;
-    moris::Matrix< moris::DDRMat > tNodeCoords1( { { 1.24, 1.3, 1.5 } } );
-    moris::Matrix< moris::DDRMat > tLocalCoords1( { { 0.0, 0.0, 0.0 } } );
+    xtk::size_t             tNodeIndex1 = 12;
+    xtk::size_t             tNodeId1    = 51;
+    moris::Matrix< DDRMat > tNodeCoords1( { { 1.24, 1.3, 1.5 } } );
+    moris::Matrix< DDRMat > tLocalCoords1( { { 0.0, 0.0, 0.0 } } );
 
     tPendingNodes( 0 ).set_pending_node_info( &tNodeIndex1, &tNodeId1, tNodeCoords1, tDummyTopology, tLocalCoords1 );
 
     /*
      * Pending Node 1
      */
-    xtk::size_t                    tNodeIndex2 = 14;
-    xtk::size_t                    tNodeId2    = 94;
-    moris::Matrix< moris::DDRMat > tNodeCoords2( { { -3.24, -0.3, -2.5 } } );
-    moris::Matrix< moris::DDRMat > tLocalCoords2( { { 0.0, 0.0, 0.0 } } );
+    xtk::size_t             tNodeIndex2 = 14;
+    xtk::size_t             tNodeId2    = 94;
+    moris::Matrix< DDRMat > tNodeCoords2( { { -3.24, -0.3, -2.5 } } );
+    moris::Matrix< DDRMat > tLocalCoords2( { { 0.0, 0.0, 0.0 } } );
 
     tPendingNodes( 1 ).set_pending_node_info( &tNodeIndex2, &tNodeId2, tNodeCoords2, tDummyTopology, tLocalCoords2 );
 
     /*
      * Pending Node 2
      */
-    xtk::size_t                    tNodeIndex3 = 13;
-    xtk::size_t                    tNodeId3    = 200;
-    moris::Matrix< moris::DDRMat > tNodeCoords3( { { 1.9, -2.3, 5.5 } } );
-    moris::Matrix< moris::DDRMat > tLocalCoords3( { { 0.0, 0.0, 0.0 } } );
+    xtk::size_t             tNodeIndex3 = 13;
+    xtk::size_t             tNodeId3    = 200;
+    moris::Matrix< DDRMat > tNodeCoords3( { { 1.9, -2.3, 5.5 } } );
+    moris::Matrix< DDRMat > tLocalCoords3( { { 0.0, 0.0, 0.0 } } );
 
     tPendingNodes( 2 ).set_pending_node_info( &tNodeIndex3, &tNodeId3, tNodeCoords3, tDummyTopology, tLocalCoords3 );
 
@@ -231,7 +231,7 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
      */
     moris::Matrix< moris::DDSTMat > tNodeIndices( { { tNodeIndex1, tNodeIndex2, tNodeIndex3 } } );
 
-    moris::Matrix< moris::DDRMat > tExpectedNodeCoordinates( { { 1.24, 1.3, 1.5 }, { 1.9, -2.3, 5.5 }, { -3.24, -0.3, -2.5 } } );
+    moris::Matrix< DDRMat > tExpectedNodeCoordinates( { { 1.24, 1.3, 1.5 }, { 1.9, -2.3, 5.5 }, { -3.24, -0.3, -2.5 } } );
 
     if ( tProcSize == 1 )
     {
@@ -241,15 +241,15 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
      * Do a second round of batch creation with a different number of nodes
      */
 
-    tPendingNodes = Vector< xtk::Pending_Node< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > >( 2 );
+    tPendingNodes = Vector< xtk::Pending_Node< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat > >( 2 );
 
     /*
      * Pending Node 0
      */
     tNodeIndex1   = 15;
     tNodeId1      = 100;
-    tNodeCoords1  = moris::Matrix< moris::DDRMat >( { { 15, 15, 15 } } );
-    tLocalCoords1 = moris::Matrix< moris::DDRMat >( { { 0.0, 0.0, 0.0 } } );
+    tNodeCoords1  = moris::Matrix< DDRMat >( { { 15, 15, 15 } } );
+    tLocalCoords1 = moris::Matrix< DDRMat >( { { 0.0, 0.0, 0.0 } } );
 
     tPendingNodes( 0 ).set_pending_node_info( &tNodeIndex1, &tNodeId1, tNodeCoords1, tDummyTopology, tLocalCoords1 );
 
@@ -258,8 +258,8 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
      */
     tNodeIndex2 = 16;
     tNodeId2    = 200;
-    moris::Matrix< moris::DDRMat > tNodeCoords( { { 16, 16, 16 } } );
-    tLocalCoords2 = moris::Matrix< moris::DDRMat >( { { 0.0, 0.0, 0.0 } } );
+    moris::Matrix< DDRMat > tNodeCoords( { { 16, 16, 16 } } );
+    tLocalCoords2 = moris::Matrix< DDRMat >( { { 0.0, 0.0, 0.0 } } );
 
     tPendingNodes( 1 ).set_pending_node_info( &tNodeIndex2, &tNodeId2, tNodeCoords2, tDummyTopology, tLocalCoords2 );
 
@@ -293,10 +293,10 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
      * Node Sets will be named
      *  - sesame_seeds
      */
-    std::string                                                                                           tPrefix       = moris::get_base_moris_dir();
-    std::string                                                                                           tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
-    mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat >             tMeshBuilder;
-    std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, {}, true );
+    std::string                                                                                    tPrefix       = moris::get_base_moris_dir();
+    std::string                                                                                    tMeshFileName = tPrefix + "/TestExoFiles/sandwich.e";
+    mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat >             tMeshBuilder;
+    std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, {}, true );
 
     /*
      * Get number of buckets in the mesh
@@ -320,7 +320,7 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
     /*
      * Ask for part ordinal of entity
      */
-    size_t     tElementIndex = 14;
+    size_t          tElementIndex = 14;
     mtk::EntityRank tEntityRank   = mtk::EntityRank::ELEMENT;
 
     tMeshData->get_entity_part_membership_ordinals( tElementIndex, tEntityRank, tPartOrdinals );
@@ -370,15 +370,15 @@ TEST_CASE( "STK Mesh with Side Set", "[STK][SIDE_SET]" )
     /*
      * Load Mesh which is a unit cube with 2 faces belonging to a side set
      */
-    std::string                                                                                           tPrefix       = moris::get_base_moris_dir();
-    std::string                                                                                           tMeshFileName = tPrefix + "/TestExoFiles/cube_1x1x1_with_side_set.e";
-    mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat >             tMeshBuilder;
-    std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, {}, true );
+    std::string                                                                                    tPrefix       = moris::get_base_moris_dir();
+    std::string                                                                                    tMeshFileName = tPrefix + "/TestExoFiles/cube_1x1x1_with_side_set.e";
+    mesh::Mesh_Builder_Stk< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat >             tMeshBuilder;
+    std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, {}, true );
 
     /*
      * Iterate over buckets
      */
-    xtk::size_t                tNumBuckets = tMeshData->get_num_buckets( mtk::EntityRank::ELEMENT );
+    xtk::size_t           tNumBuckets = tMeshData->get_num_buckets( mtk::EntityRank::ELEMENT );
     Vector< std::string > tPartNames;
     Vector< xtk::size_t > tPartOrdinals;
     //    xtk::size_t tNumParts;
@@ -420,9 +420,9 @@ TEST_CASE( "STK Mesh with Side Set", "[STK][SIDE_SET]" )
 #include <stk_mesh/base/Field.hpp>
 #include <stk_io/StkMeshIoBroker.hpp>
 
-//#include <percept/xfer/STKMeshTransferSetup.hpp>
+// #include <percept/xfer/STKMeshTransferSetup.hpp>
 
-namespace xtk
+namespace moris::xtk
 {
 
     TEST_CASE( "Discretizing level set field onto a fine mesh and transferring to a coarse mesh via Percept", "[MESH_FIELDS]" )
@@ -439,22 +439,22 @@ namespace xtk
         //
         //    // Create Mesh (w/o edge and face data)----------------------------------
         //    Vector<std::string> tScalarFieldNames = {tFieldName1};
-        //    mesh::Mesh_Builder_Stk<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
+        //    mesh::Mesh_Builder_Stk<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
         //
         //    // Setup geometry and discretize onto a levelset mesh--------------------
         //    real tRadius =  5;
         //    real tXCenter = 10.0;
         //    real tYCenter = 10.0;
         //    real tZCenter = 10.0;
-        //    Analytic_Level_Set_Sphere<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tLevelsetSphere1(tRadius, tXCenter, tYCenter, tZCenter);
-        //    Vector<Geometry<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat>*> tLevelSetFunctions = {&tLevelsetSphere1};
-        //    Mesh_Field_Geometry<real,size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tLevelSetMeshManager(tMatrixFactory,tLevelSetFunctions,tFineMeshInput,tScalarFieldNames,tMeshBuilder);
+        //    Analytic_Level_Set_Sphere<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat> tLevelsetSphere1(tRadius, tXCenter, tYCenter, tZCenter);
+        //    Vector<Geometry<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat>*> tLevelSetFunctions = {&tLevelsetSphere1};
+        //    Mesh_Field_Geometry<real,size_t, xtk::DDRMat, xtk::moris::DDSTMat> tLevelSetMeshManager(tMatrixFactory,tLevelSetFunctions,tFineMeshInput,tScalarFieldNames,tMeshBuilder);
         //
         //    // Build a coarse mesh which the levelset mesh will be transfered to-----
-        //    std::shared_ptr<mesh::Mesh_Data<real, size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tCoarseMesh = tMeshBuilder.build_mesh_from_string(tMatrixFactory,tCoarseMeshInput,tScalarFieldNames,false);
+        //    std::shared_ptr<mesh::Mesh_Data<real, size_t,xtk::DDRMat, xtk::moris::DDSTMat>> tCoarseMesh = tMeshBuilder.build_mesh_from_string(tMatrixFactory,tCoarseMeshInput,tScalarFieldNames,false);
         //
         //    // Get Reference to the fine mesh
-        //    mesh::Mesh_Data<real, size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat> & tFineMesh = tLevelSetMeshManager.get_level_set_mesh();
+        //    mesh::Mesh_Data<real, size_t,xtk::DDRMat, xtk::moris::DDSTMat> & tFineMesh = tLevelSetMeshManager.get_level_set_mesh();
         //
         //    // Transfer level set field-----------------------------------------------
         //    // Setup STK Transfer Function (boost shared pointer because this it what Percept uses)
@@ -485,8 +485,8 @@ namespace xtk
     {
         //    Matrix_Factory<real, size_t> tMatrixFactory;
         //    std::string tMeshInputFile = "/TestExoFiles/mesh_test_fields.e";
-        //    mesh::Mesh_Builder_Stk<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
-        //    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMatrixFactory, tMeshInputFile, {}, true);
+        //    mesh::Mesh_Builder_Stk<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
+        //    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,xtk::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMatrixFactory, tMeshInputFile, {}, true);
         //    stk::mesh::MetaData & tMeta = tMeshData->mesh_meta_data();
         //    stk::mesh::FieldVector const & tFields = tMeta.get_fields();
 
@@ -508,8 +508,8 @@ namespace xtk
         //    std::string tMeshInputFile = "/TestExoFiles/mesh_test_nodeset_sideset_1x1x1.e";
         //    std::string tMeshOutputFile = "/mesh_test_nodeset_sideset_1x1x1_output.e";
         //    Matrix_Factory<> tMatrixFactory;
-        //    mesh::Mesh_Builder_Stk<real, size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
-        //    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMatrixFactory, tMeshInputFile, {}, true);
+        //    mesh::Mesh_Builder_Stk<real, size_t, xtk::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
+        //    std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,xtk::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMatrixFactory, tMeshInputFile, {}, true);
         //
         //    stk::mesh::MetaData & tMeta = tMeshData->mesh_meta_data();
         //    stk::mesh::BulkData & tBulk = tMeshData->mesh_bulk_data();
@@ -577,4 +577,4 @@ namespace xtk
         //    tMeshData->write_output_mesh(tMeshOutputFile);
     }
 
-}    // namespace xtk
+}    // namespace moris::xtk

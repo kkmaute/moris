@@ -9,7 +9,7 @@
  */
 
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ namespace xtk
     Interpolation_Cell_Unzipped::get_vertex_pointers() const
     {
 
-        uint                        tNumVerts = this->get_number_of_vertices();
+        uint                   tNumVerts = this->get_number_of_vertices();
         Vector< mtk::Vertex* > tVerts( tNumVerts );
 
         for ( uint i = 0; i < tNumVerts; i++ )
@@ -177,7 +177,7 @@ namespace xtk
     {
         return mVertices;
     }
-    
+
     //------------------------------------------------------------------------------
 
     Vector< xtk::Interpolation_Vertex_Unzipped* >&
@@ -206,4 +206,4 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk

@@ -16,7 +16,7 @@
 // Unordered Map Include
 #include <unordered_map>
 
-namespace xtk
+namespace moris::xtk
 {
 
     /*
@@ -29,12 +29,12 @@ namespace xtk
      * @param[out] Element to Element connectivity
      */
     template< typename Integer >
-    inline moris::Matrix< moris::IndexMat >
+    inline Matrix< IndexMat >
     generate_element_to_element_2D(
-            moris::Matrix< moris::IndexMat > const & aEdgeToElement,
-            Integer const &                          aNumElements,
-            Integer const &                          aNumEdgesPerElement,
-            moris::moris_index const &               aDummyValue )
+            Matrix< IndexMat > const & aEdgeToElement,
+            Integer const &            aNumElements,
+            Integer const &            aNumEdgesPerElement,
+            moris::moris_index const & aDummyValue )
     {
 
         // Initialize Sizes and Variables used in routine
@@ -43,10 +43,10 @@ namespace xtk
         Integer tMaxNumElementToEdge = aEdgeToElement.n_cols();
 
         // Initialize Element to Element with size number of elements x number of edges per element filled with a dummy value.
-        moris::Matrix< moris::IndexMat > tElementToElement( aNumElements, aNumEdgesPerElement, aDummyValue );
+        Matrix< IndexMat > tElementToElement( aNumElements, aNumEdgesPerElement, aDummyValue );
 
         // Initialize a Counter to count how many neighbors a given element has which allows for easy input of information in element to element
-        moris::Matrix< moris::IndexMat > tElementToElementCount( 1, aNumElements, 0 );
+        Matrix< IndexMat > tElementToElementCount( 1, aNumElements, 0 );
 
         // Loop over all edges
         for ( Integer i = 0; i < tNumEdges; i++ )
@@ -108,8 +108,8 @@ namespace xtk
      * @param[out] Element to Element connectivity
      */
     /*template<typename Integer, typename Integer_Matrix>
-    moris::Matrix< Integer_Matrix >
-    generate_element_to_element_nonsequential(moris::Matrix< Integer_Matrix > const & aFaceToElement,
+    Matrix< Integer_Matrix >
+    generate_element_to_element_nonsequential(Matrix< Integer_Matrix > const & aFaceToElement,
                                               std::unordered_map<Integer,Integer> & aElementLocalIndex,
                                               Integer const & aNumElements,
                                               Integer const & aNumFacesPerElement,
@@ -121,10 +121,10 @@ namespace xtk
         Integer tMaxNumElementToFace = aFaceToElement.n_cols();
 
         // Initialize Element to Element with size number of elements x number of faces per element filled with a dummy value.
-        moris::Matrix< Integer_Matrix > tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
+        Matrix< Integer_Matrix > tElementToElement(aNumElements,aNumFacesPerElement,aDummyValue);
 
         // Initialize a Counter to count how many neighbors a given element has which allows for easy input of information in element to element
-        moris::Matrix< Integer_Matrix > tElementToElementCount(1,aNumElements,0);
+        Matrix< Integer_Matrix > tElementToElementCount(1,aNumElements,0);
 
         // Loop over all faces
         for(Integer i = 0; i < tNumFaces; i++)
@@ -175,5 +175,5 @@ namespace xtk
     }
     */
 
-}    // namespace xtk
+}    // namespace moris::xtk
 #endif /* XTK_SRC_XTK_FN_GENERATE_ELEMENT_TO_ELEMENT_2D_HPP_ */

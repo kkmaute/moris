@@ -33,7 +33,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
-        Memory_Map(Vector<std::string> const & aKeys,
+        Memory_Map( Vector<std::string> const & aKeys,
                    Matrix<DDSTMat>   const & aVals);
 
         // ----------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ namespace moris
          * @param[out] aGatheredMemMap Gathered Memory Maps;
          */
         void
-        gather_all(Vector<Memory_Map> & aGatheredMemMap);
+        gather_all( Vector<Memory_Map> & aGatheredMemMap);
 
         // ----------------------------------------------------------------------------------
         /*!
@@ -105,8 +105,8 @@ namespace moris
          */
         void
         deserialize( Vector<Vector<std::string>> & aGatheredKeyCells,
-                     Vector<Matrix<DDSTMat>>   & aGatheredValCells,
-                     Vector<Memory_Map>        & aGatheredMemMaps);
+                Vector<Matrix<DDSTMat>>   & aGatheredValCells,
+                Vector<Memory_Map>        & aGatheredMemMaps);
 
     };
 } // namespace moris

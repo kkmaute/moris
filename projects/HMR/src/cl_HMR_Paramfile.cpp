@@ -163,8 +163,8 @@ void Paramfile::load_mesh_params()
 
         for( uint f=0; f<tNumberOfFields; ++f )
         {
-            Vector< std::string > tFirst;
-            Vector< std::string > tSecond;
+        Vector< std::string > tFirst;
+        Vector< std::string > tSecond;
             mParser->get_keys_from_subtree( "moris.hmr", "field", f, tFirst, tSecond );
 
             Field_Param & tField = mFieldParams( f );

@@ -13,7 +13,7 @@
 #include "containers.hpp"
 
 using namespace moris;
-namespace xtk
+namespace moris::xtk
 {
     //-------------------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ namespace xtk
     inline moris_index
     find_in_cell(
             Vector< T > const & aList,
-            T                 aKeyToFind )
+            T                   aKeyToFind )
     {
         // get the size of the cell
         moris_index tSize = (moris_index)aList.size();
@@ -63,7 +63,7 @@ namespace xtk
     inline moris_index
     find_in_cell(
             Vector< T > const & aList,
-            T                 aKeyToFind,
+            T                   aKeyToFind,
             Vector< bool >&     aPunchCard )
     {
         // get the size of the cell
@@ -96,6 +96,6 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* fn_XTK_find_in_cell.hpp */

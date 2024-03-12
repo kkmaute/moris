@@ -34,6 +34,15 @@
 namespace moris
 {
     template< typename Type >
+    __attribute__( ( optimize( "-O2" ) ) )
+    arma::Mat< Type >
+    createArmaMatrixWithoutOptimization( const std::initializer_list< std::initializer_list< Type > >& initList )
+    {
+        // Use the Matrix specialization constructor for arma::Mat.
+        return arma::Mat< Type >( initList );
+    }
+
+    template< typename Type >
     class Matrix< arma::Mat< Type > >
     {
       private:
@@ -145,28 +154,8 @@ namespace moris
 
         Matrix( const std::initializer_list< std::initializer_list< Type > >& aInitList )
         {
-            // "manual" implementation of initialization of arma::Mat
-            // due to issue with initialization with initializer list since arma 12.x.x
-
-            uint tRow = aInitList.size();
-            uint tCol = aInitList.begin()->size();
-
-            mMatrix.set_size( tRow, tCol );
-
-            uint tRc = 0;
-            for ( const auto& tIter : aInitList )
-            {
-                MORIS_ASSERT( tIter.size() == tCol,
-                        "Matrix< arma::Mat< Type > > constructed with initializer list - non-uniform number of columns" );
-
-                uint tCc = 0;
-                for ( const auto& tVal : tIter )
-                {
-                    mMatrix( tRc, tCc ) = tVal;
-                    tCc++;
-                }
-                tRc++;
-            }
+            // call to create arma matrix suppressing aggressive optimization (-O3)
+            mMatrix = createArmaMatrixWithoutOptimization< Type >( aInitList );
         }
 
         // -----------------------------------------------------------------

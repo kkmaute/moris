@@ -163,7 +163,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         // Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -173,8 +173,8 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-        xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
+        moris::xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+        moris::xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
         // tEnrIntegMesh.print();
 

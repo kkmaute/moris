@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_XTK_Cell_Cluster_Group.cpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Cell_Cluster_Group.cpp
+ *
  */
 
 #include "cl_XTK_Cell_Cluster_Group.hpp"
@@ -13,12 +13,12 @@
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     //------------------------------------------------------------------------------
 
-    Cell_Cluster_Group::Cell_Cluster_Group( 
-            const moris_index                              aDiscretizationMeshIndex,
+    Cell_Cluster_Group::Cell_Cluster_Group(
+            const moris_index                         aDiscretizationMeshIndex,
             Vector< std::shared_ptr< mtk::Cluster > > aClusters )
             : mtk::Cell_Cluster_Group( aDiscretizationMeshIndex )
             , mClusters( aClusters )
@@ -28,23 +28,22 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    const Vector< mtk::Cluster const* >
+    const Vector< mtk::Cluster const * >
     Cell_Cluster_Group::get_clusters_in_group() const
     {
         // get the number of cluster and initialize a list of raw pointers with this
-        uint tNumClustersInGroup = mClusters.size();
-        Vector< mtk::Cluster const* > tClusters( tNumClustersInGroup );
-        
+        uint                           tNumClustersInGroup = mClusters.size();
+        Vector< mtk::Cluster const * > tClusters( tNumClustersInGroup );
         // fill list with raw cluster pointers
-        for( uint iCluster = 0; iCluster < tNumClustersInGroup; iCluster++ )
+        for ( uint iCluster = 0; iCluster < tNumClustersInGroup; iCluster++ )
         {
             tClusters( iCluster ) = mClusters( iCluster ).get();
         }
-        
+
         // return list with raw cluster pointers
         return tClusters;
     }
 
     //------------------------------------------------------------------------------
 
-} // namespace xtk
+}    // namespace moris::xtk

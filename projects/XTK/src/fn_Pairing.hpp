@@ -13,7 +13,7 @@
 
 #include "cl_Matrix.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     template< typename Integer >
     inline static Integer
@@ -23,6 +23,6 @@ namespace xtk
         Integer tID = ( ( aPt1 * aPt1 + 3 * aPt1 + 2 * aPt1 * aPt2 + aPt2 + aPt2 * aPt2 ) / 2 );
         return tID;
     }
-}    // namespace xtk
+}    // namespace moris::xtk
 
 #endif /* SRC_TOOLS_FN_PAIRING_HPP_ */

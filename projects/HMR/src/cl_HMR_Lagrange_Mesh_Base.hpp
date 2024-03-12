@@ -73,15 +73,15 @@ namespace moris::hmr
     public:
 
         //! Cell containing facets
-        Vector< Facet * > mFacets;
+      Vector< Facet * > mFacets;
 
     private:
 
         //! Cell containing edges. Only populated in 3D
-        Vector< Edge * >  mEdges;
+      Vector< Edge * >  mEdges;
 
         //! pointer to sidesets on database object
-        Vector< Side_Set > * mSideSets = nullptr;
+      Vector< Side_Set > * mSideSets = nullptr;
 
     public:
 
@@ -95,7 +95,7 @@ namespace moris::hmr
          */
         Lagrange_Mesh_Base ( const Parameters * aParameters,
                 Background_Mesh_Base          * aBackgroundMesh,
-                Vector< BSpline_Mesh_Base *  >  & aBSplineMeshes,
+              Vector< BSpline_Mesh_Base *  >  & aBSplineMeshes,
                 uint aOrder,
                 uint aActivationPattern );
 
@@ -799,7 +799,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void set_side_sets(  Vector< Side_Set > & aSideSets )
+        void set_side_sets( Vector< Side_Set > & aSideSets )
         {
             mSideSets = & aSideSets;
         }

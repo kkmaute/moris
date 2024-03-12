@@ -1,164 +1,164 @@
 #
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#Copyright( c ) 2022 University of Colorado
+#Licensed under the MIT license.See LICENSE.txt file in the MORIS root for details.
 #
-#------------------------------------------------------------------------------------
+#-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 #
 
-namespace moris {
+namespace moris
+{
 
-/** @defgroup XTKElevateOrder Elevate Order
-This page documents the various steps needed to increase the order of the triangulated cut integration mesh, 
-as is done in the elevate order algorithm implemented as the clase Elevate_Order_Interface.
-The purpose is to give the developer an example of a procedure that touches various data related to the Cut_Integration_Mesh, 
-manipulating it, and finally commiting it back to the mesh; and therefore shows how to work with it.
+    /** @defgroup XTKElevateOrder Elevate Order
+    This page documents the various steps needed to increase the order of the triangulated cut integration mesh,
+    as is done in the elevate order algorithm implemented as the clase Elevate_Order_Interface.
+    The purpose is to give the developer an example of a procedure that touches various data related to the Cut_Integration_Mesh,
+    manipulating it, and finally commiting it back to the mesh; and therefore shows how to work with it.
 
-To contextualize
-- where in the decomposition is this done?
-- what is a a Integration_Mesh_Generator?
-- decomposition data
+    To contextualize
+    - where in the decomposition is this done?
+    - what is a a Integration_Mesh_Generator?
+    - decomposition data
 
-The algorithm can be split up into five overarching steps:
--# Collect connectivity information about the existing (lower order) intgration mesh
--# Compute necessary information about new vertices
--# (Request) Creation of new vertices and commit them to the mesh
--# Compute necessary information about new elements
--# (Request) Creation of new elements and commit them to the mesh
+    The algorithm can be split up into five overarching steps:
+    -# Collect connectivity information about the existing (lower order) intgration mesh
+    -# Compute necessary information about new vertices
+    -# (Request) Creation of new vertices and commit them to the mesh
+    -# Compute necessary information about new elements
+    -# (Request) Creation of new elements and commit them to the mesh
 
-@section Collect connectivity Information about Existing Integration Mesh
+    @section Collect connectivity Information about Existing Integration Mesh
 
-The connectivity information needed can be summed up as follows:
-- Facet_Based_Connectivity and Facet_Based_Ancestry. 
-    The first one contains what Vertices, Edges, and Cells are connected to a face. 
-    The second states what entity is the parent or 'carrier' of the entity. Ancestry is defined in the XTK-Dictionary.
-    A look at the definition of this struct reveals the exact information contained in it.
-- Edge_Based_Connectivity and Edge_Based_Ancestry.
-    Analogous to the above information, but for edges instead of faces.
+    The connectivity information needed can be summed up as follows:
+    - Facet_Based_Connectivity and Facet_Based_Ancestry.
+        The first one contains what Vertices, Edges, and Cells are connected to a face.
+        The second states what entity is the parent or 'carrier' of the entity. Ancestry is defined in the XTK-Dictionary.
+        A look at the definition of this struct reveals the exact information contained in it.
+    - Edge_Based_Connectivity and Edge_Based_Ancestry.
+        Analogous to the above information, but for edges instead of faces.
 
-The Facet and Edge based information is obtained through the Integration_Mesh_Generator which has various functions that loop through a 
-provided lists of cells the mesh and simply determining the unique Faces or Edges, and their connection information.
-(see: 
-    Integration_Mesh_Generator::create_facet_from_element_to_node,
-    Integration_Mesh_Generator::select_background_cell_for_facet,
-    Integration_Mesh_Generator::deduce_facet_ancestry,
-    Integration_Mesh_Generator::create_edges_from_element_to_node,
-    Integration_Mesh_Generator::select_background_cell_for_edge,
-    Integration_Mesh_Generator::deduce_edge_ancestry)
-Since the Facet based information is already created during the perform-call of the Integration Mesh Generator 
-(Integration_Mesh_Generator::perform) for the creation of e.g. the side sets, it simply gets stored to the Cut_Integration_Mesh 
-before the Elevate Order Algorithm is performed. Meanwhile the Edge based information needs to be collected while performing 
-the Elevate Order Algorithm (Elevate_Order_Interface::perform).
-
-
-@section Computing Necessary Information about new Vertices
-
-The information about the new vertices is computed within the xtk::Elevate_Order_Interface::make_vertex_requests call.
-To understand the main steps and challenges to this problem, consider the following problem consisting of two connected linear
-TET4 elements which we want to elevate to cubic TET21 elements. 
-
-@image html Elevate_Order_2_TETs.jpg "New vertices for elevating two TET4s to TET21s." width=650px
-
-As becomes apparent, the new vertices to be added are related to either one of three entities of the elements. 
-Namingly, the edges, the faces, or the elements themselves. Here conveniently colored in blue, green, and orange, respectively.
-
-Hence, the routine for creating the new nodes in the function Elevate_Order_Interface::make_vertex_requests is 
-split into three corresponding parts. During the process a template for the order elvation requested, is used to determine
-- on what entities how many vertices need to be created and
-- what their position on that entity is 
-Using simple linear simplex (i.e. line-, triangle, and tetrahedral-) interpolation rules the global coordinates of the new nodes can be created.
-
-With the above we now know where (globally and relative to the existing IG cells) we need to create the vertices.
+    The Facet and Edge based information is obtained through the Integration_Mesh_Generator which has various functions that loop through a
+    provided lists of cells the mesh and simply determining the unique Faces or Edges, and their connection information.
+    (see:
+        Integration_Mesh_Generator::create_facet_from_element_to_node,
+        Integration_Mesh_Generator::select_background_cell_for_facet,
+        Integration_Mesh_Generator::deduce_facet_ancestry,
+        Integration_Mesh_Generator::create_edges_from_element_to_node,
+        Integration_Mesh_Generator::select_background_cell_for_edge,
+        Integration_Mesh_Generator::deduce_edge_ancestry)
+    Since the Facet based information is already created during the perform-call of the Integration Mesh Generator
+    (Integration_Mesh_Generator::perform) for the creation of e.g. the side sets, it simply gets stored to the Cut_Integration_Mesh
+    before the Elevate Order Algorithm is performed. Meanwhile the Edge based information needs to be collected while performing
+    the Elevate Order Algorithm (Elevate_Order_Interface::perform).
 
 
+    @section Computing Necessary Information about new Vertices
 
-The next challenge is to avoid duplicates, i.e. to make sure vertices get only created once and get a unique index.
+    The information about the new vertices is computed within the xtk::Elevate_Order_Interface::make_vertex_requests call.
+    To understand the main steps and challenges to this problem, consider the following problem consisting of two connected linear
+    TET4 elements which we want to elevate to cubic TET21 elements.
 
-@image html Shared_Vertices_TETs.jpg "Shared vertices on a face connecting two TET21s." width=650px
+    @image html Elevate_Order_2_TETs.jpg "New vertices for elevating two TET4s to TET21s." width=650px
 
-To enable this, all information computed for the new vertices is committed to the Decomposition_Data which can be 
-understood as a list of "vertex-requests". Using the index and rank of the parent (i.e. edge, face, element) of a 
-new vertex to be created, and an identifier, we ask the Decomposition_Data through the Decomposition_Data::request_exists 
-function whether the vertex has already been requested. If not, the computed data for the new vertex is committed to 
-through the Decomposition_Data::register_new_request function. This function provides a request index back, which can be
-used later as a token for retrieving stored away vertex information again.
+    As becomes apparent, the new vertices to be added are related to either one of three entities of the elements.
+    Namingly, the edges, the faces, or the elements themselves. Here conveniently colored in blue, green, and orange, respectively.
 
-The identifiers are generally being computed by sorting the vertex indices of the parent and then applying a so 
-called cantor pairing function (see: https://en.wikipedia.org/wiki/Pairing_function, implemented in: xtk::cantor_pairing ) to it. 
-More on this below. 
+    Hence, the routine for creating the new nodes in the function Elevate_Order_Interface::make_vertex_requests is
+    split into three corresponding parts. During the process a template for the order elvation requested, is used to determine
+    - on what entities how many vertices need to be created and
+    - what their position on that entity is
+    Using simple linear simplex (i.e. line-, triangle, and tetrahedral-) interpolation rules the global coordinates of the new nodes can be created.
 
-
-Since new vertices are created by looping over edges and faces connected to multiple cells, the last part to this step is to 
-figure out where these new nodes relative to the elements the entities are connected to. 
-To illustrate the procedure, here an example:
-
-We have two connected TRI3-elements, which we would like to elevate to cubic TRI10-elements.
-
-@image html Example_1.jpg "Creating new vertices on two TRI-elements." width=750px
-
-On the left we have the two elements and the indices of their vertices and edges. For the order elevation, the two red vertices 
-need to be created on the shared edge. For readability the other new vertices to be created are omitted from the drawing. 
-
-Here are the detailed steps the code goes through to do this:
-
--# From the template for the elevation from TRI3 to TRI10 we get told to create two new vertices per edge.
--# The code loops through the list of Edges in the Edge_Based_Connectivity. We arrive at the shared edge index.
--# From the Edge_Based_Connectivity we get to know the Edge index is \f$ e = 5 \f$. Further, it gives us a list of 
-vertices on that edge. Their indices are \f$ v_{e} = [12,3] \f$. 
-With this information, we create a unique identifier by first sorting the indides \f$ v_{sorted} = [3,12] \f$, and 
-them hashing them, using the cantor pair function (Elevate_Order_Interface::hash_edge): \f$ # = cantor_pair(3,12) = 119 \f$.
--# We check against the Decomposition_Data, if vertices for the entity \f$ EDGE, e = 5, # = 119 \f$ have already been requested. 
-We get back a false.
--# We go ahead, take the global coordinates from the two existing edge vertices, 
-get the parametric edge coordinates of the two new vertices and compute their global positions using 
-Elevate_Order_Interface::compute_edge_vertex_global_coordinates. 
--# The two vertices are requested to the Decomposition_Data, which returns e.g. positions \f$ p_{DD} = [4,5] \f$. 
-This is simply saved for now.
--# From the Edge_Based_Connectivity we get that cells I and II are attached to edge #5. We loop over these two
--# For each edge we get the existing vertices. For I:  \f$ v_{I} = [6,3,12] \f$, and for II: \f$ v_{II} = [12,3,9] \f$
--# We find the positions of the edge vertices within those lists. 
-For I:  \f$ v_{e} = [12,3] \f$ in \f$ v_{I}  = [6,3,12] \f$ gives \f$ p_{e,I}  = [2,1] \f$, and 
-for II: \f$ v_{e} = [12,3] \f$ in \f$ v_{II} = [12,3,9] \f$ gives \f$ p_{e,II} = [0,1] \f$
--# Giving these lists of positions to the Elevate_Order_Template we can figure out that these pairs correspond to 
-local edge indices 1 and 0 respectively. Further for II, the direction is flipped. So we given them signed edge identifiers
-For I:  \f$ ID_{e,I}  = -(1+1) = -2 \f$, and
-For II: \f$ ID_{e,II} = +(0+1) = +1 \f$.
--# using the signed edge identifier, the Elevate_Order_Template::get_local_edge_index_based_on_vertex_indices provides the 
-element local indices of the new vertices on the edge.
-For I:  \f$ f(-2) = [6,5] \f$
-For II: \f$ f(+1) = [3,4] \f$
--# now we can link up this information with the information from the Decomposition_Data:
-For I:  DD indices \f$ p_{DD} = [4,5] \f$ correspond to local vertices \f$ f(-2) = [6,5] \f$ on element I
-For II: DD indices \f$ p_{DD} = [4,5] \f$ correspond to local vertices \f$ f(-2) = [3,4] \f$ on element II
--# Later we can retrieve entries \f$ p_{DD} = [4,5] \f$ from the Decomposition_Data, and find out those 
-entries correspond to vertex indices \f$ [17,13] \f$, establishing that e.g. vertex 4 on element II corresponds 
-to vertex index 13. This is gives the IEN needed later for commiting the cells themselves.
-
-@image html Example_2.jpg "Creating new vertices on a shared face on two TET-elements." width=750px
-
-@section Computing Necessary Information about new Cells
-
-To create a cell in general, we need the following information: 
-- The Cell_Info cell-type
-- An index/ID for the new cell
-- The child mesh index/ID that an element sits on
-- A list of vertex indices/IDs in the local numbering scheme of the new cell-type
-
-The first three pieces of information are trivial to obtain. We simply copy the information from the lower order cell to be replaced.
-The last piece of information is rather tricky.
-
-For introduction, consider the below set of two triangles which we want to elevate to cubic order
-
-@image html Edge_Vertices_1.jpg "Figure 2: Local numbering scheme of elements to be cut." width=600px
-
-@image html Edge_Vertices_2.jpg "Figure 3: Local numbering scheme of elements to be cut." width=600px
+    With the above we now know where (globally and relative to the existing IG cells) we need to create the vertices.
 
 
 
-@section Creation of new Cells and commiting them to the Mesh
+    The next challenge is to avoid duplicates, i.e. to make sure vertices get only created once and get a unique index.
+
+    @image html Shared_Vertices_TETs.jpg "Shared vertices on a face connecting two TET21s." width=650px
+
+    To enable this, all information computed for the new vertices is committed to the Decomposition_Data which can be
+    understood as a list of "vertex-requests". Using the index and rank of the parent (i.e. edge, face, element) of a
+    new vertex to be created, and an identifier, we ask the Decomposition_Data through the Decomposition_Data::request_exists
+    function whether the vertex has already been requested. If not, the computed data for the new vertex is committed to
+    through the Decomposition_Data::register_new_request function. This function provides a request index back, which can be
+    used later as a token for retrieving stored away vertex information again.
+
+    The identifiers are generally being computed by sorting the vertex indices of the parent and then applying a so
+    called cantor pairing function (see: https://en.wikipedia.org/wiki/Pairing_function, implemented in: xtk::cantor_pairing ) to it.
+    More on this below.
 
 
-*/
- 
- 
- 
- }
+    Since new vertices are created by looping over edges and faces connected to multiple cells, the last part to this step is to
+    figure out where these new nodes relative to the elements the entities are connected to.
+    To illustrate the procedure, here an example:
+
+    We have two connected TRI3-elements, which we would like to elevate to cubic TRI10-elements.
+
+    @image html Example_1.jpg "Creating new vertices on two TRI-elements." width=750px
+
+    On the left we have the two elements and the indices of their vertices and edges. For the order elevation, the two red vertices
+    need to be created on the shared edge. For readability the other new vertices to be created are omitted from the drawing.
+
+    Here are the detailed steps the code goes through to do this:
+
+    -# From the template for the elevation from TRI3 to TRI10 we get told to create two new vertices per edge.
+    -# The code loops through the list of Edges in the Edge_Based_Connectivity. We arrive at the shared edge index.
+    -# From the Edge_Based_Connectivity we get to know the Edge index is \f$ e = 5 \f$. Further, it gives us a list of
+    vertices on that edge. Their indices are \f$ v_{e} = [12,3] \f$.
+    With this information, we create a unique identifier by first sorting the indides \f$ v_{sorted} = [3,12] \f$, and
+    them hashing them, using the cantor pair function (Elevate_Order_Interface::hash_edge): \f$ # = cantor_pair(3,12) = 119 \f$.
+    -# We check against the Decomposition_Data, if vertices for the entity \f$ EDGE, e = 5, # = 119 \f$ have already been requested.
+    We get back a false.
+    -# We go ahead, take the global coordinates from the two existing edge vertices,
+    get the parametric edge coordinates of the two new vertices and compute their global positions using
+    Elevate_Order_Interface::compute_edge_vertex_global_coordinates.
+    -# The two vertices are requested to the Decomposition_Data, which returns e.g. positions \f$ p_{DD} = [4,5] \f$.
+    This is simply saved for now.
+    -# From the Edge_Based_Connectivity we get that cells I and II are attached to edge #5. We loop over these two
+    -# For each edge we get the existing vertices. For I:  \f$ v_{I} = [6,3,12] \f$, and for II: \f$ v_{II} = [12,3,9] \f$
+    -# We find the positions of the edge vertices within those lists.
+    For I:  \f$ v_{e} = [12,3] \f$ in \f$ v_{I}  = [6,3,12] \f$ gives \f$ p_{e,I}  = [2,1] \f$, and
+    for II: \f$ v_{e} = [12,3] \f$ in \f$ v_{II} = [12,3,9] \f$ gives \f$ p_{e,II} = [0,1] \f$
+    -# Giving these lists of positions to the Elevate_Order_Template we can figure out that these pairs correspond to
+    local edge indices 1 and 0 respectively. Further for II, the direction is flipped. So we given them signed edge identifiers
+    For I:  \f$ ID_{e,I}  = -(1+1) = -2 \f$, and
+    For II: \f$ ID_{e,II} = +(0+1) = +1 \f$.
+    -# using the signed edge identifier, the Elevate_Order_Template::get_local_edge_index_based_on_vertex_indices provides the
+    element local indices of the new vertices on the edge.
+    For I:  \f$ f(-2) = [6,5] \f$
+    For II: \f$ f(+1) = [3,4] \f$
+    -# now we can link up this information with the information from the Decomposition_Data:
+    For I:  DD indices \f$ p_{DD} = [4,5] \f$ correspond to local vertices \f$ f(-2) = [6,5] \f$ on element I
+    For II: DD indices \f$ p_{DD} = [4,5] \f$ correspond to local vertices \f$ f(-2) = [3,4] \f$ on element II
+    -# Later we can retrieve entries \f$ p_{DD} = [4,5] \f$ from the Decomposition_Data, and find out those
+    entries correspond to vertex indices \f$ [17,13] \f$, establishing that e.g. vertex 4 on element II corresponds
+    to vertex index 13. This is gives the IEN needed later for commiting the cells themselves.
+
+    @image html Example_2.jpg "Creating new vertices on a shared face on two TET-elements." width=750px
+
+    @section Computing Necessary Information about new Cells
+
+    To create a cell in general, we need the following information:
+    - The Cell_Info cell-type
+    - An index/ID for the new cell
+    - The child mesh index/ID that an element sits on
+    - A list of vertex indices/IDs in the local numbering scheme of the new cell-type
+
+    The first three pieces of information are trivial to obtain. We simply copy the information from the lower order cell to be replaced.
+    The last piece of information is rather tricky.
+
+    For introduction, consider the below set of two triangles which we want to elevate to cubic order
+
+    @image html Edge_Vertices_1.jpg "Figure 2: Local numbering scheme of elements to be cut." width=600px
+
+    @image html Edge_Vertices_2.jpg "Figure 3: Local numbering scheme of elements to be cut." width=600px
+
+
+
+    @section Creation of new Cells and commiting them to the Mesh
+
+
+    */
+
+
+}

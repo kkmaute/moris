@@ -168,7 +168,7 @@ namespace moris
         Equation_Object EquObj( tNodeIds_1 );
 
         // Create the pdof hosts of this equation object
-        Vector < Pdof_Host * > tPdofHostList;
+        Vector< Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 1;
 
@@ -266,7 +266,7 @@ namespace moris
         Equation_Object EquObj( tNodeIds_1 );
 
         // Create pdof hosts of this equation object
-        Vector < Pdof_Host * > tPdofHostList;
+        Vector< Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 2;
 
@@ -367,7 +367,7 @@ namespace moris
         Equation_Object EquObj( tNodeIds_1 );
 
         // Create pdof hosts of this equation object
-        Vector < Pdof_Host * > tPdofHostList;
+        Vector< Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 2;
 

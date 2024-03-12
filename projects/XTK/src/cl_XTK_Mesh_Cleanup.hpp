@@ -18,31 +18,31 @@
 
 #include "cl_Param_List.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
     class Model;
 }
 
 using namespace moris;
 
-namespace xtk
+namespace moris::xtk
 {
     struct Mesh_Cleanup_Parameters
     {
-        public:
-        bool        mDeactivateOneBPChildMeshes;
+      public:
+        bool mDeactivateOneBPChildMeshes;
     };
 
     class Mesh_Cleanup
     {
-        public:
-        Mesh_Cleanup(Model*                aModel,
-                     moris::ParameterList* aParamList);
+      public:
+        Mesh_Cleanup( Model*          aModel,
+                moris::ParameterList* aParamList );
 
         void
         perform();
 
-        private:
+      private:
         Model*                  mModel;
         Mesh_Cleanup_Parameters mMeshCleanupParameters;
 
@@ -50,17 +50,16 @@ namespace xtk
         cleanup_cut_mesh();
 
         void
-        select_candidate_child_meshes_for_cleanup(std::unordered_map<moris_index,moris_index>  & aRemoveChildMeshes);
+        select_candidate_child_meshes_for_cleanup( std::unordered_map< moris_index, moris_index >& aRemoveChildMeshes );
 
         void
         get_vector_of_child_meshes_for_removal(
-            std::unordered_map<moris_index,moris_index> const & aChildMeshesToDeleteMap,
-            Vector<moris_index> & aChildMeshesToDelete);
+                std::unordered_map< moris_index, moris_index > const & aChildMeshesToDeleteMap,
+                Vector< moris_index >&                                 aChildMeshesToDelete );
 
         void
         finalize_cleanup();
-
     };
-}
+}    // namespace moris::xtk
 
 #endif

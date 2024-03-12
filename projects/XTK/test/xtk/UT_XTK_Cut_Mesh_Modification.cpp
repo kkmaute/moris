@@ -25,7 +25,7 @@
 #include "cl_Matrix.hpp"
 #include "fn_bubble_sort.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
 
     /*
@@ -44,7 +44,7 @@ namespace xtk
 
             // Setup the problem --------------------------
             // Face to Node connectivity
-            moris::Matrix< moris::IndexMat > tFaceToNodeConnectivity( { { 1, 2, 4 },
+            moris::Matrix< IndexMat > tFaceToNodeConnectivity( { { 1, 2, 4 },
                     { 2, 3, 4 },
                     { 1, 3, 4 },
                     { 1, 2, 3 },
@@ -53,7 +53,7 @@ namespace xtk
                     { 1, 3, 5 } } );
 
             // Face to Element connectivity
-            moris::Matrix< moris::IndexMat > tFaceToElement( 7, 2, tMax );
+            moris::Matrix< IndexMat > tFaceToElement( 7, 2, tMax );
             ( tFaceToElement )( 0, 0 ) = 0;
             ( tFaceToElement )( 1, 0 ) = 0;
             ( tFaceToElement )( 2, 0 ) = 0;
@@ -63,22 +63,22 @@ namespace xtk
             ( tFaceToElement )( 5, 0 ) = 1;
             ( tFaceToElement )( 6, 0 ) = 1;
 
-            moris::Matrix< moris::IndexMat > tFaceParentIndices( { { 0, 1, 2, 3 } } );
-            moris::Matrix< moris::IndexMat > tFaceParentRanks( { { 2, 2, 2, 2 } } );
+            moris::Matrix< IndexMat > tFaceParentIndices( { { 0, 1, 2, 3 } } );
+            moris::Matrix< IndexMat > tFaceParentRanks( { { 2, 2, 2, 2 } } );
 
             // Initialize the face registry with the given connectivity
             Face_Registry
                     tFaceRegistry( 6, 4, tFaceToNodeConnectivity, tFaceToElement, tFaceParentIndices, tFaceParentRanks );
 
             // Initialize Variables for testing purposes
-            moris::Matrix< moris::IndexMat > tFaceIndices( 1, 4 );
-            moris::Matrix< moris::IndexMat > tElementIndex( 1, 1 );
-            moris::Matrix< moris::IndexMat > tExpectedParentRanks( 1, 23 );
-            moris::Matrix< moris::IndexMat > tExpectedFaceToElement( 23, 2 );
-            moris::Matrix< moris::IndexMat > tExpectedParentIndices( 1, 23 );
-            moris::Matrix< moris::IndexMat > tSingleFaceToNodeIndices( 1, 3 );
-            moris::Matrix< moris::IndexMat > tElementalFaceToNodeIndices( 4, 3 );
-            moris::Matrix< moris::IndexMat > tExpectedElementalFaceIndices( 1, 4 );
+            moris::Matrix< IndexMat > tFaceIndices( 1, 4 );
+            moris::Matrix< IndexMat > tElementIndex( 1, 1 );
+            moris::Matrix< IndexMat > tExpectedParentRanks( 1, 23 );
+            moris::Matrix< IndexMat > tExpectedFaceToElement( 23, 2 );
+            moris::Matrix< IndexMat > tExpectedParentIndices( 1, 23 );
+            moris::Matrix< IndexMat > tSingleFaceToNodeIndices( 1, 3 );
+            moris::Matrix< IndexMat > tElementalFaceToNodeIndices( 4, 3 );
+            moris::Matrix< IndexMat > tExpectedElementalFaceIndices( 1, 4 );
 
             // Add Child Element 0
             tElementalFaceToNodeIndices( 0, 0 ) = 1;
@@ -468,4 +468,4 @@ namespace xtk
             CHECK( equal_to( tExpectedParentIndices, tFaceRegistry.get_face_inheritance_indices() ) );
         }
     }
-}    // namespace xtk
+}    // namespace moris::xtk

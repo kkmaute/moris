@@ -584,8 +584,8 @@ namespace moris::hmr
         private:
 
             void user_defined_flagging(
-                    Vector< hmr::Element * >   & aCells,
-                    Vector< hmr::Element * >   & aCandidates,
+                  Vector< hmr::Element * >   & aCells,
+                  Vector< hmr::Element * >   & aCandidates,
                     const  Matrix< DDRMat >  & aVertexValues,
                     uint                       aFunctionIndex);
 

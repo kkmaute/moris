@@ -30,7 +30,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 
-namespace xtk
+namespace moris::xtk
 {
 
     Multigrid::Multigrid( xtk::Model* aXTKModelPtr )
@@ -73,7 +73,7 @@ namespace xtk
                 mFineBasisToCoarseBasis( tEnrichedBasisInd ).set_size( tNumCoarseBasis, 1, -1 );
 
                 // get subphases for enriched basis
-                const Vector< moris::Matrix< moris::IndexMat > >& tSubphaseIndForEnrichedBasis = mXTKModelPtr->mEnrichment->get_subphases_loc_inds_in_enriched_basis();
+                const Vector< Matrix< IndexMat > >& tSubphaseIndForEnrichedBasis = mXTKModelPtr->mEnrichment->get_subphases_loc_inds_in_enriched_basis();
 
                 // get FIRST sub-phase index of basis. First because we assume the fine basis support is complete within the coarse one
                 moris_index tFirstSubphaseInSupportIndex = tSubphaseIndForEnrichedBasis( tEnrichedBasisInd )( 0 );
@@ -98,7 +98,7 @@ namespace xtk
 
                     // get enriched basis for this coarse bg basis and enrichment level
                     const Matrix< IndexMat >& tCoarseEnrichedCoeffsForCoarseBackgroundCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )
-                                                                                                      ->get_enriched_coefficients_at_background_coefficient( mMeshIndex, tCoarseBasisIndex );
+                                                                                                       ->get_enriched_coefficients_at_background_coefficient( mMeshIndex, tCoarseBasisIndex );
 
                     moris_index tEnrichedCoarseBasisIndex = tCoarseEnrichedCoeffsForCoarseBackgroundCoeffs( tEnrichmentLev );
 
@@ -164,9 +164,9 @@ namespace xtk
 
             moris_index tBackgroundIndex = mEnrichedBasisToBackgroundBasis( Ik );
 
-            moris::Matrix< DDRMat > tWeights = tInterpolationMesh.get_fine_basis_weights_of_basis( 0, tBackgroundIndex );
+            Matrix< DDRMat > tWeights = tInterpolationMesh.get_fine_basis_weights_of_basis( 0, tBackgroundIndex );
 
-            moris::Matrix< DDSMat > tBGBasis = tInterpolationMesh.get_fine_basis_inds_of_basis( 0, tBackgroundIndex );
+            Matrix< DDSMat > tBGBasis = tInterpolationMesh.get_fine_basis_inds_of_basis( 0, tBackgroundIndex );
 
             moris::map< moris_index, sint > tBasisToPositionMap;
             for ( uint Ii = 0; Ii < tBGBasis.numel(); Ii++ )
@@ -199,7 +199,7 @@ namespace xtk
 
         // get background basis to enriched basis list. ( name of get function is misleading )
         const Vector< Matrix< IndexMat > >& tBackgroundCoeffsToEnrichedCoeffs = mXTKModelPtr->mEnrichedInterpMesh( 0 )
-                                                                                      ->get_enriched_coefficients_to_background_coefficients( mMeshIndex );
+                                                                                        ->get_enriched_coefficients_to_background_coefficients( mMeshIndex );
 
         for ( uint Ik = 0; Ik < tBackgroundCoeffsToEnrichedCoeffs.size(); Ik++ )
         {
@@ -413,4 +413,4 @@ namespace xtk
 #endif
         //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");
     }
-}    // namespace xtk
+}    // namespace moris::xtk
