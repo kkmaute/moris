@@ -162,11 +162,28 @@ namespace moris::gen
         aOutputDesignInfo( 0 ) = Design_Field::get_field_value( aNodeIndex, aCoordinates );
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+    
     std::string
     Property::get_name()
     {
         return Design_Field::get_name();
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+    
+    Vector< std::string >
+    Property::get_field_names()
+    {
+        Vector< std::string > tFieldNames( 1 );
+
+        // Assign a default if this property does not have a name
+        this->get_name() == "" ? tFieldNames( 0 ) = "Property: " + std::to_string( mOffsetID ) : tFieldNames( 0 ) = this->get_name();
+
+        return tFieldNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     bool Property::intended_discretization()
     {

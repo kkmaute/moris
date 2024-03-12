@@ -190,6 +190,14 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< std::string > Voxel_Geometry::get_field_names()
+    {
+        Vector< std::string > tFieldNames;
+        return tFieldNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool Voxel_Geometry::intended_discretization()
     {
         return false;

@@ -533,6 +533,19 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< std::string >
+    Level_Set_Geometry::get_field_names()
+    {
+        Vector< std::string > tFieldNames( 1 );
+        
+        // Assign a default if this geometry does not have a name
+        this->get_name() == "" ? tFieldNames( 0 ) = "Level Set Geometry: " + std::to_string( mOffsetID ) : tFieldNames( 0 ) = this->get_name();
+        
+        return tFieldNames;
+    }
+    
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     Level_Set_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {

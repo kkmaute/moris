@@ -491,6 +491,21 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< std::string >
+    Surface_Mesh_Geometry::get_field_names()
+    {
+        Vector< std::string > tFieldNames( mPerturbationFields.size() );
+        for (uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        {
+            // Should never be empty, as they are created by the geometry with a name
+            tFieldNames( iFieldIndex ) = mPerturbationFields( iFieldIndex )->get_name();
+        }
+
+        return tFieldNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Surface_Mesh_Geometry::get_design_info(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,

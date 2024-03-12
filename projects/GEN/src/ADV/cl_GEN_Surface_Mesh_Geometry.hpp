@@ -145,6 +145,13 @@ namespace moris::gen
         get_name() override;
 
         /**
+         * Gets the names of all the fields associated with this design
+         * 
+         * @return Vector< std::string > The name of each perturbation field
+         */
+        virtual Vector< std::string > get_field_names() override;
+
+        /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
          * created.
          *

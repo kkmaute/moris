@@ -98,11 +98,18 @@ namespace moris::gen
         uint get_num_fields() override;
         
         /**
-         * Gets the name of the design
+         * Gets the name of the geometry
          * 
-         * @return Design name
+         * @return geometry name
          */
         std::string get_name() override;
+
+        /**
+         * Gets the names of all the fields associated with this geometry
+         * 
+         * @return Vector< std::string > empty array, as voxel geometries do not have fields
+         */
+        virtual Vector< std::string > get_field_names() override;
 
         /**
          * Gets if this field is to be used for seeding a B-spline field.

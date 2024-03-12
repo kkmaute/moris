@@ -1261,46 +1261,33 @@ namespace moris::gen
 
             // Setup field names
             uint tNumGeometryFields = 0;
-            uint tNumPropertyFields = 0;
             for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
             {
                 tNumGeometryFields += mGeometries( iGeom )->get_num_fields();
             }
-            for ( uint iProperty = 0; iProperty < mProperties.size(); iProperty++ )
-            {
-                tNumPropertyFields += mProperties( iProperty )->get_num_fields();
-            }
-            Vector< std::string > tFieldNames( tNumGeometryFields + tNumPropertyFields );
+            Vector< std::string > tFieldNames(0 );
 
             // Geometry field names
             uint iFieldIndex = 0;
             for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
             {
-                for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
-                {
-                    // FIXME: get_field_names instead here, will return a vector of all field names to append here
-                    tFieldNames( iFieldIndex ) = mGeometries( tGeometryIndex )->get_name();
-                    if ( tFieldNames( iGeometryFieldIndex ) == "" )
-                    {
-                        tFieldNames( tGeometryIndex ) = "Geometry " + std::to_string( tGeometryIndex ) + "Field " + std::to_string( iGeometryFieldIndex );
-                    }
-                    iFieldIndex++;
-                }
+                // Get the geometries field names
+                Vector< std::string > tGeometryFieldNames = mGeometries( tGeometryIndex )->get_field_names();
+
+                // Append the field names to the list
+                tFieldNames.append( tGeometryFieldNames );
             }
 
             MORIS_ASSERT( iFieldIndex == tNumGeometryFields, "GEN - Geometry_Engine::output_fields_on_mesh() Number of output fields does not equal total number of geometry fields." );
 
             // Property field names
-            for ( uint tPropertyIndex = 0; tPropertyIndex < tNumPropertyFields; tPropertyIndex++ )
+            for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
             {
-                for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
-                {
-                    tFieldNames( tNumGeometryFields + tPropertyIndex ) = mProperties( tPropertyIndex )->get_name();
-                    if ( tFieldNames( tNumGeometryFields + tPropertyIndex ) == "" )
-                    {
-                        tFieldNames( tNumGeometryFields + tPropertyIndex ) = "Property " + std::to_string( tPropertyIndex ) + "Field " + std::to_string( iPropertyFieldIndex );
-                    }
-                }
+                // Get the geometries field names
+                Vector< std::string > tPropertyFieldNames = mProperties( tPropertyIndex )->get_field_names();
+
+                // Append the field names to the list
+                tFieldNames.append( tPropertyFieldNames );
             }
 
             // write time to file

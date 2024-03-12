@@ -145,10 +145,17 @@ namespace moris::gen
         }
 
         /**
-         * Gets the name of the geometry
+         * Gets the name of the property
          *
          */
         std::string get_name() override;
+
+        /**
+         * Gets the names of all the fields associated with this property
+         * 
+         * @return Vector< std::string > the property name
+         */
+        virtual Vector< std::string > get_field_names() override;
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector

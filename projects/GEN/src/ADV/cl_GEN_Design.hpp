@@ -44,7 +44,7 @@ namespace moris::gen
         Design_Parameters mParameters;
 
       protected:
-        uint                       mOffsetID;             // Offset of the global ADVs to this Design's ADVs
+        uint                       mOffsetID;        // Offset of the global ADVs to this Design's ADVs
         Vector< Matrix< DDSMat > > mSharedADVIDs;    // IDs of the ADVs that this design shares. Size = number of fields
 
       public:
@@ -100,6 +100,13 @@ namespace moris::gen
          * @return Design name
          */
         virtual std::string get_name() = 0;
+
+        /**
+         * Gets the names of all the fields associated with this design
+         *
+         * @return Vector< std::string >
+         */
+        virtual Vector< std::string > get_field_names() = 0;
 
         /**
          * Gets if this field is to be used for seeding a B-spline field.
