@@ -55,7 +55,7 @@ namespace moris::MSI
         // ----------------------------------------------------------------------------------------------
 
         // default destructor
-        ~MSI_Solver_Interface_Proxy() {}
+        ~MSI_Solver_Interface_Proxy() override {}
 
         // ----------------------------------------------------------------------------------------------
 
@@ -97,11 +97,11 @@ namespace moris::MSI
 
         // ----------------------------------------------------------------------------------------------
 
-        void free_block_memory( const uint aBlockInd ) override{};
+        void free_block_memory( const uint aBlockInd ) override {};
 
         // ----------------------------------------------------------------------------------------------
 
-        void set_solution_vector( sol::Dist_Vector* aSolutionVector ) override{};
+        void set_solution_vector( sol::Dist_Vector* aSolutionVector ) override {};
 
         // ----------------------------------------------------------------------------------------------
         // local-to-global map

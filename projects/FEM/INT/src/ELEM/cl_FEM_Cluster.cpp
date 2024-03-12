@@ -205,7 +205,7 @@ namespace moris
             // build the cluster measures from tuples
             for ( auto const &tClusterSpec : tClusterSpecifications )
             {
-                mClusterMeasures[ tClusterSpec ] = std::make_shared< Cluster_Measure >( tClusterSpec, this );
+                mClusterMeasures[ tClusterSpec ] = std::make_shared< Cluster_Measure >();
             }
         }
 

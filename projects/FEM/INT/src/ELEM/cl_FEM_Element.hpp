@@ -89,19 +89,20 @@ namespace moris
             bool mIWGRequiresDifferentJacobianCalculation = false;
 
             /**
-             * @brief Usually, the set is the instance that hold information about the way the jacobians are computed (either analytically or by finite difference)
+             * @brief Usually, the set is the instance that holds information about the way the jacobians are computed (either analytically or by finite difference)
              * If an IWG requests a different way of computing the jacobian, the pointers of the set have to be reset to the correct jacobian evaluation methods.
              * @param aIWG
              */
             void set_iwg_jacobian_strategy( std::shared_ptr< IWG > const aIWG )
             {
                 bool const tSetAnalyticalJacobian = mSet->get_is_analytical_forward_analysis();
-                bool const tIWGAnalyticalJacobian = aIWG->is_analytical_jacobian();
-                if ( tSetAnalyticalJacobian != tIWGAnalyticalJacobian )
+                bool const tIWGFDJacobian         = aIWG->is_fd_jacobian();
+                if ( tSetAnalyticalJacobian && tIWGFDJacobian )    // set requires analytical jacobian, but IWG requires FD jacobian
                 {
                     mIWGRequiresDifferentJacobianCalculation = true;
-                    set_function_pointers( tIWGAnalyticalJacobian );
+                    set_function_pointers( false );
                 }
+                // TODO @ff: add the other case where the set requires FD jacobian and the IWG requires analytical jacobian
             }
 
             /**
@@ -115,8 +116,6 @@ namespace moris
                     set_function_pointers( mSet->get_is_analytical_forward_analysis() );
                 }
             }
-
-
             //------------------------------------------------------------------------------
 
           public:

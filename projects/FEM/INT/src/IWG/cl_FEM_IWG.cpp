@@ -696,7 +696,7 @@ namespace moris
                 // TODO @ff: What can I do in this case?
             }
 
-            if ( aDebugOutput )
+            if ( aDebugOutput ) // TODO @ff: Remove this debug output
             {
                 // O     = Original point on leader
                 // L1/L2 = leader point 1/2
@@ -1959,8 +1959,6 @@ namespace moris
 
                             Matrix< DDRMat > tLeaderParamCoeffPert       = tLeaderParamCoeff;
                             tLeaderParamCoeffPert.get_row( iLeaderNode ) = tXiCoords.matrix_data();
-                            tLeaderIGGI->set_space_param_coeff( tLeaderParamCoeffPert );
-
                             Matrix< DDRMat > tFollowerParamCoeffPert         = tFollowerParamCoeff;
                             tFollowerParamCoeffPert.get_row( iFollowerNode ) = tXiCoords.matrix_data();
 
@@ -1971,12 +1969,12 @@ namespace moris
                             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
                                     ->set_space_time_from_local_IG_point( tLeaderEvaluationPoint );
 
-                            // std::cout << "Leader eval point: [" << tLeaderIGGI->valx()( 0 ) << ", " << tLeaderIGGI->valx()( 1 ) << "]\n";
+                            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                                    ->set_space_time_from_local_IG_point( tFollowerEvaluationPoint );
 
                             Matrix< DDRMat > tNormalPert;
                             tLeaderIGGI->get_normal( tNormalPert );
                             this->set_normal( tNormalPert );
-                            // std::cout << "Perturbed Normal [" << tNormalPert( 0 ) << ", " << tNormalPert( 1 ) << "]\n";
 
                             // In the nonconformal case, the follower integration point will move due to the perturbed leader side (i.e. the normal of the leader has changed)
                             // The mapping from leader to follower has to be redone!
@@ -1999,10 +1997,11 @@ namespace moris
                                 Matrix< DDRMat > const tIntersection = tRLI.get_intersection_parametric();
                                 // the evaluation point also contains the time coordinate in index 1
                                 tFollowerEvaluationPoint( 0 ) = tIntersection( 0 );
+
+                                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                                        ->set_space_time_from_local_IG_point( tFollowerEvaluationPoint );
                             }
 
-                            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                                    ->set_space_time_from_local_IG_point( tFollowerEvaluationPoint );
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();

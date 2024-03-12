@@ -67,7 +67,7 @@ namespace moris
 
           protected:
             // compute the jacobian using finite differencing (independent on the setting for the whole FEM set)
-            bool mIsAnalyticalJacobian = false;
+            bool mIsFDJacobian = false;
 
           protected:
             //! string for IWG name
@@ -127,6 +127,16 @@ namespace moris
             bool is_analytical_jacobian() const { return mIsAnalyticalJacobian; };
             void set_is_analytical_jacobian( bool aIsAnalyticalJacobian ) { mIsAnalyticalJacobian = aIsAnalyticalJacobian; };
 
+            bool is_fd_jacobian() const
+            {
+                return mIsFDJacobian;
+            };
+
+            void set_is_fd_jacobian( bool aIsFDJacobian )
+            {
+                mIsFDJacobian = aIsFDJacobian;
+            };
+            //------------------------------------------------------------------------------
             /*
              * set member set pointer
              * @param[ in ] aSetPointer a FEM set pointer

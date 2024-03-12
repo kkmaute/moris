@@ -270,7 +270,7 @@ namespace moris::fem
             tIWG->set_name( tIWGName );
             mIWGs[ tIWGName ] = tIWG;
 
-            tIWG->set_is_analytical_jacobian( tIWGParameter.get< bool >( "analytical_jacobian" ) );
+            tIWG->set_is_fd_jacobian( not tIWGParameter.get< bool >( "analytical_jacobian" ) ); // warning: this is a negation
 
             // get function parameters
             auto tFuncParameters = string_to_cell_mat_2< DDRMat >( tIWGParameter.get< std::string >( "function_parameters" ) );
