@@ -8,11 +8,17 @@
  *
  */
 
-#include <map>
-#include <set>
+
+#include "cl_MTK_Integration_Rule.hpp"
+#include "cl_MTK_Side_Set.hpp"
+#include "cl_MTK_Integrator.hpp"
 #ifdef WITHGPERFTOOLS
 #include <gperftools/profiler.h>
 #endif
+
+#include <map>
+#include <set>
+#include <algorithm>
 
 // LINALG/src
 #include "cl_Map.hpp"
@@ -398,8 +404,8 @@ namespace moris
 
         void FEM_Model::update_equation_sets()
         {
-            // early return if no set has to be updated
-            if ( std::none_of( mFemSets.begin(), mFemSets.end(), []( auto const &tSet ) { return tSet->get_is_update_required(); } ) )
+            // early return if no nonconformal set is present
+            if ( std::none_of( mFemSets.begin(), mFemSets.end(), []( auto const &tSet ) { return tSet->get_element_type() == fem::Element_Type::NONCONFORMAL_SIDESET; } ) )
             {
                 return;
             }
@@ -435,7 +441,7 @@ namespace moris
             std::map< moris_index, Vector< real > > tNodalDisplacements;
             for ( auto const &tSet : mFemSets )
             {
-                if ( !tSet->is_empty_set() && !tRequestedIGNodes.empty() && tSet->get_set_name().find( "ghost" ) == std::string::npos)
+                if ( !tSet->is_empty_set() && !tRequestedIGNodes.empty() && tSet->get_set_name().find( "ghost" ) == std::string::npos )
                 {
                     // skip ghost sets
                     std::map< moris::moris_index, Vector< moris::real > > tNewNodes = tSet->get_nodal_displacements( tRequestedIGNodes );
@@ -472,11 +478,9 @@ namespace moris
                 }
             }
 
-            for ( auto const &tContactMeshEditor : mMeshManager->get_contact_mesh_editors() )
-            {
-                tContactMeshEditor->update_displacements( tNodalDisplacements );
-                tContactMeshEditor->update_nonconformal_side_sets();
-            }
+            MORIS_ASSERT( mContactMeshEditor != nullptr, "Contact mesh editor not initialized!" );
+            mContactMeshEditor->update_displacements( tNodalDisplacements );
+            mContactMeshEditor->update_nonconformal_side_sets();
 
             // loop over each fem set and check if it needs to be updated (i.e. only nonconformal sets!)
             for ( size_t iFemSet = 0; iFemSet < mFemSets.size(); ++iFemSet )
@@ -508,6 +512,8 @@ namespace moris
 
             // reserve size for list of equation objects
             mFemClusters.reserve( tNumIPCells );
+
+            this->prepare_nonconformal_side_sets( aIGMesh );
 
             // loop over the used fem set
             for ( luint iSet = 0; iSet < tNumFemSets; iSet++ )
@@ -1175,6 +1181,91 @@ namespace moris
         FEM_Model::set_use_new_ghost_sets( bool aUseNewGhostSets )
         {
             mUseNewGhostSets = aUseNewGhostSets;
+        }
+
+        void FEM_Model::prepare_nonconformal_side_sets( mtk::Integration_Mesh *aIGMesh )
+        {
+            // early return if no nonconformal set is present
+            if ( std::none_of( mSetInfo.begin(), mSetInfo.end(), []( auto &tSetInfo ) { return tSetInfo.get_mesh_set_name().find("ncss") != std::string::npos; } ) )
+            {
+                return;
+            }
+
+            auto *tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
+
+            auto const &[ tSetNames, tCandidatePairs ] = prepare_nonconformal_candidate_pairs();
+
+            Vector< mtk::Side_Set const * > tSideSets;
+            for ( auto &tSetName : tSetNames )
+            {
+                tSideSets.push_back( dynamic_cast< mtk::Side_Set const * >( tIGMesh->get_set_by_name( tSetName ) ) );
+            }
+
+            mtk::Integrator tSideIntegrator = prepare_nonconformal_integrator( tIGMesh );
+
+            auto tCMEditor = std::make_shared< mtk::Contact_Mesh_Editor >( tIGMesh, tSideIntegrator, tSideSets, tCandidatePairs );
+            tCMEditor->update_nonconformal_side_sets();
+            this->set_contact_mesh_editor( tCMEditor );
+        }
+
+        mtk::Integrator FEM_Model::prepare_nonconformal_integrator( mtk::Integration_Mesh const *aIGMesh )
+        {
+            mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::UNDEFINED;
+            for ( auto const &tSetInfo : mSetInfo )
+            {
+                if ( tSetInfo.get_integration_order() != mtk::Integration_Order::UNDEFINED )
+                {
+                    tIntegrationOrder = tSetInfo.get_integration_order();
+                    break;
+                }
+            }
+            MORIS_ASSERT( tIntegrationOrder not_eq mtk::Integration_Order::UNDEFINED, "Nonconformal integration order not defined!" );
+            MORIS_ASSERT( aIGMesh->get_spatial_dim() == 2, "Currently only 2D problems are supported." );
+            // create a side integrator
+            mtk::Integration_Rule tSideIntegRule(
+                    mtk::Geometry_Type::LINE,    // TODO @ff: currently only 2d problems are supported
+                    mtk::Integration_Type::GAUSS,
+                    tIntegrationOrder,
+                    mtk::Geometry_Type::LINE,
+                    mtk::Integration_Type::GAUSS,
+                    mtk::Integration_Order::BAR_1 );
+            mtk::Integrator tSideIntegrator( tSideIntegRule );
+            return tSideIntegrator;
+        }
+
+        std::pair< Vector< std::string >, Vector< std::pair< moris_index, moris_index > > >
+        FEM_Model::prepare_nonconformal_candidate_pairs()
+        {
+            Vector< std::string >                           tRequiredSideSetNames;          // list of unique names that will be used to create nonconformal sets
+            Vector< std::pair< moris_index, moris_index > > tNonconformalCandidatePairs;    // list of indices into the required side set names to get possible nonconformal pairs
+            std::unordered_map< std::string, moris_index >  tNonconformalIndexMap;          // temporary map to store the index of the required side set names
+            for ( auto &tSetInfo : mSetInfo )
+            {
+                if ( std::string const tMeshSetName = tSetInfo.get_mesh_set_name();
+                        tMeshSetName.find( "ncss" ) != std::string::npos )
+                {
+                    // format 'ncss|iside_b0_0_b1_1|iside_b0_1_b1_0'
+                    std::string const tName        = tMeshSetName.substr( tMeshSetName.find( '|' ) + 1 );
+                    size_t const      tPos         = tName.find( '|' );
+                    std::string const tLeaderSet   = tName.substr( 0, tPos );
+                    std::string const tFollowerSet = tName.substr( tPos + 1 );
+
+                    if ( tNonconformalIndexMap.find( tLeaderSet ) == tNonconformalIndexMap.end() )
+                    {
+                        tNonconformalIndexMap[ tLeaderSet ] = tRequiredSideSetNames.size();
+                        tRequiredSideSetNames.push_back( tLeaderSet );
+                    }
+
+                    if ( tNonconformalIndexMap.find( tFollowerSet ) == tNonconformalIndexMap.end() )
+                    {
+                        tNonconformalIndexMap[ tFollowerSet ] = tRequiredSideSetNames.size();
+                        tRequiredSideSetNames.push_back( tFollowerSet );
+                    }
+
+                    tNonconformalCandidatePairs.push_back( { tNonconformalIndexMap[ tLeaderSet ], tNonconformalIndexMap[ tFollowerSet ] } );
+                }
+            }
+            return { tRequiredSideSetNames, tNonconformalCandidatePairs };
         }
     }    // namespace fem
 } /* namespace moris */

@@ -24,12 +24,10 @@ namespace moris::mtk
       public:    // member functions
         Contact_Mesh_Editor(
                 Integration_Mesh_DataBase_IG                          *aIGMesh,
-                Interpolation_Mesh_DataBase_IP                        *aIPMesh,
                 Integrator                                            &aIntegrator,
                 Vector< Side_Set const * >                            &aCandidateSideSet,
                 Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs )
                 : mIGMesh( aIGMesh )
-                , mIPMesh( aIPMesh )
                 , mIntegrator( std::move( aIntegrator ) )
                 , mSideSets( aCandidateSideSet )
                 , mCandidatePairs( aCandidatePairs )
@@ -128,7 +126,6 @@ namespace moris::mtk
         NodalPointPairs create_nodal_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const;
 
         Integration_Mesh_DataBase_IG                   *mIGMesh;
-        Interpolation_Mesh_DataBase_IP                 *mIPMesh;
         Integrator                                      mIntegrator;
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;

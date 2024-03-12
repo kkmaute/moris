@@ -315,7 +315,7 @@ namespace moris::mtk
         auto const &[ tSourceB0, tSourceB1 ] = get_leaderphase_from_set_name( tSourceMeshName );
         auto const &[ tTargetB0, tTargetB1 ] = get_leaderphase_from_set_name( tTargetMeshName );
 
-        return "ncss_" + tSourceB0 + "_" + tSourceB1 + "_to_" + tTargetB0 + "_" + tTargetB1;
+        return "ncss|iside_b0_" + tSourceB0 + "_b1_" + tSourceB1 + "|iside_b0_" + tTargetB0 + "_b1_" + tTargetB1;
     }
 
     std::pair< std::string, std::string > Contact_Mesh_Editor::get_leaderphase_from_set_name( std::string const &aSideSetName )

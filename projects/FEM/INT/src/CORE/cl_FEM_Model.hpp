@@ -18,6 +18,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
+#include "cl_MTK_Integrator.hpp"
+#include "cl_MTK_Contact_Mesh_Editor.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Communication_Tools.hpp"
 
@@ -111,6 +113,8 @@ namespace moris
 
             // space dimension
             uint mSpaceDim;
+
+            std::shared_ptr<mtk::Contact_Mesh_Editor> mContactMeshEditor;
 
             Vector< std::shared_ptr< fem::Field > > mFields;
             Vector< moris::sint >                   mFieldTypes;
@@ -493,6 +497,26 @@ namespace moris
              */
             void
             set_use_new_ghost_sets( bool aUseNewGhostSets ) override;
+
+          private:
+            void
+            prepare_nonconformal_side_sets( mtk::Integration_Mesh *aIGMesh );
+
+            std::pair< Vector< std::string >, Vector< std::pair< moris_index, moris_index > > >
+            prepare_nonconformal_candidate_pairs();
+
+            mtk::Integrator
+            prepare_nonconformal_integrator( mtk::Integration_Mesh const *aIGMesh );
+
+            std::shared_ptr<mtk::Contact_Mesh_Editor> get_contact_mesh_editor() const{
+                return mContactMeshEditor;
+            };
+
+            void
+            set_contact_mesh_editor( std::shared_ptr< mtk::Contact_Mesh_Editor > aContactMeshEditor )
+            {
+                mContactMeshEditor = aContactMeshEditor;
+            }
         };
     }    // namespace fem
 } /* namespace moris */
