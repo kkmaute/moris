@@ -1509,7 +1509,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         if ( tUseGhost )
         {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhost" ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostDisp" ) );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
@@ -1544,7 +1544,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
             tIWGCounter++;
 
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhost" ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostPhi" ) );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "PHID" );
@@ -1555,7 +1555,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
             tIWGCounter++;
 
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhost" ) );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostTemp" ) );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
             tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA" );

@@ -955,7 +955,7 @@ namespace moris
 
         // create IWG  - bulk diffusion
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionThetaBulk" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionThetaBulkInterior" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofStrgAll );
@@ -965,7 +965,7 @@ namespace moris
 
         // create IWG  - bulk diffusion
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionThetaBulk" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionThetaBulkVoid" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tHeatDofs );
@@ -998,7 +998,7 @@ namespace moris
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTimeContinuityTheta" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTimeContinuityThetaVoid" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tHeatDofs );
@@ -1025,7 +1025,7 @@ namespace moris
 
         // create IWG - bulk diffusion
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionOuterBulk" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionOuterBulkVoid" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tHeatDofs );
@@ -1034,7 +1034,7 @@ namespace moris
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionOuterBulk" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionOuterBulkInterior" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofStrgAll );
@@ -1077,7 +1077,7 @@ namespace moris
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_Frame" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_FrameInterior" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", tDofStrg );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", tDofStrgAll );

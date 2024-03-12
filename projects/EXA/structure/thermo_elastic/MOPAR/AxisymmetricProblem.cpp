@@ -695,7 +695,7 @@ namespace moris
 
         // Dummy equation for STRESS_DOF in block_2
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGL2_1" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGL2_2" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::L2 );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
         tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
