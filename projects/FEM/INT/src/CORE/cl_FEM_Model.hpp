@@ -106,15 +106,15 @@ namespace moris
             // parameter list to build the fem model
             Vector< Vector< ParameterList > > mParameterList;
 
-            // map of set user info (key is the set specification < MeshSetName, TimeContinuity, TimeBoundary >)
-            std::map< std::tuple< std::basic_string< char >, bool, bool >, Set_User_Info > mSetInfo;
+            // unpacked fem inputs
+            Vector< fem::Set_User_Info > mSetInfo;
 
             // space dimension
             uint mSpaceDim;
 
-            std::map< std::string, std::shared_ptr< fem::Field > > mFields;
-            std::map< uint, std::string >                          mFieldTypeToName;
-            std::map< std::string, std::shared_ptr< fem::IQI > >   mIQIs;
+            Vector< std::shared_ptr< fem::Field > > mFields;
+            Vector< moris::sint >                   mFieldTypes;
+            Vector< std::shared_ptr< fem::IQI > >   mIQIs;
 
             //! requested IQI Names
             Vector< std::string > mRequestedIQINames;
