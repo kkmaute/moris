@@ -3,7 +3,6 @@
 //
 
 #include "cl_FEM_Model_Initializer.hpp"
-#include <memory>
 
 namespace moris::fem
 {
@@ -23,28 +22,33 @@ namespace moris::fem
     void Model_Initializer::create_properties()
     {
         Vector< ParameterList > tPropParameterList = mParameterList( 0 );
+        uint                    tNumProps          = tPropParameterList.size();
+        mProperties.resize( tNumProps, nullptr );
 
         // loop over the parameter lists
-        for ( auto const &tPropParameter : tPropParameterList )
+        for ( uint iProp = 0; iProp < tNumProps; iProp++ )
         {
             // get property parameter list
-            std::shared_ptr< Property > tProperty = std::make_shared< fem::Property >();
+            ParameterList tPropParameter = tPropParameterList( iProp );
+            auto          tProperty      = std::make_shared< fem::Property >();
 
             // get property name from parameter list
             std::string tPropertyName = tPropParameter.get< std::string >( "property_name" );
             tProperty->set_name( tPropertyName );
-            mProperties[ tPropertyName ] = tProperty;
+
+            // fill property map
+            mPropertyMap[ tPropertyName ] = iProp;
 
             // set dof dependencies
-            auto tDofTypes = this->parameter_to_vec_of_vec( tPropParameter, "dof_dependencies", mMSIDofTypeMap );
+            auto tDofTypes = this->property_to_vec_of_vec( tPropParameter, "dof_dependencies", mMSIDofTypeMap );
             tProperty->set_dof_type_list( tDofTypes );
 
             // set dv dependencies
-            auto tDvTypes = parameter_to_vec_of_vec( tPropParameter, "dv_dependencies", mMSIDvTypeMap );
+            auto tDvTypes = property_to_vec_of_vec( tPropParameter, "dv_dependencies", mMSIDvTypeMap );
             tProperty->set_dv_type_list( tDvTypes );
 
             // set field dependencies
-            auto tFieldTypes = parameter_to_vec_of_vec( tPropParameter, "field_dependencies", mMTKFieldTypeMap );
+            auto tFieldTypes = property_to_vec_of_vec( tPropParameter, "field_dependencies", mFieldTypeMap );
             tProperty->set_field_type_list( tFieldTypes );
 
             // set function parameters
@@ -71,23 +75,33 @@ namespace moris::fem
             // set space derivative function for property
             Vector< fem::PropertyFunc > tSpaceDerFunctions = load_library_property_functions( tPropParameter, "space_derivative_functions" );
             tProperty->set_space_der_functions( tSpaceDerFunctions );
+
+            mProperties( iProp ) = tProperty;
         }
     }
 
     void Model_Initializer::create_fields()
     {
-        Vector< ParameterList > tFieldParameterList = mParameterList( FEM_PARAMETER_FIELD_INDEX );
+        Vector< ParameterList > tFieldParameterList = mParameterList( 6 );
+        sint                    tNumFields          = tFieldParameterList.size();
+
+        mFields.resize( tNumFields, nullptr );
 
         // loop over the parameter lists
-        for ( auto const &tFieldParameter : tFieldParameterList )
+        for ( sint iField = 0; iField < tNumFields; iField++ )
         {
+            // get property parameter list
+            ParameterList tFieldParameter = tFieldParameterList( iField );
+
             moris::map< std::string, mtk::Field_Entity_Type > tFieldEntityTypeMap = mtk::get_field_entity_type_map();
             mtk::Field_Entity_Type                            tFieldEntityType    = tFieldEntityTypeMap.find( tFieldParameter.get< std::string >( "field_entity_type" ) );
             std::shared_ptr< fem::Field >                     tField              = std::make_shared< fem::Field >( *mMeshPair, tFieldEntityType );
 
             std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
             tField->set_label( tFieldName );
-            mFields[ tFieldName ] = tField;
+
+            // fill property map
+            mFieldMap[ tFieldName ] = iField;
 
             // set field type
             moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
@@ -96,7 +110,9 @@ namespace moris::fem
             // set field type
             Vector< mtk::Field_Type > tFieldTypes = string_to_cell< mtk::Field_Type >( tFieldParameter.get< std::string >( "field_type" ), tFieldTypeMap );
             tField->set_field_type( tFieldTypes );
-            mFieldTypeToName[ static_cast< uint >( tFieldTypes( 0 ) ) ] = tFieldName;
+
+            mFieldTypes.resize( std::max( static_cast< uint >( tFieldTypes( 0 ) ) + 1, (uint)mFieldTypes.size() ), -1 );
+            mFieldTypes( static_cast< uint >( tFieldTypes( 0 ) ) ) = iField;
 
             MORIS_ERROR( ( tFieldParameter.get< std::string >( "field_create_from_file" ).empty() ) or ( tFieldParameter.get< std::string >( "IQI_Name" ).empty() ),
                     "FEM_Model::create_fields(); Field must be either created based on IQI or read from file." );
@@ -121,6 +137,8 @@ namespace moris::fem
             {
                 tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
             }
+
+            mFields( iField ) = tField;
         }
     }
 
@@ -131,7 +149,7 @@ namespace moris::fem
         if ( tPrintPhysics && par_rank() == 0 )
         {
             std::cout << "Set info \n";
-            for ( auto &[ _, tSetInfo ] : mSetInfo )
+            for ( auto &tSetInfo : mSetInfo )
             {
                 std::cout << "%-------------------------------------------------\n";
                 tSetInfo.print_names();
@@ -139,7 +157,6 @@ namespace moris::fem
             }
         }
     }
-
 
     Vector< fem::PropertyFunc >
     Model_Initializer::load_library_property_functions( ParameterList const &aParameterList, std::string const &aPropertyName )
@@ -155,37 +172,6 @@ namespace moris::fem
             }
         }
         return tPropertyFunctions;
-    }
-
-    Vector< std::pair< std::shared_ptr< Property >, std::string > > Model_Initializer::read_properties( ParameterList const &aParameterList, mtk::Leader_Follower const aLeaderFollower ) const
-    {
-        std::string const                     tKey             = get_leader_follower_key( "properties", aLeaderFollower );    // returns "properties", "leader_properties", or "follower_properties"
-        Vector< Vector< std::string > > const tPropertyStrings = string_to_cell_of_cell< std::string >( aParameterList.get< std::string >( tKey ) );
-
-        Vector< std::pair< std::shared_ptr< Property >, std::string > > tPropertyNamesPairVec;
-        tPropertyNamesPairVec.reserve( tPropertyStrings.size() );
-
-        for ( uint iProp = 0; iProp < tPropertyStrings.size(); iProp++ )
-        {
-            std::string tPropertyName   = tPropertyStrings( iProp )( 0 );
-            std::string tPropertyString = tPropertyStrings( iProp )( 1 );
-            ensure_existing_parameter( mProperties, tPropertyName, tKey );
-            tPropertyNamesPairVec.emplace_back( mProperties.at( tPropertyName ), tPropertyString );
-        }
-        return tPropertyNamesPairVec;
-    }
-
-    std::string Model_Initializer::get_leader_follower_key( std::string aKey, mtk::Leader_Follower const aLeaderFollower ) const
-    {
-        switch ( aLeaderFollower )
-        {
-            case mtk::Leader_Follower::LEADER:
-                return "leader_" + aKey;
-            case mtk::Leader_Follower::FOLLOWER:
-                return "follower_" + aKey;
-            default:
-                return aKey;
-        }
     }
 
     void Model_Initializer::check_and_set_ghost_set_names( std::string &aMeshSetName, MSI::Dof_Type aDofType )
@@ -208,5 +194,4 @@ namespace moris::fem
             }
         }
     }
-
 }    // namespace moris::fem

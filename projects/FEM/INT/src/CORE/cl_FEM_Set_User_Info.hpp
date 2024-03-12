@@ -14,6 +14,8 @@
 #include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Vector.hpp"                      //MRS/CNT/src
 #include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
+#include "cl_FEM_IWG.hpp"                 //FEM/MSI/src
+#include "cl_FEM_IQI.hpp"                 //FEM/MSI/src
 
 namespace moris
 {
@@ -88,7 +90,26 @@ namespace moris
                 /**
                  * print names
                  */
-                void print_names();
+                void print_names()
+                {
+                    // print the mesh set name
+                    std::cout<<"Mesh set name: "<<mMeshSetName<<std::endl;
+
+                    // print the bool for time sideset
+                    std::cout<<"Bool for time sideset: "<<mTimeContinuity<<std::endl;
+
+                    // print IWG names
+                    for ( uint iIWG = 0; iIWG < mIWGs.size(); iIWG++ )
+                    {
+                        std::cout<<"IWG name: "<<mIWGs( iIWG )->get_name()<<std::endl;
+                    }
+
+                    // print IQI names
+                    for ( uint iIQI = 0; iIQI < mIQIs.size(); iIQI++ )
+                    {
+                        std::cout<<"IQI name: "<<mIQIs( iIQI )->get_name()<<std::endl;
+                    }
+                }
 
                 //------------------------------------------------------------------------------
                 /**
@@ -385,6 +406,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
         };
+
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
