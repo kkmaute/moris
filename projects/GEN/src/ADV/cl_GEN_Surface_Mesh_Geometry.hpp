@@ -30,6 +30,7 @@ namespace moris::gen
         std::string    mFilePath;                 // Surface mesh file path
         real           mIntersectionTolerance;    // Interface tolerance based on intersection distance
         Vector< uint > mADVIndices;
+        Vector< uint > mFixedVertexIndices;    // Indices of surface mesh vertices that are unaffected by ADVs
 
         /**
          * Constructor with a given parameter list
@@ -116,11 +117,7 @@ namespace moris::gen
          *
          */
         bool
-        depends_on_advs() const
-        {
-            // TODO BRENDAN
-            return false;
-        }
+        depends_on_advs() const;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
@@ -146,7 +143,7 @@ namespace moris::gen
 
         /**
          * Gets the names of all the fields associated with this design
-         * 
+         *
          * @return Vector< std::string > The name of each perturbation field
          */
         virtual Vector< std::string > get_field_names() override;
@@ -227,15 +224,11 @@ namespace moris::gen
         }
 
         /**
-         * Allows for access to the GEN field
+         * Allows for access to the perturbation fields
          *
-         * @return Underlying field'
+         * @return Underlying fields
          */
-        std::shared_ptr< Field > get_field()
-        {
-            // TODO BRENDAN
-            return nullptr;
-        }
+        Vector< std::shared_ptr< Field > > get_fields() override;
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector
@@ -282,6 +275,13 @@ namespace moris::gen
         }
 
       private:
+        /**
+         * Puts the entire surface mesh geometry in a local coordinate frame. The x axis is specified as the vector between the parent nodes.
+         * Used to compute local coordinates for intersection nodes.
+         *
+         * @param aFirstParentNode First parent node, which has a local coordinate value of -1
+         * @param aSecondParentNode Second parent node, which has a local coordinate value of 1
+         */
         void transform_surface_mesh_to_local_coordinate(
                 const Parent_Node& aFirstParentNode,
                 const Parent_Node& aSecondParentNode );
@@ -290,7 +290,7 @@ namespace moris::gen
          * Finds the background elemenent in aField that contains aCoordinates
          *
          * @param aCoordinate Search global coordinate location
-         * @param aBoundingBox Return variable that holds the bounding box of the found cell 
+         * @param aBoundingBox Return variable that holds the bounding box of the found cell
          *
          * @return Index of the element in which aCoordinates resides. If no element is found, -1 is returned
          */

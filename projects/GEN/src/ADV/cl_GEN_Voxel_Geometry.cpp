@@ -192,8 +192,7 @@ namespace moris::gen
 
     Vector< std::string > Voxel_Geometry::get_field_names()
     {
-        Vector< std::string > tFieldNames;
-        return tFieldNames;
+        return {};
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -226,9 +225,9 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::shared_ptr< Field > Voxel_Geometry::get_field()
+    Vector< std::shared_ptr< Field > > Voxel_Geometry::get_fields()
     {
-        return nullptr;
+        return {};
     }
 
     //--------------------------------------------------------------------------------------------------------------

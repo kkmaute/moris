@@ -24,6 +24,8 @@
 #include "cl_MTK_Interpolation_Function_Base.hpp"
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
 #include "cl_MTK_Enums.hpp"
+
+#include "cl_SOL_Dist_Map.hpp"
 namespace moris::gen
 {
 
@@ -38,6 +40,7 @@ namespace moris::gen
         string_to_cell( aParameterList.get< std::string >( "offset" ), mOffsets );
         string_to_cell( aParameterList.get< std::string >( "scale" ), mScale );
         string_to_cell( aParameterList.get< std::string >( "adv_indices" ), mADVIndices );
+        string_to_cell( aParameterList.get< std::string >( "fixed_vertex_indices" ), mFixedVertexIndices );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -69,7 +72,6 @@ namespace moris::gen
                 mOriginalVertexCoordinates( iVertexIndex )( iDimension ) = Object::mVertices( iVertexIndex )->get_coord( iDimension );
             }
         }
-
 
         // If this surface mesh is being optimized, construct fields and store original vertex coordinates
         if ( aParameters.mADVIndices.size() > 0 or aParameters.mDiscretizationIndex > -1 )
@@ -301,56 +303,71 @@ namespace moris::gen
     void
     Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
-        // Have each field import the advs
-        for ( auto tPerturbationField : mPerturbationFields )
+        // aOwnedADVs->get_map()->print();    // BRENDAN
+
+        // Matrix< DDSMat > tGlobalIndex = { { 1, 2, 4, 5, 6, 7, 8 } };
+        // Matrix< DDRMat > tVals        = { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
+        // aOwnedADVs->replace_global_values( tGlobalIndex, tVals );
+
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
-            tPerturbationField->import_advs( aOwnedADVs );
-        }
+            // STEP 1: Import advs to field
+            mPerturbationFields( iFieldIndex )->import_advs( aOwnedADVs );
 
-        // update the surface mesh with the new field data
-        // FIXME: Put this in the above loop so it doesn't get called unless necessary
+            // STEP 2: Apply field value to surface mesh nodes
+            for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
+            {
+                bool tVertexShouldPerturb = true;
 
-        // Initialize a bounding box
-        Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
-
-        Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
-        for ( uint iVertexIndex = 0; iVertexIndex < Object::mVertices.size(); iVertexIndex++ )
-        {
-            // Initialize perturbation vector
-            Vector< real > tNewVertexCoordinates = mOriginalVertexCoordinates( iVertexIndex );
-
-            // Determine which element this vertex lies in, will be the same for every field
-            int tElementIndex = this->find_background_element_from_global_coordinates(
-                    Object::mVertices( iVertexIndex )->get_coords(),
-                    tElementBoundingBox );
-
-            if ( tElementIndex != -1 )
-            {    // determine the local coordinates of the vertex inside the mtk::Cell
-                for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
+                // check if this vertex should move
+                for ( uint iFixedVertexIndex : mParameters.mFixedVertexIndices )
                 {
-                    // BRENDAN, parametric coordinates might need to be between -1 and 1
-                    tVertexParametricCoordinates( iDimensionIndex, 0 ) = ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex )
-                                                                                 - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                       / ( tElementBoundingBox( 1 )( iDimensionIndex )
-                                                                               - tElementBoundingBox( 0 )( iDimensionIndex ) );
+                    if ( iVertexIndex == iFixedVertexIndex )
+                    {
+                        tVertexShouldPerturb = false;
+                    }
                 }
 
-                // Loop through each field and interpolate its displacement value at the vertex's location
-                for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+                // Move vertex if needed
+                if ( tVertexShouldPerturb )
                 {
-                    // Interpolate the bspline field value at the facet vertex location
-                    real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element( &mMesh->get_mtk_cell( tElementIndex ), iFieldIndex, tVertexParametricCoordinates );
+                    // Initialize a bounding box
+                    Vector< Vector< real > > tElementBoundingBox( 2, Vector< real >( Object::mDimension ) );
 
-                    // Add the perturbation to the list
-                    tNewVertexCoordinates( iFieldIndex ) += tInterpolatedPerturbation;
+                    Matrix< DDRMat > tVertexParametricCoordinates( Object::mDimension, 1 );
+
+                    // Determine which element this vertex lies in, will be the same for every field
+                    int tElementIndex = this->find_background_element_from_global_coordinates(
+                            Object::mVertices( iVertexIndex )->get_coords(),
+                            tElementBoundingBox );
+
+                    // check if the node is inside the mesh domain
+                    if ( tElementIndex != -1 )
+                    {
+                        // determine the local coordinates of the vertex inside the mtk::Cell
+                        for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
+                        {
+                            // BRENDAN, parametric coordinates might need to be between -1 and 1
+                            tVertexParametricCoordinates( iDimensionIndex, 0 ) = ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex )
+                                                                                         - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                               / ( tElementBoundingBox( 1 )( iDimensionIndex )
+                                                                                       - tElementBoundingBox( 0 )( iDimensionIndex ) );
+                        }
+
+                        // Interpolate the bspline field value at the facet vertex location
+                        real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
+                                &mMesh->get_mtk_cell( tElementIndex ),
+                                iFieldIndex,
+                                tVertexParametricCoordinates );
+
+                        // Displace the vertex by the total perturbation
+                        Object::mVertices( iVertexIndex )->set_node_coord( mOriginalVertexCoordinates( iVertexIndex )( iFieldIndex ) + tInterpolatedPerturbation, iFieldIndex );
+                    }
                 }
-
-                // Displace the vertex by the total perturbation
-                Object::mVertices( iVertexIndex )->set_node_coords( tNewVertexCoordinates );
             }
         }
 
-        // Update all facet data
+        // STEP 3: update all facet data
         this->Object::update_all_facets();
     }
 
@@ -365,6 +382,8 @@ namespace moris::gen
             mPerturbationFields( iFieldIndex )->set_advs( aADVs );
         }
     }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     sint
     Surface_Mesh_Geometry::append_adv_info(
@@ -391,6 +410,14 @@ namespace moris::gen
         mOffsetID = tOriginalOffsetID;
 
         return aOffsetID;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool
+    Surface_Mesh_Geometry::depends_on_advs() const
+    {
+        return mPerturbationFields.size() > 0;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -495,13 +522,21 @@ namespace moris::gen
     Surface_Mesh_Geometry::get_field_names()
     {
         Vector< std::string > tFieldNames( mPerturbationFields.size() );
-        for (uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
+        for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
             // Should never be empty, as they are created by the geometry with a name
             tFieldNames( iFieldIndex ) = mPerturbationFields( iFieldIndex )->get_name();
         }
 
         return tFieldNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< std::shared_ptr< Field > >
+    Surface_Mesh_Geometry::get_fields()
+    {
+        return mPerturbationFields;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -552,6 +587,8 @@ namespace moris::gen
     {
         return mParameters.mDiscretizationUpperBound;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     moris_index
     Surface_Mesh_Geometry::find_background_element_from_global_coordinates(
@@ -608,6 +645,7 @@ namespace moris::gen
         return -1;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
 
     real Surface_Mesh_Geometry::interpolate_perturbation_from_background_element(
             mtk::Cell*              aBackgroundElement,

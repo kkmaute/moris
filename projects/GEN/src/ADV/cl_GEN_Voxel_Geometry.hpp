@@ -142,9 +142,9 @@ namespace moris::gen
         /**
          * Allows for access to the GEN field
          *
-         * @return Underlying field
+         * @return empty vector for this implementation
          */
-        std::shared_ptr< Field > get_field() override;
+        Vector< std::shared_ptr< Field > > get_fields() override;
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector

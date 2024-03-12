@@ -189,7 +189,7 @@ namespace moris::gen
 
         /**
          * Returns if the element consisting of provided node indices and coordinates is intersected by the active geometry index.
-         * 
+         *
          * @param aNodeIndices Node indices
          * @return If the element is intersected
          */
@@ -205,8 +205,7 @@ namespace moris::gen
          */
         bool is_intersected(
                 uint                      aGeometryIndex,
-                const Matrix< IndexMat >& aNodeIndices
-                /*Vector< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates BRENDAN*/ );
+                const Matrix< IndexMat >& aNodeIndices );
 
         /**
          * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection

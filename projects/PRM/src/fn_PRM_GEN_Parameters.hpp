@@ -187,6 +187,7 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert( "scale", "1.0,1.0,1.0" );                    // scaling factor for all points in the geometry
         tSurfaceMeshParameterList.insert( "file_path", "" );                           // path to .obj file
         tSurfaceMeshParameterList.insert( "adv_indices", "" );                         // ADVs used to fill in variables
+        tSurfaceMeshParameterList.insert( "fixed_vertex_indices", "" );                 // Which surface mesh nodes are unaffected by ADVs
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );              // set the geometry type to surface mesh
         tSurfaceMeshParameterList.set( "intersection_tolerance", 1e-8 );               // interface tolerance for raycast computations
         tSurfaceMeshParameterList.erase( "field_type" );

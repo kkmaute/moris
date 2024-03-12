@@ -57,6 +57,17 @@ namespace moris
             }
         }
 
+        //-------------------------------------------------------------------------------
+
+        void
+        Facet_Vertex::set_node_coord( const real aCoordinate, uint aDimension )
+        {
+            mNodeCoords( aDimension ) = aCoordinate;
+            mIterationNodeCoords( aDimension ) = aCoordinate;
+        }
+
+        //-------------------------------------------------------------------------------
+        
         void
         Facet_Vertex::shift_node_coords_from_current( const moris::Vector< real > &aShift )
         {

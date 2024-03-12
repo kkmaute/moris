@@ -1268,7 +1268,6 @@ namespace moris::gen
             Vector< std::string > tFieldNames(0 );
 
             // Geometry field names
-            uint iFieldIndex = 0;
             for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
             {
                 // Get the geometries field names
@@ -1277,8 +1276,6 @@ namespace moris::gen
                 // Append the field names to the list
                 tFieldNames.append( tGeometryFieldNames );
             }
-
-            MORIS_ASSERT( iFieldIndex == tNumGeometryFields, "GEN - Geometry_Engine::output_fields_on_mesh() Number of output fields does not equal total number of geometry fields." );
 
             // Property field names
             for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )

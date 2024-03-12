@@ -48,26 +48,37 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedFields )
+    void Property::update_dependencies( Vector< std::shared_ptr< Design > > aAllUpdatedDesigns )
     {
         // Set up dependency fields
         uint                               tNumDependencies = mParameters.mDependencyNames.size();
-        Vector< std::shared_ptr< Field > > tDependencyFields( tNumDependencies );
+        Vector< std::shared_ptr< Field > > tDependencyFields;
 
-        // Grab dependencies
-        for ( uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++ )
+        for ( uint iDependencyIndex = 0; iDependencyIndex < tNumDependencies; iDependencyIndex++ )
         {
-            for ( uint tFieldIndex = 0; tFieldIndex < aAllUpdatedFields.size(); tFieldIndex++ )
+            for( uint iDesignIndex = 0; iDesignIndex < aAllUpdatedDesigns.size(); iDesignIndex++ )
             {
-                if ( aAllUpdatedFields( tFieldIndex )->get_name() == mParameters.mDependencyNames( tDependencyIndex ) )
+                // FIXME: The dependency names may be field specific, not design specific
+                if ( aAllUpdatedDesigns( iDesignIndex )->get_name() == mParameters.mDependencyNames( iDependencyIndex ) )
                 {
-                    tDependencyFields( tDependencyIndex ) = aAllUpdatedFields( tFieldIndex )->get_field();
+                    tDependencyFields.append( aAllUpdatedDesigns( iDesignIndex )->get_fields() );
                 }
             }
         }
+        // // Grab dependencies
+        // for ( uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++ )
+        // {
+        //     for ( uint tFieldIndex = 0; tFieldIndex < aAllUpdatedFields.size(); tFieldIndex++ )
+        //     {
+        //         if ( aAllUpdatedFields( tFieldIndex )->get_name() == mParameters.mDependencyNames( tDependencyIndex ) )
+        //         {
+        //             tDependencyFields( tDependencyIndex ) = aAllUpdatedFields( tFieldIndex )->get_field();
+        //         }
+        //     }
+        // } BRENDAN
 
         // Set dependencies
-        this->get_field()->set_dependencies( tDependencyFields );
+        Design_Field::mField->set_dependencies( tDependencyFields );
     }
 
     //--------------------------------------------------------------------------------------------------------------

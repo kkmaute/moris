@@ -213,9 +213,9 @@ namespace moris::gen
          *
          * @return Underlying field
          */
-        std::shared_ptr< Field > get_field() override
+        Vector< std::shared_ptr< Field > > get_fields() override
         {
-            return Design_Field::mField;
+            return { Design_Field::mField };
         }
 
         /**

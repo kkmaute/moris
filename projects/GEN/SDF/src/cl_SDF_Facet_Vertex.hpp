@@ -65,12 +65,25 @@ namespace moris
 
             /**
              * Sets the coordinates of this node. Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
-             * 
+             *
              * @param aCoordinates new coordinates to be set to
              */
             void
             set_node_coords( const moris::Vector< real >& aCoordinates );
-            
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Sets only the aDimension index of this nodes coordinates. 
+             * Also changes mIterationNodeCoords. As such, this function should ONLY be called between design iterations.
+             * 
+             * @param aCoordinate new coordinates to be set to
+             * @param aDimension spatial dimension of the coordinate to be set
+             */
+            void
+            set_node_coord( const real aCoordinate, uint aDimension );
+
+
             //-------------------------------------------------------------------------------
 
             /**
@@ -78,14 +91,13 @@ namespace moris
              *
              * @param aShift Perturbation applied to the coordinates. size of mNodeCoords
              */
-            void
-            shift_node_coords_from_current( const moris::Vector< real >& aShift );
+            void shift_node_coords_from_current( const moris::Vector< real >& aShift );
 
             //-------------------------------------------------------------------------------
 
             /**
              * Sets the coordinates of the node back to the coordinates at the start of the design iteration
-             * 
+             *
              */
             void
             reset_node_coords();
@@ -103,7 +115,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            Matrix< DDRMat > 
+            Matrix< DDRMat >
             get_coords() const override;
 
             //-------------------------------------------------------------------------------

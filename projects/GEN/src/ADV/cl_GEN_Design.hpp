@@ -137,11 +137,11 @@ namespace moris::gen
         virtual real get_discretization_upper_bound() = 0;
 
         /**
-         * Allows for access to the GEN field
+         * Allows for access to all the GEN Fields for this design
          *
-         * @return Underlying field
+         * @return Underlying fields
          */
-        virtual std::shared_ptr< Field > get_field() = 0;
+        virtual Vector< std::shared_ptr< Field > > get_fields() = 0;
 
         /**
          * Appends this designs ADV IDs, ijklIDs, lower bounds, and upper bounds to the global matrices stored in the geometry engine.
