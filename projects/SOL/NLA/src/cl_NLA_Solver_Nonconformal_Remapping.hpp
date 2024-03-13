@@ -29,15 +29,16 @@ namespace moris::NLA
         sol::SolverRaytracingStrategy mStrategy;
         uint                          mFrequency{};
         uint                          mFrequencyAfterFullLoad{};
-        real                          mRelResidualDrop{};
+        real                          mResidualChangeTolerance{};
+        real                          mPreviousResidual{ -1.0 };
         real                          mPreviousLoadFactor;
         uint                          mLoadStepCounter;
 
         bool check_every_nth_load_step( real& aLoadFactor );
 
-        bool check_every_nth_iteration( uint aIter, uint aFrequency ) const;
+        static bool check_every_nth_iteration( uint aIter, uint aFrequency ) ;
 
-        bool check_relative_residual_drop( Nonlinear_Solver* aNonLinSolverManager ) const;
+        bool check_relative_residual_change( Nonlinear_Solver* aNonLinSolverManager );
     };
 
 

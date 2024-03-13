@@ -23,7 +23,7 @@ namespace moris
             BELOS_IMPL,      //< Wrapper around Belos Solver
             PETSC,           //< Wrapper around Petsc Solver
             EIGEN_SOLVER,
-            ML,   //< Wrapper around ML Preconditioner as a solver
+            ML,    //< Wrapper around ML Preconditioner as a solver
             END_ENUM
         };
 
@@ -61,12 +61,12 @@ namespace moris
 
         enum class SolverRaytracingStrategy
         {
-            None,                               // No (re) ray tracing after initial mapping
-            EveryNthIteration,                  // Ray tracing after every Nth newton iteration
-            EveryNthLoadStep,                   // Ray tracing after every Nth load step
-            RelativeResidualDrop,               // Ray tracing after a relative residual drop
-            MixedNthLoadStepAndResidualDrop,    // Uses the nth load steps until full load is reached and then uses the relative residual drop
-            MixedNthLoadStepAndNthIteration,    // Uses the nth load steps until full load is reached and then uses the nth iteration
+            None,                                 // No (re) ray tracing after initial mapping
+            EveryNthIteration,                    // Ray tracing after every Nth newton iteration
+            EveryNthLoadStep,                     // Ray tracing after every Nth load step
+            ResidualChange,                       // Ray tracing if the change of the residual is below a certain threshold
+            MixedNthLoadStepAndResidualChange,    // Uses the nth load steps until full load is reached and then uses the relative residual change
+            MixedNthLoadStepAndNthIteration,      // Uses the nth load steps until full load is reached and then uses the nth iteration
         };
 
         enum class SolverPseudoTimeControlType
