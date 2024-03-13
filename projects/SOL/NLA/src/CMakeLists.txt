@@ -18,6 +18,7 @@ set(HEADERS
     cl_NLA_Solver_Relaxation.hpp
     cl_NLA_Solver_Pseudo_Time_Control.hpp
     cl_NLA_Solver_Load_Control.hpp
+	cl_NLA_Solver_Nonconformal_Remapping.hpp
 	cl_NLA_Newton_Solver.hpp
 	cl_NLA_NLBGS.hpp
 	cl_NLA_Nonlinear_Algorithm.hpp
@@ -41,6 +42,7 @@ set(LIB_SOURCES
     cl_NLA_Solver_Relaxation.cpp
     cl_NLA_Solver_Pseudo_Time_Control.cpp
     cl_NLA_Solver_Load_Control.cpp
+	cl_NLA_Solver_Remapping.cpp
     cl_NLA_NLBGS.cpp )
 
 # List library dependencies

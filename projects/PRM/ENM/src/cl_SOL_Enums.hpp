@@ -59,6 +59,16 @@ namespace moris
             UserDefined     // User defined strategy
         };
 
+        enum class SolverRaytracingStrategy
+        {
+            None,                               // No (re) ray tracing after initial mapping
+            EveryNthIteration,                  // Ray tracing after every Nth newton iteration
+            EveryNthLoadStep,                   // Ray tracing after every Nth load step
+            RelativeResidualDrop,               // Ray tracing after a relative residual drop
+            MixedNthLoadStepAndResidualDrop,    // Uses the nth load steps until full load is reached and then uses the relative residual drop
+            MixedNthLoadStepAndNthIteration,    // Uses the nth load steps until full load is reached and then uses the nth iteration
+        };
+
         enum class SolverPseudoTimeControlType
         {
             None,                  // No pseudo time step control

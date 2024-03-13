@@ -30,6 +30,7 @@
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
+#include "cl_NLA_Solver_Nonconformal_Remapping.hpp"
 
 using namespace moris;
 using namespace NLA;
@@ -100,6 +101,8 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
     // set solver load control strategy
     Solver_Load_Control tLoadControlStrategy( mParameterListNonlinearSolver );
 
+    Solver_Nonconformal_Remapping tRemappingStrategy( mParameterListNonlinearSolver );
+
     // initialize flags
     bool tRebuildJacobian = true;
 
@@ -139,11 +142,13 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 "LoadFactor",
                 tLoadFactor );
 
-        // TODO @ff: use this to update fem models in nonconformal problems
-//        if ( It > 1 || true ) // TODO: REMOVE "true", this is only to output the debug json of the initial state
-//        {
-//            mNonlinearProblem->update_fem_model();
-//        }
+
+        if ( tRemappingStrategy.requires_remapping( It, mMyNonLinSolverManager, tLoadFactor ) )
+        {
+            mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, 0, true );    // save current solution with the load factor // TODO @ff remove
+            mNonlinearProblem->update_fem_model();
+        }
+
         // build residual and jacobian
         // restart and switch not clear
         if ( It == 1 && mParameterListNonlinearSolver.get< sint >( "NLA_restart" ) != 0 )

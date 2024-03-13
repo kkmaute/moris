@@ -791,6 +791,18 @@ namespace moris
             // Determines Newton maxits multiplier
             tNonLinAlgorithmParameterList.insert( "NLA_is_eigen_problem", false );
 
+            // Determine with which strategy remapping of nonconformal meshes (raytracing) should be performed
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::EveryNthLoadStep );
+
+            // If "NLA_remap_strategy" is set to "EveryNthLoadStep" or "EveryNthIteration" or "MixedNthLoadStepAndResidualDrop", this parameter determines the frequency of remapping
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_frequency", 1 );
+
+            // If "NLA_remap_strategy" is set to "RelativeResidualDrop" or "MixedNthLoadStepAndResidualDrop", this parameter determines the relative residual drop that triggers remapping
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_relative_residual_drop", 1e-2 );
+
+
+
+
             return tNonLinAlgorithmParameterList;
         }
 

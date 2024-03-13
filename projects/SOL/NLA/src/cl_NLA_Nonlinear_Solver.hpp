@@ -25,6 +25,7 @@ namespace moris
     namespace sol
     {
         class SOL_Warehouse;
+        class Dist_Vector;
     }
     namespace tsa
     {
