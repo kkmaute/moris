@@ -409,6 +409,8 @@ namespace moris
             {
                 return;
             }
+            Tracer tTracer( "FEM", "Model", "Remapping" );
+
 
             // get the side set names that get used by the contact mesh editor to build nonconformal sets
             std::set< moris_index > tRequestedIGNodes;
@@ -1186,7 +1188,7 @@ namespace moris
         void FEM_Model::prepare_nonconformal_side_sets( mtk::Integration_Mesh *aIGMesh )
         {
             // early return if no nonconformal set is present
-            if ( std::none_of( mSetInfo.begin(), mSetInfo.end(), []( auto &tSetInfo ) { return tSetInfo.get_mesh_set_name().find("ncss") != std::string::npos; } ) )
+            if ( std::none_of( mSetInfo.begin(), mSetInfo.end(), []( auto &tSetInfo ) { return tSetInfo.get_mesh_set_name().find( "ncss" ) != std::string::npos; } ) )
             {
                 return;
             }
