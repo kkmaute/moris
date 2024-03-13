@@ -797,6 +797,9 @@ namespace moris
             // If "NLA_remap_strategy" is set to "EveryNthLoadStep" or "EveryNthIteration" or "MixedNthLoadStepAndResidualDrop", this parameter determines the frequency of remapping
             tNonLinAlgorithmParameterList.insert( "NLA_remap_frequency", 1 );
 
+            // If "NLA_remap_strategy" is set to "MixedNthLoadStepAndNthIteration", this parameter determines the frequency of remapping after the full load is applied
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_frequency_after_full_load", 1 );
+
             // If "NLA_remap_strategy" is set to "RelativeResidualDrop" or "MixedNthLoadStepAndResidualDrop", this parameter determines the relative residual drop that triggers remapping
             tNonLinAlgorithmParameterList.insert( "NLA_remap_relative_residual_drop", 1e-2 );
 

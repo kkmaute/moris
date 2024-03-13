@@ -26,15 +26,16 @@ namespace moris::NLA
         bool requires_remapping( uint aIter, Nonlinear_Solver* aNonLinSolverManager, real& aLoadFactor );
 
       private:
-        sol::SolverRaytracingStrategy mRaytracingStrategy;
-        uint                          mRaytracingFrequency{};
-        real                          mRaytracingRelResidualDrop{};
+        sol::SolverRaytracingStrategy mStrategy;
+        uint                          mFrequency{};
+        uint                          mFrequencyAfterFullLoad{};
+        real                          mRelResidualDrop{};
         real                          mPreviousLoadFactor;
         uint                          mLoadStepCounter;
 
         bool check_every_nth_load_step( real& aLoadFactor );
 
-        bool check_every_nth_iteration( uint aIter ) const;
+        bool check_every_nth_iteration( uint aIter, uint aFrequency ) const;
 
         bool check_relative_residual_drop( Nonlinear_Solver* aNonLinSolverManager ) const;
     };

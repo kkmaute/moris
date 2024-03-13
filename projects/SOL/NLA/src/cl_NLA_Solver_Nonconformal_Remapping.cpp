@@ -10,13 +10,15 @@
 #include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Solver_Nonconformal_Remapping.hpp"
 #include "cl_Param_List.hpp"
+#include <cstdlib>
 
 namespace moris::NLA
 {
     Solver_Nonconformal_Remapping::Solver_Nonconformal_Remapping( ParameterList &aParameterListNonlinearSolver )
-            : mRaytracingStrategy( static_cast< sol::SolverRaytracingStrategy >( aParameterListNonlinearSolver.get< uint >( "NLA_remap_strategy" ) ) )
-            , mRaytracingFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_frequency" ) )
-            , mRaytracingRelResidualDrop( aParameterListNonlinearSolver.get< real >( "NLA_remap_relative_residual_drop" ) )
+            : mStrategy( static_cast< sol::SolverRaytracingStrategy >( aParameterListNonlinearSolver.get< uint >( "NLA_remap_strategy" ) ) )
+            , mFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_frequency" ) )
+            , mFrequencyAfterFullLoad( aParameterListNonlinearSolver.get< int >( "NLA_remap_frequency_after_full_load" ) )
+            , mRelResidualDrop( aParameterListNonlinearSolver.get< real >( "NLA_remap_relative_residual_drop" ) )
             , mPreviousLoadFactor( 0.0 )
             , mLoadStepCounter( 0 )
     {
@@ -24,7 +26,7 @@ namespace moris::NLA
 
     bool Solver_Nonconformal_Remapping::requires_remapping( uint aIter, Nonlinear_Solver *aNonLinSolverManager, real &aLoadFactor )
     {
-        switch ( mRaytracingStrategy )
+        switch ( mStrategy )
         {
             case sol::SolverRaytracingStrategy::EveryNthLoadStep:
             {
@@ -32,7 +34,7 @@ namespace moris::NLA
             }
             case sol::SolverRaytracingStrategy::EveryNthIteration:
             {
-                return check_every_nth_iteration( aIter );
+                return check_every_nth_iteration( aIter, mFrequency );
             }
             case sol::SolverRaytracingStrategy::RelativeResidualDrop:
             {
@@ -52,7 +54,7 @@ namespace moris::NLA
                 // use iteration if load factor is 1
                 if ( std::abs( 1.0 - aLoadFactor ) < 1e-10 )
                 {
-                    return check_every_nth_iteration( aIter );
+                    return check_every_nth_iteration( aIter, mFrequencyAfterFullLoad );
                 }
                 return check_every_nth_load_step( aLoadFactor );
             }
@@ -65,18 +67,18 @@ namespace moris::NLA
 
     bool Solver_Nonconformal_Remapping::check_every_nth_load_step( real &aLoadFactor )
     {
-        if ( std::abs(aLoadFactor - mPreviousLoadFactor) > 1e-6 )
+        if ( std::abs( aLoadFactor - mPreviousLoadFactor ) > 1e-6 )
         {
             mLoadStepCounter++;
             mPreviousLoadFactor = aLoadFactor;
-            return mLoadStepCounter % mRaytracingFrequency == 0;
+            return mLoadStepCounter % mFrequency == 0;
         }
         return false;
     }
 
-    bool Solver_Nonconformal_Remapping::check_every_nth_iteration( uint aIter ) const
+    bool Solver_Nonconformal_Remapping::check_every_nth_iteration( uint aIter, uint aFrequency ) const
     {
-        return aIter % mRaytracingFrequency == 0;
+        return aIter % aFrequency == 0;
     }
 
     bool Solver_Nonconformal_Remapping::check_relative_residual_drop( Nonlinear_Solver *aNonLinSolverManager ) const
@@ -95,7 +97,8 @@ namespace moris::NLA
             tRefNorm = aNonLinSolverManager->get_ref_norm();
             tResNorm = aNonLinSolverManager->get_residual_norm();
         }
-        real const tRelResNorm = tResNorm / tRefNorm;    // compute relative residual
-        return tRelResNorm < mRaytracingRelResidualDrop;
+        real const tSign       = tResNorm < tRefNorm ? -1.0 : 1.0;
+        real const tRelResNorm = tSign * tResNorm / tRefNorm;    // compute relative residual
+        return tRelResNorm < -mRelResidualDrop;
     }
 }    // namespace moris::NLA

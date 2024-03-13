@@ -42,7 +42,7 @@ set(LIB_SOURCES
     cl_NLA_Solver_Relaxation.cpp
     cl_NLA_Solver_Pseudo_Time_Control.cpp
     cl_NLA_Solver_Load_Control.cpp
-	cl_NLA_Solver_Remapping.cpp
+	cl_NLA_Solver_Nonconformal_Remapping.cpp
     cl_NLA_NLBGS.cpp )
 
 # List library dependencies
