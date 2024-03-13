@@ -17,9 +17,6 @@
 
 namespace moris
 {
-    // Variant typedef
-    typedef boost::variant< bool, sint, real, std::string, uint, std::pair< std::string, std::string > > Variant;
-
     /**
      * Gets a string of the value stored inside of a variant.
      *

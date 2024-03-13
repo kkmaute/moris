@@ -28,13 +28,13 @@ namespace moris
             case 0:
                 return "bool";
             case 1:
-                return "sint";
-            case 2:
-                return "real";
-            case 3:
-                return "string";
-            case 4:
                 return "uint";
+            case 2:
+                return "sint";
+            case 3:
+                return "real";
+            case 4:
+                return "string";
             case 5:
                 return "std::pair<string, string>";
             default:

@@ -17,15 +17,7 @@
 namespace moris
 {
     // Variant typedef
-    typedef boost::variant< bool, sint, real, std::string, uint, std::pair< std::string, std::string > > Variant;
-
-    /**
-     * Gets a string of the value stored inside of a variant.
-     *
-     * @param aVariant Input variant
-     * @return Value as a string
-     */
-    std::string convert_variant_to_string( Variant aVariant );
+    typedef boost::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string > > Variant;
 
     class Validator
     {

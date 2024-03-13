@@ -23,6 +23,10 @@ namespace moris
         {
             tStringStream << boost::get< bool >( aVariant );
         }
+        else if ( boost::get< uint >( &aVariant ) != nullptr )
+        {
+            tStringStream << boost::get< uint >( aVariant );
+        }
         else if ( boost::get< sint >( &aVariant ) != nullptr )
         {
             tStringStream << boost::get< sint >( aVariant );
@@ -34,10 +38,6 @@ namespace moris
         else if ( boost::get< std::string >( &aVariant ) != nullptr )
         {
             tStringStream << boost::get< std::string >( aVariant );
-        }
-        else if ( boost::get< uint >( &aVariant ) != nullptr )
-        {
-            tStringStream << boost::get< uint >( aVariant );
         }
         else if ( boost::get< std::pair< std::string, std::string > >( &aVariant ) != nullptr )
         {
