@@ -20,8 +20,6 @@
 
 #include "cl_Communication_Tools.hpp"
 
-#include "fn_PRM_SOL_Parameters.hpp"
-
 extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
@@ -72,15 +70,6 @@ Nonlinear_Algorithm::set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolv
     mLinSolverOwned = false;
 
     mMyNonLinSolverManager = aNonlinSolverManager;
-}
-
-//--------------------------------------------------------------------------------------------------------------------------
-
-void
-Nonlinear_Algorithm::set_nonlinear_solver_parameters()
-{
-    // Allowable Newton solver iterations
-    mParameterListNonlinearSolver = prm::create_nonlinear_algorithm_parameter_list();
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

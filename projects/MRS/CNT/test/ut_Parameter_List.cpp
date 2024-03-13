@@ -11,7 +11,7 @@
 #include <catch.hpp>
 
 // MORIS project header files.
-#include "cl_Param_List.hpp" // CON/src
+#include "cl_Parameter_List.hpp"    // CON/src
 
 // ----------------------------------------------------------------------------
 
@@ -33,16 +33,6 @@ TEST_CASE(
         REQUIRE( list.get< moris::sint >( "max_its" )   == 100   );
         REQUIRE( list.get< moris::real >( "step_size" ) == 0.05  );
         REQUIRE( list.get< bool        >( "is_true" )   == false );
-    }
-
-    SECTION( "moris::Param_List.which( aKey )" )
-    {
-        #include "containers/cl_param_list/cl_param_list_insert.inc"
-
-        // test the ability to get the underlying entry type
-        REQUIRE( list.which( "max_its" )   == 1   );
-        REQUIRE( list.which( "step_size" ) == 2   );
-        REQUIRE( list.which( "is_true" )   == 0   );
     }
 }
 

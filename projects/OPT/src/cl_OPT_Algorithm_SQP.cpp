@@ -218,7 +218,7 @@ namespace moris
 {
     namespace opt
     {
-        Algorithm_SQP::Algorithm_SQP( ParameterList aParameterList )
+        Algorithm_SQP::Algorithm_SQP( Parameter_List aParameterList )
         {
 #ifdef MORIS_HAVE_SNOPT
             // Initialize

@@ -359,15 +359,14 @@ namespace moris
                 tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
                 dla::Solver_Factory                             tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-                tLinearSolverAlgorithm->set_param( "AZ_diagnostics" )     = AZ_none;
-                tLinearSolverAlgorithm->set_param( "AZ_output" )          = AZ_none;
-                tLinearSolverAlgorithm->set_param( "AZ_max_iter" )        = 10000;
-                tLinearSolverAlgorithm->set_param( "AZ_solver" )          = AZ_gmres;
-                tLinearSolverAlgorithm->set_param( "AZ_subdomain_solve" ) = AZ_ilu;
-                tLinearSolverAlgorithm->set_param( "AZ_graph_fill" )      = 10;
-                //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+                tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+                tLinearSolverParameterList.set( "AZ_output", AZ_none );
+                tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+                tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+                tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+                tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
                 dla::Linear_Solver tLinSolver;
                 tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -376,9 +375,9 @@ namespace moris
                 // STEP 2: create nonlinear solver and algorithm
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-                std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-                tNonlinearSolverAlgorithm->set_param( "NLA_max_iter" ) = 3;
+                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
+                std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
                 tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 
@@ -640,7 +639,7 @@ namespace moris
 
                 // --------------------------------------------------------------------------------------
                 // Define outputs
-                moris::ParameterList tParameterList = moris::prm::create_vis_parameter_list();
+                moris::Parameter_List tParameterList = moris::prm::create_vis_parameter_list();
 
                 std::string tMorisOutput = std::getenv( "MORISOUTPUT" );
 
@@ -664,15 +663,15 @@ namespace moris
                 tDofTypesU( 1 ) = MSI::Dof_Type::UY;
 
                 dla::Solver_Factory                             tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-                tLinearSolverAlgorithm->set_param( "AZ_diagnostics" )     = AZ_none;
-                tLinearSolverAlgorithm->set_param( "AZ_output" )          = AZ_none;
-                tLinearSolverAlgorithm->set_param( "AZ_max_iter" )        = 10000;
-                tLinearSolverAlgorithm->set_param( "AZ_solver" )          = AZ_gmres;
-                tLinearSolverAlgorithm->set_param( "AZ_subdomain_solve" ) = AZ_ilu;
-                tLinearSolverAlgorithm->set_param( "AZ_graph_fill" )      = 10;
-                //        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+                tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+                tLinearSolverParameterList.set( "AZ_output", AZ_none );
+                tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+                tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+                tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+                tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+                //        tLinearSolverParameterList.set( "ml_prec_type", "SA" );
 
                 dla::Linear_Solver tLinSolver;
                 tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -681,9 +680,9 @@ namespace moris
                 // STEP 2: create nonlinear solver and algorithm
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-                std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
-
-                tNonlinearSolverAlgorithm->set_param( "NLA_max_iter" ) = 3;
+                Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
+                std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
                 tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 

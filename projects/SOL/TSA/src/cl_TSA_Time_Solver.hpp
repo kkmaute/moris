@@ -14,7 +14,7 @@
 #include "moris_typedefs.hpp"    // CON/src
 #include "cl_Vector.hpp"
 #include <memory>
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 #include "cl_TSA_Time_Solver_Enums.hpp"
@@ -68,7 +68,7 @@ namespace moris
             Vector< moris::uint >     mOutputIndices;
             Vector< Output_Criteria > mOutputCriteriaPointer;
 
-            moris::ParameterList mParameterListTimeSolver;
+            moris::Parameter_List mParameterListTimeSolver;
 
             //! Pointer to solver database
             sol::SOL_Warehouse* mSolverWarehouse = nullptr;
@@ -108,7 +108,7 @@ namespace moris
              * @param[in] aTimeSolverType    Time solver type. Default is Newton
              */
             Time_Solver(
-                    const ParameterList       aParameterlist,
+                    const Parameter_List      aParameterlist,
                     sol::SOL_Warehouse*       aSolverWarehouse,
                     const enum TimeSolverType aTimeSolverType = TimeSolverType::MONOLITHIC );
 
@@ -375,13 +375,6 @@ namespace moris
 
             void set_time_solver_parameters();
 
-            //--------------------------------------------------------------------------------------------------
-
-            ParameterListTypes&
-            set_param( char const * aKey )
-            {
-                return mParameterListTimeSolver( aKey );
-            }
         };
     }    // namespace tsa
 }    // namespace moris

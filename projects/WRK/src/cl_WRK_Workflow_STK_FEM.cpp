@@ -10,7 +10,7 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_STK_FEM.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -119,7 +119,7 @@ namespace moris
         }
 
         void
-        Workflow_STK_FEM::create_stk( Vector< Vector< ParameterList > >& aParameterLists )
+        Workflow_STK_FEM::create_stk( Vector< Vector< Parameter_List > >& aParameterLists )
         {
             Tracer            tTracer( "STK", "Mesh", "InitializeMesh" );
             std::string       tMeshFile     = aParameterLists( 0 )( 0 ).get< std::string >( "input_file" );

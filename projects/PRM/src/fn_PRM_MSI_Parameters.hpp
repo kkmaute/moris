@@ -11,7 +11,7 @@
 #ifndef PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_
 #define PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -21,10 +21,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline moris::ParameterList
+        inline moris::Parameter_List
         create_msi_parameter_list()
         {
-            ParameterList mMSIParameterList;
+            Parameter_List mMSIParameterList;
 
             // Adof type interpolation index
             mMSIParameterList.insert( "TEMP", 0 );

@@ -10,7 +10,7 @@
 #ifndef SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_
 #define SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 #include "cl_SOL_Enums.hpp"
 
@@ -117,7 +117,7 @@ namespace moris
 
           public:
             Solver_Pseudo_Time_Control(
-                    ParameterList&    aParameterListNonlinearSolver,
+                    Parameter_List&    aParameterListNonlinearSolver,
                     sol::Dist_Vector* aCurrentSolution,
                     Nonlinear_Solver* aNonLinSolverManager );
 

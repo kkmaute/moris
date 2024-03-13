@@ -53,7 +53,7 @@ namespace moris::hmr
     // fixme: to be deleted soon
     // creates a parameter list with default inputs
     void load_hmr_parameter_list_from_xml( const std::string& aFilePath,
-            ParameterList&                                    aParameterList );
+            Parameter_List&                                    aParameterList );
 
     //--------------------------------------------------------------------------------
 
@@ -254,7 +254,7 @@ namespace moris::hmr
         /*
          * parameter list constructor
          */
-        Parameters( ParameterList&                   aParameterList,
+        Parameters( Parameter_List&                   aParameterList,
                 std::shared_ptr< moris::Library_IO > aLibrary );
 
         //--------------------------------------------------------------------------------
@@ -1020,7 +1020,7 @@ namespace moris::hmr
          * Copy selected parameters from other parameter list
          * Note that not all parameters can be copied
          */
-        void copy_selected_parameters( ParameterList& aParameterList );
+        void copy_selected_parameters( Parameter_List& aParameterList );
 
         //-------------------------------------------------------------------------------
 
@@ -1414,7 +1414,7 @@ namespace moris::hmr
     /**
      * creates a parameter list from a parameter object
      */
-    ParameterList create_hmr_parameter_list( const Parameters* aParameters );
+    Parameter_List create_hmr_parameter_list( const Parameters* aParameters );
 
     // -----------------------------------------------------------------------------
 } /* namespace moris */

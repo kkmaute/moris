@@ -16,7 +16,7 @@ namespace moris
     namespace opt
     {
         std::shared_ptr< Problem >
-        create_problem( ParameterList aProblemParameterList, std::shared_ptr< Criteria_Interface > aInterface )
+        create_problem( Parameter_List aProblemParameterList, std::shared_ptr< Criteria_Interface > aInterface )
         {
             std::string tProblemType = aProblemParameterList.get< std::string >( "problem" );
 

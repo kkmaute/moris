@@ -15,6 +15,7 @@
 #include "Amesos_ConfigDefs.h"
 
 #include "cl_DLA_Linear_Solver_Algorithm_Trilinos.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 #include "Amesos.h"
 #include "Amesos_BaseSolver.h"
@@ -33,21 +34,18 @@ namespace moris::dla
       protected:
 
       public:
-        Linear_Solver_Amesos();
 
-        Linear_Solver_Amesos( const moris::ParameterList aParameterlist );
+        Linear_Solver_Amesos( const moris::Parameter_List& aParameterlist = prm::create_linear_algorithm_parameter_list_amesos() );
 
         Linear_Solver_Amesos( Linear_Problem* aLinearSystem );
 
         ~Linear_Solver_Amesos();
 
-        void set_solver_parameters();
-
         // int SetSystemMatrix ( bool aUseTranspose );
 
         moris::sint solve_linear_system();
 
-        moris::sint solve_linear_system( Linear_Problem* aLinearSystem, const moris::sint aIter );
+        moris::sint solve_linear_system( Linear_Problem* aLinearSystem, moris::sint aIter );
 
         void set_solver_internal_parameters();
     };

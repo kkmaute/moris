@@ -21,7 +21,7 @@ Preconditioner::Preconditioner()
 //-------------------------------------------------------------------------------
 
 Preconditioner::Preconditioner(
-        moris::ParameterList* aParameterlist,
+        moris::Parameter_List* aParameterlist,
         Linear_Problem*       aLinearSystem )
 {
     this->initialize(

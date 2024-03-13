@@ -21,7 +21,7 @@ namespace moris::xtk
     std::shared_ptr< xtk::Decomposition_Algorithm >
     create_decomposition_algorithm(
             enum Subdivision_Method aSubdivisionMethod,
-            moris::ParameterList&   aParameterList )
+            moris::Parameter_List&   aParameterList )
     {
         switch ( aSubdivisionMethod )
         {

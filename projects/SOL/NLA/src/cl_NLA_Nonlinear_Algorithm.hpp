@@ -18,7 +18,7 @@
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
 
-#include "cl_Param_List.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 namespace moris
 {
@@ -60,18 +60,11 @@ namespace moris
             Nonlinear_Problem* mNonlinearProblem = nullptr;
 
             //! Parameterlist for this nonlinear solver
-            moris::ParameterList mParameterListNonlinearSolver;
+            moris::Parameter_List mParameterListNonlinearSolver;
 
             bool mLinSolverOwned = false;
 
             friend class Convergence;
-
-            //--------------------------------------------------------------------------------------------------
-
-            /**
-             * @brief Set the parameters in the nonlinear solver parameter list
-             */
-            void set_nonlinear_solver_parameters();
 
             //--------------------------------------------------------------------------------------------------
 
@@ -81,20 +74,10 @@ namespace moris
             moris::real calculate_time_needed( const clock_t aTime );
 
           public:
-            //--------------------------------------------------------------------------------------------------
-
-            /**
-             * @brief Constructor
-             */
-            Nonlinear_Algorithm()
-            {
-                // Set default parameters in parameter list for nonlinear solver
-                this->set_nonlinear_solver_parameters();
-            };
 
             //--------------------------------------------------------------------------------------------------
 
-            Nonlinear_Algorithm( const ParameterList aParameterlist )
+            Nonlinear_Algorithm( const Parameter_List& aParameterlist = prm::create_nonlinear_algorithm_parameter_list() )
                     : mParameterListNonlinearSolver( aParameterlist ){};
 
             //--------------------------------------------------------------------------------------------------
@@ -143,14 +126,6 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             void set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolverManager );
-
-            //--------------------------------------------------------------------------------------------------
-
-            ParameterListTypes&
-            set_param( char const * aKey )
-            {
-                return mParameterListNonlinearSolver( aKey );
-            }
 
             //--------------------------------------------------------------------------------------------------
 

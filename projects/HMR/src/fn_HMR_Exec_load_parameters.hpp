@@ -26,7 +26,7 @@ namespace moris::hmr
     void
     load_file_list_from_xml(
             const std::string & aFilePath,
-            ParameterList     & aFileList )
+        Parameter_List    & aFileList )
     {
 
         Vector< std::string > tKeys;
@@ -82,7 +82,7 @@ namespace moris::hmr
     void
     load_refinement_parameters_from_xml(
             const std::string & aFilePath,
-            ParameterList     & aRefParams )
+            Parameter_List    & aRefParams )
     {
         // create temporary Parser object
         XML_Parser tParser( aFilePath );
@@ -138,7 +138,7 @@ namespace moris::hmr
     void
     load_field_parameters_from_xml(
             const std::string       & aFilePath,
-            Vector< ParameterList >   & aFieldParams )
+            Vector< Parameter_List >   & aFieldParams )
     {
         // clean up output
         aFieldParams.clear();
@@ -147,7 +147,7 @@ namespace moris::hmr
         XML_Parser tParser( aFilePath );
 
         // create empty parameter list
-        ParameterList tParams;
+        Parameter_List tParams;
         tParams.insert( "label", "untitled" );
         tParams.insert( "lagrange_order", (sint) 0 );
         tParams.insert( "bspline_order", (sint) 0 );

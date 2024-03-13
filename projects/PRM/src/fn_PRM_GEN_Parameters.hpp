@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris::prm
 {
@@ -21,10 +21,10 @@ namespace moris::prm
      *
      * @return GEN parameter list
      */
-    inline ParameterList
+    inline Parameter_List
     create_gen_parameter_list()
     {
-        ParameterList tGENParameterList;
+        Parameter_List tGENParameterList;
 
         // Level set parameters
         tGENParameterList.insert( "evaluate_new_pts_as_linear", false );    // for the new vertices, should I use full background cell info or only the linear version
@@ -62,7 +62,7 @@ namespace moris::prm
      *
      * @param aDesignParameterList Parameter list for a design field
      */
-    static void insert_field_parameters( ParameterList& aDesignParameterList )
+    static void insert_field_parameters( Parameter_List& aDesignParameterList )
     {
         aDesignParameterList.insert( "name", "" );                      // Name of field
         aDesignParameterList.insert( "field_type", "" );                // Type of field
@@ -77,9 +77,9 @@ namespace moris::prm
      *
      * @return Parameter list with only field parameters
      */
-    inline ParameterList create_field_parameter_list()
+    inline Parameter_List create_field_parameter_list()
     {
-        ParameterList tParameterList;
+        Parameter_List tParameterList;
         insert_field_parameters( tParameterList );
         return tParameterList;
     }
@@ -90,7 +90,7 @@ namespace moris::prm
      * @param aDesignParameterList Parameter list for a design (level set geometry or property)
      * @param aIncludeField Whether or not to include field parameters. If not, an existing field name must be assigned.
      */
-    static void insert_design_field_parameters( ParameterList& aDesignParameterList, bool aIncludeField )
+    static void insert_design_field_parameters( Parameter_List& aDesignParameterList, bool aIncludeField )
     {
         if ( aIncludeField )
         {
@@ -111,7 +111,7 @@ namespace moris::prm
      *
      * @param aDesignParameterList Parameter list for a design field with field parameters already inserted
      */
-    static void insert_user_defined_field_parameters( ParameterList& aDesignParameterList )
+    static void insert_user_defined_field_parameters( Parameter_List& aDesignParameterList )
     {
         aDesignParameterList.set( "field_type", "user_defined" );          // User-defined geometry
         aDesignParameterList.insert( "field_function_name", "" );          // Function name for evaluating the geometry field
@@ -123,9 +123,9 @@ namespace moris::prm
      *
      * @return Design parameter list
      */
-    static ParameterList create_design_parameter_list()
+    static Parameter_List create_design_parameter_list()
     {
-        ParameterList tDesignParameterList;
+        Parameter_List tDesignParameterList;
 
         tDesignParameterList.insert( "design_type", "" );               // Insert the design type parameter
         tDesignParameterList.insert( "number_of_refinements", "" );     // Number of refinement steps using HMR
@@ -140,9 +140,9 @@ namespace moris::prm
      *
      * @return Geometry parameter list
      */
-    static ParameterList create_geometry_parameter_list()
+    static Parameter_List create_geometry_parameter_list()
     {
-        ParameterList tGeometryParameterList = create_design_parameter_list();
+        Parameter_List tGeometryParameterList = create_design_parameter_list();
         tGeometryParameterList.set( "design_type", "geometry" ); // Set the design type to a geometry
         tGeometryParameterList.insert( "geometry_type", "" );    // Insert the geometry type parameter
 
@@ -158,10 +158,10 @@ namespace moris::prm
      * @param aIncludeField Whether or not to include field parameters. If not, an existing field name must be assigned.
      * @return Geometry parameter list
      */
-    inline ParameterList
+    inline Parameter_List
     create_level_set_geometry_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tLevelSetParameterList = create_geometry_parameter_list();   // Inserts all geometry parameters
+        Parameter_List tLevelSetParameterList = create_geometry_parameter_list();   // Inserts all geometry parameters
         insert_design_field_parameters( tLevelSetParameterList, aIncludeField );   // Inserts all design parameters
         tLevelSetParameterList.set( "geometry_type", "level_set" );                // Sets the geometry type to level set
         tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );              // Level set isocontour level
@@ -179,10 +179,10 @@ namespace moris::prm
      *
      * @return Geometry parameter list
      */
-    inline ParameterList
+    inline Parameter_List
     create_surface_mesh_geometry_parameter_list( bool aIncludeField = false )
     {
-        ParameterList tSurfaceMeshParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
+        Parameter_List tSurfaceMeshParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
         insert_design_field_parameters( tSurfaceMeshParameterList, aIncludeField );    // Inserts all design parameters
         tSurfaceMeshParameterList.insert( "offset", "0,0,0" );                         // offset all points in the geometry by this much
         tSurfaceMeshParameterList.insert( "scale", "1.0,1.0,1.0" );                    // scaling factor for all points in the geometry
@@ -201,10 +201,10 @@ namespace moris::prm
      *
      * @return User-defined geometry parameter list
      */
-    inline ParameterList
+    inline Parameter_List
     create_user_defined_geometry_parameter_list()
     {
-        ParameterList tGeometryParameterList = create_level_set_geometry_parameter_list();    // Level set geometry parameters
+        Parameter_List tGeometryParameterList = create_level_set_geometry_parameter_list();    // Level set geometry parameters
         insert_user_defined_field_parameters( tGeometryParameterList );                       // Parameters for reading user-defined field functions
 
         return tGeometryParameterList;
@@ -217,10 +217,10 @@ namespace moris::prm
      *
      * @return Voxel geometry parameterlist
      */
-    inline ParameterList
+    inline Parameter_List
     create_voxel_geometry_parameter_list()
     {
-        ParameterList tVoxelParameterList = create_geometry_parameter_list();
+        Parameter_List tVoxelParameterList = create_geometry_parameter_list();
 
         tVoxelParameterList.set( "geometry_type", "voxel" );       // Set the geometry type to a voxel geometry
         tVoxelParameterList.insert( "voxel_field_file", "" );      // voxel file
@@ -238,10 +238,10 @@ namespace moris::prm
      *
      * @return sdf geometry parameterlist
      */
-    inline ParameterList
+    inline Parameter_List
     create_sdf_field_parameter_list()
     {
-        ParameterList tSDFParameterList = create_level_set_geometry_parameter_list();
+        Parameter_List tSDFParameterList = create_level_set_geometry_parameter_list();
 
         tSDFParameterList.set( "field_type", "sdf_field" );     // SDF field type
         tSDFParameterList.insert( "sdf_object_path", "" );      // obj file
@@ -258,10 +258,10 @@ namespace moris::prm
      *
      * @return sdf geometry parameterlist
      */
-    inline ParameterList
+    inline Parameter_List
     create_image_sdf_field_parameter_list()
     {
-        ParameterList tImageSDFParameterList = create_level_set_geometry_parameter_list();
+        Parameter_List tImageSDFParameterList = create_level_set_geometry_parameter_list();
 
         tImageSDFParameterList.set( "field_type", "image_sdf" );            // sdf field generated from image
         tImageSDFParameterList.insert( "image_file", "" );                  // image file (hdf5 format)
@@ -282,10 +282,10 @@ namespace moris::prm
      *
      * @return sdf geometry parameterlist
      */
-    inline ParameterList
+    inline Parameter_List
     create_nodal_field_from_file_parameter_list()
     {
-        ParameterList tNodalFieldParameterList = create_level_set_geometry_parameter_list();
+        Parameter_List tNodalFieldParameterList = create_level_set_geometry_parameter_list();
 
         tNodalFieldParameterList.set( "field_type", "nodal_field_from_file" );    // field defined on mesh file
         tNodalFieldParameterList.insert( "file_name", "" );                       // file name
@@ -303,10 +303,10 @@ namespace moris::prm
      *
      * @return Swiss cheese slice parameter list
      */
-    inline ParameterList
+    inline Parameter_List
     create_field_array_parameter_list()
     {
-        ParameterList tFieldArrayParameterList = create_level_set_geometry_parameter_list();    // TODO not tied to geometry
+        Parameter_List tFieldArrayParameterList = create_level_set_geometry_parameter_list();    // TODO not tied to geometry
 
         // Lower and upper bounds on the array with respect to the reference coordinates of the field
         tFieldArrayParameterList.insert( "lower_bound_x", 0.0 );
@@ -347,10 +347,10 @@ namespace moris::prm
      * @param aIncludeField Whether or not to include field parameters. If not, an existing field name must be assigned.
      * @return GEN property parameter list
      */
-    inline ParameterList
+    inline Parameter_List
     create_gen_property_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tPropertyParameterList = create_design_parameter_list();   // Create a design parameter list
+        Parameter_List tPropertyParameterList = create_design_parameter_list();   // Create a design parameter list
         tPropertyParameterList.set( "design_type", "property" );                 // Set the design type to a property
         insert_design_field_parameters( tPropertyParameterList, aIncludeField ); // Inserts all design field parameters
         tPropertyParameterList.insert( "pdv_type", "" );                         // The type of PDV that this property will be assigned to
@@ -369,10 +369,10 @@ namespace moris::prm
      *
      * @return User-defined GEN property parameter list
      */
-    inline ParameterList
+    inline Parameter_List
     create_user_defined_property_parameter_list()
     {
-        ParameterList tPropertyParameterList = create_gen_property_parameter_list();    // Create property parameter list
+        Parameter_List tPropertyParameterList = create_gen_property_parameter_list();    // Create property parameter list
         insert_user_defined_field_parameters( tPropertyParameterList );                 // Parameters for reading user-defined field functions
 
         return tPropertyParameterList;

@@ -19,7 +19,9 @@ set(HEADERS
     cl_Dist_Map.hpp
     cl_Map.hpp
     cl_Mini_Maps.hpp
-    cl_Param_List.hpp
+	cl_Validator.hpp
+	cl_Parameter.hpp
+	cl_Parameter_List.hpp
     cl_Tuple.hpp
     containers.hpp
     fn_zip.hpp
@@ -28,28 +30,37 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
 	cl_Vector.cpp
+	cl_Validator.cpp
+	cl_Parameter.cpp
+	cl_Parameter_List.cpp
     )
+
+# List library dependencies
+set(LIB_DEPENDENCIES
+	${LINALG}-lib
+	)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Containers Library
 
 #add_library(${CNT}-lib INTERFACE)
 add_library(${CNT}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
-target_include_directories(${CNT}-lib INTERFACE
+target_include_directories(${CNT}-lib PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${CNT}_HEADER_INSTALL_DIR}> )
+target_link_libraries(${CNT}-lib PUBLIC ${LIB_DEPENDENCIES})
 
 foreach(TPL ${CNT_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${CNT}-lib
-    	INTERFACE ${MORIS}::${tpl})
+    	PUBLIC ${MORIS}::${tpl})
     
     string(TOUPPER ${TPL} TPL)
     target_include_directories(${CNT}-lib 
-    	INTERFACE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
+    	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
     target_compile_definitions(${CNT}-lib
-    	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
+    	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

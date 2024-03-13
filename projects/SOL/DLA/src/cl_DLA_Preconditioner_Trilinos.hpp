@@ -64,7 +64,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             Preconditioner_Trilinos(
-                    moris::ParameterList* aParameterlist,
+                    moris::Parameter_List* aParameterlist,
                     Linear_Problem*       aLinearSystem );
 
             //-------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ namespace moris
              * initialize preconditioner by setting parameter list and linear system
              */
             void initialize(
-                    moris::ParameterList* aParameterlist,
+                    moris::Parameter_List* aParameterlist,
                     Linear_Problem*       aLinearSystem );
 
             //-------------------------------------------------------------------------------
@@ -125,21 +125,6 @@ namespace moris
             {
                 return mMlPrec;
             };
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * @brief Set the param object
-             * 
-             * @param aKey 
-             * @return ParameterListTypes& 
-             */
-
-            ParameterListTypes&
-            set_param( const std::string& aKey )
-            {
-                return ( *mParameterList )( aKey );
-            }
 
             //-------------------------------------------------------------------------------
         };

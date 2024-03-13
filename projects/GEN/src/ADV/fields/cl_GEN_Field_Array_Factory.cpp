@@ -14,7 +14,7 @@ namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Field_Array_Factory::Field_Array_Factory( const ParameterList& aFieldArrayParameters )
+    Field_Array_Factory::Field_Array_Factory( const Parameter_List& aFieldArrayParameters )
             : mOffsetPerRowX( aFieldArrayParameters.get< real >( "offset_per_row_x") )
             , mOffsetPerRowY( aFieldArrayParameters.get< real >( "offset_per_row_y") )
             , mOffsetPerRowZ( aFieldArrayParameters.get< real >( "offset_per_row_z") )

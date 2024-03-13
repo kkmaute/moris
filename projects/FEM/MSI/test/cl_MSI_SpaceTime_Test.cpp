@@ -126,7 +126,7 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
         uint tNumCoeff = 1000000;
 
         sint tDofOrder = 1;
-        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+        moris::Parameter_List tMSIParameters = prm::create_msi_parameter_list();
         tMSIParameters.set( "VX", tDofOrder );
         tMSIParameters.set( "LS1", tDofOrder );
 

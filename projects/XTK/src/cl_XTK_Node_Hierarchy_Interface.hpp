@@ -76,7 +76,7 @@ namespace moris::xtk
         Integration_Mesh_Generator       *mGenerator;
 
       public:
-        Node_Hierarchy_Interface( ParameterList &aParameterList ) {}
+        Node_Hierarchy_Interface( Parameter_List &aParameterList ) {}
         ~Node_Hierarchy_Interface() {}
 
         bool has_geometric_independent_vertices() const;

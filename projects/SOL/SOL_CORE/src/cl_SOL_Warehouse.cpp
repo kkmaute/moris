@@ -155,9 +155,7 @@ void SOL_Warehouse::create_linear_solver_algorithms()
 
     for ( uint Ik = 0; Ik < tNumLinAlgorithms; Ik++ )
     {
-        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver(
-                static_cast< moris::sol::SolverType >( mParameterlist( 0 )( Ik ).get< moris::uint >( "Solver_Implementation" ) ),
-                mParameterlist( 0 )( Ik ) );
+        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver( mParameterlist( 0 )( Ik ) );
 
         // get and set nonlinear sub-solvers for staggered methods
         Vector< uint > tPreconditionerIndices;
@@ -227,7 +225,6 @@ void SOL_Warehouse::create_nonlinear_solver_algorithms()
     {
         mNonlinearSolverAlgorithms( Ik ) =
                 tNonlinFactory.create_nonlinear_solver(    //
-                        static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 2 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
                         mParameterlist( 2 )( Ik ) );
 
         mNonlinearSolverAlgorithms( Ik )->set_linear_solver( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
@@ -260,7 +257,6 @@ void SOL_Warehouse::create_nonlinear_solvers()
         // create nonlinear solver
         mNonlinearSolvers( Ik ) =
                 new NLA::Nonlinear_Solver(
-                        static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 3 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
                         mParameterlist( 3 )( Ik ) );
 
         // set nonlinear algorithms

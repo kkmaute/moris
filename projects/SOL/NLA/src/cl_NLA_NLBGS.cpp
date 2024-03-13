@@ -33,16 +33,10 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
-NonLinBlockGaussSeidel::NonLinBlockGaussSeidel()
-{
-    // Set default parameters in parameter list for nonlinear solver
-    this->set_nonlinear_solver_parameters();
-}
-
 //--------------------------------------------------------------------------------------------------------------------------
 
-NonLinBlockGaussSeidel::NonLinBlockGaussSeidel( const ParameterList aParameterlist )
-        : Nonlinear_Algorithm( aParameterlist )
+NonLinBlockGaussSeidel::NonLinBlockGaussSeidel( const Parameter_List& aParameterList )
+        : Nonlinear_Algorithm( aParameterList )
 {
 }
 

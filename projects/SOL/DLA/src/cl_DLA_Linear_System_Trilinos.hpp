@@ -38,7 +38,7 @@
 #include "cl_SOL_Dist_Map.hpp"
 #include "cl_SOL_Warehouse.hpp"
 
-#include "cl_Param_List.hpp"    // CON/src
+#include "cl_Parameter_List.hpp"    // CON/src
 
 namespace moris
 {

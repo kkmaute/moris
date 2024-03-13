@@ -83,7 +83,7 @@ namespace moris
              * @param[in] aParameterList     User defined parameter list
              */
             explicit Time_Solver_Algorithm(
-                    const ParameterList& aParameterList = prm::create_time_solver_algorithm_parameter_list() );
+                    const Parameter_List& aParameterList = prm::create_time_solver_algorithm_parameter_list() );
 
             //-------------------------------------------------------------------------------
             /**

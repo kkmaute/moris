@@ -24,7 +24,7 @@ namespace moris::dla
 
         Linear_Problem* mLinearSystem = nullptr;
 
-        moris::ParameterList* mParameterList;
+        moris::Parameter_List* mParameterList;
 
       public:
         //-------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace moris::dla
         //-------------------------------------------------------------------------------
 
         Preconditioner(
-                moris::ParameterList* aParameterlist,
+                moris::Parameter_List* aParameterlist,
                 Linear_Problem*       aLinearSystem );
 
         //-------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ namespace moris::dla
          * initialize preconditioner by setting parameter list and linear system
          */
         virtual void initialize(
-                moris::ParameterList* aParameterlist,
+                moris::Parameter_List* aParameterlist,
                 Linear_Problem*       aLinearSystem ) {};
 
         //-------------------------------------------------------------------------------
@@ -67,22 +67,6 @@ namespace moris::dla
          **/
 
         virtual bool exists() { return mIsInitialized; };
-
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @brief Set the param object
-         *
-         * @param aKey
-         * @return ParameterListTypes&
-         */
-
-        ParameterListTypes&
-        set_param( const std::string& aKey )
-        {
-            return ( *mParameterList )( aKey );
-        }
 
         //-------------------------------------------------------------------------------
     };

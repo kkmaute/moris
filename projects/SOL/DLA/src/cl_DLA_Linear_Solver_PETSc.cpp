@@ -11,7 +11,6 @@
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #include "cl_DLA_Preconditioner_PETSc.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
-#include "fn_PRM_SOL_Parameters.hpp"
 
 #include <petscksp.h>
 #include <petscdm.h>
@@ -40,25 +39,16 @@ fn_KSPMonitorResidual( KSP ksp, PetscInt n, PetscReal rnorm, void *dummy )
 
 //----------------------------------------------------------------------------------------
 
-Linear_Solver_PETSc::Linear_Solver_PETSc()
-{
-    this->set_solver_parameters();
-}
-
-//----------------------------------------------------------------------------------------
-
-Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist )
+Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::Parameter_List& aParameterlist )
         : Linear_Solver_Algorithm_Petsc( aParameterlist )
 {
 }
 
 //----------------------------------------------------------------------------------------
 Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem *aLinearSystem )
+        : Linear_Solver_Algorithm_Petsc( prm::create_linear_algorithm_parameter_list_petsc() )
 {
     mLinearSystem = aLinearSystem;
-
-    // FIXME add rest
-    this->set_solver_parameters();
 }
 
 //----------------------------------------------------------------------------------------
@@ -66,43 +56,6 @@ Linear_Solver_PETSc::~Linear_Solver_PETSc()
 {
     // KSPDestroy(&mPetscKSPProblem);
     //    PCDestroy(&mpc);
-}
-
-//----------------------------------------------------------------------------------------
-void 
-Linear_Solver_PETSc::set_solver_parameters()
-{
-    // Create parameter list and set default values for solver parameters
-
-    // Set KSP type
-    mParameterList.insert( "KSPType", std::string( "gmres" ) );
-
-    // Set default preconditioner
-    mParameterList.insert( "PCType", std::string( "ilu" ) );
-
-    // Sets maximal iters for KSP
-    mParameterList.insert( "KSPMaxits", 1000 );
-
-    // Sets KSP gmres restart
-    mParameterList.insert( "KSPMGMRESRestart", 500 );
-
-    // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES
-    mParameterList.insert( "KSPGMRESHapTol", 1e-10 );
-
-    // Sets tolerance for KSP
-    mParameterList.insert( "KSPTol", 1e-10 );
-
-    // Sets the number of levels of fill to use for ILU
-    mParameterList.insert( "ILUFill", 0 );
-
-    // Sets drop tolerance for ilu
-    mParameterList.insert( "ILUTol", 1e-6 );
-
-    // Set multigrid levels
-    mParameterList.insert( "MultigridLevels", 3 );
-
-    // Set multigrid levels
-    mParameterList.insert( "ouput_eigenspectrum", (uint)0 );
 }
 
 //----------------------------------------------------------------------------------------

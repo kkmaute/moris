@@ -15,7 +15,7 @@
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 // Forward declarations
 namespace moris
@@ -47,7 +47,7 @@ namespace moris::gen
          * @param aNodeManager Node manager from the geometry engine, if applicable
          */
         Design_Factory(
-                Vector< ParameterList >         aParameterLists,
+                Vector< Parameter_List >         aParameterLists,
                 Matrix< DDRMat >&             aADVs,
                 std::shared_ptr< Library_IO > aLibrary = nullptr,
                 mtk::Mesh*                    aMesh = nullptr,

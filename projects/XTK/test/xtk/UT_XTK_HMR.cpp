@@ -73,7 +73,7 @@ namespace moris
         for ( moris::uint iOrder = 1; iOrder < 2; iOrder++ )
         {
 
-            Vector< Vector< ParameterList > > tParameterlist;
+            Vector< Vector< Parameter_List > > tParameterlist;
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
             tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();

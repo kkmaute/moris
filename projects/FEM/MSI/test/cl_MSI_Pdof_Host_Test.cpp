@@ -155,7 +155,7 @@ namespace moris
 
         Matrix< DDUMat > tTimeLevelOffsets( 1, 1, 0);
 
-        moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+        moris::Parameter_List tMSIParameters = prm::create_msi_parameter_list();
 
         Vector< Equation_Object* >tListEqnObj;
         Model_Solver_Interface  tMSI( tMSIParameters, tListEqnObj );

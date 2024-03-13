@@ -14,7 +14,7 @@
 
 #include "cl_SOL_Enums.hpp"
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -53,17 +53,18 @@ namespace moris
              */
             Preconditioner*
             create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
-                    ParameterList&                                    aParameterlist );
+                    Parameter_List&                                    aParameterlist );
 
-            //------------------------------------------------------------------------------
-
-            std::shared_ptr< Linear_Solver_Algorithm > create_solver( const enum sol::SolverType aSolverType = sol::SolverType::AZTEC_IMPL );
-
-            //------------------------------------------------------------------------------
-
+            /**
+             * Creates a solver of the given type and with given parameters.
+             *
+             * @param aSolverType Solver type
+             * @param aParameterlist Solve parameter list
+             * @return Solver shared pointer
+             */
             std::shared_ptr< Linear_Solver_Algorithm > create_solver(
-                    const enum sol::SolverType aSolverType,
-                    const ParameterList        aParameterlist );
+                    const Parameter_List& aParameterlist );
+
             //------------------------------------------------------------------------------
 
             Linear_Problem* create_linear_system(

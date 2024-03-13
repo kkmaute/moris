@@ -108,7 +108,7 @@ namespace moris
             Vector< moris::real > mQi;
 
             // parameter list to build the fem model
-            Vector< Vector< ParameterList > > mParameterList;
+            Vector< Vector< Parameter_List > > mParameterList;
 
             // unpacked fem inputs
             Vector< fem::Set_User_Info > mSetInfo;
@@ -185,7 +185,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
                     const moris_index                          &aMeshPairIndex,
-                    Vector< Vector< ParameterList > > aParameterList,
+                    Vector< Vector< Parameter_List > > aParameterList,
                     std::shared_ptr< Library_IO >               aLibrary );
 
             //------------------------------------------------------------------------------
@@ -200,7 +200,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
                     const moris_index                          &aMeshPairIndex,
-                    Vector< Vector< ParameterList > > aParameterList,
+                    Vector< Vector< Parameter_List > > aParameterList,
                     MSI::Design_Variable_Interface             *aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
@@ -390,7 +390,7 @@ namespace moris
              * @param[ in ] aParameterList a list of parameter for the FEM model
              */
             void
-            set_parameter_list( Vector< Vector< ParameterList > > aParameterList )
+            set_parameter_list( Vector< Vector< Parameter_List > > aParameterList )
             {
                 mParameterList = aParameterList;
             }

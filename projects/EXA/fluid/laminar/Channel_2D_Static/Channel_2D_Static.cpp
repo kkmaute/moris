@@ -117,7 +117,7 @@ extern "C"
             return aReturnValue;
         }
 
-        void OPTParameterList( Vector< Vector< ParameterList > > & tParameterlist )
+        void OPTParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -127,7 +127,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "is_optimization_problem", false);
         }
 
-        void HMRParameterList( Vector< Vector< ParameterList > > & tParameterlist )
+        void HMRParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -163,7 +163,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "adaptive_refinement_level", 0 );
         }
 
-        void XTKParameterList( Vector< Vector< ParameterList > > & tParameterlist )
+        void XTKParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -180,7 +180,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", false );
         }
 
-        void GENParameterList( Vector< Vector< ParameterList > > & tParameterlist )
+        void GENParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
         {
             tParameterlist.resize( 3 );
             tParameterlist( 0 ).resize( 1 );
@@ -215,7 +215,7 @@ extern "C"
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.0,0.0," + std::to_string(tPlaneRight) + ",0.0");
         }
 
-        void FEMParameterList( Vector< Vector< ParameterList > > & tParameterList )
+        void FEMParameterList( Vector< Vector< Parameter_List > > & tParameterList )
         {
             // create a cell of cell of parameter list for fem
             tParameterList.resize( 8 );
@@ -500,7 +500,7 @@ extern "C"
             tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
         }
 
-        void SOLParameterList( Vector< Vector< ParameterList > > & tParameterlist )
+        void SOLParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
         {
             tParameterlist.resize( 8 );
             for( uint Ik = 0; Ik < 8; Ik ++ )
@@ -533,7 +533,7 @@ extern "C"
             tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list(sol::PreconditionerType::NONE);
         }
 
-        void MSIParameterList( Vector< Vector< ParameterList > > & tParameterlist )
+        void MSIParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -541,7 +541,7 @@ extern "C"
             tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
         }
 
-        void VISParameterList( Vector< Vector< ParameterList > > & tParameterlist )
+        void VISParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
             tParameterlist( 0 ).resize( 1 );
@@ -556,7 +556,7 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "Save_Frequency",1);
         }
 
-        void MORISGENERALParameterList( Vector< Vector< ParameterList > > & tParameterlist )
+        void MORISGENERALParameterList( Vector< Vector< Parameter_List > > & tParameterlist )
         {
 
         }

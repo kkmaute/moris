@@ -19,7 +19,7 @@
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "cl_XTK_Enrichment.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 using namespace moris;
 
@@ -958,7 +958,7 @@ namespace moris::xtk
          */
 
         void
-        write_mesh( moris::ParameterList* aParamList );
+        write_mesh( moris::Parameter_List* aParamList );
 
         //------------------------------------------------------------------------------
 

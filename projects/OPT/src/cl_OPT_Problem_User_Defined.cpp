@@ -20,7 +20,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Problem_User_Defined::Problem_User_Defined(
-                ParameterList&                         aParameterList,
+                Parameter_List&                         aParameterList,
                 std::shared_ptr< Criteria_Interface >& aInterface )
                 : Problem( aParameterList, aInterface )
         {
@@ -44,7 +44,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Problem_User_Defined::Problem_User_Defined(
-                ParameterList                         aParameterList,
+                Parameter_List                        aParameterList,
                 std::shared_ptr< Criteria_Interface > aInterface,
                 Constraint_Types_Function             aConstraintTypesFunction,
                 Objective_Constraint_Function         aObjectiveFunction,

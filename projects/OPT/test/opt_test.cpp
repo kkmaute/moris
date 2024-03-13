@@ -34,8 +34,8 @@ namespace moris
             SECTION( "GCMMA" )
             {
                 // Set up default parameter lists
-                ParameterList tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
-                ParameterList tAlgorithmParameterList = moris::prm::create_gcmma_parameter_list();
+                Parameter_List tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
+                Parameter_List tAlgorithmParameterList = moris::prm::create_gcmma_parameter_list();
 
                 tAlgorithmParameterList.set( "version", 1 );
                 tAlgorithmParameterList.set( "norm_drop", 2.5e-5 );
@@ -78,8 +78,8 @@ namespace moris
             SECTION( "GCMMA 07" )
             {
                 // Set up default parameter lists
-                ParameterList tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
-                ParameterList tAlgorithmParameterList = moris::prm::create_gcmma_parameter_list();
+                Parameter_List tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
+                Parameter_List tAlgorithmParameterList = moris::prm::create_gcmma_parameter_list();
 
                 tAlgorithmParameterList.set( "version", 2 );
                 tAlgorithmParameterList.set( "norm_drop", 1e-6 );
@@ -125,8 +125,8 @@ namespace moris
             SECTION( "SQP" )
             {
                 // Set up default parameter lists
-                ParameterList tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
-                ParameterList tAlgorithmParameterList = moris::prm::create_sqp_parameter_list();
+                Parameter_List tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
+                Parameter_List tAlgorithmParameterList = moris::prm::create_sqp_parameter_list();
 
                 // Create interface
                 std::shared_ptr< Criteria_Interface > tInterface = std::make_shared< Interface_User_Defined >(
@@ -168,8 +168,8 @@ namespace moris
             {
                 // This optimization problem does not use the constraints!
                 // Set up default parameter lists
-                ParameterList tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
-                ParameterList tAlgorithmParameterList = moris::prm::create_lbfgs_parameter_list();
+                Parameter_List tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
+                Parameter_List tAlgorithmParameterList = moris::prm::create_lbfgs_parameter_list();
 
                 tAlgorithmParameterList.set( "max_its", 10 );
                 tAlgorithmParameterList.set( "num_corr", 5 );
@@ -223,8 +223,8 @@ namespace moris
                         "Environment variable MORISOUTPUT not set." );
 
                 // Set up default parameter lists
-                ParameterList tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
-                ParameterList tAlgorithmParameterList = moris::prm::create_sweep_parameter_list();
+                Parameter_List tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
+                Parameter_List tAlgorithmParameterList = moris::prm::create_sweep_parameter_list();
 
                 // Change parameters
                 tAlgorithmParameterList.set( "hdf5_path", tMorisOutput + "sweep.hdf5" );
@@ -312,7 +312,7 @@ namespace moris
                             &get_dcriteria_dadv_test );
 
                     // Interface manager parameter list
-                    ParameterList tInterfaceManagerParameterList = moris::prm::create_opt_interface_manager_parameter_list();
+                    Parameter_List tInterfaceManagerParameterList = moris::prm::create_opt_interface_manager_parameter_list();
 
                     // Set manager parameters
                     tInterfaceManagerParameterList.set( "parallel", true );

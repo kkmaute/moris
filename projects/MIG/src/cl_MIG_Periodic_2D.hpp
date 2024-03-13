@@ -13,7 +13,7 @@
 
 #include "cl_MTK_Mesh_Manager.hpp"
 //#include "cl_MTK_Side_Cluster_ISC_Impl.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_MTK_Intersec_Mesh_Data.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
 
@@ -67,7 +67,7 @@ namespace moris::mig
          */
         Periodic_2D( std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
             moris::moris_index                                   aMeshIndex,
-            moris::ParameterList                                &aParameterList,
+            moris::Parameter_List                           &aParameterList,
             moris::uint                                          aNumBulkPhases );
 
         // ----------------------------------------------------------------------------

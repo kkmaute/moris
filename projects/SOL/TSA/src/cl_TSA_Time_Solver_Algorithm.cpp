@@ -32,7 +32,7 @@ using namespace tsa;
 //-------------------------------------------------------------------------------
 
 Time_Solver_Algorithm::Time_Solver_Algorithm(
-        const ParameterList& aParameterlist )
+        const Parameter_List& aParameterlist )
 {
     mTimeSteps      = aParameterlist.get< sint >( "TSA_Num_Time_Steps" );
     real tTimeFrame = aParameterlist.get< real >( "TSA_Time_Frame" );

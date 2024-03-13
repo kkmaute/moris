@@ -60,7 +60,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Algorithm_LBFGS::Algorithm_LBFGS( ParameterList aParameterList )
+        Algorithm_LBFGS::Algorithm_LBFGS( Parameter_List aParameterList )
                 : mMaxIt( aParameterList.get< sint >( "max_its" ) )
                 , mLBFGSprint( aParameterList.get< sint >( "internal_lbfgs_print_severity" ) )
                 , mNumCorrections( aParameterList.get< sint >( "num_corr" ) )

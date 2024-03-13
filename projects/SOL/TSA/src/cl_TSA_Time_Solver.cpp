@@ -55,7 +55,7 @@ Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
 //--------------------------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver(
-        const ParameterList            aParameterlist,
+        const Parameter_List           aParameterlist,
         sol::SOL_Warehouse*            aSolverWarehouse,
         const enum tsa::TimeSolverType aTimeSolverType )
         : mParameterListTimeSolver( aParameterlist )

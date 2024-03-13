@@ -11,7 +11,7 @@
 #ifndef MORIS_FN_PRM_OPT_PARAMETERS_HPP
 #define MORIS_FN_PRM_OPT_PARAMETERS_HPP
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -19,10 +19,10 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_opt_problem_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             tParameterList.insert( "is_optimization_problem", false );        // Whether or not to use OPT
             tParameterList.insert( "workflow", "HMR_XTK" );                   // Workflow to use, HMR_XTK - standard workflow, STK_XTK
@@ -41,10 +41,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_opt_interface_manager_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             tParameterList.insert( "shared_advs", false );                  // If all of the ADVs are shared between criteria interfaces
             tParameterList.insert( "parallel", false );                     // If to execute criteria evaluations in parallel
@@ -55,10 +55,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_opt_interface_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             tParameterList.insert( "field_type", "user_defined" );    // OPT Interface class type
             tParameterList.insert( "library", "" );             // Path to a shared object file for user-defined functions
@@ -68,10 +68,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_gcmma_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             tParameterList.insert( "algorithm", "gcmma" );    // Algorithm name, don't change
             tParameterList.insert( "restart_index", 0 );      // Restart iteration index
@@ -90,10 +90,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_lbfgs_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             tParameterList.insert( "algorithm", "lbfgs" );    // Algorithm name, don't change
             tParameterList.insert( "restart_index", 0 );      // Restart iteration index
@@ -114,10 +114,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_sqp_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             tParameterList.insert( "algorithm", "sqp" );    // Algorithm name, don't change
 
@@ -195,10 +195,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_sweep_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             tParameterList.insert( "algorithm", "sweep" );                     // Algorithm name, don't change
             tParameterList.insert( "num_evaluations_per_adv", "10" );          // Uniformly sweep each adv with this many evaluation points per adv

@@ -17,7 +17,7 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        Interface_User_Defined::Interface_User_Defined( ParameterList aParameterList )
+        Interface_User_Defined::Interface_User_Defined( Parameter_List aParameterList )
         {
             // Load library
             moris::Library_Factory tLibraryFactory;

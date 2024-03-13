@@ -444,7 +444,7 @@ namespace moris::xtk
         moris::uint                       mNumTotalCells = 0;
 
       public:
-        Regular_Subdivision_Interface( ParameterList& aParameterList, mtk::CellTopology aCellTopology );
+        Regular_Subdivision_Interface( Parameter_List& aParameterList, mtk::CellTopology aCellTopology );
 
         ~Regular_Subdivision_Interface() {}
 

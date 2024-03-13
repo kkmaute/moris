@@ -200,7 +200,7 @@ namespace moris
                  // update fem set counter
                  tFemSetCounter++;
              }
-             moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
+             moris::Parameter_List tMSIParameters = prm::create_msi_parameter_list();
              tMSIParameters.set( "L2", 0 );
              tMSIParameters.set( "multigrid", true );
 
