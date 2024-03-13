@@ -145,7 +145,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
 
         if ( tRemappingStrategy.requires_remapping( It, mMyNonLinSolverManager, tLoadFactor ) )
         {
-            mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, 0, true );    // save current solution with the load factor // TODO @ff remove
+//            mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, 0, true );    // save current solution with the load factor // TODO @ff remove
             mNonlinearProblem->update_fem_model();
         }
 
