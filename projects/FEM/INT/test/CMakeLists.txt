@@ -53,8 +53,8 @@ set(TEST_SOURCES
     UT_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
     UT_FEM_CM_Spalart_Allmaras_Turbulence.cpp
     UT_FEM_CM_Struct_Linear_MT.cpp
-    UT_FEM_CM_Struc_NonLinear_Saint_Venant_Kirchhoff.cpp
-    UT_FEM_CM_Struc_NonLinear_Neo_Hookean.cpp
+    UT_FEM_CM_Struc_NonLinear.cpp
+    UT_FEM_CM_Struc_NonLinear_Compressible.cpp
     
     UT_FEM_SP_Fluid.cpp
     UT_FEM_SP_YZBeta_Advection.cpp
