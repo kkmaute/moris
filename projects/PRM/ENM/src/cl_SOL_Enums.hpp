@@ -76,6 +76,7 @@ namespace moris
             NONE,
             IFPACK,    // Ifpack
             ML,        // ML
+            PETSC,     // Petsc
             END_ENUM
         };
 

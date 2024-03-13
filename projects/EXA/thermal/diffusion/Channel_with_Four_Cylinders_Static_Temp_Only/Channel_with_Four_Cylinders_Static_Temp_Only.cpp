@@ -524,7 +524,6 @@ namespace moris
         if ( gTestCaseIndex == 0 )
         {
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
-            tParameterlist( 0 )( 0 ).set( "PCType", std::string( "none" ) );
         }
         else
         {

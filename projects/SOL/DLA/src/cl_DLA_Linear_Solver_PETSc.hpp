@@ -29,11 +29,7 @@ namespace moris::dla
       private:
         KSP mPetscKSPProblem;
 
-        PC mpc;
-
         Vector< KSP > tKSPBlock;
-
-        friend class Preconditioner_PETSc;
 
       protected:
 
@@ -84,5 +80,3 @@ namespace moris::dla
         void compute_eigenspectrum( Linear_Problem* aLinearSystem );
     };
 }    // namespace moris::dla
-
-

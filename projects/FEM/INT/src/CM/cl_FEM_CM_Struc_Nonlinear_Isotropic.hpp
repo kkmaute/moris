@@ -35,35 +35,49 @@ namespace moris
 
                 const real mEpsilon = 1e-10;
 
+                // default dof
+                MSI::Dof_Type mDofDispl    = MSI::Dof_Type::UX;
+                MSI::Dof_Type mDofTemp     = MSI::Dof_Type::UNDEFINED;
+                MSI::Dof_Type mDofPressure = MSI::Dof_Type::UNDEFINED;
+
+                // property type for CM
+                enum class CM_Property_Type
+                {
+                    EIGEN_STRAIN,
+                    MAX_ENUM
+                };
+                
                 // default local properties
-                std::shared_ptr< Property > mPropEMod         = nullptr;
-                std::shared_ptr< Property > mPropPoisson      = nullptr;
+                std::shared_ptr< Property > mPropEigenStrain  = nullptr;
 
                 // storage for deformation related evaluation
-                Matrix< DDRMat > mDefGrad;  // deformation gradient
-                Matrix< DDRMat > mRCGDef;   // right Cauchy-Green deformation tensor
-                Matrix< DDRMat > mInvRCGDef;// inverse of right Cauchy-Green deformation tensor
-                // FIXME need for left Cauchy-Green deformation tensor
-                Matrix< DDRMat > mLGStrain; // Lagrangian/Green strain tensor
-                Matrix< DDRMat > mEAStrain; // Eulerian/Almansi strain tensor
+                Matrix< DDRMat > mLGStrain;    // Lagrangian/Green strain tensor
+                Matrix< DDRMat > mEAStrain;    // Eulerian/Almansi strain tensor
+                Matrix< DDRMat > mDGStrain;    // Deformation gradient
                 // FIXME: storage for deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
-                Matrix< DDRMat > mDGStrain; // Deformation gradient strain tensor
+                Matrix< DDRMat > mDefGrad;    // deformation gradient
+                Matrix< DDRMat > mRCGStrain;    // right Cauchy-Green deformation tensor
+                Matrix< DDRMat > mInvRCGStrain;    // inverse of right Cauchy-Green deformation tensor
+                Matrix< DDRMat > mLCGStrain;    // left Cauchy-Green deformation tensor
+                Matrix< DDRMat > mInvLCGStrain;    // inverse of left Cauchy-Green deformation tensor
 
-                Matrix< DDRMat > mLGTestStrain;
-                Matrix< DDRMat > mEATestStrain;
-                // FIXME: storage for deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
-                Matrix< DDRMat > mDGTestStrain;
-                Vector< Matrix< DDRMat > > mdLGTestStraindu;
-                Vector< Matrix< DDRMat > > mdEATestStraindu;
-                // FIXME: storage for deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
-                Vector< Matrix< DDRMat > > mdDGTestStraindu;
-
-                Matrix< DDRMat > mTestDefGrad; // test deformation gradient
-                Vector< Matrix< DDRMat > > mdDefGraddu;
+                // storage for derivative of deformation related evaluation
                 Vector< Matrix< DDRMat > > mdLGStraindu;
                 Vector< Matrix< DDRMat > > mdEAStraindu;
-                // FIXME: storage for derivative of deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
                 Vector< Matrix< DDRMat > > mdDGStraindu;
+                // FIXME: storage for derivative of deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
+                Vector< Matrix< DDRMat > > mdDefGraddu;
+
+                // storage for test deformation related evaluation
+                Matrix< DDRMat > mLGTestStrain;
+                Matrix< DDRMat > mEATestStrain;
+                Matrix< DDRMat > mDGTestStrain;
+                // FIXME: storage for deformation gradient is set two times: Strain - Vector notation DefGrad: Matrix notation
+                Matrix< DDRMat > mTestDefGrad;
+
+                Vector< Matrix< DDRMat > > mdLGTestStraindu;
+                Vector< Matrix< DDRMat > > mdEATestStraindu;
+                Vector< Matrix< DDRMat > > mdDGTestStraindu;
 
                 // storage for volume change jacobian evaluation
                 real mVolumeChangeJ;
@@ -102,22 +116,19 @@ namespace moris
 
             private:
 
-                // default dof
-                MSI::Dof_Type mDofDispl    = MSI::Dof_Type::UX;
-                MSI::Dof_Type mDofTemp     = MSI::Dof_Type::UNDEFINED;
-                MSI::Dof_Type mDofPressure = MSI::Dof_Type::UNDEFINED;
-
                 // map for Voigt notation
                 moris::Matrix< DDRMat > mVoigtNonSymMap;
                 moris::Matrix< DDRMat > mVoigtSymMap;
 
                 // flag for deformation related evaluation
-                bool mDefGradEval   = true;
-                bool mRCGDefEval    = true;
-                bool mInvRCGDefEval = true;
+                bool mDefGradEval      = true;    // FIXME full version of deformation tensor evaluation flag
+                bool mDGStrainEval  = true;
+                bool mRCGStrainEval = true;
+                bool mInvRCGStrainEval = true;
+                bool mLCGStrainEval = true;
+                bool mInvLCGStrainEval = true;
                 bool mLGStrainEval  = true;
                 bool mEAStrainEval  = true;
-                bool mDGStrainEval  = true;
 
                 bool mLGTestStrainEval = true;
                 bool mEATestStrainEval = true;
@@ -162,14 +173,6 @@ namespace moris
                 moris::Matrix< DDBMat > md2PKTestTractionduEval;
                 moris::Matrix< DDBMat > mdCauchyTestTractionduEval;
 
-                // property type for CM
-                enum class CM_Property_Type
-                {
-                        EMOD,
-                        NU,
-                        MAX_ENUM
-                };
-
                 // function pointers
 
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_test_deformation_gradient )(
@@ -185,6 +188,13 @@ namespace moris
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_dEATestStraindDOF )(
                         const Vector< MSI::Dof_Type > & aDofTypes ) = nullptr;
 
+                void ( CM_Struc_Nonlinear_Isotropic::*m_eval_defGrad )() = nullptr;
+
+                void ( CM_Struc_Nonlinear_Isotropic::*m_eval_inv_right_cauchy_green_deformation_tensor )() = nullptr;
+                void ( CM_Struc_Nonlinear_Isotropic::*m_eval_inv_left_cauchy_green_deformation_tensor )()  = nullptr;
+
+                void ( CM_Struc_Nonlinear_Isotropic::*m_eval_volume_change_jacobian )() = nullptr;
+
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_flatten_normal )(
                         const Matrix< DDRMat > & aNormal,
                         Matrix< DDRMat >       & aFlatNormal ) = nullptr;
@@ -193,6 +203,10 @@ namespace moris
                         const Matrix< DDRMat > & aNormal,
                         Matrix< DDRMat >       & aFlatNormal ) = nullptr;
 
+                void ( CM_Struc_Nonlinear_Isotropic::*m_proj_jump )(
+                        const Matrix< DDRMat >& aVector,
+                        Matrix< DDRMat >&       aProjMatrix ) = nullptr;
+
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_proj_sym )(
                         const Matrix< DDRMat > & aVector,
                         Matrix< DDRMat >       & aProjMatrix ) = nullptr;
@@ -200,8 +214,6 @@ namespace moris
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_proj_nsym )(
                         const Matrix< DDRMat > & aVector,
                         Matrix< DDRMat >       & aProjMatrix ) = nullptr;
-
-                void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_defGrad )() = nullptr;
 
                 // number of normal stresses and strains in the tensors
                 uint mNumNormalStress;
@@ -328,26 +340,6 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * get the right Cauchy-Green deformation tensor C = trans( F ) * F
-                 * @param[ in ]  aCMFunctionType      enum indicating which C is called, if there are several
-                 * @param[ out ] mCauchyGreeDefTensor right Cauchy-Green deformation tensor C = trans( F ) * F
-                 */
-                const Matrix< DDRMat > &
-                right_cauchy_green_deformation_tensor(
-                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * get the inverse of the right Cauchy-Green deformation tensor C = trans( F ) * F
-                 * @param[ in ]  aCMFunctionType      enum indicating which C is called, if there are several
-                 * @param[ out ] mCauchyGreeDefTensor right Cauchy-Green deformation tensor C = trans( F ) * F
-                 */
-                const Matrix< DDRMat > &
-                inv_right_cauchy_green_deformation_tensor(
-                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
                  * get the strain
                  * @param[ in ]  aCMFunctionType enum indicating which strain is called
                  * @param[ out ] mStrain         strain
@@ -456,8 +448,8 @@ namespace moris
                         enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //--------------------------------------------------------------------------------------------------------------
-                //            private:
 
+              private:
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluate the deformation gradient
@@ -477,15 +469,17 @@ namespace moris
                     ( this->*m_eval_test_deformation_gradient )( aTestDofTypes );
                 }
 
-                void eval_test_deformation_gradient_2d( const Vector< MSI::Dof_Type > & aTestDofTypes  );
-                void eval_test_deformation_gradient_3d( const Vector< MSI::Dof_Type > & aTestDofTypes  );
+                void eval_test_deformation_gradient_2d( const Vector< MSI::Dof_Type >& aTestDofTypes );
+                void eval_test_deformation_gradient_3d( const Vector< MSI::Dof_Type >& aTestDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluate the volume change Jacobian
                  */
-                void
-                eval_volume_change_jacobian();
+                void eval_volume_change_jacobian();
+
+                void eval_volume_change_jacobian_2d();
+                void eval_volume_change_jacobian_3d();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -499,7 +493,33 @@ namespace moris
                  * evaluate the inverse of the right Cauchy-Green deformation tensor C
                  */
                 void
-                eval_inv_right_cauchy_green_deformation_tensor();
+                eval_inv_right_cauchy_green_deformation_tensor()
+                {
+                    ( this->*m_eval_inv_right_cauchy_green_deformation_tensor )();
+                }
+
+                void eval_inv_right_cauchy_green_deformation_tensor_2d();
+                void eval_inv_right_cauchy_green_deformation_tensor_3d();
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the left Cauchy-Green deformation tensor b
+                 */
+                void
+                eval_left_cauchy_green_deformation_tensor();
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * evaluate the inverse of the left Cauchy-Green deformation tensor b
+                 */
+                void
+                eval_inv_left_cauchy_green_deformation_tensor()
+                {
+                    ( this->*m_eval_inv_left_cauchy_green_deformation_tensor )();
+                }
+
+                void eval_inv_left_cauchy_green_deformation_tensor_2d();
+                void eval_inv_left_cauchy_green_deformation_tensor_3d();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -888,6 +908,7 @@ namespace moris
                         Matrix< DDRMat >       & aFlatNormal );
 
                 //--------------------------------------------------------------------------------------------------------------
+                // FIXME implementation fixed for 2d/3d
                 /**
                  * transform Voigt vector into full matrix for non-symmetric case
                  * @param[ in ] aVoigtVector a matrix in Voigt notation provided
@@ -979,7 +1000,6 @@ namespace moris
                     ( this->*m_proj_nsym )( aVector, aProjMatrix );
                 }
 
-                // FIXME provide header
                 void proj_nsym_2d(
                         const Matrix< DDRMat > & aVector,
                         Matrix< DDRMat >       & aProjMatrix );
@@ -991,6 +1011,59 @@ namespace moris
                 void eval_flux_proj_nsym(
                         enum CM_Function_Type aCMFunctionType);
 
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * Flattening of the jump
+                 * @param aVector     jump in form of vector
+                 * @param aProjMatrix jump in form of matrix
+                 */
+                void proj_jump(
+                        const Matrix< DDRMat >& aVector,
+                        Matrix< DDRMat >&       aProjMatrix )
+                {
+                    ( this->*m_proj_jump )( aVector, aProjMatrix );
+                }
+
+                void proj_jump_2d(
+                        const Matrix< DDRMat >& aVector,
+                        Matrix< DDRMat >&       aProjMatrix );
+
+                void proj_jump_3d(
+                        const Matrix< DDRMat >& aVector,
+                        Matrix< DDRMat >&       aProjMatrix );
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * select derivative wrt to a dof type
+                 * @param[ in ] aCMRequestType  a type for required derivative
+                 * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+                 * @param[ in ] aNormal         a normal
+                 * @param[ in ] aJump           a jump
+                 * @param[ in ] aCMFunctionType
+                 * Rem: child implementation
+                 */
+                const Matrix< DDRMat >& select_derivative_FD(
+                        enum CM_Request_Type           aCMRequestType,
+                        const Vector< MSI::Dof_Type >& aTestDofTypes,
+                        const Matrix< DDRMat >&        aNormal,
+                        const Matrix< DDRMat >&        aJump,
+                        enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * select derivative wrt to a dof type
+                 * @param[ in ] aCMRequestType  a type for required derivative
+                 * @param[ in ] aDerivativeFD   a derivative value to set to storage
+                 * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+                 * @param[ in ] aCMFunctionType
+                 * Rem: child implementation
+                 */
+                void set_derivative_FD(
+                        enum CM_Request_Type           aCMRequestType,
+                        Matrix< DDRMat >&              aDerivativeFD,
+                        const Vector< MSI::Dof_Type >& aDofTypes,
+                        const Vector< MSI::Dof_Type >& aTestDofTypes,
+                        enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
         };
         //--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */

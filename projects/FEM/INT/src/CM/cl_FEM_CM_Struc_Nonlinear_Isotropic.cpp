@@ -29,8 +29,7 @@ namespace moris
             mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "YoungsModulus" ] = static_cast< uint >( CM_Property_Type::EMOD );
-            mPropertyMap[ "PoissonRatio" ]  = static_cast< uint >( CM_Property_Type::NU );
+            mPropertyMap[ "EigenStrain" ] = static_cast< uint >( CM_Property_Type::EIGEN_STRAIN );
         }
 
         //------------------------------------------------------------------------------
@@ -43,8 +42,10 @@ namespace moris
 
             // reset the deformation related flags
             mDefGradEval   = true;
-            mRCGDefEval    = true;
-            mInvRCGDefEval = true;
+            mRCGStrainEval    = true;
+            mInvRCGStrainEval = true;
+            mLCGStrainEval    = true;
+            mInvLCGStrainEval = true;
             mLGStrainEval  = true;
             mEAStrainEval  = true;
             mDGStrainEval  = true;
@@ -172,7 +173,7 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic::set_dof_type_list(
                 Vector< Vector< MSI::Dof_Type > > aDofTypes,
-                Vector< std::string >           aDofStrings )
+                Vector< std::string >             aDofStrings )
         {
             // set dof type list
             Constitutive_Model::set_dof_type_list( aDofTypes );
@@ -206,18 +207,8 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic::set_local_properties()
         {
-            // set the Young's modulus property
-            mPropEMod = get_property( "YoungsModulus" );
-
-            // set the Poisson ratio property
-            mPropPoisson = get_property( "PoissonRatio" );
-
-            // check that essential properties exist
-            MORIS_ASSERT( mPropEMod,
-                    "CM_Struc_Linear_Isotropic::set_local_properties - Young's modulus property does not exist.\n" );
-
-            MORIS_ASSERT( mPropPoisson,
-                    "CM_Struc_Linear_Isotropic::set_local_properties - Poisson ratio property does not exist.\n" );
+            // set the eigen-strain property
+            mPropEigenStrain = get_property( "EigenStrain" );
         }
 
         //------------------------------------------------------------------------------
@@ -233,7 +224,10 @@ namespace moris
                     mVoigtNonSymMap = { { 0, 1 }, { 2, 3 } };
                     mVoigtSymMap    = { { 0, 2 }, { 2, 1 } };
 
-                    m_eval_test_deformation_gradient = &CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_2d;
+                    m_eval_volume_change_jacobian                    = &CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian_2d;
+                    m_eval_test_deformation_gradient                 = &CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_2d;
+                    m_eval_inv_right_cauchy_green_deformation_tensor = &CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor_2d;
+                    m_eval_inv_left_cauchy_green_deformation_tensor = &CM_Struc_Nonlinear_Isotropic::eval_inv_left_cauchy_green_deformation_tensor_2d;
 
                     m_eval_dLGStraindDOF = &CM_Struc_Nonlinear_Isotropic::eval_dLGStraindDOF_2d;
                     m_eval_dEAStraindDOF = &CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_2d;
@@ -246,10 +240,12 @@ namespace moris
 
                     m_proj_sym  = &CM_Struc_Nonlinear_Isotropic::proj_sym_2d;
                     m_proj_nsym = &CM_Struc_Nonlinear_Isotropic::proj_nsym_2d;
+                    m_proj_jump = &CM_Struc_Nonlinear_Isotropic::proj_jump_2d;
 
-                    //                    mFluxHead.set_size( 4, 4, 0.0 ); // FIXME
-                    //                    mCauchy.set_size( 3, 1, 0.0 );    // FIXME
                     mFluxProj.set_size( 4, 4, 0.0 );
+                    mInvRCGStrain.set_size( 3, 1 );
+                    mInvLCGStrain.set_size( 3, 1 );
+                    mConst.set_size( 3, 3 );
 
                     break;
                 }
@@ -259,7 +255,10 @@ namespace moris
                     mVoigtNonSymMap = { { 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 } };
                     mVoigtSymMap    = { { 0, 5, 4 }, { 5, 1, 3 }, { 4, 3, 2 } };
 
-                    m_eval_test_deformation_gradient = &CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_3d;
+                    m_eval_volume_change_jacobian                    = &CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian_3d;
+                    m_eval_test_deformation_gradient                 = &CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_3d;
+                    m_eval_inv_right_cauchy_green_deformation_tensor = &CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor_3d;
+                    m_eval_inv_left_cauchy_green_deformation_tensor = &CM_Struc_Nonlinear_Isotropic::eval_inv_left_cauchy_green_deformation_tensor_3d;
 
                     m_eval_dLGStraindDOF = &CM_Struc_Nonlinear_Isotropic::eval_dLGStraindDOF_3d;
                     m_eval_dEAStraindDOF = &CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_3d;
@@ -272,12 +271,12 @@ namespace moris
 
                     m_proj_sym  = &CM_Struc_Nonlinear_Isotropic::proj_sym_3d;
                     m_proj_nsym = &CM_Struc_Nonlinear_Isotropic::proj_nsym_3d;
-
-                    // FIXME
-                    //                    mFluxHead.set_size( 9, 9, 0.0 );
-                    //                    mStrain.set_size( 6, 1, 0.0 );
+                    m_proj_jump = &CM_Struc_Nonlinear_Isotropic::proj_jump_3d;
 
                     mFluxProj.set_size( 9, 9, 0.0 );
+                    mInvRCGStrain.set_size( 6, 1 );
+                    mInvLCGStrain.set_size( 6, 1 );
+                    mConst.set_size( 6, 6 );
 
                     // list number of normal stresses and strains
                     mNumNormalStress = 3;
@@ -293,7 +292,9 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
+        // FIXME: storage for deformation gradient is set twice:
+        // Strain - Vector notation -> to be consistent with other work conjugates
+        // DefGrad: Matrix notation
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::deformation_gradient()
         {
@@ -320,10 +321,28 @@ namespace moris
 
             // evaluate the deformation gradient as F = I + du/dX
             mDefGrad = trans( tDisplGradx ) + eye( mSpaceDim, mSpaceDim );
+
+            // if eigen-strain is defined
+            if ( mPropEigenStrain != nullptr )
+            {
+                // Storage for Eigenstrain in Voigt notation
+                Matrix< DDRMat > tEigenStrainV;
+
+                // store in Voigt notation
+                this->voigt_to_full_sym_strain( mPropEigenStrain->val(), tEigenStrainV );
+
+                // evaluate eigenstrain deformation gradient
+                Matrix< DDRMat > tDefGradES = eye( mSpaceDim, mSpaceDim ) + tEigenStrainV;
+
+                // evaluate the total deformation gradient
+                mDefGrad = mDefGrad * inv( tDefGradES );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
+        // FIXME: storage for deformation gradient is set twice:
+        // Strain - Vector notation -> to be consistent with other work conjugates
+        // DefGrad: Matrix notation
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::test_deformation_gradient(
                 const Vector< MSI::Dof_Type >& aTestDofTypes )
@@ -364,6 +383,28 @@ namespace moris
                 mTestDefGrad( { 1, 1 }, { 0, tNumBases - 1 } )             = tdnNdxn.get_row( 1 );
                 mTestDefGrad( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn.get_row( 0 );
                 mTestDefGrad( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn.get_row( 1 );
+
+                // if eigen-strain is defined
+                if ( mPropEigenStrain != nullptr )
+                {
+                    // Storage for Eigenstrain in Voigt notation
+                    Matrix< DDRMat > tEigenStrainV;
+
+                    // store in Voigt notation
+                    this->voigt_to_full_sym_strain( mPropEigenStrain->val(), tEigenStrainV );
+
+                    // evaluate eigenstrain deformation gradient
+                    Matrix< DDRMat > tDefGradES = inv( ( eye( mSpaceDim, mSpaceDim ) + tEigenStrainV ) );
+
+                    // get the derivative of the deformation gradient wrt to displacement
+                    Matrix< DDRMat > tdnNdxn2 = tDefGradES * tdnNdxn;
+
+                    // populate the derivative of the lagrangian/green strain
+                    mTestDefGrad( { 0, 0 }, { 0, tNumBases - 1 } )             = tdnNdxn2.get_row( 0 );
+                    mTestDefGrad( { 1, 1 }, { 0, tNumBases - 1 } )             = tdnNdxn2.get_row( 1 );
+                    mTestDefGrad( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn2.get_row( 0 );
+                    mTestDefGrad( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn2.get_row( 1 );
+                }
             }
             else
             {
@@ -400,6 +441,33 @@ namespace moris
                 mTestDefGrad( { 6, 6 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn.get_row( 0 );
                 mTestDefGrad( { 7, 7 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn.get_row( 1 );
                 mTestDefGrad( { 8, 8 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn.get_row( 2 );
+
+                // if eigen-strain is defined
+                if ( mPropEigenStrain != nullptr )
+                {
+                    // Storage for Eigenstrain in Voigt notation
+                    Matrix< DDRMat > tEigenStrainV;
+
+                    // store in Voigt notation
+                    this->voigt_to_full_sym_strain( mPropEigenStrain->val(), tEigenStrainV );
+
+                    // evaluate eigenstrain deformation gradient
+                    Matrix< DDRMat > tDefGradES = inv( ( eye( mSpaceDim, mSpaceDim ) + tEigenStrainV ) );
+
+                    // get the derivative of the deformation gradient wrt to displacement
+                    Matrix< DDRMat > tdnNdxn2 = tDefGradES * tdnNdxn;
+
+                    // populate the derivative of the lagrangian/green strain
+                    mTestDefGrad( { 0, 0 }, { 0, tNumBases - 1 } )                 = tdnNdxn2.get_row( 0 );
+                    mTestDefGrad( { 1, 1 }, { 0, tNumBases - 1 } )                 = tdnNdxn2.get_row( 1 );
+                    mTestDefGrad( { 2, 2 }, { 0, tNumBases - 1 } )                 = tdnNdxn2.get_row( 2 );
+                    mTestDefGrad( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } )     = tdnNdxn2.get_row( 0 );
+                    mTestDefGrad( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } )     = tdnNdxn2.get_row( 1 );
+                    mTestDefGrad( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } )     = tdnNdxn2.get_row( 2 );
+                    mTestDefGrad( { 6, 6 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn2.get_row( 0 );
+                    mTestDefGrad( { 7, 7 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn2.get_row( 1 );
+                    mTestDefGrad( { 8, 8 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn2.get_row( 2 );
+                }
             }
             else
             {
@@ -435,81 +503,47 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian()
         {
-            // evaluate the volume change Jacobian
-            // FIXME better to use a self implemented version of det
-            mVolumeChangeJ = det( this->deformation_gradient() );
+            // compute the volume change Jacobian
+            ( this->*m_eval_volume_change_jacobian )();
 
             // check for negative Jacobian
-            MORIS_ASSERT( mVolumeChangeJ > 0,
-                    "CM_Struc_Nonlinear_Isotropic::volume_change_jacobian - Negative volume change jacobian." );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        const Matrix< DDRMat >&
-        CM_Struc_Nonlinear_Isotropic::right_cauchy_green_deformation_tensor(
-                enum CM_Function_Type aCMFunctionType )
-        {
-            // check CM function type, base class only supports "DEFAULT"
-            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                    "CM_Struc_Nonlinear_Isotropic::right_cauchy_green_deformation_tensor - Only DEFAULT CM function type known in base class." );
-
-            // if the right cauchy green deformation tensor was not evaluated
-            if ( mRCGDefEval )
-            {
-                // evaluate the right cauchy green deformation tensor
-                this->eval_right_cauchy_green_deformation_tensor();
-
-                // set bool for evaluation
-                mRCGDefEval = false;
-            }
-            // return the right cauchy green deformation tensor
-            return mRCGDef;
+            MORIS_ERROR( mVolumeChangeJ > 0.0,
+                    "CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian - Negative volume change jacobian." );
         }
 
         void
-        CM_Struc_Nonlinear_Isotropic::eval_right_cauchy_green_deformation_tensor()
+        CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian_2d()
         {
-            // evaluate the right cauchy green deformation tensor (full)
-            Matrix< DDRMat > tRCGDefFull = trans( this->deformation_gradient() ) * this->deformation_gradient();
+            // unpack the components of the deformation gradient
+            real tF11 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 0 );
+            real tF12 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 1 );
+            real tF21 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 2 );
+            real tF22 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 3 );
 
-            // store in Voigt notation
-            this->full_to_voigt_sym_strain( tRCGDefFull, mRCGDef );
-        }
-
-        const Matrix< DDRMat >&
-        CM_Struc_Nonlinear_Isotropic::inv_right_cauchy_green_deformation_tensor(
-                enum CM_Function_Type aCMFunctionType )
-        {
-            // check CM function type, base class only supports "DEFAULT"
-            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                    "CM_Struc_Nonlinear_Isotropic::inv_right_cauchy_green_deformation_tensor - Only DEFAULT CM function type known in base class." );
-
-            // if the inverse of the right cauchy green deformation tensor was not evaluated
-            if ( mInvRCGDefEval )
-            {
-                // evaluate the inverse of the right cauchy green deformation tensor
-                this->eval_inv_right_cauchy_green_deformation_tensor();
-
-                // set bool for evaluation
-                mInvRCGDefEval = false;
-            }
-            // return the inverse of the right cauchy green deformation tensor (full)
-            return mInvRCGDef;
+            // evaluate the volume change Jacobian
+            mVolumeChangeJ = tF11 * tF22 - tF12 * tF21;
         }
 
         void
-        CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor()
+        CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian_3d()
         {
-            // evaluate the right cauchy green deformation tensor (full)
-            Matrix< DDRMat > tRCGDefFull;
+            //  unpack the components of the deformation gradient
+            real tF11 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 0, 0 );
+            real tF12 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 1, 0 );
+            real tF13 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 2, 0 );
+            real tF21 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 3, 0 );
+            real tF22 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 4, 0 );
+            real tF23 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 5, 0 );
+            real tF31 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 6, 0 );
+            real tF32 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 7, 0 );
+            real tF33 = this->strain( CM_Function_Type::DEFORMATION_GRADIENT )( 8, 0 );
 
-            // store in Matrix notation
-            this->voigt_to_full_sym_strain( this->right_cauchy_green_deformation_tensor(), tRCGDefFull );
-
-            // Calculate the inverse of the right cauchy green deformation tensor (full)
-            mInvRCGDef = inv( tRCGDefFull );
+            // evaluate the volume change Jacobian
+            mVolumeChangeJ = tF11 * ( tF22 * tF33 - tF23 * tF32 )    //
+                           - tF12 * ( tF21 * tF33 - tF23 * tF31 )    //
+                           + tF13 * ( tF21 * tF32 - tF22 * tF31 );
         }
+
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -520,6 +554,81 @@ namespace moris
             // switch on CM function type
             switch ( aCMFunctionType )
             {
+                // deformation gradient (Voigt notation)
+                case CM_Function_Type::DEFORMATION_GRADIENT:
+                {
+                    // if the deformation gradient was not evaluated
+                    if ( mDGStrainEval )
+                    {
+                        // evaluate the deformation gradient
+                        this->eval_deformation_gradient_strain_tensor();
+
+                        // set bool for evaluation
+                        mDGStrainEval = false;
+                    }
+                    // return the deformation gradient
+                    return mDGStrain;
+                }
+                // right Cauchy-Green deformation tensor (Voigt notation)
+                case CM_Function_Type::RIGHT_CAUCHY_GREEN:
+                {
+                    // if the right Cauchy-Green deformation tensor was not evaluated
+                    if ( mRCGStrainEval )
+                    {
+                        // evaluate the right Cauchy-Green deformation tensor
+                        this->eval_right_cauchy_green_deformation_tensor();
+
+                        // set bool for evaluation
+                        mRCGStrainEval = false;
+                    }
+                    // return the right Cauchy-Green deformation tensor
+                    return mRCGStrain;
+                }
+                // inverse of the right Cauchy-Green deformation tensor (Voigt notation)
+                case CM_Function_Type::INV_RIGHT_CAUCHY_GREEN:
+                {
+                    // if the inverse of the right Cauchy-Green deformation tensor was not evaluated
+                    if ( mInvRCGStrainEval )
+                    {
+                        // evaluate the inverse of the right Cauchy-Green deformation tensor
+                        this->eval_inv_right_cauchy_green_deformation_tensor();
+
+                        // set bool for evaluation
+                        mInvRCGStrainEval = false;
+                    }
+                    // return the inverse of the right Cauchy-Green deformation tensor
+                    return mInvRCGStrain;
+                }
+                // left Cauchy-Green deformation tensor (Voigt notation)
+                case CM_Function_Type::LEFT_CAUCHY_GREEN:
+                {
+                    // if the left Cauchy-Green deformation tensor was not evaluated
+                    if ( mLCGStrainEval )
+                    {
+                        // evaluate the left Cauchy-Green deformation tensor
+                        this->eval_left_cauchy_green_deformation_tensor();
+
+                        // set bool for evaluation
+                        mLCGStrainEval = false;
+                    }
+                    // return the left Cauchy-Green deformation tensor
+                    return mLCGStrain;
+                }
+                // inverse of the left Cauchy-Green deformation tensor (Voigt notation)
+                case CM_Function_Type::INV_LEFT_CAUCHY_GREEN:
+                {
+                    // if the inverse of the left Cauchy-Green deformation tensor was not evaluated
+                    if ( mInvLCGStrainEval )
+                    {
+                        // evaluate the inverse of the left Cauchy-Green deformation tensor
+                        this->eval_inv_left_cauchy_green_deformation_tensor();
+
+                        // set bool for evaluation
+                        mInvLCGStrainEval = false;
+                    }
+                    // return the inverse of the left Cauchy-Green deformation tensor
+                    return mInvLCGStrain;
+                }
                 // lagrangian/Green strain
                 case CM_Function_Type::LAGRANGIAN:
                 {
@@ -550,20 +659,6 @@ namespace moris
                     // return the eulerian/Almansi strain
                     return mEAStrain;
                 }
-                case CM_Function_Type::DEFORMATION_GRADIENT:
-                {
-                    // if the eulerian/Almansi strain was not evaluated
-                    if ( mDGStrainEval )
-                    {
-                        // evaluate the eulerian/Almansi strain
-                        this->eval_deformation_gradient_strain_tensor();
-
-                        // set bool for evaluation
-                        mDGStrainEval = false;
-                    }
-                    // return the eulerian/Almansi strain
-                    return mDGStrain;
-                }
                 default:
                 {
                     MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::strain - Unknown strain type." );
@@ -572,11 +667,131 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_deformation_gradient_strain_tensor()
+        {
+            this->full_to_voigt_nonsym( this->deformation_gradient(), mDGStrain );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_right_cauchy_green_deformation_tensor()
+        {
+            // evaluate the right Cauchy-Green deformation tensor
+            Matrix< DDRMat > tRCGDefFull = trans( this->deformation_gradient() ) * this->deformation_gradient();
+
+            // store in Voigt notation
+            this->full_to_voigt_sym_strain( tRCGDefFull, mRCGStrain );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor_2d()
+        {
+            // unpack the components of the right Cauchy-Green deformation tensor
+            real tC11 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 0, 0 );
+            real tC22 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 1, 0 );
+            real tC12 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 2, 0 ) / 2.0;
+
+            // unpack invariant related to volume change
+            real tJ2 = std::pow( this->volume_change_jacobian(), 2.0 );
+
+            // unpack the components of the inverse of the right Cauchy-Green deformation tensor
+            mInvRCGStrain( 0, 0 ) = tC22 / tJ2;
+            mInvRCGStrain( 1, 0 ) = tC11 / tJ2;
+            mInvRCGStrain( 2, 0 ) = -2.0 * tC12 / tJ2;
+        }
+
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor_3d()
+        {
+            // unpack the components of the right Cauchy-Green deformation tensor
+            real tC11 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 0, 0 );
+            real tC22 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 1, 0 );
+            real tC33 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 2, 0 );
+            real tC23 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 3, 0 ) / 2.0;
+            real tC13 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 4, 0 ) / 2.0;
+            real tC12 = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN )( 5, 0 ) / 2.0;
+
+            // unpack invariant related to volume change
+            real tJ2 = std::pow( this->volume_change_jacobian(), 2.0 );
+
+            // unpack the components of the inverse of the right Cauchy-Green deformation tensor
+            // mVoigtSymMap    = { { 0, 5, 4 }, { 5, 1, 3 }, { 4, 3, 2 } };
+            mInvRCGStrain( 0, 0 ) = ( tC22 * tC33 - tC23 * tC23 ) / tJ2;
+            mInvRCGStrain( 1, 0 ) = ( tC11 * tC33 - tC13 * tC13 ) / tJ2;
+            mInvRCGStrain( 2, 0 ) = ( tC11 * tC22 - tC12 * tC12 ) / tJ2;
+            mInvRCGStrain( 3, 0 ) = 2.0 * ( tC13 * tC12 - tC11 * tC23 ) / tJ2;
+            mInvRCGStrain( 4, 0 ) = 2.0 * ( tC12 * tC23 - tC13 * tC22 ) / tJ2;
+            mInvRCGStrain( 5, 0 ) = 2.0 * ( tC23 * tC13 - tC12 * tC33 ) / tJ2;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_left_cauchy_green_deformation_tensor()
+        {
+            // evaluate the left Cauchy-Green deformation tensor
+            Matrix< DDRMat > tLCGDefFull = this->deformation_gradient() * trans( this->deformation_gradient() );
+
+            // store in Voigt notation
+            this->full_to_voigt_sym_strain( tLCGDefFull, mLCGStrain );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_inv_left_cauchy_green_deformation_tensor_2d()
+        {
+            // unpack the components of the left Cauchy-Green deformation tensor
+            real tb11 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 0, 0 );
+            real tb22 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 1, 0 );
+            real tb12 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 2, 0 ) / 2.0;
+
+            // unpack invariant related to volume change
+            real tJ2 = std::pow( this->volume_change_jacobian(), 2.0 );
+
+            // unpack the components of the inverse of the left Cauchy-Green deformation tensor
+            mInvLCGStrain( 0, 0 ) = tb22 / tJ2;
+            mInvLCGStrain( 1, 0 ) = tb11 / tJ2;
+            mInvLCGStrain( 2, 0 ) = -2.0 * tb12 / tJ2;
+        }
+
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_inv_left_cauchy_green_deformation_tensor_3d()
+        {
+            // unpack the components of the right Cauchy-Green deformation tensor
+            real tb11 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 0, 0 );
+            real tb22 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 1, 0 );
+            real tb33 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 2, 0 );
+            real tb23 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 3, 0 ) / 2.0;
+            real tb13 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 4, 0 ) / 2.0;
+            real tb12 = this->strain( CM_Function_Type::LEFT_CAUCHY_GREEN )( 5, 0 ) / 2.0;
+
+            // unpack invariant related to volume change
+            real tJ2 = std::pow( this->volume_change_jacobian(), 2.0 );
+
+            // unpack the components of the inverse of the left Cauchy-Green deformation tensor
+            // mVoigtSymMap    = { { 0, 5, 4 }, { 5, 1, 3 }, { 4, 3, 2 } };
+            mInvLCGStrain( 0, 0 ) = ( tb22 * tb33 - tb23 * tb23 ) / tJ2;
+            mInvLCGStrain( 1, 0 ) = ( tb11 * tb33 - tb13 * tb13 ) / tJ2;
+            mInvLCGStrain( 2, 0 ) = ( tb11 * tb22 - tb12 * tb12 ) / tJ2;
+            mInvLCGStrain( 3, 0 ) = 2.0 * ( tb13 * tb12 - tb11 * tb23 ) / tJ2;
+            mInvLCGStrain( 4, 0 ) = 2.0 * ( tb12 * tb23 - tb13 * tb22 ) / tJ2;
+            mInvLCGStrain( 5, 0 ) = 2.0 * ( tb23 * tb13 - tb12 * tb33 ) / tJ2;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void
         CM_Struc_Nonlinear_Isotropic::eval_lagrangian_green_strain_tensor()
         {
             // evaluate the lagrangian/green strain tensor
-            mLGStrain = this->right_cauchy_green_deformation_tensor();
+            mLGStrain = this->strain( CM_Function_Type::RIGHT_CAUCHY_GREEN );
 
             // substract identity matrix
             Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
@@ -586,24 +801,17 @@ namespace moris
             mLGStrain = 0.5 * mLGStrain;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void
         CM_Struc_Nonlinear_Isotropic::eval_eulerian_almansi_strain_tensor()
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_eulerian_almansi_strain_tensor - Not implemented yet." );
         }
 
-        // FIXME: storage for deformation gradient is set twice:
-        // Strain - Vector notation -> to be consistent with other work conjugates
-        // DefGrad: Matrix notation
-
-        void
-        CM_Struc_Nonlinear_Isotropic::eval_deformation_gradient_strain_tensor()
-        {
-            this->full_to_voigt_sym_strain( this->deformation_gradient(), mDGStrain );
-        }
-
         //--------------------------------------------------------------------------------------------------------------
-
+        // FIXME not general and hard wired to the displacement dof
+        // FIXME need a test dof type!!!
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::testStrain(
                 enum CM_Function_Type aCMFunctionType )
@@ -611,6 +819,21 @@ namespace moris
             // switch on CM function type
             switch ( aCMFunctionType )
             {
+                // deformation gradient
+                case CM_Function_Type::DEFORMATION_GRADIENT:
+                {
+                    // if the deformation gradient was not evaluated
+                    if ( mDGTestStrainEval )
+                    {
+                        // evaluate the deformation gradient
+                        this->eval_testStrain_deformation_gradient_strain();
+
+                        // set bool for evaluation
+                        mDGTestStrainEval = false;
+                    }
+                    // return the deformation gradient
+                    return mDGTestStrain;
+                }
                 // lagrangian/Green strain
                 case CM_Function_Type::LAGRANGIAN:
                 {
@@ -641,21 +864,6 @@ namespace moris
                     // return the eulerian/Almansi strain
                     return mEATestStrain;
                 }
-                // eulerian/Almansi strain
-                case CM_Function_Type::DEFORMATION_GRADIENT:
-                {
-                    // if the eulerian/Almansi strain was not evaluated
-                    if ( mDGTestStrainEval )
-                    {
-                        // evaluate the eulerian/Almansi strain
-                        this->eval_testStrain_deformation_gradient_strain();
-
-                        // set bool for evaluation
-                        mDGTestStrainEval = false;
-                    }
-                    // return the eulerian/Almansi strain
-                    return mDGTestStrain;
-                }
                 default:
                 {
                     MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::testStrain - Unknown strain type." );
@@ -665,8 +873,20 @@ namespace moris
         }
 
         void
+        CM_Struc_Nonlinear_Isotropic::eval_testStrain_deformation_gradient_strain()
+        {
+            // FIXME not general and hard wired to the displacement dof
+            Vector< MSI::Dof_Type > tDofTypes;
+            tDofTypes.resize( 1 );
+            tDofTypes( 0 ) = mDofDispl;
+
+            mDGTestStrain = this->dStraindDOF( tDofTypes, CM_Function_Type::DEFORMATION_GRADIENT );
+        }
+
+        void
         CM_Struc_Nonlinear_Isotropic::eval_testStrain_lagrangian_green_strain()
         {
+            // FIXME not general and hard wired to the displacement dof
             Vector< MSI::Dof_Type > tDofTypes;
             tDofTypes.resize( 1 );
             tDofTypes( 0 ) = mDofDispl;
@@ -679,23 +899,13 @@ namespace moris
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_testStrain_eulerian_almansi_strain - Unknown strain type." );
         }
-
-        // FIXME: storage of teststrain based on displacement gradient is set twice to be consistent with general formulation
-        void
-        CM_Struc_Nonlinear_Isotropic::eval_testStrain_deformation_gradient_strain()
-        {
-            Vector< MSI::Dof_Type > tDofTypes;
-            tDofTypes.resize( 1 );
-            tDofTypes( 0 ) = mDofDispl;
-
-            mDGTestStrain = this->dStraindDOF( tDofTypes, CM_Function_Type::DEFORMATION_GRADIENT );
-        }
+        
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dStraindDOF(
                 const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type               aCMFunctionType )
+                enum CM_Function_Type          aCMFunctionType )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -708,6 +918,21 @@ namespace moris
             // switch on CM function type
             switch ( aCMFunctionType )
             {
+                    // deformation gradient strain
+                case CM_Function_Type::DEFORMATION_GRADIENT:
+                {
+                    // if the derivative has not been evaluated yet
+                    if ( mdDGStrainduEval( tDofIndex ) )
+                    {
+                        // evaluate the derivative
+                        this->eval_dDGStraindDOF( aDofType );
+
+                        // set bool for evaluation
+                        mdDGStrainduEval( tDofIndex ) = false;
+                    }
+                    // return the derivative
+                    return mdDGStraindu( tDofIndex );
+                }
                 // lagrangian/Green strain
                 case CM_Function_Type::LAGRANGIAN:
                 {
@@ -720,7 +945,6 @@ namespace moris
                         // set bool for evaluation
                         mdLGStrainduEval( tDofIndex ) = false;
                     }
-
                     // return the derivative
                     return mdLGStraindu( tDofIndex );
                 }
@@ -736,25 +960,8 @@ namespace moris
                         // set bool for evaluation
                         mdEAStrainduEval( tDofIndex ) = false;
                     }
-
                     // return the derivative
                     return mdEAStraindu( tDofIndex );
-                }
-                // deformation gradient strain
-                case CM_Function_Type::DEFORMATION_GRADIENT:
-                {
-                    // if the derivative has not been evaluated yet
-                    if ( mdDGStrainduEval( tDofIndex ) )
-                    {
-                        // evaluate the derivative
-                        this->eval_dDGStraindDOF( aDofType );
-
-                        // set bool for evaluation
-                        mdDGStrainduEval( tDofIndex ) = false;
-                    }
-
-                    // return the derivative
-                    return mdDGStraindu( tDofIndex );
                 }
                 default:
                 {
@@ -804,6 +1011,31 @@ namespace moris
                 mdLGStraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
                 mdLGStraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
                 mdLGStraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 1, 1 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+
+                // if eigen-strain is defined
+                if ( mPropEigenStrain != nullptr )
+                {
+                    // Storage for Eigenstrain in Voigt notation
+                    Matrix< DDRMat > tEigenStrainV;
+
+                    // store in Voigt notation
+                    this->voigt_to_full_sym_strain( mPropEigenStrain->val(), tEigenStrainV );
+
+                    // evaluate eigenstrain deformation gradient
+                    Matrix< DDRMat > tDefGradES = inv( ( eye( mSpaceDim, mSpaceDim ) + tEigenStrainV ) );
+
+                    // get the derivative of the deformation gradient wrt to displacement
+                    Matrix< DDRMat > tdnNdxn2 = tDefGradES * tdnNdxn;
+
+                    // populate the derivative of the lagrangian/green strain
+                    mdLGStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = tF( 0, 1 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 0, 1 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+
+                    mdLGStraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 1, 1 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                }
             }
         }
 
@@ -839,7 +1071,6 @@ namespace moris
                 // get the deformation gradient
                 const Matrix< DDRMat >& tF = this->deformation_gradient();
 
-                // FIXME not checked
                 // populate the derivative of the lagrangian/green strain
                 mdLGStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
                 mdLGStraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = tF( 0, 1 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
@@ -861,6 +1092,44 @@ namespace moris
                 mdLGStraindu( tDofIndex )( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 2, 1 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
                 mdLGStraindu( tDofIndex )( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 2, 0 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
                 mdLGStraindu( tDofIndex )( { 5, 5 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 1 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 2, 0 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+
+                // if eigen-strain is defined
+                if ( mPropEigenStrain != nullptr )
+                {
+                    // Storage for Eigenstrain in Voigt notation
+                    Matrix< DDRMat > tEigenStrainV;
+
+                    // store in Voigt notation
+                    this->voigt_to_full_sym_strain( mPropEigenStrain->val(), tEigenStrainV );
+
+                    // evaluate eigenstrain deformation gradient
+                    Matrix< DDRMat > tDefGradES = inv( ( eye( mSpaceDim, mSpaceDim ) + tEigenStrainV ) );
+
+                    // get the derivative of the deformation gradient wrt to displacement
+                    Matrix< DDRMat > tdnNdxn2 = tDefGradES * tdnNdxn;
+
+                    // populate the derivative of the lagrangian/green strain
+                    mdLGStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = tF( 0, 1 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) = tF( 0, 2 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 3, 3 }, { 0, tNumBases - 1 } ) = tF( 0, 1 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 0, 2 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 4, 4 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 0, 2 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 5, 5 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 0, 1 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+
+                    mdLGStraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 2 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 1, 2 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 1, 2 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 1, 0 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+
+                    mdLGStraindu( tDofIndex )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 0 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 1, 1 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 1 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 2, 1 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 2, 0 ) * tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } );
+                    mdLGStraindu( tDofIndex )( { 5, 5 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 1 ) * tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 2, 0 ) * tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                }
             }
         }
 
@@ -868,7 +1137,6 @@ namespace moris
         CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_2d(
                 const Vector< MSI::Dof_Type >& aDofTypes )
         {
-
             // if derivative dof is displacements dof
             if ( aDofTypes( 0 ) == mDofDispl )
             {
@@ -880,7 +1148,6 @@ namespace moris
         CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_3d(
                 const Vector< MSI::Dof_Type >& aDofTypes )
         {
-
             // if derivative dof is displacements dof
             if ( aDofTypes( 0 ) == mDofDispl )
             {
@@ -906,7 +1173,7 @@ namespace moris
 
             // init mdDGStraindu
             mdDGStraindu( tDofIndex ).set_size(                      //
-                    6,                                               //
+                    mSpaceDim * mSpaceDim,                           //
                     tFI->get_number_of_space_time_coefficients(),    //
                     0.0 );
 
@@ -918,11 +1185,12 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
+        // FIXME not general, need a testdof type
+        // FIXME need an implementation including the jump (here stress) as for dtesttractionddof
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dTestStraindDOF(
                 const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type               aCMFunctionType )
+                enum CM_Function_Type          aCMFunctionType )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -1024,6 +1292,29 @@ namespace moris
 
                 mdLGTestStraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
                 mdLGTestStraindu( tDofIndex )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+
+                // if eigen-strain is defined
+                if ( mPropEigenStrain != nullptr )
+                {
+                    // Storage for Eigenstrain in Voigt notation
+                    Matrix< DDRMat > tEigenStrainV;
+
+                    // store in Voigt notation
+                    this->voigt_to_full_sym_strain( mPropEigenStrain->val(), tEigenStrainV );
+
+                    // evaluate eigenstrain deformation gradient
+                    Matrix< DDRMat > tDefGradES = inv( ( eye( mSpaceDim, mSpaceDim ) + tEigenStrainV ) );
+
+                    // get the derivative of the deformation gradient wrt to displacement
+                    Matrix< DDRMat > tdnNdxn2 = tDefGradES * tdnNdxn;
+
+                    // populate the derivative of the lagrangian/green strain
+                    mdLGTestStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGTestStraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+
+                    mdLGTestStraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGTestStraindu( tDofIndex )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                }
             }
         }
 
@@ -1066,6 +1357,35 @@ namespace moris
                 mdLGTestStraindu( tDofIndex )( { 6, 6 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
                 mdLGTestStraindu( tDofIndex )( { 7, 7 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
                 mdLGTestStraindu( tDofIndex )( { 8, 8 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
+
+                // if eigen-strain is defined
+                if ( mPropEigenStrain != nullptr )
+                {
+                    // Storage for Eigenstrain in Voigt notation
+                    Matrix< DDRMat > tEigenStrainV;
+
+                    // store in Voigt notation
+                    this->voigt_to_full_sym_strain( mPropEigenStrain->val(), tEigenStrainV );
+
+                    // evaluate eigenstrain deformation gradient
+                    Matrix< DDRMat > tDefGradES = inv( ( eye( mSpaceDim, mSpaceDim ) + tEigenStrainV ) );
+
+                    // get the derivative of the deformation gradient wrt to displacement
+                    Matrix< DDRMat > tdnNdxn2 = tDefGradES * tdnNdxn;
+
+                    // populate the derivative of the lagrangian/green strain
+                    mdLGTestStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGTestStraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGTestStraindu( tDofIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) = tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } );
+
+                    mdLGTestStraindu( tDofIndex )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGTestStraindu( tDofIndex )( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGTestStraindu( tDofIndex )( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } );
+
+                    mdLGTestStraindu( tDofIndex )( { 6, 6 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn2( { 0, 0 }, { 0, tNumBases - 1 } );
+                    mdLGTestStraindu( tDofIndex )( { 7, 7 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn2( { 1, 1 }, { 0, tNumBases - 1 } );
+                    mdLGTestStraindu( tDofIndex )( { 8, 8 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn2( { 2, 2 }, { 0, tNumBases - 1 } );
+                }
             }
         }
 
@@ -1724,9 +2044,6 @@ namespace moris
                 const Matrix< DDRMat >& aNormal,
                 Matrix< DDRMat >&       aFlatNormal )
         {
-            // set size based on dimensions
-            aFlatNormal.set_size( mSpaceDim, 4 );
-
             // populate flattened normal
             aFlatNormal = {
                 { aNormal( 0, 0 ), aNormal( 1, 0 ), 0, 0 },
@@ -1740,8 +2057,6 @@ namespace moris
                 Matrix< DDRMat >&       aFlatNormal )
         {
             // set size based on dimensions
-            aFlatNormal.set_size( mSpaceDim, 9, 0.0 );
-
             aFlatNormal = {
                 { aNormal( 0, 0 ), aNormal( 1, 0 ), aNormal( 2, 0 ), 0, 0, 0, 0, 0, 0 },
                 { 0, 0, 0, aNormal( 0, 0 ), aNormal( 1, 0 ), aNormal( 2, 0 ), 0, 0, 0 },
@@ -2012,6 +2327,260 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Nonlinear_Isotropic::proj_jump_2d(
+                const Matrix< DDRMat >& aVector,
+                Matrix< DDRMat >&       aProjMatrix )
+        {
+            aProjMatrix = {
+                { aVector( 0, 0 ), 0, 0, 0 },
+                { 0, aVector( 0, 0 ), 0, 0 },
+                { 0, 0, aVector( 0, 0 ), 0 },
+                { 0, 0, 0, aVector( 0, 0 ) },
+                { aVector( 1, 0 ), 0, 0, 0 },
+                { 0, aVector( 1, 0 ), 0, 0 },
+                { 0, 0, aVector( 1, 0 ), 0 },
+                { 0, 0, 0, aVector( 1, 0 ) }
+            };
+        }
+
+        void
+        CM_Struc_Nonlinear_Isotropic::proj_jump_3d(
+                const Matrix< DDRMat >& aVector,
+                Matrix< DDRMat >&       aProjMatrix )
+        {
+            aProjMatrix = {
+                { aVector( 0, 0 ), 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, aVector( 0, 0 ), 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, aVector( 0, 0 ), 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, aVector( 0, 0 ), 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, aVector( 0, 0 ), 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, aVector( 0, 0 ), 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, aVector( 0, 0 ), 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, aVector( 0, 0 ), 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0, aVector( 0, 0 ) },
+                { aVector( 1, 0 ), 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, aVector( 1, 0 ), 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, aVector( 1, 0 ), 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, aVector( 1, 0 ), 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, aVector( 1, 0 ), 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, aVector( 1, 0 ), 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, aVector( 1, 0 ), 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, aVector( 1, 0 ), 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0, aVector( 1, 0 ) },
+                { aVector( 2, 0 ), 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, aVector( 2, 0 ), 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, aVector( 2, 0 ), 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, aVector( 2, 0 ), 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, aVector( 2, 0 ), 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, aVector( 2, 0 ), 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, aVector( 2, 0 ), 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, aVector( 2, 0 ), 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0, aVector( 2, 0 ) },
+            };
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const Matrix< DDRMat >&
+        CM_Struc_Nonlinear_Isotropic::select_derivative_FD(
+                enum CM_Request_Type           aCMRequestType,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
+                const Matrix< DDRMat >&        aNormal,
+                const Matrix< DDRMat >&        aJump,
+                enum CM_Function_Type          aCMFunctionType )
+        {
+            switch ( aCMRequestType )
+            {
+                case CM_Request_Type::STRAIN:
+                {
+                    return this->strain( aCMFunctionType );
+                    break;
+                }
+                case CM_Request_Type::TEST_STRAIN:
+                {
+                    return this->testStrain( aCMFunctionType );
+                    break;
+                }
+                case CM_Request_Type::FLUX:
+                {
+                    return this->flux( aCMFunctionType );
+                    break;
+                }
+                case CM_Request_Type::TRACTION:
+                {
+                    return this->traction( aNormal, aCMFunctionType );
+                    break;
+                }
+                case CM_Request_Type::TEST_TRACTION:
+                {
+                    mTraction = this->testTraction_trans( aNormal, aTestDofTypes, aCMFunctionType ) * aJump;
+                    return mTraction;
+                    break;
+                }
+                default:
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::select_derivative_FD: aCMRequestType undefined" );
+                    return this->strain( aCMFunctionType );
+            }
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Nonlinear_Isotropic::set_derivative_FD(
+                enum CM_Request_Type           aCMRequestType,
+                Matrix< DDRMat >&              aDerivativeFD,
+                const Vector< MSI::Dof_Type >& aDofTypes,
+                const Vector< MSI::Dof_Type >& aTestDofTypes,
+                enum CM_Function_Type          aCMFunctionType )
+        {
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            switch ( aCMRequestType )
+            {
+                case CM_Request_Type::STRAIN:
+                {
+                    switch ( aCMFunctionType )
+                    {
+                        case CM_Function_Type::DEFORMATION_GRADIENT:
+                        {
+                            // set value to storage
+                            mdDGStraindu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::LAGRANGIAN:
+                        {
+                            // set value to storage
+                            mdLGStraindu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::EULERIAN:
+                        {
+                            // set value to storage
+                            mdEAStraindu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        default:
+                            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::set_derivative_FD: aCMFunctionType undefined" );
+                    }
+                    break;
+                }
+                case CM_Request_Type::TEST_STRAIN:
+                {
+                    switch ( aCMFunctionType )
+                    {
+                        case CM_Function_Type::DEFORMATION_GRADIENT:
+                        {
+                            // set value to storage
+                            mdDGTestStraindu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::LAGRANGIAN:
+                        {
+                            // set value to storage
+                            mdLGTestStraindu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::EULERIAN:
+                        {
+                            // set value to storage
+                            mdEATestStraindu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        default:
+                            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::set_derivative_FD: aCMFunctionType undefined" );
+                    }
+                    break;
+                }
+                case CM_Request_Type::FLUX:
+                {
+                    switch ( aCMFunctionType )
+                    {
+                        case CM_Function_Type::PK1:
+                        {
+                            // set value to storage
+                            md1PKStressdu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::PK2:
+                        {
+                            // set value to storage
+                            md2PKStressdu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::CAUCHY:
+                        {
+                            // set value to storage
+                            mdCauchyStressdu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        default:
+                            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::set_derivative_FD: aCMFunctionType undefined" );
+                    }
+                    break;
+                }
+                case CM_Request_Type::TRACTION:
+                {
+                    switch ( aCMFunctionType )
+                    {
+                        case CM_Function_Type::PK1:
+                        {
+                            // set value to storage
+                            md1PKTractiondu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::PK2:
+                        {
+                            // set value to storage
+                            md2PKTractiondu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::CAUCHY:
+                        {
+                            // set value to storage
+                            mdCauchyTractiondu( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        default:
+                            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::set_derivative_FD: aCMFunctionType undefined" );
+                    }
+                    break;
+                }
+                case CM_Request_Type::TEST_TRACTION:
+                {
+                    // get the test dof index
+                    uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+                    switch ( aCMFunctionType )
+                    {
+                        case CM_Function_Type::PK1:
+                        {
+                            // set value to storage
+                            md1PKTestTractiondu( tTestDofIndex )( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::PK2:
+                        {
+                            // set value to storage
+                            md2PKTestTractiondu( tTestDofIndex )( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        case CM_Function_Type::CAUCHY:
+                        {
+                            // set value to storage
+                            mdCauchyTestTractiondu( tTestDofIndex )( tDofIndex ) = aDerivativeFD;
+                            break;
+                        }
+                        default:
+                            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::set_derivative_FD: aCMFunctionType undefined" );
+                    }
+                    break;
+                }
+                default:
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::set_derivative_FD: aCMRequestType undefined" );
+            }
+        }
 
     } /* namespace fem */
 } /* namespace moris */

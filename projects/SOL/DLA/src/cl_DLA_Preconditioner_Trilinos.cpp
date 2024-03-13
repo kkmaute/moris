@@ -43,12 +43,10 @@ Preconditioner_Trilinos::Preconditioner_Trilinos()
 //-------------------------------------------------------------------------------
 
 Preconditioner_Trilinos::Preconditioner_Trilinos(
-        moris::Parameter_List* aParameterlist,
-        Linear_Problem*       aLinearSystem )
+        moris::ParameterList* aParameterList )
 {
     this->initialize(
-            aParameterlist,
-            aLinearSystem );
+            aParameterList );
 }
 
 //-------------------------------------------------------------------------------
@@ -60,11 +58,10 @@ Preconditioner_Trilinos::~Preconditioner_Trilinos()
 //-------------------------------------------------------------------------------
 
 void Preconditioner_Trilinos::initialize(
-        moris::Parameter_List* aParameterlist,
-        Linear_Problem*       aLinearSystem )
+        moris::ParameterList* aParameterList )
 {
     // set parameter list
-    mParameterList = aParameterlist;
+    mParameterList = aParameterList;
 
     // check whether one preconditioner has been defined
     bool tIsIfpack = !mParameterList->get< std::string >( "ifpack_prec_type" ).empty();
@@ -83,9 +80,6 @@ void Preconditioner_Trilinos::initialize(
     // check that only one preconditioner is defined
     MORIS_ERROR( ( tIsIfpack && !tIsMl ) || ( !tIsIfpack && tIsMl ),
             "Preconditioner_Trilinos::initialize - One and only one preconditioner must be specified.\n" );
-
-    // store linear system
-    mLinearSystem = aLinearSystem;
 }
 
 //-------------------------------------------------------------------------------
