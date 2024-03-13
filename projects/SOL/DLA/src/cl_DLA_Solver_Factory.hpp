@@ -52,8 +52,7 @@ namespace moris
              * @return Preconditioner_Trilinos*
              */
             Preconditioner*
-            create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
-                    Parameter_List&                                    aParameterlist );
+            create_preconditioner( const Parameter_List& aParameterlist );
 
             /**
              * Creates a solver of the given type and with given parameters.
@@ -69,8 +68,8 @@ namespace moris
 
             Linear_Problem* create_linear_system(
                     moris::Solver_Interface* aSolverInterface,
-                    const enum sol::MapType  aLinSysType               = sol::MapType::Epetra,
-                    const bool               aNotCreatedByNonLinSolver = false );
+                    sol::MapType             aLinSysType               = sol::MapType::Epetra,
+                    bool                     aNotCreatedByNonLinSolver = false );
             
             //------------------------------------------------------------------------------
             
@@ -79,8 +78,8 @@ namespace moris
                     sol::SOL_Warehouse*      aSolverWarehouse,
                     sol::Dist_Map*           aMap,
                     sol::Dist_Map*           aFullMap,
-                    const enum sol::MapType  aLinSysType               = sol::MapType::Epetra,
-                    const bool               aNotCreatedByNonLinSolver = false );
+                    sol::MapType             aLinSysType               = sol::MapType::Epetra,
+                    bool                     aNotCreatedByNonLinSolver = false );
         };
     }    // namespace dla
 }    // namespace moris

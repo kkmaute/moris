@@ -43,28 +43,14 @@ namespace moris
           protected:
 
           public:
-            Preconditioner_PETSc();
-            // Preconditioner_PETSc( Linear_Solver_PETSc* aLinearSolverAlgoritm );
 
-            ~Preconditioner_PETSc(){
-                //            if( mPreconMat != nullptr )
-                //            {
-                //                delete mPreconMat;
-                //            }
-                //            if( mMapFree != nullptr )
-                //            {
-                //                delete mMapFree;
-                //            }
-            };
-
+            /**
+             * Constructor
+             *
+             * @param aParameterlist Parameter list
+             */
             Preconditioner_PETSc(
-                    moris::ParameterList* aParameterlist );
-
-            sol::Dist_Matrix*
-            get_preconditioner_matrix()
-            {
-                return mPreconMat;
-            };
+                    const Parameter_List& aParameterlist );
 
             //-----------------------------------------------------------------------------------
 

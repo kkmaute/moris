@@ -137,9 +137,7 @@ void SOL_Warehouse::create_preconditioner_algorithms()
 
     for ( uint Ik = 0; Ik < tNumLinAlgorithms; Ik++ )
     {
-        mPreconditioners( Ik ) = tSolFactory.create_preconditioner(
-                static_cast< moris::sol::PreconditionerType >( mParameterlist( 7 )( Ik ).get< moris::uint >( "Preconditioner_Implementation" ) ),
-                mParameterlist( 7 )( Ik ) );
+        mPreconditioners( Ik ) = tSolFactory.create_preconditioner( mParameterlist( 7 )( Ik ) );
     }
 }
 

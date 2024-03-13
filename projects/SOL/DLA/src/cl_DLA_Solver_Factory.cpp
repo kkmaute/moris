@@ -43,19 +43,17 @@ Solver_Factory::~Solver_Factory()
 
 //------------------------------------------------------------------------------
 Preconditioner*
-Solver_Factory::create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
-        Parameter_List&                                                    aParameterlist )
+Solver_Factory::create_preconditioner( const Parameter_List& aParameterList )
 {
-    switch ( aPreconditionerType )
+    switch ( static_cast< sol::PreconditionerType >( aParameterList.get< uint >( "Preconditioner_Implementation" ) ) )
     {
         case ( sol::PreconditionerType::NONE ):
             return nullptr;
         case ( sol::PreconditionerType::IFPACK ):
-            return new Preconditioner_Trilinos( &aParameterlist );
         case ( sol::PreconditionerType::ML ):
-            return new Preconditioner_Trilinos( &aParameterlist );
+            return new Preconditioner_Trilinos( aParameterList );
         case ( sol::PreconditionerType::PETSC ):
-            return new Preconditioner_PETSc( &aParameterlist );
+            return new Preconditioner_PETSc( aParameterList );
         default:
             MORIS_ERROR( false, "No solver type specified" );
             return nullptr;

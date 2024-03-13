@@ -223,7 +223,7 @@ namespace moris
 
 
                 // create preconditioner
-                Preconditioner_Trilinos tPreconditioner( &tParamList );
+                Preconditioner_Trilinos tPreconditioner( tParamList );
                 tLinSolver->set_preconditioner( &tPreconditioner );
 
                 //        tLinProblem->assemble_residual_and_jacobian();
@@ -301,7 +301,7 @@ namespace moris
                 // create preconditioner
                 Parameter_List tParamList;
                 tParamList.insert( "PCType", std::string( "none" ) );
-                Preconditioner_PETSc tPreconditioner( &tParamList );
+                Preconditioner_PETSc tPreconditioner( tParamList );
                 tLinSolver->set_preconditioner( &tPreconditioner );
 
                 tLinSolver->solve_linear_system( tLinProblem );
@@ -406,7 +406,7 @@ namespace moris
                 tParamList.insert( "Amesos_Direct_Solver_Type", "Amesos_Klu" );
 
                 // create preconditioner
-                Preconditioner_Trilinos tPreconditioner( &tParamList );
+                Preconditioner_Trilinos tPreconditioner( tParamList );
                 tEigSolver->set_preconditioner( &tPreconditioner );
 
                 tEigProblem->set_rhs_matrix_type( tRHSMatType );

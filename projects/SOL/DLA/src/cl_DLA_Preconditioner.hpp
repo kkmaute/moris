@@ -21,36 +21,23 @@ namespace moris::dla
     {
       protected:
         bool mIsInitialized = false;
-
         Linear_Problem* mLinearSystem = nullptr;
-
-        moris::Parameter_List* mParameterList;
+        const Parameter_List& mParameterList;
 
       public:
-        //-------------------------------------------------------------------------------
 
-        Preconditioner();
-
-        //-------------------------------------------------------------------------------
-
-        Preconditioner(
-                moris::Parameter_List* aParameterlist,
-                Linear_Problem*       aLinearSystem );
-
-        //-------------------------------------------------------------------------------
-
-        virtual ~Preconditioner(void);
-
-        //-------------------------------------------------------------------------------
-
-        /*
-         * initialize preconditioner by setting parameter list and linear system
+        /**
+         * Constructor
          */
-        virtual void initialize(
-                moris::Parameter_List* aParameterlist,
-                Linear_Problem*       aLinearSystem ) {};
+        explicit Preconditioner( const Parameter_List& aParameterList )
+                : mParameterList( aParameterList )
+        {
+        }
 
-        //-------------------------------------------------------------------------------
+        /**
+         * Destructor
+         */
+        virtual ~Preconditioner() = default;
 
         /*
          * build and compute preconditioner

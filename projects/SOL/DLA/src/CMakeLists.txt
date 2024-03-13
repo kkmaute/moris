@@ -55,8 +55,7 @@ set(LIB_SOURCES
     cl_DLA_Linear_Problem.cpp
     cl_DLA_Geometric_Multigrid.cpp
     cl_DLA_Solver_Interface.cpp
-    cl_DLA_Preconditioner.cpp
-    cl_DLA_Preconditioner_Trilinos.cpp
+	cl_DLA_Preconditioner_Trilinos.cpp
     cl_DLA_Solver_Factory.cpp)
 
 if(${MORIS_HAVE_PETSC})
