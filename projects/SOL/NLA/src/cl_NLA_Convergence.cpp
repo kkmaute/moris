@@ -50,6 +50,7 @@ namespace moris
             {
                 // set reference norm
                 tRefNorm = tResNorm;
+                mPreviousNorm = tRefNorm;
 
                 // store reference with solver manager of solver algorithm
                 tNonLinSolver->mMyNonLinSolverManager->set_ref_norm( tRefNorm );
@@ -87,6 +88,8 @@ namespace moris
             if ( aIt > mRefIterationID )
             {
                 MORIS_LOG_SPEC( "RelResidualDrop", tResNorm / tRefNorm );
+                MORIS_LOG_SPEC( "ResidualChange", tResNorm - mPreviousNorm );
+                mPreviousNorm = tResNorm;
             }
 
             // check that residual is valid
