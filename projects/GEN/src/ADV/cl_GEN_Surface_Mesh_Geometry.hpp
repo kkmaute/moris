@@ -104,12 +104,14 @@ namespace moris::gen
          * @param aBackgroundNodes Background nodes of the element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
+         * @param aParentFacetIndex return value. The index of the facet that intersects the parent edge
          * @return Parent edge local coordinate, between -1 and 1
          */
         virtual real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode ) override;
+                const Parent_Node&                aSecondParentNode
+                uint&                             aParentFacetIndex ) override;
 
         /**
          *

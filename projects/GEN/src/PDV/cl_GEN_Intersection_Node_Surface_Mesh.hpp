@@ -18,6 +18,9 @@ namespace moris::gen
 
     class Intersection_Node_Surface_Mesh : public Intersection_Node
     {
+      private:
+        uint mParentFacetIndex; // Index of the facet that intersected the edge to create this intersection node
+      
       protected:
         Surface_Mesh_Geometry& mInterfaceGeometry;
 

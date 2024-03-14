@@ -40,13 +40,15 @@ namespace moris::sdf
      * @param aObject water tight collection of facets to cast on to
      * @param aPoint Point in space that lies within the bounding plane of the candidate triangles
      * @param aAxis direction in which the ray is cast
+     * @param aFacetIndices return value. The facet indices associated with the intersection locations
      * @return intersection coordinate locations
      */
     Vector< real >
     compute_distance_to_facets(
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
-            uint              aAxis );
+            uint              aAxis
+            Vector< uint >&   aFacetIndices );
 
     //-------------------------------------------------------------------------------
 

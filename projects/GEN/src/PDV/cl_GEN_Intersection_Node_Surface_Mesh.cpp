@@ -29,7 +29,7 @@ namespace moris::gen
                     aBackgroundNodes,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode ),
+                    aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode, mParentFacetIndex ),
                     aBackgroundGeometryType,
                     aBackgroundInterpolationOrder )
             , mInterfaceGeometry( aInterfaceGeometry )

@@ -163,7 +163,7 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode,
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
-    {
+    { 
         // Create linear intersection node
         return new Intersection_Node_Surface_Mesh(
                 aNodeIndex,
@@ -180,7 +180,8 @@ namespace moris::gen
     real Surface_Mesh_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode )
+            const Parent_Node&                aSecondParentNode
+            uint&                             aParentFacetIndex )
     {
         // transform the interface geometry to local coordinates
         this->transform_surface_mesh_to_local_coordinate( aFirstParentNode, aSecondParentNode );
@@ -188,7 +189,8 @@ namespace moris::gen
         // Compute the distance to the facets
         Matrix< DDRMat > tCastPoint( Object::mDimension, 1 );
         tCastPoint.fill( 0.0 );
-        Vector< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0 );
+        Vector< uint > tIntersectionFacetIndices;
+        Vector< real > tLocalCoordinate = sdf::compute_distance_to_facets( *this, tCastPoint, 0, tIntersectionFacetIndices );
 
         // shift local coordinate to be between -1 and 1
         for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
@@ -212,9 +214,12 @@ namespace moris::gen
         // no intersections detected or multiple along parent edge
         if ( tLocalCoordinate.size() == 0 or tNumberOfParentEdgeIntersections > 1 )
         {
+            aParentFacetIndex = MORIS_UINT_MAX;
             return MORIS_REAL_MAX;
         }
 
+        // Set return values for intersection location and associated facet index
+        aParentFacetIndex = tIntersectionFacetIndices( 0 );
         return tLocalCoordinate( 0 );
     }
 
@@ -303,11 +308,11 @@ namespace moris::gen
     void
     Surface_Mesh_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
-        // aOwnedADVs->get_map()->print();    // BRENDAN
+        aOwnedADVs->get_map()->print();    // BRENDAN
 
-        // Matrix< DDSMat > tGlobalIndex = { { 1, 2, 4, 5, 6, 7, 8 } };
-        // Matrix< DDRMat > tVals        = { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
-        // aOwnedADVs->replace_global_values( tGlobalIndex, tVals );
+        Matrix< DDSMat > tGlobalIndex = { { 1, 2, 3, 4, 5, 6, 7 } };
+        Matrix< DDRMat > tVals        = { { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
+        aOwnedADVs->replace_global_values( tGlobalIndex, tVals );
 
         for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
         {
@@ -347,11 +352,10 @@ namespace moris::gen
                         // determine the local coordinates of the vertex inside the mtk::Cell
                         for ( uint iDimensionIndex = 0; iDimensionIndex < Object::mDimension; iDimensionIndex++ )
                         {
-                            // BRENDAN, parametric coordinates might need to be between -1 and 1
-                            tVertexParametricCoordinates( iDimensionIndex, 0 ) = ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex )
-                                                                                         - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                               / ( tElementBoundingBox( 1 )( iDimensionIndex )
-                                                                                       - tElementBoundingBox( 0 )( iDimensionIndex ) );
+                            // BRENDAN, parametric coordinates might need to be between 0 and 1
+                            tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( Object::mVertices( iVertexIndex )->get_coord( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                                       / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                               - 1.0;
                         }
 
                         // Interpolate the bspline field value at the facet vertex location

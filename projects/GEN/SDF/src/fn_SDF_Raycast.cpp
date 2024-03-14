@@ -65,7 +65,8 @@ namespace moris::sdf
     compute_distance_to_facets(
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
-            uint              aAxis )
+            uint              aAxis,
+            Vector< uint >&   aFacetIndices )
     {
         MORIS_ASSERT( aObject.get_dimension() == aPoint.numel(),
                 "SDF-Raycast::compute_distance_to_facets(): Dimension mismatch. Object dimension: %d Point dimension: %lu",
@@ -115,9 +116,16 @@ namespace moris::sdf
             }
             default:
             {
-                MORIS_ERROR( false, "SDF-Raycast: Object dimension of %d provided. Not supported", aObject.get_dimension() );
+                MORIS_ERROR( false, "SDF-Raycast: Unsupported dimension of %d provided.", aObject.get_dimension() );
                 return {};
             }
+        }
+
+        // Put all the indices of the facets into the return list
+        aFacetIndices.resize( tFacetsToIntersect.size() );
+        for( uint iFacetIndex = 0; iFacetIndex < tFacetsToIntersect.size(); iFacetIndex++ )
+        {
+            aFacetIndices( iFacetIndex ) = tFacetsToIntersect( iFacetIndex )->get_index();
         }
 
         // compute intersection locations
@@ -129,6 +137,7 @@ namespace moris::sdf
             if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
             {
                 tIntersectionCoordinates.erase( iIntersection );
+                aFacetIndices( iIntersection ).erase( iIntersection );
             }
         }
 
