@@ -1415,7 +1415,8 @@ namespace moris
                         tIPP.get_follower_coordinates(),
                         tIPP.get_integration_weights(),
                         tIPP.get_point_distances(),
-                        tIPP.get_normals() );
+                        tIPP.get_normals(),
+                        tIPP.get_reference_normals() );
                 tVisIntegrationPointPairs.push_back( tVIPP );
             }
             return tVisIntegrationPointPairs;
@@ -1442,7 +1443,8 @@ namespace moris
                         mPrimaryFemCellIndexToVisCellIndex( tNPP.get_follower_cell_index() ),
                         tNPP.get_follower_coordinates(),
                         tNPP.get_point_distances(),
-                        tNPP.get_normals() );
+                        tNPP.get_normals(),
+                        tNPP.get_reference_normals() );
                 tVisNodalPointPairs.push_back( tVNPP );
             }
             return tVisNodalPointPairs;
