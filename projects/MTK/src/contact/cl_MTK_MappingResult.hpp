@@ -73,6 +73,11 @@ namespace moris::mtk
         Matrix< DDRMat > mNormals;
 
         /**
+         * @brief Contains the reference normals (i.e. the normals of the undeformed mesh) that were used for the mapping.
+         */
+        Matrix<DDRMat > mReferenceNormals;
+
+        /**
          * @brief The n-th entry is the distance of the n-th to the mapped point in physical coordinates.
          */
         Vector< real > mDistances;

@@ -28,12 +28,14 @@ namespace moris::mtk
                 moris_index const      &aFollowerCellIndex,
                 Matrix< DDRMat > const &aFollowerCoordinates,
                 Vector< real > const   &aPointDistances,
-                Matrix< DDRMat > const &aNormals )
+                Matrix< DDRMat > const &aNormals,
+                Matrix< DDRMat > const &aReferenceNormals )
                 : mLeaderCellIndex( aLeaderCellIndex )
                 , mFollowerCellIndex( aFollowerCellIndex )
                 , mFollowerCoordinates( aFollowerCoordinates )
                 , mPointDistances( aPointDistances )
                 , mNormals( aNormals )
+                , mReferenceNormals( aReferenceNormals )
         {
         }
 
@@ -43,6 +45,7 @@ namespace moris::mtk
         [[nodiscard]] moris_index             get_follower_cell_index() const { return mFollowerCellIndex; }
         [[nodiscard]] const Matrix< DDRMat > &get_follower_coordinates() const { return mFollowerCoordinates; }
         [[nodiscard]] const Matrix< DDRMat > &get_normals() const { return mNormals; }
+        [[nodiscard]] const Matrix< DDRMat > &get_reference_normals() const { return mReferenceNormals; }
         [[nodiscard]] const Vector< real >   &get_point_distances() const { return mPointDistances; }
 
       private:
@@ -72,6 +75,12 @@ namespace moris::mtk
          * \details A (d x n) matrix, where d is the physical dimension and n is the number of integration points.
          */
         Matrix< DDRMat > mNormals;
+
+        /**
+         * \brief The reference normal (in the undeformed state) that was used to perform the mapping from the leader side to the follower side.
+         * \details A (d x n) matrix, where d is the physical dimension and n is the number of integration points.
+         */
+        Matrix< DDRMat > mReferenceNormals;
     };
 
     class IntegrationPointPairs : public MappingPointPairs
@@ -86,15 +95,18 @@ namespace moris::mtk
                 Matrix< DDRMat > const &aFollowerCoordinates,
                 Vector< real > const   &aIntegrationWeights,
                 Vector< real > const   &aPointDistances,
-                Matrix< DDRMat > const &aNormals )
-                : MappingPointPairs( aLeaderCellIndex, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals )
+                Matrix< DDRMat > const &aNormals,
+                Matrix< DDRMat > const &aReferenceNormals)
+                : MappingPointPairs( aLeaderCellIndex, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals, aReferenceNormals
                 , mLeaderCoordinates( aLeaderCoordinates )
                 , mIntegrationWeights( aIntegrationWeights ){};
 
         ~IntegrationPointPairs() override = default;
 
-        [[nodiscard]] const Vector< real >   &get_integration_weights() const { return mIntegrationWeights; }
-        [[nodiscard]] const Matrix< DDRMat > &get_leader_coordinates() const { return mLeaderCoordinates; }
+        [[nodiscard]] const Vector< real >   &get_integration_weights() const {
+            return mIntegrationWeights; }
+        [[nodiscard]] const Matrix< DDRMat > &get_leader_coordinates() const {
+            return mLeaderCoordinates; }
 
       private:
         /**
@@ -120,8 +132,9 @@ namespace moris::mtk
                 moris_index const           &aFollowerCellIndex,
                 Matrix< DDRMat > const      &aFollowerCoordinates,
                 Vector< real > const        &aPointDistances,
-                Matrix< DDRMat > const      &aNormals )
-                : MappingPointPairs( aLeaderCellIndex, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals )
+                Matrix< DDRMat > const      &aNormals,
+                Matrix< DDRMat > const      &aReferenceNormals )
+                : MappingPointPairs( aLeaderCellIndex, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals, aReferenceNormals )
                 , mLeaderNodeIndices( aLeaderNodeIndices ){};
 
         ~NodalPointPairs() override = default;

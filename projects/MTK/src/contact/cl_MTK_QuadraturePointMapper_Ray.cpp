@@ -25,6 +25,7 @@ namespace moris::mtk
             Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs )
             : QuadraturePointMapper( aIGMesh, aSideSets, aCandidatePairs )
             , mSurfaceMeshes( initialize_surface_meshes( aIGMesh, aSideSets ) )
+            , mReferenceSurfaceMeshes( mSurfaceMeshes )    // copy the surface meshes to the reference meshes
             , mSpatialIndexer( mSurfaceMeshes, mCandidatePairs )
     {
         write_surface_mesh_json();
@@ -76,11 +77,11 @@ namespace moris::mtk
                 Interpolation_Type::UNDEFINED,
                 Interpolation_Order::UNDEFINED );
 
-        // using two Interpolator instances for faster processing of each point
-        // (because the coefficients do not have to be changed between calculation of coordinates and normals each time
-        Space_Interpolator            tCoordinateInterpolator( tInterpolationRule );
-        Space_Interpolator            tNormalInterpolator( tInterpolationRule );
+        // using global interpolator instances for faster processing of each point
+        // (because the coefficients do not have to be changed between calculation of coordinates and normals each time)
+        Space_Interpolator            tInterpolator( tInterpolationRule );
         Surface_Mesh const            tSurfaceMesh           = mSurfaceMeshes( aSourceSideSetIndex );
+        Surface_Mesh const            tReferenceSurfaceMesh  = mReferenceSurfaceMeshes( aSourceSideSetIndex );
         Spatial_Indexing_Result const tSpatialIndexingResult = mSpatialIndexer.perform( aSourceSideSetIndex, 1.0 );
 
         // preallocate the MappingResult
@@ -98,9 +99,9 @@ namespace moris::mtk
             QuadraturePointMapper_Ray::interpolate_source_point(
                     iCell,
                     aParametricCoordinates,
-                    tCoordinateInterpolator,
-                    tNormalInterpolator,
+                    tInterpolator,
                     tSurfaceMesh,
+                    tReferenceSurfaceMesh,
                     tMappingResult );
 
 
@@ -141,35 +142,33 @@ namespace moris::mtk
     void QuadraturePointMapper_Ray::interpolate_source_point(
             moris_index const       aCellIndex,
             Matrix< DDRMat > const &aParametricCoordinates,
-            Space_Interpolator     &aCoordinateInterpolator,
-            Space_Interpolator     &aNormalInterpolator,
+            Space_Interpolator     &aInterpolator,
             Surface_Mesh const     &aSurfaceMesh,
+            Surface_Mesh const     &aReferenceSurfaceMesh,
             MappingResult          &aMappingResult )
     {
         // initialize the coordinate-interpolator with the vertex coordinates
         uint const tNumRays    = aParametricCoordinates.n_cols();
         uint const tStartIndex = aCellIndex * tNumRays;
 
-        Matrix< DDRMat > const tVertexCoordinates = aSurfaceMesh.get_vertex_coordinates_of_cell( aCellIndex );
-        aCoordinateInterpolator.set_space_coeff( tVertexCoordinates );
+        Matrix< DDRMat > const tVertexCoordinates      = aSurfaceMesh.get_vertex_coordinates_of_cell( aCellIndex );
+        Matrix< DDRMat > const tVertexNormals          = aSurfaceMesh.get_vertex_normals_of_cell( aCellIndex );
+        Matrix< DDRMat > const tReferenceVertexNormals = aReferenceSurfaceMesh.get_vertex_normals_of_cell( aCellIndex );
 
-        Matrix< DDRMat > const tVertexNormals = aSurfaceMesh.get_vertex_normals_of_cell( aCellIndex );
-        aNormalInterpolator.set_space_coeff( tVertexNormals );
-
-        Matrix< DDRMat > const tNormals = aSurfaceMesh.get_facet_normals();
+        //        Matrix< DDRMat > const tNormals = aSurfaceMesh.get_facet_normals();
 
         for ( uint iPoint = 0; iPoint < tNumRays; iPoint++ )
         {
             // set the parametric coordinate of both interpolators
-            aCoordinateInterpolator.set_space( aParametricCoordinates.get_column( iPoint ) );
-            aNormalInterpolator.set_space( aParametricCoordinates.get_column( iPoint ) );
+            aInterpolator.set_space( aParametricCoordinates.get_column( iPoint ) );
 
             // map the parametric coordinate to the surface mesh
-            aMappingResult.mSourcePhysicalCoordinate.set_column( tStartIndex + iPoint, tVertexCoordinates * trans( aCoordinateInterpolator.NXi() ) );
+            aMappingResult.mSourcePhysicalCoordinate.set_column( tStartIndex + iPoint, tVertexCoordinates * trans( aInterpolator.NXi() ) );
             // using the next line would lead to a smooth normal (interpolated between the vertices)
             // this is not consistent with the facet normal of the element but could be considered in the future to get a smoother result
-            //            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tVertexNormals * trans( aNormalInterpolator.NXi() ) );
-            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( aCellIndex ) );
+            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tVertexNormals * trans( aInterpolator.NXi() ) );
+            aMappingResult.mReferenceNormals.set_column( tStartIndex + iPoint, tReferenceVertexNormals * trans( aInterpolator.NXi() ) );
+            //            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( aCellIndex ) );
         }
     }
 

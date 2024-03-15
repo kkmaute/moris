@@ -49,15 +49,16 @@ namespace moris::mtk
          * @brief
          * @param aCellIndex
          * @param aParametricCoordinates
-         * @param aCoordinateInterpolator
+         * @param aInterpolator
          * @param aNormalInterpolator
          * @param aSurfaceMesh
          * @param aMappingResult
          */
-        static void interpolate_source_point( moris_index aCellIndex, Matrix< DDRMat > const &aParametricCoordinates, Space_Interpolator &aCoordinateInterpolator, Space_Interpolator &aNormalInterpolator, Surface_Mesh const &aSurfaceMesh, MappingResult &aMappingResult );
+        static void interpolate_source_point( moris_index const aCellIndex, Matrix< DDRMat > const &aParametricCoordinates, Space_Interpolator &aInterpolator, Surface_Mesh const &aSurfaceMesh, Surface_Mesh const &aReferenceSurfaceMesh, MappingResult &aMappingResult );
 
         // data
-        Vector< Surface_Mesh >     mSurfaceMeshes;
+        Vector< Surface_Mesh >     mSurfaceMeshes; // stores the surface meshes in their current (possibly deformed) state
+        Vector< Surface_Mesh >     mReferenceSurfaceMeshes;    // stores the surface meshes in their original state (not deformed)
         Spatial_Indexer_BruteForce mSpatialIndexer;
         void                       check_ray_cell_intersection( MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, moris_index aSourceCellIndex, moris_index aTargetCellIndex, uint aResultOffset ) const;
         void                       process_rays( moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult, uint aResultOffset, MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, bool aBruteForce ) const;

@@ -132,6 +132,7 @@ namespace moris::mtk
         Vector< real >    tWeights( tNumResults );
         Vector< real >    tDistances( tNumResults );
         Matrix< DDRMat >  tNormals( aMappingResult.mNormals.n_rows(), tNumResults );
+        Matrix< DDRMat >  tReferenceNormals( aMappingResult.mReferenceNormals.n_rows(), tNumResults );
         Matrix< DDRMat >  tLeaderParametricCoords( tQPoints.n_rows(), tNumResults );
         Matrix< DDRMat >  tFollowerParametricCoords( tQPoints.n_rows(), tNumResults, -1.0 );
 
@@ -165,6 +166,7 @@ namespace moris::mtk
                 tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
             }
             tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
+            tReferenceNormals.set_column( iIndex, aMappingResult.mReferenceNormals.get_column( tMappingResultColumn ) );
         }
 
         return {
@@ -174,7 +176,8 @@ namespace moris::mtk
             tFollowerParametricCoords,
             tWeights,
             tDistances,
-            tNormals
+            tNormals,
+            tReferenceNormals
         };
     }
 
@@ -191,6 +194,7 @@ namespace moris::mtk
         Vector< real >        tDistances( tNumResults );
         Vector< moris_index > tLeaderNodeIndices( tNumResults );
         Matrix< DDRMat >      tNormals( aMappingResult.mNormals.n_rows(), tNumResults );
+        Matrix< DDRMat >      tReferenceNormals( aMappingResult.mReferenceNormals.n_rows(), tNumResults );
         Matrix< DDRMat >      tFollowerParametricCoords( mIntegrator.get_points().n_rows(), tNumResults, -1.0 );
 
         auto const            &tSideSet         = mSideSets( aMappingResult.mSourceMeshIndex );
@@ -225,6 +229,7 @@ namespace moris::mtk
             }
             tDistances( iIndex ) = aMappingResult.mDistances( tMappingResultColumn );
             tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
+            tReferenceNormals.set_column( iIndex, aMappingResult.mReferenceNormals.get_column( tMappingResultColumn ) );
         }
 
         return {
@@ -233,7 +238,8 @@ namespace moris::mtk
             tFollowerCellIndex,
             tFollowerParametricCoords,
             tDistances,
-            tNormals
+            tNormals,
+            tReferenceNormals
         };
     }
 
