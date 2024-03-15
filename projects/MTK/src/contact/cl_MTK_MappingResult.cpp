@@ -18,6 +18,7 @@ namespace moris::mtk
             , mTargetParametricCoordinate( aPhysicalDimension - 1, aNumberOfPoints )
             , mTargetSideSetIndices( aNumberOfPoints, -1 )
             , mNormals( aPhysicalDimension, aNumberOfPoints )
+            , mReferenceNormals( aPhysicalDimension, aNumberOfPoints )
             , mDistances( aNumberOfPoints )
     {
     }
