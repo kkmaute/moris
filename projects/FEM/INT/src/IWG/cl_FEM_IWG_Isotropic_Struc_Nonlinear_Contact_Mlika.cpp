@@ -168,15 +168,15 @@ namespace moris::fem
         const Matrix< DDRMat > tJump       = tUL - tUF - tNormalLeader * tInitialGap;
 
         // evaluate traction and their pressure equivalent (normal component)
-        const Matrix< DDRMat > tTraction       = tConstitutiveModel->traction( tNormalLeader );    // ( 2 x 1 )
+        const Matrix< DDRMat > tTraction       = tConstitutiveModel->traction( tNormalLeader, CM_Function_Type::PK1 );    // ( 2 x 1 )
         const real             tPressure       = dot( tTraction, tNormalLeader );
         const Matrix< DDRMat > tNormalTraction = tPressure * tNormalLeader;    // ( 2 x 1 ) normal component of traction
 
         // evaluate test traction and the corresponding pressure equivalent (normal component) by computing the dot product between
         // each column of tTestTraction and tNormalLeader. This is done by element-wise multiplication and then summing the columns.
-        const Matrix< DDRMat > tTestTraction       = tConstitutiveModel->testTraction( tNormalLeader, tDisplDofTypes );    // ( 2 x 8 )
-        const Matrix< DDRMat > tTestPressure       = trans( tNormalLeader ) * tTestTraction;                               // ( 1 x 8 )
-        const Matrix< DDRMat > tNormalTestTraction = tNormalLeader * tTestPressure;                                        // ( 2 x 8 ) normal component of test traction
+        const Matrix< DDRMat > tTestTraction       = tConstitutiveModel->testTraction( tNormalLeader, tDisplDofTypes, CM_Function_Type::PK1 );    // ( 2 x 8 )
+        const Matrix< DDRMat > tTestPressure       = trans( tNormalLeader ) * tTestTraction;                                                      // ( 1 x 8 )
+        const Matrix< DDRMat > tNormalTestTraction = tNormalLeader * tTestPressure;                                                               // ( 2 x 8 ) normal component of test traction
 
         // Compute the contact term C_gamma(sigma, g, n), see Mlika (2018) Eq. (4.2.1). If the contact term is negative, the second term of the residual is not zero.
         const real tContactTerm = tPressure - tNitscheParam * dot( tJump, tNormalLeader );
@@ -194,30 +194,31 @@ namespace moris::fem
             mSet->get_residual()( 0 )( tResRange ) += aWStar * 0.5 * ( ( -mTheta / tNitscheParam ) * trans( tTestTraction ) * tNormalProjector * tTraction );
         }
 
-        [[maybe_unused]] uint const tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
-        const Matrix< DDRMat >      tDebugArea{
-                 { 0.55, 0.60 },    // xmin, xmax
-                 { 0.5, 0.8 }       // ymin, ymax
-        };
-        // check if point tXL is in the debug area
-        [[maybe_unused]] const bool tIsDebugPoint = ( tXL( 0 ) > tDebugArea( 0, 0 )
-                                                      && tXL( 0 ) < tDebugArea( 0, 1 )
-                                                      && tXL( 1 ) > tDebugArea( 1, 0 )
-                                                      && tXL( 1 ) < tDebugArea( 1, 1 ) );
-        if ( tIsDebugPoint )
-        {
-            std::cout << "IWG:" << std::setprecision( 10 )
-                      << tIteration << ","
-                      << dot( tJump, tNormalLeader ) << ","
-                      << pmat( tXL ) << ","
-                      << pmat( tXF ) << ","
-                      << pmat( tUL ) << ","
-                      << pmat( tUF ) << ","
-                      << pmat( txL ) << ","
-                      << pmat( txF ) << ","
-                      << pmat( tNormalLeader ) << ","
-                      << std::endl;
-        }
+        // TODO @ff remove this debug output!
+//        [[maybe_unused]] uint const tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
+//        const Matrix< DDRMat >      tDebugArea{
+//                 { 0.55, 0.60 },    // xmin, xmax
+//                 { 0.5, 0.8 }       // ymin, ymax
+//        };
+//        // check if point tXL is in the debug area
+//        [[maybe_unused]] const bool tIsDebugPoint = ( tXL( 0 ) > tDebugArea( 0, 0 )
+//                                                      && tXL( 0 ) < tDebugArea( 0, 1 )
+//                                                      && tXL( 1 ) > tDebugArea( 1, 0 )
+//                                                      && tXL( 1 ) < tDebugArea( 1, 1 ) );
+//        if ( tIsDebugPoint )
+//        {
+////            std::cout << "IWG:" << std::setprecision( 10 )
+////                      << tIteration << ","
+////                      << dot( tJump, tNormalLeader ) << ","
+////                      << pmat( tXL ) << ","
+////                      << pmat( tXF ) << ","
+////                      << pmat( tUL ) << ","
+////                      << pmat( tUF ) << ","
+////                      << pmat( txL ) << ","
+////                      << pmat( txF ) << ","
+////                      << pmat( tNormalLeader ) << ","
+////                      << std::endl;
+//        }
 
         // check for nan, infinity
         MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -285,8 +286,8 @@ namespace moris::fem
         const Matrix< DDRMat > tXF = trans( tFollowerGeometry->valx() );    // ( 2 x 1 )
 
         // coordinates of leader (L) and follower (F) in the current configuration
-        const Matrix< DDRMat > txL = tXL + tUL;    // ( 2 x 1 )
-        const Matrix< DDRMat > txF = tXF + tUF;    // ( 2 x 1 )
+        const Matrix< DDRMat > txL = tLeaderGeometry->valx_current( tLeaderDofs );        // ( 2 x 1 )
+        const Matrix< DDRMat > txF = tFollowerGeometry->valx_current( tFollowerDofs );    // ( 2 x 1 )
 
         const Matrix< DDRMat > tIdentity = eye( tDim, tDim );
 
@@ -295,8 +296,8 @@ namespace moris::fem
         Matrix< DDRMat > const tFF = tIdentity + tGrad_UF;    // (2 x 2)
 
         // normal of leader (L) and follower (F) in the deformed configuration
-        const Matrix< DDRMat > tNormalL = tFL * mNormal;
-        const Matrix< DDRMat > tNormalF = tFF * tFollowerGeometry->get_normal();
+        const Matrix< DDRMat > tNormalL = tLeaderGeometry->get_normal_current( tLeaderDofs );
+        const Matrix< DDRMat > tNormalF = tFollowerGeometry->get_normal_current( tFollowerDofs );
 
         const Matrix< DDRMat > tNormalProjector = tNormalL * trans( tNormalL );
 
