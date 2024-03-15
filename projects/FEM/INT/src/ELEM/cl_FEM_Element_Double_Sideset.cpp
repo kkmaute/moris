@@ -37,11 +37,11 @@ namespace moris::fem
             Cluster*                 aCluster,
             moris::moris_index const aCellIndexInCluster )
             : Element(
-                      aLeaderIGCell,
-                      aFollowerIGCell,
-                      aSet,
-                      aCluster,
-                      aCellIndexInCluster )
+                    aLeaderIGCell,
+                    aFollowerIGCell,
+                    aSet,
+                    aCluster,
+                    aCellIndexInCluster )
     {
     }
 
@@ -125,6 +125,18 @@ namespace moris::fem
         return mCellIndexInCluster;
     }
 
+    void Element_Double_Sideset::initialize_quadrature_point( uint iGP )
+    {
+        // get local integration point for the leader and follower integration cell
+        const Matrix< DDRMat >& tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
+        const Matrix< DDRMat >& tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
+
+        // set evaluation point for leader and follower interpolators
+        mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
+                ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
+        mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+    }
 
     void
     Element_Double_Sideset::compute_residual()
@@ -142,15 +154,7 @@ namespace moris::fem
         uint const tNumIntegPoints = get_number_of_integration_points();
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get local integration point for the leader and follower integration cell
-            const Matrix< DDRMat >& tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
-            const Matrix< DDRMat >  tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
-
-            // set evaluation point for leader and follower interpolators
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            this->initialize_quadrature_point( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -185,7 +189,6 @@ namespace moris::fem
         }
     }
 
-
     void
     Element_Double_Sideset::compute_jacobian()
     {
@@ -203,15 +206,7 @@ namespace moris::fem
         uint const tNumIntegPoints = get_number_of_integration_points();
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get local integration point for the leader and follower integration cell
-            Matrix< DDRMat > const tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
-            Matrix< DDRMat > const tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
-
-            // set evaluation point for leader and follower interpolators
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+             this->initialize_quadrature_point( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -262,15 +257,7 @@ namespace moris::fem
         uint const tNumIntegPoints = this->get_number_of_integration_points();
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get local integration point for the leader and follower integration cell
-            Matrix< DDRMat > const tLeaderLocalIntegPoint   = this->get_leader_integration_point( iGP );
-            Matrix< DDRMat > const tFollowerLocalIntegPoint = this->get_follower_integration_point( iGP );
-
-            // set evaluation point for leader and follower interpolators
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            this->initialize_quadrature_point( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()
@@ -286,9 +273,7 @@ namespace moris::fem
             // compute integration point weight
             real const tWStar = this->get_integration_weight( iGP ) * tDetJ;
 
-            // get the normal from mesh
-            moris_index const      tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
-            Matrix< DDRMat > const tNormal        = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            Matrix< DDRMat > const tNormal = get_leader_normal( iGP );
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -343,15 +328,7 @@ namespace moris::fem
         uint const tNumIntegPoints = get_number_of_integration_points();
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get local integration point for the leader and follower integration cell
-            const Matrix< DDRMat > tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
-            const Matrix< DDRMat > tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
-
-            // set evaluation point for leader and follower interpolators
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            this->initialize_quadrature_point( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -410,15 +387,7 @@ namespace moris::fem
         uint const tNumIntegPoints = get_number_of_integration_points();
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get local integration point for the leader and follower integration cell
-            const Matrix< DDRMat > tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
-            const Matrix< DDRMat > tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
-
-            // set evaluation point for leader and follower interpolators
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            this->initialize_quadrature_point( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -468,15 +437,7 @@ namespace moris::fem
         uint const tNumIntegPoints = get_number_of_integration_points();
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get local integration point for the leader and follower integration cell
-            const Matrix< DDRMat > tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
-            const Matrix< DDRMat > tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
-
-            // set evaluation point for leader and follower FIs and GIs
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            this->initialize_quadrature_point( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -559,15 +520,7 @@ namespace moris::fem
         uint const tNumIntegPoints = get_number_of_integration_points();
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get local integration point for the leader and follower integration cell
-            const Matrix< DDRMat >& tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
-            const Matrix< DDRMat >  tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
-
-            // set evaluation point for leader and follower FIs and GIs
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            this->initialize_quadrature_point( iGP );
 
             // compute detJ of integration domain
             real const tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -662,15 +615,7 @@ namespace moris::fem
         uint const tNumIntegPoints = get_number_of_integration_points();
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get local integration point for the leader and follower integration cell
-            const Matrix< DDRMat > tLeaderLocalIntegPoint   = get_leader_integration_point( iGP );
-            const Matrix< DDRMat > tFollowerLocalIntegPoint = get_follower_integration_point( iGP );
-
-            // set evaluation point for leader and follower interpolators
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
-            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
-                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+            this->initialize_quadrature_point( iGP );
 
             // compute detJ of integration domain
             const real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();

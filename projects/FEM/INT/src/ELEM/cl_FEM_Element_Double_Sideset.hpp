@@ -152,6 +152,11 @@ namespace moris
 
           private:
             Matrix< DDRMat > get_follower_integration_point( uint aGPIndex ) const override;
+
+            /**
+             * @brief Get the leader and follower quadrature point coordinates and set the field interpolators to this coordinate
+             */
+            void initialize_quadrature_point( uint iGP );
         };
 
     } /* namespace fem */
