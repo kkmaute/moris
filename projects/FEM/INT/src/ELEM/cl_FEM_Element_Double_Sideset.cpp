@@ -169,8 +169,7 @@ namespace moris::fem
             real const tWStar = get_integration_weight( iGP ) * tDetJ;
 
             // get the normal from mesh
-            moris_index const      tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
-            Matrix< DDRMat > const tNormal        = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            Matrix< DDRMat > const tNormal = get_leader_normal( iGP );
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -221,8 +220,7 @@ namespace moris::fem
             real const tWStar = get_integration_weight( iGP ) * tDetJ;
 
             // get the normal from mesh and set if for the IWG
-            moris_index const      tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
-            Matrix< DDRMat > const tNormal        = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            Matrix< DDRMat > const tNormal = get_leader_normal( iGP );
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -343,7 +341,7 @@ namespace moris::fem
             real const tWStar = get_integration_weight( iGP ) * tDetJ;
 
             // get the normal from mesh and set if for the IWG
-            Matrix< DDRMat > const tNormal = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            Matrix< DDRMat > const tNormal = get_leader_normal( iGP );
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -402,7 +400,7 @@ namespace moris::fem
             real const tWStar = get_integration_weight( iGP ) * tDetJ;
 
             // get the normal from mesh and set if for the IWG
-            Matrix< DDRMat > const tNormal = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            Matrix< DDRMat > const tNormal = get_leader_normal( iGP );
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -451,9 +449,7 @@ namespace moris::fem
             // compute integration point weight
             real const tWStar = get_integration_weight( iGP ) * tDetJ;
 
-            // get the normal from mesh
-            moris_index const      tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
-            Matrix< DDRMat > const tNormal        = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            Matrix< DDRMat > const tNormal = get_leader_normal( iGP );
 
             // loop over the requested IQIs on the element
             for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
@@ -538,7 +534,7 @@ namespace moris::fem
             tSpaceTimeVolume += tWStar;
 
             // get the normal from mesh
-            Matrix< DDRMat > const tNormal = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            Matrix< DDRMat > const tNormal = get_leader_normal( iGP );
 
             // loop over the requested IQIs on the element
             for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
@@ -630,8 +626,7 @@ namespace moris::fem
             const real tWStar = get_integration_weight( iGP ) * tDetJ;
 
             // get the normal from mesh
-            moris_index const      tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
-            const Matrix< DDRMat > tNormal        = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            Matrix< DDRMat > const tNormal = get_leader_normal( iGP );
 
             // loop over the IQIs
             for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )

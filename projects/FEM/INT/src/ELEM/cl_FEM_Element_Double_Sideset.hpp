@@ -149,6 +149,11 @@ namespace moris
              */
             virtual moris_index get_follower_local_cell_index() const;
 
+            virtual Matrix< DDRMat > get_leader_normal( uint aGPIndex ) const
+            {
+                moris_index const tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( get_leader_local_cell_index() );
+                return mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+            }
 
           private:
             Matrix< DDRMat > get_follower_integration_point( uint aGPIndex ) const override;
