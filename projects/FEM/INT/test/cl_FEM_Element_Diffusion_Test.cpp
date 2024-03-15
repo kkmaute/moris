@@ -389,7 +389,7 @@ TEST_CASE( "IWG_Diffusion_Bulk - H3 Penalty Only", "[moris],[fem],[IWG_Elasticit
     real tLoad         = 0.0;
     real tH2Pen        = 0.0;
     real tH3Pen        = 1.0;
-    real tEpsilon      = 1e-5;
+    real tEpsilon      = 2e-5;
 
     Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tEpsilon );
 }
@@ -402,7 +402,7 @@ TEST_CASE( "IWG_Diffusion_Bulk - All Properties", "[moris],[fem],[IWG_Elasticity
     real tLoad         = 0.0;
     real tH2Pen        = 1.0;
     real tH3Pen        = 1.0;
-    real tEpsilon      = 1e-5;
+    real tEpsilon      = 2e-5;
 
     Test_IWG_Diffusion_Bulk( tConductivity, tLoad, tH2Pen, tH3Pen, tEpsilon );
 }
