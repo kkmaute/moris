@@ -97,7 +97,7 @@ namespace moris::mtk
                 Vector< real > const   &aPointDistances,
                 Matrix< DDRMat > const &aNormals,
                 Matrix< DDRMat > const &aReferenceNormals)
-                : MappingPointPairs( aLeaderCellIndex, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals, aReferenceNormals
+                : MappingPointPairs( aLeaderCellIndex, aFollowerCellIndex, aFollowerCoordinates, aPointDistances, aNormals, aReferenceNormals)
                 , mLeaderCoordinates( aLeaderCoordinates )
                 , mIntegrationWeights( aIntegrationWeights ){};
 
