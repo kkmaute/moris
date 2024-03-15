@@ -564,6 +564,8 @@ namespace moris::fem
             // set constant parameters
             mIWGs( iIWG )->set_parameters( tFuncParameters );
 
+            mIWGs( iIWG )->set_is_fd_jacobian( not tIWGParameter.get< bool >( "analytical_jacobian" ) );    // warning: this is a negation
+
             // initialize string for leader or follower
             std::string          tIsLeaderString = "leader";
             mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
@@ -1002,6 +1004,8 @@ namespace moris::fem
         fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >(
                 tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
 
+        mtk::Integration_Order tIntegrationOrder = static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
+
         // create a map of the set
         std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
 
@@ -1104,12 +1108,8 @@ namespace moris::fem
                     // set its perturbation strategy for finite difference
                     aSetUserInfo.set_perturbation_strategy( tPerturbationStrategy );
 
-                    if ( tIWGBulkType == fem::Element_Type::NONCONFORMAL_SIDESET )
-                    {
-                        mtk::Integration_Order tIntegrationOrder = static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
-                        MORIS_ASSERT( tIntegrationOrder != mtk::Integration_Order::UNDEFINED, "Integration order for nonconformal sideset 'nonconformal_integration_order' is not defined in the computation parameter list." );
-                        aSetUserInfo.set_integration_order( tIntegrationOrder );
-                    }
+                    // set the integration order for nonconformal elements
+                    aSetUserInfo.set_integration_order( tIntegrationOrder );
 
                     // set the IWG
                     aSetUserInfo.add_IWG( mIWGs( iIWG ) );
