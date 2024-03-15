@@ -32,6 +32,7 @@ namespace moris::fem
         ~Element_Nonconformal_Sideset() override = default;
 
         Matrix< DDRMat > get_leader_integration_point( uint const aGPIndex ) const override;
+        Matrix< DDRMat > get_leader_normal( uint aGPIndex ) const override;
         Matrix< DDRMat > get_follower_integration_point( uint const aGPIndex ) const override;
         real             get_integration_weight( uint const aGPIndex ) const override;
         uint             get_number_of_integration_points() const override;

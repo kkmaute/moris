@@ -780,6 +780,23 @@ namespace moris
             return tNormal;
         }
 
+        Matrix< DDRMat >
+        Geometry_Interpolator::get_custom_normal() const
+        {
+            MORIS_ASSERT( mCustomNormal.has_value(),
+                    "A custom normal got requested but it was not set. "
+                    "Make sure that you call this function on a set that supports custom normals (e.g. nonconformal side sets" );
+            return mCustomNormal.value();
+        }
+
+        Matrix< DDRMat > Geometry_Interpolator::get_custom_normal_current() const
+        {
+            MORIS_ASSERT( mCustomNormalCurrent.has_value(),
+                    "A custom normal (in the deformed configuration) got requested but it was not set. "
+                    "Make sure that you call this function on a set that supports custom normals (e.g. nonconformal side sets" );
+            return mCustomNormalCurrent.value();
+        };
+
 
         //------------------------------------------------------------------------------
 
