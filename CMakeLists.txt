@@ -215,6 +215,8 @@ option(MORIS_HAVE_SNOPT
 option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
 
+option(MORIS_HAVE_ARBORX
+    "Build MORIS with support for ArborX." OFF )
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
 #     
@@ -833,6 +835,14 @@ endif()
 
 if (MORIS_HAVE_LBFGS)
     list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_LBFGS")
+endif()
+
+# -------------------------------------------------------------------------
+# ArborX ------------------------------------------------------------------
+# -------------------------------------------------------------------------
+
+if (MORIS_HAVE_LBFGS)
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_ARBORX")
 endif()
 
 # -------------------------------------------------------------------------
