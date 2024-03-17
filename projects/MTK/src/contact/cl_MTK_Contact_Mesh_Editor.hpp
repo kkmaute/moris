@@ -13,7 +13,7 @@
 
 
 #include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_MTK_QuadraturePointMapper_Ray.hpp"
+#include "cl_MTK_QuadraturePointMapper_Ray_BruteForce.hpp"
 #include "cl_MTK_Integrator.hpp"
 #include "fn_assert.hpp"
 
@@ -31,7 +31,7 @@ namespace moris::mtk
                 , mIntegrator( std::move( aIntegrator ) )
                 , mSideSets( aCandidateSideSet )
                 , mCandidatePairs( aCandidatePairs )
-                , mPointMapper( QuadraturePointMapper_Ray( aIGMesh, aCandidateSideSet, aCandidatePairs ) ){};
+                , mPointMapper( QuadraturePointMapper_Ray_BruteForce( aIGMesh, aCandidateSideSet, aCandidatePairs ) ){};
 
         void update_nonconformal_side_sets() const;
 
@@ -129,7 +129,7 @@ namespace moris::mtk
         Integrator                                      mIntegrator;
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
-        QuadraturePointMapper_Ray                       mPointMapper;
+        QuadraturePointMapper_Ray_BruteForce            mPointMapper;
         int                                             mIteration = 0;
     };
 }    // namespace moris::mtk

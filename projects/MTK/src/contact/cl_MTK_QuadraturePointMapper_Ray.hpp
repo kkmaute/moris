@@ -1,24 +1,24 @@
 //
-// Created by frank on 11/28/23.
+// Created by frank on 3/17/24.
 //
 
-#ifndef MORIS_CL_MTK_QUADRATUREPOINTMAPPER_RAY_HPP
-#define MORIS_CL_MTK_QUADRATUREPOINTMAPPER_RAY_HPP
+#pragma once
 
+#include <deque>
+#include <set>
 #include "cl_MTK_QuadraturePointMapper.hpp"
+#include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Surface_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Spatial_Indexer_BruteForce.h"
 #include "cl_Json_Object.hpp"
-#include <deque>
-#include <set>
-
 
 namespace moris::mtk
 {
     class QuadraturePointMapper_Ray : public QuadraturePointMapper
     {
+
       public:
         ~QuadraturePointMapper_Ray() override = default;
 
@@ -27,45 +27,22 @@ namespace moris::mtk
                 Vector< Side_Set const * >                            &aSideSets,
                 const Vector< std::pair< moris_index, moris_index > > &aCandidatePairs );
 
-        MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates ) const override;
-
         void update_displacements( std::map< moris_index, Vector< real > > const &aSetDisplacements ) override;
 
-      private:
-        // methods
-        void raycast_cell( moris_index aSourceCellIndex, moris_index aNumberOfRays, MappingResult &aMappingResult, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
+      protected:
+        Vector< Surface_Mesh > const &get_surface_meshes() const { return mSurfaceMeshes; }
+        Vector< Surface_Mesh > const &get_reference_surface_meshes() const { return mReferenceSurfaceMeshes; }
+        MappingResult                 initialize_source_points( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates ) const;
 
-        /**
-         * @brief
-         * @param aIGMesh
-         * @param aSideSets
-         * @return
-         */
+      private:
         static auto initialize_surface_meshes(
                 Integration_Mesh const                *aIGMesh,
                 Vector< mtk::Side_Set const * > const &aSideSets ) -> Vector< Surface_Mesh >;
 
-        /**
-         * @brief
-         * @param aCellIndex
-         * @param aParametricCoordinates
-         * @param aInterpolator
-         * @param aNormalInterpolator
-         * @param aSurfaceMesh
-         * @param aMappingResult
-         */
-        static void interpolate_source_point( moris_index const aCellIndex, Matrix< DDRMat > const &aParametricCoordinates, Space_Interpolator &aInterpolator, Surface_Mesh const &aSurfaceMesh, Surface_Mesh const &aReferenceSurfaceMesh, MappingResult &aMappingResult );
+        void write_surface_mesh_json() const;
 
         // data
-        Vector< Surface_Mesh >     mSurfaceMeshes; // stores the surface meshes in their current (possibly deformed) state
-        Vector< Surface_Mesh >     mReferenceSurfaceMeshes;    // stores the surface meshes in their original state (not deformed)
-        Spatial_Indexer_BruteForce mSpatialIndexer;
-        void                       check_ray_cell_intersection( MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, moris_index aSourceMeshIndex, moris_index aTargetMeshIndex, moris_index aSourceCellIndex, moris_index aTargetCellIndex, uint aResultOffset ) const;
-        void                       process_rays( moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult, uint aResultOffset, MappingResult &aMappingResult, std::deque< moris_index > &aUnprocessedRays, bool aBruteForce ) const;
-        std::set< moris_index >    get_potential_target_meshes( bool aBruteForce, moris_index aSourceMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
-        std::set< moris_index >    get_potential_target_cells( bool aBruteForce, moris_index aSourceMeshIndex, moris_index tTargetMeshIndex, moris_index aSourceCellIndex, Spatial_Indexing_Result const &aSpatialIndexingResult ) const;
-        void                       write_surface_mesh_json() const;
+        Vector< Surface_Mesh > mSurfaceMeshes;             // stores the surface meshes in their current (possibly deformed) state
+        Vector< Surface_Mesh > mReferenceSurfaceMeshes;    // stores the surface meshes in their original state (not deformed)
     };
 }    // namespace moris::mtk
-
-#endif    // MORIS_CL_MTK_QUADRATUREPOINTMAPPER_RAY_HPP
