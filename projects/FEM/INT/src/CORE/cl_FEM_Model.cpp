@@ -416,29 +416,29 @@ namespace moris
             std::set< moris_index > tRequestedIGNodes;
             std::set< moris_index > tRequestedIPNodes;
 
-            // TODO @ff: Debug only
-            for ( auto const &tFemSet : mFemSets )
-            {
-                if ( tFemSet->is_empty_set() || tFemSet->get_set_name().find( "ghost" ) != std::string::npos )
-                {
-                    continue;
-                }
-                auto const &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
-                for ( auto const &tCluster : tMeshSet->get_clusters_on_set() )
-                {
-                    for ( auto const &tCell : tCluster->get_primary_cells_in_cluster() )
-                    {
-                        for ( auto const &tVertex : tCell->get_vertex_pointers() )
-                        {
-                            tRequestedIGNodes.insert( tVertex->get_index() );
-                        }
-                    }
-                    for ( auto const &tVertex : tCluster->get_interpolation_cell().get_vertex_pointers() )
-                    {
-                        tRequestedIPNodes.insert( tVertex->get_index() );
-                    }
-                }
-            }
+            // TODO @ff: Remove! Debug only. This makes sure that every vertex displacement will be requested, not only the ones from the nonconformal sets.
+//            for ( auto const &tFemSet : mFemSets )
+//            {
+//                if ( tFemSet->is_empty_set() || tFemSet->get_set_name().find( "ghost" ) != std::string::npos )
+//                {
+//                    continue;
+//                }
+//                auto const &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
+//                for ( auto const &tCluster : tMeshSet->get_clusters_on_set() )
+//                {
+//                    for ( auto const &tCell : tCluster->get_primary_cells_in_cluster() )
+//                    {
+//                        for ( auto const &tVertex : tCell->get_vertex_pointers() )
+//                        {
+//                            tRequestedIGNodes.insert( tVertex->get_index() );
+//                        }
+//                    }
+//                    for ( auto const &tVertex : tCluster->get_interpolation_cell().get_vertex_pointers() )
+//                    {
+//                        tRequestedIPNodes.insert( tVertex->get_index() );
+//                    }
+//                }
+//            }
 
             std::map< moris_index, Vector< real > > tNodalDisplacements;
             for ( auto const &tSet : mFemSets )
@@ -457,11 +457,12 @@ namespace moris
             MORIS_ASSERT( tRequestedIGNodes.size() == 0, "Not all requested nodal displacements could be found!" );
 
 
-            mtk::Json_Debug_Output tDebugOutput( mMeshManager->get_integration_mesh( 0 ) );
-            tDebugOutput.set_ig_vertex_displacements( tNodalDisplacements );
-            uint const        tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
-            std::string const tFileName  = "debug_mesh_" + std::to_string( tIteration ) + ".json";
-            tDebugOutput.write_to_json( tFileName );
+            // TODO @ff: Remove! Debug only
+            //            mtk::Json_Debug_Output tDebugOutput( mMeshManager->get_integration_mesh( 0 ) );
+            //            tDebugOutput.set_ig_vertex_displacements( tNodalDisplacements );
+            //            uint const        tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
+            //            std::string const tFileName  = "debug_mesh_" + std::to_string( tIteration ) + ".json";
+            //            tDebugOutput.write_to_json( tFileName );
 
 
             // store the names of the mesh sets that are stored in each FEM set. This is necessary to update the newly created
@@ -1194,6 +1195,10 @@ namespace moris
             }
 
             auto *tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
+
+            // TODO @ff: remove! Only for Debug.
+//            std::string const tFileName = "debug_mesh_0.json";
+//            mtk::Json_Debug_Output( tIGMesh ).write_to_json( tFileName );
 
             auto const &[ tSetNames, tCandidatePairs ] = prepare_nonconformal_candidate_pairs();
 

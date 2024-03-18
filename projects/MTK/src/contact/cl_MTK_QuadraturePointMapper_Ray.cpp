@@ -27,7 +27,7 @@ namespace moris::mtk
             , mSurfaceMeshes( initialize_surface_meshes( aIGMesh, aSideSets ) )
             , mReferenceSurfaceMeshes( mSurfaceMeshes )    // copy the surface meshes to the reference meshes
     {
-        write_surface_mesh_json();
+        //        write_surface_mesh_json(); // TODO @ff: Remove! Only for Debug!
     }
 
     void QuadraturePointMapper_Ray::write_surface_mesh_json() const

@@ -254,7 +254,7 @@ namespace moris::mtk
                 std::inserter( tSourceSideSets, tSourceSideSets.end() ),
                 []( auto const &aPair ) { return aPair.first; } );
 
-        Json                    tMappingResultsJson;
+        //        Json                    tMappingResultsJson; // TODO @ff: Remove! Only for debugging!
         Vector< MappingResult > tMappingResults;
         tMappingResults.reserve( tSourceSideSets.size() );
 
@@ -262,11 +262,12 @@ namespace moris::mtk
         {
             MappingResult tResult = mPointMapper.map( tSourceSideSet, aPointsToMap );
             tMappingResults.push_back( tResult );
-            tMappingResultsJson.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() );
+            //            tMappingResultsJson.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() ); // TODO @ff: Remove! Only for debugging!
         }
-        uint const  tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
-        std::string tFileName  = "mapping_result_" + std::to_string( tIteration ) + ".json";
-        write_json( tFileName, tMappingResultsJson );
+        // TODO @ff: Remove! Only for debugging!
+        //        uint const  tIteration = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve" );
+        //        std::string tFileName  = "mapping_result_" + std::to_string( tIteration ) + ".json";
+        //        write_json( tFileName, tMappingResultsJson );
 
         return tMappingResults;
     }
