@@ -131,6 +131,6 @@ namespace moris::mtk
             }
             tSurfaceMesh.set_displacement( tDisplacements );
         }
-        write_surface_mesh_json();
+//        write_surface_mesh_json(); // TODO @ff Remove! Only for Debug!
     }
 }    // namespace moris::mtk
