@@ -196,7 +196,6 @@ namespace moris::mtk
             moris_index const          aTargetCellIndex,
             uint const                 aResultOffset ) const
     {
-        Surface_Mesh const &tSourceMesh = get_surface_meshes()( aSourceMeshIndex );
         Surface_Mesh const &tTargetMesh = get_surface_meshes()( aTargetMeshIndex );
 
         // get the basic information from the cell like the vertex coordinates and calculate the origin and direction of the cell facet
@@ -250,10 +249,10 @@ namespace moris::mtk
                 aMappingResult.mDistances( tInsertIndex )            = tRayLineIntersection.get_ray_length();
                 aMappingResult.mTargetSideSetIndices( tInsertIndex ) = aTargetMeshIndex;
 
-                aMappingResult.mSourceCellIndex( tInsertIndex )   = tSourceMesh.get_global_cell_index( aSourceCellIndex );
+                //                aMappingResult.mSourceCellIndex( tInsertIndex )   = tSourceMesh.get_global_cell_index( aSourceCellIndex ); // TOOD @ff remove if not needed
                 aMappingResult.mTargetCellIndices( tInsertIndex ) = tTargetMesh.get_global_cell_index( aTargetCellIndex );
 
-                aMappingResult.mSourceClusterIndex( tInsertIndex ) = tSourceMesh.get_cluster_of_cell( aSourceCellIndex );
+                //                aMappingResult.mSourceClusterIndex( tInsertIndex ) = tSourceMesh.get_cluster_of_cell( aSourceCellIndex ); // TOOD @ff remove if not needed
                 aMappingResult.mTargetClusterIndex( tInsertIndex ) = tTargetMesh.get_cluster_of_cell( aTargetCellIndex );
             }
             else

@@ -23,11 +23,12 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include <Kokkos_Core.hpp>
 
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src
-#include "moris_typedefs.hpp"                    // COR/src
+#include "moris_typedefs.hpp"              // COR/src
 // other header files
 // #include <catch.hpp>
 // #include "fn_equal_to.hpp" //ALG
@@ -186,6 +187,12 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
     // --------------------------------------------- //
     // start workflow
     {
+
+#ifdef MORIS_HAVE_ARBORX
+        // initialize Kokkos for the use in the spatial tree library ArborX
+        std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
+#endif
+
         // load the OPT parameter list
         ModuleParameterList tOPTParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::OPT );
 

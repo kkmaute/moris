@@ -31,7 +31,6 @@ namespace moris::mtk
 
         /**
          * @brief The n-th entry is the cell index of the n-th matching point in the mParametricCoordinates matrix.
-         * If the mapping was not successful, the cell index is -1.
          */
         Vector< moris_index > mSourceCellIndex;
 

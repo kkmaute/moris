@@ -68,6 +68,7 @@ set(HEADERS
         contact/cl_MTK_QuadraturePointMapper.hpp
         contact/cl_MTK_QuadraturePointMapper_Ray_BruteForce.hpp
         contact/cl_MTK_QuadraturePointMapper_Ray.hpp
+        # contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp ## gets added further down (if ArborX is used)
         contact/cl_MTK_Spatial_Indexer.h
         contact/cl_MTK_Spatial_Indexer_BruteForce.h
 
@@ -246,6 +247,7 @@ set(LIB_SOURCES
         contact/cl_MTK_MappingResult.cpp
         contact/cl_MTK_QuadraturePointMapper.cpp
         contact/cl_MTK_QuadraturePointMapper_Ray_BruteForce.cpp
+        # contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.cpp ## gets added further down (if ArborX is used)
         contact/cl_MTK_QuadraturePointMapper_Ray.cpp
         contact/cl_MTK_Spatial_Indexer.cpp
         contact/cl_MTK_Spatial_Indexer_BruteForce.cpp
@@ -315,6 +317,19 @@ set(LIB_SOURCES
         stk_impl/cl_MTK_Side_Cluster_STK.cpp
         stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
 )
+
+# if ArborX is used, add the respective files to the lists
+if (MORIS_HAVE_ARBORX)
+    list(APPEND LIB_SOURCES
+            contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.cpp
+            contact/cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.cpp
+    )
+    list(APPEND HEADERS
+            contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp
+            contact/cl_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp
+    )
+endif ()
+
 
 # List library dependencies
 set(LIB_DEPENDENCIES

@@ -15,9 +15,6 @@
 #include "cl_Vector.hpp"
 #include "cl_Map.hpp"
 
-
-#include <cl_MTK_Contact_Mesh_Editor.hpp>
-
 namespace moris
 {
     namespace hmr
@@ -51,10 +48,6 @@ namespace moris
             moris::map< std::string, moris_index > mFieldLabelToIndexMap;
 
             Vector< Vector< moris_index > > mMeshPairToFieldIndexMap;
-
-            // contact mesh updater
-            Vector< std::shared_ptr< mtk::Contact_Mesh_Editor > > mContactMeshEditors;
-
           public:
             Mesh_Manager();
 
@@ -137,23 +130,6 @@ namespace moris
 
             Integration_Mesh*
             get_integration_mesh( moris_index aMeshIndex );
-
-            //--------------------------------------------------------------------
-
-            std::shared_ptr< Mesh_Manager > get_pointer()
-            {
-                return shared_from_this();
-            }
-
-            Vector< std::shared_ptr< mtk::Contact_Mesh_Editor > > get_contact_mesh_editors()
-            {
-                return mContactMeshEditors;
-            }
-
-            void add_contact_mesh_editor( std::shared_ptr< mtk::Contact_Mesh_Editor > const & aContactMeshEditor )
-            {
-                mContactMeshEditors.push_back( aContactMeshEditor );
-            }
 
             //--------------------------------------------------------------------
 
