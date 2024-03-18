@@ -860,8 +860,8 @@ namespace moris
             tTimeParameterList.insert( "TSA_Max_Time_Solver_Restarts", 0 );
 
             tTimeParameterList.insert( "TSA_Output_Indices", "0" );
-
             tTimeParameterList.insert( "TSA_Output_Criteria", "Default_Output_Criterion" );
+            tTimeParameterList.insert( "TSA_Pause_Function", "" );
 
             tTimeParameterList.insert( "TSA_Initialize_Sol_Vec", "" );    // initial GUESS
 

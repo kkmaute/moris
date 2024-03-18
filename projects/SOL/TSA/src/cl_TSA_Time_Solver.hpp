@@ -24,6 +24,7 @@
 namespace moris
 {
     class Solver_Interface;
+    typedef void ( *Void_Function )();
 
     namespace sol
     {
@@ -67,6 +68,7 @@ namespace moris
 
             Vector< moris::uint >     mOutputIndices;
             Vector< Output_Criteria > mOutputCriteriaPointer;
+            Void_Function mPauseFunction = [](){};
 
             moris::Parameter_List mParameterListTimeSolver;
 
@@ -324,6 +326,13 @@ namespace moris
             void set_output(
                     const uint      aOutputIndex,
                     Output_Criteria aOutputCriteria );
+
+            /**
+             * Sets a user-defined pause function for pausing between time steps.
+             *
+             * @param aPauseFunction Pause function
+             */
+            void set_pause_function( Void_Function aPauseFunction );
 
             //--------------------------------------------------------------------------------------------------
 

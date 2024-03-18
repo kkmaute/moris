@@ -269,6 +269,14 @@ Time_Solver::set_output(
 
 //-------------------------------------------------------------------------------------------------------
 
+void Time_Solver::set_pause_function(
+        Void_Function aPauseFunction )
+{
+    mPauseFunction = aPauseFunction;
+}
+
+//-------------------------------------------------------------------------------------------------------
+
 void
 Time_Solver::check_for_outputs(
         const moris::real& aTime,
@@ -299,6 +307,9 @@ Time_Solver::check_for_outputs(
 
             tCounter++;
         }
+
+        // Pause if needed
+        mPauseFunction();
     }
 }
 

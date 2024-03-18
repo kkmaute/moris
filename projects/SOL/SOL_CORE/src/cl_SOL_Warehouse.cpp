@@ -439,8 +439,12 @@ void SOL_Warehouse::create_time_solvers()
             }
         }
 
-        // set warehouse to time solver
-        //        mTimeSolvers( Ik )->set_solver_warehouse( this );
+        // Set pause function
+        std::string tPauseFunctionName = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Pause_Function" );
+        if ( not tPauseFunctionName.empty() )
+        {
+            mTimeSolvers( Ik )->set_pause_function( mLibrary->load_function< Void_Function >( tPauseFunctionName ) );
+        }
     }
 }
 
