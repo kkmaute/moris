@@ -18,9 +18,9 @@ namespace moris::gen
 
     Combined_Fields::Combined_Fields(
             Vector< std::shared_ptr< Field > > aFields,
-            bool                             aUseMinimum,
-            std::string                      aName )
-            : Field( Matrix< DDRMat >{{}}, aName )
+            bool                               aUseMinimum,
+            std::string                        aName )
+            : Field( Matrix< DDRMat >{ {} }, aName )
             , mFields( aFields )
             , mScale( 2 * aUseMinimum - 1 )
     {
@@ -30,8 +30,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     real Combined_Fields::get_field_value(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates )
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
     {
         real tResult = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
         for ( const auto& iField : mFields )
@@ -59,17 +59,17 @@ namespace moris::gen
 
     const Matrix< DDRMat >& Combined_Fields::get_dfield_dadvs(
             uint                    aNodeIndex,
-            const Matrix< DDRMat >& aCoordinates)
+            const Matrix< DDRMat >& aCoordinates )
     {
         // Find which field is the minimum
-        real tMin = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
+        real tMin           = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
         uint tMinFieldIndex = 0;
         for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
         {
             real tResult = mScale * mFields( iFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
             if ( tResult < tMin )
             {
-                tMin = tResult;
+                tMin           = tResult;
                 tMinFieldIndex = iFieldIndex;
             }
         }
@@ -86,14 +86,14 @@ namespace moris::gen
             const Node_Manager& aNodeManager )
     {
         // Find which field is the minimum
-        real tMin = mScale * mFields( 0 )->get_field_value( aDerivedNode, aNodeManager );
+        real tMin           = mScale * mFields( 0 )->get_field_value( aDerivedNode, aNodeManager );
         uint tMinFieldIndex = 0;
         for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
         {
             real tResult = mScale * mFields( iFieldIndex )->get_field_value( aDerivedNode, aNodeManager );
             if ( tResult < tMin )
             {
-                tMin = tResult;
+                tMin           = tResult;
                 tMinFieldIndex = iFieldIndex;
             }
         }
@@ -109,14 +109,14 @@ namespace moris::gen
             const Matrix< DDRMat >& aCoordinates )
     {
         // Find which field is the minimum
-        real tMin = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
+        real tMin           = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
         uint tMinFieldIndex = 0;
         for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
         {
             real tResult = mScale * mFields( iFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
             if ( tResult < tMin )
             {
-                tMin = tResult;
+                tMin           = tResult;
                 tMinFieldIndex = iFieldIndex;
             }
         }
@@ -133,14 +133,14 @@ namespace moris::gen
             const Node_Manager& aNodeManager )
     {
         // Find which field is the minimum
-        real tMin = mScale * mFields( 0 )->get_field_value( aDerivedNode, aNodeManager );
+        real tMin           = mScale * mFields( 0 )->get_field_value( aDerivedNode, aNodeManager );
         uint tMinFieldIndex = 0;
         for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
         {
             real tResult = mScale * mFields( iFieldIndex )->get_field_value( aDerivedNode, aNodeManager );
             if ( tResult < tMin )
             {
-                tMin = tResult;
+                tMin           = tResult;
                 tMinFieldIndex = iFieldIndex;
             }
         }
@@ -153,19 +153,19 @@ namespace moris::gen
 
     void
     Combined_Fields::get_dfield_dcoordinates(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates,
-            Matrix<DDRMat>&       aSensitivities)
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates,
+            Matrix< DDRMat >&       aSensitivities )
     {
         // Find which field is the minimum
-        real tMin = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
+        real tMin           = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
         uint tMinFieldIndex = 0;
         for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
         {
             real tResult = mScale * mFields( iFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
             if ( tResult < tMin )
             {
-                tMin = tResult;
+                tMin           = tResult;
                 tMinFieldIndex = iFieldIndex;
             }
         }
@@ -175,7 +175,7 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    
+
     std::shared_ptr< mtk::Field > Combined_Fields::get_mtk_field()
     {
         // Trivial mesh pair, since it may or may not be needed
@@ -212,7 +212,7 @@ namespace moris::gen
             return nullptr;
         }
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen
