@@ -18,8 +18,8 @@ namespace moris::NLA
 {
     Solver_Nonconformal_Remapping::Solver_Nonconformal_Remapping( ParameterList &aParameterListNonlinearSolver )
             : mStrategy( static_cast< sol::SolverRaytracingStrategy >( aParameterListNonlinearSolver.get< uint >( "NLA_remap_strategy" ) ) )
-            , mFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_frequency" ) )
-            , mFrequencyAfterFullLoad( aParameterListNonlinearSolver.get< int >( "NLA_remap_frequency_after_full_load" ) )
+            , mLoadStepFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_load_step_frequency" ) )
+            , mIterationFrequency( aParameterListNonlinearSolver.get< int >( "NLA_remap_iteration_frequency" ) )
             , mResidualChangeTolerance( aParameterListNonlinearSolver.get< real >( "NLA_remap_residual_change_tolerance" ) )
             , mPreviousLoadFactor( 0.0 )
             , mLoadStepCounter( 0 )
@@ -36,11 +36,15 @@ namespace moris::NLA
             }
             case sol::SolverRaytracingStrategy::EveryNthIteration:
             {
-                return check_every_nth_iteration( aIter, mFrequency );
+                return check_every_nth_iteration( aIter, mIterationFrequency );
             }
             case sol::SolverRaytracingStrategy::ResidualChange:
             {
                 return check_relative_residual_change( aNonLinSolverManager );
+            }
+            case sol::SolverRaytracingStrategy::EveryNthLoadStepOrNthIteration:
+            {
+                return check_every_nth_load_step( aLoadFactor ) || check_every_nth_iteration( aIter, mIterationFrequency );
             }
             case sol::SolverRaytracingStrategy::MixedNthLoadStepAndResidualChange:
             {
@@ -56,7 +60,7 @@ namespace moris::NLA
                 // use iteration if load factor is 1
                 if ( std::abs( 1.0 - aLoadFactor ) < 1e-10 )
                 {
-                    return check_every_nth_iteration( aIter, mFrequencyAfterFullLoad );
+                    return check_every_nth_iteration( aIter, mIterationFrequency );
                 }
                 return check_every_nth_load_step( aLoadFactor );
             }
@@ -73,14 +77,14 @@ namespace moris::NLA
         {
             mLoadStepCounter++;
             mPreviousLoadFactor = aLoadFactor;
-            return mLoadStepCounter % mFrequency == 0;
+            return mLoadStepCounter % mLoadStepFrequency == 0;
         }
         return false;
     }
 
     bool Solver_Nonconformal_Remapping::check_every_nth_iteration( uint aIter, uint aFrequency )
     {
-        return ( aIter % aFrequency ) == 0;
+        return ( aIter % aFrequency ) == 0 || aIter == 1;    // always remap at first iteration or every nth iteration
     }
 
     bool Solver_Nonconformal_Remapping::check_relative_residual_change( Nonlinear_Solver *aNonLinSolverManager )

@@ -27,8 +27,8 @@ namespace moris::NLA
 
       private:
         sol::SolverRaytracingStrategy mStrategy;
-        uint                          mFrequency{};
-        uint                          mFrequencyAfterFullLoad{};
+        uint                          mLoadStepFrequency{};
+        uint                          mIterationFrequency{};
         real                          mResidualChangeTolerance{};
         real                          mPreviousResidual{ -1.0 };
         real                          mPreviousLoadFactor;

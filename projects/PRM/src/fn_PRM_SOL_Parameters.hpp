@@ -794,17 +794,19 @@ namespace moris
             // Determine with which strategy remapping of nonconformal meshes (raytracing) should be performed
             tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::EveryNthLoadStep );
 
-            // If "NLA_remap_strategy" is set to "EveryNthLoadStep" or "EveryNthIteration" or "MixedNthLoadStepAndResidualChange", this parameter determines the frequency of remapping
-            tNonLinAlgorithmParameterList.insert( "NLA_remap_frequency", 1 );
+            // If "NLA_remap_strategy" is set to "EveryNthIteration", "EveryNthLoadStepOrNthIteration, or "MixedNthLoadStepAndNthIteration",
+            // this parameter determines the frequency of remapping inside the newton iterations
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_iteration_frequency", 1 );
 
-            // If "NLA_remap_strategy" is set to "MixedNthLoadStepAndNthIteration", this parameter determines the frequency of remapping after the full load is applied
-            tNonLinAlgorithmParameterList.insert( "NLA_remap_frequency_after_full_load", 1 );
+            // If "NLA_remap_strategy" is set to "EveryNthLoadStep", "EveryNthLoadStepOrNthIteration, "MixedNthLoadStepAndResidualChange" or "MixedNthLoadStepAndNthIteration",
+            // this parameter determines the frequency of remapping in the load stepping iterations
+            tNonLinAlgorithmParameterList.insert( "NLA_remap_load_step_frequency", 1 );
 
-            // If "NLA_remap_strategy" is set to "ResidualChange" or "MixedNthLoadStepAndResidualChange", this parameter determines the limit of the change in the residual above which the remapping is preformed.
-            // E.g. if this is set to -1e-2, the remapping will be performed if the change between the previous and current iterations residual is greater than -1e-2 (either it is almost converged in the current configuration or the residual grows)
+            // If "NLA_remap_strategy" is set to "ResidualChange" or "MixedNthLoadStepAndResidualChange",
+            // this parameter determines the limit of the change in the residual above which the remapping is preformed.
+            // E.g. if this is set to -1e-2, the remapping will be performed if the change between the previous and current iterations residual is greater than -1e-2
+            // (either it is almost converged in the current configuration or the residual grows)
             tNonLinAlgorithmParameterList.insert( "NLA_remap_residual_change_tolerance", -1e-2 );
-
-
 
 
             return tNonLinAlgorithmParameterList;
