@@ -55,6 +55,7 @@ namespace moris
         enum class SolverLoadControlType
         {
             Constant,       // Constant load control parameter
+            Linear,         // Linear growth
             Exponential,    // Exponential growth
             UserDefined     // User defined strategy
         };
