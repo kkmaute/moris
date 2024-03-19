@@ -46,8 +46,9 @@ namespace moris::mtk
             {
                 mHasIntersection = true;
 
-                // calculate the gap between the ray origin and the line segment
-                mRayLength = norm( u * mDirection );
+                // calculate the (signed) ray length between the origin and the line segment
+                // negative if the intersection point is in the negative direction of the ray
+                mSignedRayLength = norm( u * mDirection ) * ( u > 0.0 ? 1.0 : -1.0 );
 
                 // set the factors by which the span of the line segment has to be multiplied to get the intersection point
                 // q(v) = s + v * ds
@@ -66,8 +67,8 @@ namespace moris::mtk
         return Matrix< DDRMat >( { { mParametricCoordinate } } );
     }
 
-    real Ray_Line_Intersection::get_ray_length() const
+    real Ray_Line_Intersection::get_signed_ray_length() const
     {
-        return mRayLength;
+        return mSignedRayLength;
     }
 }    // namespace moris::mtk

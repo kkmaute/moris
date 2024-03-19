@@ -150,7 +150,7 @@ namespace moris::mtk
              * [ 0, 1, 2, 3, 0, 1, 2, 3, 0, 1 ,2 ,3 ] and so on. */
             size_t const tIntegrationPointIndex = get_integration_point_index( tMappingResultColumn );
             tWeights( iIndex )                  = tQWeights( tIntegrationPointIndex );
-            tDistances( iIndex )                = aMappingResult.mDistances( tMappingResultColumn );
+            tDistances( iIndex )                = aMappingResult.mSignedDistance( tMappingResultColumn );
             tLeaderParametricCoords.set_column( iIndex, tQPoints.get_column( tIntegrationPointIndex ) );
             MORIS_ASSERT(
                     tLeaderCellIndex == aMappingResult.mSourceCellIndex( tMappingResultColumn ),
@@ -227,7 +227,7 @@ namespace moris::mtk
             {
                 tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
             }
-            tDistances( iIndex ) = aMappingResult.mDistances( tMappingResultColumn );
+            tDistances( iIndex ) = aMappingResult.mSignedDistance( tMappingResultColumn );
             tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
             tReferenceNormals.set_column( iIndex, aMappingResult.mReferenceNormals.get_column( tMappingResultColumn ) );
         }
@@ -260,7 +260,7 @@ namespace moris::mtk
 
         for ( auto const &tSourceSideSet : tSourceSideSets )
         {
-            MappingResult tResult = mPointMapper.map( tSourceSideSet, aPointsToMap );
+            MappingResult tResult = mPointMapper.map( tSourceSideSet, aPointsToMap, mMaxNegativeRayLength );
             tMappingResults.push_back( tResult );
             //            tMappingResultsJson.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() ); // TODO @ff: Remove! Only for debugging!
         }

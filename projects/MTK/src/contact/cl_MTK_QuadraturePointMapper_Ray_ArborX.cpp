@@ -11,7 +11,7 @@
 
 namespace moris::mtk
 {
-    MappingResult QuadraturePointMapper_ArborX::map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates ) const
+    MappingResult QuadraturePointMapper_ArborX::map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength ) const
     {
         Surface_Mesh const    tSurfaceMesh = get_surface_meshes()( aSourceMeshIndex );
         Side_Set const *const tSideSet     = get_side_sets()( aSourceMeshIndex );
@@ -65,13 +65,14 @@ namespace moris::mtk
                     tRayLineIntersection.set_ray_origin( tMappingResult.mSourcePhysicalCoordinate.get_column( tRayIndex ) );
                     tRayLineIntersection.set_ray_direction( tMappingResult.mNormals.get_column( tRayIndex ) );
                     tRayLineIntersection.perform_raytracing();
-                    if ( tRayLineIntersection.has_intersection()                                                   // check if the ray intersects the line segment
-                            && ( tRayLineIntersection.get_ray_length() < tMappingResult.mDistances( tRayIndex )    // check if the intersection is closer than the previous one
-                                    || tMappingResult.mTargetCellIndices( tRayIndex ) == -1 ) )                    // or if the ray has not intersected anything before
+                    if ( tRayLineIntersection.has_intersection()                                                               // check if the ray intersects the line segment
+                            && tRayLineIntersection.get_signed_ray_length() > aMaxNegativeRayLength                            // check that the ray is not too long in the negative direction
+                            && ( tRayLineIntersection.get_signed_ray_length() < tMappingResult.mSignedDistance( tRayIndex )    // check if the intersection is closer than the previous one
+                                    || tMappingResult.mTargetCellIndices( tRayIndex ) == -1 ) )                                // or if the ray has not intersected anything before (initial distance is 0.0)
                     {
                         tMappingResult.mTargetParametricCoordinate.set_column( tRayIndex, tRayLineIntersection.get_intersection_parametric() );
                         tMappingResult.mTargetPhysicalCoordinate.set_column( tRayIndex, tRayLineIntersection.get_intersection_physical() );
-                        tMappingResult.mDistances( tRayIndex )            = tRayLineIntersection.get_ray_length();
+                        tMappingResult.mSignedDistance( tRayIndex )       = tRayLineIntersection.get_signed_ray_length();
                         tMappingResult.mTargetSideSetIndices( tRayIndex ) = tTargetMeshIndex;
                         tMappingResult.mTargetCellIndices( tRayIndex )    = tTargetMesh.get_global_cell_index( tTargetCellIndex );
                         tMappingResult.mTargetClusterIndex( tRayIndex )   = tTargetMesh.get_cluster_of_cell( tTargetCellIndex );

@@ -80,7 +80,7 @@ namespace moris::mtk
             return tIntersection;
         }
 
-        virtual real get_ray_length() const
+        virtual real get_signed_ray_length() const
         {
             return norm( get_intersection_physical() - mOrigin );
         };

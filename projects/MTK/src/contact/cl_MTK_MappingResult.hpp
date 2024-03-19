@@ -79,7 +79,7 @@ namespace moris::mtk
         /**
          * @brief The n-th entry is the distance of the n-th to the mapped point in physical coordinates.
          */
-        Vector< real > mDistances;
+        Vector< real > mSignedDistance;
 
 
         Json to_json();

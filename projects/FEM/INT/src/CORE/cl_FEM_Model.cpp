@@ -417,28 +417,28 @@ namespace moris
             std::set< moris_index > tRequestedIPNodes;
 
             // TODO @ff: Remove! Debug only. This makes sure that every vertex displacement will be requested, not only the ones from the nonconformal sets.
-//            for ( auto const &tFemSet : mFemSets )
-//            {
-//                if ( tFemSet->is_empty_set() || tFemSet->get_set_name().find( "ghost" ) != std::string::npos )
-//                {
-//                    continue;
-//                }
-//                auto const &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
-//                for ( auto const &tCluster : tMeshSet->get_clusters_on_set() )
-//                {
-//                    for ( auto const &tCell : tCluster->get_primary_cells_in_cluster() )
-//                    {
-//                        for ( auto const &tVertex : tCell->get_vertex_pointers() )
-//                        {
-//                            tRequestedIGNodes.insert( tVertex->get_index() );
-//                        }
-//                    }
-//                    for ( auto const &tVertex : tCluster->get_interpolation_cell().get_vertex_pointers() )
-//                    {
-//                        tRequestedIPNodes.insert( tVertex->get_index() );
-//                    }
-//                }
-//            }
+            //            for ( auto const &tFemSet : mFemSets )
+            //            {
+            //                if ( tFemSet->is_empty_set() || tFemSet->get_set_name().find( "ghost" ) != std::string::npos )
+            //                {
+            //                    continue;
+            //                }
+            //                auto const &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
+            //                for ( auto const &tCluster : tMeshSet->get_clusters_on_set() )
+            //                {
+            //                    for ( auto const &tCell : tCluster->get_primary_cells_in_cluster() )
+            //                    {
+            //                        for ( auto const &tVertex : tCell->get_vertex_pointers() )
+            //                        {
+            //                            tRequestedIGNodes.insert( tVertex->get_index() );
+            //                        }
+            //                    }
+            //                    for ( auto const &tVertex : tCluster->get_interpolation_cell().get_vertex_pointers() )
+            //                    {
+            //                        tRequestedIPNodes.insert( tVertex->get_index() );
+            //                    }
+            //                }
+            //            }
 
             std::map< moris_index, Vector< real > > tNodalDisplacements;
             for ( auto const &tSet : mFemSets )
@@ -1197,8 +1197,8 @@ namespace moris
             auto *tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
 
             // TODO @ff: remove! Only for Debug.
-//            std::string const tFileName = "debug_mesh_0.json";
-//            mtk::Json_Debug_Output( tIGMesh ).write_to_json( tFileName );
+            //            std::string const tFileName = "debug_mesh_0.json";
+            //            mtk::Json_Debug_Output( tIGMesh ).write_to_json( tFileName );
 
             auto const &[ tSetNames, tCandidatePairs ] = prepare_nonconformal_candidate_pairs();
 
@@ -1210,7 +1210,10 @@ namespace moris
 
             mtk::Integrator tSideIntegrator = prepare_nonconformal_integrator( tIGMesh );
 
-            auto tCMEditor = std::make_shared< mtk::Contact_Mesh_Editor >( tIGMesh, tSideIntegrator, tSideSets, tCandidatePairs );
+            // get the maximum negative ray length (of any of the sets... the value is set in the computation parameter list and therefore the same for all sets
+            real tMaxNegativeRayLength = mSetInfo( 0 ).get_max_negative_ray_length();
+
+            auto tCMEditor = std::make_shared< mtk::Contact_Mesh_Editor >( tIGMesh, tSideIntegrator, tSideSets, tCandidatePairs, tMaxNegativeRayLength );
             tCMEditor->update_nonconformal_side_sets();
             this->set_contact_mesh_editor( tCMEditor );
         }

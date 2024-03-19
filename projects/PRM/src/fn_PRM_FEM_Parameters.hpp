@@ -299,6 +299,12 @@ namespace moris
             // integration order that should be used for the raytracing of nonconformal side sets
             tParameterList.insert( "nonconformal_integration_order", static_cast< uint >( mtk::Integration_Order::UNDEFINED ) );
 
+            // Maximum length of a ray in the negative direction (w.r.t the outward pointing normal) that is used for the raytracing of nonconformal side sets.
+            // This prevents that rays of thin-walled bodies get mapped "through" the body itself on the other side.
+            // E.g. if you have two thin bars that are positioned on top of each other, the rays of the top-side of the upper bar should not be mapped to the lower bar.
+            // Setting this value to a very small value might lead to bodies penetrating each other without being detected (especially for large load stepping increments).
+            tParameterList.insert( "nonconformal_max_negative_ray_length", -0.05 );
+
             // bool true for analytical sensitivity analysis, false for finite difference
             // decide if dRdp and dQIdp are computed by A/FD
             tParameterList.insert( "is_analytical_sensitivity", false );

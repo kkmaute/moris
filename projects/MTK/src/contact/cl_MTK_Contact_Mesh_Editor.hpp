@@ -27,12 +27,16 @@ namespace moris::mtk
                 Integration_Mesh_DataBase_IG                          *aIGMesh,
                 Integrator                                            &aIntegrator,
                 Vector< Side_Set const * >                            &aCandidateSideSet,
-                Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs )
+                Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs,
+                real                                                   aMaxNegativeRayLength )
                 : mIGMesh( aIGMesh )
                 , mIntegrator( std::move( aIntegrator ) )
                 , mSideSets( aCandidateSideSet )
                 , mCandidatePairs( aCandidatePairs )
-                , mPointMapper( QuadraturePointMapper_ArborX( aIGMesh, aCandidateSideSet, aCandidatePairs ) ){};
+                , mPointMapper( QuadraturePointMapper_ArborX( aIGMesh, aCandidateSideSet, aCandidatePairs ) )
+                , mMaxNegativeRayLength( aMaxNegativeRayLength )
+        {
+        }
 
         void update_nonconformal_side_sets() const;
 
@@ -131,6 +135,7 @@ namespace moris::mtk
         Vector< Side_Set const * >                      mSideSets;
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
         QuadraturePointMapper_ArborX                    mPointMapper;
+        real                                            mMaxNegativeRayLength;
         int                                             mIteration = 0;
     };
 }    // namespace moris::mtk

@@ -22,11 +22,11 @@ namespace moris::mtk
 
         Matrix< DDRMat > const get_intersection_parametric() const override;
 
-        real get_ray_length() const override;
+        real get_signed_ray_length() const override;
 
       private:
         real mParametricCoordinate = 0.0;
-        real mRayLength            = 0.0;
+        real mSignedRayLength      = 0.0;
     };
 
 

@@ -23,7 +23,7 @@ namespace moris::mtk
 
         virtual ~QuadraturePointMapper() = default;
 
-        virtual MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate ) const = 0;
+        virtual MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate, real aMaxNegativeRayLength ) const = 0;
 
         virtual void update_displacements( std::map< moris_index, Vector< real > > const &aSetDisplacements ) = 0;
 
