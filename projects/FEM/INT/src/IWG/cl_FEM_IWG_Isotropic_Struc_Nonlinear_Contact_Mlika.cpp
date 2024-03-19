@@ -147,36 +147,41 @@ namespace moris::fem
         Matrix< DDRMat > const txL = tLeaderGeometry->valx_current( tLeaderDofs );
         Matrix< DDRMat > const txF = tFollowerGeometry->valx_current( tFollowerDofs );
 
-        // compute the deformation gradients at the leader and follower side
+        // compute the deformation gradients at the leader and follower side (all 2x1)
         const Matrix< DDRMat > tNormalCurrent   = tLeaderGeometry->get_custom_normal_current();
         const Matrix< DDRMat > tNormalReference = tLeaderGeometry->get_custom_normal();
         const Matrix< DDRMat > tNormalProjector = tNormalCurrent * trans( tNormalCurrent );
 
         // gap between points in current configuration
-        const Matrix< DDRMat > tJump = tUL - tUF - tXF + tXL;
+        const Matrix< DDRMat > tJump      = tUL - tUF - tXF + tXL;
+        const real             tGap       = dot( tJump, tNormalCurrent );
+        const Matrix< DDRMat > tNormalGap = tGap * tNormalCurrent;
 
         // evaluate traction and their pressure equivalent (normal component)
-        const Matrix< DDRMat > tTraction = tConstitutiveModel->traction( tNormalReference, CM_Function_Type::PK1 );    // ( 2 x 1 )
-        const real             tPressure = dot( tTraction, tNormalCurrent );
+        const Matrix< DDRMat > tTraction       = tConstitutiveModel->traction( tNormalReference, CM_Function_Type::PK1 );    // ( 2 x 1 )
+        const real             tPressure       = dot( tTraction, tNormalReference );
+        const Matrix< DDRMat > tNormalTraction = tPressure * tNormalReference;
 
         // evaluate test traction and the corresponding pressure equivalent (normal component) by computing the dot product between
         // each column of tTestTraction and tNormalCurrent. This is done by element-wise multiplication and then summing the columns.
-        const Matrix< DDRMat > tTestTraction = tConstitutiveModel->testTraction( tNormalReference, tDisplDofTypes, CM_Function_Type::PK1 );    // ( 2 x 8 )
+        const Matrix< DDRMat > tTestTraction       = tConstitutiveModel->testTraction( tNormalReference, tDisplDofTypes, CM_Function_Type::PK1 );    // ( 2 x 8 )
+        const Matrix< DDRMat > tTestPressure       = trans( tNormalReference ) * tTestTraction;                                                      // ( 1 x 8 )
+        const Matrix< DDRMat > tTestNormalTraction = tNormalReference * tTestPressure;                                                               // ( 2 x 8 )
 
         // Compute the contact term C_gamma(sigma, g, n), see Mlika (2018) Eq. (4.2.1). If the contact term is negative, the second term of the residual is not zero.
         const real tContactTerm = tPressure - tNitscheParam * dot( tJump, tNormalCurrent );
         if ( tContactTerm < 0 )
         {
-            mSet->get_residual()( 0 )( tResRange ) += aWStar * 0.5 * (                                                        //
-                                                              -trans( tNL ) * tNormalProjector * tTraction                    //
-                                                              - mTheta * trans( tTestTraction ) * tNormalProjector * tJump    //
-                                                              + tNitscheParam * trans( tNL ) * tNormalProjector * tJump       //
+            mSet->get_residual()( 0 )( tResRange ) += aWStar * 0.5 * (                                          //
+                                                              -trans( tNL ) * tNormalTraction                   //
+                                                              - mTheta * trans( tTestTraction ) * tNormalGap    //
+                                                              + tNitscheParam * trans( tNL ) * tNormalGap       //
                                                       );
         }
         else
         {
             // first integral in Mlika (2018) Eq. (4.25) (ensures 0 pressure when not in contact)
-            mSet->get_residual()( 0 )( tResRange ) += aWStar * 0.5 * ( ( -mTheta / tNitscheParam ) * trans( tTestTraction ) * tNormalProjector * tTraction );
+            mSet->get_residual()( 0 )( tResRange ) += aWStar * 0.5 * ( ( -mTheta / tNitscheParam ) * trans( tTestNormalTraction ) * tNormalTraction );
         }
 
         // check for nan, infinity
