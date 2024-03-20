@@ -40,7 +40,7 @@ namespace moris::mtk
 
         void update_nonconformal_side_sets() const;
 
-        void update_displacements( std::map< moris_index, Vector< real > > const &aNodalDisplacements );
+        void update_displacements( std::unordered_map< moris_index, Vector< real > > const &aNodalDisplacements );
 
         Vector< Side_Set const * > get_side_sets() const;
 
@@ -80,8 +80,9 @@ namespace moris::mtk
          *
          * (SourceCluster, TargetCluster, TargetMesh) -- n -> (SourceCell, TargetCell) -- n -> (Index in MappingResult, e.g. to access integration points)
          */
-        static std::map< ClusterPair, std::map< CellPair, ResultIndices > > extract_cluster_and_cell_pairing( MappingResult const &aResult );
+        static std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > extract_cell_pairing( MappingResult const &aMappingResult, Vector< moris_index > aResultIndices );
 
+        std::unordered_map< moris_index, std::map< std::pair< moris_index, moris_index >, Contact_Mesh_Editor::ResultIndices > > extract_cluster_pairing( MappingResult const &aMappingResult ) const;
         /**
          * \brief Performs the mapping (i.e. ray tracing) from the follower side to the leader side. The follower side will also be called the source side,
          * while the leader side (where the ray hits) will be called the target side. The mapping will be performed for all source sides of the candidate pairs.
@@ -137,6 +138,7 @@ namespace moris::mtk
         QuadraturePointMapper_ArborX                    mPointMapper;
         real                                            mMaxNegativeRayLength;
         int                                             mIteration = 0;
+        void                                            populate_integration_and_nodal_point_pairs( MappingResult const &aMappingResult, Vector< IntegrationPointPairs > &tIntegrationPointPairs, Vector< NodalPointPairs > &tNodePointPairs, ResultIndices const &tCellResults ) const;
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP

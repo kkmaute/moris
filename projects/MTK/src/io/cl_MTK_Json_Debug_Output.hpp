@@ -23,25 +23,25 @@ namespace moris
 
             void write_to_json( std::string const &aFileName );
 
-            void set_ig_vertex_displacements( std::map< moris::moris_index, Vector< moris::real > > const &aIGVertexDisplacements )
+            void set_ig_vertex_displacements( std::unordered_map< moris::moris_index, Vector< moris::real > > const &aIGVertexDisplacements )
             {
                 mIGVertexDisplacements = aIGVertexDisplacements;
             }
 
-            void set_ip_vertex_displacements( std::map< moris::moris_index, Vector< moris::real > > const &aIPVertexDisplacements )
+            void set_ip_vertex_displacements( std::unordered_map< moris::moris_index, Vector< moris::real > > const &aIPVertexDisplacements )
             {
                 mIPVertexDisplacements = aIPVertexDisplacements;
             }
 
           private:
-            Integration_Mesh const                               *mMesh;
-            std::string                                           mFileName;
-            std::unordered_set< Vertex const * >                  mAllIGVertices;
-            std::unordered_set< Vertex const * >                  mAllIPVertices;
-            std::unordered_set< Cell const * >                    mAllIGCells;
-            std::unordered_set< Cell const * >                    mAllIPCells;
-            std::map< moris::moris_index, Vector< moris::real > > mIGVertexDisplacements;
-            std::map< moris::moris_index, Vector< moris::real > > mIPVertexDisplacements;
+            Integration_Mesh const                                         *mMesh;
+            std::string                                                     mFileName;
+            std::unordered_set< Vertex const * >                            mAllIGVertices;
+            std::unordered_set< Vertex const * >                            mAllIPVertices;
+            std::unordered_set< Cell const * >                              mAllIGCells;
+            std::unordered_set< Cell const * >                              mAllIPCells;
+            std::unordered_map< moris::moris_index, Vector< moris::real > > mIGVertexDisplacements;
+            std::unordered_map< moris::moris_index, Vector< moris::real > > mIPVertexDisplacements;
 
             Json serialize_side_sets( Vector< moris::mtk::Side_Set * > &aSideSets );
             Json serialize_side_clusters( Vector< Cluster const * > &aSideClusters );
@@ -50,7 +50,7 @@ namespace moris
             Json serialize_block_sets( Vector< moris::mtk::Block_Set * > &tBlockSets );
             Json serialize_cell_cluster( Cluster const *aCluster );
             Json serialize_cell_clusters( Vector< Cluster const * > &tClusters );
-            Json serialize_all_vertices( const std::unordered_set< Vertex const * > &aVertices, const std::map< moris::moris_index, Vector< moris::real > > &aVertexDisplacements );
+            Json serialize_all_vertices( const std::unordered_set< Vertex const * > &aVertices, const std::unordered_map< moris::moris_index, Vector< moris::real > > &aVertexDisplacements );
             Json serialize_all_cells( const std::unordered_set< Cell const * > &aCells );
             Json serialize_ig_cells( Vector< moris::mtk::Cell const * > &aCells );
             Json serialize_ip_cell( moris::mtk::Cell const *&aCell );

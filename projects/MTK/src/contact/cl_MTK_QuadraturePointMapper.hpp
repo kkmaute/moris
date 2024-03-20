@@ -25,7 +25,7 @@ namespace moris::mtk
 
         virtual MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate, real aMaxNegativeRayLength ) const = 0;
 
-        virtual void update_displacements( std::map< moris_index, Vector< real > > const &aSetDisplacements ) = 0;
+        virtual void update_displacements( std::unordered_map< moris_index, Vector< real > > const &aSetDisplacements ) = 0;
 
       protected:
         Vector< Side_Set const * > const                      &get_side_sets() const { return mSideSets; }

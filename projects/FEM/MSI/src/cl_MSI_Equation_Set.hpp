@@ -20,7 +20,8 @@
 #include "cl_MSI_Equation_Object.hpp"
 
 
-#include <set>
+#include <unordered_set>
+#include <unordered_map>
 
 
 namespace moris
@@ -334,7 +335,7 @@ namespace moris
              * \brief Get the displacement for every node in the set.
              * \return A map from the node index to the displacement vector.
              */
-            virtual std::map< moris_index, Vector< real > > get_nodal_displacements( std::set< moris_index > aRequestedNodes) {
+            virtual std::unordered_map< moris_index, Vector< real > > get_nodal_displacements( std::unordered_set< moris_index > aRequestedNodes) {
                 MORIS_ERROR( false, "Equation_Set::get_nodal_displacements - not implemented for virtual member function" );
                 return {};
             };

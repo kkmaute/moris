@@ -575,7 +575,7 @@ namespace moris
              */
             void create_IQI_map();
 
-            std::map< moris_index, Vector< real > > get_nodal_displacements( std::set< moris_index > aRequestedNodes ) override;
+            std::unordered_map< moris_index, Vector< real > > get_nodal_displacements( std::unordered_set< moris_index > aRequestedNodes ) override;
 
             //------------------------------------------------------------------------------
             /**

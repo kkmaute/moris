@@ -49,7 +49,7 @@ namespace moris
 
         Json Json_Debug_Output::serialize_all_vertices(
                 const std::unordered_set< Vertex const * >                  &aVertices,
-                const std::map< moris::moris_index, Vector< moris::real > > &aVertexDisplacements )
+                const std::unordered_map< moris::moris_index, Vector< moris::real > > &aVertexDisplacements )
         {
             Json tVertexObj;
 

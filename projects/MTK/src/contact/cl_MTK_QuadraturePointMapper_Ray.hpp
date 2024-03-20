@@ -27,7 +27,7 @@ namespace moris::mtk
                 Vector< Side_Set const * >                            &aSideSets,
                 const Vector< std::pair< moris_index, moris_index > > &aCandidatePairs );
 
-        void update_displacements( std::map< moris_index, Vector< real > > const &aSetDisplacements ) override;
+        void update_displacements( std::unordered_map< moris_index, Vector< real > > const &aSetDisplacements ) override;
 
       protected:
         Vector< Surface_Mesh > const &get_surface_meshes() const { return mSurfaceMeshes; }

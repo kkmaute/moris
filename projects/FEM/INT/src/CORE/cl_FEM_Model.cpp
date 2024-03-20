@@ -12,6 +12,7 @@
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Integrator.hpp"
+#include <unordered_set>
 #ifdef WITHGPERFTOOLS
 #include <gperftools/profiler.h>
 #endif
@@ -413,48 +414,40 @@ namespace moris
 
 
             // get the side set names that get used by the contact mesh editor to build nonconformal sets
-            std::set< moris_index > tRequestedIGNodes;
-            std::set< moris_index > tRequestedIPNodes;
-
-            // TODO @ff: Remove! Debug only. This makes sure that every vertex displacement will be requested, not only the ones from the nonconformal sets.
-            //            for ( auto const &tFemSet : mFemSets )
-            //            {
-            //                if ( tFemSet->is_empty_set() || tFemSet->get_set_name().find( "ghost" ) != std::string::npos )
-            //                {
-            //                    continue;
-            //                }
-            //                auto const &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
-            //                for ( auto const &tCluster : tMeshSet->get_clusters_on_set() )
-            //                {
-            //                    for ( auto const &tCell : tCluster->get_primary_cells_in_cluster() )
-            //                    {
-            //                        for ( auto const &tVertex : tCell->get_vertex_pointers() )
-            //                        {
-            //                            tRequestedIGNodes.insert( tVertex->get_index() );
-            //                        }
-            //                    }
-            //                    for ( auto const &tVertex : tCluster->get_interpolation_cell().get_vertex_pointers() )
-            //                    {
-            //                        tRequestedIPNodes.insert( tVertex->get_index() );
-            //                    }
-            //                }
-            //            }
-
-            std::map< moris_index, Vector< real > > tNodalDisplacements;
-            for ( auto const &tSet : mFemSets )
+            std::unordered_map< moris_index, Vector< real > > tNodalDisplacements;
+            for ( auto const &tFemSet : mFemSets )
             {
-                if ( !tSet->is_empty_set() && !tRequestedIGNodes.empty() && tSet->get_set_name().find( "ghost" ) == std::string::npos )
+                if ( tFemSet->get_element_type() != fem::Element_Type::NONCONFORMAL_SIDESET )
+                    continue;
+
+                auto const                       &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
+                std::unordered_set< moris_index > tRequestedIGNodes;
+                std::unordered_set< moris_index > tRequestedIPNodes;
+                for ( auto const &tCluster : tMeshSet->get_clusters_on_set() )
                 {
-                    // skip ghost sets
-                    std::map< moris::moris_index, Vector< moris::real > > tNewNodes = tSet->get_nodal_displacements( tRequestedIGNodes );
-                    for ( auto const &[ tIndex, _ ] : tNewNodes )
+                    for ( auto const &tCell : tCluster->get_primary_cells_in_cluster() )
                     {
-                        tRequestedIGNodes.erase( tIndex );
+                        for ( auto const &tVertex : tCell->get_vertex_pointers() )
+                        {
+                            tRequestedIGNodes.insert( tVertex->get_index() );
+                        }
                     }
-                    tNodalDisplacements.merge( tNewNodes );
+                    for ( auto const &tVertex : tCluster->get_interpolation_cell().get_vertex_pointers() )
+                    {
+                        tRequestedIPNodes.insert( tVertex->get_index() );
+                    }
                 }
+                std::unordered_map< moris::moris_index, Vector< moris::real > > tNewNodes = tFemSet->get_nodal_displacements( tRequestedIGNodes );
+#ifdef MORIS_HAVE_DEBUG
+                // The next loop removes all nodes that have been found from the set of requested nodes. This is to make sure that we could get the displacement from every requested node.
+                for ( auto const &[ tIndex, _ ] : tNewNodes )
+                {
+                    tRequestedIGNodes.erase( tIndex );
+                }
+                MORIS_ASSERT( tRequestedIGNodes.size() == 0, "Not all requested nodal displacements could be found!" );
+#endif
+                tNodalDisplacements.merge( tNewNodes );
             }
-            MORIS_ASSERT( tRequestedIGNodes.size() == 0, "Not all requested nodal displacements could be found!" );
 
 
             // TODO @ff: Remove! Debug only

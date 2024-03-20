@@ -1004,8 +1004,8 @@ namespace moris::fem
         fem::Perturbation_Type tPerturbationStrategy = static_cast< fem::Perturbation_Type >(
                 tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
 
-        mtk::Integration_Order tIntegrationOrder = static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
-        real tMaxNegativeRayLength = tComputationParameterList.get< real >( "nonconformal_max_negative_ray_length" );
+        mtk::Integration_Order tIntegrationOrder     = static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
+        real                   tMaxNegativeRayLength = tComputationParameterList.get< real >( "nonconformal_max_negative_ray_length" );
 
         // create a map of the set
         std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
@@ -1418,10 +1418,10 @@ namespace moris::fem
                     {
                         for ( auto const tNeighborPhaseIndex : tNeighborPhaseIndices )
                         {
-                            std::string tMeshName = "ncss";    // TODO @ff: this is a temporary solution, we need to find a better way to name the nonconformal sidesets
-                            tMeshName += "|iside_b0_" + std::to_string( tLeaderPhaseIndex ) + "_b1_" + std::to_string( tNeighborPhaseIndex );
-                            tMeshName += "|iside_b0_" + std::to_string( tFollowerPhaseIndex ) + "_b1_" + std::to_string( tNeighborPhaseIndex );
-                            aMeshSetNames.push_back( tMeshName );
+                            std::string const tLeaderMeshName       = "iside_b0_" + std::to_string( tLeaderPhaseIndex ) + "_b1_" + std::to_string( tNeighborPhaseIndex );
+                            std::string const tFollowerMeshName     = "iside_b0_" + std::to_string( tFollowerPhaseIndex ) + "_b1_" + std::to_string( tNeighborPhaseIndex );
+                            std::string const tNonconformalMeshName = "ncss|" + tLeaderMeshName + "|" + tFollowerMeshName;
+                            aMeshSetNames.push_back( tNonconformalMeshName );
                         }
                     }
                 }

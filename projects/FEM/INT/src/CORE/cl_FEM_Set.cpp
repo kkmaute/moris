@@ -2249,9 +2249,9 @@ namespace moris
             }
         }
 
-        std::map< moris_index, Vector< real > > Set::get_nodal_displacements( std::set< moris_index > aRequestedNodes )
+        std::unordered_map< moris_index, Vector< real > > Set::get_nodal_displacements( std::unordered_set< moris_index > aRequestedNodes )
         {
-            std::map< moris_index, Vector< real > > tNodalDisplacements;
+            std::unordered_map< moris_index, Vector< real > > tNodalDisplacements;
             for ( auto* tEquationObject : mEquationObjList )
             {
                 auto* const tInterpElement = dynamic_cast< fem::Interpolation_Element* >( tEquationObject );
@@ -2268,6 +2268,7 @@ namespace moris
                 tInterpElement->compute_my_pdof_values();
                 tInterpElement->set_field_interpolators_coefficients();
 
+                // TODO @ff: can we use the geometry interpolator with the new methods for retrieving the element coordinates in the current configuration?
                 // loop over the vertices on the treated mesh cluster
                 uint const tNumNodes = tLocalCoords.n_rows();
                 MORIS_ASSERT( tNumNodes == tVerticesOnCluster.size(),
