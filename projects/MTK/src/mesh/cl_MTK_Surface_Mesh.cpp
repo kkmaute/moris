@@ -186,18 +186,15 @@ namespace moris::mtk
     {
         auto const tNumCells = static_cast< moris::size_t >( mLocalToGlobalCellIndex.size() );
         uint const tDim      = this->get_spatial_dimension();
+        MORIS_ASSERT( tDim == 2, "Surface Mesh facet normals only implemented for 2D meshes (Lines)" );
         mFacetNormals.resize( tDim, tNumCells );
         Matrix< DDRMat > tVertexCoordinates = this->get_vertex_coordinates();
 
         for ( moris::size_t i = 0; i < tNumCells; i++ )
         {
-            auto const tGlobalCellIndex = mLocalToGlobalCellIndex( i );
-            auto       tCell            = dynamic_cast< mtk::Cell_DataBase const                  &>( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
-            auto const tSideOrdinal     = mCellSideOrdinals( i );
-            auto       tNormal          = tCell.compute_outward_side_normal( tSideOrdinal );
-            // FIXME: Due to a bug in the compute_outward_side_normal function, the normal, the sign of first component of the normal has to be flipped Until this is not fixed, the following line is used to flip the sign of the first component of the normal
-            // tNormal( 0, 0 ) *= -1.0;
-            MORIS_ASSERT( get_spatial_dimension() == 2, "Surface Mesh facet normals only implemented for 2D meshes (Lines)" );
+            auto const       tGlobalCellIndex = mLocalToGlobalCellIndex( i );
+            auto             tCell            = dynamic_cast< mtk::Cell_DataBase const                        &>( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
+            Matrix< DDRMat > tNormal( tDim, 1 );
 
             Vector< moris_index > tVertices = mCellToVertexIndices( i );
             Matrix< DDRMat >      tCoords( 2, 2 );
@@ -205,8 +202,9 @@ namespace moris::mtk
             tCoords.set_column( 1, tVertexCoordinates.get_column( tVertices( 1 ) ) );
 
             // { { tY2 - tY1  }, { tX1 - tX2 } }
-            tNormal( 0 ) = tCoords( 1, 1 ) - tCoords( 1, 0 ) ;
-            tNormal( 1 ) = tCoords( 0, 0 ) - tCoords( 0, 1 ) ;
+            tNormal( 0 ) = tCoords( 1, 1 ) - tCoords( 1, 0 );
+            tNormal( 1 ) = tCoords( 0, 0 ) - tCoords( 0, 1 );
+            tNormal = tNormal / norm( tNormal );
 
             mFacetNormals.set_column( i, tNormal );
         }
