@@ -12,7 +12,7 @@
 #define MORIS_CL_OPT_CRITERIA_INTERFACE_HPP
 
 #include "cl_Matrix.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {

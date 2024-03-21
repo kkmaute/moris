@@ -21,6 +21,14 @@
 #include "HDF5_Tools.hpp"
 #include "paths.hpp"
 
+#if __has_include(<filesystem>)
+#include <filesystem>
+namespace filesystem = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace filesystem = std::experimental::filesystem;
+#endif
+
 using namespace moris;
 
 //---------------------------------------------------------------
@@ -32,18 +40,18 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 TEST_CASE( "pre_defined_diamond",
         "[moris],[example],[mesh_generation],[pre_defined_diamond]" )
 {
-    // get the root path for MORIS
+        // get the root path for MORIS
     std::string tMorisRoot = moris::get_base_moris_dir();
 
-    // FIXME: use std::filesystem paths/copies instead, but requires C++17 with gcc version >=8
-    // get the relevant file paths
-    std::string tExamplesDir = tMorisRoot + "/share/doc/mesh_generation/examples/";
-    std::string tXmlSource   = tExamplesDir + "Rotated_Square_Example.xml";
-    std::string tTargetDir   = std::getenv( "PWD" );
+    // // get all the relevant file paths
+    filesystem::path tMorisRootPath(tMorisRoot);
+    filesystem::path tExamplesDir = tMorisRootPath / "share/doc/mesh_generation/examples/";
+    filesystem::path tXmlSource   = tExamplesDir / "Rotated_Square_Example.xml";
+    filesystem::path tTargetDir   = filesystem::current_path();
+    filesystem::path tXmlTarget   = tTargetDir / tXmlSource.filename();
 
     // copy relevant files from example directory into working directory
-    std::string tMoveStringXml = "cp -f " + tXmlSource + " " + tTargetDir;
-    std::system( tMoveStringXml.c_str() );
+    filesystem::copy_file( tXmlSource, tXmlTarget, filesystem::copy_options::overwrite_existing );
 
     // define command line call
     int argc = 3;

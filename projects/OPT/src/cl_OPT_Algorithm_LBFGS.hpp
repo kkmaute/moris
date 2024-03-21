@@ -42,7 +42,7 @@ namespace moris
             /**
              * Constructor
              */
-            Algorithm_LBFGS( ParameterList aParameterList );
+            Algorithm_LBFGS( Parameter_List aParameterList );
 
             /**
              * Destructor

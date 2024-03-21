@@ -27,7 +27,7 @@ namespace moris::gen
         Matrix< DDRMat > tADVs = { { 0.0 } };
 
         // Set up property
-        ParameterList tConstantPropertyParameterList = prm::create_gen_property_parameter_list();
+        Parameter_List tConstantPropertyParameterList = prm::create_gen_property_parameter_list();
         tConstantPropertyParameterList.set( "field_type", "constant" );
         tConstantPropertyParameterList.set( "field_variable_indices", "0" );
         tConstantPropertyParameterList.set( "adv_indices", "0" );
@@ -64,14 +64,14 @@ namespace moris::gen
         Matrix< DDRMat > tADVs = { { 0.0, 0.0, 0.5 } };
 
         // Set up and create geometry
-        ParameterList tCircleParameterList = prm::create_level_set_geometry_parameter_list();
+        Parameter_List tCircleParameterList = prm::create_level_set_geometry_parameter_list();
         tCircleParameterList.set( "field_type", "circle" );
         tCircleParameterList.set( "name", "My Circle" );
         tCircleParameterList.set( "field_variable_indices", "0, 1, 2" );
         tCircleParameterList.set( "adv_indices", "0, 1, 2" );
 
         // Set up property
-        ParameterList tScaledFieldParameterList = prm::create_gen_property_parameter_list();
+        Parameter_List tScaledFieldParameterList = prm::create_gen_property_parameter_list();
         tScaledFieldParameterList.set( "field_type", "scaled_field" );
         tScaledFieldParameterList.set( "dependencies", "My Circle" );
 
@@ -114,7 +114,7 @@ namespace moris::gen
     TEST_CASE( "B-spline Property", "[gen], [property], [distributed advs], [B-spline property]" )
     {
         // Constant B-spline parameter list
-        ParameterList tPropertyParameterList = prm::create_gen_property_parameter_list();
+        Parameter_List tPropertyParameterList = prm::create_gen_property_parameter_list();
         tPropertyParameterList.set( "field_type", "constant" );
         tPropertyParameterList.set( "constant_parameters", "1.0" );
         tPropertyParameterList.set( "discretization_mesh_index", 0 );

@@ -11,7 +11,7 @@
 #ifndef SRC_fn_PRM_MIG_Parameters
 #define SRC_fn_PRM_MIG_Parameters
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -20,10 +20,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_mig_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             tParameterList.insert( "periodic_side_set_pair", "" );
 

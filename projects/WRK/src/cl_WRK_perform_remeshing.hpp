@@ -63,7 +63,7 @@ namespace moris
 
           public:
             Remeshing_Mini_Performer(
-                    ParameterList&                aParameterlist,
+                    Parameter_List&                aParameterlist,
                     std::shared_ptr< Library_IO > aLibrary = nullptr );
 
             //------------------------------------------------------------------------------
@@ -135,14 +135,14 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void create_refinement_input_list(
-                    moris::ParameterList&                  aRefinementParameterlist,
+                    moris::Parameter_List&                  aRefinementParameterlist,
                     Vector< std::shared_ptr< mtk::Field > >& aFields,
                     uint                                   aPattern );
 
             //------------------------------------------------------------------------------
 
             void create_refinement_input_list_2(
-                    moris::ParameterList&                  aRefinementParameterlist,
+                    moris::Parameter_List&                  aRefinementParameterlist,
                     Vector< std::shared_ptr< mtk::Field > >& aFields);
 
             //------------------------------------------------------------------------------

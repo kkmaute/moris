@@ -11,7 +11,7 @@
 #ifndef PROJECTS_PRM_SRC_FN_PRM_MORIS_GENERAL_PARAMETERS_HPP_
 #define PROJECTS_PRM_SRC_FN_PRM_MORIS_GENERAL_PARAMETERS_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -21,10 +21,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_moris_general_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             return tParameterList;
         }
@@ -32,7 +32,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         inline void
-        create_refinement_parameterlist( ParameterList& aParameterlist )
+        create_refinement_parameterlist( Parameter_List& aParameterlist )
         {
             aParameterlist.insert( "field_names", "" );
             aParameterlist.insert( "levels_of_refinement", "" );
@@ -46,7 +46,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         inline void
-        create_remeshing_parameterlist( ParameterList& aParameterlist )
+        create_remeshing_parameterlist( Parameter_List& aParameterlist )
         {
             // Remeshing mode. Options are "ab_initio", "former"
             aParameterlist.insert( "mode", "" );
@@ -76,7 +76,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         inline void
-        create_mapping_parameterlist( ParameterList& aParameterlist )
+        create_mapping_parameterlist( Parameter_List& aParameterlist )
         {
             aParameterlist.insert( "adv_field", "" );
             aParameterlist.insert( "dof_type", "" );

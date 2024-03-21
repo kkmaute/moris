@@ -53,7 +53,7 @@
 // general geometry engine class
 #include "cl_GEN_Geometry_Engine.hpp"
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris::xtk
 {
@@ -88,7 +88,7 @@ namespace moris::xtk
         //--------------------------------------------------------------------------------
 
       protected:
-        moris::ParameterList mParameterList;
+        moris::Parameter_List mParameterList;
 
         uint                                    mModelDimension;
         moris::mtk::Interpolation_Mesh*         mBackgroundMesh;
@@ -181,7 +181,7 @@ namespace moris::xtk
         /**
          * @brief Parameter list based XTK initialization
          */
-        Model( moris::ParameterList const & aParameterList );
+        Model( moris::Parameter_List const & aParameterList );
 
         //--------------------------------------------------------------------------------
 
@@ -544,7 +544,7 @@ namespace moris::xtk
 
         //------------------------------------------------------------------------------
 
-        moris::ParameterList&
+        moris::Parameter_List&
         get_parameter_list();
 
         //------------------------------------------------------------------------------

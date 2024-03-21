@@ -127,7 +127,7 @@ namespace moris::hmr
              * @param[in] aParameters  ref to container of user defined settings
              */
             HMR (
-                    ParameterList                       & aParameterList,
+                    Parameter_List& aParameterList,
                     std::shared_ptr<moris::Library_IO>    aLibrary = nullptr ) ;
 
             // -----------------------------------------------------------------------------

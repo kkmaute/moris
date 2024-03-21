@@ -79,7 +79,7 @@ namespace moris
                 create_xtk();
 
                 void
-                create_stk( Vector< Vector<ParameterList> > & aParameterLists);
+                create_stk( Vector< Vector< Parameter_List > > & aParameterLists);
 
         };
         //------------------------------------------------------------------------------

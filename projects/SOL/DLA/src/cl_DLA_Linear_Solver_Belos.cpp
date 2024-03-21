@@ -14,7 +14,6 @@
 #include "cl_SOL_Dist_Matrix.hpp"
 
 #include "cl_DLA_Preconditioner_Trilinos.hpp"
-#include "fn_PRM_SOL_Parameters.hpp"
 
 #include "cl_Tracer.hpp"
 #include "cl_Logger.hpp"
@@ -35,7 +34,7 @@
 using namespace moris;
 using namespace dla;
 
-Linear_Solver_Belos::Linear_Solver_Belos( const moris::ParameterList aParameterlist )
+Linear_Solver_Belos::Linear_Solver_Belos( const moris::Parameter_List& aParameterlist )
         : Linear_Solver_Algorithm_Trilinos( aParameterlist )
 {
 }
@@ -43,31 +42,14 @@ Linear_Solver_Belos::Linear_Solver_Belos( const moris::ParameterList aParameterl
 //---------------------------------------------------------------------------------------------------
 
 Linear_Solver_Belos::Linear_Solver_Belos( Linear_Problem* aLinearSystem )
+        : Linear_Solver_Algorithm_Trilinos( prm::create_linear_algorithm_parameter_list_belos() )
 {
-    // Set chosen solver options
-    this->set_solver_parameters();
-}
-
-//---------------------------------------------------------------------------------------------------
-
-Linear_Solver_Belos::Linear_Solver_Belos()
-{
-    // Set chosen solver options
-    this->set_solver_parameters();
 }
 
 //---------------------------------------------------------------------------------------------------
 
 Linear_Solver_Belos::~Linear_Solver_Belos()
 {
-}
-
-//---------------------------------------------------------------------------------------------------
-
-void
-Linear_Solver_Belos::set_solver_parameters()
-{
-    mParameterList = prm::create_linear_algorithm_parameter_list_belos();
 }
 
 //---------------------------------------------------------------------------------------------------

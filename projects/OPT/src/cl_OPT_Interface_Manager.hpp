@@ -12,7 +12,7 @@
 #define MORIS_CL_OPT_INTERFACE_MANAGER_HPP
 
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -38,7 +38,7 @@ namespace moris
                  * Constructor
                  */
                 Interface_Manager(
-                        ParameterList                             aParameterList,
+                      Parameter_List                                  aParameterList,
                       Vector<std::shared_ptr<Criteria_Interface>> aInterfaces);
 
                 /**

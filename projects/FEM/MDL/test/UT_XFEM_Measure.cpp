@@ -407,13 +407,12 @@ namespace moris
             //       tModel->set_output_manager( &tOutputData );
 
             dla::Solver_Factory                             tSolFactory;
-            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-
-            tLinearSolverAlgorithm->set_param( "AZ_diagnostics" ) = AZ_none;
-            tLinearSolverAlgorithm->set_param( "AZ_output" )      = AZ_all;
-            tLinearSolverAlgorithm->set_param( "AZ_solver" )      = AZ_gmres_condnum;
-            tLinearSolverAlgorithm->set_param( "AZ_precond" )     = AZ_none;
-            // tLinearSolverAlgorithm->set_param("AZ_kspace") = 500;
+            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            tLinearSolverParameterList.set( "AZ_output", AZ_all );
+            tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
+            tLinearSolverParameterList.set( "AZ_precond", AZ_none );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -424,7 +423,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             NLA::Nonlinear_Solver_Factory               tNonlinFactory;
-            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+            std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
 
             tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 

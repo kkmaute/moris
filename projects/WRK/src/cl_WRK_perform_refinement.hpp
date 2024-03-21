@@ -82,7 +82,7 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------------
 
             Refinement_Mini_Performer(
-                    ParameterList                &aParameterlist,
+                    Parameter_List               &aParameterlist,
                     std::shared_ptr< Library_IO > aLibrary = nullptr );
 
             //--------------------------------------------------------------------------------------------------------------

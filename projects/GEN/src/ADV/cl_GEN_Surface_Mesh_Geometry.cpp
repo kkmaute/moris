@@ -20,7 +20,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Surface_Mesh_Parameters::Surface_Mesh_Parameters( const ParameterList& aParameterList )
+    Surface_Mesh_Parameters::Surface_Mesh_Parameters( const Parameter_List& aParameterList )
             : Field_Parameters( aParameterList )
             , Design_Parameters( aParameterList )
             , mFilePath( aParameterList.get< std::string >( "file_path" ) )

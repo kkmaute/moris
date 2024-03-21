@@ -43,7 +43,7 @@ namespace tsa
          *
          * @param[in] rSolverDatabase Pointer to the solver database
          */
-        Staggered_Time_Solver( const ParameterList aParameterlist ) : Time_Solver_Algorithm( aParameterlist )
+        Staggered_Time_Solver( const Parameter_List aParameterlist ) : Time_Solver_Algorithm( aParameterlist )
         {};
 
         //-------------------------------------------------------------------------------

@@ -49,7 +49,7 @@ namespace moris
         Intersection_Detect::Intersection_Detect(
                 std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
                 moris::moris_index                          aMeshIndex,
-                moris::ParameterList                       &aParameterList,
+                moris::Parameter_List                      &aParameterList,
                 moris::uint                                 aNumBulkPhases )
                 : mMeshManager( aMeshManager )
                 , mMeshIndex( aMeshIndex )

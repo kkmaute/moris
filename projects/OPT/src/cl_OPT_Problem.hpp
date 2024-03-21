@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -58,7 +58,7 @@ namespace moris
                  * @param aInterface Interface class written for other module
                  */
                 Problem(
-                        ParameterList                       & aParameterList,
+                      Parameter_List& aParameterList,
                         std::shared_ptr<Criteria_Interface> & aInterface);
 
                 /**

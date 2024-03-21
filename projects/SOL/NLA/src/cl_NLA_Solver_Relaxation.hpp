@@ -10,7 +10,7 @@
 #ifndef SRC_FEM_CL_NLA_SOLVER_RELAXATION_HPP_
 #define SRC_FEM_CL_NLA_SOLVER_RELAXATION_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 #include "cl_SOL_Enums.hpp"
 
@@ -42,7 +42,7 @@ namespace moris
             real mRelaxHist = MORIS_REAL_MAX;
 
           public:
-            Solver_Relaxation( ParameterList& aParameterListNonlinearSolver );
+            Solver_Relaxation( Parameter_List& aParameterListNonlinearSolver );
 
             ~Solver_Relaxation(){};
 

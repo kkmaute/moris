@@ -44,16 +44,7 @@ namespace moris
     class Solver_Interface
     {
       private:
-        dla::Geometric_Multigrid* mGeoMultigrid = nullptr;
-
         // Dummy member variable
-        moris::Matrix< DDUMat >                        mMat1;
-        moris::Matrix< DDSMat >                        mMat5;
-        Vector< Matrix< DDUMat > >                mMat2;
-        Vector< Matrix< DDSMat > >                mMat3;
-        Vector< Matrix< DDRMat > >                mMat6;
-        Vector< Vector< Matrix< DDSMat > > > mMat4;
-        Vector< enum MSI::Dof_Type >              mDummyDofs;
 
         bool mIsForwardAnalysis = true;
 
@@ -64,12 +55,6 @@ namespace moris
       public:
         /** Destructor */
         virtual ~Solver_Interface(){};
-
-        void
-        delete_multigrid()
-        {
-            delete ( mGeoMultigrid );
-        };
 
         //------------------------------------------------------------------------------
         /**
@@ -268,7 +253,7 @@ namespace moris
         get_requested_dof_types()
         {
             MORIS_ERROR( false, "Solver_Interface::get_requested_dof_types: not set." );
-            return mDummyDofs;
+            return *( new Vector< enum MSI::Dof_Type >() );
         };
 
         //------------------------------------------------------------------------------
@@ -396,14 +381,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void get_equation_object_rhs(
-                const moris::uint&        aMyElementInd,
+                const moris::uint&          aMyElementInd,
                 Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void get_equation_object_rhs(
-                const moris::uint&        aMyBlockInd,
-                const moris::uint&        aMyElementInd,
+                const moris::uint&          aMyBlockInd,
+                const moris::uint&          aMyElementInd,
                 Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------------------------
@@ -411,8 +396,8 @@ namespace moris
         // fixme move that into get_equation_object_rhs()
         virtual void
         get_equation_object_off_diag_rhs(
-                const moris::uint&        aMyBlockInd,
-                const moris::uint&        aMyElementInd,
+                const moris::uint&          aMyBlockInd,
+                const moris::uint&          aMyElementInd,
                 Vector< Matrix< DDRMat > >& aElementRHS )
         {
             MORIS_ERROR( false, "not implemented" );
@@ -422,8 +407,8 @@ namespace moris
 
         virtual void
         get_equation_object_staggered_rhs(
-                const moris::uint&        aMyEquSetInd,
-                const moris::uint&        aMyElementInd,
+                const moris::uint&          aMyEquSetInd,
+                const moris::uint&          aMyElementInd,
                 Vector< Matrix< DDRMat > >& aElementRHS )
         {
             MORIS_ERROR( false, "not implemented" );
@@ -432,16 +417,16 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void get_equation_object_operator_and_rhs(
-                const moris::uint&        aMyElementInd,
-                moris::Matrix< DDRMat >&  aElementMatrix,
+                const moris::uint&          aMyElementInd,
+                moris::Matrix< DDRMat >&    aElementMatrix,
                 Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void get_equation_object_operator_and_rhs(
-                const moris::uint&        aMyBlockInd,
-                const moris::uint&        aMyElementInd,
-                moris::Matrix< DDRMat >&  aElementMatrix,
+                const moris::uint&          aMyBlockInd,
+                const moris::uint&          aMyElementInd,
+                moris::Matrix< DDRMat >&    aElementMatrix,
                 Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------
@@ -498,7 +483,7 @@ namespace moris
         get_lists_of_ext_index_multigrid()
         {
             MORIS_ERROR( false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid" );
-            return mMat2;
+            return *( new Vector< Matrix< DDUMat > >() );
         };
 
         //------------------------------------------------------------------------------
@@ -507,7 +492,7 @@ namespace moris
         get_lists_of_multigrid_identifiers()
         {
             MORIS_ERROR( false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid" );
-            return mMat3;
+            return *( new Vector< Matrix< DDSMat > >() );
         };
 
         //------------------------------------------------------------------------------
@@ -516,7 +501,7 @@ namespace moris
         get_multigrid_map()
         {
             MORIS_ERROR( false, "Solver_Interface::get_multigrid_map, Only works with MSI and multigrid" );
-            return mMat4;
+            return *( new Vector< Vector< Matrix< DDSMat > > >() );
         };
 
         //------------------------------------------------------------------------------
@@ -525,7 +510,7 @@ namespace moris
         get_number_remaining_dofs()
         {
             MORIS_ERROR( false, "Solver_Interface::get_number_remaining_dofs, Only works with MSI and multigrid" );
-            return mMat1;
+            return *( new Matrix< DDUMat >() );
         };
 
         //------------------------------------------------------------------------------
@@ -534,7 +519,7 @@ namespace moris
         get_type_time_identifier_to_type_map()
         {
             MORIS_ERROR( false, "Solver_Interface::get_type_time_identifier_to_type_map, Only works with MSI and multigrid" );
-            return mMat5;
+            return *( new Matrix< DDSMat >() );
         };
 
         //------------------------------------------------------------------------------
@@ -546,32 +531,16 @@ namespace moris
             return 0;
         };
 
-        //------------------------------------------------------------------------------
-
-        void
-        build_multigrid_operators()
-        {
-            mGeoMultigrid = new dla::Geometric_Multigrid( this );
-        };
-
-        //------------------------------------------------------------------------------
-
-        dla::Geometric_Multigrid*
-        get_multigrid_operator_pointer()
-        {
-            return mGeoMultigrid;
-        };
-
         //---------------------------------------------------------------------------------------------------------
 
         /**
          * @brief builds thr graph based on the precomputed sparsity pattern
          * This is for Petsc right now
-         * 
-         * @param aMat 
-         * @param aUseSparsityPattern 
+         *
+         * @param aMat
+         * @param aUseSparsityPattern
          */
-        void build_graph( moris::sol::Dist_Matrix* aMat, bool aUseSparsityPattern = false);
+        void build_graph( moris::sol::Dist_Matrix* aMat, bool aUseSparsityPattern = false );
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -611,7 +580,7 @@ namespace moris
 
         void get_adof_ids_based_on_criteria(
                 Vector< moris::Matrix< IdMat > >& aCriteriaIds,
-                const moris::real                      aThreshold );
+                const moris::real                 aThreshold );
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -629,7 +598,7 @@ namespace moris
         get_criteria( const moris::uint& aMySetInd )
         {
             MORIS_ERROR( false, "Solver_Interface::get_criteria(), not implemented for base class" );
-            return mMat6;
+            return *( new Vector< moris::Matrix< DDRMat > >() );
         };
 
         //---------------------------------------------------------------------------------------------------------
@@ -652,17 +621,22 @@ namespace moris
         set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
 
         //------------------------------------------------------------------------------
-        
+
         /**
          * @brief virtual method to be overloaded by MSI child class
          *
          */
-        virtual void compute_sparsity_pattern() 
+        virtual void compute_sparsity_pattern()
         {
             MORIS_ERROR( false, "Solver_Interface::compute_sparsity_pattern(), not implemented for base class" );
         };
 
-        
+        /**
+         * Updates the underlying problem being solved.
+         */
+        virtual void update_problem()
+        {
+        };
     };
 }    // namespace moris
 

@@ -19,8 +19,6 @@
 
 #include "cl_DLA_Linear_Problem.hpp"
 
-#include "fn_PRM_SOL_Parameters.hpp"
-
 // Teuchos
 #include "Teuchos_RCPDecl.hpp"
 #include "Teuchos_ParameterList.hpp"
@@ -31,14 +29,9 @@
 using namespace moris;
 using namespace dla;
 
-Linear_Solver_Aztec::Linear_Solver_Aztec()
-{
-    this->set_solver_parameters();
-}
-
 //----------------------------------------------------------------------------------------
 
-Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterlist )
+Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::Parameter_List& aParameterlist )
         : Linear_Solver_Algorithm_Trilinos( aParameterlist )
 {
 }
@@ -46,6 +39,7 @@ Linear_Solver_Aztec::Linear_Solver_Aztec( const moris::ParameterList aParameterl
 //----------------------------------------------------------------------------------------
 
 Linear_Solver_Aztec::Linear_Solver_Aztec( Linear_Problem* aLinearSystem )
+        : Linear_Solver_Algorithm_Trilinos( prm::create_linear_algorithm_parameter_list_aztec() )
 {
     // store linear problem for building external preconditioner
     mLinearSystem = aLinearSystem;
@@ -60,8 +54,6 @@ Linear_Solver_Aztec::Linear_Solver_Aztec( Linear_Problem* aLinearSystem )
     mEpetraProblem.SetLHS( static_cast< Vector_Epetra* >(
             mLinearSystem->get_free_solver_LHS() )
                                    ->get_epetra_vector() );
-
-    this->set_solver_parameters();
 }
 
 //----------------------------------------------------------------------------------------
@@ -70,14 +62,6 @@ Linear_Solver_Aztec::~Linear_Solver_Aztec()
 {
     delete mAztecSolver;
     mAztecSolver = nullptr;
-}
-
-//----------------------------------------------------------------------------------------
-
-void
-Linear_Solver_Aztec::set_solver_parameters()
-{
-    mParameterList = prm::create_linear_algorithm_parameter_list_aztec();
 }
 
 //----------------------------------------------------------------------------------------

@@ -11,7 +11,6 @@
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #include "cl_DLA_Preconditioner_PETSc.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
-#include "fn_PRM_SOL_Parameters.hpp"
 
 #include <petscksp.h>
 #include <petscdm.h>
@@ -40,25 +39,16 @@ fn_KSPMonitorResidual( KSP ksp, PetscInt n, PetscReal rnorm, void *dummy )
 
 //----------------------------------------------------------------------------------------
 
-Linear_Solver_PETSc::Linear_Solver_PETSc()
-{
-    this->set_solver_parameters();
-}
-
-//----------------------------------------------------------------------------------------
-
-Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist )
+Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::Parameter_List& aParameterlist )
         : Linear_Solver_Algorithm_Petsc( aParameterlist )
 {
 }
 
 //----------------------------------------------------------------------------------------
 Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem *aLinearSystem )
+        : Linear_Solver_Algorithm_Petsc( prm::create_linear_algorithm_parameter_list_petsc() )
 {
     mLinearSystem = aLinearSystem;
-
-    // FIXME add rest
-    this->set_solver_parameters();
 }
 
 //----------------------------------------------------------------------------------------
@@ -66,43 +56,6 @@ Linear_Solver_PETSc::~Linear_Solver_PETSc()
 {
     // KSPDestroy(&mPetscKSPProblem);
     //    PCDestroy(&mpc);
-}
-
-//----------------------------------------------------------------------------------------
-void 
-Linear_Solver_PETSc::set_solver_parameters()
-{
-    // Create parameter list and set default values for solver parameters
-
-    // Set KSP type
-    mParameterList.insert( "KSPType", std::string( "gmres" ) );
-
-    // Set default preconditioner
-    mParameterList.insert( "PCType", std::string( "ilu" ) );
-
-    // Sets maximal iters for KSP
-    mParameterList.insert( "KSPMaxits", 1000 );
-
-    // Sets KSP gmres restart
-    mParameterList.insert( "KSPMGMRESRestart", 500 );
-
-    // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES
-    mParameterList.insert( "KSPGMRESHapTol", 1e-10 );
-
-    // Sets tolerance for KSP
-    mParameterList.insert( "KSPTol", 1e-10 );
-
-    // Sets the number of levels of fill to use for ILU
-    mParameterList.insert( "ILUFill", 0 );
-
-    // Sets drop tolerance for ilu
-    mParameterList.insert( "ILUTol", 1e-6 );
-
-    // Set multigrid levels
-    mParameterList.insert( "MultigridLevels", 3 );
-
-    // Set multigrid levels
-    mParameterList.insert( "ouput_eigenspectrum", (uint)0 );
 }
 
 //----------------------------------------------------------------------------------------
@@ -161,8 +114,7 @@ Linear_Solver_PETSc::solve_linear_system(
 
 //----------------------------------------------------------------------------------------
 
-void 
-Linear_Solver_PETSc::set_solver_analysis_options()
+void Linear_Solver_PETSc::set_solver_analysis_options()
 {
     KSPMonitorSet( mPetscKSPProblem,
             fn_KSPMonitorResidual,
@@ -172,87 +124,24 @@ Linear_Solver_PETSc::set_solver_analysis_options()
 
 //----------------------------------------------------------------------------------------
 
-void 
-Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinearSystem )
+void Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinearSystem )
 {
-    // set flag whether solver is defined
-    bool tIsSolverDefined = false;
 
-    // set direct solver: superlu-dist
-    if ( !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "superlu-dist" ) )
+
+    if ( !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "preonly" ) )
     {
-        // set solver is defined flag
-        tIsSolverDefined = true;
-
         // write solver to log file
-        MORIS_LOG_INFO( "KSP Solver: superlu-dist" );
+        MORIS_LOG_INFO( "KSP Solver: preonly" );
 
         // set solver
         KSPSetType( mPetscKSPProblem, KSPPREONLY );
-
-        // get preconditioner
-        KSPGetPC( mPetscKSPProblem, &mpc );
-
-        // set LU preconditioner
-        PCSetType( mpc, PCLU );
-
-        // set factorization method in preconditioner
-        PCFactorSetMatSolverType( mpc, MATSOLVERSUPERLU_DIST );
-
-        // set up the package to call for the factorization
-        PCFactorSetUpMatSolverType( mpc );
+        mPreconditioner->build_preconditioner( aLinearSystem, mPetscKSPProblem );    //   KSPGetPC( mPetscKSPProblem, mPreconditioner->get_pc() );
     }
-
-    // set direct solver: mumps
-    if ( !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "mumps" ) )
-    {
-#ifdef MORIS_USE_MUMPS
-        // set solver is defined flag
-        tIsSolverDefined = true;
-
-        // write solver to log file
-        MORIS_LOG_INFO( "KSP Solver: mumps" );
-
-        // set solver
-        KSPSetType( mPetscKSPProblem, KSPPREONLY );
-
-        // get preconditioner
-        KSPGetPC( mPetscKSPProblem, &mpc );
-
-        // set LU preconditioner assuming that system is non-symmetric
-        PCSetType( mpc, PCLU );
-
-        // set factorization method in preconditioner
-        PCFactorSetMatSolverType( mpc, MATSOLVERMUMPS );
-
-        // set up the package to call for the factorization
-        PCFactorSetUpMatSolverType( mpc );
-
-        // get the factored matrix F from the preconditioner context
-        Mat F;
-        PCFactorGetMatrix( mpc, &F );
-
-        // set MUMPS integer control parameters ICNTL to be passed to
-        // MUMPS.  Setting entry 7 of MUMPS ICNTL array (of size 40) to a value
-        // of 2. This sets use of Approximate Minimum Fill (AMF)
-        PetscInt ival = 2, icntl = 7;
-
-        // pass control parameters to MUMPS
-
-        MatMumpsSetIcntl( F, icntl, ival );
-#else
-        MORIS_ERROR( false,
-                "Linear_Solver_PETSc::construct_solver_and_preconditioner - MORIS installed without support for MUMPS" );
-#endif
-    }
-
     // set iterative solver: kspgmres
-    if (                                                                                     //
+    else if (                                                                                //
             !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "gmres" ) ||    //
             !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "fgmres" ) )
     {
-        // set solver is defined flag
-        tIsSolverDefined = true;
 
         // write solver to log file
         MORIS_LOG_INFO( "KSP Solver: %s", mParameterList.get< std::string >( "KSPType" ).c_str() );
@@ -281,54 +170,11 @@ Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinea
         KSPGMRESSetHapTol( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPGMRESHapTol" ) );
 
         // initialize preconditioner
-        KSPGetPC( mPetscKSPProblem, &mpc );
-
-        // set SOR relaxation coefficient
-        PCSORSetOmega( mpc, 1 );
-
-        // set number of inner iterations to be used by the SOR preconditioner
-        PCSORSetIterations( mpc, 1, 1 );
-
-        // build preconditioner
-        dla::Preconditioner_PETSc tPreconditioner( this );
-
-        if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "ilu" ) )
+        if ( mPreconditioner != nullptr )
         {
-            tPreconditioner.build_ilu_preconditioner( aLinearSystem );
-        }
-        else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mg" ) )
-        {
-            tPreconditioner.build_multigrid_preconditioner( aLinearSystem );
-        }
-        else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "asm" ) )
-        {
-            // build schwarz preconditioner
-            tPreconditioner.build_schwarz_preconditioner_petsc();
-        }
-        else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mat" ) )
-        {
-            // build schwarz preconditioner
-            tPreconditioner.build_schwarz_preconditioner( aLinearSystem );
-
-            KSPSetOperators( mPetscKSPProblem,
-                    aLinearSystem->get_matrix()->get_petsc_matrix(),
-                    tPreconditioner.get_preconditioner_matrix()->get_petsc_matrix() );
-        }
-        else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "none" ) )
-        {
-            // Set PC type to none
-            PCSetType( mpc, "none" );
-        }
-        else
-        {
-            MORIS_ERROR( false,
-                    "Linear_Solver_PETSc::construct_solver_and_preconditioner - no valid preconditioner was found." );
+            mPreconditioner->build_preconditioner( aLinearSystem, mPetscKSPProblem );
         }
     }
-
-    // check that solver was defined
-    MORIS_ERROR( tIsSolverDefined,
-            "Linear_Solver_PETSc::construct_solver_and_preconditioner - no valid solver was found." );
 
     // set convergence options
     this->set_solver_analysis_options();
@@ -345,8 +191,7 @@ Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinea
     KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
 }
 
-void 
-Linear_Solver_PETSc::compute_eigenspectrum( Linear_Problem *aLinearSystem )
+void Linear_Solver_PETSc::compute_eigenspectrum( Linear_Problem *aLinearSystem )
 {
     uint tNumEigenValues = mParameterList.get< uint >( "ouput_eigenspectrum" );
     if ( tNumEigenValues == 0 )

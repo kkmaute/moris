@@ -131,22 +131,17 @@ namespace moris
             for( uint iInnerCell = 0; iInnerCell < tInnerSizeToAdd; iInnerCell++ )
             {
                 // get access to the current parameter lists
-                ParameterList & tParamsToMod = aParamListToModify( iOuterCell )( iInnerCell );
-                ParameterList & tParamsToAdd = aParamListToAdd( iOuterCell )( iInnerCell );
+                Parameter_List& tParamsToMod = aParamListToModify( iOuterCell )( iInnerCell );
+                Parameter_List& tParamsToAdd = aParamListToAdd( iOuterCell )( iInnerCell );
 
                 // if the existing parameter list is empty, just replace it with whatever is in the one to add
-                if( tParamsToMod.isempty() ) // FIXME, potentially
+                if( tParamsToMod.is_empty() ) // FIXME, potentially
                 {
                     tParamsToMod = tParamsToAdd;
                 }
                 else // otherwise compare and add/overwrite values
                 {
-                    // go over the entries of the parameter list ...
-                    for ( auto iParamToAdd : tParamsToAdd )
-                    {
-                        // ... and add or modify them
-                        tParamsToMod.set_or_insert( iParamToAdd.first, iParamToAdd.second );
-                    }
+                    tParamsToMod.copy_parameters( tParamsToAdd );
                 }
             } // end for: inner cells
         } // end for: outer cells
@@ -443,14 +438,14 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     void
-    Library_IO::write_parameter_list_to_xml_buffer( ParameterList & aParameterList )
+    Library_IO::write_parameter_list_to_xml_buffer( Parameter_List& aParameterList )
     {
         // go over the entries of the parameter list ...
         // for ( auto iParamToAdd : aParameterList )
         for ( auto iParamToAdd = aParameterList.begin(); iParamToAdd != aParameterList.end(); ++iParamToAdd )
         {
             // ... and add or modify them
-            mXmlWriter->set_in_buffer( iParamToAdd->first, convert_param_value_to_string( iParamToAdd->second ) );
+            mXmlWriter->set_in_buffer( iParamToAdd->first, iParamToAdd->second->get_string() );
         }
     }
 

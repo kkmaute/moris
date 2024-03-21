@@ -32,7 +32,7 @@ namespace moris::gen
          *
          * @param aParameterList
          */
-        explicit Property_Parameters( const ParameterList& aParameterList = prm::create_gen_property_parameter_list() );
+        explicit Property_Parameters( const Parameter_List& aParameterList = prm::create_gen_property_parameter_list() );
     };
 
     class Property : public Design_Field

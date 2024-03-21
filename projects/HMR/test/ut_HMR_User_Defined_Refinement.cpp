@@ -196,7 +196,7 @@ namespace moris::hmr
                     uint tLagrangeMeshIndex = 0;
 
                     // Dummy parameter list
-                    ParameterList tParam = prm::create_hmr_parameter_list();
+                    Parameter_List tParam = prm::create_hmr_parameter_list();
 
                     // The parameter object controls the behavior of HMR.
                     Parameters tParameters;
@@ -301,7 +301,7 @@ namespace moris::hmr
             uint tLagrangeMeshIndex = 0;
 
             // Dummy parameter list
-            ParameterList tParam = prm::create_hmr_parameter_list();
+            Parameter_List tParam = prm::create_hmr_parameter_list();
 
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;

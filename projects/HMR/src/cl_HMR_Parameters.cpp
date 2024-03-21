@@ -23,7 +23,7 @@ namespace moris::hmr
 
     // creates a parameter list with default inputs
     void
-    load_hmr_parameter_list_from_xml( const std::string& aFilePath, ParameterList& aParameterList )
+    load_hmr_parameter_list_from_xml( const std::string& aFilePath, Parameter_List& aParameterList )
     {
         // create temporary Parser object
         XML_Parser          tParser( aFilePath );
@@ -121,7 +121,7 @@ namespace moris::hmr
      * parameter list constructor
      */
     Parameters::Parameters(
-            ParameterList&                       aParameterList,
+            Parameter_List&                       aParameterList,
             std::shared_ptr< moris::Library_IO > aLibrary )
     {
         string_to_mat( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
@@ -288,12 +288,12 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     // creates a parameter list from parameters
-    ParameterList
+    Parameter_List
     create_hmr_parameter_list( const Parameters* aParameters )
     {
         MORIS_ERROR( false, "create_hmr_parameter_list(), function not changed yet" );
         // create default values
-        ParameterList tParameterList = prm::create_hmr_parameter_list();
+        Parameter_List tParameterList = prm::create_hmr_parameter_list();
 
         // buffer size
         tParameterList.set( "refinement_buffer", (sint)aParameters->get_refinement_buffer() );
@@ -368,7 +368,7 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     void
-    Parameters::copy_selected_parameters( ParameterList& aParameterList )
+    Parameters::copy_selected_parameters( Parameter_List& aParameterList )
     {
         // create a temporary parameter object
         Parameters tParameters( aParameterList, nullptr );

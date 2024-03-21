@@ -9,7 +9,7 @@
  */
 
 #include "cl_GEN_Design_Factory.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Library_IO.hpp"
 #include "fn_GEN_create_field.hpp"
@@ -21,7 +21,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Factory::Design_Factory(
-            Vector< ParameterList >         aParameterLists,
+            Vector< Parameter_List >         aParameterLists,
             Matrix< DDRMat >&             aADVs,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh,
@@ -31,7 +31,7 @@ namespace moris::gen
         uint tGeometryIndex = 0;
         uint tPropertyIndex = 0;
         uint tFieldIndex    = 0;
-        for ( const ParameterList& iParameterList : aParameterLists )
+        for ( const Parameter_List& iParameterList : aParameterLists )
         {
             // Count up the type of design
             if ( iParameterList.exists( "design_type" ) )
@@ -75,7 +75,7 @@ namespace moris::gen
             bool tSomethingHasBeenBuilt = false;
 
             // Loop over all designs
-            for ( ParameterList& iParameterList : aParameterLists )
+            for ( Parameter_List& iParameterList : aParameterLists )
             {
                 // If we can build this field or not
                 bool tCanBuild = true;

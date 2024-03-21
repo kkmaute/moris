@@ -17,7 +17,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
 
-#include "cl_Param_List.hpp"    // CON/src
+#include "cl_Parameter_List.hpp"    // CON/src
 #include "cl_DLA_Preconditioner_Trilinos.hpp"
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 
@@ -32,13 +32,6 @@ namespace moris::dla
         Preconditioner_Trilinos* mPreconditioner = nullptr;
 
       public:
-        //-----------------------------------------------------------------------------------
-
-        /**
-         * @brief Default constructor
-         */
-
-        Linear_Solver_Algorithm_Trilinos(){};
 
         //-----------------------------------------------------------------------------------
 
@@ -48,7 +41,7 @@ namespace moris::dla
          * @param aParameterlist
          */
 
-        Linear_Solver_Algorithm_Trilinos( const moris::ParameterList aParameterlist )
+        Linear_Solver_Algorithm_Trilinos( const moris::Parameter_List& aParameterlist )
                 : Linear_Solver_Algorithm( aParameterlist ){};
 
         //-----------------------------------------------------------------------------------

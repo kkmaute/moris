@@ -479,9 +479,9 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        dla::Solver_Factory  tSolFactory;
        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
-//       tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_all;
-//       tLinearSolverAlgorithm->set_param("AZ_output") = AZ_all;
-//       tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
+//       tLinearSolverParameterList.set( "AZ_diagnostics", AZ_all );
+//       tLinearSolverParameterList.set( "AZ_output", AZ_all );
+//       tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
 
        dla::Linear_Solver tLinSolver;
 

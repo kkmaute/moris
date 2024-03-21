@@ -43,26 +43,31 @@ namespace moris
             {
             if ( par_size() == 1 )
             {
-                std::shared_ptr< Time_Solver_Algorithm > tTimesolverAlgorithm = std::make_shared< Monolithic_Time_Solver >();
+                Parameter_List tTimeSolverParameterList = prm::create_time_solver_algorithm_parameter_list();
+                tTimeSolverParameterList.set( "TSA_Num_Time_Steps", 1000 );
+                tTimeSolverParameterList.set( "TSA_Time_Frame", 10.0 );
+                std::shared_ptr< Time_Solver_Algorithm > tTimesolverAlgorithm = std::make_shared< Monolithic_Time_Solver >(
+                        tTimeSolverParameterList );
 
                 // Create solver interface
                 Solver_Interface * tSolverInput = new TSA_Solver_Interface_Proxy();
 
                 dla::Solver_Factory  tSolFactory;
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
-                tLinSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-                tLinSolverAlgorithm->set_param("AZ_output") = AZ_none;
-                tLinSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-                tLinSolverAlgorithm->set_param("AZ_precond") = AZ_dom_decomp;
+                Parameter_List tLinSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+                tLinSolverParameterList.set( "AZ_diagnostics", AZ_none );
+                tLinSolverParameterList.set( "AZ_output", AZ_none );
+                tLinSolverParameterList.set( "AZ_solver", AZ_gmres );
+                tLinSolverParameterList.set( "AZ_precond", AZ_dom_decomp );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolverAlgorithm = tSolFactory.create_solver( tLinSolverParameterList );
 
-                dla::Linear_Solver * tLinSolManager = new dla::Linear_Solver();
+                auto tLinSolManager = new dla::Linear_Solver();
                 tLinSolManager->set_linear_algorithm( 0, tLinSolverAlgorithm );
 
                 NLA::Nonlinear_Solver_Factory tNonlinFactory;
-                std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
+                std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlLinSolverAlgorithm = tNonlinFactory.create_nonlinear_solver();
                 tNonlLinSolverAlgorithm->set_linear_solver( tLinSolManager );
 
-                NLA::Nonlinear_Solver tNonlinearSolverManager( NLA::NonlinearSolverType::NEWTON_SOLVER );
+                NLA::Nonlinear_Solver tNonlinearSolverManager;
                 tNonlinearSolverManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
                 Vector< enum MSI::Dof_Type > tDofTypes( 1 );
@@ -70,9 +75,6 @@ namespace moris
                 tNonlinearSolverManager.set_dof_type_list( tDofTypes );
 
                 tTimesolverAlgorithm->set_nonlinear_solver( & tNonlinearSolverManager );
-
-                tTimesolverAlgorithm->set_param("TSA_Num_Time_Steps")   = 1000;
-                tTimesolverAlgorithm->set_param("TSA_Time_Frame")       = 10.0;
 
                 Time_Solver tTimeSolver;
 

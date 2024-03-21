@@ -23,7 +23,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Model_Solver_Interface::Model_Solver_Interface(
-                ParameterList                          aMSIParameterList,
+                Parameter_List                         aMSIParameterList,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel,
                 mtk::Mesh*                             aMesh )
                 : mMSIParameterList( aMSIParameterList )

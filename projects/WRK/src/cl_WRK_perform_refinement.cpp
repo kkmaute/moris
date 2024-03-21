@@ -23,7 +23,7 @@
 
 #include "cl_MTK_Field.hpp"
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -31,7 +31,7 @@ namespace moris
     {
 
         Refinement_Mini_Performer::Refinement_Mini_Performer(
-                ParameterList&                aParameterlist,
+                Parameter_List&                aParameterlist,
                 std::shared_ptr< Library_IO > aLibrary )
                 : mLibrary( aLibrary )
         {

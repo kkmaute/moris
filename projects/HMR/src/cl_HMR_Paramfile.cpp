@@ -71,7 +71,7 @@ Paramfile::~Paramfile()
 }
 // -----------------------------------------------------------------------------
 
-ParameterList & Paramfile::get_parameter_list()
+Parameter_List & Paramfile::get_parameter_list()
 {
     return mParameterList;
 }

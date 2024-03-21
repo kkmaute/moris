@@ -26,122 +26,93 @@
 
 #include "cl_DLA_Preconditioner.hpp"
 
-namespace moris
+namespace moris::dla
 {
-    namespace dla
+    class Preconditioner_Trilinos : public Preconditioner
     {
-        class Preconditioner_Trilinos : public Preconditioner
+      private:
+        // possible trillions preconditioner
+        Teuchos::RCP< Ifpack_Preconditioner >               mIfPackPrec;
+        Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > mMlPrec;
+
+        //-------------------------------------------------------------------------------
+
+        moris::sint build_ifpack_preconditioner();
+
+        //-------------------------------------------------------------------------------
+
+        moris::sint build_ml_preconditioner();
+
+        //-------------------------------------------------------------------------------
+
+        moris::sint compute_ifpack_preconditioner( bool tRecompute = false );
+
+        //-------------------------------------------------------------------------------
+
+        moris::sint compute_ml_preconditioner( bool tRecompute = false );
+
+        //-------------------------------------------------------------------------------
+
+      public:
+
+        //-------------------------------------------------------------------------------
+
+        explicit Preconditioner_Trilinos(
+                const Parameter_List& aParameterList );
+
+        //-------------------------------------------------------------------------------
+
+        /*
+         * initialize preconditioner by setting parameter list and linear system
+         */
+        void initialize();
+
+        //-------------------------------------------------------------------------------
+
+        /*
+         * build and compute preconditioner
+         *
+         *  @param[in] iteration index - used to decided whether preconditioner needs to
+         *                               be build and computed or just recomputed
+         */
+        void build( Linear_Problem* aProblem, const sint& aIter = 1 );
+
+        //-------------------------------------------------------------------------------
+
+        /*
+         * returns true if a preconditioner has been built
+         */
+        bool exists();
+
+        //-------------------------------------------------------------------------------
+
+        /*
+         * accessor to underling Epetra operator
+         */
+        Teuchos::RCP< Epetra_Operator > get_operator();
+
+        //-------------------------------------------------------------------------------
+
+        /*
+         * returns Ifpack Preconditioner
+         */
+        Teuchos::RCP< Ifpack_Preconditioner >&
+        get_ifpack_prec()
         {
-          private:
-
-            // possible trillions preconditioner
-            Teuchos::RCP< Ifpack_Preconditioner > mIfPackPrec;
-            Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > mMlPrec;
-
-            //-------------------------------------------------------------------------------
-
-            moris::sint build_ifpack_preconditioner();
-
-            //-------------------------------------------------------------------------------
-
-            moris::sint build_ml_preconditioner();
-
-            //-------------------------------------------------------------------------------
-
-            moris::sint compute_ifpack_preconditioner( bool tRecompute = false );
-
-            //-------------------------------------------------------------------------------
-
-            moris::sint compute_ml_preconditioner( bool tRecompute = false );
-
-            //-------------------------------------------------------------------------------
-
-          public:
-            //-------------------------------------------------------------------------------
-
-            Preconditioner_Trilinos();
-
-            //-------------------------------------------------------------------------------
-
-            Preconditioner_Trilinos(
-                    moris::ParameterList* aParameterlist,
-                    Linear_Problem*       aLinearSystem );
-
-            //-------------------------------------------------------------------------------
-
-            ~Preconditioner_Trilinos();
-
-            //-------------------------------------------------------------------------------
-
-            /*
-             * initialize preconditioner by setting parameter list and linear system
-             */
-            void initialize(
-                    moris::ParameterList* aParameterlist,
-                    Linear_Problem*       aLinearSystem );
-
-            //-------------------------------------------------------------------------------
-
-            /*
-             * build and compute preconditioner
-             *
-             *  @param[in] iteration index - used to decided whether preconditioner needs to
-             *                               be build and computed or just recomputed
-             */
-            void build( Linear_Problem* aProblem, const sint& aIter = 1 );
-
-            //-------------------------------------------------------------------------------
-
-            /*
-             * returns true if a preconditioner has been built
-             */
-            bool exists();
-
-            //-------------------------------------------------------------------------------
-
-            /*
-             * accessor to underling Epetra operator
-             */
-            Teuchos::RCP< Epetra_Operator > get_operator();
-
-            //-------------------------------------------------------------------------------
-
-            /*
-             * returns Ifpack Preconditioner
-             */
-            Teuchos::RCP< Ifpack_Preconditioner >&
-            get_ifpack_prec()
-            {
-                return mIfPackPrec;
-            };
-
-            //-------------------------------------------------------------------------------
-
-            /*
-             * returns Multilevel preconditioner
-             */
-            Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner >&
-            get_ml_prec()
-            {
-                return mMlPrec;
-            };
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * @brief Set the param object
-             * 
-             * @param aKey 
-             * @return ParameterListTypes& 
-             */
-
-            ParameterListTypes&
-            set_param( const std::string& aKey )
-            {
-                return ( *mParameterList )( aKey );
-            }
-
-            //-------------------------------------------------------------------------------
+            return mIfPackPrec;
         };
-    }    // namespace dla
+
+        //-------------------------------------------------------------------------------
+
+        /*
+         * returns Multilevel preconditioner
+         */
+        Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner >&
+        get_ml_prec()
+        {
+            return mMlPrec;
+        };
+
+        //-------------------------------------------------------------------------------
+    };
 }    // namespace moris

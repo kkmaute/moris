@@ -21,7 +21,7 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
     MIG::MIG(
             std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
-            moris::ParameterList&                       aParameterList,
+            moris::Parameter_List&                       aParameterList,
             moris::gen::Geometry_Engine*                 aGeometryEngine )
             : mMeshManager( aMeshManager )
             , mParameterList( aParameterList )

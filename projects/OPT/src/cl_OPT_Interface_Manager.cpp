@@ -21,7 +21,7 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
 
         Interface_Manager::Interface_Manager(
-                ParameterList                                 aParameterList,
+                Parameter_List                                  aParameterList,
                 Vector< std::shared_ptr< Criteria_Interface > > aInterfaces )
                 : mInterfaces( aInterfaces )
         {

@@ -11,7 +11,7 @@
 #ifndef PROJECTS_PRM_SRC_FN_PRM_SOL_PARAMETERS_HPP_
 #define PROJECTS_PRM_SRC_FN_PRM_SOL_PARAMETERS_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 #include "cl_SOL_Enums.hpp"
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
@@ -23,10 +23,10 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_solver_warehouse_parameterlist()
         {
-            ParameterList tSolverWarehouseList;
+            Parameter_List tSolverWarehouseList;
 
             // TPL type. can be epetra or petsc
             tSolverWarehouseList.insert( "SOL_TPL_Type", (uint)( sol::MapType::Epetra ) );
@@ -61,13 +61,13 @@ namespace moris
         //------------------------------------------------------------------------------
         // P R E C O N I T I O N E R   P A R A M E T E R L I S T //
 
-        inline void
-        create_ifpack_preconditioner_parameterlist( ParameterList& aParameterlist )
+        static inline void
+        create_ifpack_preconditioner_parameterlist( Parameter_List& aParameterlist )
         {
             // General Parameters
             enum moris::sol::PreconditionerType tType = moris::sol::PreconditionerType::IFPACK;
 
-            aParameterlist.set_or_insert( "Preconditioner_Implementation", (uint)( tType ) );
+            aParameterlist.set( "Preconditioner_Implementation", (uint)( tType ) );
 
             // ASSIGN DEFAULT PARAMETER VALUES
             // Robust Algebraic Preconditioners using IFPACK 3.0, SAND REPORT, SAND2005-0662,
@@ -184,12 +184,47 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        // creates a parameter list with default inputs
         inline void
-        create_ml_preconditioner_parameterlist( ParameterList& aParameterlist )
+        create_petsc_preconditioner_parameterlist( Parameter_List& aParameterlist )
+        {
+            enum moris::sol::PreconditionerType tType = moris::sol::PreconditionerType::PETSC;
+
+            aParameterlist.insert( "Preconditioner_Implementation", (uint)( tType ) );
+
+            // Set default preconditioner
+            aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "none"
+
+            // Sets the number of levels of fill to use for ILU
+            aParameterlist.insert( "ILUFill", 0 );
+
+            // Sets drop tolerance for ilu
+            aParameterlist.insert( "ILUTol", 1e-6 );
+
+            // Set multigrid levels
+            aParameterlist.insert( "MultigridLevels", 3 );
+
+            // Schwarz preconditioner volume fraction threshold
+            aParameterlist.insert( "MG_use_schwarz_smoother", false );
+
+            // Schwarz smoothing iterations
+            aParameterlist.insert( "MG_schwarz_smoothing_iters", 1 );
+
+            // Schwarz preconditioner volume fraction threshold
+            aParameterlist.insert( "ASM_volume_fraction_threshold", 0.1 );
+
+            // blocks in addtive Schwartz algorthim
+            aParameterlist.insert( "ASM_blocks_output_filename", "" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        inline void
+        create_ml_preconditioner_parameterlist( Parameter_List& aParameterlist )
         {
             // General Parameters
             enum moris::sol::PreconditionerType tType = moris::sol::PreconditionerType::ML;
-            aParameterlist.set_or_insert( "Preconditioner_Implementation", (uint)( tType ) );
+            aParameterlist.set( "Preconditioner_Implementation", (uint)( tType ) );
 
             // Default parameter settings; options are SA, NSSA, DD, DD-ML
             aParameterlist.insert( "ml_prec_type", "" );
@@ -269,10 +304,10 @@ namespace moris
 
         // //------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_eigen_algorithm_parameter_list()
         {
-            ParameterList mEigAlgoParameterList;
+            Parameter_List mEigAlgoParameterList;
 
             enum moris::sol::SolverType tType = moris::sol::SolverType::EIGEN_SOLVER;
 
@@ -331,10 +366,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_linear_algorithm_parameter_list_aztec()
         {
-            ParameterList tLinAlgorithmParameterList;
+            Parameter_List tLinAlgorithmParameterList;
 
             enum moris::sol::SolverType tType = moris::sol::SolverType::AZTEC_IMPL;
 
@@ -436,13 +471,13 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_linear_algorithm_parameter_list_amesos()
         {
             // ASSIGN DEFAULT PARAMETER VALUES
             // Amesos 2.0 Reference Guide, SANDIA REPORT, SAND2004-4820, https://trilinos.org/oldsite/packages/amesos/AmesosReferenceGuide.pdf
 
-            ParameterList tLinAlgorithmParameterList;
+            Parameter_List tLinAlgorithmParameterList;
 
             enum moris::sol::SolverType tType = moris::sol::SolverType::AMESOS_IMPL;
 
@@ -482,10 +517,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_linear_algorithm_parameter_list_belos()
         {
-            ParameterList tLinAlgorithmParameterList;
+            Parameter_List tLinAlgorithmParameterList;
 
             enum moris::sol::SolverType tType = moris::sol::SolverType::BELOS_IMPL;
 
@@ -533,20 +568,20 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_linear_algorithm_parameter_list_petsc()
         {
-            ParameterList tLinAlgorithmParameterList;
+            Parameter_List tLinAlgorithmParameterList;
 
             enum moris::sol::SolverType tType = moris::sol::SolverType::PETSC;
 
             tLinAlgorithmParameterList.insert( "Solver_Implementation", (uint)( tType ) );
 
             // Set KSP type
-            tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );
+            tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );    //  "gmres" , "fgmres", "preonly"
 
             // Set default preconditioner
-            tLinAlgorithmParameterList.insert( "PCType", std::string( "ilu" ) );
+            tLinAlgorithmParameterList.insert( "PCType", std::string( "none" ) );
 
             // Sets maximal iters for KSP
             tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
@@ -589,10 +624,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_linear_solver_parameter_list()
         {
-            ParameterList tLinSolverParameterList;
+            Parameter_List tLinSolverParameterList;
 
             tLinSolverParameterList.insert( "DLA_Linear_solver_algorithms", "0" );
 
@@ -620,10 +655,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_nonlinear_algorithm_parameter_list()
         {
-            ParameterList tNonLinAlgorithmParameterList;
+            Parameter_List tNonLinAlgorithmParameterList;
 
             enum moris::NLA::NonlinearSolverType NonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
 
@@ -761,10 +796,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_nonlinear_solver_parameter_list()
         {
-            ParameterList tNonLinSolverParameterList;
+            Parameter_List tNonLinSolverParameterList;
 
             enum moris::NLA::NonlinearSolverType NonlinearSolverType = moris::NLA::NonlinearSolverType::NEWTON_SOLVER;
 
@@ -786,10 +821,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_time_solver_algorithm_parameter_list()
         {
-            ParameterList tTimeAlgorithmParameterList;
+            Parameter_List tTimeAlgorithmParameterList;
 
             enum moris::tsa::TimeSolverType tType = tsa::TimeSolverType::MONOLITHIC;
 
@@ -810,10 +845,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        inline ParameterList
+        inline Parameter_List
         create_time_solver_parameter_list()
         {
-            ParameterList tTimeParameterList;
+            Parameter_List tTimeParameterList;
 
             tTimeParameterList.insert( "TSA_TPL_Type", (uint)( sol::MapType::Epetra ) );
 
@@ -825,8 +860,8 @@ namespace moris
             tTimeParameterList.insert( "TSA_Max_Time_Solver_Restarts", 0 );
 
             tTimeParameterList.insert( "TSA_Output_Indices", "0" );
-
             tTimeParameterList.insert( "TSA_Output_Criteria", "Default_Output_Criterion" );
+            tTimeParameterList.insert( "TSA_Pause_Function", "" );
 
             tTimeParameterList.insert( "TSA_Initialize_Sol_Vec", "" );    // initial GUESS
 
@@ -838,12 +873,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_linear_algorithm_parameter_list(
-                const enum moris::sol::SolverType aSolverType,
-                const uint                        aIndex = 0 )
+                moris::sol::SolverType aSolverType )
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             switch ( aSolverType )
             {
@@ -915,11 +949,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_preconditioner_parameter_list(
                 const enum moris::sol::PreconditionerType& aPrecondionerType )
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             //      // General Parameters
             enum moris::sol::PreconditionerType tType = moris::sol::PreconditionerType::NONE;
@@ -935,6 +969,9 @@ namespace moris
                     break;
                 case sol::PreconditionerType::ML:
                     create_ml_preconditioner_parameterlist( tParameterList );
+                    break;
+                case sol::PreconditionerType::PETSC:
+                    create_petsc_preconditioner_parameterlist( tParameterList );
                     break;
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );

@@ -168,7 +168,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1" ) );
             tParameters.set( "domain_dimensions", "2, 2" );
@@ -441,7 +441,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
             for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
@@ -642,7 +642,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            ParameterList tParameters = prm::create_hmr_parameter_list();
+            Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", "2, 1" );
             tParameters.set( "domain_dimensions", "2, 2" );
@@ -918,7 +918,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            Vector< Vector< moris::ParameterList > > tParameterlist( 8 );
+            Vector< Vector< moris::Parameter_List > > tParameterlist( 8 );
 
             tParameterlist( 0 ).resize( 3 );
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
@@ -1006,13 +1006,13 @@ namespace moris
             //        dla::Solver_Factory  tSolFactory;
             //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
             //
-            //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-            //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-            //        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 10000;
-            //        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres;
-            //        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-            //        tLinearSolverAlgorithm->set_param("AZ_graph_fill") = 10;
-            ////        tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+            //        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            //        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+            //        tLinearSolverParameterList.set( "AZ_max_iter", 10000 );
+            //        tLinearSolverParameterList.set( "AZ_solver", AZ_gmres );
+            //        tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+            //        tLinearSolverParameterList.set( "AZ_graph_fill", 10 );
+            ////        tLinearSolverParameterList.set( "ml_prec_type", "SA" );
             //
             //        dla::Linear_Solver tLinSolver;
             //        tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -1462,15 +1462,15 @@ namespace moris
     //        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );
     //        //            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::PETSC );
     //
-    //        tLinearSolverAlgorithm->set_param("AZ_diagnostics") = AZ_none;
-    //        tLinearSolverAlgorithm->set_param("AZ_output") = AZ_none;
-    //        tLinearSolverAlgorithm->set_param("AZ_max_iter") = 5000;
-    //        tLinearSolverAlgorithm->set_param("AZ_solver") = AZ_gmres_condnum;
-    //        tLinearSolverAlgorithm->set_param("AZ_subdomain_solve") = AZ_ilu;
-    //        tLinearSolverAlgorithm->set_param("AZ_ilut_fill") = 10.0;
-    //        tLinearSolverAlgorithm->set_param("rel_residual") = 1e-8;
+    //        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+    //        tLinearSolverParameterList.set( "AZ_output", AZ_none );
+    //        tLinearSolverParameterList.set( "AZ_max_iter", 5000 );
+    //        tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
+    //        tLinearSolverParameterList.set( "AZ_subdomain_solve", AZ_ilu );
+    //        tLinearSolverParameterList.set( "AZ_ilut_fill", 10.0 );
+    //        tLinearSolverParameterList.set( "rel_residual", 1e-8 );
     //
-    ////            tLinearSolverAlgorithm->set_param("ml_prec_type") = "SA";
+    ////            tLinearSolverParameterList.set( "ml_prec_type", "SA" );
     //
     //        dla::Linear_Solver tLinSolver;
     //
@@ -1485,10 +1485,10 @@ namespace moris
     //        NLA::Nonlinear_Solver_Factory tNonlinFactory;
     //        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
     //
-    //        tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 2;
-    //        //        tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-    //        //        tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-    //        //        tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+    //        tNonlinearSolverParameterList.set( "NLA_max_iter", 2 );
+    //        //        tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+    //        //        tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+    //        //        tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
     //
     //        tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
     //

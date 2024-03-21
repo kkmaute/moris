@@ -17,7 +17,7 @@
 
 namespace moris
 {
-TEST_CASE( "moris::isempty", "[linalgebra],[isempty]" )
+TEST_CASE( "moris::is_empty", "[linalgebra],[is_empty]" )
     {
     Matrix< DDRMat > a( 3, 3 );
     Matrix< DDRMat > b;

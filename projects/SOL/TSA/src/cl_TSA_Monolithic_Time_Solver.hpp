@@ -47,7 +47,7 @@ namespace moris
              *
              * @param[in] aParameterlist     User defined parameter list
              */
-            Monolithic_Time_Solver( const ParameterList aParameterlist )
+            Monolithic_Time_Solver( const Parameter_List aParameterlist )
                     : Time_Solver_Algorithm( aParameterlist ){};
 
             //-------------------------------------------------------------------------------

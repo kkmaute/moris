@@ -177,7 +177,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
 
     // FEM parameter lists
-    Vector< Vector<ParameterList>> tParameterList;
+    Vector< Vector< Parameter_List > > tParameterList;
     tParameterList.resize( 8 );
 
     tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );

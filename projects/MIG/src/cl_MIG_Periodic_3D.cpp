@@ -49,7 +49,7 @@ namespace moris::mig
     Periodic_3D::Periodic_3D(
         std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
         moris::moris_index                          aMeshIndex,
-        moris::ParameterList                       &aParameterList,
+        moris::Parameter_List                      &aParameterList,
         moris::uint                                 aNumBulkPhases ) :
         mMeshManager( aMeshManager ),
         mMeshIndex( aMeshIndex ),

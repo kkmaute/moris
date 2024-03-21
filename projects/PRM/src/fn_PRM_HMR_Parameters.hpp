@@ -11,7 +11,7 @@
 #ifndef PROJECTS_PRM_SRC_FN_PRM_HMR_PARAMETERS_HPP_
 #define PROJECTS_PRM_SRC_FN_PRM_HMR_PARAMETERS_HPP_
 
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -21,10 +21,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
-        inline ParameterList
+        inline Parameter_List
         create_hmr_parameter_list()
         {
-            ParameterList tParameterList;
+            Parameter_List tParameterList;
 
             // number of elements per direction in overall mesh, without aura
             // 2D or 3D is determined by length of this vector

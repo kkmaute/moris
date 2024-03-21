@@ -24,7 +24,7 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Algorithm_Sweep::Algorithm_Sweep( ParameterList aParameterList )
+        Algorithm_Sweep::Algorithm_Sweep( Parameter_List aParameterList )
         {
             // define which quantities are evaluated
             mEvaluateObjectives  = aParameterList.get< bool >( "evaluate_objectives" );

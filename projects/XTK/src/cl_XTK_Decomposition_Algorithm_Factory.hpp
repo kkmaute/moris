@@ -13,7 +13,7 @@
 
 #include "cl_XTK_Enums.hpp"
 #include <memory>
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris::xtk
 {
@@ -22,7 +22,7 @@ namespace moris::xtk
     std::shared_ptr< Decomposition_Algorithm >
     create_decomposition_algorithm(
             enum Subdivision_Method aSubdivisionMethod,
-            moris::ParameterList&   aParameterList );
+            moris::Parameter_List&   aParameterList );
 
 }    // namespace moris::xtk
 

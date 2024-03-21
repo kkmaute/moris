@@ -13,7 +13,7 @@
 
 #include "core.hpp"
 #include "cl_OPT_Algorithm.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 #include "cl_OPT_Problem.hpp"
 
 using namespace moris;
@@ -61,7 +61,7 @@ public:
     /**
      * Constructor
      */
-    OptAlgGCMMA(moris::ParameterList aParameterList);
+    OptAlgGCMMA(moris::Parameter_List aParameterList);
 
     /**
      * Destructor

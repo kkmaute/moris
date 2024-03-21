@@ -36,9 +36,7 @@ void Linear_Solver_Algorithm_Trilinos::compute_operator_condition_number_with_mo
         arma::SpMat< real > tArmaSPMatrixA = convert_epetra_operator_to_arma_sp_mat< arma::SpMat, real >( *tOperator );
 
         arma::Col< std::complex< double > > tEigvalSmallest = arma::eigs_gen( tArmaSPMatrixA, 1, "sm" );
-        tEigvalSmallest.print();
-        arma::Col< std::complex< double > > tEigvalLargest = arma::eigs_gen( tArmaSPMatrixA, 1, "lm" );
-        tEigvalLargest.print();
+        arma::Col< std::complex< double > > tEigvalLargest  = arma::eigs_gen( tArmaSPMatrixA, 1, "lm" );
 
         tConditionNumber = tEigvalLargest( 0 ).real() / tEigvalSmallest( 0 ).real();
 #endif

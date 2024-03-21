@@ -133,10 +133,10 @@ void function_TEST_Diffusion_Phase_Change()
              tNonlinearFactory.create_nonlinear_solver( NLA::NonlinearSolverType::NEWTON_SOLVER );
 
      // specify parameters
-     tNonlinearSolverAlgorithm->set_param("NLA_max_iter")   = 10;
-     tNonlinearSolverAlgorithm->set_param("NLA_hard_break") = false;
-     tNonlinearSolverAlgorithm->set_param("NLA_max_lin_solver_restarts") = 2;
-     tNonlinearSolverAlgorithm->set_param("NLA_rebuild_jacobian") = true;
+     tNonlinearSolverParameterList.set( "NLA_max_iter", 10 );
+     tNonlinearSolverParameterList.set( "NLA_hard_break", false );
+     tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
+     tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
 
      tNonlinearSolverAlgorithm->set_linear_solver( &tLinearSolver );
 

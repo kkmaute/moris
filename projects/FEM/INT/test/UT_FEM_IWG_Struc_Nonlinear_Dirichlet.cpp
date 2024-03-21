@@ -44,10 +44,10 @@ Test_IWG_Struc_NL_Dirichlet(
         IWG_Type               aNitscheFormulation )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-5;
+    real tEpsilon = 1.0E-5;
 
-    // define aperturbation relative size
-    real tPerturbation = 1E-6;
+    // define a perturbation relative size
+    real tPerturbation = 1.0E-6;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -293,8 +293,8 @@ Test_IWG_Struc_NL_Dirichlet(
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum gen::PDV_Type > >        tDummyDv;
-            Vector< Vector< enum mtk::Field_Type > > tDummyField;
+            Vector< Vector< enum gen::PDV_Type > >             tDummyDv;
+            Vector< Vector< mtk::Field_Type > >                tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
@@ -365,70 +365,70 @@ Test_IWG_Struc_NL_Dirichlet(
 
 //---------------------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Saint_Venant",
-        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Saint_Venant]" )
+TEST_CASE( "IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Saint_Venant_PF",
+        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Saint_Venant_PF]" )
 {
     Test_IWG_Struc_NL_Dirichlet(
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
-            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE );
+            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
 
 } /* END_TEST_CASE */
 
 //---------------------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Saint_Venant",
-        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Saint_Venant]" )
+TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Saint_Venant_PF",
+        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Saint_Venant_PF]" )
 {
     Test_IWG_Struc_NL_Dirichlet(
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
-            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE );
+            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF );
 
 } /* END_TEST_CASE */
 
 //---------------------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_SE",
-        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_SE]" )
+TEST_CASE( "IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_Bonet_PF",
+        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_Bonet_PF]" )
 {
     Test_IWG_Struc_NL_Dirichlet(
-            fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN,
-            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE );
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_BONET,
+            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
 
 } /* END_TEST_CASE */
 
 //---------------------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_SE",
-        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Unymmetric_Nitsche_Neo_Hookean_SE]" )
+TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_Bonet_PF",
+        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Unymmetric_Nitsche_Neo_Hookean_Bonet_PF]" )
 {
     Test_IWG_Struc_NL_Dirichlet(
-            fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN,
-            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE );
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_BONET,
+            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF );
 
 } /* END_TEST_CASE */
 
 //---------------------------------------------------------------------------------------------
 
-// FIXME: PF versions do not work - error in jacobian
+TEST_CASE( "IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Compressible_Neo_Hookean_Wriggers_PF",
+        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Compressible_Neo_Hookean_Wriggers_PF]" )
+{
+    Test_IWG_Struc_NL_Dirichlet(
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
 
-// TEST_CASE( "IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_PF",
-//         "[moris],[fem],[IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_PF]" )
-//{
-//     Test_IWG_Struc_NL_Dirichlet(
-//             fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN,
-//             IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
-//
-// } /* END_TEST_CASE */
+} /* END_TEST_CASE */
 
 //---------------------------------------------------------------------------------------------
 
-// FIXME: PF versions do not work - error in jacobian
+TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Compressible_Neo_Hookean_Wriggers_PF",
+        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Unymmetric_Nitsche_Compressible_Neo_Hookean_Wriggers_PF]" )
+{
+    Test_IWG_Struc_NL_Dirichlet(
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF );
 
-// TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_PF",
-//         "[moris],[fem],[IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_PF]" )
-//{
-//     Test_IWG_Struc_NL_Dirichlet(
-//             fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN,
-//             IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF );
-//
-// } /* END_TEST_CASE */
+} /* END_TEST_CASE */
+
+//---------------------------------------------------------------------------------------------
+
+/* END_TEST_CASE */

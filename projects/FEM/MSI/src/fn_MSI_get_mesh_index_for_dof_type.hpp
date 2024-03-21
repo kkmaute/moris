@@ -12,7 +12,7 @@
 
 #include "moris_typedefs.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
-#include "cl_Param_List.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris
 {
@@ -23,7 +23,7 @@ namespace moris
         inline moris_index
         get_mesh_index_for_dof_type(
                 MSI::Dof_Type  aDofType,
-                ParameterList& aMSIParameterList )
+                Parameter_List& aMSIParameterList )
         {
             // Note: Make sure to add for each DOF type a default interpolation index to the MSI Parameter list
 

@@ -19,6 +19,7 @@
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_DLA_Linear_Problem.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 namespace moris::dla
 {
@@ -28,22 +29,15 @@ namespace moris::dla
       private:
         KSP mPetscKSPProblem;
 
-        PC mpc;
-
         Vector< KSP > tKSPBlock;
-
-        friend class Preconditioner_PETSc;
 
       protected:
 
       public:
-        //------------------------------------------------------------------------------
-
-        Linear_Solver_PETSc();
 
         //------------------------------------------------------------------------------
 
-        Linear_Solver_PETSc( const moris::ParameterList aParameterlist );
+        Linear_Solver_PETSc( const moris::Parameter_List& aParameterlist = prm::create_linear_algorithm_parameter_list_petsc() );
 
         //------------------------------------------------------------------------------
 
@@ -56,10 +50,6 @@ namespace moris::dla
         //------------------------------------------------------------------------------
 
         ~Linear_Solver_PETSc();
-
-        //------------------------------------------------------------------------------
-
-        void set_solver_parameters();
 
         //------------------------------------------------------------------------------
 
@@ -90,5 +80,3 @@ namespace moris::dla
         void compute_eigenspectrum( Linear_Problem* aLinearSystem );
     };
 }    // namespace moris::dla
-
-

@@ -18,7 +18,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
 
-#include "cl_Param_List.hpp"    // CON/src
+#include "cl_Parameter_List.hpp"    // CON/src
 
 namespace moris
 {
@@ -46,16 +46,13 @@ namespace moris
 
             Solver_Interface* mSolverInterface = nullptr;
 
-            moris::ParameterList mParameterList;    // The Algorithm specific parameter list
+            moris::Parameter_List mParameterList;    // The Algorithm specific parameter list
 
             Linear_Problem* mLinearSystem = nullptr;
 
           public:
-            Linear_Solver_Algorithm(){};
 
-            //-----------------------------------------------------------------------------------
-
-            Linear_Solver_Algorithm( const moris::ParameterList aParameterlist )
+            Linear_Solver_Algorithm( const moris::Parameter_List& aParameterlist )
                     : mParameterList( aParameterlist ){};
 
             //-----------------------------------------------------------------------------------
@@ -70,13 +67,6 @@ namespace moris
 
             virtual moris::sint solve_linear_system( Linear_Problem* aLinearSystem,
                     const moris::sint                                aIter = 1 ) = 0;
-
-            //-----------------------------------------------------------------------------------
-            ParameterListTypes&
-            set_param( const std::string& aKey )
-            {
-                return mParameterList( aKey );
-            }
 
             //-----------------------------------------------------------------------------------
             virtual void

@@ -16,10 +16,8 @@ namespace moris
     {
         enum class SolverType
         {
-            TRILINOSTEST,    //< Wrapper around Aztec Solver
             AZTEC_IMPL,      //< Wrapper around Aztec Solver
             AMESOS_IMPL,     //< Wrapper around Amesos Solver
-            AMESOS2_IMPL,    //< Wrapper around Amesos2 Solver
             BELOS_IMPL,      //< Wrapper around Belos Solver
             PETSC,           //< Wrapper around Petsc Solver
             EIGEN_SOLVER,
@@ -78,6 +76,7 @@ namespace moris
             NONE,
             IFPACK,    // Ifpack
             ML,        // ML
+            PETSC,     // Petsc
             END_ENUM
         };
 
