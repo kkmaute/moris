@@ -27,14 +27,12 @@ namespace moris::mtk
                 Integration_Mesh_DataBase_IG                          *aIGMesh,
                 Integrator                                            &aIntegrator,
                 Vector< Side_Set const * >                            &aCandidateSideSet,
-                Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs,
-                real                                                   aMaxNegativeRayLength )
+                Vector< std::pair< moris_index, moris_index > > const &aCandidatePairs )
                 : mIGMesh( aIGMesh )
                 , mIntegrator( std::move( aIntegrator ) )
                 , mSideSets( aCandidateSideSet )
                 , mCandidatePairs( aCandidatePairs )
                 , mPointMapper( QuadraturePointMapper_ArborX( aIGMesh, aCandidateSideSet, aCandidatePairs ) )
-                , mMaxNegativeRayLength( aMaxNegativeRayLength )
         {
         }
 
@@ -43,6 +41,12 @@ namespace moris::mtk
         void update_displacements( std::unordered_map< moris_index, Vector< real > > const &aNodalDisplacements );
 
         Vector< Side_Set const * > get_side_sets() const;
+
+        void set_max_ray_length( real aMaxNegativeRayLength, real aMaxPositiveRayLength )
+        {
+            mMaxNegativeRayLength = aMaxNegativeRayLength;
+            mMaxPositiveRayLength = aMaxPositiveRayLength;
+        }
 
       private:
         // types
@@ -143,6 +147,7 @@ namespace moris::mtk
         Vector< std::pair< moris_index, moris_index > > mCandidatePairs;
         QuadraturePointMapper_ArborX                    mPointMapper;
         real                                            mMaxNegativeRayLength;
+        real                                            mMaxPositiveRayLength;
         int                                             mIteration = 0;
     };
 }    // namespace moris::mtk

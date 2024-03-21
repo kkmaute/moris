@@ -1006,7 +1006,7 @@ namespace moris::fem
 
         mtk::Integration_Order tIntegrationOrder     = static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
         real                   tMaxNegativeRayLength = tComputationParameterList.get< real >( "nonconformal_max_negative_ray_length" );
-
+        real                   tMaxPositiveRayLength = tComputationParameterList.get< real >( "nonconformal_max_positive_ray_length" );
         // create a map of the set
         std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
 
@@ -1114,6 +1114,8 @@ namespace moris::fem
 
                     // set the maximum negative ray length for nonconformal elements
                     aSetUserInfo.set_max_negative_ray_length( tMaxNegativeRayLength );
+
+                    aSetUserInfo.set_max_positive_ray_length( tMaxPositiveRayLength );
 
                     // set the IWG
                     aSetUserInfo.add_IWG( mIWGs( iIWG ) );

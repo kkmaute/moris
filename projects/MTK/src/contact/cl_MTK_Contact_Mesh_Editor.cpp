@@ -304,7 +304,7 @@ namespace moris::mtk
 
         for ( auto const &tSourceSideSet : tSourceSideSets )
         {
-            MappingResult tResult = mPointMapper.map( tSourceSideSet, aPointsToMap, mMaxNegativeRayLength );
+            MappingResult tResult = mPointMapper.map( tSourceSideSet, aPointsToMap, mMaxNegativeRayLength, mMaxPositiveRayLength );
             tMappingResults.push_back( tResult );
             //            tMappingResultsJson.put_child( mSideSets( tSourceSideSet )->get_set_name(), tResult.to_json() ); // TODO @ff: Remove! Only for debugging!
         }

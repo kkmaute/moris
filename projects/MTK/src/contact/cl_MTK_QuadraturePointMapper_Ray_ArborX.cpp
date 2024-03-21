@@ -11,7 +11,7 @@
 
 namespace moris::mtk
 {
-    MappingResult QuadraturePointMapper_ArborX::map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength ) const
+    MappingResult QuadraturePointMapper_ArborX::map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const
     {
         Surface_Mesh const    tSurfaceMesh = get_surface_meshes()( aSourceMeshIndex );
         Side_Set const *const tSideSet     = get_side_sets()( aSourceMeshIndex );
@@ -67,6 +67,7 @@ namespace moris::mtk
                     tRayLineIntersection.perform_raytracing();
                     if ( tRayLineIntersection.has_intersection()                                                               // check if the ray intersects the line segment
                             && tRayLineIntersection.get_signed_ray_length() > aMaxNegativeRayLength                            // check that the ray is not too long in the negative direction
+                            && tRayLineIntersection.get_signed_ray_length() < aMaxPositiveRayLength                            //
                             && ( tRayLineIntersection.get_signed_ray_length() < tMappingResult.mSignedDistance( tRayIndex )    // check if the intersection is closer than the previous one
                                     || tMappingResult.mTargetCellIndices( tRayIndex ) == -1 ) )                                // or if the ray has not intersected anything before (initial distance is 0.0)
                     {

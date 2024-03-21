@@ -28,7 +28,7 @@ namespace moris::mtk
                 : QuadraturePointMapper_Ray( aIGMesh, aSideSets, aCandidatePairs )
                 , mSpatialIndexer( get_surface_meshes(), aCandidatePairs ){};
 
-        MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength ) const override;
+        MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const override;
 
       private:
         // methods

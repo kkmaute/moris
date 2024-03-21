@@ -73,6 +73,7 @@ namespace moris
             mtk::Integration_Order mIntegrationOrder = mtk::Integration_Order::UNDEFINED;
 
             real mMaxNegativeRayLength = 0.0;
+            real mMaxPositiveRayLength = 0.0;
 
             //------------------------------------------------------------------------------
 
@@ -357,6 +358,16 @@ namespace moris
             void set_max_negative_ray_length( real aMaxNegativeRayLength )
             {
                 mMaxNegativeRayLength = aMaxNegativeRayLength;
+            }
+
+            real get_max_positive_ray_length() const
+            {
+                return mMaxPositiveRayLength;
+            }
+
+            void set_max_positive_ray_length( real aMaxPositiveRayLength )
+            {
+                mMaxPositiveRayLength = aMaxPositiveRayLength;
             }
 
             //------------------------------------------------------------------------------

@@ -16,7 +16,7 @@ namespace moris::mtk
                 const Vector< std::pair< moris_index, moris_index > > &aCandidatePairs )
                 : QuadraturePointMapper_Ray( aIGMesh, aSideSets, aCandidatePairs ){};
 
-        MappingResult map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength ) const override;
+        MappingResult map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength , real aMaxPositiveRayLength) const override;
 
       private:
         Vector< std::pair< moris_index, Surface_Mesh > > get_target_surface_meshes( moris_index aSourceMeshIndex ) const;

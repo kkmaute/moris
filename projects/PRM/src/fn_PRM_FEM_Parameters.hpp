@@ -305,6 +305,9 @@ namespace moris
             // Setting this value to a very small value might lead to bodies penetrating each other without being detected (especially for large load stepping increments).
             tParameterList.insert( "nonconformal_max_negative_ray_length", -0.05 );
 
+            // determine the maximum ray length in the positive direction. This prevents mapping of elements that are too far apart to be even considered as neighbors.
+            tParameterList.insert( "nonconformal_max_positive_ray_length", 0.1 );
+
             // bool true for analytical sensitivity analysis, false for finite difference
             // decide if dRdp and dQIdp are computed by A/FD
             tParameterList.insert( "is_analytical_sensitivity", false );

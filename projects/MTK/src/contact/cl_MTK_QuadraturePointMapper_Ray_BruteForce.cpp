@@ -20,7 +20,7 @@ namespace moris::mtk
 {
 
 
-    MappingResult QuadraturePointMapper_Ray_BruteForce::map( moris_index const aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength ) const
+    MappingResult QuadraturePointMapper_Ray_BruteForce::map( moris_index const aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const
     {
         Surface_Mesh const    tSurfaceMesh = get_surface_meshes()( aSourceSideSetIndex );
         Side_Set const *const tSideSet     = get_side_sets()( aSourceSideSetIndex );
@@ -246,7 +246,7 @@ namespace moris::mtk
                 aMappingResult.mTargetParametricCoordinate.set_column( tInsertIndex, tRayLineIntersection.get_intersection_parametric() );
                 aMappingResult.mTargetPhysicalCoordinate.set_column( tInsertIndex, tRayLineIntersection.get_intersection_physical() );
 
-                aMappingResult.mSignedDistance( tInsertIndex )            = tRayLineIntersection.get_signed_ray_length();
+                aMappingResult.mSignedDistance( tInsertIndex )       = tRayLineIntersection.get_signed_ray_length();
                 aMappingResult.mTargetSideSetIndices( tInsertIndex ) = aTargetMeshIndex;
 
                 //                aMappingResult.mSourceCellIndex( tInsertIndex )   = tSourceMesh.get_global_cell_index( aSourceCellIndex ); // TOOD @ff remove if not needed
