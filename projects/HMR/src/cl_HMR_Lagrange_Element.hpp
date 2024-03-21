@@ -89,7 +89,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        init_basis_container()
+        init_basis_container() override
         {
             MORIS_ASSERT( !mHaveBasis,
                     "Basis container of element already initiated" );
@@ -105,7 +105,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        delete_basis_container()
+        delete_basis_container() override
         {
             if ( mHaveBasis )
             {
@@ -121,7 +121,7 @@ namespace moris::hmr
          *                element
          */
         uint
-        get_number_of_vertices() const
+        get_number_of_vertices() const override
         {
             return D;
         }
@@ -133,7 +133,7 @@ namespace moris::hmr
          * element
          */
         Vector< mtk::Vertex* >
-        get_vertex_pointers() const
+        get_vertex_pointers() const override
         {
             Vector< mtk::Vertex* > aVertices( D );
             for ( uint k = 0; k < D; ++k )
@@ -148,7 +148,7 @@ namespace moris::hmr
 
         // TODO MESHCLEANUP
         void
-        remove_vertex_pointer( moris_index aIndex )
+        remove_vertex_pointer( moris_index aIndex ) override
         {
             std::cout << "In HMR Lagrange Element" << std::endl;
         }
@@ -159,7 +159,7 @@ namespace moris::hmr
          * MTK Interface: returns a mat with the vertex IDs
          */
         Matrix< IdMat >
-        get_vertex_ids() const
+        get_vertex_ids() const override
         {
             Matrix< IdMat > aIDs( D, 1 );
             for ( uint k = 0; k < D; ++k )
@@ -177,7 +177,7 @@ namespace moris::hmr
          * MTK Interface: returns a mat with the vertex IDs
          */
         Matrix< IndexMat >
-        get_vertex_inds() const
+        get_vertex_inds() const override
         {
             Matrix< IndexMat > aIndices( 1, D );    // FIXME was originally a column vector
 
@@ -197,7 +197,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        print_connectivity()
+        print_connectivity() override
         {
             std::fprintf( stdout,
                     "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
@@ -230,7 +230,7 @@ namespace moris::hmr
          *
          */
         Basis*
-        get_basis( uint aIndex )
+        get_basis( uint aIndex ) override
         {
             if ( mHaveBasis )
             {
@@ -244,7 +244,7 @@ namespace moris::hmr
         }
 
         const Basis*
-        get_basis( uint aIndex ) const
+        get_basis( uint aIndex ) const override
         {
             if ( mHaveBasis )
             {
@@ -271,7 +271,7 @@ namespace moris::hmr
         void
         insert_basis(
                 uint aIndex,
-                Basis*      aBasis )
+                Basis*      aBasis ) override
         {
             MORIS_ASSERT( aIndex < D, "Try to insert bases into mNodes with index being out of bound.\n" );
             mNodes[ aIndex ] = aBasis;
@@ -299,7 +299,7 @@ namespace moris::hmr
          * @return std::string
          *
          */
-        std::string get_gmsh_string();
+        std::string get_gmsh_string() override;
 
         //------------------------------------------------------------------------------
 
@@ -308,7 +308,7 @@ namespace moris::hmr
          *
          * @return uint
          */
-        uint get_vtk_type();
+        uint get_vtk_type() override;
 
         //------------------------------------------------------------------------------
 
@@ -320,7 +320,7 @@ namespace moris::hmr
          * @return void
          *
          */
-        void get_basis_indices_for_vtk( Matrix< DDLUMat >& aNodes );
+        void get_basis_indices_for_vtk( Matrix< DDLUMat >& aNodes ) override;
 
         //------------------------------------------------------------------------------
 
@@ -331,7 +331,7 @@ namespace moris::hmr
          * @return Number of created bases
          */
         luint create_basis_on_level_zero(
-                Vector< Element* >& aAllElementsOnProc );
+                Vector< Element* >& aAllElementsOnProc ) override;
 
         //------------------------------------------------------------------------------
 
@@ -342,7 +342,7 @@ namespace moris::hmr
          * @return Number of created bases
          */
         luint create_basis_for_children(
-                Vector< Element* >& aAllElementsOnProc );
+                Vector< Element* >& aAllElementsOnProc ) override;
 
         //------------------------------------------------------------------------------
 
@@ -357,7 +357,7 @@ namespace moris::hmr
          */
         void get_ijk_of_basis(
                 uint aBasisNumber,
-                luint*      aIJK );
+                luint*      aIJK ) override;
 
         //------------------------------------------------------------------------------
 
@@ -365,7 +365,7 @@ namespace moris::hmr
          * reserve memory for twin container
          */
         void
-        allocate_twin_container( const uint aSize )
+        allocate_twin_container( const uint aSize ) override
         {
             mTwins.resize( aSize, nullptr );
         }
@@ -376,7 +376,7 @@ namespace moris::hmr
          * set twin on corresponding B-Spline mesh
          */
         void
-        set_twin( const uint aIndex, Element* aTwin )
+        set_twin( const uint aIndex, Element* aTwin ) override
         {
             mTwins( aIndex ) = aTwin;
         }
@@ -386,12 +386,12 @@ namespace moris::hmr
         /**
          * returns a Mat with the node coords
          */
-        Matrix< DDRMat > get_vertex_coords() const;
+        Matrix< DDRMat > get_vertex_coords() const override;
 
         //------------------------------------------------------------------------------
 
         Facet*
-        get_hmr_facet( uint aIndex )
+        get_hmr_facet( uint aIndex ) override
         {
             return mFacets( aIndex );
         }
@@ -401,7 +401,7 @@ namespace moris::hmr
         void
         set_hmr_facet(
                 Facet*      aFacet,
-                uint aIndex )
+                uint aIndex ) override
         {
             mFacets( aIndex ) = aFacet;
         }
@@ -409,7 +409,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         Edge*
-        get_hmr_edge( uint aIndex )
+        get_hmr_edge( uint aIndex ) override
         {
             return mEdges( aIndex );
         }
@@ -417,7 +417,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         const Edge*
-        get_hmr_edge( uint aIndex ) const
+        get_hmr_edge( uint aIndex ) const override
         {
             return mEdges( aIndex );
         }
@@ -427,7 +427,7 @@ namespace moris::hmr
         void
         set_hmr_edge(
                 Edge*       aEdge,
-                uint aIndex )
+                uint aIndex ) override
         {
             mEdges( aIndex ) = aEdge;
         }
@@ -446,7 +446,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        create_basis( uint aBasisNumber )
+        create_basis( uint aBasisNumber ) override
         {
             // container for basis position
             luint tIJK[ N ];

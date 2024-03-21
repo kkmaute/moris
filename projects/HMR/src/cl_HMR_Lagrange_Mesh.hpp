@@ -166,18 +166,18 @@ namespace moris::hmr
          *
          * @return Element*  new Lagrange element
          */
-        Element* create_element( Background_Element_Base* aElement );
+        Element* create_element( Background_Element_Base* aElement ) override;
 
         // ----------------------------------------------------------------------------
 
       protected:
         // ----------------------------------------------------------------------------
 
-        Facet* create_facet( Background_Facet* aFacet );
+        Facet* create_facet( Background_Facet* aFacet ) override;
 
         // ----------------------------------------------------------------------------
 
-        Edge* create_edge( Background_Edge* aEdge );
+        Edge* create_edge( Background_Edge* aEdge ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -246,7 +246,7 @@ namespace moris::hmr
         luint
         calculate_node_id(
                 uint  aLevel,
-                luint aI )
+                luint aI ) override
         {
             if ( aLevel < gMaxNumberOfLevels && N == 1 )
             {
@@ -274,7 +274,7 @@ namespace moris::hmr
         calculate_node_id(
                 uint  aLevel,
                 luint aI,
-                luint aJ )
+                luint aJ ) override
         {
             if ( aLevel < gMaxNumberOfLevels && N == 2 )
             {
@@ -306,7 +306,7 @@ namespace moris::hmr
                 uint  aLevel,
                 luint aI,
                 luint aJ,
-                luint aK )
+                luint aK ) override
         {
             if ( aLevel < gMaxNumberOfLevels && N == 3 )
             {
@@ -405,7 +405,7 @@ namespace moris::hmr
          * @return void
          */
         void
-        calculate_node_coordinates()
+        calculate_node_coordinates() override
         {
             // get domain dimensions from settings
             Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
@@ -486,7 +486,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void
-        calculate_t_matrices( const bool aBool )
+        calculate_t_matrices( bool aBool ) override
         {
             // log & trace this operation
             Tracer tTracer( "HMR", "Lagrange Mesh #" + std::to_string( this->get_index() ), "Compute T-matrices" );
@@ -527,11 +527,11 @@ namespace moris::hmr
 
         void
         get_extended_t_matrix(
-                moris_index                                 aDiscretizationMeshIndex,
-                moris_index                                 aBSplineCellIndex,
-                Element&                                    aLagrangeCell,
+                moris_index                       aDiscretizationMeshIndex,
+                moris_index                       aBSplineCellIndex,
+                Element&                          aLagrangeCell,
                 Vector< Vector< mtk::Vertex* > >& aBsplineBasis,
-                Vector< Matrix< DDRMat > >&            aWeights ) override
+                Vector< Matrix< DDRMat > >&       aWeights ) override
         {
             // get B-Spline pattern of this mesh
             uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -556,12 +556,12 @@ namespace moris::hmr
 
         void
         get_L2_projection_matrix(
-                moris_index                                       aDiscretizationMeshIndex,
-                const Element*                                    aRootBSplineCell,
-                const Element*                                    aExtendedBSplineCell,
+                moris_index                             aDiscretizationMeshIndex,
+                const Element*                          aRootBSplineCell,
+                const Element*                          aExtendedBSplineCell,
                 Vector< Vector< const mtk::Vertex* > >& aRootBsplineBasis,
-                Vector< const mtk::Vertex* >&                aExtendedBsplineBasis,
-                Vector< Matrix< DDRMat > >&                  aWeights ) override
+                Vector< const mtk::Vertex* >&           aExtendedBsplineBasis,
+                Vector< Matrix< DDRMat > >&             aWeights ) override
         {
             // ask the t-matrix object to compute the weights
             mTMatrix( aDiscretizationMeshIndex )->evaluate_L2_projection( aRootBSplineCell, aExtendedBSplineCell, aRootBsplineBasis, aExtendedBsplineBasis, aWeights );
