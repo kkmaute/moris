@@ -131,6 +131,12 @@ namespace moris::mtk
 
         NodalPointPairs create_nodal_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const;
 
+        void populate_integration_and_nodal_point_pairs(
+                MappingResult const                      &aMappingResult,
+                Vector< IntegrationPointPairs >          &aIntegrationPointPairs,
+                Vector< NodalPointPairs >                &aNodePointPairs,
+                Contact_Mesh_Editor::ResultIndices const &aCellResults ) const;
+
         Integration_Mesh_DataBase_IG                   *mIGMesh;
         Integrator                                      mIntegrator;
         Vector< Side_Set const * >                      mSideSets;
@@ -138,7 +144,6 @@ namespace moris::mtk
         QuadraturePointMapper_ArborX                    mPointMapper;
         real                                            mMaxNegativeRayLength;
         int                                             mIteration = 0;
-        void                                            populate_integration_and_nodal_point_pairs( MappingResult const &aMappingResult, Vector< IntegrationPointPairs > &tIntegrationPointPairs, Vector< NodalPointPairs > &tNodePointPairs, ResultIndices const &tCellResults ) const;
     };
 }    // namespace moris::mtk
 #endif    // MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP

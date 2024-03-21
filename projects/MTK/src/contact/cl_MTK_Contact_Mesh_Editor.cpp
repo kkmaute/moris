@@ -31,20 +31,6 @@
 
 namespace moris::mtk
 {
-    std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices >
-    Contact_Mesh_Editor::extract_cell_pairing( MappingResult const &aMappingResult, Vector< moris_index > aResultIndices )
-    {
-        std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > tCellPairs;
-        for ( auto const &tResultIndex : aResultIndices )
-        {
-            moris_index const &tSourceCellIndex = aMappingResult.mSourceCellIndex( tResultIndex );
-            moris_index const &tTargetCellIndex = aMappingResult.mTargetCellIndices( tResultIndex );
-            auto const         tCellPair        = std::make_pair( tSourceCellIndex, tTargetCellIndex );
-            tCellPairs[ tCellPair ].push_back( tResultIndex );
-        }
-        return tCellPairs;
-    }
-
     std::unordered_map< moris_index, std::map< std::pair< moris_index, moris_index >, Contact_Mesh_Editor::ResultIndices > >
     Contact_Mesh_Editor::extract_cluster_pairing( MappingResult const &aMappingResult ) const
     {
@@ -59,25 +45,38 @@ namespace moris::mtk
         for ( moris_index i = 0; i < static_cast< moris_index >( aMappingResult.mSourceClusterIndex.size() ); ++i )
         {
             moris_index const &tSourceClusterIndex = aMappingResult.mSourceClusterIndex( i );
-
             if ( aMappingResult.mTargetClusterIndex( i ) == -1 )    // the mapping on this cluster (in this result index) was not successful
             {
                 if ( tClusterPairs.find( tSourceClusterIndex ) == tClusterPairs.end() )    // the cluster has not been mapped yet (prevents overwriting of the map)
                 {
                     tClusterPairs[ tSourceClusterIndex ] = {};    // empty map for clusters that have not been mapped
                 }
-                continue;
             }
+            else
+            {
+                moris_index const &tTargetClusterIndex = aMappingResult.mTargetClusterIndex( i );
+                moris_index const &tTargetSideSetIndex = aMappingResult.mTargetSideSetIndices( i );
 
-            moris_index const &tTargetClusterIndex = aMappingResult.mTargetClusterIndex( i );
-            moris_index const &tTargetSideSetIndex = aMappingResult.mTargetSideSetIndices( i );
-
-            // to locate the correct cluster pair, we need to provide the cluster index as well as the side set on which the cluster is located
-            auto const tTargetLocator = std::make_pair( tTargetClusterIndex, tTargetSideSetIndex );
-
-            tClusterPairs[ tSourceClusterIndex ][ tTargetLocator ].push_back( i );
+                // to locate the correct cluster pair, we need to provide the cluster index as well as the side set on which the cluster is located
+                auto const tTargetLocator = std::make_pair( tTargetClusterIndex, tTargetSideSetIndex );
+                tClusterPairs[ tSourceClusterIndex ][ tTargetLocator ].push_back( i );
+            }
         }
         return tClusterPairs;
+    }
+
+    std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices >
+    Contact_Mesh_Editor::extract_cell_pairing( MappingResult const &aMappingResult, Vector< moris_index > aResultIndices )
+    {
+        std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > tCellPairs;
+        for ( auto const &tResultIndex : aResultIndices )
+        {
+            moris_index const &tSourceCellIndex = aMappingResult.mSourceCellIndex( tResultIndex );
+            moris_index const &tTargetCellIndex = aMappingResult.mTargetCellIndices( tResultIndex );
+            auto const         tCellPair        = std::make_pair( tSourceCellIndex, tTargetCellIndex );
+            tCellPairs[ tCellPair ].push_back( tResultIndex );
+        }
+        return tCellPairs;
     }
 
     std::map< Contact_Mesh_Editor::SetPair, Vector< Nonconformal_Side_Cluster > >
@@ -93,8 +92,6 @@ namespace moris::mtk
         // loop over every cluster of the source side and create a nonconformal side cluster for each mapped target cluster
         for ( const auto &[ tSourceClusterIndex, tTargetClusterToResultMap ] : tClusterPairs )
         {
-            Vector< IntegrationPointPairs > tIntegrationPointPairs;    // bundles of integration points that were mapped from the leader side to the follower side cells
-            Vector< NodalPointPairs >       tNodePointPairs;           // mapped points of all nodes on the leader side to the follower side
             // every cluster contains the list of points that got mapped from one cell to another. The first integration point pairs object corresponds to the first
             // cell in the cluster and so on. If the did not get mapped, the lists will be empty. However, we still need to create at least one empty cluster object
             // for each cluster to be able to request displacement values at the nodes of those clusters during the remapping.
@@ -108,12 +105,14 @@ namespace moris::mtk
                 tNonconformalSideClusters[ tSetPair ].emplace_back(
                         tLeaderCluster,
                         tDummyCluster,
-                        tIntegrationPointPairs,
-                        tNodePointPairs );
+                        Vector< IntegrationPointPairs >{},
+                        Vector< NodalPointPairs >{} );
                 continue;    // skip the rest of the loop
             }
-            for ( const auto &[ tClusterLocator, tResultIndices ] : tTargetClusterToResultMap )
+            for ( const auto &[ tTargetClusterLocator, tResultIndices ] : tTargetClusterToResultMap )
             {
+                Vector< IntegrationPointPairs > tIntegrationPointPairs;    // bundles of integration points that were mapped from the leader side to the follower side cells
+                Vector< NodalPointPairs >       tNodePointPairs;           // mapped points of all nodes on the leader side to the follower side
                 // for this cluster-cluster pairing, get the pairing of their cells (using the indices, the access to the corresponding indices
                 // in the mapping result is guaranteed to be correct)
                 auto tCellPairing = extract_cell_pairing( aMappingResult, tResultIndices );
@@ -121,7 +120,7 @@ namespace moris::mtk
                 {
                     populate_integration_and_nodal_point_pairs( aMappingResult, tIntegrationPointPairs, tNodePointPairs, tCellResults );
                 }
-                auto const &[ tTargetClusterIndex, tTargetMeshIndex ] = tClusterLocator;
+                auto const &[ tTargetClusterIndex, tTargetMeshIndex ] = tTargetClusterLocator;
                 SetPair const  tSetPair                               = std::make_pair( tSourceMeshIndex, tTargetMeshIndex );
                 Cluster const *tLeaderCluster                         = mSideSets( tSourceMeshIndex )->get_clusters_by_index( tSourceClusterIndex );
                 Cluster const *tFollowerCluster                       = mSideSets( tTargetMeshIndex )->get_clusters_by_index( tTargetClusterIndex );
@@ -132,13 +131,17 @@ namespace moris::mtk
         }
         return tNonconformalSideClusters;
     }
-    void Contact_Mesh_Editor::populate_integration_and_nodal_point_pairs( MappingResult const &aMappingResult, Vector< IntegrationPointPairs > &tIntegrationPointPairs, Vector< NodalPointPairs > &tNodePointPairs, Contact_Mesh_Editor::ResultIndices const &tCellResults ) const
+    void Contact_Mesh_Editor::populate_integration_and_nodal_point_pairs(
+            MappingResult const                      &aMappingResult,
+            Vector< IntegrationPointPairs >          &aIntegrationPointPairs,
+            Vector< NodalPointPairs >                &aNodePointPairs,
+            Contact_Mesh_Editor::ResultIndices const &aCellResults ) const
     {
         Vector< moris_index > tNodalResultColumns;
         Vector< moris_index > tIntegrationPointResultColumns;
-        for ( uint iResult = 0; iResult < tCellResults.size(); iResult++ )
+        for ( uint iResult = 0; iResult < aCellResults.size(); iResult++ )
         {
-            size_t const tMappingResultColumn = tCellResults( iResult );
+            size_t const tMappingResultColumn = aCellResults( iResult );
             if ( is_integration_point_result_index( tMappingResultColumn ) )
             {
                 tIntegrationPointResultColumns.push_back( tMappingResultColumn );
@@ -151,11 +154,11 @@ namespace moris::mtk
 
         if ( tIntegrationPointResultColumns.size() > 0 )
         {
-            tIntegrationPointPairs.push_back( create_integration_point_pairs_from_results( tIntegrationPointResultColumns, aMappingResult ) );
+            aIntegrationPointPairs.push_back( create_integration_point_pairs_from_results( tIntegrationPointResultColumns, aMappingResult ) );
         }
         if ( tNodalResultColumns.size() > 0 )
         {
-            tNodePointPairs.push_back( create_nodal_point_pairs_from_results( tNodalResultColumns, aMappingResult ) );
+            aNodePointPairs.push_back( create_nodal_point_pairs_from_results( tNodalResultColumns, aMappingResult ) );
         }
     }
 
