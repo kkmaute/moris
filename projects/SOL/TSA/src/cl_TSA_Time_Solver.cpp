@@ -307,9 +307,6 @@ Time_Solver::check_for_outputs(
 
             tCounter++;
         }
-
-        // Pause if needed
-        mPauseFunction();
     }
 }
 
@@ -718,6 +715,12 @@ Time_Solver::prepare_sol_vec_for_next_time_step()
 
         mFullVector( tNumSolVec - 1 )->vec_plus_vec( 1.0, *( mFullVector( tNumSolVec - 2 ) ), 0.0 );
         //        mFullVector( tNumSolVec-1 )->vec_put_scalar( 0.0 );
+
+        // Pause if needed
+        mPauseFunction();
+
+        // Update problem
+        mSolverInterface->update_problem();
     }
 }
 

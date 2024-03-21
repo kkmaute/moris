@@ -698,7 +698,11 @@ namespace moris
              */
             void create_fem_set_info();
 
-            //------------------------------------------------------------------------------
+            /**
+             * Updates the stored fields.
+             */
+            void update_fields() override;
+
             /**
              * return field by type
              */

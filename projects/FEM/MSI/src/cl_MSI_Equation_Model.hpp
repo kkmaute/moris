@@ -644,6 +644,11 @@ namespace moris
                         "Equation_Model::populate_fields - not implemented for base class." );
             }
 
+            /**
+             * Updates the stored fields.
+             */
+            virtual void update_fields() = 0;
+
             //------------------------------------------------------------------------------
             /**
              * return fields

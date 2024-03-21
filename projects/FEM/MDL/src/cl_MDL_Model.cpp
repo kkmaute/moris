@@ -538,6 +538,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Model::update_model()
+        {
+            mEquationModel->update_fields();
+        }
+
+        //------------------------------------------------------------------------------
+
         Vector< std::shared_ptr< mtk::Field > >
         Model::get_mtk_fields()
         {

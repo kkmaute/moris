@@ -1044,7 +1044,7 @@ namespace moris
                 mtk::Field_Entity_Type tFieldEntityType =
                         tFieldEntityTypeMap.find( tFieldParameter.get< std::string >( "field_entity_type" ) );
 
-                // create a property pointer
+                // create a field pointer
                 std::shared_ptr< fem::Field > tField = std::make_shared< fem::Field >(
                         mMeshManager->get_mesh_pair( mMeshPairIndex ),
                         tFieldEntityType );
@@ -1082,7 +1082,8 @@ namespace moris
                     tField->set_field_from_file(
                             tFieldParameter.get< std::string >( "field_create_from_file" ),
                             tFieldParameter.get< sint >( "field_file_time_index" ),
-                            tFieldParameter.get< sint >( "field_file_field_index" ) );
+                            tFieldParameter.get< sint >( "field_file_field_index" ),
+                            tFieldParameter.get< bool >( "field_file_update_time_index") );
                 }
 
                 if ( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )
@@ -3550,6 +3551,16 @@ namespace moris
                     mSetInfo( iSet ).print_names();
                     std::cout << "%-------------------------------------------------" << std::endl;
                 }
+            }
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void FEM_Model::update_fields()
+        {
+            for ( const auto& iField : mFields )
+            {
+                iField->update_field();
             }
         }
 
