@@ -180,7 +180,7 @@ namespace moris::gen
     real Surface_Mesh_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode
+            const Parent_Node&                aSecondParentNode,
             uint&                             aParentFacetIndex )
     {
         // transform the interface geometry to local coordinates

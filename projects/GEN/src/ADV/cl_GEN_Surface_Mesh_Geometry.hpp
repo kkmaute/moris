@@ -110,7 +110,7 @@ namespace moris::gen
         virtual real compute_intersection_local_coordinate(
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode
+                const Parent_Node&                aSecondParentNode,
                 uint&                             aParentFacetIndex ) override;
 
         /**

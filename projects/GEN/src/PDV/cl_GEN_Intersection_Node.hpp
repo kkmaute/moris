@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_GEN_Derived_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::gen
 {
@@ -24,9 +25,9 @@ namespace moris::gen
     {
       private:
         Vector< Basis_Node > mParentNodes;
-        moris_id mPDVStartingID;
-        moris_id mNodeID    = -1;
-        moris_index mNodeOwner = -1;
+        moris_id             mPDVStartingID;
+        moris_id             mNodeID    = -1;
+        moris_index          mNodeOwner = -1;
 
       public:
         /**
@@ -41,13 +42,13 @@ namespace moris::gen
          * @param aInterfaceGeometry Interface geometry
          */
         Intersection_Node(
-                uint                        aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&          aFirstParentNode,
-                const Parent_Node&          aSecondParentNode,
-                real                        aLocalCoordinate,
-                mtk::Geometry_Type          aBackgroundGeometryType,
-                mtk::Interpolation_Order    aBackgroundInterpolationOrder );
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                real                              aLocalCoordinate,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder );
 
         /**
          * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.
@@ -150,8 +151,21 @@ namespace moris::gen
          */
         moris_index get_owner() override;
 
-      protected:
+        /**
+         * Gets the first parent node of this intersection node.
+         *
+         * @return First parent node
+         */
+        const Basis_Node& get_first_parent_node() const;
 
+        /**
+         * Gets the second parent node of this intersection node.
+         *
+         * @return Second parent node
+         */
+        const Basis_Node& get_second_parent_node() const;
+
+      protected:
         /**
          * Gets the geometry that this intersection node was created on its interface.
          *
@@ -167,20 +181,6 @@ namespace moris::gen
         virtual const Geometry& get_interface_geometry() const = 0;
 
         /**
-         * Gets the first parent node of this intersection node.
-         *
-         * @return First parent node
-         */
-        const Basis_Node& get_first_parent_node() const;
-
-        /**
-         * Gets the second parent node of this intersection node.
-         *
-         * @return Second parent node
-         */
-        const Basis_Node& get_second_parent_node() const;
-
-        /**
          * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
          *
          * @param aCombinedIDs Combined IDs
@@ -190,4 +190,4 @@ namespace moris::gen
                 Matrix< DDSMat >&       aCombinedIDs,
                 const Matrix< DDSMat >& aIDsToAdd );
     };
-}
+}    // namespace moris::gen

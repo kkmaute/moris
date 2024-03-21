@@ -123,7 +123,7 @@ namespace moris::sdf
 
         // Put all the indices of the facets into the return list
         aFacetIndices.resize( tFacetsToIntersect.size() );
-        for( uint iFacetIndex = 0; iFacetIndex < tFacetsToIntersect.size(); iFacetIndex++ )
+        for ( uint iFacetIndex = 0; iFacetIndex < tFacetsToIntersect.size(); iFacetIndex++ )
         {
             aFacetIndices( iFacetIndex ) = tFacetsToIntersect( iFacetIndex )->get_index();
         }
@@ -137,7 +137,7 @@ namespace moris::sdf
             if ( tIntersectionCoordinates( iIntersection ) < aPoint( aAxis ) )
             {
                 tIntersectionCoordinates.erase( iIntersection );
-                aFacetIndices( iIntersection ).erase( iIntersection );
+                aFacetIndices.erase( iIntersection );
             }
         }
 

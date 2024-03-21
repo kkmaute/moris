@@ -15,11 +15,14 @@
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
 #include "op_times.hpp"
+#include "fn_eye.hpp"
 
 #include "cl_Vector.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "SDF_Tools.hpp"
+
+#include "GEN/src/PDV/cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 
 namespace moris
 {
@@ -61,10 +64,10 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             Facet(
-                    moris_index                                     aIndex,
+                    moris_index                                aIndex,
                     Vector< std::shared_ptr< Facet_Vertex > >& aVertices,
-                    uint                                            aDimension,
-                    real                                            aIntersectionTolerance = 1e-8 );
+                    uint                                       aDimension,
+                    real                                       aIntersectionTolerance = 1e-8 );
 
             //-------------------------------------------------------------------------------
 
@@ -188,14 +191,28 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
-             * Gets the specified axis coordinate of the specified vertex 
-             * 
+             * Gets the specified axis coordinate of the specified vertex
+             *
              * @param aVertexIndex Vertex to get the coord of
              * @param aAxis Component of the vertex to retrieve
              * @return global coordinate of the vertex
              */
             real
             get_vertex_coord( uint aVertexIndex, uint aAxis );
+
+            //-------------------------------------------------------------------------------
+            // GEN functions
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Computes the sensitivity of the local coordinate of a parent edge with respect to the facet vertices
+             *
+             * @param aXi Local coordinate of an intersection along a parent edge, NOT the local coordinate of the facet.
+             * @param aIntersectionNode Intersection node to compute sensitivity for
+             * @return Vector< real > Sensitivities of the local coordinate with respect to the facet vertices. Size <Object dimension x number of vertices>
+             */
+            virtual Matrix< DDRMat >
+            compute_dxi_dvertices( moris::gen::Intersection_Node_Surface_Mesh& aIntersectionNode ) = 0;
 
             //-------------------------------------------------------------------------------
             // MTK API functions

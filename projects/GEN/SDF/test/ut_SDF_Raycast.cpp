@@ -253,14 +253,16 @@ namespace moris::sdf
                     { 0.7 }
                 };
 
+                Vector< uint > tIntersectionIndices;
+
                 real tLineDistanceXExpected = 1.284482127272365;    // facet index = 2
                 real tLineDistanceYExpected = 0.919532986470608;    // facet index = 1
                 real tLineDistanceZExpected = 0.88055620439;        // facet index = 0
 
                 // compute with raycast function
-                Vector< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
-                Vector< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
-                Vector< real > tLineDistanceZ = compute_distance_to_facets( tObject, tTestPoint, 2 );
+                Vector< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0, tIntersectionIndices );
+                Vector< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1, tIntersectionIndices );
+                Vector< real > tLineDistanceZ = compute_distance_to_facets( tObject, tTestPoint, 2, tIntersectionIndices );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 1 );
@@ -284,8 +286,8 @@ namespace moris::sdf
                 Vector< real > tLineDistanceYExpected = { -0.25, 0.25 };
 
                 // compute with raycast
-                Vector< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0 );
-                Vector< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1 );
+                Vector< real > tLineDistanceX = compute_distance_to_facets( tObject, tTestPoint, 0, tIntersectionIndices );
+                Vector< real > tLineDistanceY = compute_distance_to_facets( tObject, tTestPoint, 1, tIntersectionIndices );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 2 );

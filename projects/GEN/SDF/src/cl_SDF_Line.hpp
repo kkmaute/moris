@@ -37,7 +37,7 @@ namespace moris::sdf
         //-------------------------------------------------------------------------------
 
         Line(
-                moris_index                   aIndex,
+                moris_index                                aIndex,
                 Vector< std::shared_ptr< Facet_Vertex > >& aVertices );
 
         //-------------------------------------------------------------------------------
@@ -82,6 +82,16 @@ namespace moris::sdf
                 const Matrix< DDRMat >& aPoint ) override;
 
         //-------------------------------------------------------------------------------
+
+        /**
+         * Computes the sensitivity of the local coordinate of a parent edge with respect to the facet vertices
+         *
+         * @param aXi Local coordinate of an intersection along a parent edge, NOT the local coordinate of the facet.
+         * @param aRotationMatrix Rotation matrix of the parent edge
+         * @return Vector< real > Sensitivities of the local coordinate with respect to the facet vertices. Same size as the number of vertices
+         */
+        Matrix< DDRMat >
+        compute_dxi_dvertices( moris::gen::Intersection_Node_Surface_Mesh& aIntersectionNode ) override;
 
       private:
     };    // class Line

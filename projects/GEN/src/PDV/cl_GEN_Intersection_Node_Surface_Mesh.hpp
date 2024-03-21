@@ -19,8 +19,8 @@ namespace moris::gen
     class Intersection_Node_Surface_Mesh : public Intersection_Node
     {
       private:
-        uint mParentFacetIndex; // Index of the facet that intersected the edge to create this intersection node
-      
+        uint mParentFacetIndex;    // Index of the facet that intersected the edge to create this intersection node
+
       protected:
         Surface_Mesh_Geometry& mInterfaceGeometry;
 
@@ -37,16 +37,23 @@ namespace moris::gen
          * @param aInterfaceGeometry Interface geometry (surface mesh)
          */
         Intersection_Node_Surface_Mesh(
-                uint                     aNodeIndex,
+                uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder,
-                Surface_Mesh_Geometry&   aInterfaceGeometry );
+                const Parent_Node&                aFirstParentNode,
+                const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder,
+                Surface_Mesh_Geometry&            aInterfaceGeometry );
+
+      public:
+        /**
+         * Recomputes the rotation matrix for this intersection node
+         *
+         * @param aRotationMatrix Rotation matrix to fill
+         */
+        void get_rotation_matrix( Matrix< DDRMat >& aRotationMatrix );
 
       protected:
-
         /**
          * Gets the geometry that this intersection node was created on its interface.
          *
@@ -62,7 +69,6 @@ namespace moris::gen
         const Geometry& get_interface_geometry() const override;
 
       private:
-
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
          * ancestor nodes.
@@ -84,4 +90,4 @@ namespace moris::gen
 
         //--------------------------------------------------------------------------------------------------------------
     };
-}
+}    // namespace moris::gen

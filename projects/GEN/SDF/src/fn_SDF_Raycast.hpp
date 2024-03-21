@@ -47,7 +47,7 @@ namespace moris::sdf
     compute_distance_to_facets(
             Object&           aObject,
             Matrix< DDRMat >& aPoint,
-            uint              aAxis
+            uint              aAxis,
             Vector< uint >&   aFacetIndices );
 
     //-------------------------------------------------------------------------------
