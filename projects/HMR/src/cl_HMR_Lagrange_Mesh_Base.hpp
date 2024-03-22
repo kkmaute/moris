@@ -95,7 +95,7 @@ namespace moris::hmr
          */
         Lagrange_Mesh_Base ( const Parameters * aParameters,
                 Background_Mesh_Base          * aBackgroundMesh,
-              Vector< BSpline_Mesh_Base *  >  & aBSplineMeshes,
+                Vector< BSpline_Mesh_Base* >  & aBSplineMeshes,
                 uint aOrder,
                 uint aActivationPattern );
 

@@ -67,10 +67,10 @@ namespace moris::hmr
                 uint                        aLagrangePattern );
 
         Mesh(
-                std::shared_ptr< Database > aDatabase,
-                uint                        aOrder,
-                uint                        aLagrangePattern,
-                uint                        aBsplinePattern );
+                std::shared_ptr< Database >  aDatabase,
+                uint                         aOrder,
+                uint                         aLagrangePattern,
+                Vector< BSpline_Mesh_Base* > aDummyBSplineMeshes );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,

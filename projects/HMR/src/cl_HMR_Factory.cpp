@@ -340,6 +340,40 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
+#define CREATE_BSPLINE_MESH( x, y, z ) \
+    switch ( z )                                                                         \
+    {                                                                                    \
+        case 0:                                                                          \
+            return new BSpline_Mesh< x, y, 0 >(                                          \
+                    mParameters,                                                         \
+                    aBackgroundMesh,                                                     \
+                    tPattern,                                                            \
+                    aMeshIndex );                                                        \
+        case 1:                                                                          \
+            return new BSpline_Mesh< x, y, 1 >(                                          \
+                    mParameters,                                                         \
+                    aBackgroundMesh,                                                     \
+                    tPattern,                                                            \
+                    aMeshIndex );                                                        \
+        case 2:                                                                          \
+            return new BSpline_Mesh< x, y, 2 >(                                          \
+                    mParameters,                                                         \
+                    aBackgroundMesh,                                                     \
+                    tPattern,                                                            \
+                    aMeshIndex );                                                        \
+        case 3:                                                                          \
+            return new BSpline_Mesh< x, y, 3 >(                                          \
+                    mParameters,                                                         \
+                    aBackgroundMesh,                                                     \
+                    tPattern,                                                            \
+                    aMeshIndex );                                                        \
+        default:                                                                         \
+            MORIS_ERROR( false, "creating B-spline mesh with incorrect z order %d", z ); \
+            return nullptr;                                                              \
+    }
+
+    //-------------------------------------------------------------------------------
+
     T_Matrix_Base*
     Factory::create_t_matrix(
             Lagrange_Mesh_Base* aLagrangeMesh,

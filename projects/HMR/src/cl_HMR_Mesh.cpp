@@ -112,28 +112,17 @@ namespace moris::hmr
     //-----------------------------------------------------------------------------
 
     Mesh::Mesh(
-            std::shared_ptr< Database > aDatabase,
-            uint                        aOrder,
-            uint                        aLagrangePattern,
-            uint                        aBsplinePattern )
+            std::shared_ptr< Database >  aDatabase,
+            uint                         aOrder,
+            uint                         aLagrangePattern,
+            Vector< BSpline_Mesh_Base* > aDummyBSplineMeshes )
+            : mDummyBSplineMeshes( aDummyBSplineMeshes )
     {
         // copy database pointer
         mDatabase = aDatabase;
 
-        mDummyBSplineMeshes.resize( 3, nullptr );
-
         // Create factory
         Factory tFactory( mDatabase->get_parameters() );
-
-        for ( uint iBspMesh = 0; iBspMesh < 3; iBspMesh++ )
-        {
-            // FIXME only one mesh
-            mDummyBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
-                    mDatabase->get_background_mesh(),
-                    aBsplinePattern,
-                    aOrder,
-                    MORIS_UINT_MAX );
-        }
 
         // Create Lagrange mesh
         mMesh = tFactory.create_lagrange_mesh(

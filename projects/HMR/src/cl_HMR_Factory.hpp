@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_FACTORY_HPP_
-#define SRC_HMR_CL_HMR_FACTORY_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Mesh_Base.hpp"    //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp"       //HMR/src
@@ -149,5 +148,3 @@ namespace moris::hmr
     };    // end class: Factory
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_FACTORY_HPP_ */
