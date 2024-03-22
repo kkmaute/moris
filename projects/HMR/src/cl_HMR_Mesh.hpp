@@ -36,7 +36,7 @@ namespace moris::hmr
         std::string mLabel;
 
         // Dummy B-spline meshes
-        Vector< BSpline_Mesh_Base* > mDummyBSplineMeshes;
+        BSpline_Mesh_Base* mDummyBSplineMesh = nullptr;
 
         // Stored Lagrange mesh
         Lagrange_Mesh_Base* mMesh = nullptr;
@@ -67,10 +67,10 @@ namespace moris::hmr
                 uint                        aLagrangePattern );
 
         Mesh(
-                std::shared_ptr< Database >  aDatabase,
-                uint                         aOrder,
-                uint                         aLagrangePattern,
-                Vector< BSpline_Mesh_Base* > aDummyBSplineMeshes );
+                std::shared_ptr< Database > aDatabase,
+                uint                        aOrder,
+                uint                        aLagrangePattern,
+                BSpline_Mesh_Base*          aDummyBSplineMesh );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,

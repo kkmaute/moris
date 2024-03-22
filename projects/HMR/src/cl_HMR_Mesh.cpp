@@ -112,11 +112,11 @@ namespace moris::hmr
     //-----------------------------------------------------------------------------
 
     Mesh::Mesh(
-            std::shared_ptr< Database >  aDatabase,
-            uint                         aOrder,
-            uint                         aLagrangePattern,
-            Vector< BSpline_Mesh_Base* > aDummyBSplineMeshes )
-            : mDummyBSplineMeshes( aDummyBSplineMeshes )
+            std::shared_ptr< Database > aDatabase,
+            uint                        aOrder,
+            uint                        aLagrangePattern,
+            BSpline_Mesh_Base*          aDummyBSplineMesh )
+            : mDummyBSplineMesh( aDummyBSplineMesh )
     {
         // copy database pointer
         mDatabase = aDatabase;
@@ -127,7 +127,7 @@ namespace moris::hmr
         // Create Lagrange mesh
         mMesh = tFactory.create_lagrange_mesh(
                 mDatabase->get_background_mesh(),
-                mDummyBSplineMeshes,
+                { mDummyBSplineMesh, mDummyBSplineMesh },
                 aLagrangePattern,
                 aOrder );
 
@@ -146,10 +146,7 @@ namespace moris::hmr
         mMesh->calculate_node_sharing();
         mMesh->calculate_t_matrices();
 
-        for ( auto tMesh : mDummyBSplineMeshes )    // FIXME only one mesh
-        {
-            tMesh->calculate_basis_indices( mDatabase->get_communication_table() );
-        }
+        mDummyBSplineMesh->calculate_basis_indices( mDatabase->get_communication_table() );
 
         // reset active pattern
         if ( mDatabase->get_background_mesh()->get_activation_pattern() != tActivePattern )
@@ -170,23 +167,17 @@ namespace moris::hmr
         // copy database pointer
         mDatabase = aDatabase;
 
-        mDummyBSplineMeshes.resize( 1, nullptr );
+        // Create dummy B-spline mesh
         Factory tFactory( mDatabase->get_parameters() );
-
-        for ( uint iBspMesh = 0; iBspMesh < 1; iBspMesh++ )
-        {
-            // FIXME only one mesh
-            mDummyBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
-                    mDatabase->get_background_mesh(),
-                    aBSplinePattern,
-                    aBSplineOrder,
-                    MORIS_UINT_MAX );
-        }
+        mDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
+                mDatabase->get_background_mesh(),
+                aBSplineOrder,
+                aBSplinePattern );
 
         // Create Lagrange mesh
         mMesh = tFactory.create_lagrange_mesh(
                 mDatabase->get_background_mesh(),
-                mDummyBSplineMeshes,
+                { mDummyBSplineMesh },
                 aLagrangePattern,
                 aLagrangeOrder );
 
@@ -205,10 +196,7 @@ namespace moris::hmr
         mMesh->calculate_node_sharing();
         mMesh->calculate_t_matrices();
 
-        for ( auto tMesh : mDummyBSplineMeshes )    // FIXME only one mesh
-        {
-            tMesh->calculate_basis_indices( mDatabase->get_communication_table() );
-        }
+        mDummyBSplineMesh->calculate_basis_indices( mDatabase->get_communication_table() );
 
         // reset active pattern
         if ( mDatabase->get_background_mesh()->get_activation_pattern() != tActivePattern )
@@ -221,14 +209,8 @@ namespace moris::hmr
 
     Mesh::~Mesh()
     {
-        // Delete dummy B-spline meshes
-        for ( auto tMesh : mDummyBSplineMeshes )
-        {
-            delete tMesh;
-        }
-
-        // Clear dummy B-spline meshes
-        mDummyBSplineMeshes.clear();
+        // Delete dummy B-spline mesh
+        delete mDummyBSplineMesh;
     }
 
     //-----------------------------------------------------------------------------

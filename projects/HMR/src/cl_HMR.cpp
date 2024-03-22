@@ -890,22 +890,18 @@ namespace moris::hmr
             uint aLagrangePattern,
             uint aBsplinePattern )
     {
-        // Create dummy B-spline meshes
+        // Create dummy B-spline mesh
         Factory tFactory( mParameters );
-        Vector< BSpline_Mesh_Base* > tDummyBSplineMeshes( 1 );
-        for ( uint iBspMesh = 0; iBspMesh < 1; iBspMesh++ )
-        {
-            tDummyBSplineMeshes( iBspMesh ) = tFactory.create_dummy_bspline_mesh(
-                    mDatabase->get_background_mesh(),
-                    aLagrangeOrder,
-                    aBsplinePattern );
-        }
+        BSpline_Mesh_Base* tDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
+                mDatabase->get_background_mesh(),
+                aLagrangeOrder,
+                aBsplinePattern );
 
         return std::make_shared< Mesh >(
                 mDatabase,
                 aLagrangeOrder,
                 aLagrangePattern,
-                tDummyBSplineMeshes );
+                tDummyBSplineMesh );
     }
 
     // -----------------------------------------------------------------------------
@@ -958,22 +954,18 @@ namespace moris::hmr
             uint aLagrangePattern,
             uint aBsplinePattern )
     {
-        // Create dummy B-spline meshes
+        // Create dummy B-spline mesh
         Factory tFactory( mParameters );
-        Vector< BSpline_Mesh_Base* > tDummyBSplineMeshes( 2 );
-        for ( uint iBspMesh = 0; iBspMesh < 2; iBspMesh++ )
-        {
-            tDummyBSplineMeshes( iBspMesh ) = tFactory.create_dummy_bspline_mesh(
-                    mDatabase->get_background_mesh(),
-                    aOrder,
-                    aBsplinePattern );
-        }
+        BSpline_Mesh_Base* tDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
+                mDatabase->get_background_mesh(),
+                aOrder,
+                aBsplinePattern );
 
         return new Interpolation_Mesh_HMR(
                 mDatabase,
                 aOrder,
                 aLagrangePattern,
-                tDummyBSplineMeshes );
+                tDummyBSplineMesh );
     }
 
     // -----------------------------------------------------------------------------
