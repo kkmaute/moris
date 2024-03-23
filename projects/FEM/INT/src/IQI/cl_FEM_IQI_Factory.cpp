@@ -201,8 +201,10 @@ namespace moris
                     return std::make_shared< IQI_Jump_Traction >();
                 case IQI_Type::TRACTION:
                     return std::make_shared< IQI_Traction >();
-                case IQI_Type::CONTACT_PRESSURE:
-                    return std::make_shared< IQI_Contact_Pressure >();
+                case IQI_Type::CONTACT_PRESSURE_REFERENCE:
+                    return std::make_shared< IQI_Contact_Pressure >(true);
+                case IQI_Type::CONTACT_PRESSURE_CURRENT:
+                    return std::make_shared< IQI_Contact_Pressure >(false);
                 case IQI_Type::GAP:
                     return std::make_shared< IQI_Gap >();
 

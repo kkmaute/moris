@@ -25,6 +25,8 @@ namespace moris
 
         class IQI_Contact_Pressure : public IQI
         {
+            bool mInReferenceConfiguration = false;
+
             enum class IQI_Constitutive_Type
             {
                 TRACTION_CM,
@@ -38,7 +40,7 @@ namespace moris
             /*
              * constructor
              */
-            IQI_Contact_Pressure();
+            IQI_Contact_Pressure( bool aInReferenceConfiguration );
 
             //------------------------------------------------------------------------------
             /**

@@ -206,7 +206,8 @@ namespace moris
             JUMP_DOF,
             JUMP_TRACTION,
             TRACTION,
-            CONTACT_PRESSURE,
+            CONTACT_PRESSURE_REFERENCE,
+            CONTACT_PRESSURE_CURRENT,
 
             ADVECTION_STRONG_RESIDUAL,
             STRONG_RESIDUAL_SA,
