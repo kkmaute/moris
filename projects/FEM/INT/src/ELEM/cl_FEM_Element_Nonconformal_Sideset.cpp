@@ -22,19 +22,6 @@ namespace moris::fem
         return mIntegrationPointPairs.get_leader_coordinates().get_column( aGPIndex );
     }
 
-    Matrix< DDRMat > Element_Nonconformal_Sideset::get_leader_normal( uint aGPIndex ) const
-    {
-        Matrix<DDRMat > tNormalReference = mIntegrationPointPairs.get_reference_normals().get_column( aGPIndex );
-        Matrix< DDRMat > tNormalCurrent = mIntegrationPointPairs.get_normals().get_column( aGPIndex );
-
-        // set the custom normals (current and reference configuration) to the geometry interpolator
-        Geometry_Interpolator* tLeaderIGGI = mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IG_geometry_interpolator();
-        tLeaderIGGI->set_custom_normal_current(tNormalCurrent);
-        tLeaderIGGI->set_custom_normal( tNormalReference );
-
-        return tNormalReference;
-    }
-
     Matrix< DDRMat > Element_Nonconformal_Sideset::get_follower_integration_point( uint const aGPIndex ) const
     {
         return mIntegrationPointPairs.get_follower_coordinates().get_column( aGPIndex );

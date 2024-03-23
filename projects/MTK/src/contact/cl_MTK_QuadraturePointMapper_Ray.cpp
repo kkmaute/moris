@@ -86,7 +86,8 @@ namespace moris::mtk
             Matrix< DDRMat > const tVertexCoordinates      = tSurfaceMesh.get_vertex_coordinates_of_cell( iCell );
             Matrix< DDRMat > const tVertexNormals          = tSurfaceMesh.get_vertex_normals_of_cell( iCell );
             Matrix< DDRMat > const tReferenceVertexNormals = tReferenceSurfaceMesh.get_vertex_normals_of_cell( iCell );
-            //        Matrix< DDRMat > const tNormals = aSurfaceMesh.get_facet_normals();
+            Matrix< DDRMat > const tNormals                = tSurfaceMesh.get_facet_normals();
+            Matrix< DDRMat > const tReferenceNormals       = tReferenceSurfaceMesh.get_facet_normals();
 
             moris_index const tStartIndex = iCell * tNumRaysPerCell;
             for ( uint iPoint = 0; iPoint < tNumRaysPerCell; iPoint++ )
@@ -102,9 +103,8 @@ namespace moris::mtk
 
                 // get the interpolated coordinates and normals of the parametric point
                 tMappingResult.mSourcePhysicalCoordinate.set_column( tRayIndex, tVertexCoordinates * tNxi );
-                tMappingResult.mNormals.set_column( tRayIndex, tVertexNormals * tNxi );
-                tMappingResult.mReferenceNormals.set_column( tRayIndex, tReferenceVertexNormals * tNxi );
-                //            aMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( iCell ) );
+                tMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( iCell ) );
+                tMappingResult.mReferenceNormals.set_column( tStartIndex + iPoint, tReferenceNormals.get_column( iCell ) );
             }
         }
         return tMappingResult;

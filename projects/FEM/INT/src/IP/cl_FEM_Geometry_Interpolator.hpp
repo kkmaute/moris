@@ -112,9 +112,6 @@ namespace moris
              */
             optional< Matrix< DDRMat > > mDeformedNodes;
 
-            optional< Matrix< DDRMat > > mCustomNormal;
-            optional< Matrix< DDRMat > > mCustomNormalCurrent;
-
           private:
             // flag for mapping evaluation point
             bool mMapFlag = false;
@@ -594,48 +591,6 @@ namespace moris
              * @return a (n x 1) matrix containing the normal to the side in the current configuration.
              */
             Matrix< DDRMat > get_normal_current( Field_Interpolator* aFieldInterpolator );
-
-            void set_custom_normal( const Matrix< DDRMat >& aNormal )
-            {
-                mCustomNormal = aNormal;
-            };
-
-            void set_custom_normal_current( const Matrix< DDRMat >& aNormal )
-            {
-                mCustomNormalCurrent = aNormal;
-            };
-
-            /**
-             * @brief Returns whether a custom normal has been set for this geometry interpolator.
-             * @return True if a custom normal has been set, false otherwise.
-             */
-            bool has_custom_normal() const
-            {
-                return mCustomNormal.has_value();
-            };
-
-            /**
-             * @brief Returns whether a custom normal has been set for this geometry interpolator in the current configuration.
-             * @return True if a custom normal has been set, false otherwise.
-             */
-            bool has_custom_normal_current() const
-            {
-                return mCustomNormalCurrent.has_value();
-            };
-
-            /**
-             * @brief Returns the custom normal of this geometry interpolator. The custom normal can for example be set
-             * from a nonconformal sideset that uses linear interpolation to smoothen out the rays that are used to map
-             * the integration points onto the follower side. If the custom normal is not set, an error will be raised.
-             * @return
-             */
-            Matrix< DDRMat > get_custom_normal() const;
-
-            /**
-             * @brief Like get_custom_normal, but returns the custom normal in the current configuration.
-             * @return
-             */
-            Matrix< DDRMat > get_custom_normal_current() const;
 
             //------------------------------------------------------------------------------
             /**
